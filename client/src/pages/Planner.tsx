@@ -51,6 +51,14 @@ function withAlpha(oklch: string, alpha: number): string {
   return oklch.replace(")", ` / ${alpha})`);
 }
 
+/** Darkens an oklch() color by scaling its lightness, e.g. for hover/press fills. */
+function darkenOklch(oklch: string, factor: number): string {
+  const m = oklch.match(/^oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)/);
+  if (!m) return oklch;
+  const L = Math.max(0, parseFloat(m[1]) * factor);
+  return `oklch(${L.toFixed(3)} ${m[2]} ${m[3]})`;
+}
+
 const MODE_FILTER_COLORS: Record<string, string> = {
   Snoozed: "oklch(0.65 0.15 250)",
   Restraint: "oklch(0.65 0.12 15)",
@@ -547,6 +555,11 @@ export default function Planner() {
             // dot, and selected/today get a stronger fill + solid border.
             const tintAlpha = isSelected ? 0.55 : isToday ? 0.34 : 0.20;
             const accent = modeColor ?? "var(--color-foreground)";
+            const restingBg = hasMode
+              ? withAlpha(accent, tintAlpha)
+              : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
+            const hoverBg = hasMode ? darkenOklch(accent, 0.82) : "var(--color-secondary)";
+            const pressBg = hasMode ? darkenOklch(accent, 0.64) : "var(--color-border)";
 
             return (
               <button
@@ -555,20 +568,23 @@ export default function Planner() {
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
                   minHeight: "2.1rem",
-                  background: hasMode
-                    ? withAlpha(accent, tintAlpha)
-                    : (isSelected || isToday ? "var(--color-secondary)" : "transparent"),
+                  color: hasMode ? "var(--color-foreground)" : undefined,
+                  background: restingBg,
                   border: isSelected
                     ? `1.5px solid ${accent}`
                     : isToday
                     ? `1.5px solid ${withAlpha(accent, 0.55)}`
                     : "1px solid transparent",
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}
+                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
                 <span
                   className="text-xs"
                   style={{
-                    color: hasMode ? "var(--color-foreground)" : "var(--color-muted-foreground)",
+                    color: hasMode ? "inherit" : "var(--color-muted-foreground)",
                     fontWeight: isSelected || isToday ? 700 : 600,
                   }}
                 >
