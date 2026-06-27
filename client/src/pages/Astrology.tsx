@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { ChevronDown, Info } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -370,7 +370,9 @@ function NatalSection() {
       <SiderealNote />
 
       {/* Chart grid */}
-      <NatalChartGrid lagnaSign={subject.lagnaSign} natalBodies={subject.natalBodies} />
+      <div data-tour="natal-chart">
+        <NatalChartGrid lagnaSign={subject.lagnaSign} natalBodies={subject.natalBodies} />
+      </div>
 
       {/* Planet table */}
       <PlanetTable natalBodies={subject.natalBodies} />
@@ -428,7 +430,7 @@ function DashaSection() {
   const currentMaha = currentPeriod?.mahadasha ?? null;
 
   return (
-    <div className="space-y-3 pb-24">
+    <div className="space-y-3 pb-24" data-tour="dasha">
       <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
         {data.userName ? `${data.userName} · ` : ""}
         {data.lagnaSign ? `${data.lagnaSign} Lagna · ` : ""}
@@ -624,7 +626,7 @@ function ProfectionSection() {
   const { age, activatedHouse, activatedSign, timeLord, yearStart, yearEnd, lagnaSign } = prof;
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 pb-24" data-tour="profection">
       <p className="text-xs" style={{ color: TEXT_MUTED }}>
         {lagnaSign} Lagna · Age {age} · {yearStart} to {yearEnd}
       </p>
@@ -663,7 +665,7 @@ function ProfectionSection() {
       )}
 
       {/* Current Time Lord Movement — immersive gradient */}
-      <div className="overflow-hidden" style={{ borderRadius: "20px", background: tlGradient }}>
+      <div data-tour="time-lord-transits" className="overflow-hidden" style={{ borderRadius: "20px", background: tlGradient }}>
         <button className="w-full flex items-center justify-between px-4 py-3" onClick={() => setTlOpen((v) => !v)}>
           <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
             Current Time Lord Movement
@@ -762,6 +764,16 @@ const TABS: { id: Tab; label: string }[] = [
 export default function Astrology() {
   const [tab, setTab] = useState<Tab>("natal");
   const modeColor = useDayModeColor();
+
+  // The guided tour drives the active tab as it walks through the chart.
+  useEffect(() => {
+    const onTab = (e: Event) => {
+      const next = (e as CustomEvent).detail as Tab;
+      if (next === "natal" || next === "profection" || next === "dasha") setTab(next);
+    };
+    window.addEventListener("kala-tour-tab", onTab);
+    return () => window.removeEventListener("kala-tour-tab", onTab);
+  }, []);
 
   return (
     <div className="min-h-screen">

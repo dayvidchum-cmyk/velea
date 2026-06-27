@@ -90,6 +90,18 @@ export default function Home() {
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
+
+  // Let the guided tour open the synthesis sections so they're visible while
+  // they're being explained.
+  useEffect(() => {
+    const onExpand = (e: Event) => {
+      const which = (e as CustomEvent).detail;
+      if (which === "why") setWhyOpen(true);
+      if (which === "timelord") setTlOpen(true);
+    };
+    window.addEventListener("kala-tour-expand", onExpand);
+    return () => window.removeEventListener("kala-tour-expand", onExpand);
+  }, []);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
   const [dueSheetOpen, setDueSheetOpen] = useState(false);
   const [editPinnedTask, setEditPinnedTask] = useState<Task | null>(null);
@@ -437,6 +449,7 @@ export default function Home() {
           : 'var(--card)';
         return (
           <div
+            data-tour="time-lord"
             className="overflow-hidden"
             style={{
               borderRadius: '20px',

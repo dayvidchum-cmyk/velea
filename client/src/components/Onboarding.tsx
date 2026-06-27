@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
+import { useLocation } from "wouter";
 import { Sparkles, Sun, Compass, X, ArrowRight, ArrowLeft } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 
@@ -51,23 +52,68 @@ type TourStep = {
   selector: string;
   title: string;
   body: string;
+  /** Navigate here before showing the step (if not already there). */
+  route?: string;
+  /** Switch the Chart page tab via a window event. */
+  tab?: "natal" | "profection" | "dasha";
+  /** Open a collapsible synthesis section on Today via a window event. */
+  expand?: "why" | "timelord";
 };
 
 const TOUR: TourStep[] = [
   {
+    route: "/",
     selector: '[data-tour="today-mode"]',
-    title: "Your day mode",
-    body: "Kala distills today's sky into one instruction. Read this first each morning — it sets the tone for everything else.",
+    expand: "why",
+    title: "How Kala thinks",
+    body: "This card is the whole engine in one place. Kala reads today's sky — moon sign, nakshatra, tithi, and the ruling time lord — and synthesizes it into a single mode for your day. Tap “see full breakdown” to follow the reasoning step by step.",
   },
   {
+    route: "/",
+    selector: '[data-tour="time-lord"]',
+    expand: "timelord",
+    title: "Time Lord Movement",
+    body: "Vedic time moves in planetary chapters called “time lords.” This shows which planets govern your moment and how today's transiting planets press on them — the deeper current beneath your mode.",
+  },
+  {
+    route: "/",
     selector: '[data-tour="current-state"]',
     title: "Tune your day",
-    body: "Tell Kala where you are and how you're feeling. It adjusts your guidance to match.",
+    body: "Tell Kala where you are and how you're feeling. It folds that into the guidance so it fits your real day.",
   },
   {
-    selector: '[data-tour="chart-nav"]',
-    title: "Go deeper here",
-    body: "Your full birth chart, this year's focus, and the planetary chapter you're living through all live under Chart. Explore whenever you're curious.",
+    route: "/astrology",
+    tab: "natal",
+    selector: '[data-tour="natal-chart"]',
+    title: "Your birth chart",
+    body: "The sky at the moment you were born, in the Vedic (sidereal) zodiac. Your signs may differ from Western astrology — the note above the chart explains why.",
+  },
+  {
+    route: "/astrology",
+    tab: "profection",
+    selector: '[data-tour="profection"]',
+    title: "This year's focus",
+    body: "Profection points to the area of life that's lit up for you this year, and the planet running the show — your annual headline.",
+  },
+  {
+    route: "/astrology",
+    tab: "profection",
+    selector: '[data-tour="time-lord-transits"]',
+    title: "Where the pressure comes from",
+    body: "Here's the source of the daily nudge: how slow-moving planets are currently touching the lords of your time periods. This is what tilts your mode day to day.",
+  },
+  {
+    route: "/astrology",
+    tab: "dasha",
+    selector: '[data-tour="dasha"]',
+    title: "Your life chapter",
+    body: "Dasha is the long arc — the multi-year planetary periods you're living through. It colors the whole season of your life beneath everything else.",
+  },
+  {
+    route: "/",
+    selector: '[data-tour="today-mode"]',
+    title: "Start here each day",
+    body: "That's the full picture. Day to day you only need Today — everything else is here whenever you want to understand the “why.” Enjoy.",
   },
 ];
 
@@ -260,8 +306,31 @@ function TourLayer({
   const [rect, setRect] = useState<Rect | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const [tipSize, setTipSize] = useState<{ w: number; h: number }>({ w: 300, h: 170 });
+  const [location, navigate] = useLocation();
   const step = TOUR[index];
   const isLast = index === TOUR.length - 1;
+
+  // Drive the app to the right place for this step: navigate routes, switch the
+  // Chart tab, and open Today's collapsible synthesis sections.
+  useEffect(() => {
+    if (step.route && location !== step.route) {
+      navigate(step.route);
+    }
+    // Tab + expand are window events the pages listen for. The destination page
+    // may mount its listener slightly after navigation, so fire a few times.
+    const fire = () => {
+      if (step.tab) {
+        window.dispatchEvent(new CustomEvent("kala-tour-tab", { detail: step.tab }));
+      }
+      if (step.expand) {
+        window.dispatchEvent(new CustomEvent("kala-tour-expand", { detail: step.expand }));
+      }
+    };
+    const delays = step.route && location !== step.route ? [120, 350, 650, 1000] : [0, 200];
+    const timers = delays.map((d) => setTimeout(fire, d));
+    return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
 
   const measure = useCallback(() => {
     const el = document.querySelector(step.selector) as HTMLElement | null;
@@ -273,10 +342,16 @@ function TourLayer({
     setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
   }, [step.selector]);
 
-  // When the step changes, bring the target into view first, then measure.
+  // When the step changes, bring the target into view (scrolling if needed) and
+  // measure it. The target may mount late — after navigation, a tab switch, or a
+  // data fetch — so we retry over ~1.6s, scrolling it into view once it appears.
   useLayoutEffect(() => {
-    const el = document.querySelector(step.selector) as HTMLElement | null;
-    if (el) {
+    const sync = () => {
+      const el = document.querySelector(step.selector) as HTMLElement | null;
+      if (!el) {
+        setRect(null);
+        return;
+      }
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight;
       // Fixed elements (e.g. the bottom nav) are always in view — never scroll
@@ -292,10 +367,11 @@ function TourLayer({
       if (!isFixed && (r.top < 80 || r.bottom > vh - 80)) {
         el.scrollIntoView({ block: "center", behavior: "smooth" });
       }
-    }
-    measure();
-    // Re-measure a few times while smooth-scroll / fonts settle.
-    const timers = [80, 200, 400].map((d) => setTimeout(measure, d));
+      measure();
+    };
+
+    sync();
+    const timers = [80, 250, 500, 900, 1400].map((d) => setTimeout(sync, d));
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
@@ -303,7 +379,7 @@ function TourLayer({
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
-  }, [measure, step.selector]);
+  }, [measure, step.selector, index]);
 
   // Keep the measured tooltip size in sync so we can clamp it on-screen.
   useLayoutEffect(() => {
