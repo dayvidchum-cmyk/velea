@@ -245,7 +245,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
           gridTemplateColumns: COLS,
           padding: "0.5rem 0.75rem",
           gap: "0.5rem",
-          background: `linear-gradient(90deg, ${modeColor} 0%, ${ROSE_OCHRE} 100%)`,
+          background: `linear-gradient(120deg, ${modeColor} 0%, ${ROSE_OCHRE} 100%)`,
         }}
       >
         {headers.map((label) => (
