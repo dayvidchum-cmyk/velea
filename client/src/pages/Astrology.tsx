@@ -235,16 +235,17 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
   const COLS = "1.3fr 1fr 0.7fr 1.5fr 0.7fr";
   const headers = ["Planet", "Sign", "House", "Nakshatra", "Pada"];
 
+  const ROSE_OCHRE = "#BC886F";
   return (
-    <div style={{ borderRadius: "0.75rem", overflow: "hidden", border: `1px solid ${modeColor}` }}>
-      {/* Header — tinted with the current day mode color */}
+    <div style={{ borderRadius: "0.75rem", overflow: "hidden", border: `1px solid ${ROSE_OCHRE}` }}>
+      {/* Header — day-mode tone warming into the Build hero's rose-ochre. */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: COLS,
           padding: "0.5rem 0.75rem",
           gap: "0.5rem",
-          background: modeColor,
+          background: `linear-gradient(90deg, ${modeColor} 0%, ${ROSE_OCHRE} 100%)`,
         }}
       >
         {headers.map((label) => (
@@ -263,6 +264,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
             padding: "0.5rem 0.75rem",
             gap: "0.5rem",
             alignItems: "center",
+            background: i % 2 === 1 ? `color-mix(in srgb, ${ROSE_OCHRE} 9%, transparent)` : "transparent",
             borderBottom: i < sorted.length - 1 ? "1px solid var(--color-border)" : "none",
           }}
         >

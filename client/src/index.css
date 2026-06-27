@@ -98,7 +98,9 @@
      mode's mid tone (never the pale highlight) so white text stays legible even
      when only the top of the gradient is visible. */
   --kala-action-card-gradient: linear-gradient(180deg, #4b805c 0%, #3a6448 55%, #284734 100%);
-  --kala-build-card-gradient: linear-gradient(180deg, #c9a531 0%, #a3812a 55%, #6f5820 100%);
+  /* Build cards warm into the rose-ochre (#BC886F) of the Build hero at the bottom. */
+  --kala-rose-ochre: #BC886F;
+  --kala-build-card-gradient: linear-gradient(180deg, #c9a531 0%, #b0863a 38%, #a8775a 72%, #8a5f52 100%);
   --kala-selective-card-gradient: linear-gradient(180deg, #3c97a0 0%, #2f7d86 55%, #235e66 100%);
   --kala-restraint-card-gradient: linear-gradient(180deg, #c2666c 0%, #9c525b 55%, #5f343b 100%);
 }
