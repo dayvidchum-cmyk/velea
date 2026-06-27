@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import { Sparkles, Sun, Compass, X, ArrowRight, ArrowLeft } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 
@@ -258,6 +258,8 @@ function TourLayer({
   onFinish: () => void;
 }) {
   const [rect, setRect] = useState<Rect | null>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
+  const [tipSize, setTipSize] = useState<{ w: number; h: number }>({ w: 300, h: 170 });
   const step = TOUR[index];
   const isLast = index === TOUR.length - 1;
 
@@ -271,18 +273,45 @@ function TourLayer({
     setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
   }, [step.selector]);
 
+  // When the step changes, bring the target into view first, then measure.
   useLayoutEffect(() => {
+    const el = document.querySelector(step.selector) as HTMLElement | null;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      // Fixed elements (e.g. the bottom nav) are always in view — never scroll
+      // for them. For normal content, only scroll when it's near an edge.
+      const isFixed = (() => {
+        let node: HTMLElement | null = el;
+        while (node) {
+          if (getComputedStyle(node).position === "fixed") return true;
+          node = node.parentElement;
+        }
+        return false;
+      })();
+      if (!isFixed && (r.top < 80 || r.bottom > vh - 80)) {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    }
     measure();
-    // Re-measure shortly after, in case layout/fonts settle.
-    const t = setTimeout(measure, 120);
+    // Re-measure a few times while smooth-scroll / fonts settle.
+    const timers = [80, 200, 400].map((d) => setTimeout(measure, d));
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
-      clearTimeout(t);
+      timers.forEach(clearTimeout);
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
-  }, [measure]);
+  }, [measure, step.selector]);
+
+  // Keep the measured tooltip size in sync so we can clamp it on-screen.
+  useLayoutEffect(() => {
+    if (tipRef.current) {
+      const r = tipRef.current.getBoundingClientRect();
+      setTipSize({ w: r.width, h: r.height });
+    }
+  }, [index, rect]);
 
   const next = () => (isLast ? onFinish() : setIndex(index + 1));
   const back = () => setIndex(Math.max(0, index - 1));
@@ -298,9 +327,31 @@ function TourLayer({
       }
     : null;
 
-  // Decide whether the tooltip sits above or below the target.
+  // Position the tooltip relative to the hole, then clamp it inside the
+  // viewport so it can never land off-screen behind the scroll-locked overlay.
+  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-  const placeBelow = hole ? hole.top + hole.height < vh * 0.6 : true;
+  const gap = 14;
+  const margin = 12;
+
+  let tipTop: number;
+  let tipLeft: number;
+  if (hole) {
+    const below = hole.top + hole.height + gap;
+    const above = hole.top - gap - tipSize.h;
+    if (below + tipSize.h <= vh - margin) {
+      tipTop = below; // fits below the target
+    } else if (above >= margin) {
+      tipTop = above; // otherwise above
+    } else {
+      tipTop = vh - tipSize.h - margin; // last resort: pin to bottom
+    }
+    tipTop = Math.min(Math.max(margin, tipTop), Math.max(margin, vh - tipSize.h - margin));
+    tipLeft = Math.min(Math.max(margin, hole.left), Math.max(margin, vw - tipSize.w - margin));
+  } else {
+    tipTop = Math.max(margin, (vh - tipSize.h) / 2);
+    tipLeft = Math.max(margin, (vw - tipSize.w) / 2);
+  }
 
   return (
     <div className="fixed inset-0 z-[120]" style={{ pointerEvents: "auto" }}>
@@ -325,21 +376,15 @@ function TourLayer({
 
       {/* Tooltip card */}
       <div
-        className="absolute px-5 py-4 rounded-2xl max-w-[300px]"
+        ref={tipRef}
+        className="absolute px-5 py-4 rounded-2xl w-[300px] max-w-[calc(100vw-24px)]"
         style={{
-          ...(hole
-            ? placeBelow
-              ? { top: hole.top + hole.height + 14 }
-              : { top: Math.max(16, hole.top - 14), transform: "translateY(-100%)" }
-            : { top: "50%", transform: "translateY(-50%)" }),
-          left: hole
-            ? Math.min(Math.max(16, hole.left), (typeof window !== "undefined" ? window.innerWidth : 400) - 316)
-            : 16,
-          right: hole ? undefined : 16,
-          margin: hole ? undefined : "0 auto",
+          top: tipTop,
+          left: tipLeft,
           background: "var(--color-card)",
           border: "1px solid var(--color-border)",
           boxShadow: "0 16px 48px rgba(0,0,0,0.4)",
+          transition: "top 200ms ease, left 200ms ease",
         }}
       >
         <h3 className="text-sm font-bold mb-1" style={{ color: accent }}>
