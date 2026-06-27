@@ -78,6 +78,7 @@
     "swisseph-wasm": "^0.0.5",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
+    "tz-lookup": "^6.1.25",
     "vaul": "^1.1.2",
     "wouter": "^3.3.5",
     "zod": "^4.1.12"

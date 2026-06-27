@@ -56,6 +56,7 @@ import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
 import { scoreTasks } from "./task-scorer.js";
 import { getCurrentLayers } from "./layers/index.js";
 import { rateLimit } from "./_core/rateLimit.js";
+import { timezoneForCoords } from "./geo/timezone.js";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { profectionRouter } from "./profection/router.js";
@@ -448,6 +449,15 @@ export const appRouter = router({
         timezone: user.locationTimezone ?? null,
       };
     }),
+
+    // Resolve the IANA timezone for a coordinate (offline, no key). Used to
+    // auto-fill the birth timezone once a location is geocoded.
+    resolveTimezone: protectedProcedure
+      .input(z.object({ lat: z.string(), lon: z.string() }))
+      .query(({ input }) => {
+        const tz = timezoneForCoords(parseFloat(input.lat), parseFloat(input.lon));
+        return { timezone: tz };
+      }),
 
     setLocation: protectedProcedure
       .input(

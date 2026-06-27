@@ -124,6 +124,7 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew }: ProfileFormPr
   const [form, setForm] = useState<ProfileFormData>({ ...EMPTY_FORM, ...initial });
   const [makeActive, setMakeActive] = useState(isNew ?? false);
   const [geocoding, setGeocoding] = useState(false);
+  const utils = trpc.useUtils();
 
   const set = (field: keyof ProfileFormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -165,6 +166,17 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew }: ProfileFormPr
         birthLocationCity: shortName || f.birthLocationCity,
       }));
       toast.success(`Coordinates found: ${lat}, ${lon}`);
+
+      // Auto-fill the timezone from the resolved coordinates (offline lookup).
+      try {
+        const { timezone } = await utils.settings.resolveTimezone.fetch({ lat, lon });
+        if (timezone) {
+          setForm((f) => ({ ...f, birthTimezone: timezone }));
+          toast.success(`Timezone set: ${timezone}`, { duration: 1500 });
+        }
+      } catch {
+        // Non-fatal — the user can still pick a timezone manually.
+      }
     } catch (err: any) {
       toast.error(err?.message || "Geocoding failed. Check your connection.");
     } finally {
@@ -261,7 +273,10 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew }: ProfileFormPr
           onChange={set("birthTimezone")}
           className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
         >
-          {COMMON_TIMEZONES.map((tz) => (
+          {(form.birthTimezone && !COMMON_TIMEZONES.includes(form.birthTimezone)
+            ? [form.birthTimezone, ...COMMON_TIMEZONES]
+            : COMMON_TIMEZONES
+          ).map((tz) => (
             <option key={tz} value={tz}>{tz}</option>
           ))}
         </select>
