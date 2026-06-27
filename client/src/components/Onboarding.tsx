@@ -13,6 +13,16 @@ import { useDayModeColor } from "@/hooks/useDayModeColor";
 
 const STORAGE_PREFIX = "kala_onboard_v1_";
 
+/** Clear the seen-flag so the intro + tour run again next time Today opens. */
+export function resetOnboarding(userId: number | string | null | undefined) {
+  if (userId == null) return;
+  try {
+    localStorage.removeItem(`${STORAGE_PREFIX}${userId}`);
+  } catch {
+    /* ignore */
+  }
+}
+
 type Props = {
   /** Only run when the user is on Today, authenticated, and has birth data. */
   active: boolean;

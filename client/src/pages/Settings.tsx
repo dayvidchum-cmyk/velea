@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, Users, RefreshCw } from "lucide-react";
-import { Link } from "wouter";
+import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, Users, RefreshCw, Compass } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { resetOnboarding } from "@/components/Onboarding";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import type { SettingsState, TodayTaskLimit } from "@/hooks/useSettings";
 import { toast } from "sonner";
@@ -408,6 +410,14 @@ function _AstrologyDebugPanel_UNUSED() {
 
 export default function Settings() {
   const { settings, updateSetting, saveSettings } = useSettingsContext();
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
+
+  function handleReplayIntro() {
+    resetOnboarding(user?.id);
+    toast.success("Replaying the intro…");
+    navigate("/");
+  }
 
   const logoutMutation = trpc.auth.logout.useMutation();
   const logoutOthersMutation = trpc.auth.logoutOtherSessions.useMutation({
@@ -565,6 +575,29 @@ export default function Settings() {
             />
           </SettingRow>
 
+        </SettingsSection>
+
+        {/* ── Help ──────────────────────────────────────────────────── */}
+        <SettingsSection title="Help">
+          <div className="flex items-center justify-between py-4">
+            <div className="pr-4">
+              <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
+                Replay the intro
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
+                Show the welcome cards and guided tour again from the Today screen.
+              </p>
+            </div>
+            <Button
+              onClick={handleReplayIntro}
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0 gap-1.5"
+            >
+              <Compass size={14} />
+              Replay
+            </Button>
+          </div>
         </SettingsSection>
 
         {/* ── Account ───────────────────────────────────────────────── */}
