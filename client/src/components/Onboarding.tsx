@@ -1,6 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, Sun, Compass, X, ArrowRight, ArrowLeft } from "lucide-react";
+import { Sparkles, Sun, Compass, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 
 /**
@@ -306,6 +306,9 @@ function TourLayer({
   const [rect, setRect] = useState<Rect | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const [tipSize, setTipSize] = useState<{ w: number; h: number }>({ w: 300, h: 170 });
+  // While a step's target hasn't mounted yet (data still loading after a tab
+  // switch), show a loading beat instead of an empty centered tooltip.
+  const [waiting, setWaiting] = useState(true);
   const [location, navigate] = useLocation();
   const step = TOUR[index];
   const isLast = index === TOUR.length - 1;
@@ -344,13 +347,17 @@ function TourLayer({
 
   // When the step changes, bring the target into view (scrolling if needed) and
   // measure it. The target may mount late — after navigation, a tab switch, or a
-  // data fetch — so we retry over ~1.6s, scrolling it into view once it appears.
+  // data fetch — so we poll until it appears, showing a loading beat meanwhile.
   useLayoutEffect(() => {
-    const sync = () => {
+    let pollId: ReturnType<typeof setInterval> | null = null;
+    let settleTimers: ReturnType<typeof setTimeout>[] = [];
+
+    // Returns true once the target exists (and has been measured).
+    const tryMeasure = () => {
       const el = document.querySelector(step.selector) as HTMLElement | null;
       if (!el) {
         setRect(null);
-        return;
+        return false;
       }
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight;
@@ -368,14 +375,40 @@ function TourLayer({
         el.scrollIntoView({ block: "center", behavior: "smooth" });
       }
       measure();
+      return true;
     };
 
-    sync();
-    const timers = [80, 250, 500, 900, 1400].map((d) => setTimeout(sync, d));
+    const onFound = () => {
+      setWaiting(false);
+      // Re-measure a few times to catch expand/scroll animations settling.
+      settleTimers = [120, 350, 700].map((d) => setTimeout(measure, d));
+    };
+
+    if (tryMeasure()) {
+      onFound();
+    } else {
+      setWaiting(true);
+      let attempts = 0;
+      pollId = setInterval(() => {
+        attempts += 1;
+        if (tryMeasure()) {
+          if (pollId) clearInterval(pollId);
+          pollId = null;
+          onFound();
+        } else if (attempts >= 50) {
+          // ~7.5s elapsed — give up and let the centered fallback show.
+          if (pollId) clearInterval(pollId);
+          pollId = null;
+          setWaiting(false);
+        }
+      }, 150);
+    }
+
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
-      timers.forEach(clearTimeout);
+      if (pollId) clearInterval(pollId);
+      settleTimers.forEach(clearTimeout);
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
@@ -427,6 +460,37 @@ function TourLayer({
   } else {
     tipTop = Math.max(margin, (vh - tipSize.h) / 2);
     tipLeft = Math.max(margin, (vw - tipSize.w) / 2);
+  }
+
+  // Loading beat — the step's panel is still mounting/fetching.
+  if (waiting) {
+    return (
+      <div
+        className="fixed inset-0 z-[120] flex items-center justify-center"
+        style={{ background: "rgba(0,0,0,0.62)", pointerEvents: "auto" }}
+      >
+        <div
+          className="flex flex-col items-center gap-3 px-7 py-6 rounded-2xl"
+          style={{
+            background: "var(--color-card)",
+            border: "1px solid var(--color-border)",
+            boxShadow: "0 16px 48px rgba(0,0,0,0.4)",
+          }}
+        >
+          <Loader2 size={22} className="animate-spin" style={{ color: accent }} />
+          <p className="text-xs font-medium" style={{ color: "var(--color-muted-foreground)" }}>
+            Loading your chart…
+          </p>
+        </div>
+        <button
+          onClick={onFinish}
+          className="absolute top-5 right-5 text-xs font-semibold px-3 py-1.5 rounded-full"
+          style={{ background: "rgba(0,0,0,0.4)", color: "#fff" }}
+        >
+          Skip tour
+        </button>
+      </div>
+    );
   }
 
   return (
