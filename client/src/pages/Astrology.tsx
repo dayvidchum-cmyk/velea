@@ -138,8 +138,8 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
     <svg viewBox="0 0 300 300" style={{ width: "100%", aspectRatio: "1/1", display: "block", border: "1px solid rgba(168,130,52,0.55)", borderRadius: "0.75rem" }}>
       <defs>
         <linearGradient id="parchmentBg" x1="0" y1="0" x2="0.4" y2="1">
-          <stop offset="0%" stopColor="#FCF7EA" />
-          <stop offset="100%" stopColor="#F5EDD8" />
+          <stop offset="0%" stopColor="#FEFCF7" />
+          <stop offset="100%" stopColor="#FBF6EA" />
         </linearGradient>
       </defs>
       <rect width="300" height="300" fill="url(#parchmentBg)" />
@@ -729,6 +729,18 @@ export default function Astrology() {
                 background: tab === id ? `color-mix(in srgb, ${modeColor} 15%, var(--color-card))` : "transparent",
                 color: tab === id ? modeColor : "var(--color-muted-foreground)",
                 border: tab === id ? `1px solid ${modeColor}` : "1px solid transparent",
+              }}
+              onMouseEnter={(e) => {
+                if (tab === id) return;
+                e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 8%, transparent)`;
+                e.currentTarget.style.color = modeColor;
+                e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 40%, transparent)`;
+              }}
+              onMouseLeave={(e) => {
+                if (tab === id) return;
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "var(--color-muted-foreground)";
+                e.currentTarget.style.borderColor = "transparent";
               }}
             >
               {label}

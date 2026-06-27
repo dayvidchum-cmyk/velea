@@ -242,8 +242,16 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLocationSheetOpen(true)}
-              className="flex items-center gap-1 transition-opacity hover:opacity-70"
-              style={{ color: modeColor }}
+              className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"
+              style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
+                e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "transparent";
+              }}
             >
               <MapPin size={11} />
               <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
@@ -252,9 +260,17 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
             </button>
             <button
                 onClick={() => setCheckInSheetOpen(true)}
-                className="flex items-center gap-1 transition-opacity hover:opacity-70"
-                style={{ color: modeColor }}
+                className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"
+                style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
                 title="Update current state"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
+                  e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "transparent";
+                }}
               >
                 <RefreshCw size={11} />
                 <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
