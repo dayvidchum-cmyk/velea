@@ -47,6 +47,14 @@ const { user, loading } = useAuth();
     }
   }, [user]);
 
+  // New users have an (empty) owner profile but no birth data yet. Until they
+  // add it, the astrology features are blank — so route them to Profiles to
+  // finish onboarding instead of dropping them on a half-empty Home.
+  const { data: subject, isLoading: subjectLoading } = trpc.profiles.getSubject.useQuery(undefined, {
+    enabled: !!user,
+  });
+  const needsBirthData = !!user && !subjectLoading && !subject?.birthDate;
+
   // Derive today's mode for FAB pre-tagging
   const { data: todayPanchang } = trpc.panchang.today.useQuery(undefined, {
     enabled: !!user,
@@ -74,6 +82,12 @@ const { user, loading } = useAuth();
   // Redirect from login to home if authenticated
   if (user && location.startsWith("/login")) {
     return <Redirect to="/" />;
+  }
+
+  // New user with no birth data → onboard via Profiles (only intercept Home,
+  // so they can still reach Settings/other pages if they want).
+  if (needsBirthData && location === "/") {
+    return <Redirect to="/profiles" />;
   }
 
   return (

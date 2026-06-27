@@ -129,46 +129,45 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew }: ProfileFormPr
     setForm((f) => ({ ...f, [field]: e.target.value }));
 
   async function handleGeocode() {
-    if (!form.birthLocationCity.trim()) return;
+    const query = form.birthLocationCity.trim();
+    if (!query) return;
     setGeocoding(true);
     try {
-      // Load Maps script via Forge proxy if not already loaded
-      if (!(window as any).google?.maps?.Geocoder) {
-        const API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
-        const FORGE_BASE_URL = import.meta.env.VITE_FRONTEND_FORGE_API_URL || "https://forge.butterfly-effect.dev";
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = `${FORGE_BASE_URL}/v1/maps/proxy/maps/api/js?key=${API_KEY}&v=weekly&libraries=geocoding`;
-          script.async = true;
-          script.crossOrigin = "anonymous";
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load Maps"));
-          document.head.appendChild(script);
-        });
+      // OpenStreetMap Nominatim — free, no key. Rate limit ~1 req/sec; this is a
+      // one-shot button press, so we stay well under it. CORS is allowed.
+      const url = new URL("https://nominatim.openstreetmap.org/search");
+      url.searchParams.set("q", query);
+      url.searchParams.set("format", "jsonv2");
+      url.searchParams.set("limit", "1");
+      url.searchParams.set("addressdetails", "1");
+
+      const res = await fetch(url.toString(), { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error(`Geocoder error (${res.status})`);
+      const data = await res.json();
+      const hit = Array.isArray(data) ? data[0] : null;
+
+      if (!hit) {
+        toast.error("Location not found. Try a more specific city name.");
+        return;
       }
-      const geocoder = new (window as any).google.maps.Geocoder();
-      geocoder.geocode({ address: form.birthLocationCity }, (results: any, status: any) => {
-        if (status === "OK" && results?.[0]) {
-          const loc = results[0].geometry.location;
-          const lat = loc.lat().toFixed(6);
-          const lon = loc.lng().toFixed(6);
-          const formatted = results[0].formatted_address;
-          setForm((f) => ({
-            ...f,
-            birthLocationLat: lat,
-            birthLocationLon: lon,
-            birthLocationCity: formatted
-              ? formatted.split(',').slice(0, 2).join(',').trim()
-              : f.birthLocationCity,
-          }));
-          toast.success(`Coordinates found: ${lat}, ${lon}`);
-        } else {
-          toast.error("Location not found. Try a more specific city name.");
-        }
-        setGeocoding(false);
-      });
+
+      const lat = parseFloat(hit.lat).toFixed(6);
+      const lon = parseFloat(hit.lon).toFixed(6);
+      const shortName =
+        typeof hit.display_name === "string"
+          ? hit.display_name.split(",").slice(0, 2).join(",").trim()
+          : query;
+
+      setForm((f) => ({
+        ...f,
+        birthLocationLat: lat,
+        birthLocationLon: lon,
+        birthLocationCity: shortName || f.birthLocationCity,
+      }));
+      toast.success(`Coordinates found: ${lat}, ${lon}`);
     } catch (err: any) {
       toast.error(err?.message || "Geocoding failed. Check your connection.");
+    } finally {
       setGeocoding(false);
     }
   }
@@ -557,6 +556,9 @@ export default function Profiles() {
 
   const { data: profileList = [], isLoading } = trpc.profiles.list.useQuery();
 
+  // True for a brand-new user whose profile(s) have no birth date yet.
+  const needsBirthData = !isLoading && !profileList.some((p: any) => p.birthDate);
+
   const [mode, setMode] = useState<"list" | "create" | "edit">("list");
   const [editingProfile, setEditingProfile] = useState<any>(null);
   const [saving, setSaving] = useState(false);
@@ -716,6 +718,27 @@ export default function Profiles() {
     <div className="min-h-screen pb-32">
       <div className="container py-6 space-y-5">
         <AppHeader pageTitle={mode === "create" ? "New Profile" : mode === "edit" ? "Edit Profile" : "Profiles"} />
+
+        {mode === "list" && needsBirthData && (
+          <div
+            className="rounded-2xl p-4 flex items-start gap-3"
+            style={{
+              background: "color-mix(in srgb, #C9A84C 14%, var(--color-card))",
+              border: "1px solid color-mix(in srgb, #C9A84C 45%, transparent)",
+            }}
+          >
+            <Star size={18} style={{ color: "#C9A84C", flexShrink: 0, marginTop: "2px" }} />
+            <div>
+              <p className="text-sm font-bold" style={{ color: "var(--color-foreground)" }}>
+                Add your birth details to get started
+              </p>
+              <p className="text-xs mt-0.5 leading-snug" style={{ color: "var(--color-muted-foreground)" }}>
+                Kala reads your chart from your birth date, time, and place. Tap your profile below (or “New”) to add them.
+              </p>
+            </div>
+          </div>
+        )}
+
         {mode === "list" && (
           <div className="flex justify-end -mt-2 mb-2">
             <Button size="sm" className="h-8 px-3 text-xs" onClick={() => setMode("create")}>
