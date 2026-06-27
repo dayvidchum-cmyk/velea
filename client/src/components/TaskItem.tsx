@@ -123,6 +123,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
   });
 
   const [showSnoozeOptions, setShowSnoozeOptions] = useState(false);
+  const [showBarSnooze, setShowBarSnooze] = useState(false);
   const isSnoozed = task.snoozedUntil && task.snoozedUntil > Date.now();
 
   useEffect(() => {
@@ -253,6 +254,52 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
         {/* Pin indicator */}
         {task.isPinned && (
           <Pin size={12} style={{ color: "rgba(var(--ink),0.45)", flexShrink: 0 }} />
+        )}
+
+        {/* Snooze / Unsnooze — quick access without expanding the task */}
+        {!task.isCompleted && (
+          isSnoozed ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); unsnoozeTask.mutate({ id: task.id }); }}
+              className="flex-shrink-0 p-1"
+              style={{ color: "rgba(var(--ink),0.7)" }}
+              aria-label="Unsnooze task"
+            >
+              <AlarmClockOff size={14} />
+            </button>
+          ) : (
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowBarSnooze((v) => !v); }}
+                className="p-1"
+                style={{ color: showBarSnooze ? "rgba(var(--ink),1)" : "rgba(var(--ink),0.7)" }}
+                aria-label="Snooze task"
+              >
+                <Clock size={14} />
+              </button>
+              {showBarSnooze && (
+                <div
+                  className="absolute top-full right-0 mt-1 rounded-lg shadow-lg border p-1 z-50 min-w-[120px]"
+                  style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}
+                >
+                  <button
+                    onClick={() => { snoozeTask.mutate({ id: task.id, duration: "1hour" }); setShowBarSnooze(false); }}
+                    className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
+                    style={{ color: "var(--color-foreground)" }}
+                  >
+                    1 hour
+                  </button>
+                  <button
+                    onClick={() => { snoozeTask.mutate({ id: task.id, duration: "restOfDay" }); setShowBarSnooze(false); }}
+                    className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
+                    style={{ color: "var(--color-foreground)" }}
+                  >
+                    Rest of day
+                  </button>
+                </div>
+              )}
+            </div>
+          )
         )}
 
         {/* Expand toggle */}
