@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useDayModeColor } from "@/hooks/useDayModeColor";
 import {
   BookOpen,
   CalendarDays,
@@ -15,9 +16,6 @@ import {
   Users,
   CircleDot,
 } from "lucide-react";
-
-// Kala brand gold — matches the wordmark on the login page
-const GOLD = "#C9A84C";
 
 const PRIMARY_NAV = [
   { path: "/astrology", label: "Chart", icon: CircleDot },
@@ -36,6 +34,9 @@ export default function BottomNav() {
   const [location, navigate] = useLocation();
   const [exploreOpen, setExploreOpen] = useState(false);
   const { user } = useAuth();
+  // Active + hover accent follows today's day mode, so the nav reinforces
+  // "today is a Build/Action/Restraint day" on every page.
+  const accent = useDayModeColor();
   const isAdmin = user?.role === "admin";
   const visibleExploreItems = EXPLORE_ITEMS.filter(
     (item) => item.path !== "/profiles" || isAdmin
@@ -165,7 +166,7 @@ export default function BottomNav() {
                       ? `1px solid var(--filter-pill-border-active)`
                       : "1px solid var(--color-border)",
                   }}
-                  onMouseEnter={(e) => { if (!active) { e.currentTarget.style.color = GOLD; e.currentTarget.style.borderColor = GOLD; } }}
+                  onMouseEnter={(e) => { if (!active) { e.currentTarget.style.color = accent; e.currentTarget.style.borderColor = accent; } }}
                   onMouseLeave={(e) => { if (!active) { e.currentTarget.style.color = "var(--color-foreground)"; e.currentTarget.style.borderColor = "var(--color-border)"; } }}
                 >
                   <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
@@ -196,14 +197,14 @@ export default function BottomNav() {
                   navigate(path);
                 }}
                 className="flex flex-col items-center gap-0.5 px-3 py-3 flex-1 transition-all duration-200 relative"
-                style={active ? { color: GOLD } : { color: "var(--muted-foreground)" }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = GOLD; }}
+                style={active ? { color: accent } : { color: "var(--muted-foreground)" }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = accent; }}
                 onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "var(--muted-foreground)"; }}
               >
                   <Icon
                   size={22}
                   strokeWidth={active ? 2.5 : 1.8}
-                  style={active ? { filter: `drop-shadow(0 0 6px ${GOLD}66)` } : {}}
+                  style={active ? { filter: `drop-shadow(0 0 6px ${accent}66)` } : {}}
                 />
                 <span
                   className="text-[10px] font-medium tracking-wide uppercase"
@@ -212,7 +213,7 @@ export default function BottomNav() {
                   {label}
                 </span>
                 {active && (
-                  <span className="absolute bottom-0 w-6 h-0.5 rounded-full" style={{ background: GOLD, boxShadow: `0 0 8px ${GOLD}99` }} />
+                  <span className="absolute bottom-0 w-6 h-0.5 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}99` }} />
                 )}
               </button>
             );
@@ -224,16 +225,16 @@ export default function BottomNav() {
             className="flex flex-col items-center gap-0.5 px-3 py-3 flex-1 transition-all duration-200 relative"
             style={
               isExplorePath || exploreOpen
-                ? { color: GOLD }
+                ? { color: accent }
                 : { color: "var(--muted-foreground)" }
             }
-            onMouseEnter={(e) => { if (!(isExplorePath || exploreOpen)) e.currentTarget.style.color = GOLD; }}
+            onMouseEnter={(e) => { if (!(isExplorePath || exploreOpen)) e.currentTarget.style.color = accent; }}
             onMouseLeave={(e) => { if (!(isExplorePath || exploreOpen)) e.currentTarget.style.color = "var(--muted-foreground)"; }}
           >
             <MoreHorizontal
               size={22}
               strokeWidth={isExplorePath || exploreOpen ? 2.5 : 1.8}
-              style={isExplorePath || exploreOpen ? { filter: `drop-shadow(0 0 6px ${GOLD}66)` } : {}}
+              style={isExplorePath || exploreOpen ? { filter: `drop-shadow(0 0 6px ${accent}66)` } : {}}
             />
             <span
               className="text-[10px] font-medium tracking-wide uppercase"
@@ -242,7 +243,7 @@ export default function BottomNav() {
               More
             </span>
             {(isExplorePath || exploreOpen) && (
-              <span className="absolute bottom-0 w-6 h-0.5 rounded-full" style={{ background: GOLD, boxShadow: `0 0 8px ${GOLD}99` }} />
+              <span className="absolute bottom-0 w-6 h-0.5 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}99` }} />
             )}
           </button>
         </div>
