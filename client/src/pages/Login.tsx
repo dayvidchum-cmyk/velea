@@ -4,28 +4,60 @@ import { trpc } from "@/lib/trpc";
 
 const GOLD = "#C9A84C";
 
+type Mode = "signin" | "signup";
+
 export default function Login() {
   const [, setLocation] = useLocation();
+  const [mode, setMode] = useState<Mode>("signin");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const utils = trpc.useUtils();
   const loginMutation = trpc.auth.login.useMutation();
+  const registerMutation = trpc.auth.register.useMutation();
+
+  const isSignup = mode === "signup";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
     try {
-      await loginMutation.mutateAsync({ email, password });
+      if (isSignup) {
+        await registerMutation.mutateAsync({ email, password, name: name.trim() || undefined });
+      } else {
+        await loginMutation.mutateAsync({ email, password });
+      }
       await utils.auth.me.invalidate();
       setLocation("/");
-    } catch {
-      setError("Those credentials don't match.");
+    } catch (err: any) {
+      setError(
+        isSignup
+          ? (err?.message ?? "Could not create your account.")
+          : "Those credentials don't match."
+      );
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleMode = () => {
+    setMode((m) => (m === "signin" ? "signup" : "signin"));
+    setError("");
+    setPassword("");
+  };
+
+  const inputStyle: React.CSSProperties = {
+    background: "transparent",
+    border: "none",
+    borderBottom: `1.5px solid ${GOLD}`,
+    borderRadius: 0,
+    padding: "0.75rem 0.25rem",
+    color: "rgba(255,255,255,0.9)",
+    letterSpacing: "0.18em",
+    caretColor: GOLD,
   };
 
   return (
@@ -55,7 +87,6 @@ export default function Login() {
       >
       {/* Top: logo + wordmark */}
       <div className="flex flex-col items-center flex-1 justify-center w-full" style={{ maxWidth: 360 }}>
-        {/* Logo */}
         <img
           src="/kala-logo-transparent.png"
           alt="Kala"
@@ -64,7 +95,6 @@ export default function Login() {
           style={{ marginBottom: "1.5rem" }}
         />
 
-        {/* Kala */}
         <h1
           style={{
             fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
@@ -79,7 +109,6 @@ export default function Login() {
           Kala
         </h1>
 
-        {/* Tagline */}
         <p
           style={{
             fontSize: "0.72rem",
@@ -96,49 +125,47 @@ export default function Login() {
       {/* Bottom: form */}
       <div className="w-full" style={{ maxWidth: 360 }}>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignup && (
+            <input
+              type="text"
+              autoComplete="name"
+              placeholder="NAME (OPTIONAL)"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={isLoading}
+              maxLength={120}
+              className="w-full outline-none transition-all text-center text-sm font-semibold"
+              style={inputStyle}
+              onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
+            />
+          )}
+
           <input
             type="email"
             autoComplete="email"
             required
-            placeholder="USERNAME"
+            placeholder="EMAIL"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
             className="w-full outline-none transition-all text-center text-sm font-semibold"
-            style={{
-              background: "transparent",
-              border: "none",
-              borderBottom: `1.5px solid ${GOLD}`,
-              borderRadius: 0,
-              padding: "0.75rem 0.25rem",
-              color: "rgba(255,255,255,0.9)",
-              letterSpacing: "0.18em",
-              caretColor: GOLD,
-            }}
+            style={inputStyle}
             onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
             onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
           />
 
           <input
             type="password"
-            autoComplete="current-password"
+            autoComplete={isSignup ? "new-password" : "current-password"}
             required
-            minLength={6}
-            placeholder="PASSWORD"
+            minLength={isSignup ? 8 : 6}
+            placeholder={isSignup ? "PASSWORD (MIN 8)" : "PASSWORD"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
             className="w-full outline-none transition-all text-center text-sm font-semibold"
-            style={{
-              background: "transparent",
-              border: "none",
-              borderBottom: `1.5px solid ${GOLD}`,
-              borderRadius: 0,
-              padding: "0.75rem 0.25rem",
-              color: "rgba(255,255,255,0.9)",
-              letterSpacing: "0.18em",
-              caretColor: GOLD,
-            }}
+            style={inputStyle}
             onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
             onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
           />
@@ -165,9 +192,22 @@ export default function Login() {
               marginTop: "0.25rem",
             }}
           >
-            {isLoading ? "Signing in…" : "Sign In"}
+            {isLoading
+              ? (isSignup ? "Creating…" : "Signing in…")
+              : (isSignup ? "Create Account" : "Sign In")}
           </button>
         </form>
+
+        <p className="text-center text-xs mt-5" style={{ color: "rgba(255,255,255,0.7)" }}>
+          {isSignup ? "Already have an account?" : "New to Kala?"}{" "}
+          <button
+            type="button"
+            onClick={toggleMode}
+            style={{ color: GOLD, fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          >
+            {isSignup ? "Sign in" : "Sign up"}
+          </button>
+        </p>
       </div>
       </div>
     </div>

@@ -55,6 +55,7 @@ import { calculateFinalMode } from "./panchang/interpreter.js";
 import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
 import { scoreTasks } from "./task-scorer.js";
 import { getCurrentLayers } from "./layers/index.js";
+import { rateLimit } from "./_core/rateLimit.js";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { profectionRouter } from "./profection/router.js";
@@ -78,13 +79,53 @@ export const appRouter = router({
     login: publicProcedure
       .input(z.object({ email: z.string().email(), password: z.string().min(6) }))
       .mutation(async ({ ctx, input }) => {
-        const user = await verifyLogin(input.email, input.password);
+        // Normalize email so it matches the lowercased form stored at registration.
+        const email = input.email.trim().toLowerCase();
+        const user = await verifyLogin(email, input.password);
         if (!user) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid email or password" });
         const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
         const token = await createSession(user.id, SESSION_TTL);
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: SESSION_TTL });
         return { id: user.id, email: user.email, name: user.name, role: user.role };
+      }),
+
+    register: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email().max(320),
+          password: z.string().min(8, "Password must be at least 8 characters").max(128),
+          name: z.string().trim().min(1).max(120).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        rateLimit(ctx.req, "register", { max: 5, windowMs: 15 * 60 * 1000 });
+
+        const email = input.email.trim().toLowerCase();
+        const existing = await getUserByEmail(email);
+        if (existing) {
+          throw new TRPCError({ code: "CONFLICT", message: "An account with this email already exists." });
+        }
+
+        const passwordHash = await hashPassword(input.password);
+        let newUserId: number;
+        try {
+          const created = await createUserWithPassword({ email, name: input.name, passwordHash, role: "user" });
+          newUserId = (created as any).id ?? (created as any);
+        } catch (e: any) {
+          if (/duplicate|unique/i.test(String(e?.message ?? e))) {
+            throw new TRPCError({ code: "CONFLICT", message: "An account with this email already exists." });
+          }
+          throw e;
+        }
+
+        // Auto-login: issue a session + cookie (same as login).
+        const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
+        const token = await createSession(newUserId, SESSION_TTL);
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: SESSION_TTL });
+
+        return { id: newUserId, email, name: input.name ?? null, role: "user" as const };
       }),
     createTestUser: protectedProcedure
       .input(z.object({ email: z.string().email(), password: z.string().min(6), name: z.string().optional() }))

@@ -16,7 +16,10 @@ export type TrpcContext = {
   subject: AstrologySubject | null;
 };
 
-const LOCAL_DEV = process.env.LOCAL_DEV === "true";
+// LOCAL_DEV bypasses auth entirely (one hardcoded user). It is force-disabled in
+// production so a stray env var can never open the backdoor on a live deploy.
+const LOCAL_DEV =
+  process.env.LOCAL_DEV === "true" && process.env.NODE_ENV !== "production";
 const LOCAL_USER_OPEN_ID = process.env.LOCAL_USER_OPEN_ID || "local-dev-user";
 
 export async function createContext(
