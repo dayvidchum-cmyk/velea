@@ -234,15 +234,16 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
   }));
 }
 
-export async function getPinnedTasksForToday(userId: number, mode: string, profileId?: number | null) {
+export async function getPinnedTasksForToday(userId: number, _mode: string, profileId?: number | null) {
   const db = await getDb();
   if (!db) return [];
-  const taskMode = panchangModeToTaskMode(mode);
+  // Pinned tasks stay under "Pinned for Now" regardless of the day's mode —
+  // pinning is an explicit user choice that shouldn't be hidden by a mode shift.
   const profileFilter = profileId != null ? eq(tasks.profileId, profileId) : isNull(tasks.profileId);
   const rows = await db
     .select()
     .from(tasks)
-    .where(and(eq(tasks.userId, userId), profileFilter, eq(tasks.isPinned, true), eq(tasks.mode, taskMode as any)))
+    .where(and(eq(tasks.userId, userId), profileFilter, eq(tasks.isPinned, true)))
     .orderBy(asc(tasks.isCompleted), desc(tasks.priority), desc(tasks.createdAt))
     .limit(10);
   const now = Date.now();

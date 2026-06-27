@@ -165,15 +165,16 @@ export default function Home() {
   // Fetch all tasks for the explicit Pinned for Now section
   const { data: allTasks } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
 
-  // Pinned for Now: explicitly pinned, today's mode, not completed, sorted by priority
+  // Pinned for Now: explicitly pinned, not completed, sorted by priority.
+  // Pins persist regardless of the day's mode — pinning is an explicit choice
+  // and shouldn't disappear when the mode shifts.
   const pinnedForNow = useMemo(() => {
-    if (!allTasks || !taskMode) return [];
+    if (!allTasks) return [];
     const now = Date.now();
     return allTasks
       .filter((t) =>
         t.isPinned &&
         !t.isCompleted &&
-        t.mode === taskMode &&
         (!t.snoozedUntil || t.snoozedUntil <= now)
       )
       .sort((a, b) => {
@@ -181,7 +182,7 @@ export default function Home() {
         const pb = PRIORITY_RANK[b.priority ?? 'Low'] ?? 2;
         return pa - pb;
       });
-  }, [allTasks, taskMode]);
+  }, [allTasks]);
 
   // Aligned for Today: ranked tasks that are NOT already pinned (avoid duplication).
   // Display order follows the backend's final score (which now includes the
@@ -562,7 +563,7 @@ export default function Home() {
               className="p-4 text-center rounded-lg"
               style={{ color: "var(--muted-foreground)", background: 'var(--input)', border: '1px solid var(--border)' }}
             >
-              <p className="text-sm">No tasks pinned for today's mode.</p>
+              <p className="text-sm">No pinned tasks.</p>
               <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
                 Pin tasks in the Planner to see them here.
               </p>
