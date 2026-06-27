@@ -284,3 +284,45 @@ export async function calculateNatalChart(
     calculatedAt: new Date().toISOString(),
   };
 }
+
+/**
+ * Get sidereal longitudes (0–360) for the given planets at a given moment.
+ *
+ * Uses the EXACT same Swiss Ephemeris setup as calculateNatalChart
+ * (SEFLG_SWIEPH | SEFLG_SIDEREAL, se.SE_* indices), so transiting positions are
+ * directly comparable to the natal longitudes stored from this engine. Do not
+ * swap in a different ayanamsa/method here — orb math depends on consistency.
+ */
+export async function getSiderealLongitudes(
+  when: Date,
+  planetNames: string[]
+): Promise<Record<string, number>> {
+  const se = await initSwissEph();
+  const jd = se.julday(
+    when.getUTCFullYear(),
+    when.getUTCMonth() + 1,
+    when.getUTCDate(),
+    when.getUTCHours() + when.getUTCMinutes() / 60 + when.getUTCSeconds() / 3600
+  );
+  const flags = se.SEFLG_SWIEPH | se.SEFLG_SIDEREAL;
+  const index: Record<string, number> = {
+    Sun: se.SE_SUN,
+    Moon: se.SE_MOON,
+    Mercury: se.SE_MERCURY,
+    Venus: se.SE_VENUS,
+    Mars: se.SE_MARS,
+    Jupiter: se.SE_JUPITER,
+    Saturn: se.SE_SATURN,
+    Rahu: se.SE_RAHU,
+    Ketu: se.SE_KETU,
+  };
+
+  const out: Record<string, number> = {};
+  for (const name of planetNames) {
+    const idx = index[name];
+    if (idx === undefined) continue;
+    const calc = se.calc_ut(jd, idx, flags);
+    out[name] = ((calc[0] % 360) + 360) % 360;
+  }
+  return out;
+}

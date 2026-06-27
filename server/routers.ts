@@ -54,6 +54,7 @@ import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STR
 import { calculateFinalMode } from "./panchang/interpreter.js";
 import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
 import { scoreTasks } from "./task-scorer.js";
+import { getCurrentLayers } from "./layers/index.js";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { profectionRouter } from "./profection/router.js";
@@ -357,10 +358,13 @@ export const appRouter = router({
         // Exclude snoozed tasks from ranking
         const now = Date.now();
         const allTasks = allTasksRaw.filter((t) => !t.snoozedUntil || t.snoozedUntil <= now);
+        // Pressure layers feed the soft subscore (cached 5 min per profile).
+        const layers = subject ? await getCurrentLayers(subject) : null;
         return scoreTasks(allTasks, {
           todayMode: input.todayMode,
           todayDate: input.todayDate,
           personalEnergy: input.personalEnergy,
+          layers,
           currentState: checkIn
             ? {
                 physicalEnergy: checkIn.physicalEnergy,
@@ -570,6 +574,22 @@ export const appRouter = router({
 
   // ── PANCHANG ───────────────────────────────────────────────
     panchang: router({
+    /**
+     * Pressure layers for the active profile (Time Lord theme + transit pressure).
+     * Feeds Aligned-For-Now ranking; not surfaced as its own card. Cached 5 min
+     * per profile. Layer 1 (Panchapakshi) is intentionally absent for now.
+     */
+    currentLayers: protectedProcedure.query(async ({ ctx }) => {
+      if (!ctx.subject) {
+        return {
+          timeLordPeriod: null,
+          transits: { active: [] },
+          computedAt: new Date().toISOString(),
+        };
+      }
+      return getCurrentLayers(ctx.subject);
+    }),
+
     today: publicProcedure.query(async (opts) => {
       // Use user's stored location for timing; use active profile lagna for interpretation
       const now = new Date();

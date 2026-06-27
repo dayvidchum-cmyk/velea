@@ -171,18 +171,16 @@ export default function Home() {
       });
   }, [allTasks, taskMode]);
 
-  // Aligned for Today: ranked tasks that are NOT already pinned (avoid duplication)
+  // Aligned for Today: ranked tasks that are NOT already pinned (avoid duplication).
+  // Display order follows the backend's final score (which now includes the
+  // pressure-layer multipliers) so the "why it ranked high" bubbles match what
+  // the user sees. No post-slice re-sort by priority.
   const alignedForToday = useMemo(() => {
     if (!rankedTasks) return [];
     const pinnedIds = new Set(pinnedForNow.map((t) => t.id));
     const limit = settings.todayTaskLimit;
     const filtered = rankedTasks.filter((t) => !pinnedIds.has(t.id));
-    const sliced = limit === 'unlimited' ? filtered : filtered.slice(0, Number(limit));
-    return [...sliced].sort((a, b) => {
-      const pa = PRIORITY_RANK[a.priority ?? 'Low'] ?? 2;
-      const pb = PRIORITY_RANK[b.priority ?? 'Low'] ?? 2;
-      return pa - pb;
-    });
+    return limit === 'unlimited' ? filtered : filtered.slice(0, Number(limit));
   }, [rankedTasks, pinnedForNow, settings.todayTaskLimit]);
 
   const [editAlignedTask, setEditAlignedTask] = useState<Task | null>(null);
@@ -622,6 +620,24 @@ export default function Home() {
                     onEdit={(t: Task) => setEditAlignedTask(t)}
                     dayMode={taskMode}
                   />
+                  {/* Pressure-layer disclosure bubbles — why this ranked high (positives only, max 3) */}
+                  {((task as any).layerBubbles?.length > 0) && (
+                    <div className="px-4 pb-1.5 flex flex-wrap gap-1">
+                      {((task as any).layerBubbles as string[]).map((b: string) => (
+                        <span
+                          key={b}
+                          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          style={{
+                            letterSpacing: "0.03em",
+                            background: modeColor,
+                            color: "#fff",
+                          }}
+                        >
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {/* Transparent ranking reasons */}
                   {(task as any).reasons?.length > 0 && (
                     <div className="px-4 pb-2 flex flex-wrap gap-1">

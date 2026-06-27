@@ -20,8 +20,65 @@
  */
 
 import type { Task } from "../drizzle/schema";
+import type { TaskMode } from "../shared/types";
+import type { CurrentLayers, TransitingPlanet } from "./layers/types";
+import { themeMatchesTask } from "./layers/time-lord-theme";
 
 export type PersonalEnergy = "Low" | "Medium" | "High";
+
+/**
+ * Layer 3 transit → task-mode effect map (Conflict-Q3 confirmed):
+ *   Saturn favors Restraint/Build, opposes Action.
+ *   Rahu   favors Action/Selective, opposes Restraint.
+ *   Ketu   favors Restraint,        opposes Action.
+ * Favored → ×1.1 (and a positive bubble). Opposed → ×0.85 (no bubble shown).
+ */
+const TRANSIT_MODE_EFFECT: Record<TransitingPlanet, { favor: TaskMode[]; oppose: TaskMode[] }> = {
+  Saturn: { favor: ["Restraint", "Build"], oppose: ["Action"] },
+  Rahu: { favor: ["Action", "Selective"], oppose: ["Restraint"] },
+  Ketu: { favor: ["Restraint"], oppose: ["Action"] },
+};
+
+/**
+ * Compute the layer multiplier applied to a task's SOFT subscore, plus the
+ * positive-only disclosure bubbles (max 3). Layers never touch the additive
+ * floors (pinned/overdue/due-today). Returns multiplier 1 + no bubbles when
+ * layers are absent (graceful degradation).
+ */
+export function layerEffect(
+  task: Task,
+  layers: CurrentLayers | null | undefined
+): { multiplier: number; bubbles: string[] } {
+  if (!layers) return { multiplier: 1, bubbles: [] };
+
+  let multiplier = 1;
+  const bubbles: string[] = [];
+  const seen = new Set<string>();
+  const addBubble = (label: string) => {
+    if (!seen.has(label)) { seen.add(label); bubbles.push(label); }
+  };
+
+  // Layer 2 — Time Lord theme alignment
+  if (layers.timeLordPeriod && themeMatchesTask(layers.timeLordPeriod, task)) {
+    multiplier *= 1.2;
+    addBubble(`${layers.timeLordPeriod.mahaDasha} theme`);
+  }
+
+  // Layer 3 — Transit pressure (compounds per active transit)
+  const mode = task.mode as TaskMode;
+  for (const t of layers.transits.active) {
+    const effect = TRANSIT_MODE_EFFECT[t.transitingPlanet];
+    if (!effect) continue;
+    if (effect.favor.includes(mode)) {
+      multiplier *= 1.1;
+      addBubble(`${t.transitingPlanet} pressure`);
+    } else if (effect.oppose.includes(mode)) {
+      multiplier *= 0.85; // no bubble — we never disclose why something ranked lower
+    }
+  }
+
+  return { multiplier, bubbles: bubbles.slice(0, 3) };
+}
 
 /** Subset of CheckIn dimensions used by the scorer */
 export interface CurrentState {
@@ -35,6 +92,8 @@ export interface CurrentState {
 export interface ScoredTask extends Task {
   score: number;
   reasons: string[];
+  /** Positive-only layer disclosure chips (max 3), e.g. "Venus theme", "Saturn pressure". */
+  layerBubbles: string[];
 }
 
 /**
@@ -142,9 +201,11 @@ export function scoreTasks(
     todayDate: string;       // YYYY-MM-DD
     personalEnergy: PersonalEnergy;
     currentState?: CurrentState | null;
+    /** Pressure layers — multiply only the soft subscore; never the floors. */
+    layers?: CurrentLayers | null;
   }
 ): ScoredTask[] {
-  const { todayMode, todayDate, personalEnergy, currentState } = opts;
+  const { todayMode, todayDate, personalEnergy, currentState, layers } = opts;
   const today = new Date(todayDate);
 
   return tasks
@@ -164,85 +225,90 @@ export function scoreTasks(
       return true;
     })
     .map((task) => {
-      let score = 0;
+      // Untouchable additive floors — layers can never demote these.
+      let floor = 0;
+      // Soft, discretionary subscore — the only part layer multipliers scale.
+      let soft = 0;
       const reasons: string[] = [];
 
-      // 1. Pinned
+      // 1. Pinned (floor)
       if (task.isPinned) {
-        score += 1000;
+        floor += 1000;
         reasons.push("Pinned for today");
       }
 
-      // 2. Overdue / 3. Due today
+      // 2. Overdue / 3. Due today (floor)
       if (task.dueDate) {
         // Compare as YYYY-MM-DD strings to avoid timezone issues
         const todayStr = todayDate;
         const dueStr = task.dueDate.split('T')[0];
-        
+
         if (dueStr < todayStr) {
-          // Overdue - calculate days difference
           const due = new Date(dueStr);
           const todayDate2 = new Date(todayStr);
           const diffDays = Math.floor(
             (todayDate2.getTime() - due.getTime()) / (1000 * 60 * 60 * 24)
           );
-          score += 500;
+          floor += 500;
           reasons.push(`Overdue by ${diffDays} day${diffDays > 1 ? "s" : ""}`);
         } else if (dueStr === todayStr) {
-          score += 300;
+          floor += 300;
           reasons.push("Due today");
         }
       }
 
-      // 4. Wealth Flow
+      // 4. Wealth Flow (soft)
       if ((task as any).wealthFlow) {
-        score += 200;
+        soft += 200;
         reasons.push("Wealth flow task");
       }
 
-      // 5. Priority
+      // 5. Priority (soft)
       if (task.priority === "High") {
-        score += 150;
+        soft += 150;
         reasons.push("High priority");
       } else if (task.priority === "Medium") {
-        score += 75;
+        soft += 75;
         reasons.push("Medium priority");
       }
-      // Low priority adds 0 (no reason label needed)
 
-      // 6. Mode alignment
+      // 6. Mode alignment (soft)
       if (task.mode === todayMode) {
-        score += 100;
+        soft += 100;
         reasons.push(`Aligned with ${todayMode} mode`);
       }
 
-      // 7. Current State Fit
+      // 7. Current State Fit (soft)
       if (currentState) {
         const { delta, reasons: csReasons } = currentStateScore(task, currentState);
-        score += delta;
+        soft += delta;
         reasons.push(...csReasons);
       }
 
-      // 8. Personal energy bonus (legacy — kept for backward compat)
+      // 8. Personal energy bonus (soft, legacy)
       if (personalEnergy === "High" && task.priority === "High") {
-        score += 50;
+        soft += 50;
         reasons.push("Matches high energy");
       } else if (personalEnergy === "Low" && task.priority === "Low") {
-        score += 50;
+        soft += 50;
         reasons.push("Matches low energy");
       }
 
-      // 9. Task age (max 30 points)
+      // 9. Task age (soft, max 30 points)
       const ageMs = today.getTime() - new Date(task.createdAt).getTime();
       const ageDays = Math.min(30, Math.floor(ageMs / (1000 * 60 * 60 * 24)));
       if (ageDays > 0) {
-        score += ageDays;
+        soft += ageDays;
         if (ageDays >= 7) {
           reasons.push(`In queue ${ageDays} days`);
         }
       }
 
-      return { ...task, score, reasons };
+      // Pressure layers scale ONLY the soft subscore; floors are preserved.
+      const { multiplier, bubbles } = layerEffect(task, layers);
+      const score = floor + soft * multiplier;
+
+      return { ...task, score, reasons, layerBubbles: bubbles };
     })
     .sort((a, b) => b.score - a.score);
 }
