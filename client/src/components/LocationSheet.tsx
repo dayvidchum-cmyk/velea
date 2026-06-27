@@ -138,7 +138,8 @@ export default function LocationSheet({ open, onClose }: LocationSheetProps) {
           border: "1px solid var(--color-border)",
           borderBottom: "none",
           boxShadow: "0 -8px 32px oklch(0 0 0 / 0.18)",
-          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)",
+          // Clear the fixed 72px bottom nav so the last row isn't hidden behind it.
+          paddingBottom: "calc(72px + env(safe-area-inset-bottom, 0px) + 1.5rem)",
         }}
       >
         {/* Drag handle */}
