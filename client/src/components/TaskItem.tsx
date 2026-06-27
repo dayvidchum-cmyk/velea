@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Pin, Trash2, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat } from "lucide-react";
 
 const RECURRENCE_SHORT: Record<string, string> = {
@@ -128,6 +129,22 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
 
   const [showSnoozeOptions, setShowSnoozeOptions] = useState(false);
   const [showBarSnooze, setShowBarSnooze] = useState(false);
+  const [barSnoozePos, setBarSnoozePos] = useState<{ top: number; left: number } | null>(null);
+
+  // Open the bar snooze menu in a portal so the card's overflow-hidden can't
+  // clip it. Position it relative to the clicked icon, clamped on-screen.
+  function openBarSnooze(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    if (showBarSnooze) { setShowBarSnooze(false); return; }
+    const r = e.currentTarget.getBoundingClientRect();
+    const width = 132;
+    const menuH = 80;
+    let left = Math.max(8, Math.min(r.right - width, window.innerWidth - width - 8));
+    let top = r.bottom + 4;
+    if (top + menuH > window.innerHeight - 8) top = r.top - menuH - 4;
+    setBarSnoozePos({ top, left });
+    setShowBarSnooze(true);
+  }
   const isSnoozed = task.snoozedUntil && task.snoozedUntil > Date.now();
 
   useEffect(() => {
@@ -282,35 +299,52 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               <AlarmClockOff size={14} />
             </button>
           ) : (
-            <div className="relative flex-shrink-0">
+            <div className="flex-shrink-0">
               <button
-                onClick={(e) => { e.stopPropagation(); setShowBarSnooze((v) => !v); }}
+                onClick={openBarSnooze}
                 className="p-1"
                 style={{ color: showBarSnooze ? "rgba(var(--ink),1)" : "rgba(var(--ink),0.7)" }}
                 aria-label="Snooze task"
               >
                 <Clock size={14} />
               </button>
-              {showBarSnooze && (
-                <div
-                  className="absolute top-full right-0 mt-1 rounded-lg shadow-lg border p-1 z-50 min-w-[120px]"
-                  style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}
-                >
-                  <button
-                    onClick={() => { snoozeTask.mutate({ id: task.id, duration: "1hour" }); setShowBarSnooze(false); }}
-                    className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
-                    style={{ color: "var(--color-foreground)" }}
+              {showBarSnooze && barSnoozePos && createPortal(
+                <>
+                  <div
+                    onClick={() => setShowBarSnooze(false)}
+                    style={{ position: "fixed", inset: 0, zIndex: 80 }}
+                  />
+                  <div
+                    style={{
+                      position: "fixed",
+                      top: barSnoozePos.top,
+                      left: barSnoozePos.left,
+                      width: 132,
+                      zIndex: 81,
+                      background: "var(--color-card)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 8px 28px rgba(0,0,0,0.28)",
+                      padding: "0.25rem",
+                    }}
                   >
-                    1 hour
-                  </button>
-                  <button
-                    onClick={() => { snoozeTask.mutate({ id: task.id, duration: "restOfDay" }); setShowBarSnooze(false); }}
-                    className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
-                    style={{ color: "var(--color-foreground)" }}
-                  >
-                    Rest of day
-                  </button>
-                </div>
+                    <button
+                      onClick={() => { snoozeTask.mutate({ id: task.id, duration: "1hour" }); setShowBarSnooze(false); }}
+                      className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
+                      style={{ color: "var(--color-foreground)" }}
+                    >
+                      1 hour
+                    </button>
+                    <button
+                      onClick={() => { snoozeTask.mutate({ id: task.id, duration: "restOfDay" }); setShowBarSnooze(false); }}
+                      className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
+                      style={{ color: "var(--color-foreground)" }}
+                    >
+                      Rest of day
+                    </button>
+                  </div>
+                </>,
+                document.body
               )}
             </div>
           )
