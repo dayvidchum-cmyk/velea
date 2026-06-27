@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useDayModeColor, useDayModeGradient } from "@/hooks/useDayModeColor";
 
 // ── Dimension config ────────────────────────────────────────────────────────
 
@@ -62,59 +62,36 @@ function ScoreRow({
   value,
   onChange,
   dimensionKey,
+  modeColor,
 }: {
   label: string;
   value: number | null;
   onChange: (v: number) => void;
   dimensionKey: string;
+  modeColor: string;
 }) {
-  const [showDefinitions, setShowDefinitions] = useState(false);
-  const selectedDefinition = value ? SCORE_DEFINITIONS[dimensionKey]?.[value] : null;
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  // Hovering a number previews its meaning; otherwise show the chosen one.
+  const shownNumber = hovered ?? value;
+  const shownDefinition = shownNumber ? SCORE_DEFINITIONS[dimensionKey]?.[shownNumber] : null;
+  const shownText = shownDefinition ? (shownDefinition.split("—")[1]?.trim() ?? shownDefinition) : null;
 
   return (
-    <div className="space-y-2">
-      <button
-        onClick={() => setShowDefinitions(!showDefinitions)}
-        className="text-left transition-opacity hover:opacity-70"
-        style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+    <div
+      className="rounded-2xl p-4"
+      style={{
+        background: "var(--color-card)",
+        border: `1px solid ${value ? `color-mix(in srgb, ${modeColor} 35%, transparent)` : "var(--color-border)"}`,
+      }}
+    >
+      <p
+        className="text-xs uppercase mb-3"
+        style={{ color: "var(--color-foreground)", letterSpacing: "0.08em", fontWeight: 700 }}
       >
-        <p
-          className="text-xs tracking-wide uppercase"
-          style={{
-            color: "var(--color-muted-foreground)",
-            letterSpacing: "0.04em",
-            fontWeight: 300,
-          }}
-        >
-          {label}
-        </p>
-      </button>
-      {showDefinitions && (
-        <div
-          className="text-xs space-y-1 p-2 rounded-lg mb-2"
-          style={{
-            background: "var(--input)",
-            color: "var(--color-muted-foreground)",
-          }}
-        >
-          {[1, 2, 3, 4, 5].map((n) => (
-            <div key={n} className="flex gap-2">
-              <span style={{ fontWeight: 600, minWidth: "12px" }}>{n}</span>
-              <span>{SCORE_DEFINITIONS[dimensionKey]?.[n]}</span>
-            </div>
-          ))}
-        </div>
-      )}
-      {selectedDefinition && (
-        <p
-          className="text-xs italic"
-          style={{
-            color: "var(--color-muted-foreground)",
-          }}
-        >
-          Selected: {value} — {selectedDefinition}
-        </p>
-      )}
+        {label}
+      </p>
+
       <div className="flex gap-2">
         {[1, 2, 3, 4, 5].map((n) => {
           const selected = value === n;
@@ -122,25 +99,47 @@ function ScoreRow({
             <button
               key={n}
               onClick={() => onChange(n)}
-              className="flex-1 h-10 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-95"
+              className="flex-1 h-11 rounded-xl text-sm font-bold transition-all duration-150 active:scale-95"
               style={{
-                background: selected
-                  ? "var(--border)"
-                  : "var(--border)",
-                color: selected
-                  ? "var(--foreground)"
-                  : "var(--color-foreground)",
-                border: selected
-                  ? "1px solid var(--border)"
-                  : "1px solid var(--border)",
+                background: selected ? modeColor : "var(--color-secondary)",
+                color: selected ? "#fff" : "var(--color-muted-foreground)",
+                border: `1px solid ${selected ? modeColor : "var(--color-border)"}`,
+                boxShadow: selected ? `0 2px 10px color-mix(in srgb, ${modeColor} 40%, transparent)` : "none",
               }}
-              aria-label={`${label} ${n}`}
+              onMouseEnter={(e) => {
+                setHovered(n);
+                if (selected) return;
+                e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 22%, var(--color-secondary))`;
+                e.currentTarget.style.borderColor = modeColor;
+                e.currentTarget.style.color = modeColor;
+              }}
+              onMouseLeave={(e) => {
+                setHovered(null);
+                if (selected) return;
+                e.currentTarget.style.background = "var(--color-secondary)";
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.color = "var(--color-muted-foreground)";
+              }}
+              aria-label={`${label} ${n}: ${SCORE_DEFINITIONS[dimensionKey]?.[n] ?? ""}`}
             >
               {n}
             </button>
           );
         })}
       </div>
+
+      {/* Live explanation — reserves space so the layout doesn't jump */}
+      <p className="text-xs mt-3 leading-snug" style={{ color: "var(--color-muted-foreground)", minHeight: "2.1em" }}>
+        {shownText ? (
+          <>
+            <span style={{ color: modeColor, fontWeight: 700 }}>{shownNumber}</span>
+            {" — "}
+            {shownText}
+          </>
+        ) : (
+          " "
+        )}
+      </p>
     </div>
   );
 }
@@ -154,8 +153,9 @@ interface CheckInSheetProps {
 }
 
 export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetProps) {
-
   const utils = trpc.useUtils();
+  const modeColor = useDayModeColor();
+  const heroGradient = useDayModeGradient();
 
   const [scores, setScores] = useState<Scores>({
     physicalEnergy: null,
@@ -173,7 +173,6 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
       toast.success("Current state saved", { duration: 1200 });
       onSaved?.();
       onClose();
-      // Reset for next time
       setScores({
         physicalEnergy: null,
         mentalClarity: null,
@@ -187,7 +186,8 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
     },
   });
 
-  const allFilled = DIMENSIONS.every((d) => scores[d.key] !== null);
+  const filledCount = DIMENSIONS.filter((d) => scores[d.key] !== null).length;
+  const allFilled = filledCount === DIMENSIONS.length;
 
   function handleSubmit() {
     if (!allFilled) return;
@@ -204,61 +204,81 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
     <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <SheetContent
         side="bottom"
-        className="rounded-t-2xl pb-10"
+        className="rounded-t-3xl px-0"
         style={{
           background: "var(--background)",
-          border: "1px solid var(--border)",
-          maxHeight: "90dvh",
-          overflowY: "auto",
+          border: "none",
+          borderTop: `6px solid ${modeColor}`,
+          maxHeight: "92dvh",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
         }}
       >
-        <SheetHeader className="mb-6">
-          <SheetTitle
-            className="text-left text-base tracking-wide uppercase"
-            style={{
-              color: "var(--color-foreground)",
-              letterSpacing: "0.04em",
-              fontWeight: 300,
-            }}
-          >
-            Current State
-          </SheetTitle>
-          <p
-            className="text-xs text-left"
-            style={{
-              color: "var(--color-muted-foreground)",
-            }}
-          >
-            Rate each dimension from 1 (very low) to 5 (very high).
-          </p>
-        </SheetHeader>
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-4 pt-8 pb-4">
+          <SheetHeader className="mb-5">
+            <span
+              className="text-left text-[0.65rem] font-bold uppercase"
+              style={{ color: modeColor, letterSpacing: "0.16em" }}
+            >
+              Check-In
+            </span>
+            <SheetTitle
+              className="text-left"
+              style={{
+                fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+                fontSize: "1.6rem",
+                fontWeight: 700,
+                color: "var(--color-foreground)",
+                lineHeight: 1.1,
+              }}
+            >
+              How are you right now?
+            </SheetTitle>
+            <p className="text-xs text-left mt-1" style={{ color: "var(--color-muted-foreground)" }}>
+              Rate each from 1 (very low) to 5 (very high). This tunes which tasks surface today.
+            </p>
+          </SheetHeader>
 
-        <div className="space-y-5">
-          {DIMENSIONS.map((d) => (
-            <ScoreRow
-              key={d.key}
-              label={d.label}
-              value={scores[d.key]}
-              onChange={(v) => setScores((prev) => ({ ...prev, [d.key]: v }))}
-
-              dimensionKey={d.key}
-            />
-          ))}
+          <div className="space-y-3">
+            {DIMENSIONS.map((d) => (
+              <ScoreRow
+                key={d.key}
+                label={d.label}
+                value={scores[d.key]}
+                onChange={(v) => setScores((prev) => ({ ...prev, [d.key]: v }))}
+                dimensionKey={d.key}
+                modeColor={modeColor}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="mt-8">
-          <Button
+        {/* Fixed footer — anchored to the bottom, carrying the day's ombre gradient */}
+        <div
+          className="flex-shrink-0 px-4 pt-4 pb-8"
+          style={{ background: heroGradient }}
+        >
+          <button
             onClick={handleSubmit}
             disabled={!allFilled || createMutation.isPending}
-            className="w-full h-11 text-sm font-semibold tracking-wide uppercase"
+            className="w-full h-12 rounded-2xl text-sm font-bold uppercase transition-all active:scale-[0.99] disabled:cursor-not-allowed"
             style={{
-              background: allFilled ? "var(--border)" : undefined,
-              color: allFilled ? "var(--foreground)" : undefined,
-              letterSpacing: "0.04em",
+              background: allFilled ? "#fff" : "rgba(255,255,255,0.2)",
+              color: allFilled ? "#1a1a1a" : "rgba(255,255,255,0.85)",
+              letterSpacing: "0.08em",
+              border: allFilled ? "none" : "1px solid rgba(255,255,255,0.3)",
+              boxShadow: allFilled ? "0 4px 16px rgba(0,0,0,0.25)" : "none",
+              opacity: createMutation.isPending ? 0.7 : 1,
             }}
           >
-            {createMutation.isPending ? "Saving…" : "Save Current State"}
-          </Button>
+            {createMutation.isPending
+              ? "Saving…"
+              : allFilled
+              ? "Save Current State"
+              : `${filledCount} / ${DIMENSIONS.length} rated`}
+          </button>
         </div>
       </SheetContent>
     </Sheet>
