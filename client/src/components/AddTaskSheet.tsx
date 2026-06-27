@@ -252,6 +252,9 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
   const [emotionalLoad, setEmotionalLoad] = useState<LoadLevel>("Low");
   const [notes, setNotes] = useState("");
   const [recurrence, setRecurrence] = useState<Recurrence>("none");
+  // The native date input always renders a date-shaped placeholder, which reads
+  // as "due today." Hide it behind an explicit affordance until the user opts in.
+  const [showDuePicker, setShowDuePicker] = useState(false);
 
   const titleInputRef = useRef<HTMLInputElement>(null);
   const subtaskInputRef = useRef<HTMLInputElement>(null);
@@ -300,6 +303,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setEmotionalLoad((editTask.emotionalLoad as LoadLevel) ?? "Low");
       setNotes(editTask.notes ?? "");
       setRecurrence((editTask.recurrence as Recurrence) ?? "none");
+      setShowDuePicker(!!editTask.dueDate);
     } else {
       setTitle("");
       setMode(initialMode ?? "Build");
@@ -317,6 +321,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setEmotionalLoad("Low");
       setNotes("");
       setRecurrence("none");
+      setShowDuePicker(false);
     }
 
     // Delay focus so the sheet animation completes first
@@ -550,26 +555,36 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
             >
               Due Date (optional)
             </label>
-            <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-secondary">
-              <CalendarDays className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="flex-1 bg-transparent text-foreground focus:outline-none min-w-0"
-              />
-              {dueDate && (
+            {!showDuePicker ? (
+              <button
+                type="button"
+                onClick={() => setShowDuePicker(true)}
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg bg-secondary text-left"
+              >
+                <CalendarDays className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-muted-foreground">No due date — tap to set one</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-secondary">
+                <CalendarDays className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <input
+                  type="date"
+                  value={dueDate}
+                  autoFocus
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="flex-1 bg-transparent text-foreground focus:outline-none min-w-0"
+                />
                 <button
                   type="button"
-                  onClick={() => setDueDate("")}
+                  onClick={() => { setDueDate(""); setShowDuePicker(false); }}
                   className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full transition-opacity opacity-60 hover:opacity-100"
                   style={{ color: "var(--color-muted-foreground)" }}
                   aria-label="Clear due date"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Repeat / recurrence */}
