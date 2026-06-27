@@ -259,6 +259,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
               </span>
             </button>
             <button
+                data-tour="current-state"
                 onClick={() => setCheckInSheetOpen(true)}
                 className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"
                 style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}

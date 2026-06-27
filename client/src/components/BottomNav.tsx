@@ -192,6 +192,7 @@ export default function BottomNav() {
             return (
               <button
                 key={path}
+                data-tour={path === "/astrology" ? "chart-nav" : undefined}
                 onClick={() => {
                   setExploreOpen(false);
                   navigate(path);

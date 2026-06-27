@@ -238,6 +238,7 @@ export default function Home() {
           : 'What should be stabilized, repaired, protected, or completed before moving forward?';
         return (
           <div
+            data-tour="today-mode"
             className="relative overflow-hidden"
             style={{
               borderRadius: '28px',

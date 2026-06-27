@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Info } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { ModeCard } from "@/components/ModeCard";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
@@ -279,6 +279,56 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
   );
 }
 
+// ── Sidereal heads-up ───────────────────────────────────────────────────────
+// New users who only know their Western sun sign will see "wrong" signs here
+// (a Western Leo Sun is often Cancer in the sidereal zodiac). Explain why so it
+// reads as intentional, not broken.
+
+function SiderealNote() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="rounded-xl px-3.5 py-3"
+      style={{
+        background: "var(--color-secondary)",
+        border: "1px solid var(--color-border)",
+      }}
+    >
+      <div className="flex items-start gap-2.5">
+        <Info size={15} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, marginTop: "1px" }} />
+        <div className="flex-1">
+          <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
+            Kala uses the <strong>Vedic (sidereal) zodiac</strong>, so your signs may
+            differ from the Western ones you know — a Western Leo Sun is often Cancer here.
+            That's expected, not a mistake.
+          </p>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="mt-1.5 text-[11px] font-semibold inline-flex items-center gap-1"
+            style={{ color: "var(--color-muted-foreground)" }}
+          >
+            {open ? "Hide" : "Why are they different?"}
+            <ChevronDown
+              size={11}
+              style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+          {open && (
+            <p className="mt-2 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+              Western astrology pins the zodiac to the <strong>seasons</strong> (0° Aries = the
+              spring equinox). Vedic astrology pins it to the <strong>actual constellations</strong>.
+              Because the Earth slowly wobbles on its axis (an effect called <em>precession</em>),
+              those two reference points have drifted about <strong>24°</strong> apart over the last
+              ~1,700 years — almost a full sign. Neither is "wrong"; they simply measure different
+              things. Kala tracks the real stars.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Natal section ──────────────────────────────────────────────────────────
 
 function NatalSection() {
@@ -315,6 +365,9 @@ function NatalSection() {
           {subject.lagnaSign ? ` · ${subject.lagnaSign} Lagna` : ""}
         </p>
       </div>
+
+      {/* Sidereal vs. Western heads-up */}
+      <SiderealNote />
 
       {/* Chart grid */}
       <NatalChartGrid lagnaSign={subject.lagnaSign} natalBodies={subject.natalBodies} />

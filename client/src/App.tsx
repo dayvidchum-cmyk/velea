@@ -12,6 +12,7 @@ import { SettingsProvider, useSettingsContext } from "./contexts/SettingsContext
 import { AddTaskProvider, useAddTask } from "./contexts/AddTaskContext";
 import BottomNav from "./components/BottomNav";
 import AddTaskSheet from "./components/AddTaskSheet";
+import Onboarding from "./components/Onboarding";
 import Home from "./pages/Home";
 import Planner from "./pages/Planner";
 import DashaTimeline from "./pages/DashaTimeline";
@@ -154,6 +155,12 @@ const { user, loading } = useAuth();
           <BottomNav />
         </div>
       )}
+
+      {/* First-run onboarding for newcomers (intro cards + guided tour) */}
+      <Onboarding
+        active={!!user && !needsBirthData && !subjectLoading && location === "/"}
+        userId={user?.id}
+      />
     </div>
   );
 }
