@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Pin, Trash2, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff } from "lucide-react";
+import { Pin, Trash2, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat } from "lucide-react";
+
+const RECURRENCE_SHORT: Record<string, string> = {
+  daily: "Daily", weekly: "Weekly", biweekly: "2 wks", monthly: "Monthly", yearly: "Yearly",
+};
 import type { Task } from "../../../drizzle/schema";
 import ModeTag from "./ModeTag";
 import { trpc } from "@/lib/trpc";
@@ -202,6 +206,16 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               >
                 <CalendarDays size={9} />
                 {formatDueDate(task.dueDate)}
+              </span>
+            )}
+            {/* Recurrence badge */}
+            {(task as any).recurrence && (task as any).recurrence !== "none" && !task.isCompleted && (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                style={{ background: "rgba(var(--ink),0.16)", color: "rgba(var(--ink),0.96)", letterSpacing: "0.03em" }}
+              >
+                <Repeat size={9} />
+                {RECURRENCE_SHORT[(task as any).recurrence] ?? "Repeats"}
               </span>
             )}
             {/* Subtask progress badge */}

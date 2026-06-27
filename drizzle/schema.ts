@@ -95,6 +95,9 @@ export const tasks = mysqlTable("tasks", {
   emotionalLoad: mysqlEnum("emotionalLoad", ["Low", "Medium", "High"]).default("Low"),
   snoozedUntil: bigint("snoozedUntil", { mode: "number" }), // Unix ms timestamp — task hidden until this time
   notes: text("notes"), // Optional free-text notes, context, or links
+  // Recurrence — when set, completing the task rolls its due date forward to the
+  // next occurrence and keeps it active instead of marking it done.
+  recurrence: mysqlEnum("recurrence", ["none", "daily", "weekly", "biweekly", "monthly", "yearly"]).notNull().default("none"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

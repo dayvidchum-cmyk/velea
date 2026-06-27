@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `recurrence` enum('none','daily','weekly','biweekly','monthly','yearly') DEFAULT 'none' NOT NULL;

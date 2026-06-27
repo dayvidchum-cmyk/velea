@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown } from "lucide-react";
+import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown, Repeat } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { TASK_MODES, MODE_OKLCH } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
@@ -31,8 +31,20 @@ interface AddTaskSheetProps {
     socialRequired?: boolean | null;
     emotionalLoad?: LoadLevel | null;
     notes?: string | null;
+    recurrence?: Recurrence | null;
   };
 }
+
+export type Recurrence = "none" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
+
+const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
+  { value: "none", label: "One-time" },
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Every 2 weeks" },
+  { value: "monthly", label: "Monthly" },
+  { value: "yearly", label: "Yearly" },
+];
 
 /**
  * useSheetHeight
@@ -239,6 +251,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
   const [socialRequired, setSocialRequired] = useState(false);
   const [emotionalLoad, setEmotionalLoad] = useState<LoadLevel>("Low");
   const [notes, setNotes] = useState("");
+  const [recurrence, setRecurrence] = useState<Recurrence>("none");
 
   const titleInputRef = useRef<HTMLInputElement>(null);
   const subtaskInputRef = useRef<HTMLInputElement>(null);
@@ -286,6 +299,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setSocialRequired(editTask.socialRequired ?? false);
       setEmotionalLoad((editTask.emotionalLoad as LoadLevel) ?? "Low");
       setNotes(editTask.notes ?? "");
+      setRecurrence((editTask.recurrence as Recurrence) ?? "none");
     } else {
       setTitle("");
       setMode(initialMode ?? "Build");
@@ -302,6 +316,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setSocialRequired(false);
       setEmotionalLoad("Low");
       setNotes("");
+      setRecurrence("none");
     }
 
     // Delay focus so the sheet animation completes first
@@ -363,6 +378,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           socialRequired,
           emotionalLoad,
           notes: notes || null,
+          recurrence,
         });
       } else {
         const task = await createTask.mutateAsync({
@@ -379,6 +395,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           socialRequired,
           emotionalLoad,
           notes: notes || null,
+          recurrence,
         });
 
         if (task && subtasks.length > 0) {
@@ -395,7 +412,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
     } catch (error) {
       console.error("Error saving task:", error);
     }
-  }, [title, mode, priority, dueDate, isPinned, wealthFlow, projectId, cognitiveLoad, physicalLoad, creativeRequired, socialRequired, emotionalLoad, notes, subtasks, editTask, createTask, updateTask, createSubtask, utils, onClose]);
+  }, [title, mode, priority, dueDate, isPinned, wealthFlow, projectId, cognitiveLoad, physicalLoad, creativeRequired, socialRequired, emotionalLoad, notes, recurrence, subtasks, editTask, createTask, updateTask, createSubtask, utils, onClose]);
 
   // Title field: Enter does NOT save — user must tap Save button.
   // This prevents accidental saves and avoids the scroll-lock bug where
@@ -553,6 +570,42 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Repeat / recurrence */}
+          <div className="mb-6">
+            <label
+              className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wide uppercase mb-2"
+              style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
+            >
+              <Repeat className="w-3 h-3" />
+              Repeat
+            </label>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {RECURRENCE_OPTIONS.map((opt) => {
+                const active = recurrence === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setRecurrence(opt.value)}
+                    className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                    style={{
+                      background: active ? "var(--filter-pill-bg-active)" : "var(--color-secondary)",
+                      color: active ? "var(--color-primary)" : "var(--color-muted-foreground)",
+                      border: `1px solid ${active ? "var(--filter-pill-border-active)" : "var(--color-border)"}`,
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            {recurrence !== "none" && (
+              <p className="text-[11px] mt-1.5" style={{ color: "var(--color-muted-foreground)" }}>
+                Completing this task rolls it forward to the next {RECURRENCE_OPTIONS.find((o) => o.value === recurrence)?.label.toLowerCase()} date instead of finishing it.
+              </p>
+            )}
           </div>
 
           {/* Project selector */}

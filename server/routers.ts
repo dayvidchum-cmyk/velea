@@ -48,6 +48,7 @@ import {
   upsertProjectNote,
   snoozeTask,
   unsnoozeTask,
+  getTaskById,
 } from "./db";
 import { getDayField, dayModeToTaskMode } from "./panchang/service.js";
 import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG, HOUSE_TO_BASE_MODE } from "./panchang/modifier-config.js";
@@ -70,6 +71,24 @@ import { TRPCError } from "@trpc/server";
 
 const TaskModeEnum = z.enum(["Restraint", "Build", "Selective", "Action"]);
 const PriorityEnum = z.enum(["High", "Medium", "Low"]);
+const RecurrenceEnum = z.enum(["none", "daily", "weekly", "biweekly", "monthly", "yearly"]);
+
+/** Advance a due date to the next occurrence. Overdue tasks roll from today so
+ *  occurrences don't pile up in the past. Null base starts from today. */
+function nextDueDate(base: string | null, recurrence: string): string {
+  const today = new Date().toISOString().split("T")[0];
+  const start = base && base >= today ? base : today;
+  const d = new Date(start + "T00:00:00Z");
+  switch (recurrence) {
+    case "daily": d.setUTCDate(d.getUTCDate() + 1); break;
+    case "weekly": d.setUTCDate(d.getUTCDate() + 7); break;
+    case "biweekly": d.setUTCDate(d.getUTCDate() + 14); break;
+    case "monthly": d.setUTCMonth(d.getUTCMonth() + 1); break;
+    case "yearly": d.setUTCFullYear(d.getUTCFullYear() + 1); break;
+    default: d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return d.toISOString().split("T")[0];
+}
 
 export const appRouter = router({
   system: systemRouter,
@@ -275,6 +294,7 @@ export const appRouter = router({
           socialRequired: z.boolean().nullable().optional(),
           emotionalLoad: z.enum(["Low", "Medium", "High"]).nullable().optional(),
           notes: z.string().nullable().optional(),
+          recurrence: RecurrenceEnum.optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -296,6 +316,7 @@ export const appRouter = router({
           socialRequired: input.socialRequired ?? null,
           emotionalLoad: input.emotionalLoad ?? null,
           notes: input.notes ?? null,
+          recurrence: input.recurrence ?? "none",
         });
       }),
 
@@ -317,6 +338,7 @@ export const appRouter = router({
           socialRequired: z.boolean().nullable().optional(),
           emotionalLoad: z.enum(["Low", "Medium", "High"]).nullable().optional(),
           notes: z.string().nullable().optional(),
+          recurrence: RecurrenceEnum.optional(),
           // When provided and isPinned=true, the task's mode is set to this value.
           // Ignored when isPinned is false or undefined.
           dayMode: TaskModeEnum.optional(),
@@ -327,6 +349,24 @@ export const appRouter = router({
         // Auto-assign current day mode when pinning
         const effectiveMode =
           rest.isPinned === true && dayMode ? dayMode : rest.mode;
+
+        // Recurring roll-forward: completing a recurring task advances its due
+        // date to the next occurrence and keeps it active instead of done.
+        if (rest.isCompleted === true) {
+          const existing = await getTaskById(rest.id, ctx.user.id);
+          const recurrence = (rest.recurrence ?? existing?.recurrence ?? "none") as string;
+          if (existing && recurrence !== "none") {
+            const base = rest.dueDate ?? existing.dueDate ?? null;
+            return updateTask(rest.id, ctx.user.id, {
+              ...rest,
+              mode: effectiveMode,
+              isCompleted: false,
+              completedAt: null,
+              dueDate: nextDueDate(base, recurrence),
+            });
+          }
+        }
+
         return updateTask(rest.id, ctx.user.id, { ...rest, mode: effectiveMode });
       }),
 

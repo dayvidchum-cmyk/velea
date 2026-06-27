@@ -212,6 +212,7 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
       emotionalLoad: tasks.emotionalLoad,
       snoozedUntil: tasks.snoozedUntil,
       notes: tasks.notes,
+      recurrence: tasks.recurrence,
       createdAt: tasks.createdAt,
       updatedAt: tasks.updatedAt,
       projectName: projects.name,
@@ -264,11 +265,19 @@ export async function createTask(data: {
   socialRequired?: boolean | null;
   emotionalLoad?: "Low" | "Medium" | "High" | null;
   notes?: string | null;
+  recurrence?: "none" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
 }) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const [result] = await db.insert(tasks).values(data).$returningId();
   return result;
+}
+
+export async function getTaskById(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(tasks).where(and(eq(tasks.id, id), eq(tasks.userId, userId))).limit(1);
+  return rows[0];
 }
 
 export async function updateTask(
@@ -290,6 +299,7 @@ export async function updateTask(
     socialRequired: boolean | null;
     emotionalLoad: "Low" | "Medium" | "High" | null;
     notes: string | null;
+    recurrence: "none" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
   }>
 ) {
   const db = await getDb();
