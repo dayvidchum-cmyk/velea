@@ -1,37 +1,22 @@
 import { useState } from "react";
-import { X, Plus, CalendarDays } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import type { TaskMode } from "../../../shared/types";
-import { MODE_OKLCH, MODE_CARD_GRADIENT, PRIORITY_EXCLAIM } from "../../../shared/types";
+import { MODE_OKLCH } from "../../../shared/types";
 import { trpc } from "@/lib/trpc";
 import AddTaskSheet from "./AddTaskSheet";
 import SwipeableTaskRow from "./SwipeableTaskRow";
+import TaskItem from "./TaskItem";
+import type { Task } from "../../../drizzle/schema";
 
 interface DueOrbSheetProps {
   open: boolean;
   onClose: () => void;
 }
 
-function formatDue(dateStr: string | null | undefined): { label: string; overdue: boolean; today: boolean } {
-  if (!dateStr) return { label: "", overdue: false, today: false };
-  const todayD = new Date();
-  todayD.setHours(0, 0, 0, 0);
-  const due = new Date(dateStr + "T00:00:00");
-  const diff = Math.round((due.getTime() - todayD.getTime()) / 86400000);
-  if (diff === 0) return { label: "Today", overdue: false, today: true };
-  if (diff === 1) return { label: "Tomorrow", overdue: false, today: false };
-  if (diff === -1) return { label: "Yesterday", overdue: true, today: false };
-  if (diff < 0) return { label: `${Math.abs(diff)}d overdue`, overdue: true, today: false };
-  if (diff <= 6) return { label: `In ${diff}d`, overdue: false, today: false };
-  return { label: due.toLocaleDateString("en-US", { month: "short", day: "numeric" }), overdue: false, today: false };
-}
-
-
-
 export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
   const utils = trpc.useUtils();
   const [addOpen, setAddOpen] = useState(false);
-  const [editTask, setEditTask] = useState<null | { id: number; title: string; mode: string; priority: string; isPinned: boolean; dueDate?: string | null }>(null);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [editTask, setEditTask] = useState<Task | null>(null);
 
   const { data: dueTasks = [], isLoading } = trpc.tasks.dueList.useQuery(undefined, { enabled: open });
   // Need today's mode to auto-assign when pinning
@@ -189,72 +174,25 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
             </div>
           ) : (
             <>
-              {active.map((task) => {
-                const due = formatDue(task.dueDate);
-                return (
-                  <SwipeableTaskRow
-                    key={task.id}
-                    isCompleted={task.isCompleted}
-                    isPinned={task.isPinned}
-                    isExpanded={expandedId === task.id}
-                    modeColor={MODE_OKLCH[task.mode as TaskMode]}
-                    onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: true })}
-                    onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayMode ? { dayMode: todayMode } : {}) })}
-                  >
-                    <div
-                      className="flex items-center gap-3 p-3 rounded-xl cursor-pointer"
-                      style={{
-                        background: MODE_CARD_GRADIENT[task.mode as TaskMode] ?? "var(--color-card)",
-                        border: "none",
-                        color: "#fff",
-                      }}
-                      onClick={() => { setEditTask({ id: task.id, title: task.title, mode: task.mode, priority: task.priority, isPinned: task.isPinned, dueDate: task.dueDate }); setAddOpen(true); }}
-                    >
-                      <button
-                        onClick={(e) => { e.stopPropagation(); updateMutation.mutate({ id: task.id, isCompleted: true }); }}
-                        className="flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center"
-                        style={{ borderColor: "rgba(255,255,255,0.80)", background: "transparent" }}
-                        aria-label="Mark complete"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className="text-sm font-medium truncate"
-                          style={{ color: "rgba(255,255,255,0.95)" }}
-                        >
-                          {task.title}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                          {task.dueDate && (
-                            <span
-                              className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-                              style={{
-                                background: "rgba(255,255,255,0.22)",
-                                color: "rgba(255,255,255,0.9)",
-                                letterSpacing: "0.04em",
-                              }}
-                            >
-                              <CalendarDays size={9} />
-                              {due.label}
-                            </span>
-                          )}
-                          <span
-                            className="text-[10px] tracking-wide uppercase"
-                            style={{ color: "rgba(255,255,255,0.65)" }}
-                          >
-                            {task.mode}
-                          </span>
-                        </div>
-                      </div>
-                      <span
-                        className="text-xs font-bold flex-shrink-0"
-                        style={{ color: "rgba(255,255,255,0.95)", fontWeight: 700 }}
-                      >
-                        {PRIORITY_EXCLAIM[task.priority as keyof typeof PRIORITY_EXCLAIM] ?? "!"}
-                      </span>
-                    </div>
-                  </SwipeableTaskRow>
-                );
-              })}
+              {active.map((task) => (
+                <SwipeableTaskRow
+                  key={task.id}
+                  isCompleted={task.isCompleted}
+                  isPinned={task.isPinned}
+                  modeColor={MODE_OKLCH[task.mode as TaskMode]}
+                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: true })}
+                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayMode ? { dayMode: todayMode } : {}) })}
+                >
+                  <TaskItem
+                    task={task as any}
+                    onToggleComplete={(id, current) => updateMutation.mutate({ id, isCompleted: !current })}
+                    onTogglePin={(id, current) => updateMutation.mutate({ id, isPinned: !current, ...(!current && todayMode ? { dayMode: todayMode } : {}) })}
+                    onDelete={(id) => deleteMutation.mutate({ id })}
+                    onEdit={(t) => { setEditTask(t); setAddOpen(true); }}
+                    taskModeColor={MODE_OKLCH[task.mode as TaskMode]}
+                  />
+                </SwipeableTaskRow>
+              ))}
 
               {done.length > 0 && (
                 <div className="pt-2">
@@ -273,30 +211,14 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
                       onSwipeLeft={() => deleteMutation.mutate({ id: task.id })}
                       onSwipeRight={() => updateMutation.mutate({ id: task.id, isCompleted: false })}
                     >
-                      <div
-                        className="flex items-center gap-3 p-3 rounded-xl opacity-50"
-                        style={{
-                          background: "var(--color-card)",
-                          border: "1px solid var(--color-border)",
-                        }}
-                      >
-                        <button
-                          onClick={(e) => { e.stopPropagation(); updateMutation.mutate({ id: task.id, isCompleted: false }); }}
-                          className="flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center"
-                          style={{ borderColor: MODE_OKLCH[task.mode as TaskMode] ?? "var(--color-muted-foreground)", background: "transparent", opacity: 0.6 }}
-                          aria-label="Mark incomplete"
-                        >
-                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                            <path d="M1 4L3.5 6.5L9 1" stroke="var(--color-muted-foreground)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </button>
-                        <span
-                          className="flex-1 text-sm line-through truncate"
-                          style={{ color: "var(--color-muted-foreground)" }}
-                        >
-                          {task.title}
-                        </span>
-                      </div>
+                      <TaskItem
+                        task={task as any}
+                        onToggleComplete={(id, current) => updateMutation.mutate({ id, isCompleted: !current })}
+                        onTogglePin={(id, current) => updateMutation.mutate({ id, isPinned: !current, ...(!current && todayMode ? { dayMode: todayMode } : {}) })}
+                        onDelete={(id) => deleteMutation.mutate({ id })}
+                        onEdit={(t) => { setEditTask(t); setAddOpen(true); }}
+                        taskModeColor={MODE_OKLCH[task.mode as TaskMode]}
+                      />
                     </SwipeableTaskRow>
                   ))}
                 </div>
@@ -310,7 +232,7 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
       <AddTaskSheet
         open={addOpen}
         onClose={() => { setAddOpen(false); setEditTask(null); }}
-        editTask={editTask ? { id: String(editTask.id), title: editTask.title, mode: editTask.mode, priority: editTask.priority === 'High' ? 3 : editTask.priority === 'Medium' ? 2 : 1, dueDate: editTask.dueDate ? new Date(editTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editTask.isPinned, wealthFlow: (editTask as any).wealthFlow ?? false, projectId: (editTask as any).projectId ?? null, cognitiveLoad: (editTask as any).cognitiveLoad ?? null, physicalLoad: (editTask as any).physicalLoad ?? null, creativeRequired: (editTask as any).creativeRequired ?? null, socialRequired: (editTask as any).socialRequired ?? null, emotionalLoad: (editTask as any).emotionalLoad ?? null, notes: (editTask as any).notes ?? null } : undefined}
+        editTask={editTask ? { id: String(editTask.id), title: editTask.title, mode: editTask.mode, priority: editTask.priority === 'High' ? 3 : editTask.priority === 'Medium' ? 2 : 1, dueDate: editTask.dueDate ? new Date(editTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editTask.isPinned, wealthFlow: (editTask as any).wealthFlow ?? false, projectId: (editTask as any).projectId ?? null, cognitiveLoad: (editTask as any).cognitiveLoad ?? null, physicalLoad: (editTask as any).physicalLoad ?? null, creativeRequired: (editTask as any).creativeRequired ?? null, socialRequired: (editTask as any).socialRequired ?? null, emotionalLoad: (editTask as any).emotionalLoad ?? null, notes: (editTask as any).notes ?? null, recurrence: (editTask as any).recurrence ?? null } : undefined}
       />
     </>
   );
