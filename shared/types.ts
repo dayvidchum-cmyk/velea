@@ -116,7 +116,7 @@ export const MODE_CARD_BG: Record<TaskMode, string> = {
 export const MODE_SOLID: Record<TaskMode, string> = {
   Build: "#D4AF37",
   Action: "#318a55",   // true green, matches the hero/dot family (was yellow-sage #a3cd8f)
-  Selective: "#159DAD", // saturated teal — the old #357E85 read gray (low contrast on nav hover)
+  Selective: "#178F9E", // saturated teal — the old #357E85 read gray (low contrast on nav hover)
   Restraint: "#B15F71",
 };
 
