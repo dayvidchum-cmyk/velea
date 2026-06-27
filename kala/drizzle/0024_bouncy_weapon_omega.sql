@@ -1,0 +1,1 @@
+ALTER TABLE `natal_bodies` ADD `longitude` varchar(20);

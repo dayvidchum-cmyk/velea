@@ -1,0 +1,296 @@
+import SwissEph from 'swisseph-wasm';
+
+const ZODIAC_SIGNS = [
+  "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+  "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+];
+
+const LAHIRI_AYANAMSA_J2000 = 23.6044; // Lahiri ayanamsa at J2000 epoch
+
+function getZodiacSign(longitude: number): string {
+  const normalized = ((longitude % 360) + 360) % 360;
+  const index = Math.floor(normalized / 30);
+  return ZODIAC_SIGNS[index] || "Aries";
+}
+
+function getNakshatraFromLongitude(longitude: number): string {
+  const NAKSHATRAS = [
+    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashirsha", "Ardra",
+    "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
+    "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
+    "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishtha", "Shatabhisha",
+    "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"
+  ];
+  const normalized = ((longitude % 360) + 360) % 360;
+  const index = Math.floor((normalized / 360) * 27);
+  return NAKSHATRAS[index] || "Ashwini";
+}
+
+export interface TimeLordTransit {
+  timeLord: string;
+  startDate: string;
+  endDate: string;
+  sign: string;
+  house: number;
+  nakshatra?: string;
+  isRetrograde: boolean;
+  condition: string;
+  operationalMeaning: string;
+  recommendedUse: string;
+}
+
+export interface TimeLordMovementTimeline {
+  timeLord: string;
+  profectionYearStart: string;
+  profectionYearEnd: string;
+  transits: TimeLordTransit[];
+}
+
+// House interpretations for Time Lord transits
+const HOUSE_INTERPRETATIONS: Record<number, string> = {
+  1: "self-direction, body, visibility, identity, personal agency",
+  2: "money, values, resources, voice, self-worth, material stability",
+  3: "communication, writing, repetition, siblings, short trips, skill-building",
+  4: "home, roots, privacy, emotional foundation, family, inner stability",
+  5: "creativity, romance, pleasure, children, visibility through expression",
+  6: "work, repair, health routines, service, discipline, daily systems",
+  7: "relationships, clients, contracts, agreements, public exchange",
+  8: "shared resources, debt, intimacy, endings, pressure, hidden complexity",
+  9: "beliefs, teaching, publishing, higher learning, long-range direction",
+  10: "career, reputation, public role, authority, achievement",
+  11: "networks, audience, community, gains, future plans",
+  12: "rest, withdrawal, closure, subconscious patterns, private work",
+};
+
+function getPlanetNumber(planetName: string): number {
+  const planetMap: Record<string, number> = {
+    Sun: 0,
+    Moon: 1,
+    Mercury: 2,
+    Venus: 3,
+    Mars: 4,
+    Jupiter: 5,
+    Saturn: 6,
+    Rahu: 9,
+    Ketu: 10,
+  };
+  return planetMap[planetName] || 0;
+}
+
+function getPlanetHouse(planetLongitude: number, lagnaLongitude: number): number {
+  const planet = ((planetLongitude % 360) + 360) % 360;
+  const lagna = ((lagnaLongitude % 360) + 360) % 360;
+  let offset = (planet - lagna + 360) % 360;
+  const house = Math.floor(offset / 30) + 1;
+  return Math.min(12, Math.max(1, house));
+}
+
+function formatDate(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+function getHouseName(house: number): string {
+  const names = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+  return names[house] || "";
+}
+
+function dateToJD(date: Date): number {
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+  const hour = date.getUTCHours() + date.getUTCMinutes() / 60;
+
+  const a = Math.floor((14 - month) / 12);
+  const y = year + 4800 - a;
+  const m = month + 12 * a - 3;
+  const jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+  return jdn + (hour - 12) / 24;
+}
+
+function getPlanetState(se: any, jd: number, planetNum: number, lagnaLongitude: number, lagnaSign: string) {
+  const result = se.calc(jd, planetNum, se.SEFLG_SIDEREAL);
+  const siderealLon = result.longitude - LAHIRI_AYANAMSA_J2000;
+  const normalizedLon = ((siderealLon % 360) + 360) % 360;
+  const transitSign = getZodiacSign(normalizedLon);
+  
+  // Use Whole Sign house mapping instead of longitude-based
+  const house = getHouseFromSign(lagnaSign, transitSign);
+  
+  return {
+    sign: transitSign,
+    house: house,
+    isRetrograde: result.longitudeSpeed < 0,
+    longitude: normalizedLon,
+  };
+}
+
+function getHouseFromSign(lagnaSign: string, transitSign: string): number {
+  const lagnaIndex = ZODIAC_SIGNS.indexOf(lagnaSign);
+  const transitIndex = ZODIAC_SIGNS.indexOf(transitSign);
+  
+  if (lagnaIndex === -1 || transitIndex === -1) {
+    return 12; // Fallback
+  }
+  
+  const distance = (transitIndex - lagnaIndex + 12) % 12;
+  return distance + 1;
+}
+
+/**
+ * Calculate Time Lord transits for a profection year using optimized stepping
+ */
+export async function calculateTimeLordTransits(
+  timeLordPlanet: string,
+  yearStart: string,
+  yearEnd: string,
+  lagnaLongitude: number,
+  timezone: string,
+  lagnaSign: string = "Virgo"
+): Promise<TimeLordMovementTimeline> {
+  const transits: TimeLordTransit[] = [];
+
+  try {
+    // Initialize Swiss Ephemeris
+    const se = new SwissEph();
+    await se.initSwissEph();
+
+    const startDate = new Date(yearStart);
+    const endDate = new Date(yearEnd);
+    const planetNum = getPlanetNumber(timeLordPlanet);
+
+    // Step 1: Scan with 1-day intervals to find all sign/house/retrograde changes
+    const changePoints: { date: Date; state: any }[] = [];
+    
+    let currentDate = new Date(startDate);
+    let lastState = getPlanetState(se, dateToJD(currentDate), planetNum, lagnaLongitude, lagnaSign);
+    changePoints.push({ date: new Date(currentDate), state: lastState });
+
+    // Scan: every 1 day for accuracy
+    while (currentDate < endDate) {
+      currentDate.setDate(currentDate.getDate() + 1);
+      if (currentDate > endDate) currentDate = new Date(endDate);
+
+      const newState = getPlanetState(se, dateToJD(currentDate), planetNum, lagnaLongitude, lagnaSign);
+
+      // Check if anything changed
+      if (
+        newState.sign !== lastState.sign ||
+        newState.house !== lastState.house ||
+        newState.isRetrograde !== lastState.isRetrograde
+      ) {
+        changePoints.push({ date: new Date(currentDate), state: newState });
+        lastState = newState;
+      }
+    }
+
+    // Step 2: For each change point, binary search to find exact transition date
+    for (let i = 0; i < changePoints.length - 1; i++) {
+      const startPoint = changePoints[i];
+      const endPoint = changePoints[i + 1];
+
+      // Binary search for exact transition date
+      let left = new Date(startPoint.date);
+      let right = new Date(endPoint.date);
+
+      while (right.getTime() - left.getTime() > 24 * 60 * 60 * 1000) { // Stop when within 1 day
+        const mid = new Date((left.getTime() + right.getTime()) / 2);
+        const midState = getPlanetState(se, dateToJD(mid), planetNum, lagnaLongitude, lagnaSign);
+
+        if (
+          midState.sign === startPoint.state.sign &&
+          midState.house === startPoint.state.house &&
+          midState.isRetrograde === startPoint.state.isRetrograde
+        ) {
+          left = mid;
+        } else {
+          right = mid;
+        }
+      }
+
+      // Create transit from startPoint to the day before transition
+      // `right` is the first day of the new sign, so end on the day before
+      const transitStartDate = new Date(startPoint.date);
+      const dayBeforeTransition = new Date(right);
+      dayBeforeTransition.setDate(dayBeforeTransition.getDate() - 1);
+      
+      // Only include transits that start on or after yearStart
+      const formattedStart = formatDate(startPoint.date);
+      if (transitStartDate >= startDate) {
+        const transit = createTransit(
+          formattedStart,
+          formatDate(dayBeforeTransition),
+          timeLordPlanet,
+          startPoint.state.sign,
+          startPoint.state.house,
+          startPoint.state.isRetrograde
+        );
+        transits.push(transit);
+      }
+    }
+
+  } catch (error) {
+    console.error("[Transit Calculator] Error:", error);
+  }
+
+  return {
+    timeLord: timeLordPlanet,
+    profectionYearStart: yearStart,
+    profectionYearEnd: yearEnd,
+    transits,
+  };
+}
+
+/**
+ * Create a transit record with interpretation
+ */
+function createTransit(
+  startDate: string,
+  endDate: string,
+  timeLord: string,
+  sign: string,
+  house: number,
+  isRetrograde: boolean
+): TimeLordTransit {
+  const condition = `${sign} in ${getHouseName(house)}${isRetrograde ? " (Retrograde)" : ""}`;
+  const houseInterpretation = HOUSE_INTERPRETATIONS[house] || "";
+
+  return {
+    timeLord,
+    startDate,
+    endDate,
+    sign,
+    house,
+    isRetrograde,
+    condition,
+    operationalMeaning: `The Time Lord emphasizes ${houseInterpretation}`,
+    recommendedUse: generateRecommendedUse(timeLord, house, isRetrograde),
+  };
+}
+
+/**
+ * Generate recommended use text for a Time Lord transit
+ */
+function generateRecommendedUse(timeLord: string, house: number, isRetrograde: boolean): string {
+  const baseRecommendations: Record<number, string> = {
+    1: "Use this period for self-direction, personal projects, visibility, and establishing your presence.",
+    2: "Use this period for financial decisions, value clarification, voice, and material stability.",
+    3: "Use this period for writing, communication, learning, short trips, and skill-building.",
+    4: "Use this period for home, family, emotional processing, rest, and establishing roots.",
+    5: "Use this period for creative projects, romance, pleasure, and self-expression.",
+    6: "Use this period for work, health routines, service, repair, and daily systems.",
+    7: "Use this period for relationships, contracts, public exchange, and partnerships.",
+    8: "Use this period for shared resources, intimacy, transformation, and handling complexity.",
+    9: "Use this period for learning, teaching, publishing, and clarifying your worldview.",
+    10: "Use this period for career advancement, public role, reputation, and authority.",
+    11: "Use this period for networking, community, audience-building, and future planning.",
+    12: "Use this period for rest, reflection, private work, and spiritual practice.",
+  };
+
+  let recommendation = baseRecommendations[house] || "Use this period wisely.";
+
+  if (isRetrograde) {
+    recommendation += " The retrograde motion suggests reviewing, refining, or completing unfinished work in this area.";
+  }
+
+  return recommendation;
+}

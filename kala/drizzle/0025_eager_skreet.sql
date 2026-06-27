@@ -1,0 +1,43 @@
+CREATE TABLE `profile_natal_bodies` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`profileId` int NOT NULL,
+	`planet` varchar(32) NOT NULL,
+	`sign` varchar(32) NOT NULL,
+	`degree` varchar(16) NOT NULL,
+	`house` int NOT NULL,
+	`nakshatra` varchar(64),
+	`pada` int,
+	`longitude` varchar(20),
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `profile_natal_bodies_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `profiles` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`name` varchar(128) NOT NULL,
+	`birthDate` varchar(10),
+	`birthTime` varchar(8),
+	`birthLocationCity` varchar(128),
+	`birthLocationLat` varchar(24),
+	`birthLocationLon` varchar(24),
+	`birthTimezone` varchar(64),
+	`notes` text,
+	`isActive` boolean NOT NULL DEFAULT false,
+	`lagnaSign` varchar(32),
+	`sunHouse` int,
+	`moonHouse` int,
+	`marsHouse` int,
+	`mercuryHouse` int,
+	`jupiterHouse` int,
+	`venusHouse` int,
+	`saturnHouse` int,
+	`rahuHouse` int,
+	`ketuHouse` int,
+	`ascendantDegree` varchar(16),
+	`archivedAt` timestamp,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `profiles_id` PRIMARY KEY(`id`)
+);

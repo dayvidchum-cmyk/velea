@@ -1,0 +1,820 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@source "../src/**/*.{ts,tsx}";
+@source inline("bg-mode-action bg-mode-build bg-mode-restraint bg-mode-selective text-mode-action text-mode-build text-mode-restraint text-mode-selective border-mode-action border-mode-build border-mode-restraint border-mode-selective ring-mode-action ring-mode-build ring-mode-restraint ring-mode-selective bg-mode-action/10 bg-mode-build/10 bg-mode-restraint/10 bg-mode-selective/10 bg-mode-action/20 bg-mode-build/20 bg-mode-restraint/20 bg-mode-selective/20 bg-mode-action/30 bg-mode-build/30 bg-mode-restraint/30 bg-mode-selective/30 border-mode-action/30 border-mode-build/30 border-mode-restraint/30 border-mode-selective/30 border-mode-action/40 border-mode-build/40 border-mode-restraint/40 border-mode-selective/40 text-mode-action/80 text-mode-build/80 text-mode-restraint/80 text-mode-selective/80 orb-action orb-build orb-restraint orb-selective tag-action tag-build tag-restraint tag-selective tag-flex tag-peak glass-card glass-panel glass-nav glass-input star-bg gold-rule font-display font-body font-mono-data card-celestial glow-gold glow-action glow-build glow-restraint glow-selective no-scrollbar safe-area-inset-bottom");
+
+@custom-variant dark (&:is(.dark *));
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   KALA — LUXURY TERMINAL AESTHETIC
+   Dark mode only. Pure black. High contrast. Calm. Information-dense.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --card: #0A0A0A;
+  --card-foreground: #FFFFFF;
+  --popover: #0A0A0A;
+  --popover-foreground: #FFFFFF;
+  --primary: oklch(0.767 0.139 91.1);
+  --primary-foreground: #000000;
+  --secondary: #111111;
+  --secondary-foreground: #FFFFFF;
+  --muted: #111111;
+  --muted-foreground: rgba(255, 255, 255, 0.60);
+  --accent: oklch(0.767 0.139 91.1);
+  --accent-foreground: #000000;
+  --destructive: oklch(0.55 0.18 25);
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.10);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: oklch(0.767 0.139 91.1);
+  --radius: 0.75rem;
+  --amber-gold: oklch(0.767 0.139 91.1);
+  --amber-dim: oklch(0.65 0.10 91.1);
+  --space-deep: #000000;
+  --space-navy: #050505;
+  --space-mid: #0A0A0A;
+  --space-light: #111111;
+  --cream: #FFFFFF;
+  --cream-dim: rgba(255, 255, 255, 0.60);
+  --mode-action: oklch(0.48 0.28 152);
+  --mode-build: oklch(0.767 0.139 91.1);
+  --mode-restraint: oklch(0.54 0.14 10);
+  --mode-selective: oklch(0.50 0.12 200);
+  --sidebar: #000000;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: oklch(0.767 0.139 91.1);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #111111;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: oklch(0.767 0.139 91.1);
+  /* Task card backgrounds — mode-specific tints */
+  --task-bg: rgba(25, 50, 25, 0.08);
+  --task-bg-hover: rgba(25, 50, 25, 0.12);
+  /* Filter pill backgrounds — amber-gold active state */
+  --filter-pill-bg-active: rgba(212, 175, 55, 0.13);
+  --filter-pill-border-active: rgba(212, 175, 55, 0.40);
+  /* Task metadata button colors */
+  --metadata-cognitive: oklch(0.55 0.12 260);
+  --metadata-physical: oklch(0.55 0.14 145);
+  --metadata-emotional: oklch(0.58 0.16 20);
+  --metadata-creative: oklch(0.65 0.18 55);
+  --metadata-creative-text: oklch(0.12 0.01 80);
+  --metadata-social: oklch(0.60 0.14 300);
+  --metadata-wealth: oklch(0.72 0.18 145);
+  /* Dialog colors */
+  --dialog-overlay: oklch(0 0 0 / 0.6);
+  --dialog-delete-bg: oklch(0.52 0.12 15);
+  --dialog-delete-text: oklch(1 0 0);
+  --dialog-archive-text: oklch(0.1 0 0);
+
+  /* ── KALA MODE PALETTE (exact brand values from design brief) ── */
+  /* ACTION — sage green brightening to chartreuse, deepening to dark forest-moss */
+  --kala-action-primary: #a3cd8f;
+  --kala-action-highlight: #c8e4b8;
+  --kala-action-shadow: #5a8f4a;
+  --kala-action-gradient: linear-gradient(180deg, #a0e39a 0%, #268d58 50%, #163311 100%);
+  /* BUILD — warm gold brightening to champagne, deepening to ochre-rose (unchanged) */
+  --kala-build-primary: #D4AF37;
+  --kala-build-highlight: #E8D87A;
+  --kala-build-shadow: #BC886F;
+  --kala-build-gradient: linear-gradient(180deg, #E8C84A 0%, #D4AF37 35%, #C49A2E 65%, #BC886F 100%);
+  /* SELECTIVE — cool teal brightening to ice-blue, deepening to deep slate-indigo */
+  --kala-selective-primary: #357E85;
+  --kala-selective-highlight: #8AC8D0;
+  --kala-selective-shadow: #1A2B4A;
+  --kala-selective-gradient: linear-gradient(180deg, #8AC8D0 0%, #4A9099 30%, #357E85 60%, #1A2B4A 100%);
+  /* RESTRAINT — blush rose brightening to petal pink, deepening to deep plum-burgundy */
+  --kala-restraint-primary: #B15F71;
+  --kala-restraint-highlight: #F0A8B8;
+  --kala-restraint-shadow: #4A1A2E;
+  --kala-restraint-gradient: linear-gradient(180deg, #F0A8B8 0%, #D4788A 30%, #B15F71 60%, #4A1A2E 100%);
+
+  /* Card gradients — darker variants for short accordion cards. They start at the
+     mode's mid tone (never the pale highlight) so white text stays legible even
+     when only the top of the gradient is visible. */
+  --kala-action-card-gradient: linear-gradient(180deg, #4b805c 0%, #3a6448 55%, #284734 100%);
+  --kala-build-card-gradient: linear-gradient(180deg, #c9a531 0%, #a3812a 55%, #6f5820 100%);
+  --kala-selective-card-gradient: linear-gradient(180deg, #3c97a0 0%, #2f7d86 55%, #235e66 100%);
+  --kala-restraint-card-gradient: linear-gradient(180deg, #c2666c 0%, #9c525b 55%, #5f343b 100%);
+}
+
+@theme inline {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Futura PT', 'Futura', 'Century Gothic', ui-sans-serif, sans-serif;
+  --font-serif: 'Playfair Display', 'Georgia', ui-serif, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-amber-gold: var(--amber-gold);
+  --color-amber-dim: var(--amber-dim);
+  --color-space-deep: var(--space-deep);
+  --color-space-navy: var(--space-navy);
+  --color-space-mid: var(--space-mid);
+  --color-space-light: var(--space-light);
+  --color-cream: var(--cream);
+  --color-cream-dim: var(--cream-dim);
+  --color-mode-action: var(--mode-action);
+  --color-mode-build: var(--mode-build);
+  --color-mode-restraint: var(--mode-restraint);
+  --color-mode-selective: var(--mode-selective);
+  --radius: 0.75rem;
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    background: var(--background) !important;
+    -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
+  }
+
+  html::before {
+    /* Fallback: paint a solid layer behind everything for Safari safe areas */
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--background);
+    pointer-events: none;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+    background: var(--background) !important;
+    color: var(--foreground);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--foreground);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:active:not(:disabled) {
+    transform: scale(0.97);
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 480px;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* ── GLASS UTILITIES (now dark-only, minimal) ─────────────────── */
+  .glass-card {
+    background: #0A0A0A;
+    backdrop-filter: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+    box-shadow: none;
+  }
+
+  .glass-panel {
+    background: #0A0A0A;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+  }
+
+  .glass-nav {
+    background: #000000;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: none;
+    border-radius: calc(var(--radius) - 2px);
+    color: #FFFFFF;
+    font-size: 16px !important;
+  }
+
+  .glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.40);
+  }
+
+  .glass-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: none;
+  }
+
+  /* ── CARD CELESTIAL (now charcoal) ──────────────────────────────── */
+  .card-celestial {
+    background: #0A0A0A;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+  }
+
+  /* ── STAR BACKGROUND ─────────────────────────────────── */
+  .star-bg {
+    /* intentionally empty */
+  }
+
+  /* ── GOLD RULE (subtle separator) ───────────────────────────────── */
+  .gold-rule {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  }
+
+  /* ── TYPOGRAPHY ──────────────────────────────────────── */
+  .font-display {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .font-body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400;
+  }
+
+  .font-mono-data {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.8em;
+  }
+
+  /* ── MODE TAGS (dark terminal style) ────────────────────────────── */
+  .tag-action {
+    background: oklch(0.57 0.12 145 / 0.15);
+    color: oklch(0.72 0.12 145);
+    border: 1px solid oklch(0.57 0.12 145 / 0.25);
+    border-radius: 999px;
+    padding: 0.15em 0.65em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tag-build {
+    background: oklch(0.767 0.139 91.1 / 0.15);
+    color: oklch(0.85 0.12 91.1);
+    border: 1px solid oklch(0.767 0.139 91.1 / 0.25);
+    border-radius: 999px;
+    padding: 0.15em 0.65em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tag-restraint {
+    background: oklch(0.54 0.14 10 / 0.15);
+    color: oklch(0.68 0.12 10);
+    border: 1px solid oklch(0.54 0.14 10 / 0.25);
+    border-radius: 999px;
+    padding: 0.15em 0.65em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tag-selective {
+    background: oklch(0.50 0.12 200 / 0.15);
+    color: oklch(0.68 0.10 200);
+    border: 1px solid oklch(0.50 0.12 200 / 0.25);
+    border-radius: 999px;
+    padding: 0.15em 0.65em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tag-flex {
+    background: oklch(0.50 0.10 280 / 0.15);
+    color: oklch(0.72 0.10 280);
+    border: 1px solid oklch(0.50 0.10 280 / 0.25);
+    border-radius: 999px;
+    padding: 0.15em 0.65em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tag-peak {
+    background: oklch(0.767 0.139 91.1 / 0.20);
+    color: oklch(0.88 0.10 91.1);
+    border: 1px solid oklch(0.767 0.139 91.1 / 0.30);
+    border-radius: 999px;
+    padding: 0.15em 0.65em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: none;
+  }
+
+  /* ── MODE ORBS (flat, no glow) ───────────────────────────────────── */
+    .orb-action {
+    background: #a3cd8f;
+    box-shadow: none;
+    border: 1px solid rgba(75,132,81,0.4);
+  }
+  .orb-build {
+    background: #D4AF37;
+    box-shadow: none;
+    border: 1px solid rgba(212,175,55,0.4);
+  }
+  .orb-restraint {
+    background: #B15F71;
+    box-shadow: none;
+    border: 1px solid rgba(177,95,113,0.4);
+  }
+  .orb-selective {
+    background: #357E85;
+    box-shadow: none;
+    border: 1px solid rgba(53,126,133,0.4);
+  }
+
+  /* ── GLOW EFFECTS (removed — no decorative glows) ──────────────── */
+  .glow-gold { box-shadow: none; }
+  .glow-action { box-shadow: none; }
+  .glow-build { box-shadow: none; }
+  .glow-restraint { box-shadow: none; }
+  .glow-selective { box-shadow: none; }
+
+  /* ── SCROLLBAR ───────────────────────────────────────── */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  /* ── UTILITIES ───────────────────────────────────────── */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Safari bottom nav safe area */
+  .nav-safe-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--background) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Safari top safe area — ensure content doesn't bleed into status bar */
+  .content-safe-area {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
+.dark {
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --card: #0A0A0A;
+  --card-foreground: #FFFFFF;
+  --popover: #0A0A0A;
+  --popover-foreground: #FFFFFF;
+  --primary: oklch(0.767 0.139 91.1);
+  --primary-foreground: #000000;
+  --secondary: #111111;
+  --secondary-foreground: #FFFFFF;
+  --muted: #111111;
+  --muted-foreground: rgba(255, 255, 255, 0.60);
+  --accent: oklch(0.767 0.139 91.1);
+  --accent-foreground: #000000;
+  --destructive: oklch(0.58 0.18 25);
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.10);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: oklch(0.767 0.139 91.1);
+  --amber-gold: oklch(0.767 0.139 91.1);
+  --amber-dim: oklch(0.65 0.10 91.1);
+  --space-deep: #000000;
+  --space-navy: #050505;
+  --space-mid: #0A0A0A;
+  --space-light: #111111;
+  --cream: #FFFFFF;
+  --cream-dim: rgba(255, 255, 255, 0.60);
+  --mode-action: oklch(0.48 0.28 152);
+  --mode-build: oklch(0.767 0.139 91.1);
+  --mode-restraint: oklch(0.54 0.14 10);
+  --mode-selective: oklch(0.50 0.12 200);
+  --sidebar: #000000;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: oklch(0.767 0.139 91.1);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #111111;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: oklch(0.767 0.139 91.1);
+}
+
+.dark body {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+.dark .glass-card {
+  background: #0A0A0A;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.dark .glass-panel {
+  background: #0A0A0A;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-nav {
+  background: #000000;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+}
+
+.dark .glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.40);
+}
+
+.dark .glass-input:focus {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+}
+
+.dark .gold-rule {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark .tag-action {
+  background: oklch(0.57 0.12 145 / 0.15);
+  color: oklch(0.72 0.12 145);
+  border: 1px solid oklch(0.57 0.12 145 / 0.25);
+}
+
+.dark .tag-build {
+  background: oklch(0.767 0.139 91.1 / 0.15);
+  color: oklch(0.85 0.12 91.1);
+  border: 1px solid oklch(0.767 0.139 91.1 / 0.25);
+}
+
+.dark .tag-restraint {
+  background: oklch(0.54 0.14 10 / 0.15);
+  color: oklch(0.68 0.12 10);
+  border: 1px solid oklch(0.54 0.14 10 / 0.25);
+}
+
+.dark .tag-flex {
+  color: oklch(0.72 0.10 280);
+  background: oklch(0.50 0.10 280 / 0.15);
+  border-color: oklch(0.50 0.10 280 / 0.25);
+}
+
+.dark .tag-selective {
+  background: oklch(0.50 0.12 200 / 0.15);
+  color: oklch(0.68 0.10 200);
+  border: 1px solid oklch(0.50 0.12 200 / 0.25);
+}
+
+.dark .tag-peak {
+  background: oklch(0.767 0.139 91.1 / 0.20);
+  color: oklch(0.88 0.10 91.1);
+  border: 1px solid oklch(0.767 0.139 91.1 / 0.30);
+  box-shadow: none;
+}
+
+/* ── DARK MODE ORB OVERRIDES (flat, solid) ─────────────────────────── */
+.dark .orb-action {
+  background: oklch(0.57 0.12 145);
+  box-shadow: none;
+  border: 1px solid oklch(0.57 0.12 145 / 0.40);
+}
+
+.dark .orb-action.scale-110 {
+  box-shadow: none;
+}
+
+.dark .orb-build {
+  background: oklch(0.767 0.139 91.1);
+  box-shadow: none;
+  border: 1px solid oklch(0.767 0.139 91.1 / 0.40);
+}
+
+.dark .orb-build.scale-110 {
+  box-shadow: none;
+}
+
+.dark .orb-restraint {
+  background: oklch(0.54 0.14 10);
+  box-shadow: none;
+  border: 1px solid oklch(0.54 0.14 10 / 0.40);
+}
+
+.dark .orb-restraint.scale-110 {
+  box-shadow: none;
+}
+
+.dark .orb-selective {
+  background: oklch(0.50 0.12 200);
+  box-shadow: none;
+  border: 1px solid oklch(0.50 0.12 200 / 0.40);
+}
+
+.dark .orb-selective.scale-110 {
+  box-shadow: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   LIGHT MODE
+   Same structure, inverted colors. Calm, high-contrast, white foundation.
+   ══════════════════════════════════════════════════════════════════════════════ */
+html.light {
+  --background: #FFFFFF;
+  --foreground: #000000;
+  --card: #FFFFFF;
+  --card-foreground: #000000;
+  --popover: #FFFFFF;
+  --popover-foreground: #000000;
+  --primary: oklch(0.767 0.139 91.1);
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #000000;
+  --muted: #F5F5F5;
+  --muted-foreground: #666666;
+  --accent: oklch(0.767 0.139 91.1);
+  --accent-foreground: #FFFFFF;
+  --destructive: oklch(0.50 0.18 25);
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E5E5;
+  --input: #F0F0F0;
+  --ring: oklch(0.767 0.139 91.1);
+  --amber-gold: oklch(0.767 0.139 91.1);
+  --amber-dim: oklch(0.65 0.10 91.1);
+  --space-deep: #FAFAFA;
+  --space-navy: #F5F5F5;
+  --space-mid: #FFFFFF;
+  --space-light: #F0F0F0;
+  --cream: #000000;
+  --cream-dim: #666666;
+  --mode-action: oklch(0.40 0.28 152);
+  --mode-build: oklch(0.767 0.139 91.1);
+  --mode-restraint: oklch(0.48 0.14 10);
+  --mode-selective: oklch(0.42 0.12 200);
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: oklch(0.767 0.139 91.1);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F5F5F5;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #E5E5E5;
+  --sidebar-ring: oklch(0.767 0.139 91.1);
+  /* Task card backgrounds — light mode with better contrast */
+  --task-bg: rgba(100, 180, 100, 0.10);
+  --task-bg-hover: rgba(100, 180, 100, 0.16);
+  /* Filter pill backgrounds — light mode, amber-gold active state */
+  --filter-pill-bg-active: rgba(212, 175, 55, 0.12);
+  --filter-pill-border-active: rgba(212, 175, 55, 0.35);
+  /* Task metadata button colors — light mode */
+  --metadata-cognitive: oklch(0.45 0.12 260);
+  --metadata-physical: oklch(0.45 0.14 145);
+  --metadata-emotional: oklch(0.48 0.16 20);
+  --metadata-creative: oklch(0.55 0.18 55);
+  --metadata-creative-text: oklch(0.85 0.01 80);
+  --metadata-social: oklch(0.50 0.14 300);
+  --metadata-wealth: oklch(0.62 0.18 145);
+  /* Dialog colors — light mode */
+  --dialog-overlay: oklch(0 0 0 / 0.25);
+  --dialog-delete-bg: oklch(0.70 0.12 15);
+  --dialog-delete-text: oklch(0.40 0 0);
+  --dialog-archive-text: oklch(0.60 0 0);
+}
+
+html.light body {
+  background: #FFFFFF;
+  color: #000000;
+}
+
+html.light .glass-card {
+  background: #FFFFFF;
+  backdrop-filter: none;
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+html.light .glass-panel {
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+}
+
+html.light .glass-nav {
+  background: #FFFFFF;
+  border-top: 1px solid #E5E5E5;
+}
+
+html.light .glass-input {
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  color: #000000;
+}
+
+html.light .glass-input::placeholder {
+  color: #999999;
+}
+
+html.light .glass-input:focus {
+  border-color: #CCCCCC;
+  box-shadow: none;
+}
+
+html.light .gold-rule {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.10), transparent);
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ── LIGHT MODE TAGS ─────────────────────────────────────────────────── */
+html.light .tag-action {
+  background: oklch(0.45 0.12 145 / 0.10);
+  color: oklch(0.35 0.12 145);
+  border: 1px solid oklch(0.45 0.12 145 / 0.20);
+}
+
+html.light .tag-build {
+  background: oklch(0.767 0.139 91.1 / 0.10);
+  color: oklch(0.50 0.139 91.1);
+  border: 1px solid oklch(0.767 0.139 91.1 / 0.20);
+}
+
+html.light .tag-restraint {
+  background: oklch(0.48 0.14 10 / 0.10);
+  color: oklch(0.38 0.14 10);
+  border: 1px solid oklch(0.48 0.14 10 / 0.20);
+}
+
+html.light .tag-selective {
+  background: oklch(0.42 0.12 200 / 0.10);
+  color: oklch(0.32 0.12 200);
+  border: 1px solid oklch(0.42 0.12 200 / 0.20);
+}
+
+html.light .tag-flex {
+  background: oklch(0.50 0.10 280 / 0.10);
+  color: oklch(0.38 0.10 280);
+  border-color: oklch(0.50 0.10 280 / 0.20);
+}
+
+html.light .tag-peak {
+  background: oklch(0.767 0.139 91.1 / 0.12);
+  color: oklch(0.50 0.139 91.1);
+  border: 1px solid oklch(0.767 0.139 91.1 / 0.20);
+  box-shadow: none;
+}
+
+/* ── LIGHT MODE ORBS ─────────────────────────────────────────────────── */
+html.light .orb-action {
+  background: #4B8451;
+  box-shadow: none;
+  border: 1px solid rgba(75,132,81,0.4);
+}
+html.light .orb-build {
+  background: #D4AF37;
+  box-shadow: none;
+  border: 1px solid rgba(212,175,55,0.4);
+}
+html.light .orb-restraint {
+  background: #B15F71;
+  box-shadow: none;
+  border: 1px solid rgba(177,95,113,0.4);
+}
+html.light .orb-selective {
+  background: #357E85;
+  box-shadow: none;
+  border: 1px solid rgba(53,126,133,0.4);
+}
+
+/* ── LIGHT MODE CARD CELESTIAL ───────────────────────────────────────── */
+html.light .card-celestial {
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+}

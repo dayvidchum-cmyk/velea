@@ -1,0 +1,284 @@
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Search, X } from "lucide-react";
+import AppHeader from "@/components/AppHeader";
+import { useDayModeColor } from "@/hooks/useDayModeColor";
+
+interface GlossaryTerm {
+  term: string;
+  category: string;
+  definition: string;
+}
+
+const GLOSSARY: GlossaryTerm[] = [
+  // ── Panchang ──────────────────────────────────────────────────────────────
+  { term: "Panchang", category: "Panchang", definition: "The Vedic almanac. 'Pancha' means five, 'anga' means limb. The five limbs are: Tithi (lunar day), Vara (weekday), Nakshatra (lunar mansion), Yoga (Sun-Moon combination), and Karana (half-tithi). Together they give the complete energetic signature of any given day." },
+  { term: "Tithi", category: "Panchang", definition: "Lunar day — one of 30 divisions of the lunar month based on the angular relationship between Sun and Moon. Each tithi spans 12° of separation. The lunar month divides into two fortnights: Shukla Paksha (waxing) and Krishna Paksha (waning). Each tithi carries a specific quality — some are auspicious for beginnings, others for completion or rest." },
+  { term: "Nakshatra", category: "Panchang", definition: "Lunar mansion — one of 27 divisions of the zodiac, each spanning 13°20'. The Moon moves through roughly one nakshatra per day. Nakshatras carry precise behavioral and energetic qualities that refine the meaning of any planet placed within them. They are the backbone of Vedic timing and the basis of the Vimshottari Dasha system." },
+  { term: "Pada", category: "Panchang", definition: "Each nakshatra is divided into 4 padas (quarters) of 3°20' each. The pada a planet occupies adds another layer of nuance — each pada corresponds to one sign of the zodiac in sequence, coloring the planet's expression with that sign's qualities." },
+  { term: "Vara", category: "Panchang", definition: "The weekday, each ruled by a planet: Sunday (Sun), Monday (Moon), Tuesday (Mars), Wednesday (Mercury), Thursday (Jupiter), Friday (Venus), Saturday (Saturn). The ruling planet of the day adds its energy to all activities undertaken." },
+  { term: "Yoga (Panchang)", category: "Panchang", definition: "One of the five limbs of the Panchang. Calculated from the combined longitude of the Sun and Moon, divided into 27 equal parts. Each yoga has a name and quality — some are considered auspicious (Siddha, Shubha), others inauspicious (Vyatipata, Vaidhriti). Distinct from the practice of yoga." },
+  { term: "Karana", category: "Panchang", definition: "Half of a tithi — there are 11 karanas that repeat in a cycle. Each karana spans 6° of Sun-Moon separation. Karanas refine the quality of the tithi and are used in muhurta (electional astrology) to choose optimal timing for specific activities." },
+  { term: "Shukla Paksha", category: "Panchang", definition: "The waxing fortnight — from New Moon to Full Moon. Generally supportive for initiating, building, and expanding. Energy is building toward fullness. The 15th tithi of Shukla Paksha is Purnima (Full Moon)." },
+  { term: "Krishna Paksha", category: "Panchang", definition: "The waning fortnight — from Full Moon to New Moon. Associated with releasing, refining, and completing. Not inherently negative — many strong action days fall in Krishna Paksha, as the nakshatra quality often matters more than the paksha alone." },
+  { term: "Purnima", category: "Panchang", definition: "Full Moon — the 15th tithi of Shukla Paksha. A time of culmination, heightened emotion, and peak energy. Considered auspicious for spiritual practice. The nakshatra the Moon occupies at Purnima gives the month its name (e.g., Pushya Purnima)." },
+  { term: "Amavasya", category: "Panchang", definition: "New Moon — the 30th tithi, when Sun and Moon conjoin. A time of rest, introspection, and releasing what no longer serves. Traditionally avoided for new beginnings but considered powerful for ancestor rituals (Pitru Tarpana) and deep inner work." },
+  { term: "Sunrise (Brahma Muhurta)", category: "Panchang", definition: "The period approximately 1.5 hours before sunrise is called Brahma Muhurta — considered the most auspicious time of day for meditation, study, and spiritual practice. The panchang day technically begins at sunrise, not midnight." },
+
+  // ── Nakshatras ────────────────────────────────────────────────────────────
+  { term: "Ashwini", category: "Nakshatra", definition: "1st nakshatra (0°–13°20' Aries). Ruled by Ketu. Symbol: horse's head. Deity: Ashwini Kumars (divine physicians). Quality: swift, healing, pioneering. The first impulse — quick action, fresh starts, and the energy of dawn." },
+  { term: "Bharani", category: "Nakshatra", definition: "2nd nakshatra (13°20'–26°40' Aries). Ruled by Venus. Symbol: yoni (womb). Deity: Yama (god of death and dharma). Quality: transformation, containment, creative force. Carries the energy of bearing — both birth and death, creation and destruction." },
+  { term: "Krittika", category: "Nakshatra", definition: "3rd nakshatra (26°40' Aries–10° Taurus). Ruled by Sun. Symbol: razor/flame. Deity: Agni (fire god). Quality: sharp, purifying, cutting through illusion. Associated with the Pleiades. Gives the ability to cut away what is unnecessary and forge what is essential." },
+  { term: "Rohini", category: "Nakshatra", definition: "4th nakshatra (10°–23°20' Taurus). Ruled by Moon. Symbol: chariot, ox cart. Deity: Brahma (creator). Quality: fertile, sensual, creative, growth-oriented. The Moon's favorite nakshatra — considered the most beautiful and abundant of the 27. Associated with material manifestation and artistic beauty." },
+  { term: "Mrigashira", category: "Nakshatra", definition: "5th nakshatra (23°20' Taurus–6°40' Gemini). Ruled by Mars. Symbol: deer's head. Deity: Soma (Moon god). Quality: searching, gentle, curious. The eternal seeker — always looking for something more beautiful or meaningful. Gives a restless, questing intelligence." },
+  { term: "Ardra", category: "Nakshatra", definition: "6th nakshatra (6°40'–20° Gemini). Ruled by Rahu. Symbol: teardrop, diamond. Deity: Rudra (storm god). Quality: intense, transformative, destructive-creative. Associated with storms, grief, and radical change. The nakshatra of Sirius — carries fierce, penetrating intelligence." },
+  { term: "Punarvasu", category: "Nakshatra", definition: "7th nakshatra (20° Gemini–3°20' Cancer). Ruled by Jupiter. Symbol: quiver of arrows. Deity: Aditi (mother of gods, goddess of infinity). Quality: renewal, return, abundance. 'Punarvasu' means 'return of the light.' Associated with restoration, forgiveness, and the ability to begin again." },
+  { term: "Pushya", category: "Nakshatra", definition: "8th nakshatra (3°20'–16°40' Cancer). Ruled by Saturn. Symbol: lotus, circle, arrow. Deity: Brihaspati (Jupiter, teacher of the gods). Quality: nourishing, protective, spiritual. Considered the most auspicious of all nakshatras. Associated with nourishment, teaching, and the expansion of dharma." },
+  { term: "Ashlesha", category: "Nakshatra", definition: "9th nakshatra (16°40'–30° Cancer). Ruled by Mercury. Symbol: coiled serpent. Deity: Nagas (serpent deities). Quality: penetrating, hypnotic, transformative. The nakshatra of the serpent — carries kundalini energy, deep insight, and the ability to see through surfaces. Can be intensely perceptive or manipulative." },
+  { term: "Magha", category: "Nakshatra", definition: "10th nakshatra (0°–13°20' Leo). Ruled by Ketu. Symbol: royal throne. Deity: Pitrs (ancestors). Quality: regal, authoritative, ancestral. Associated with lineage, legacy, and the power of the past. Gives natural authority and a connection to ancestral wisdom." },
+  { term: "Purva Phalguni", category: "Nakshatra", definition: "11th nakshatra (13°20'–26°40' Leo). Ruled by Venus. Symbol: hammock, front legs of a bed. Deity: Bhaga (god of delight and marital bliss). Quality: pleasure, creativity, rest, indulgence. The nakshatra of enjoyment — associated with the arts, romance, and the sweetness of life." },
+  { term: "Uttara Phalguni", category: "Nakshatra", definition: "12th nakshatra (26°40' Leo–10° Virgo). Ruled by Sun. Symbol: back legs of a bed. Deity: Aryaman (god of patronage and contracts). Quality: service, commitment, social contracts. Bridges pleasure (Purva Phalguni) with duty. Associated with patronage, helpfulness, and the fulfillment of obligations." },
+  { term: "Hasta", category: "Nakshatra", definition: "13th nakshatra (10°–23°20' Virgo). Ruled by Moon. Symbol: hand. Deity: Savitar (the Sun as creative force). Quality: skillful, practical, healing. The nakshatra of the craftsperson — associated with manual skill, healing arts, and the ability to manifest through one's hands." },
+  { term: "Chitra", category: "Nakshatra", definition: "14th nakshatra (23°20' Virgo–6°40' Libra). Ruled by Mars. Symbol: bright jewel, pearl. Deity: Tvashtar/Vishwakarma (divine architect). Quality: creative, brilliant, architectural. Associated with beauty, design, and the ability to construct something magnificent. Gives aesthetic vision and technical mastery." },
+  { term: "Swati", category: "Nakshatra", definition: "15th nakshatra (6°40'–20° Libra). Ruled by Rahu. Symbol: young plant shoot in the wind. Deity: Vayu (wind god). Quality: independent, flexible, scattered. The nakshatra of independence — associated with freedom of movement, commerce, and the ability to adapt. Can be restless or scattered without grounding." },
+  { term: "Vishakha", category: "Nakshatra", definition: "16th nakshatra (20° Libra–3°20' Scorpio). Ruled by Jupiter. Symbol: triumphal arch, potter's wheel. Deity: Indra and Agni (king of gods and fire). Quality: purposeful, ambitious, goal-oriented. The nakshatra of focused determination — associated with achieving goals through sustained effort and the willingness to wait for the right moment." },
+  { term: "Anuradha", category: "Nakshatra", definition: "17th nakshatra (3°20'–16°40' Scorpio). Ruled by Saturn. Symbol: lotus, staff. Deity: Mitra (god of friendship and contracts). Quality: devoted, disciplined, friendly. Associated with deep friendship, loyalty, and the ability to maintain relationships across distance and time." },
+  { term: "Jyeshtha", category: "Nakshatra", definition: "18th nakshatra (16°40'–30° Scorpio). Ruled by Mercury. Symbol: circular amulet, umbrella. Deity: Indra (king of gods). Quality: protective, eldest, powerful. The nakshatra of the chief or elder — associated with authority, protection of the vulnerable, and the responsibilities that come with power." },
+  { term: "Mula", category: "Nakshatra", definition: "19th nakshatra (0°–13°20' Sagittarius). Ruled by Ketu. Symbol: tied bunch of roots, elephant goad. Deity: Nirriti (goddess of dissolution). Quality: investigative, destructive-creative, root-seeking. Associated with going to the root of things — can indicate uprooting, research, and the destruction of what is no longer needed for growth." },
+  { term: "Purva Ashadha", category: "Nakshatra", definition: "20th nakshatra (13°20'–26°40' Sagittarius). Ruled by Venus. Symbol: elephant tusk, fan, winnowing basket. Deity: Apas (water goddess). Quality: invincible, purifying, philosophical. Associated with the early stages of a campaign — the gathering of energy before a decisive push forward." },
+  { term: "Uttara Ashadha", category: "Nakshatra", definition: "21st nakshatra (26°40' Sagittarius–10° Capricorn). Ruled by Sun. Symbol: elephant tusk, small bed. Deity: Vishwadevas (universal gods). Quality: victorious, ethical, lasting. Associated with final victory achieved through righteousness. Gives the ability to complete what was begun and make it endure." },
+  { term: "Shravana", category: "Nakshatra", definition: "22nd nakshatra (10°–23°20' Capricorn). Ruled by Moon. Symbol: ear, three footprints. Deity: Vishnu (preserver). Quality: listening, learning, connecting. The nakshatra of hearing — associated with the transmission of knowledge, learning through listening, and the ability to connect disparate things." },
+  { term: "Dhanishtha", category: "Nakshatra", definition: "23rd nakshatra (23°20' Capricorn–6°40' Aquarius). Ruled by Mars. Symbol: drum, flute. Deity: Ashta Vasus (eight elemental gods). Quality: wealthy, musical, ambitious. Associated with abundance, music, and the rhythmic pulse of life. Gives strong ambition and the ability to accumulate resources." },
+  { term: "Satabhisha", category: "Nakshatra", definition: "24th nakshatra (6°40'–20° Aquarius). Ruled by Rahu. Symbol: empty circle, 1000 stars. Deity: Varuna (god of cosmic law and the ocean). Quality: healing, secretive, independent. 'Satabhisha' means '100 healers' or '1000 physicians.' Associated with healing through unconventional or hidden means, research, and the ability to work alone." },
+  { term: "Purva Bhadrapada", category: "Nakshatra", definition: "25th nakshatra (20° Aquarius–3°20' Pisces). Ruled by Jupiter. Symbol: sword, two front legs of a funeral cot. Deity: Aja Ekapada (one-footed goat, a form of Rudra). Quality: intense, transformative, passionate. Associated with the fire of purification — can indicate asceticism, intense focus, or the burning away of attachments." },
+  { term: "Uttara Bhadrapada", category: "Nakshatra", definition: "26th nakshatra (3°20'–16°40' Pisces). Ruled by Saturn. Symbol: twins, back legs of a funeral cot. Deity: Ahir Budhnya (serpent of the deep). Quality: deep, wise, restrained. Associated with the wisdom that comes from depth — patience, the long view, and the ability to hold complexity without resolution." },
+  { term: "Revati", category: "Nakshatra", definition: "27th nakshatra (16°40'–30° Pisces). Ruled by Mercury. Symbol: fish, drum. Deity: Pushan (nourisher, guide of souls). Quality: nurturing, guiding, completing. The final nakshatra — associated with completion, safe passage, and the care of those who are vulnerable. Carries the quality of a gentle ending and transition." },
+
+  // ── Timing ────────────────────────────────────────────────────────────────
+  { term: "Vimshottari Dasha", category: "Timing", definition: "The primary timing system in Jyotish. 'Vimshottari' means 120 — the total cycle spans 120 years, cycling through 9 planets in a fixed sequence: Ketu (7), Venus (20), Sun (6), Moon (10), Mars (7), Rahu (18), Jupiter (16), Saturn (19), Mercury (17). The sequence begins from the Moon's nakshatra at birth." },
+  { term: "Mahadasha", category: "Timing", definition: "Major planetary period in the Vimshottari Dasha system. Each planet rules a period of specific length. The mahadasha sets the overarching theme and engine of a life phase — the planet's significations, house rulerships, and natal condition all become dominant." },
+  { term: "Antardasha", category: "Timing", definition: "Sub-period within a Mahadasha. Each major period is subdivided into 9 sub-periods, each ruled by one of the 9 planets in the same Vimshottari sequence. The antardasha planet modifies and colors the expression of the mahadasha planet — its themes layer on top of the major period's themes." },
+  { term: "Pratyantar Dasha", category: "Timing", definition: "Sub-sub-period — the third level of the Vimshottari Dasha system, nested within the antardasha. Used for precise timing of specific events. At this level of granularity, the periods last weeks to months." },
+  { term: "Annual Profection", category: "Timing", definition: "A timing technique from traditional astrology that activates one house of your chart per year of life. At birth (age 0), the 1st house is activated. Age 1 = 2nd house. After 12 years, the cycle repeats. The activated house becomes the 'year lord' house, and its ruling planet becomes especially significant for that year." },
+  { term: "Muhurta", category: "Timing", definition: "Electional astrology — the art of choosing an auspicious moment to begin an activity. A muhurta is also a unit of time equal to 48 minutes (1/30th of a day). Muhurta practice uses panchang data, planetary positions, and the nature of the activity to identify the most favorable window." },
+  { term: "Hora", category: "Timing", definition: "Planetary hour — each hour of the day is ruled by one of the seven classical planets in a fixed sequence. The first hour of the day (from sunrise) is ruled by the planet of that weekday. Hora is used in electional astrology to fine-tune timing within a day." },
+
+  // ── Chart ─────────────────────────────────────────────────────────────────
+  { term: "Lagna", category: "Chart", definition: "The Ascendant — the zodiac sign rising on the eastern horizon at the moment of birth. The Lagna is the most personal point in the chart, representing the body, self, and overall direction of life. In Jyotish, the Lagna determines the house assignments for all other signs." },
+  { term: "Rashi", category: "Chart", definition: "Zodiac sign — one of 12 equal divisions of the ecliptic, each spanning 30°. In Jyotish, the sidereal zodiac is used (Niryana), which differs from the tropical zodiac used in Western astrology by approximately 23–24° (the ayanamsa)." },
+  { term: "Navamsha", category: "Chart", definition: "The 9th harmonic divisional chart (D-9) — considered the most important of the varga (divisional) charts. Each sign is divided into 9 equal parts of 3°20'. The navamsha shows the deeper soul-level condition of planets and is especially important for marriage and spiritual development." },
+  { term: "Ayanamsa", category: "Chart", definition: "The difference between the tropical and sidereal zodiacs, currently approximately 23–24°. Jyotish uses the sidereal zodiac, so all planetary positions are adjusted by subtracting the ayanamsa from tropical positions. The most commonly used ayanamsa is Lahiri (Chitrapaksha)." },
+  { term: "Sidereal Zodiac", category: "Chart", definition: "The zodiac fixed to the actual star constellations, as used in Jyotish. Differs from the tropical zodiac (used in Western astrology) by the ayanamsa — currently about 23–24°. A planet at 10° Aries in the tropical zodiac would be at approximately 16–17° Pisces in the sidereal zodiac." },
+  { term: "Bhava", category: "Chart", definition: "House — one of 12 divisions of the chart representing different areas of life. In Jyotish's whole-sign house system, each bhava corresponds exactly to one rashi (sign). The 1st bhava begins with the Lagna sign." },
+
+  // ── Planets ───────────────────────────────────────────────────────────────
+  { term: "Graha", category: "Planets", definition: "Planet — literally 'that which grasps.' In Jyotish, the nine grahas are: Sun (Surya), Moon (Chandra), Mars (Mangala), Mercury (Budha), Jupiter (Guru/Brihaspati), Venus (Shukra), Saturn (Shani), Rahu (North Node), and Ketu (South Node). Each graha has specific significations, rulerships, and behavioral qualities." },
+  { term: "Rahu", category: "Planets", definition: "The North Node of the Moon — a mathematical point where the Moon's orbit crosses the ecliptic going northward. In Jyotish, Rahu is considered a shadow planet (chaya graha) with the nature of Saturn. It amplifies and obsesses over whatever it touches, representing worldly desire, ambition, and the direction of growth in this lifetime." },
+  { term: "Ketu", category: "Planets", definition: "The South Node of the Moon — the point opposite Rahu. Ketu has the nature of Mars and represents past-life accumulation, spiritual depth, and liberation. Where Rahu grasps, Ketu releases. It can give spiritual insight and detachment but also confusion and loss in the areas it touches." },
+  { term: "Exaltation (Uccha)", category: "Planets", definition: "The sign where a planet is most powerfully expressed. Sun in Aries, Moon in Taurus, Mars in Capricorn, Mercury in Virgo, Jupiter in Cancer, Venus in Pisces, Saturn in Libra. An exalted planet gives strong, clear results related to its significations." },
+  { term: "Debilitation (Neecha)", category: "Planets", definition: "The sign opposite to exaltation, where a planet is weakest. Sun in Libra, Moon in Scorpio, Mars in Cancer, Mercury in Pisces, Jupiter in Capricorn, Venus in Virgo, Saturn in Aries. A debilitated planet may struggle to express its significations clearly, though neecha bhanga (cancellation) can transform this." },
+  { term: "Atmakaraka", category: "Planets", definition: "The planet with the highest degree in the natal chart (ignoring minutes and seconds). In Jyotish, the atmakaraka represents the soul's primary lesson and desire for this lifetime. It is the most personal of the chara karakas (variable significators) and its condition in the navamsha is especially revealing." },
+
+  // ── Houses ────────────────────────────────────────────────────────────────
+  { term: "1st House (Lagna)", category: "Houses", definition: "Self, body, personality, appearance, vitality, and the overall direction of life. The Lagna lord's condition is one of the most important factors in the entire chart." },
+  { term: "2nd House", category: "Houses", definition: "Wealth, family, speech, food, early childhood, accumulated resources, and the face. The 2nd house shows how one accumulates and relates to material security." },
+  { term: "3rd House", category: "Houses", definition: "Siblings, courage, communication, short journeys, skills, and effort. The 3rd house is associated with the hands and arms — it governs writing, craftsmanship, and the application of learned skills." },
+  { term: "4th House", category: "Houses", definition: "Home, mother, emotional foundation, property, vehicles, and inner happiness. The 4th house represents the private self — what gives a sense of rootedness and belonging." },
+  { term: "5th House", category: "Houses", definition: "Children, creativity, intelligence, romance, speculation, and past-life merit (purva punya). The 5th house governs the expression of one's unique creative intelligence and the capacity for joy." },
+  { term: "6th House", category: "Houses", definition: "Health, service, daily work, enemies, debts, and obstacles. The 6th house governs the capacity to overcome challenges through effort and discipline. Strong 6th house planets can indicate skill in healing, law, or competitive fields." },
+  { term: "7th House", category: "Houses", definition: "Partnerships, marriage, business partners, open enemies, and the public. The 7th house represents the 'other' — all significant one-on-one relationships and the qualities we seek or project onto partners." },
+  { term: "8th House", category: "Houses", definition: "Transformation, death, inheritance, hidden matters, research, and occult knowledge. The 8th house governs what is hidden, shared, and transformative. It is associated with longevity, sudden changes, and the capacity to investigate what lies beneath the surface." },
+  { term: "9th House", category: "Houses", definition: "Dharma, higher knowledge, philosophy, teaching, publishing, long-distance travel, father, and spiritual authority. The 9th house represents the search for meaning and the transmission of wisdom." },
+  { term: "10th House", category: "Houses", definition: "Career, public reputation, authority, government, and one's contribution to the world. The 10th house (Karma Bhava) governs what one is known for and how one exercises power in the world." },
+  { term: "11th House", category: "Houses", definition: "Gains, income, social networks, elder siblings, hopes, and the fulfillment of desires. The 11th house is the house of achievement — it shows what flows toward you as a result of your efforts and connections." },
+  { term: "12th House", category: "Houses", definition: "Liberation, loss, foreign lands, isolation, sleep, hidden enemies, and spiritual retreat. The 12th house governs what dissolves, what is given up, and what transcends the ordinary world. It is associated with moksha (liberation) and the dissolution of the ego." },
+  { term: "Kendra", category: "Houses", definition: "The angular houses: 1st, 4th, 7th, and 10th. Planets in kendras are considered powerful and able to produce tangible results in the material world. The kendras are the pillars of the chart." },
+  { term: "Trikona", category: "Houses", definition: "The trine houses: 1st, 5th, and 9th. Considered the most auspicious houses — associated with dharma, past-life merit, and spiritual grace. Planets in trikonas give blessings and support the native's overall wellbeing." },
+  { term: "Dusthana", category: "Houses", definition: "The difficult houses: 6th, 8th, and 12th. Associated with challenges, hidden matters, and transformation. Planets in dusthanas can cause difficulties related to their significations, but can also give strength in overcoming obstacles (especially the 6th) or depth of insight (especially the 8th and 12th)." },
+  { term: "Upachaya", category: "Houses", definition: "The houses of growth: 3rd, 6th, 10th, and 11th. Planets in upachaya houses improve over time — they may start with challenges but grow stronger as the native matures. Malefic planets (Mars, Saturn, Rahu) are particularly effective in upachaya houses." },
+
+  // ── System ────────────────────────────────────────────────────────────────
+  { term: "Jyotish", category: "System", definition: "The Vedic science of light — the traditional astrology of India. 'Jyoti' means light, 'isha' means lord or master. Jyotish uses the sidereal zodiac, the Vimshottari Dasha timing system, and a whole-sign house system. It is one of the six Vedangas (limbs of the Vedas) and is considered a tool for understanding karma and dharma." },
+  { term: "Whole Sign Houses", category: "System", definition: "The house system used in Jyotish where each house corresponds exactly to one sign. The sign of the Ascendant becomes the entire 1st house, the next sign becomes the entire 2nd house, and so on. This differs from quadrant house systems (Placidus, Koch) used in Western astrology." },
+  { term: "Parashari Jyotish", category: "System", definition: "The dominant school of Vedic astrology, based on the teachings of the sage Parashara as recorded in the Brihat Parashara Hora Shastra. Most modern Jyotish practice follows Parashari principles, including the Vimshottari Dasha system and the standard approach to house and planetary significations." },
+  { term: "Nadi Astrology", category: "System", definition: "A branch of Jyotish based on ancient palm leaf manuscripts said to have been written by sages who foresaw individual destinies. Nadi readings are highly specific and predictive, often revealing precise life events. The manuscripts are organized by thumb print patterns and stored in libraries across South India." },
+  { term: "Yogas", category: "System", definition: "Specific planetary combinations in the natal chart that produce particular results. There are hundreds of named yogas in Jyotish — some highly auspicious (Raj Yoga: planets in kendra-trikona relationship), some challenging (Kemadruma Yoga: Moon with no planets in adjacent signs). Yogas modify and color the overall chart reading." },
+  { term: "Raj Yoga", category: "System", definition: "A royal combination — formed when the lord of a kendra (angular house) and the lord of a trikona (trine house) are connected by conjunction, mutual aspect, or exchange. Raj Yogas indicate periods of power, recognition, and achievement, especially when activated by the relevant dasha periods." },
+  { term: "Neecha Bhanga", category: "System", definition: "Cancellation of debilitation — specific conditions that cancel or mitigate a planet's debilitation, often turning weakness into a form of strength. A debilitated planet can produce powerful results when neecha bhanga applies, sometimes even more powerfully than an exalted planet." },
+];
+
+const CATEGORIES = ["All", "Panchang", "Nakshatra", "Timing", "Chart", "Planets", "Houses", "System"];
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Panchang:  "oklch(0.72 0.10 200)",
+  Nakshatra: "oklch(0.65 0.12 280)",
+  Timing:    "oklch(0.65 0.08 85)",
+  Chart:     "oklch(0.68 0.10 145)",
+  Planets:   "oklch(0.65 0.12 15)",
+  Houses:    "oklch(0.65 0.10 320)",
+  System:    "oklch(0.65 0.06 80)",
+};
+
+/** Convert a term string to a URL-safe slug */
+export function termToSlug(term: string): string {
+  return term.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+/** Find the best matching glossary term for a given value (e.g. nakshatra name) */
+export function findGlossaryTerm(value: string): GlossaryTerm | undefined {
+  if (!value) return undefined;
+  const v = value.toLowerCase().trim();
+  // Exact match first
+  const exact = GLOSSARY.find((g) => g.term.toLowerCase() === v);
+  if (exact) return exact;
+  // Partial match — term starts with value or value starts with term
+  return GLOSSARY.find(
+    (g) => g.term.toLowerCase().startsWith(v) || v.startsWith(g.term.toLowerCase())
+  );
+}
+
+export default function Glossary() {
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [highlightedTerm, setHighlightedTerm] = useState<string | null>(null);
+  const termRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Read ?term= query param on mount and auto-scroll/highlight
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const termParam = params.get("term");
+    if (!termParam) return;
+
+    // Find the matching glossary entry
+    const slug = termParam.toLowerCase();
+    const match = GLOSSARY.find((g) => termToSlug(g.term) === slug || g.term.toLowerCase() === slug);
+    if (!match) return;
+
+    setHighlightedTerm(match.term);
+    setActiveCategory("All");
+    setSearch("");
+
+    // Scroll after a short delay to allow render
+    setTimeout(() => {
+      const el = termRefs.current[match.term];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 150);
+  }, []);
+
+  const filtered = useMemo(() => {
+    let list = GLOSSARY;
+    if (activeCategory !== "All") list = list.filter((g) => g.category === activeCategory);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((g) => g.term.toLowerCase().includes(q) || g.definition.toLowerCase().includes(q));
+    }
+    return list;
+  }, [search, activeCategory]);
+
+  const modeColor = useDayModeColor();
+
+  return (
+    <div className="container py-6 space-y-5">
+      <AppHeader pageTitle="Glossary" />
+
+      {/* Search */}
+      <div className="relative">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--color-muted-foreground)" }} />
+        <input
+          className="w-full pl-8 pr-8 py-2.5 rounded-xl text-sm"
+          style={{
+            background: "var(--color-secondary)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-foreground)",
+            outline: "none",
+            fontSize: "16px",
+          }}
+          placeholder="Search terms…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        {search && (
+          <button className="absolute right-3 top-1/2 -translate-y-1/2" onClick={() => setSearch("")} style={{ color: "var(--color-muted-foreground)" }}>
+            <X size={13} />
+          </button>
+        )}
+      </div>
+
+      {/* Category filter */}
+      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        {CATEGORIES.map((cat) => {
+          const active = activeCategory === cat;
+          const color = CATEGORY_COLORS[cat] ?? "var(--foreground)";
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all"
+              style={{
+                background: active ? `color-mix(in oklch, ${color} 20%, transparent)` : "var(--color-secondary)",
+                color: active ? color : "var(--color-muted-foreground)",
+                border: `1px solid ${active ? `color-mix(in oklch, ${color} 40%, transparent)` : "var(--color-border)"}`,
+              }}
+            >
+              {cat}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Count */}
+      <p className="text-sm font-bold uppercase" style={{ color: "var(--color-muted-foreground)" }}>
+        {filtered.length} {filtered.length === 1 ? "term" : "terms"}
+      </p>
+
+      {/* Terms */}
+      <div className="space-y-3 pb-24">
+        {filtered.map((item) => {
+          const catColor = CATEGORY_COLORS[item.category] ?? "oklch(0.65 0.02 80)";
+          const isHighlighted = highlightedTerm === item.term;
+          return (
+            <div
+              key={item.term}
+              ref={(el) => { termRefs.current[item.term] = el; }}
+              className="rounded-lg p-4 transition-all duration-500"
+              style={{
+                border: isHighlighted ? `2px solid ${catColor}` : `1.5px solid color-mix(in oklch, ${catColor} 55%, transparent)`,
+                background: `color-mix(in oklch, ${catColor} 12%, var(--background))`,
+                boxShadow: isHighlighted ? `0 0 0 3px color-mix(in oklch, ${catColor} 15%, transparent)` : "none",
+              }}
+            >
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h3
+                  className="text-sm leading-snug font-semibold"
+                  style={{ color: "var(--color-foreground)", fontWeight: 600 }}
+                >
+                  {item.term}
+                </h3>
+                <span
+                  className="flex-shrink-0 text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full"
+                  style={{
+                    background: `color-mix(in oklch, ${catColor} 15%, transparent)`,
+                    color: catColor,
+                    letterSpacing: "0.04em",
+                    border: `1px solid color-mix(in oklch, ${catColor} 30%, transparent)`,
+                  }}
+                >
+                  {item.category}
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+                {item.definition}
+              </p>
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div className="rounded-lg p-5 text-center" style={{ border: `1.5px solid ${modeColor}`, background: `color-mix(in srgb, ${modeColor} 14%, var(--background))` }}>
+            <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>No terms found.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `birthTimezone` varchar(64);

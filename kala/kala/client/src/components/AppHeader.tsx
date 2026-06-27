@@ -1,0 +1,321 @@
+import { useState } from "react";
+import { MapPin, LogIn, Users, ChevronDown, Check, Plus, Loader2, RefreshCw } from "lucide-react";
+import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { getLoginUrl } from "@/const";
+import { useLocation } from "wouter";
+import LocationSheet from "@/components/LocationSheet";
+import CheckInSheet from "@/components/CheckInSheet";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+
+interface AppHeaderProps {
+  /** When provided, renders the Today-page hero layout (date + state utility row + large greeting) */
+  heroMode?: {
+    qualifier?: string | null;
+  };
+  /** Optional page title shown below greeting on secondary pages */
+  pageTitle?: string;
+}
+
+/**
+ * AppHeader — shared across all pages.
+ * Pass `heroMode` on the Today page to get the Kala mockup layout:
+ *   - Top utility row: date left, location + current state right
+ *   - Large editorial serif greeting below
+ * Other pages use the standard compact layout.
+ */
+export default function AppHeader({ heroMode, pageTitle }: AppHeaderProps = {}) {
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const modeColor = useDayModeColor();
+  const [locationSheetOpen, setLocationSheetOpen] = useState(false);
+  const [checkInSheetOpen, setCheckInSheetOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [switching, setSwitching] = useState<number | "own" | null>(null);
+  const [, navigate] = useLocation();
+  const utils = trpc.useUtils();
+
+  const { data: profileList = [] } = trpc.profiles.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: locationData } = trpc.settings.getLocation.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  const setActiveMutation = trpc.profiles.setActive.useMutation();
+
+  async function invalidateAll() {
+    await Promise.all([
+      utils.profiles.list.invalidate(),
+      utils.profiles.getActive.invalidate(),
+      utils.panchang.today.invalidate(),
+      utils.panchang.byDate.invalidate(),
+      utils.panchang.byMonth.invalidate(),
+      utils.panchang.timeLordInfluence.invalidate(),
+      utils.dasha.timeline.invalidate(),
+      utils.profection.current.invalidate(),
+      utils.profection.timeLordTransits.invalidate(),
+      utils.timeLordTransit.forDate.invalidate(),
+      utils.timeLordTransit.forDateRange.invalidate(),
+      utils.diagnostics.day.invalidate(),
+      utils.diagnostics.range.invalidate(),
+      utils.tasks.list.invalidate(),
+      utils.tasks.pinnedForToday.invalidate(),
+      utils.tasks.modeCounts.invalidate(),
+      utils.tasks.rankedForToday.invalidate(),
+      utils.projects.list.invalidate(),
+      utils.projects.listAll.invalidate(),
+    ]);
+  }
+
+  async function handleSwitchProfile(profileId: number, name: string) {
+    if (switching !== null) return;
+    setSwitching(profileId);
+    try {
+      await setActiveMutation.mutateAsync({ id: profileId });
+      await invalidateAll();
+      toast.success(`Switched to ${name}`);
+      setOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to switch profile");
+    } finally {
+      setSwitching(null);
+    }
+  }
+
+  const today = new Date();
+
+  // Short uppercase date for hero utility row: "WED, JUNE 24, 2026"
+  const heroDateLabel = today.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).toUpperCase();
+
+  // Long date for standard header
+  const dateLabel = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const hour = today.getHours();
+  const greeting =
+    hour < 12 ? "Good morning" :
+    hour < 17 ? "Good afternoon" :
+    hour < 21 ? "Good evening" :
+    "Good night";
+
+  // Derive the currently active profile from the full list (includes owner)
+  const currentProfile = profileList.find((p: any) => p.isActive) ?? null;
+  // Use active profile name for greeting; fall back to auth user name
+  const displayName = currentProfile?.name ?? user?.name;
+  const firstName = displayName?.split(" ")[0] ?? null;
+
+  // Profile switcher dropdown — shared between both layouts (only show for admins)
+  const profileSwitcher = isAuthenticated && isAdmin ? (
+    <div className="mt-3">
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all hover:opacity-80 active:scale-95 outline-none"
+            style={{
+              background: currentProfile && !currentProfile.isOwner
+                ? "var(--filter-pill-bg-active)"
+                : "var(--color-secondary)",
+              color: currentProfile && !currentProfile.isOwner
+                ? "var(--color-primary)"
+                : "var(--color-muted-foreground)",
+              border: currentProfile && !currentProfile.isOwner
+                ? "1px solid var(--filter-pill-border-active)"
+                : "1px solid var(--color-border)",
+            }}
+          >
+            <Users size={13} />
+            <span>{currentProfile ? currentProfile.name : "My Chart"}</span>
+            <ChevronDown
+              size={12}
+              style={{
+                transform: open ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
+              }}
+            />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="start"
+          sideOffset={6}
+          className="min-w-[210px] p-1 rounded-xl"
+          style={{
+            background: "var(--color-card)",
+            border: "1px solid var(--color-border)",
+            boxShadow: "0 8px 32px oklch(0 0 0 / 0.25)",
+          }}
+        >
+          {[...profileList]
+            .sort((a: any, b: any) => (b.isOwner ? 1 : 0) - (a.isOwner ? 1 : 0))
+            .map((profile: any) => {
+              const isActive = profile.isActive;
+              const isLoading = switching === profile.id;
+              return (
+                <button
+                  key={profile.id}
+                  onClick={() => !isActive && handleSwitchProfile(profile.id, profile.name)}
+                  disabled={isActive || isLoading}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left rounded-lg transition-colors hover:bg-white/5 disabled:cursor-default"
+                  style={{ color: isActive ? "var(--color-primary)" : "var(--color-foreground)" }}
+                >
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold"
+                    style={{
+                      background: isActive ? "var(--color-primary)" : "var(--color-secondary)",
+                      color: isActive ? "var(--color-primary-foreground)" : "var(--color-muted-foreground)",
+                    }}
+                  >
+                    {isLoading
+                      ? <Loader2 size={10} className="animate-spin" />
+                      : profile.name[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">
+                      {profile.name}
+                      {profile.isOwner && (
+                        <span className="ml-1.5 text-[10px]" style={{ color: "var(--amber-gold)" }}>★ My Chart</span>
+                      )}
+                    </p>
+                    {profile.lagnaSign && (
+                      <p className="text-[11px] truncate" style={{ color: "var(--color-muted-foreground)" }}>
+                        {profile.lagnaSign} lagna
+                      </p>
+                    )}
+                  </div>
+                  {isActive && <Check size={14} style={{ color: "var(--color-primary)" }} />}
+                </button>
+              );
+            })}
+          <DropdownMenuSeparator className="my-1" />
+          <button
+            onClick={() => { setOpen(false); navigate("/profiles"); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left rounded-lg transition-colors hover:bg-white/5"
+            style={{ color: "var(--color-muted-foreground)" }}
+          >
+            <Plus size={14} />
+            <span>Manage profiles</span>
+          </button>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  ) : null;
+
+  // ── HERO LAYOUT (all pages) ────────────────────────────────────────────────
+  const cityLabel = locationData?.city || "Location";
+  const stateLabel = heroMode?.qualifier || null;
+
+  return (
+    <>
+      <div className="relative z-10">
+        {/* Utility row: date left, location + state right */}
+        <div className="flex items-center justify-between mb-5">
+          <span
+            className="text-[11px] font-bold tracking-widest"
+            style={{ color: "var(--amber-gold)", letterSpacing: "0.10em" }}
+          >
+            {heroDateLabel}
+          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLocationSheetOpen(true)}
+              className="flex items-center gap-1 transition-opacity hover:opacity-70"
+              style={{ color: "var(--amber-gold)" }}
+            >
+              <MapPin size={11} />
+              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+                {cityLabel}
+              </span>
+            </button>
+            <button
+                onClick={() => setCheckInSheetOpen(true)}
+                className="flex items-center gap-1 transition-opacity hover:opacity-70"
+                style={{ color: "var(--amber-gold)" }}
+                title="Update current state"
+              >
+                <RefreshCw size={11} />
+                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+                  {stateLabel ? stateLabel.toUpperCase() : "CURRENT STATE"}
+                </span>
+              </button>
+          </div>
+        </div>
+
+        {/* Large editorial greeting — the visual anchor */}
+        <h1
+          className="leading-tight"
+          style={{
+            fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+            fontWeight: 700,
+            fontSize: "clamp(2rem, 8vw, 2.75rem)",
+            color: "var(--foreground)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {isAuthenticated && firstName
+            ? `${greeting}, ${firstName}.`
+            : `${greeting}.`}
+        </h1>
+
+        {/* Profile switcher below greeting */}
+        {profileSwitcher}
+
+        {/* Page title — serif, mode-colored, below profile switcher */}
+        {pageTitle && (
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+              fontWeight: 600,
+              fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
+              color: "var(--foreground)",
+              letterSpacing: "-0.01em",
+              marginTop: "1.25rem",
+              lineHeight: 1.2,
+            }}
+          >
+            {pageTitle}
+          </h2>
+        )}
+
+        {/* Sign-in CTA for unauthenticated users */}
+        {!isAuthenticated && (
+          <a
+            href={getLoginUrl()}
+            className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+            style={{
+              background: "var(--border)",
+              color: "var(--foreground)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <LogIn size={12} />
+            Sign in
+          </a>
+        )}
+      </div>
+      <LocationSheet
+        open={locationSheetOpen}
+        onClose={() => setLocationSheetOpen(false)}
+      />
+      <CheckInSheet
+        open={checkInSheetOpen}
+        onClose={() => setCheckInSheetOpen(false)}
+      />
+    </>
+  );
+}
