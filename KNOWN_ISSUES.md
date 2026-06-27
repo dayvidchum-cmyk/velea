@@ -12,3 +12,26 @@ be made deterministic (inject a fixed reference date / freeze time).
 - `server/profection/calculator.test.ts` › Profection Calculator › calculateProfectionYear › "should calculate age 38 profection year correctly"
 
 Status: open. Do not block checkpoints on these.
+
+## Deferred for scale: unbounded layer cache
+
+`server/layers/index.ts` caches `getCurrentLayers()` results in a module-level
+`Map` keyed by `profileId` (5-min TTL). Entries are never evicted on TTL expiry —
+they're only overwritten on next access — so the map grows by one entry per
+distinct profile ever seen and is bounded only by total profile count. Negligible
+at launch/tester scale; revisit before large multi-tenant load (add LRU/size cap
+or periodic sweep). Note: per-process, so it also resets on restart and isn't
+shared across replicas (correctness-safe, just lower hit rate).
+
+Status: open. Ship as-is for launch.
+
+## Deferred for scale: swisseph CPU serialization under load
+
+Three module-level Swiss Ephemeris singletons (`server/vedic/natal-chart-engine.ts`,
+`server/panchang/astronomy.ts`, `server/birthchart/calculator.ts`) perform
+synchronous, CPU-bound calculations. Under heavy concurrent astrology requests
+(chart calc, transit pressure), these serialize on the Node event loop and can
+add latency. Correctness is fine (stateless calc, consistent ayanamsa). If/when
+load warrants: move ephemeris work to a worker thread/pool or precompute & cache.
+
+Status: open. Ship as-is for launch.
