@@ -12,7 +12,7 @@ import {
   Library,
   MoreHorizontal,
   Settings,
-  FolderOpen,
+  Folder,
   Users,
   CircleDot,
 } from "lucide-react";
@@ -21,7 +21,7 @@ const PRIMARY_NAV = [
   { path: "/astrology", label: "Chart", icon: CircleDot },
   { path: "/", label: "Today", icon: BookOpen },
   { path: "/planner", label: "Planner", icon: CalendarDays },
-  { path: "/projects", label: "Projects", icon: FolderOpen },
+  { path: "/projects", label: "Projects", icon: Folder },
 ];
 
 const EXPLORE_ITEMS = [
