@@ -335,10 +335,10 @@ export default function Home() {
                       border: 'none',
                       padding: 0,
                       cursor: 'pointer',
-                      fontSize: '0.7rem',
-                      fontWeight: 500,
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
                       letterSpacing: '0.04em',
-                      color: 'rgba(255,255,255,0.45)',
+                      color: 'rgba(255,255,255,0.98)',
                       textDecoration: 'underline',
                       textUnderlineOffset: '3px',
                       display: 'flex',
@@ -348,9 +348,9 @@ export default function Home() {
                   >
                     {whyOpen ? 'Hide breakdown' : 'See full breakdown'}
                     <ChevronDown
-                      size={11}
+                      size={12}
                       style={{
-                        color: 'rgba(255,255,255,0.45)',
+                        color: 'rgba(255,255,255,0.98)',
                         transform: whyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                         transition: 'transform 200ms ease',
                       }}
@@ -417,7 +417,7 @@ export default function Home() {
                       fontWeight: 400,
                       fontSize: 'clamp(0.875rem, 3.5vw, 1.0rem)',
                       lineHeight: 1.55,
-                      color: 'rgba(255,255,255,0.85)',
+                      color: 'rgba(255,255,255,0.98)',
                     }}
                   >
                     {questionText}

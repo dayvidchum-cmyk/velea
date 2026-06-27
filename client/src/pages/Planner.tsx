@@ -740,10 +740,10 @@ export default function Planner() {
                   border: 'none',
                   padding: 0,
                   cursor: 'pointer',
-                  fontSize: '0.7rem',
-                  fontWeight: 500,
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
                   letterSpacing: '0.04em',
-                  color: 'rgba(255,255,255,0.45)',
+                  color: 'rgba(255,255,255,0.98)',
                   textDecoration: 'underline',
                   textUnderlineOffset: '3px',
                   display: 'flex',
@@ -753,9 +753,9 @@ export default function Planner() {
               >
                 {whyOpen ? 'Hide breakdown' : 'See full breakdown'}
                 <ChevronDown
-                  size={11}
+                  size={12}
                   style={{
-                    color: 'rgba(255,255,255,0.45)',
+                    color: 'rgba(255,255,255,0.98)',
                     transform: whyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 200ms ease',
                   }}
