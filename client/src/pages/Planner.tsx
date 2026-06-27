@@ -956,6 +956,18 @@ export default function Planner() {
                       color: projectFilter === null ? "var(--foreground)" : "var(--color-muted-foreground)",
                       border: `1px solid ${projectFilter === null ? "var(--filter-pill-border-active)" : "var(--color-border)"}`,
                     }}
+                    onMouseEnter={(e) => {
+                      if (projectFilter === null) return;
+                      e.currentTarget.style.background = "var(--filter-pill-bg-active)";
+                      e.currentTarget.style.color = "var(--foreground)";
+                      e.currentTarget.style.borderColor = "var(--filter-pill-border-active)";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (projectFilter === null) return;
+                      e.currentTarget.style.background = "var(--color-border)";
+                      e.currentTarget.style.color = "var(--color-muted-foreground)";
+                      e.currentTarget.style.borderColor = "var(--color-border)";
+                    }}
                   >
                     <FolderOpen size={10} />
                     All Projects
@@ -972,6 +984,18 @@ export default function Planner() {
                           background: active ? "var(--filter-pill-bg-active)" : "var(--color-border)",
                           color: active ? "var(--foreground)" : "var(--color-muted-foreground)",
                           border: `1px solid ${active ? "var(--filter-pill-border-active)" : "var(--color-border)"}`,
+                        }}
+                        onMouseEnter={(e) => {
+                          if (active) return;
+                          e.currentTarget.style.background = "var(--filter-pill-bg-active)";
+                          e.currentTarget.style.color = "var(--foreground)";
+                          e.currentTarget.style.borderColor = "var(--filter-pill-border-active)";
+                        }}
+                        onMouseLeave={(e) => {
+                          if (active) return;
+                          e.currentTarget.style.background = "var(--color-border)";
+                          e.currentTarget.style.color = "var(--color-muted-foreground)";
+                          e.currentTarget.style.borderColor = "var(--color-border)";
                         }}
                       >
                         <FolderOpen size={10} style={{ flexShrink: 0 }} />
