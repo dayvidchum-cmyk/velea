@@ -909,6 +909,18 @@ export default function Planner() {
                         color: active ? MODE_FILTER_COLORS[m] : "var(--color-muted-foreground)",
                         border: `1px solid ${active ? `color-mix(in oklch, ${MODE_FILTER_COLORS[m]} 40%, transparent)` : "var(--color-border)"}`,
                       }}
+                      onMouseEnter={(e) => {
+                        if (active) return;
+                        e.currentTarget.style.background = `color-mix(in oklch, ${MODE_FILTER_COLORS[m]} 16%, transparent)`;
+                        e.currentTarget.style.color = MODE_FILTER_COLORS[m];
+                        e.currentTarget.style.borderColor = `color-mix(in oklch, ${MODE_FILTER_COLORS[m]} 40%, transparent)`;
+                      }}
+                      onMouseLeave={(e) => {
+                        if (active) return;
+                        e.currentTarget.style.background = "var(--color-border)";
+                        e.currentTarget.style.color = "var(--color-muted-foreground)";
+                        e.currentTarget.style.borderColor = "var(--color-border)";
+                      }}
                     >
                       {m}
                     </button>

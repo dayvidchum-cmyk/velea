@@ -214,6 +214,22 @@ export const profilesRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
 
+      // Non-admin users may only ever have ONE profile — their own ("My Chart").
+      // Multi-profile management (Mom, Client A, etc.) is an admin-only feature.
+      if (ctx.user.role !== "admin") {
+        const owned = await db
+          .select({ id: profiles.id })
+          .from(profiles)
+          .where(eq(profiles.userId, ctx.user.id));
+        const activeCount = owned.length; // includes owner + any archived rows are rare; conservative
+        if (activeCount >= 1) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You can only have one profile — your own.",
+          });
+        }
+      }
+
       // If making active, deactivate all others first
       if (input.makeActive) {
         await db

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import {
   User,
@@ -568,6 +569,8 @@ function ProfileCard({ profile, onSelect, onEdit, onDelete, onLoginCreated }: Pr
 export default function Profiles() {
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const { data: profileList = [], isLoading } = trpc.profiles.list.useQuery();
 
@@ -748,13 +751,13 @@ export default function Profiles() {
                 Add your birth details to get started
               </p>
               <p className="text-xs mt-0.5 leading-snug" style={{ color: "var(--color-muted-foreground)" }}>
-                Kala reads your chart from your birth date, time, and place. Tap your profile below (or “New”) to add them.
+                Kala reads your chart from your birth date, time, and place. Tap your profile below to add them.
               </p>
             </div>
           </div>
         )}
 
-        {mode === "list" && (
+        {mode === "list" && isAdmin && (
           <div className="flex justify-end -mt-2 mb-2">
             <Button size="sm" className="h-8 px-3 text-xs" onClick={() => setMode("create")}>
               <Plus size={14} className="mr-1" />
@@ -835,25 +838,29 @@ export default function Profiles() {
                   />
                 ))}
 
-                <div className="pt-2 pb-4">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setMode("create")}
-                  >
-                    <Plus size={14} className="mr-1.5" />
-                    Add Profile
-                  </Button>
-                </div>
+                {isAdmin && (
+                  <div className="pt-2 pb-4">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setMode("create")}
+                    >
+                      <Plus size={14} className="mr-1.5" />
+                      Add Profile
+                    </Button>
+                  </div>
+                )}
 
-                <div
-                  className="rounded-xl p-4 text-sm space-y-1"
-                  style={{ background: "var(--color-secondary)", color: "var(--color-muted-foreground)" }}
-                >
-                  <p className="font-medium" style={{ color: "var(--color-foreground)" }}>How profiles work</p>
-                  <p>Tap the <Check size={12} className="inline" /> button on any profile to make it active. All calculations — Today, Planner, Dasha, Profection — will immediately update to that person's chart.</p>
-                  <p className="pt-1">The active profile is shown with a highlighted border and an "Active" badge.</p>
-                </div>
+                {isAdmin && (
+                  <div
+                    className="rounded-xl p-4 text-sm space-y-1"
+                    style={{ background: "var(--color-secondary)", color: "var(--color-muted-foreground)" }}
+                  >
+                    <p className="font-medium" style={{ color: "var(--color-foreground)" }}>How profiles work</p>
+                    <p>Tap the <Check size={12} className="inline" /> button on any profile to make it active. All calculations — Today, Planner, Dasha, Profection — will immediately update to that person's chart.</p>
+                    <p className="pt-1">The active profile is shown with a highlighted border and an "Active" badge.</p>
+                  </div>
+                )}
               </div>
             )}
           </>

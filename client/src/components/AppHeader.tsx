@@ -136,23 +136,16 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
           <button
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95 outline-none"
             style={{
-              background: currentProfile && !currentProfile.isOwner
-                ? "var(--filter-pill-bg-active)"
-                : "var(--color-secondary)",
-              color: currentProfile && !currentProfile.isOwner
-                ? "var(--color-primary)"
-                : "var(--color-muted-foreground)",
-              border: currentProfile && !currentProfile.isOwner
-                ? "1px solid var(--filter-pill-border-active)"
-                : "1px solid var(--color-border)",
+              background: "var(--color-secondary)",
+              color: "var(--color-muted-foreground)",
+              border: "1px solid var(--color-border)",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
             onMouseDown={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
             onMouseUp={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
             onMouseLeave={(e) => {
-              const activeProfile = currentProfile && !currentProfile.isOwner;
-              e.currentTarget.style.color = activeProfile ? "var(--color-primary)" : "var(--color-muted-foreground)";
-              e.currentTarget.style.borderColor = activeProfile ? "var(--filter-pill-border-active)" : "var(--color-border)";
+              e.currentTarget.style.color = "var(--color-muted-foreground)";
+              e.currentTarget.style.borderColor = "var(--color-border)";
             }}
           >
             <Users size={13} />
@@ -242,7 +235,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
         <div className="flex items-center justify-between mb-5">
           <span
             className="text-[11px] font-bold tracking-widest"
-            style={{ color: "var(--amber-gold)", letterSpacing: "0.10em" }}
+            style={{ color: modeColor, letterSpacing: "0.10em" }}
           >
             {heroDateLabel}
           </span>
@@ -250,7 +243,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
             <button
               onClick={() => setLocationSheetOpen(true)}
               className="flex items-center gap-1 transition-opacity hover:opacity-70"
-              style={{ color: "var(--amber-gold)" }}
+              style={{ color: modeColor }}
             >
               <MapPin size={11} />
               <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
@@ -260,7 +253,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
             <button
                 onClick={() => setCheckInSheetOpen(true)}
                 className="flex items-center gap-1 transition-opacity hover:opacity-70"
-                style={{ color: "var(--amber-gold)" }}
+                style={{ color: modeColor }}
                 title="Update current state"
               >
                 <RefreshCw size={11} />

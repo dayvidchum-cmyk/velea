@@ -165,6 +165,8 @@ export default function BottomNav() {
                       ? `1px solid var(--filter-pill-border-active)`
                       : "1px solid var(--color-border)",
                   }}
+                  onMouseEnter={(e) => { if (!active) { e.currentTarget.style.color = GOLD; e.currentTarget.style.borderColor = GOLD; } }}
+                  onMouseLeave={(e) => { if (!active) { e.currentTarget.style.color = "var(--color-foreground)"; e.currentTarget.style.borderColor = "var(--color-border)"; } }}
                 >
                   <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
                   <span
@@ -195,6 +197,8 @@ export default function BottomNav() {
                 }}
                 className="flex flex-col items-center gap-0.5 px-3 py-3 flex-1 transition-all duration-200 relative"
                 style={active ? { color: GOLD } : { color: "var(--muted-foreground)" }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = GOLD; }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "var(--muted-foreground)"; }}
               >
                   <Icon
                   size={22}
@@ -223,6 +227,8 @@ export default function BottomNav() {
                 ? { color: GOLD }
                 : { color: "var(--muted-foreground)" }
             }
+            onMouseEnter={(e) => { if (!(isExplorePath || exploreOpen)) e.currentTarget.style.color = GOLD; }}
+            onMouseLeave={(e) => { if (!(isExplorePath || exploreOpen)) e.currentTarget.style.color = "var(--muted-foreground)"; }}
           >
             <MoreHorizontal
               size={22}
