@@ -5,7 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import { ModeCard } from "@/components/ModeCard";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
-import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "@shared/types";
+import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, MODE_SOLID, type TaskMode } from "@shared/types";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -235,17 +235,23 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
   const COLS = "1.3fr 1fr 0.7fr 1.5fr 0.7fr";
   const headers = ["Planet", "Sign", "House", "Nakshatra", "Pada"];
 
+  // Rose-ochre is a Build-palette tone — only warm into it on Build days. Other
+  // days stay in their own hue (gradient into a darker shade of the day color).
   const ROSE_OCHRE = "#BC886F";
+  const isBuild = modeColor === MODE_SOLID.Build;
+  const warmStop = isBuild ? ROSE_OCHRE : `color-mix(in srgb, ${modeColor} 62%, #000)`;
+  const accentBorder = isBuild ? ROSE_OCHRE : modeColor;
   return (
-    <div style={{ borderRadius: "0.75rem", overflow: "hidden", border: `1px solid ${ROSE_OCHRE}` }}>
-      {/* Header — day-mode tone warming into the Build hero's rose-ochre. */}
+    <div style={{ borderRadius: "0.75rem", overflow: "hidden", border: `1px solid ${accentBorder}` }}>
+      {/* Header — day-mode tone warming into rose-ochre on Build days, or a
+          deeper shade of the day's own color otherwise. */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: COLS,
           padding: "0.5rem 0.75rem",
           gap: "0.5rem",
-          background: `linear-gradient(120deg, ${modeColor} 0%, ${ROSE_OCHRE} 100%)`,
+          background: `linear-gradient(120deg, ${modeColor} 0%, ${warmStop} 100%)`,
         }}
       >
         {headers.map((label) => (
@@ -264,7 +270,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
             padding: "0.5rem 0.75rem",
             gap: "0.5rem",
             alignItems: "center",
-            background: i % 2 === 1 ? `color-mix(in srgb, ${ROSE_OCHRE} 9%, transparent)` : "transparent",
+            background: i % 2 === 1 ? `color-mix(in srgb, ${isBuild ? ROSE_OCHRE : modeColor} 9%, transparent)` : "transparent",
             borderBottom: i < sorted.length - 1 ? "1px solid var(--color-border)" : "none",
           }}
         >
