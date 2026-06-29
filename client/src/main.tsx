@@ -59,3 +59,13 @@ createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </trpc.Provider>
 );
+
+// Register the service worker in production so Kala is installable as a
+// standalone app (Chrome/Edge desktop install + offline app shell).
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      /* non-fatal: app still works without offline support */
+    });
+  });
+}
