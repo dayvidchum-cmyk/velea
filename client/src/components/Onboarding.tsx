@@ -73,7 +73,7 @@ const TOUR: TourStep[] = [
     selector: '[data-tour="time-lord"]',
     expand: "timelord",
     title: "Time Lord Movement",
-    body: "Vedic time moves in planetary chapters called “time lords.” This shows which planets govern your moment and how today's transiting planets press on them — the deeper current beneath your mode.",
+    body: "A Time Lord is simply the planet that rules your current stretch of time — the lord of your year in both Vedic (dasha) and Hellenistic (annual profection) astrology. This card shows which planet is in charge right now and how today's transiting planets are contacting it.",
   },
   {
     route: "/",
