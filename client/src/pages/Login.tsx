@@ -89,7 +89,7 @@ export default function Login() {
       <div className="flex flex-col items-center flex-1 justify-center w-full" style={{ maxWidth: 360 }}>
         <img
           src="/kala-logo-transparent.png"
-          alt="Kala"
+          alt="Sefdwa"
           width={160}
           height={160}
           style={{ marginBottom: "1.5rem" }}
@@ -106,19 +106,19 @@ export default function Login() {
             marginBottom: "0.6rem",
           }}
         >
-          Kala
+          Sefdwa
         </h1>
 
         <p
           style={{
-            fontSize: "0.72rem",
+            fontSize: "1rem",
             fontWeight: 600,
-            letterSpacing: "0.25em",
+            letterSpacing: "0.4em",
             textTransform: "uppercase",
             color: "rgba(255,255,255,0.7)",
           }}
         >
-          Time.&nbsp; Purpose.&nbsp; Flow.
+          Why now
         </p>
       </div>
 
@@ -149,8 +149,8 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="w-full outline-none transition-all text-center text-sm font-semibold"
-            style={inputStyle}
+            className="w-full outline-none transition-all text-center font-semibold"
+            style={{ ...inputStyle, fontSize: "0.75rem" }}
             onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
             onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
           />
@@ -164,8 +164,8 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
-            className="w-full outline-none transition-all text-center text-sm font-semibold"
-            style={inputStyle}
+            className="w-full outline-none transition-all text-center font-semibold"
+            style={{ ...inputStyle, fontSize: "0.75rem" }}
             onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
             onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
           />
@@ -199,7 +199,7 @@ export default function Login() {
         </form>
 
         <p className="text-center text-xs mt-5" style={{ color: "rgba(255,255,255,0.7)" }}>
-          {isSignup ? "Already have an account?" : "New to Kala?"}{" "}
+          {isSignup ? "Already have an account?" : "New to Sefdwa?"}{" "}
           <button
             type="button"
             onClick={toggleMode}

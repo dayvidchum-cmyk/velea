@@ -325,7 +325,7 @@ export default function ReasoningChain({ panchang, timeLord, modeColor }: Reason
           <strong style={{ color: "rgba(255,255,255,0.95)" }}>{houseInfo.name} Themes:</strong>
         </p>
         <BulletList items={houseInfo.themes} accentColor={modeColor} />
-        <WhyItMatters text="Kala uses the Moon's house position as the primary mode determinant. The house tells you what area of life is activated today." />
+        <WhyItMatters text="Sefdwa uses the Moon's house position as the primary mode determinant. The house tells you what area of life is activated today." />
         {!lagnaSign && (
           <p className="text-xs mt-2 px-3 py-2 rounded-md" style={{ background: "rgba(0,0,0,0.2)", color: "rgba(255,255,255,0.6)" }}>
             House position is estimated. Set your birth chart in Settings to see your personalized house activation.

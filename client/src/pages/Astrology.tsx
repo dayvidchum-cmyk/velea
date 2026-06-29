@@ -300,7 +300,7 @@ function SiderealNote() {
         <Info size={15} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, marginTop: "1px" }} />
         <div className="flex-1">
           <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
-            Kala uses the <strong>Vedic (sidereal) zodiac</strong>, so your signs may
+            Sefdwa uses the <strong>Vedic (sidereal) zodiac</strong>, so your signs may
             differ from the Western ones you know — a Western Leo Sun is often Cancer here.
             That's expected, not a mistake.
           </p>
@@ -322,7 +322,7 @@ function SiderealNote() {
               Because the Earth slowly wobbles on its axis (an effect called <em>precession</em>),
               those two reference points have drifted about <strong>24°</strong> apart over the last
               ~1,700 years — almost a full sign. Neither is "wrong"; they simply measure different
-              things. Kala tracks the real stars.
+              things. Sefdwa tracks the real stars.
             </p>
           )}
         </div>

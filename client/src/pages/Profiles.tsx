@@ -751,7 +751,7 @@ export default function Profiles() {
                 Add your birth details to get started
               </p>
               <p className="text-xs mt-0.5 leading-snug" style={{ color: "var(--color-muted-foreground)" }}>
-                Kala reads your chart from your birth date, time, and place. Tap your profile below to add them.
+                Sefdwa reads your chart from your birth date, time, and place. Tap your profile below to add them.
               </p>
             </div>
           </div>
