@@ -72,11 +72,32 @@ const GLOSSARY: GlossaryTerm[] = [
 
   // ── Planets ───────────────────────────────────────────────────────────────
   { term: "Graha", category: "Planets", definition: "Planet — literally 'that which grasps.' In Jyotish, the nine grahas are: Sun (Surya), Moon (Chandra), Mars (Mangala), Mercury (Budha), Jupiter (Guru/Brihaspati), Venus (Shukra), Saturn (Shani), Rahu (North Node), and Ketu (South Node). Each graha has specific significations, rulerships, and behavioral qualities." },
+  { term: "Sun (Surya)", category: "Planets", definition: "The soul (atma), ego, vitality, father, and authority — the king of the grahas. The Sun governs self-expression, leadership, confidence, and life force. Rules Leo; exalted in Aries, debilitated in Libra. A natural malefic by its scorching nature, yet the source of light and consciousness in the chart." },
+  { term: "Moon (Chandra)", category: "Planets", definition: "The mind (manas), emotions, mother, and receptivity — after the Lagna, the most important factor for daily life. The Moon governs feeling, memory, nourishment, comfort, and the public. Rules Cancer; exalted in Taurus, debilitated in Scorpio. Benefic when waxing and bright, weaker when waning or dark." },
+  { term: "Mars (Mangala)", category: "Planets", definition: "Energy, courage, drive, and conflict — the warrior and army-commander (senapati). Mars governs action, ambition, discipline, competition, siblings, and physical strength. Rules Aries and Scorpio; exalted in Capricorn, debilitated in Cancer. A natural malefic; its placement shows where you assert and where you fight." },
+  { term: "Mercury (Budha)", category: "Planets", definition: "Intellect, communication, analysis, and commerce — the prince and messenger. Mercury governs speech, learning, logic, trade, skill, and writing. Rules Gemini and Virgo; exalted in Virgo, debilitated in Pisces. Neutral by nature, it takes on the qualities of whatever planets it joins." },
+  { term: "Jupiter (Guru / Brihaspati)", category: "Planets", definition: "Wisdom, expansion, dharma, and grace — the great benefic and teacher of the gods. Jupiter governs knowledge, ethics, children, wealth, optimism, and faith. Rules Sagittarius and Pisces; exalted in Cancer, debilitated in Capricorn. Its aspect protects and blesses whatever it touches." },
+  { term: "Venus (Shukra)", category: "Planets", definition: "Love, beauty, pleasure, and relationship — the benefic teacher of the asuras. Venus governs romance, art, luxury, vehicles, comfort, and refinement. Rules Taurus and Libra; exalted in Pisces, debilitated in Virgo. It reveals what you value and how you experience harmony and desire." },
+  { term: "Saturn (Shani)", category: "Planets", definition: "Discipline, time, limitation, and karma — the great malefic and lord of justice. Saturn governs structure, endurance, hard work, delay, longevity, and the lessons of restriction. Rules Capricorn and Aquarius; exalted in Libra, debilitated in Aries. Slow but fair, it rewards patience and sustained effort." },
   { term: "Rahu", category: "Planets", definition: "The North Node of the Moon — a mathematical point where the Moon's orbit crosses the ecliptic going northward. In Jyotish, Rahu is considered a shadow planet (chaya graha) with the nature of Saturn. It amplifies and obsesses over whatever it touches, representing worldly desire, ambition, and the direction of growth in this lifetime." },
   { term: "Ketu", category: "Planets", definition: "The South Node of the Moon — the point opposite Rahu. Ketu has the nature of Mars and represents past-life accumulation, spiritual depth, and liberation. Where Rahu grasps, Ketu releases. It can give spiritual insight and detachment but also confusion and loss in the areas it touches." },
   { term: "Exaltation (Uccha)", category: "Planets", definition: "The sign where a planet is most powerfully expressed. Sun in Aries, Moon in Taurus, Mars in Capricorn, Mercury in Virgo, Jupiter in Cancer, Venus in Pisces, Saturn in Libra. An exalted planet gives strong, clear results related to its significations." },
   { term: "Debilitation (Neecha)", category: "Planets", definition: "The sign opposite to exaltation, where a planet is weakest. Sun in Libra, Moon in Scorpio, Mars in Cancer, Mercury in Pisces, Jupiter in Capricorn, Venus in Virgo, Saturn in Aries. A debilitated planet may struggle to express its significations clearly, though neecha bhanga (cancellation) can transform this." },
   { term: "Atmakaraka", category: "Planets", definition: "The planet with the highest degree in the natal chart (ignoring minutes and seconds). In Jyotish, the atmakaraka represents the soul's primary lesson and desire for this lifetime. It is the most personal of the chara karakas (variable significators) and its condition in the navamsha is especially revealing." },
+
+  // ── Signs (Rashis) ──────────────────────────────────────────────────────────
+  { term: "Aries (Mesha)", category: "Signs", definition: "1st sign. Fire, cardinal (movable). Ruled by Mars; the Sun is exalted here. Pioneering, assertive, courageous, impulsive. The initiating spark — associated with new beginnings, leadership, and direct action." },
+  { term: "Taurus (Vrishabha)", category: "Signs", definition: "2nd sign. Earth, fixed. Ruled by Venus; the Moon is exalted here. Stable, sensual, patient, resourceful. Associated with material security, beauty, food, and steady accumulation." },
+  { term: "Gemini (Mithuna)", category: "Signs", definition: "3rd sign. Air, mutable (dual). Ruled by Mercury. Curious, communicative, versatile, restless. Associated with learning, exchange, writing, and quick adaptability." },
+  { term: "Cancer (Karka)", category: "Signs", definition: "4th sign. Water, cardinal. Ruled by the Moon; Jupiter is exalted here. Nurturing, emotional, protective, home-oriented. Associated with roots, family, memory, and inner security." },
+  { term: "Leo (Simha)", category: "Signs", definition: "5th sign. Fire, fixed. Ruled by the Sun. Regal, creative, confident, generous. Associated with self-expression, performance, leadership, and the desire to be seen." },
+  { term: "Virgo (Kanya)", category: "Signs", definition: "6th sign. Earth, mutable. Ruled by Mercury, which is also exalted here. Analytical, precise, service-oriented, discerning. Associated with health, work, skill, and refinement of detail." },
+  { term: "Libra (Tula)", category: "Signs", definition: "7th sign. Air, cardinal. Ruled by Venus; Saturn is exalted here. Relational, balanced, aesthetic, diplomatic. Associated with partnership, fairness, harmony, and exchange." },
+  { term: "Scorpio (Vrishchika)", category: "Signs", definition: "8th sign. Water, fixed. Ruled by Mars (and Ketu as co-ruler in some systems). Intense, secretive, transformative, penetrating. Associated with depth, crisis, regeneration, and hidden power." },
+  { term: "Sagittarius (Dhanu)", category: "Signs", definition: "9th sign. Fire, mutable. Ruled by Jupiter. Philosophical, optimistic, expansive, freedom-loving. Associated with higher learning, dharma, travel, and the search for meaning." },
+  { term: "Capricorn (Makara)", category: "Signs", definition: "10th sign. Earth, cardinal. Ruled by Saturn; Mars is exalted here. Ambitious, disciplined, pragmatic, enduring. Associated with career, authority, structure, and long-term achievement." },
+  { term: "Aquarius (Kumbha)", category: "Signs", definition: "11th sign. Air, fixed. Ruled by Saturn (and Rahu as co-ruler in some systems). Independent, humanitarian, unconventional, systemic. Associated with networks, ideals, innovation, and collective gains." },
+  { term: "Pisces (Meena)", category: "Signs", definition: "12th sign. Water, mutable. Ruled by Jupiter; Venus is exalted here. Compassionate, imaginative, spiritual, dissolving. Associated with surrender, intuition, art, and transcendence." },
 
   // ── Houses ────────────────────────────────────────────────────────────────
   { term: "1st House (Lagna)", category: "Houses", definition: "Self, body, personality, appearance, vitality, and the overall direction of life. The Lagna lord's condition is one of the most important factors in the entire chart." },
@@ -106,7 +127,7 @@ const GLOSSARY: GlossaryTerm[] = [
   { term: "Neecha Bhanga", category: "System", definition: "Cancellation of debilitation — specific conditions that cancel or mitigate a planet's debilitation, often turning weakness into a form of strength. A debilitated planet can produce powerful results when neecha bhanga applies, sometimes even more powerfully than an exalted planet." },
 ];
 
-const CATEGORIES = ["All", "Panchang", "Nakshatra", "Timing", "Chart", "Planets", "Houses", "System"];
+const CATEGORIES = ["All", "Panchang", "Nakshatra", "Timing", "Chart", "Planets", "Signs", "Houses", "System"];
 
 const CATEGORY_COLORS: Record<string, string> = {
   Panchang:  "oklch(0.72 0.10 200)",
@@ -114,6 +135,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Timing:    "oklch(0.65 0.08 85)",
   Chart:     "oklch(0.68 0.10 145)",
   Planets:   "oklch(0.65 0.12 15)",
+  Signs:     "oklch(0.66 0.13 255)",
   Houses:    "oklch(0.65 0.10 320)",
   System:    "oklch(0.65 0.06 80)",
 };
