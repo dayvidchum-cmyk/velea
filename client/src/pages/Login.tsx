@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const GOLD = "#C9A84C";
 
@@ -19,6 +20,10 @@ export default function Login() {
   const registerMutation = trpc.auth.register.useMutation();
 
   const isSignup = mode === "signup";
+  const { theme } = useTheme();
+  const dark = theme === "dark";
+  const ink = dark ? "rgba(255,255,255,0.92)" : "#161616";
+  const inkSoft = dark ? "rgba(255,255,255,0.72)" : "rgba(0,0,0,0.6)";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,14 +55,16 @@ export default function Login() {
   };
 
   const inputStyle: React.CSSProperties = {
-    background: "#fff",
+    background: dark ? "rgba(18,16,28,0.22)" : "rgba(255,255,255,0.18)",
     border: `1px solid ${GOLD}`,
     borderRadius: 14,
     padding: "1.05rem 1rem",
-    color: "#2a2a2a",
     letterSpacing: "0.25em",
     textAlign: "center",
     caretColor: GOLD,
+    color: ink,
+    backdropFilter: "blur(3px)",
+    WebkitBackdropFilter: "blur(3px)",
   };
 
   const focusBorder = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -73,15 +80,17 @@ export default function Login() {
     <div
       className="min-h-screen flex flex-col items-center justify-center px-8 py-16"
       style={{
-        backgroundColor: "#ffffff",
-        backgroundImage:
-          "linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.5) 100%), url('/shell-sunset.jpg')",
+        backgroundColor: dark ? "#0b0a14" : "#ffffff",
+        backgroundImage: dark
+          ? "linear-gradient(180deg, rgba(8,8,18,0.5) 0%, rgba(8,8,18,0.72) 100%), url('/shell-night.jpg')"
+          : "linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.5) 100%), url('/shell-sunset.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
       <div className="flex flex-col items-center w-full" style={{ maxWidth: 360 }}>
+        <style>{`.velea-input::placeholder { color: ${inkSoft}; letter-spacing: 0.25em; }`}</style>
         {/* Emblem — comet / clock / conception. */}
         <img src="/velea-emblem.png" alt="Velea" width={168} height={168} />
 
@@ -109,16 +118,18 @@ export default function Login() {
             fontSize: "0.95rem",
             fontWeight: 600,
             letterSpacing: "0.4em",
+            paddingLeft: "0.4em", // compensate trailing letter-spacing so it stays centered
             textTransform: "uppercase",
-            color: GOLD,
+            color: "#ffffff",
+            textShadow: "0 1px 8px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.4)",
             margin: 0,
           }}
         >
           Why now?
         </p>
 
-        {/* Gold rule */}
-        <div style={{ width: 140, height: 1, background: GOLD, opacity: 0.75, margin: "1.25rem 0 2.5rem" }} />
+        {/* Rule */}
+        <div style={{ width: 140, height: 1, background: "#ffffff", opacity: 0.95, margin: "1.25rem 0 2.5rem", boxShadow: "0 0 6px rgba(0,0,0,0.45)" }} />
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="w-full space-y-4">
@@ -131,7 +142,7 @@ export default function Login() {
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
               maxLength={120}
-              className="w-full outline-none transition-all text-sm font-medium"
+              className="velea-input w-full outline-none transition-all text-sm font-medium"
               style={inputStyle}
               onFocus={focusBorder}
               onBlur={blurBorder}
@@ -146,7 +157,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="w-full outline-none transition-all text-xs font-medium"
+            className="velea-input w-full outline-none transition-all text-xs font-medium"
             style={inputStyle}
             onFocus={focusBorder}
             onBlur={blurBorder}
@@ -161,7 +172,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
-            className="w-full outline-none transition-all text-xs font-medium"
+            className="velea-input w-full outline-none transition-all text-xs font-medium"
             style={inputStyle}
             onFocus={focusBorder}
             onBlur={blurBorder}
@@ -195,12 +206,12 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-xs mt-6" style={{ color: "#6b6b6b" }}>
+        <p className="text-center text-xs mt-6" style={{ color: inkSoft, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
           {isSignup ? "Already have an account?" : "New to Velea?"}{" "}
           <button
             type="button"
             onClick={toggleMode}
-            style={{ color: GOLD, fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            style={{ color: "#ffffff", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, textShadow: "0 1px 6px rgba(0,0,0,0.65), 0 0 2px rgba(0,0,0,0.5)" }}
           >
             {isSignup ? "Sign in" : "Sign up"}
           </button>
