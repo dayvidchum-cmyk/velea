@@ -50,81 +50,78 @@ export default function Login() {
   };
 
   const inputStyle: React.CSSProperties = {
-    background: "transparent",
-    border: "none",
-    borderBottom: `1.5px solid ${GOLD}`,
-    borderRadius: 0,
-    padding: "0.75rem 0.25rem",
-    color: "rgba(255,255,255,0.9)",
-    letterSpacing: "0.18em",
+    background: "#fff",
+    border: `1px solid ${GOLD}`,
+    borderRadius: 14,
+    padding: "1.05rem 1rem",
+    color: "#2a2a2a",
+    letterSpacing: "0.25em",
+    textAlign: "center",
     caretColor: GOLD,
+  };
+
+  const focusBorder = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "#A87E2E";
+    e.currentTarget.style.boxShadow = `0 0 0 3px ${GOLD}22`;
+  };
+  const blurBorder = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = GOLD;
+    e.currentTarget.style.boxShadow = "none";
   };
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-between px-8 py-16"
-      style={{ position: "relative", overflow: "hidden" }}
+      className="min-h-screen flex flex-col items-center justify-center px-8 py-16"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage:
+          "linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.5) 100%), url('/shell-sunset.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
-      {/* Full-bleed background image */}
-      <img
-        src="/starry-night.png"
-        alt=""
-        aria-hidden
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition: "center bottom",
-          zIndex: 0,
-        }}
-      />
-      {/* Content sits above the image */}
-      <div
-        className="min-h-screen flex flex-col items-center justify-between px-8 py-16 w-full"
-        style={{ position: "relative", zIndex: 1 }}
-      >
-      {/* Top: logo + wordmark */}
-      <div className="flex flex-col items-center flex-1 justify-center w-full" style={{ maxWidth: 360 }}>
-        <img
-          src="/kala-logo-transparent.png"
-          alt="Velea"
-          width={160}
-          height={160}
-          style={{ marginBottom: "1.5rem" }}
-        />
+      <div className="flex flex-col items-center w-full" style={{ maxWidth: 360 }}>
+        {/* Emblem — comet / clock / conception. */}
+        <img src="/velea-emblem.png" alt="Velea" width={168} height={168} />
 
+        {/* Wordmark */}
         <h1
           style={{
             fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
             fontWeight: 700,
             fontSize: "clamp(3rem, 12vw, 4.5rem)",
             letterSpacing: "-0.01em",
-            color: GOLD,
             lineHeight: 1,
-            marginBottom: "0.6rem",
+            margin: "1.25rem 0 0.5rem",
+            background: `linear-gradient(180deg, #E7C766 0%, ${GOLD} 55%, #A87E2E 100%)`,
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
           }}
         >
           Velea
         </h1>
 
+        {/* Tagline */}
         <p
           style={{
-            fontSize: "1rem",
+            fontSize: "0.95rem",
             fontWeight: 600,
             letterSpacing: "0.4em",
             textTransform: "uppercase",
-            color: "rgba(255,255,255,0.7)",
+            color: GOLD,
+            margin: 0,
           }}
         >
-          Why now
+          Why now?
         </p>
-      </div>
 
-      {/* Bottom: form */}
-      <div className="w-full" style={{ maxWidth: 360 }}>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Gold rule */}
+        <div style={{ width: 140, height: 1, background: GOLD, opacity: 0.75, margin: "1.25rem 0 2.5rem" }} />
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
           {isSignup && (
             <input
               type="text"
@@ -134,10 +131,10 @@ export default function Login() {
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
               maxLength={120}
-              className="w-full outline-none transition-all text-center text-sm font-semibold"
+              className="w-full outline-none transition-all text-sm font-medium"
               style={inputStyle}
-              onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
-              onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
+              onFocus={focusBorder}
+              onBlur={blurBorder}
             />
           )}
 
@@ -149,10 +146,10 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="w-full outline-none transition-all text-center font-semibold"
-            style={{ ...inputStyle, fontSize: "0.75rem" }}
-            onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
-            onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
+            className="w-full outline-none transition-all text-xs font-medium"
+            style={inputStyle}
+            onFocus={focusBorder}
+            onBlur={blurBorder}
           />
 
           <input
@@ -164,14 +161,14 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
-            className="w-full outline-none transition-all text-center font-semibold"
-            style={{ ...inputStyle, fontSize: "0.75rem" }}
-            onFocus={(e) => { e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.9)"; }}
-            onBlur={(e) => { e.currentTarget.style.borderBottomColor = GOLD; }}
+            className="w-full outline-none transition-all text-xs font-medium"
+            style={inputStyle}
+            onFocus={focusBorder}
+            onBlur={blurBorder}
           />
 
           {error && (
-            <p className="text-xs text-center" style={{ color: "#e07070" }}>
+            <p className="text-xs text-center" style={{ color: "#c0504d" }}>
               {error}
             </p>
           )}
@@ -183,13 +180,13 @@ export default function Login() {
             style={{
               background: GOLD,
               color: "#1a1200",
-              borderRadius: "12px",
+              borderRadius: "14px",
               padding: "1rem",
               fontSize: "0.75rem",
               fontWeight: 700,
               letterSpacing: "0.22em",
               textTransform: "uppercase",
-              marginTop: "0.25rem",
+              marginTop: "0.5rem",
             }}
           >
             {isLoading
@@ -198,7 +195,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-xs mt-5" style={{ color: "rgba(255,255,255,0.7)" }}>
+        <p className="text-center text-xs mt-6" style={{ color: "#6b6b6b" }}>
           {isSignup ? "Already have an account?" : "New to Velea?"}{" "}
           <button
             type="button"
@@ -208,7 +205,6 @@ export default function Login() {
             {isSignup ? "Sign in" : "Sign up"}
           </button>
         </p>
-      </div>
       </div>
     </div>
   );
