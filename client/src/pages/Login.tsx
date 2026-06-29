@@ -89,7 +89,7 @@ export default function Login() {
       <div className="flex flex-col items-center flex-1 justify-center w-full" style={{ maxWidth: 360 }}>
         <img
           src="/kala-logo-transparent.png"
-          alt="Sefdwa"
+          alt="Velea"
           width={160}
           height={160}
           style={{ marginBottom: "1.5rem" }}
@@ -106,7 +106,7 @@ export default function Login() {
             marginBottom: "0.6rem",
           }}
         >
-          Sefdwa
+          Velea
         </h1>
 
         <p
@@ -199,7 +199,7 @@ export default function Login() {
         </form>
 
         <p className="text-center text-xs mt-5" style={{ color: "rgba(255,255,255,0.7)" }}>
-          {isSignup ? "Already have an account?" : "New to Sefdwa?"}{" "}
+          {isSignup ? "Already have an account?" : "New to Velea?"}{" "}
           <button
             type="button"
             onClick={toggleMode}

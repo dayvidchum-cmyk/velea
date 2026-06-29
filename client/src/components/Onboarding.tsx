@@ -6,7 +6,7 @@ import { useDayModeColor } from "@/hooks/useDayModeColor";
 /**
  * First-run onboarding for newcomers who only know their Western sun sign.
  * Two phases:
- *   1. Intro cards — what Sefdwa is, where to start, that the deep tabs are optional.
+ *   1. Intro cards — what Velea is, where to start, that the deep tabs are optional.
  *   2. Guided tour — coachmarks pointing at the real UI on the Today page.
  * Shown once per user (gated by localStorage). Targets are tagged with
  * `data-tour="..."` attributes elsewhere in the app.
@@ -33,8 +33,8 @@ type Props = {
 const CARDS = [
   {
     icon: Sparkles,
-    title: "Welcome to Sefdwa",
-    body: "Sefdwa reads today's sky and turns it into one simple thing you can act on: your day mode. No astrology knowledge required.",
+    title: "Welcome to Velea",
+    body: "Velea reads today's sky and turns it into one simple thing you can act on: your day mode. No astrology knowledge required.",
   },
   {
     icon: Sun,
@@ -65,8 +65,8 @@ const TOUR: TourStep[] = [
     route: "/",
     selector: '[data-tour="today-mode"]',
     expand: "why",
-    title: "How Sefdwa thinks",
-    body: "This card is the whole engine in one place. Sefdwa reads today's sky — moon sign, nakshatra, tithi, and the ruling time lord — and synthesizes it into a single mode for your day. Tap “see full breakdown” to follow the reasoning step by step.",
+    title: "How Velea thinks",
+    body: "This card is the whole engine in one place. Velea reads today's sky — moon sign, nakshatra, tithi, and the ruling time lord — and synthesizes it into a single mode for your day. Tap “see full breakdown” to follow the reasoning step by step.",
   },
   {
     route: "/",
@@ -79,7 +79,7 @@ const TOUR: TourStep[] = [
     route: "/",
     selector: '[data-tour="current-state"]',
     title: "Tune your day",
-    body: "Tell Sefdwa where you are and how you're feeling. It folds that into the guidance so it fits your real day.",
+    body: "Tell Velea where you are and how you're feeling. It folds that into the guidance so it fits your real day.",
   },
   {
     route: "/astrology",

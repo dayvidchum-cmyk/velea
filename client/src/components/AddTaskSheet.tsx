@@ -652,7 +652,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
               className="text-[10px] mb-3"
               style={{ color: "var(--color-muted-foreground)", opacity: 0.7 }}
             >
-              Helps Sefdwa match tasks to your current state.
+              Helps Velea match tasks to your current state.
             </p>
 
             {/* Cognitive Load */}
