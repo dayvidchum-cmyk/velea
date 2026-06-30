@@ -1,7 +1,7 @@
 import { trpc } from "../lib/trpc";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CircleDot } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
@@ -45,6 +45,11 @@ export default function ProfectionYear() {
   const [s8, setS8] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
   const [triggerOpen, setTriggerOpen] = useState(false);
+  const [explainerOpen, setExplainerOpen] = useState(false);
+  const [wheelOpen, setWheelOpen] = useState(true); // wheel stays open unless minimized
+  const [whyNowOpen, setWhyNowOpen] = useState(true);
+  const [areasOpen, setAreasOpen] = useState(true);
+  const [readOpen, setReadOpen] = useState(true);
   const [expandedTransitId, setExpandedTransitId] = useState<number | null>(null);
   const [chartTab, setChartTab] = useState<"timelord" | "natal" | "dasha">("timelord");
   const CHART_TABS: { id: "timelord" | "natal" | "dasha"; label: string }[] = [
@@ -126,12 +131,11 @@ export default function ProfectionYear() {
     content: React.ReactNode,
   ) => (
     <div style={{
-      border: "1px solid rgba(255,255,255,0.14)",
+      border: "1px solid rgba(255,255,255,0.18)",
       borderRadius: "0.85rem",
       overflow: "hidden",
       marginBottom: "0.85rem",
-      background: open ? "rgba(0,0,0,0.22)" : "rgba(0,0,0,0.12)",
-      transition: "background 200ms ease",
+      background: tlGradient,
     }}>
       <button
         type="button"
@@ -145,26 +149,70 @@ export default function ProfectionYear() {
     </div>
   );
 
+  // White card with a day-mode-colored header, collapsible — the cohesive
+  // container used for every section on the Time Lord page.
+  const panel = (
+    title: string,
+    open: boolean,
+    setOpen: (v: boolean) => void,
+    content: React.ReactNode,
+  ) => (
+    <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", marginBottom: "1.25rem", overflow: "hidden" }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+      >
+        <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
+        <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+      </button>
+      {open && <div style={{ padding: "0 1.25rem 1.25rem" }}>{content}</div>}
+    </div>
+  );
+
+  // Wraps rich (white-text) content in the colored ombre so it stays legible
+  // inside the white card.
+  const ombre = (children: React.ReactNode) => (
+    <div style={{ borderRadius: "14px", background: tlGradient, padding: "1.25rem", overflow: "hidden" }}>{children}</div>
+  );
+
   // The why (gray mechanics) renders as a simple little list — one line per clause —
   // so the chart data informs without overwhelming. Splits on "; " (the dasha chain
   // separates maha / antar that way); a single clause stays a single line.
   const whyBlock = (why: string) => {
-    // Break the gray mechanics into scannable bullets — split on sentence ends
-    // and clause separators so it never reads as a wall of words.
-    const items = why
-      .split(/(?<=\.)\s+|;\s+/)
-      .map((s) => s.trim().replace(/\.$/, ""))
-      .filter(Boolean);
-    const list = items.length ? items : [why];
+    // Peel a trailing takeaway (after a late em dash) to emphasize with the
+    // Chart icon; bullet the placement clauses that come before it.
+    let data = why;
+    let takeaway = "";
+    const dashIdx = why.lastIndexOf("—");
+    if (dashIdx > why.length * 0.4) {
+      data = why.slice(0, dashIdx).trim().replace(/[,;]\s*$/, "");
+      takeaway = why.slice(dashIdx + 1).trim().replace(/^so[,\s]+/i, "");
+    }
+    const items = data
+      // sentence ends, semicolons, and " and " before a placement clause
+      .split(/(?<=\.)\s+|;\s+|\s+and\s+(?=(?:your\b|rules\b|ruling\b|sits\b|in\s+your\b))/i)
+      .map((s) => s.trim().replace(/[.,;]+$/, ""))
+      .filter(Boolean)
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1));
+    const list = items.length ? items : [data];
     return (
-      <ul style={{ listStyle: "none", margin: "0.7rem 0 0", padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        {list.map((it, i) => (
-          <li key={i} style={{ color: "rgba(255,255,255,0.68)", fontSize: "0.92rem", lineHeight: 1.5, display: "flex", gap: "0.6rem" }}>
-            <span style={{ color: "rgba(255,255,255,0.55)", flexShrink: 0, lineHeight: "1.4rem", fontWeight: 700 }}>•</span>
-            <span>{it}</span>
-          </li>
-        ))}
-      </ul>
+      <div style={{ margin: "0.7rem 0 0" }}>
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {list.map((it, i) => (
+            <li key={i} style={{ color: "rgba(255,255,255,0.68)", fontSize: "0.92rem", lineHeight: 1.5, display: "flex", gap: "0.6rem" }}>
+              <span style={{ color: "rgba(255,255,255,0.55)", flexShrink: 0, lineHeight: "1.4rem", fontWeight: 700 }}>•</span>
+              <span>{it}</span>
+            </li>
+          ))}
+        </ul>
+        {takeaway && (
+          <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.85rem" }}>
+            <CircleDot size={17} style={{ color: "#E7C766", flexShrink: 0, marginTop: "0.15rem" }} />
+            <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{takeaway}</p>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -229,7 +277,7 @@ export default function ProfectionYear() {
 
       {chartTab === "timelord" && (<>
       {/* What a Time Lord / profection year is — short explainer */}
-      <div style={{ borderRadius: "16px", background: "var(--muted)", padding: "1rem 1.25rem", marginBottom: "1.25rem" }}>
+      {panel("How profection works", explainerOpen, setExplainerOpen, (
         <p style={{ color: TEXT_PRIMARY, fontSize: "0.98rem", lineHeight: 1.65, margin: 0 }}>
           In astrology, <strong>annual profection</strong> is an ancient timing technique that follows the
           movement of your <strong>Lagna</strong> (Ascendant, Rising Sign), which activates one house of your
@@ -237,17 +285,15 @@ export default function ProfectionYear() {
           activated; at age 1, the 2nd house; and after 12 years the cycle repeats. The ruler of the activated
           house is your <strong>Time Lord</strong> — the planet running your year.
         </p>
-      </div>
+      ))}
 
-      {/* Your Time Lords wheel — image deepens the concept (words first, then the picture) */}
-      <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem" }}>
-        <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor, marginBottom: "1rem" }}>Your Time Lords (from birth to 120 years old)</p>
+      {/* Your Time Lords wheel — open by default */}
+      {panel("Your Time Lords (from birth to 120 years old)", wheelOpen, setWheelOpen, (
         <ProfectionWheel lagnaSign={lagnaSign} age={age} />
-      </div>
+      ))}
 
       {/* WHY NOW? — deterministic logic chain (computed from the chart, auditable) */}
-      <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem" }}>
-        <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor, marginBottom: "1.1rem" }}>Why now?</p>
+      {panel("Why now?", whyNowOpen, setWhyNowOpen, (
         <WhyNowChain
           age={age}
           activatedHouse={activatedHouse}
@@ -258,15 +304,14 @@ export default function ProfectionYear() {
           tlNatalNakshatra={tlBody?.nakshatra}
           accentColor={modeColor}
         />
-      </div>
+      ))}
 
       {/* This year's life areas — the houses this profection year activates ("the party") */}
       {(() => {
         const yearAreas = LIFE_AREAS.filter((a) => a.houses.includes(activatedHouse));
         if (yearAreas.length === 0) return null;
-        return (
-          <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem" }}>
-            <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor, marginBottom: "0.4rem" }}>This year's life areas</p>
+        return panel("This year's life areas", areasOpen, setAreasOpen, (
+          <>
             <p style={{ fontSize: "0.8rem", color: TEXT_MUTED, marginBottom: "1rem", lineHeight: 1.5 }}>
               House {activatedHouse} is lit up this year, so these are the areas of life in focus. Tasks you tag with them rise on days the year's themes are echoed.
             </p>
@@ -288,16 +333,14 @@ export default function ProfectionYear() {
                 </span>
               ))}
             </div>
-          </div>
-        );
+          </>
+        ));
       })()}
 
       {/* LLM Deep Read — the full structured read (The Read). Sits ABOVE Current Trigger.
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
-      {deepRead && (
-        <div style={{ borderRadius: "20px", background: tlGradient, padding: "1.5rem", marginBottom: "1.25rem", overflow: "hidden" }}>
-          <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", marginBottom: "1.25rem" }}>The Read · your year</p>
-
+      {deepRead && panel("The Read · your year", readOpen, setReadOpen, (
+        <>
           {readAccordion("Core Theme", s1, setS1, sectionBody(deepRead.coreTheme))}
 
           {readAccordion("Your Current Karmic Chapter — Dasha", s2, setS2, sectionBody(deepRead.whyNow))}
@@ -332,8 +375,8 @@ export default function ProfectionYear() {
               <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", margin: "0.75rem 0 0", fontStyle: "italic" }}>The more independent techniques point at one life area, the higher the confidence.</p>
             </>
           ))}
-        </div>
-      )}
+        </>
+      ))}
       {!deepRead && deepReadLoading && (
         <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem", color: TEXT_MUTED, fontSize: "0.85rem" }}>
           Generating your reading…
@@ -341,58 +384,38 @@ export default function ProfectionYear() {
       )}
 
       {/* CURRENT TRIGGER — deterministic transit breakdown (ephemeris math, auditable) */}
-      {triggerData?.available && (
-        <div style={{ borderRadius: "20px", background: tlGradient, marginBottom: "1.25rem", overflow: "hidden" }}>
-          <button
-            type="button"
-            onClick={() => setTriggerOpen((v) => !v)}
-            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.95rem 1.25rem", background: "transparent", border: "none", cursor: "pointer" }}
-          >
-            <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)" }}>Current Trigger</span>
-            <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: triggerOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
-          </button>
-          {triggerOpen && (
-            <div style={{ padding: "0 1.25rem 1.25rem" }}>
-              <CurrentTriggerBreakdown
-                transits={triggerData.transits}
-                activatedHouse={triggerData.activatedHouse}
-                timeLord={triggerData.timeLord}
-                accentColor="rgba(255,255,255,0.85)"
-                onDark
-              />
+      {triggerData?.available && panel("Current Trigger", triggerOpen, setTriggerOpen, ombre(
+        <CurrentTriggerBreakdown
+          transits={triggerData.transits}
+          activatedHouse={triggerData.activatedHouse}
+          timeLord={triggerData.timeLord}
+          accentColor="rgba(255,255,255,0.85)"
+          onDark
+        />
+      ))}
+
+      {/* Current Time Lord Movement */}
+      {panel("Current Time Lord Movement", tlOpen, setTlOpen, ombre(
+        <>
+          <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.65, marginBottom: "1rem" }}>
+            When the Time Lord moves, life moves. As it passes through each house, that area of your life is activated in turn — and the <strong>friction</strong> you feel there shows you what needs to be resolved.
+          </p>
+          {tlTransit?.house != null && (
+            <div style={{ marginBottom: "1rem" }}>
+              <p style={{ color: "#fff", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
+                Chapter: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
+              </p>
+              <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.6, margin: 0 }}>
+                Your Time Lord {tlTransit.timeLord} is passing through this part of your chart right now — so this is the life-area where the year's growth and friction actually play out.
+              </p>
             </div>
           )}
-        </div>
-      )}
+          <TimeLordMovement selectedDate={todayDateStr} variant="immersive" accentColor={accentColor} darkColor={darkColor} bestUses={deepRead?.chapterGoodFor} avoid={deepRead?.chapterAvoid} />
+        </>
+      ))}
 
-      {/* Time Lord Movement — immersive gradient */}
-      <div style={{ borderRadius: "20px", background: tlGradient, marginBottom: "1.25rem", overflow: "hidden" }}>
-        <button type="button" onClick={() => setTlOpen(v => !v)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}>
-          <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Current Time Lord Movement</span>
-          <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: tlOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
-        </button>
-        {tlOpen && (
-          <div style={{ padding: "0 1.25rem 1.25rem" }}>
-            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.65, marginBottom: "1rem" }}>
-              When the Time Lord moves, life moves. As it passes through each house, that area of your life is activated in turn — and the <strong>friction</strong> you feel there shows you what needs to be resolved.
-            </p>
-            {tlTransit?.house != null && (
-              <div style={{ marginBottom: "1rem" }}>
-                <p style={{ color: "#fff", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
-                  Chapter: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
-                </p>
-                <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.6, margin: 0 }}>
-                  Your Time Lord {tlTransit.timeLord} is passing through this part of your chart right now — so this is the life-area where the year's growth and friction actually play out.
-                </p>
-              </div>
-            )}
-            <TimeLordMovement selectedDate={todayDateStr} variant="immersive" accentColor={accentColor} darkColor={darkColor} bestUses={deepRead?.chapterGoodFor} avoid={deepRead?.chapterAvoid} />
-          </div>
-        )}
-      </div>
-
-      {card("Time Lord Movement This Year", s4, setS4,
-        <div style={{ padding: "0 1rem 1rem" }}>
+      {panel("Time Lord Movement This Year", s4, setS4, ombre(
+        <div>
           {transitsError ? (
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Error loading transits.</p>
           ) : transitsLoading ? (
@@ -429,7 +452,7 @@ export default function ProfectionYear() {
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>No transit data available.</p>
           )}
         </div>
-      )}
+      ))}
 
       </>)}
 
