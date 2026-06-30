@@ -99,6 +99,8 @@ export default function Planner() {
   const [planOpen, setPlanOpen] = useState(false);
   const [pinnedOpen, setPinnedOpen] = useState(true);
   const [alignedOpen, setAlignedOpen] = useState(true);
+  const [allTasksOpen, setAllTasksOpen] = useState(false);
+  const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());
 
   function getHouseSuffix(n: number | undefined): string {
     if (!n) return "th";
@@ -620,12 +622,21 @@ export default function Planner() {
       {/* ── MODE ORBS (reflect TODAY) ── */}
       {isAuthenticated && (
         <div className="relative z-10">
-          <h3
-            className="text-sm font-bold uppercase mb-3"
-            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+          <button
+            onClick={() => setAllTasksOpen((v) => !v)}
+            className="flex items-center gap-2 mb-3"
           >
-            Tasks
-          </h3>
+            <h3
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              All Tasks ({allTasks.filter((t) => !t.isCompleted).length})
+            </h3>
+            <ChevronDown
+              size={13}
+              style={{ color: "var(--color-muted-foreground)", transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
           <div className="flex justify-around items-end">
             {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => (
               <ModeOrb
@@ -670,6 +681,68 @@ export default function Planner() {
               </span>
             </button>
           </div>
+
+          {/* All-tasks accordion — collapsible groups by mode (the old Planner view) */}
+          {allTasksOpen && (
+            <div className="mt-4 space-y-2">
+              {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => {
+                const groupTasks = allTasks.filter(
+                  (t) => t.mode === m && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= Date.now())
+                );
+                const open = openModeGroups.has(m);
+                const groupColor = PLANNER_MODE_OKLCH[m];
+                return (
+                  <div key={m} className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
+                    <button
+                      onClick={() =>
+                        setOpenModeGroups((cur) => {
+                          const n = new Set(cur);
+                          n.has(m) ? n.delete(m) : n.add(m);
+                          return n;
+                        })
+                      }
+                      className="w-full flex items-center justify-between px-3 py-2.5"
+                      style={{ background: "var(--color-secondary)" }}
+                    >
+                      <span className="text-xs font-bold uppercase" style={{ color: groupColor, letterSpacing: "0.04em" }}>
+                        {m} <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>
+                      </span>
+                      <ChevronDown
+                        size={13}
+                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+                      />
+                    </button>
+                    {open &&
+                      (groupTasks.length === 0 ? (
+                        <p className="text-xs px-3 py-3" style={{ color: "var(--color-muted-foreground)" }}>No {m} tasks.</p>
+                      ) : (
+                        <div className="p-2 space-y-2">
+                          {groupTasks.map((task) => (
+                            <SwipeableTaskRow
+                              key={task.id}
+                              onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                              onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                              isCompleted={task.isCompleted}
+                              isPinned={task.isPinned}
+                              modeColor={groupColor}
+                            >
+                              <TaskItem
+                                task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                                onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                                onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                                onDelete={() => deleteMutation.mutate({ id: task.id })}
+                                onEdit={(t: Task) => setEditPinnedTask(t)}
+                                dayMode={todayTaskMode}
+                              />
+                            </SwipeableTaskRow>
+                          ))}
+                        </div>
+                      ))}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

@@ -23,7 +23,7 @@ import type { Task } from "../drizzle/schema";
 import type { TaskMode } from "../shared/types";
 import type { CurrentLayers, TransitingPlanet } from "./layers/types";
 import { themeMatchesTask } from "./layers/time-lord-theme";
-import { housesForAreas, matchedAreaLabels } from "../shared/life-areas";
+import { housesForAreas, matchedAreaLabels, parseLifeAreas } from "../shared/life-areas";
 
 export type PersonalEnergy = "Low" | "Medium" | "High";
 
@@ -265,7 +265,7 @@ export function scoreTasks(
 
       // 4. Wealth Flow (soft)
       if ((task as any).wealthFlow) {
-        soft += 200;
+        soft += 75;
         reasons.push("Wealth flow task");
       }
 
@@ -278,9 +278,9 @@ export function scoreTasks(
         reasons.push("Medium priority");
       }
 
-      // 6. Mode alignment (soft)
+      // 6. Mode alignment (soft) — the strongest discretionary signal.
       if (task.mode === todayMode) {
-        soft += 100;
+        soft += 200;
         reasons.push(`Aligned with ${todayMode} mode`);
       }
 
@@ -311,13 +311,13 @@ export function scoreTasks(
       }
 
       // 10. Domain alignment (soft) — the day's activated house surfaces tasks
-      // from thematically-matching projects. Weighted comparably to a strong
-      // day-mode match (+100) so aligned project work rises in "Why now?".
-      if (task.projectId != null && dayHouseSet.size > 0 && projectAreas) {
-        const keys = projectAreas.get(task.projectId);
-        if (keys && keys.length > 0) {
-          const projectHouses = housesForAreas(keys);
-          if (projectHouses.some((h) => dayHouseSet.has(h))) {
+      // whose OWN life areas map to it ("the song"). Weighted comparably to a
+      // strong day-mode match so aligned work rises in "Why now?".
+      if (dayHouseSet.size > 0) {
+        const keys = parseLifeAreas((task as any).lifeAreas ?? null);
+        if (keys.length > 0) {
+          const taskHouses = housesForAreas(keys);
+          if (taskHouses.some((h) => dayHouseSet.has(h))) {
             soft += 120;
             const labels = matchedAreaLabels(Array.from(dayHouseSet), keys);
             if (labels.length > 0) {
