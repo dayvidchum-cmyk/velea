@@ -407,8 +407,9 @@ export default function ProfectionYear() {
           In astrology, <strong>annual profection</strong> is an ancient timing technique that follows the
           movement of your <strong>Lagna</strong> (Ascendant, Rising Sign), which activates one house of your
           birth chart each year of your life. At birth you are age 0 and your <strong>1st house</strong> is
-          activated; at age 1, the 2nd house; and after 12 years the cycle repeats. The ruler of the activated
-          house is your <strong>Time Lord</strong> — the planet running your year.
+          activated; at age 1, the 2nd house; and after 12 years the cycle repeats. The themes of the
+          activated house become the focus of the year. The ruler of the activated house is your{" "}
+          <strong>Time Lord</strong> — the planet running your year.
         </p>
       ))}
 
