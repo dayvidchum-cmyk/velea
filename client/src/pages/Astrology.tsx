@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { ModeCard } from "@/components/ModeCard";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
@@ -104,6 +104,23 @@ const CHART_HOUSES = [
 
 // ── Natal Chart visual ─────────────────────────────────────────────────────
 
+// Short, user-facing summary for each house — shown when a house is tapped on the
+// natal chart. Condensed from the narrative engine's house dictionary.
+const HOUSE_SUMMARY: Record<number, { title: string; summary: string }> = {
+  1: { title: "Self", summary: "Your body, vitality, and temperament — the lens you meet the world through, and your overall direction in life." },
+  2: { title: "Wealth & Voice", summary: "What you own and value: money, resources, and possessions, your speech and self-worth, and your family of origin." },
+  3: { title: "Courage & Communication", summary: "Effort, skill, and initiative; siblings, neighbors, and short trips; writing, messaging, and the hands-on." },
+  4: { title: "Home & Roots", summary: "Mother, home, land, and inner foundation — where you come from and what gives you a sense of security." },
+  5: { title: "Creativity & Children", summary: "What comes out of you: creativity, romance, and play; children; discerning intelligence and speculation." },
+  6: { title: "Work, Service & Health", summary: "Daily work and service, routine and duty; health and the body; debts, obstacles, conflict, and self-sacrifice." },
+  7: { title: "Partnership", summary: "Marriage and one-on-one relationships; partners, clients, and contracts; the people you face directly." },
+  8: { title: "Transformation & Depth", summary: "Crisis, change, and rebirth; intimacy and merged resources; the hidden, the occult, and deep psychology." },
+  9: { title: "Belief & Fortune", summary: "Meaning, philosophy, and dharma; teachers and teaching; higher learning, long journeys, faith, and the father." },
+  10: { title: "Career & Standing", summary: "Career, reputation, and public role; your action seen in the world, your authority, and your duty to society." },
+  11: { title: "Gains & Network", summary: "Gains, income, and rewards; friends, networks, and community; hopes and the fulfillment of goals." },
+  12: { title: "Release & Retreat", summary: "Letting go, rest, and the unseen; solitude, foreign lands, and spirituality; loss, expenses, and liberation." },
+};
+
 interface NatalBody {
   planet: string;
   sign: string;
@@ -117,6 +134,8 @@ interface NatalBody {
 
 function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; natalBodies: NatalBody[] }) {
   const lagnaIndex = ZODIAC_SIGNS.indexOf(lagnaSign ?? "Aries");
+  const accent = useDayModeColor();
+  const [selectedHouse, setSelectedHouse] = useState<number | null>(null);
 
   const planetsByHouse = useMemo(() => {
     const map: Record<number, Array<{ planet: string; sign: string; isRetrograde: boolean }>> = {};
@@ -134,7 +153,12 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
   const SIGN_FILL = "#2E2A20";
   const LAGNA_GOLD = "#A8801E";
 
+  const sel = selectedHouse;
+  const selSign = sel != null ? ZODIAC_SIGNS[(lagnaIndex + sel - 1 + 12) % 12] : null;
+  const selPlanets = sel != null ? (planetsByHouse[sel] ?? []) : [];
+
   return (
+    <div style={{ position: "relative" }}>
     <svg viewBox="0 0 300 300" style={{ width: "100%", aspectRatio: "1/1", display: "block", border: "1px solid rgba(168,130,52,0.55)", borderRadius: "0.75rem" }}>
       <defs>
         <linearGradient id="parchmentBg" x1="0" y1="0" x2="0.4" y2="1">
@@ -154,10 +178,10 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
         const startY = cy - span / 2;
 
         return (
-          <g key={house}>
+          <g key={house} onClick={() => setSelectedHouse(house)} style={{ cursor: "pointer" }}>
             <polygon
               points={points}
-              fill="transparent"
+              fill={selectedHouse === house ? "rgba(168,130,52,0.14)" : "transparent"}
               stroke={GOLD_LINE}
               strokeWidth="0.9"
             />
@@ -218,6 +242,64 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
       })}
 
     </svg>
+
+      {/* House summary popup */}
+      {sel != null && selSign && (
+        <div
+          onClick={() => setSelectedHouse(null)}
+          style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)", borderRadius: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 5 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: "100%", maxWidth: 320, background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "1rem", padding: "1.1rem 1.2rem", boxShadow: "0 12px 32px rgba(0,0,0,0.25)" }}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accent, margin: 0 }}>
+                  House {sel} · {selSign}{sel === 1 ? " Lagna" : ""}
+                </p>
+                <p style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0.15rem 0 0" }}>
+                  {HOUSE_SUMMARY[sel].title}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedHouse(null)}
+                aria-label="Close"
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)", padding: 2, marginTop: 2 }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.7rem 0 0" }}>
+              {HOUSE_SUMMARY[sel].summary}
+            </p>
+
+            <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
+              <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.45rem" }}>
+                Planets here
+              </p>
+              {selPlanets.length === 0 ? (
+                <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", margin: 0 }}>No planets in this house.</p>
+              ) : (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                  {selPlanets.map(({ planet, sign: pSign, isRetrograde }) => {
+                    const dignity = getPlanetDignity(planet, pSign);
+                    return (
+                      <span key={planet} style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--color-foreground)", background: "var(--color-secondary)", borderRadius: "999px", padding: "0.2rem 0.6rem" }}>
+                        <span style={{ color: PLANET_COLORS_PARCH[planet] ?? "var(--color-foreground)" }}>{planet}</span>
+                        {isRetrograde && <span style={{ color: "var(--color-muted-foreground)" }}> Rx</span>}
+                        {dignity && <span style={{ color: "var(--color-muted-foreground)" }}> · {dignity}</span>}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
