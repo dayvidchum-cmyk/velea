@@ -381,6 +381,15 @@ risk. The house the planet OCCUPIES is where that fused theme is staged and what
 colors it. Always run this chain for the Time Lord and the dasha lords before you
 write: list what each rules, fuse those topics, then place the fusion in the house
 it sits in. Most of the synthesis is in these chains, not in any single placement.
+When one ruler binds a purpose house (Dharma — 1st, 5th, 9th: who you are, what you
+make, what you teach and believe) to a resource house (Artha — 2nd, 6th, 10th: voice
+and worth, daily work, public standing), the fusion is a VOCATION, not two separate
+aims. Do not write "teach" in one place and "charge more for your worth" in another.
+Name the one role: the purpose is meant to BE the livelihood — the voice that teaches
+is the same voice that earns. The occupied house says how it is staged (the 6th:
+through daily work and service; the 7th: through one client or partner at a time; the
+10th: in public). Resolve a purpose-and-resource chain into a single identity the
+person can occupy, never a list of separate goals.
 
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
