@@ -314,6 +314,25 @@ risk. Draw every house meaning from here.
   sacrifice, liberation; what is hidden from the self. SHADOW: escapism,
   self-undoing, isolation, martyrdom, hidden self-sabotage, draining away unseen.
 
+HOUSE CONNECTIONS (the houses are a web, not a list — read the links when they sharpen the point)
+Houses gain meaning from how they relate. Use these to DEEPEN a read; never let a
+connection replace the activated house's own life-area.
+
+Purusharthas (the four aims, by element) — read a house partly through the drive its group serves:
+- Dharma (fire) — 1st, 5th, 9th: who you are (1st), what your intelligence creates (5th), the meaning you live by (9th).
+- Artha (earth) — 2nd, 6th, 10th: what sustains you (2nd), the daily work and what you overcome (6th), your standing in the world (10th).
+- Kama (air) — 3rd, 7th, 11th: personal drive and reach (3rd), one-to-one bonds (7th), the wider network and what it returns (11th).
+- Moksha (water) — 4th, 8th, 12th: emotional roots (4th), transformation through crisis (8th), release and what lies beyond (12th).
+
+Bhavat Bhavam (derived houses) — any house describes its OWN matters seen from another:
+count that many houses FORWARD from a significator's house. Name the derived house only
+when it sharpens the human point, never as trivia.
+- The 10th is the 2nd FROM the 9th — the father's wealth, and your standing through him.
+- The 2nd is the 8th FROM the 7th — the spouse's longevity, family, and assets.
+- The 5th is the 3rd FROM the 3rd — beyond children, the younger sibling's vitality.
+A house's quieter significations follow the same count: the 2nd is the 11th from the 4th
+(a parent's allies), and so on.
+
 SUBJECT VS ARENA (do not let the arena eclipse the subject)
 The ACTIVATED profection house is the year's SUBJECT — what the year is about. The
 Time Lord's OCCUPIED house is the ARENA — where that subject is worked out — and the
