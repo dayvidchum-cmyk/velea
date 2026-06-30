@@ -85,10 +85,14 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
       const ri = hole + r * ringW, ro = hole + (r + 1) * ringW;
       const ageVal = r * 12 + h;
       const isCurrent = ageVal === age;
+      const isBirth = ageVal === 0;
+      // Birth cell: a more saturated fill of its own sign color, with a black bold "0".
+      const birthFill = `color-mix(in srgb, ${signColor} 75%, var(--card))`;
+      const cellFill = isCurrent ? currentColor : isBirth ? birthFill : base;
       const [tx, ty] = polar(cx, cy, (ri + ro) / 2, (a0 + a1) / 2);
       cells.push(
-        <path key={`c${h}-${r}`} d={annular(cx, cy, ri, ro, a0, a1)} fill={isCurrent ? currentColor : base} stroke={isCurrent ? currentColor : "var(--border)"} strokeWidth={0.5} />,
-        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={7} fontWeight={isCurrent ? 800 : 400} fill={isCurrent ? "#000" : "var(--muted-foreground)"} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
+        <path key={`c${h}-${r}`} d={annular(cx, cy, ri, ro, a0, a1)} fill={cellFill} stroke={isCurrent ? currentColor : isBirth ? birthFill : "var(--border)"} strokeWidth={0.5} />,
+        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={7} fontWeight={isCurrent || isBirth ? 800 : 400} fill={isCurrent || isBirth ? "#000" : "var(--muted-foreground)"} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
       );
     }
 
