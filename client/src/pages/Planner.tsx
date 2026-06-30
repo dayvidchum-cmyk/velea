@@ -18,6 +18,7 @@ import { PANCHANG_TO_TASK_MODE, PRIORITY_EXCLAIM, MODE_OKLCH, MODE_TINT, MODE_CA
 import type { TaskMode, TaskPriority } from "../../../shared/types";
 import type { Task } from "../../../drizzle/schema";
 import AppHeader from "@/components/AppHeader";
+import ModeMeaning from "@/components/ModeMeaning";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { composeNarrative } from "@/lib/narrative-data";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -542,6 +543,9 @@ export default function Planner() {
             >
               {selectedPanchang.instruction}
             </p>
+
+            {/* What does this mode mean? — static reference to help assign tasks */}
+            <ModeMeaning mode={selectedTaskModeForHero ?? selectedPanchang.mode} />
 
             {/* Narrative paragraph */}
             {(() => {

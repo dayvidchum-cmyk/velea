@@ -10,6 +10,14 @@ interface GlossaryTerm {
 }
 
 const GLOSSARY: GlossaryTerm[] = [
+  // ── Modes ───────────────────────────────────────────────────────────────────
+  { term: "Day Mode", category: "Modes", definition: "Velea reads the day's panchang and distills it into one of four day modes — Action, Build, Selective, or Restraint — telling you what kind of work the day favors. The whole app tints to the current mode's color. Tag a task with the mode it suits and it rises on days that match, so what you do lines up with what the day supports." },
+  { term: "Action", category: "Modes", definition: "Visible movement. The day favors initiating, publishing, reaching out, and making decisions. Best for: publishing or launching, outreach and first contact, committing to decisions, starting something new. Ease off: endless prep, waiting for perfect conditions, second-guessing." },
+  { term: "Build", category: "Modes", definition: "Preparation and systems. The day favors strengthening the container — drafting, editing, and setup — over going public. Best for: drafting and editing, setup and organizing, planning and research, fixing what's broken. Ease off: launching or big public asks, forcing visibility, cold outreach." },
+  { term: "Selective", category: "Modes", definition: "Advance, don't initiate. The day favors moving existing threads forward — warm leads, live conversations, follow-ups — not brand-new fronts. Best for: following up on warm leads, active conversations, advancing work already in motion, finishing one thing. Ease off: cold starts, opening many new fronts, broad untargeted outreach." },
+  { term: "Restraint", category: "Modes", definition: "Contain and stabilize. The day favors repair, rest, and reducing exposure — finish rather than start, and don't force outcomes. Best for: repair and cleanup, resting and recovering, finishing rather than starting, quiet behind-the-scenes work. Ease off: launching or going public, confrontation or high-stakes asks, forcing outcomes. (Restraint is discernment about where finite attention goes — not blank withdrawal.)" },
+  { term: "Submode (Qualifier)", category: "Modes", definition: "Each day mode comes with a qualifier — a second word that tunes how the mode expresses itself. The mode answers 'what kind of work is favored today?'; the qualifier answers 'what style of behavior is favored?'. For example, 'Full Action' pushes maximum visibility while 'Contained Action' moves but keeps it small; 'Cautious Selective' advances threads carefully. The qualifier sharpens the day's guidance but never overrides the base mode." },
+
   // ── Panchang ──────────────────────────────────────────────────────────────
   { term: "Panchang", category: "Panchang", definition: "The Vedic almanac. 'Pancha' means five, 'anga' means limb. The five limbs are: Tithi (lunar day), Vara (weekday), Nakshatra (lunar mansion), Yoga (Sun-Moon combination), and Karana (half-tithi). Together they give the complete energetic signature of any given day." },
   { term: "Tithi", category: "Panchang", definition: "Lunar day — one of 30 divisions of the lunar month based on the angular relationship between Sun and Moon. Each tithi spans 12° of separation. The lunar month divides into two fortnights: Shukla Paksha (waxing) and Krishna Paksha (waning). Each tithi carries a specific quality — some are auspicious for beginnings, others for completion or rest." },
@@ -128,9 +136,10 @@ const GLOSSARY: GlossaryTerm[] = [
   { term: "Neecha Bhanga", category: "System", definition: "Cancellation of debilitation — specific conditions that cancel or mitigate a planet's debilitation, often turning weakness into a form of strength. A debilitated planet can produce powerful results when neecha bhanga applies, sometimes even more powerfully than an exalted planet." },
 ];
 
-const CATEGORIES = ["All", "Panchang", "Nakshatra", "Timing", "Chart", "Planets", "Signs", "Houses", "System"];
+const CATEGORIES = ["All", "Modes", "Panchang", "Nakshatra", "Timing", "Chart", "Planets", "Signs", "Houses", "System"];
 
 const CATEGORY_COLORS: Record<string, string> = {
+  Modes:     "oklch(0.70 0.13 50)",
   Panchang:  "oklch(0.72 0.10 200)",
   Nakshatra: "oklch(0.65 0.12 280)",
   Timing:    "oklch(0.65 0.08 85)",
