@@ -110,7 +110,7 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
     const rText = ringOuter + labelBand + 12 + bump;
     const [lx, ly] = polar(cx, cy, rText, midA);
     callouts.push(
-      <text key={`co-t-${text}`} x={lx} y={ly} fontSize={6.5} fontWeight={700} fill="#9CA3AF" textAnchor="middle" dominantBaseline="central" style={{ letterSpacing: "0.08em" }}>{text}</text>,
+      <text key={`co-t-${text}`} x={lx} y={ly} fontSize={6.5} fontWeight={700} fill="#000" textAnchor="middle" dominantBaseline="central" style={{ letterSpacing: "0.08em" }}>{text}</text>,
     );
   };
   const nowH = age % 12;
