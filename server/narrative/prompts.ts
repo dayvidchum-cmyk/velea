@@ -281,9 +281,13 @@ risk. Draw every house meaning from here.
   romance, play, speculation; the heart's spontaneous expression; merit. SHADOW:
   pride, gambling, performance over substance, living through one's creations.
 - 6th — The daily effort against resistance: work, SERVICE, those you serve and
-  answer to; health, illness, the body's upkeep; debts, obligations, conflict,
-  enemies, obstacles. SHADOW: over-service, burnout, self-neglect, servitude,
-  losing yourself in duty to others, chronic depletion, friction turned to illness.
+  answer to; health and illness — above all the native's own BODY, its upkeep and
+  depletion; daily duty as a form of identity — how serving earns the individual a
+  place within the collective; debts, obligations, conflict, enemies, obstacles. A
+  house of SELF-SACRIFICE: the live question is when sacrifice is productive and
+  when it turns destructive, and why. SHADOW: over-service, burnout, self-neglect,
+  servitude, losing yourself in duty to others, chronic depletion, friction turned
+  to illness.
 - 7th — The other across from you: partnership, marriage, the one-on-one;
   contracts, clients, the public you face directly; mutual desire and negotiation;
   the mirror. SHADOW: losing yourself in the partner, dependency or domination,
@@ -298,9 +302,12 @@ risk. Draw every house meaning from here.
   entanglement, obsession, fear of exposure, being consumed by what is shared,
   control used to avoid surrender.
 - 9th — What you live by: meaning, belief, dharma, philosophy; teachers and
-  mentors; higher learning, law, long journeys; fortune, faith, the father.
-  SHADOW: dogma, self-righteousness, belief as bypass, restless seeking without
-  ground, preaching over living.
+  mentors AND the act of teaching itself; higher learning, law; long journeys —
+  outer and inner alike, pilgrimage and the journey of belief, not only physical
+  travel; fortune, faith, the father. Often a THRESHOLD and a transformation: the
+  ninth is the last step before the tenth, the passage where one way of believing
+  gives way to another. SHADOW: dogma, self-righteousness, belief as bypass,
+  restless seeking without ground, preaching over living.
 - 10th — Your work in the world: career, public standing, reputation, authority;
   action seen by others; the role you hold and the mark you make; duty to society.
   SHADOW: status as identity, overwork for recognition, visibility without
@@ -389,7 +396,21 @@ Name the one role: the purpose is meant to BE the livelihood — the voice that 
 is the same voice that earns. The occupied house says how it is staged (the 6th:
 through daily work and service; the 7th: through one client or partner at a time; the
 10th: in public). Resolve a purpose-and-resource chain into a single identity the
-person can occupy, never a list of separate goals.
+person can occupy, never a list of separate goals. NEVER split the meaning from the
+money — do not write that the meaningful work lives in one house while the paycheck
+and the daily grind live in another. They are one thing: the work that means
+something IS the work that pays, lived through the same days.
+
+A planet also carries its own KARAKAS — what it naturally signifies — into every
+house it rules or sits in, and those must show up in the reading. Venus is love,
+money, pleasure, and value; Mars is drive, conflict, and severance; Jupiter is
+faith, expansion, and counsel; the Moon is the mind and the felt body; Saturn is
+time, limit, and duty. So "Venus in the 6th" is never just service and the grind —
+it is love and money brought INTO daily work, health, and the body. When two of a
+planet's own significations meet in one house, read them as interdependent, one
+leaning on the other: with Venus, worth and love, money and affection, are a single
+question, and the 6th asks it through the native's own body and a reckoning with
+self-sacrifice — when it is productive and when it turns destructive.
 
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
