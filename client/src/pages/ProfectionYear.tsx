@@ -59,6 +59,37 @@ function housesRuledFromLagna(planet: string, lagna: string): number[] {
     .sort((a, b) => a - b);
 }
 
+// Words that signal a continuation/appositive fragment, not a standalone closing
+// thought — so we never peel a mid-sentence em dash into a dangling takeaway.
+const FRAGMENT_STARTS = new Set([
+  "is", "are", "was", "were", "be", "been", "being", "and", "but", "or", "nor",
+  "which", "that", "who", "whom", "whose", "where", "when", "while", "because",
+  "though", "although", "yet", "if", "as",
+]);
+
+/**
+ * Split a "why" string into placement detail (data) and a closing takeaway.
+ * Peels at an explicit "— so …", or at a trailing em dash IF the tail reads as a
+ * complete sentence (doesn't begin with a fragment/connector word). This keeps
+ * real closing lines ("— the year places belief inside service…") as takeaways
+ * while leaving mid-sentence appositives ("— is where…") attached.
+ */
+function peelTakeaway(text: string): { data: string; takeaway: string } {
+  const so = text.match(/\s+—\s+so[,\s]+/i);
+  if (so && so.index !== undefined) {
+    return { data: text.slice(0, so.index).trim().replace(/[,;]\s*$/, ""), takeaway: text.slice(so.index + so[0].length).trim() };
+  }
+  const idx = text.lastIndexOf("—");
+  if (idx > text.length * 0.4) {
+    const tail = text.slice(idx + 1).trim();
+    const first = (tail.split(/\s+/)[0] || "").toLowerCase().replace(/[^a-z]/g, "");
+    if (tail && !FRAGMENT_STARTS.has(first)) {
+      return { data: text.slice(0, idx).trim().replace(/[,;]\s*$/, ""), takeaway: tail };
+    }
+  }
+  return { data: text, takeaway: "" };
+}
+
 export default function ProfectionYear() {
   const modeColor = useDayModeColor();
   const TEXT_PRIMARY = "var(--foreground)";
@@ -212,13 +243,7 @@ export default function ProfectionYear() {
   const whyBlock = (why: string) => {
     // Peel a trailing takeaway (after a late em dash) to emphasize with the
     // Chart icon; bullet the placement clauses that come before it.
-    let data = why;
-    let takeaway = "";
-    const dashIdx = why.lastIndexOf("—");
-    if (dashIdx > why.length * 0.4) {
-      data = why.slice(0, dashIdx).trim().replace(/[,;]\s*$/, "");
-      takeaway = why.slice(dashIdx + 1).trim().replace(/^so[,\s]+/i, "");
-    }
+    const { data, takeaway } = peelTakeaway(why);
     const items = data
       // sentence ends, semicolons, and " and " before a placement clause
       .split(/(?<=\.)\s+|;\s+|\s+and\s+(?=(?:your\b|rules\b|ruling\b|sits\b|in\s+your\b))/i)
@@ -297,11 +322,7 @@ export default function ProfectionYear() {
   })();
 
   // The interpretive takeaway = the part of whyNow.why after a late em dash.
-  const dashaTakeaway = (() => {
-    const w = deepRead?.whyNow?.why ?? "";
-    const i = w.lastIndexOf("—");
-    return i > w.length * 0.4 ? w.slice(i + 1).trim().replace(/^so[,\s]+/i, "") : "";
-  })();
+  const dashaTakeaway = peelTakeaway(deepRead?.whyNow?.why ?? "").takeaway;
 
   return (
     <div style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto", paddingBottom: "7rem" }}>
@@ -411,7 +432,7 @@ export default function ProfectionYear() {
               {dashaGroups.length > 0 ? (
                 dashaGroups.map((g) => (
                   <div key={g.label} style={{ marginTop: "0.95rem" }}>
-                    <p style={{ color: "rgba(255,255,255,0.92)", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" as const, margin: "0 0 0.45rem" }}>{g.label}</p>
+                    <p style={{ color: "#E7C766", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" as const, margin: "0 0 0.45rem" }}>{g.label}</p>
                     <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                       {g.bullets.map((bl, i) => (
                         <li key={i} style={{ fontSize: "0.9rem", lineHeight: 1.45, display: "flex", gap: "0.55rem" }}>
@@ -443,9 +464,7 @@ export default function ProfectionYear() {
                 <div key={i} style={{ background: "rgba(0,0,0,0.18)", borderRadius: "0.7rem", padding: "0.85rem 1rem" }}>
                   <p style={{ color: "#E7C766", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, margin: "0 0 0.4rem" }}>{m.area}</p>
                   <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0 }}>{m.synthesis}</p>
-                  {m.why && (
-                    <p style={{ color: "rgba(255,255,255,0.58)", fontSize: "0.82rem", lineHeight: 1.45, margin: "0.45rem 0 0" }}>{m.why}</p>
-                  )}
+                  {m.why && whyBlock(m.why)}
                 </div>
               ))}
             </div>
