@@ -437,15 +437,19 @@ export default function ProfectionYear() {
                 <span
                   key={a.key}
                   style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
                     fontSize: "0.8rem",
-                    fontWeight: 600,
-                    padding: "0.4rem 0.8rem",
-                    borderRadius: "999px",
-                    background: `color-mix(in srgb, ${modeColor} 16%, transparent)`,
-                    color: modeColor,
-                    border: `1px solid color-mix(in srgb, ${modeColor} 40%, transparent)`,
+                    fontWeight: 500,
+                    padding: "0.3rem 0.6rem",
+                    borderRadius: "0.4rem",
+                    background: `color-mix(in srgb, ${modeColor} 8%, transparent)`,
+                    color: TEXT_MUTED,
+                    cursor: "default",
                   }}
                 >
+                  <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: modeColor, flexShrink: 0 }} />
                   {a.label}
                 </span>
               ))}
