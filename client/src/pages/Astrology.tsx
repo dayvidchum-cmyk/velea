@@ -121,6 +121,54 @@ const HOUSE_SUMMARY: Record<number, { title: string; summary: string }> = {
   12: { title: "Release & Retreat", summary: "Letting go, rest, and the unseen; solitude, foreign lands, and spirituality; loss, expenses, and liberation." },
 };
 
+const HOUSE_RULER: Record<string, string> = {
+  Aries: "Mars", Taurus: "Venus", Gemini: "Mercury", Cancer: "Moon", Leo: "Sun", Virgo: "Mercury",
+  Libra: "Venus", Scorpio: "Mars", Sagittarius: "Jupiter", Capricorn: "Saturn", Aquarius: "Saturn", Pisces: "Jupiter",
+};
+const PLANET_QUALITY: Record<string, string> = {
+  Sun: "vitality and authority", Moon: "feeling and the mind", Mars: "drive and friction",
+  Mercury: "thought and communication", Jupiter: "faith and expansion", Venus: "love, money, and value",
+  Saturn: "discipline and limit", Rahu: "hunger and ambition", Ketu: "detachment and release",
+};
+const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const DIGNITY_WORD: Record<string, string> = { Exalt: "exalted", Debil: "debilitated", Own: "in its own sign" };
+
+// Deterministic, chart-specific synthesis for a tapped house: weaves the house's
+// theme with the sign on it, its ruler's nature and placement, and any planets there.
+function composeHouseSynthesis(
+  house: number,
+  sign: string,
+  planetsHere: Array<{ planet: string; sign: string; isRetrograde: boolean }>,
+  natalBodies: NatalBody[],
+): string[] {
+  const ruler = HOUSE_RULER[sign];
+  const out: string[] = [];
+
+  out.push(`On your chart the ${ORD[house]} house is ${sign}, so its affairs run through ${ruler}'s nature — ${PLANET_QUALITY[ruler] ?? "its own character"}.`);
+
+  if (planetsHere.length) {
+    const parts = planetsHere.map(({ planet, sign: pSign }) => {
+      const dig = getPlanetDignity(planet, pSign);
+      const q = PLANET_QUALITY[planet];
+      const tail = [q, dig ? DIGNITY_WORD[dig] : null].filter(Boolean).join(", ");
+      return tail ? `${planet} (${tail})` : planet;
+    });
+    const list = parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+    out.push(`${list} ${planetsHere.length === 1 ? "sits" : "sit"} here — ${planetsHere.length === 1 ? "its nature shapes" : "their natures shape"} how this area plays out for you.`);
+  } else {
+    out.push(`No planets sit here, so it is expressed mainly through its ruler, ${ruler}.`);
+  }
+
+  const rb = natalBodies.find((b) => b.planet === ruler);
+  if (rb) {
+    const rdig = getPlanetDignity(ruler, rb.sign);
+    const rdigw = rdig ? ` (${DIGNITY_WORD[rdig]})` : "";
+    out.push(`Its ruler ${ruler}${rdigw} sits in your ${ORD[rb.house]} house (${HOUSE_SUMMARY[rb.house].title}), tying these themes to that part of life.`);
+  }
+
+  return out;
+}
+
 interface NatalBody {
   planet: string;
   sign: string;
@@ -282,6 +330,15 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
             <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.7rem 0 0" }}>
               {HOUSE_SUMMARY[sel].summary}
             </p>
+
+            <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
+              <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
+                In your chart
+              </p>
+              <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: 0 }}>
+                {composeHouseSynthesis(sel, selSign, selPlanets, natalBodies).join(" ")}
+              </p>
+            </div>
 
             <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
               <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.45rem" }}>
