@@ -585,10 +585,6 @@ export function DashaSection() {
     <div className="space-y-3 pb-24" data-tour="dasha">
       <DashaExplainer />
 
-      <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-        Your Karmic Schedule (From Birth to 120 Years Old)
-      </p>
-
       {currentPeriod && (() => {
         // Immersive gradient card matching the Today page's Time Lord Movement card,
         // tinted with the active mahadasha's planet color.
