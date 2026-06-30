@@ -54,7 +54,7 @@ function annular(cx: number, cy: number, ri: number, ro: number, a0: number, a1:
   return `M ${x1} ${y1} A ${ro} ${ro} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${ri} ${ri} 0 ${large} 0 ${x4} ${y4} Z`;
 }
 
-export function ProfectionWheel({ lagnaSign, age }: { lagnaSign: string; age: number }) {
+export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: string; age: number; headingColor?: string }) {
   const lagIdx = ZODIAC.indexOf(lagnaSign);
   if (lagIdx < 0 || age == null) return null;
 
@@ -110,7 +110,7 @@ export function ProfectionWheel({ lagnaSign, age }: { lagnaSign: string; age: nu
         <span>This year — house {currentHouse}, <strong><span style={{ fontFamily: GLYPH_FONT }}>{GLYPH[currentSign]}</span> {currentSign}</strong>, ruled by <strong>{timeLord}</strong></span>
       </div>
       <div style={{ width: "100%", borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
-        <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted-foreground)", textAlign: "left", marginBottom: "0.75rem" }}>Planets &amp; the signs they rule</p>
+        <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: headingColor ?? "var(--muted-foreground)", textAlign: "left", marginBottom: "0.75rem" }}>Planets &amp; the signs they rule</p>
         <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: "0.55rem", columnGap: "1.25rem", fontSize: "0.9rem", alignItems: "baseline" }}>
           {RULERSHIP.map(({ planet, signs }) => (
             <Fragment key={planet}>

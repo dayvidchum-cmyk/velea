@@ -414,7 +414,7 @@ export default function ProfectionYear() {
 
       {/* Your Time Lords wheel — open by default */}
       {panel("Your Time Lords (from birth to 120 years old)", wheelOpen, setWheelOpen, (
-        <ProfectionWheel lagnaSign={lagnaSign} age={age} />
+        <ProfectionWheel lagnaSign={lagnaSign} age={age} headingColor={modeColor} />
       ))}
 
       {/* WHY NOW? — deterministic logic chain (computed from the chart, auditable) */}
