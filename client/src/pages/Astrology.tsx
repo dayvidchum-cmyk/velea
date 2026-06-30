@@ -410,6 +410,7 @@ function NatalExplainer() {
 
 export function NatalSection() {
   const { data: subject, isLoading, error } = trpc.profiles.getSubject.useQuery();
+  const dayLabelColor = useDayModeColor();
 
   if (isLoading) {
     return (
@@ -433,14 +434,21 @@ export function NatalSection() {
 
   return (
     <div className="space-y-4 pb-24">
-      {/* Subject header */}
+      {/* Subject header — the person and their birth data, the anchor of the page */}
       <div>
-        <p className="text-sm font-semibold">{subject.name}</p>
-        <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-          {subject.birthDate}
+        <h2 className="text-2xl font-bold tracking-tight" style={{ color: "var(--color-foreground)", fontFamily: "var(--font-serif)" }}>
+          {subject.name}
+        </h2>
+        <p className="text-sm mt-1" style={{ color: "var(--color-muted-foreground)" }}>
+          {formatBirthDateLong(subject.birthDate)}
+          {subject.birthTime ? ` · ${formatBirthTime(subject.birthTime)}` : ""}
           {subject.birthLocationCity ? ` · ${subject.birthLocationCity}` : ""}
-          {subject.lagnaSign ? ` · ${subject.lagnaSign} Lagna` : ""}
         </p>
+        {subject.lagnaSign && (
+          <p className="text-xs font-semibold uppercase tracking-wider mt-1.5" style={{ color: dayLabelColor }}>
+            {subject.lagnaSign} Lagna
+          </p>
+        )}
       </div>
 
       {/* What is a natal chart? — Vedic vs. Western heads-up */}
@@ -475,6 +483,24 @@ function groupByMahadasha(data: any[]) {
 function formatDate(dateStr: string) {
   const [y, m, d] = dateStr.split("-");
   return `${m}/${d}/${y}`;
+}
+
+const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+// "1982-04-13" → "April 13, 1982"
+function formatBirthDateLong(dateStr: string) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d) return dateStr;
+  return `${MONTHS_LONG[m - 1]} ${d}, ${y}`;
+}
+
+// "17:20" → "5:20 PM"
+function formatBirthTime(timeStr: string) {
+  const [h, mi] = timeStr.split(":").map(Number);
+  if (Number.isNaN(h)) return timeStr;
+  const period = h >= 12 ? "PM" : "AM";
+  const hh = h % 12 || 12;
+  return `${hh}:${String(mi ?? 0).padStart(2, "0")} ${period}`;
 }
 
 // ── What are Dashas? ─────────────────────────────────────────────────────────
