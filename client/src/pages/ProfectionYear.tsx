@@ -159,6 +159,14 @@ export default function ProfectionYear() {
     : taskMode === 'Restraint' ? 'var(--kala-restraint-gradient)'
     : 'var(--card)';
 
+  // Angled (diagonal) variant for short closed accordion bars — a horizontal/vertical
+  // gradient reads oddly squeezed into the thin closed strip.
+  const tlCardGradient = taskMode === 'Action' ? 'var(--kala-action-card-gradient)'
+    : taskMode === 'Build' ? 'var(--kala-build-card-gradient)'
+    : taskMode === 'Selective' ? 'var(--kala-selective-card-gradient)'
+    : taskMode === 'Restraint' ? 'var(--kala-restraint-card-gradient)'
+    : 'var(--card)';
+
   const accentColor = taskMode ? MODE_OKLCH[taskMode] : 'var(--color-border)';
   const darkColor = taskMode ? MODE_DARK[taskMode] : undefined;
   const todayDateStr = localToday;
@@ -196,7 +204,7 @@ export default function ProfectionYear() {
       borderRadius: "0.85rem",
       overflow: "hidden",
       marginBottom: "0.85rem",
-      background: tlGradient,
+      background: open ? tlGradient : tlCardGradient,
     }}>
       <button
         type="button"
