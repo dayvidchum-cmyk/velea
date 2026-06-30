@@ -136,6 +136,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
   const lagnaIndex = ZODIAC_SIGNS.indexOf(lagnaSign ?? "Aries");
   const accent = useDayModeColor();
   const [selectedHouse, setSelectedHouse] = useState<number | null>(null);
+  const [hoveredHouse, setHoveredHouse] = useState<number | null>(null);
 
   const planetsByHouse = useMemo(() => {
     const map: Record<number, Array<{ planet: string; sign: string; isRetrograde: boolean }>> = {};
@@ -178,12 +179,19 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
         const startY = cy - span / 2;
 
         return (
-          <g key={house} onClick={() => setSelectedHouse(house)} style={{ cursor: "pointer" }}>
+          <g
+            key={house}
+            onClick={() => setSelectedHouse(house)}
+            onMouseEnter={() => setHoveredHouse(house)}
+            onMouseLeave={() => setHoveredHouse((h) => (h === house ? null : h))}
+            style={{ cursor: "pointer" }}
+          >
             <polygon
               points={points}
-              fill={selectedHouse === house ? "rgba(168,130,52,0.14)" : "transparent"}
+              fill={selectedHouse === house ? "rgba(168,130,52,0.18)" : hoveredHouse === house ? "rgba(168,130,52,0.08)" : "transparent"}
               stroke={GOLD_LINE}
               strokeWidth="0.9"
+              style={{ transition: "fill 150ms ease" }}
             />
 
             {/* House number label */}
