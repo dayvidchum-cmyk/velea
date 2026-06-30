@@ -98,9 +98,9 @@ const { user, loading } = useAuth();
         <Switch>
           <Route path="/login" component={Login} />
           <Route path="/astrology" component={Astrology} />
-          <Route path="/" component={Home} />
-          <Route path="/tasks"><Redirect to="/planner" /></Route>
-          <Route path="/planner" component={Planner} />
+          <Route path="/" component={Planner} />
+          <Route path="/tasks"><Redirect to="/" /></Route>
+          <Route path="/planner"><Redirect to="/" /></Route>
           <Route path="/dasha" component={DashaTimeline} />
           <Route path="/profection" component={ProfectionYear} />
           <Route path="/settings" component={Settings} />

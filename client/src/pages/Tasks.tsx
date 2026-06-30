@@ -131,7 +131,7 @@ export default function Tasks() {
       await utils.tasks.list.cancel();
       const prev = utils.tasks.list.getData();
       utils.tasks.list.setData(undefined, (old) =>
-        old?.map((t) => (t.id === input.id ? { ...t, ...input } : t))
+        old?.map((t) => (t.id === input.id ? ({ ...t, ...input } as typeof t) : t))
       );
       return { prev };
     },

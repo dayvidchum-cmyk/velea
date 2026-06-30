@@ -98,6 +98,10 @@ export const tasks = mysqlTable("tasks", {
   // Recurrence — when set, completing the task rolls its due date forward to the
   // next occurrence and keeps it active instead of marking it done.
   recurrence: mysqlEnum("recurrence", ["none", "daily", "weekly", "biweekly", "monthly", "yearly"]).notNull().default("none"),
+  // Life-area tags (JSON array of LIFE_AREA keys, e.g. ["self_care","money"]). Maps
+  // to houses via shared/life-areas.ts so the day's domain ("song") can surface a
+  // task and the year's domain ("party") can highlight it. Nullable/additive.
+  lifeAreas: text("lifeAreas"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -262,6 +266,10 @@ export const projects = mysqlTable("projects", {
   userId: int("userId").notNull(),
   profileId: int("profileId"), // null = owner's own projects
   name: varchar("name", { length: 256 }).notNull(),
+  // Life-area tags (JSON array of LIFE_AREA keys, e.g. ["self_care","money"]). Maps to
+  // houses via shared/life-areas.ts so the day's astrological domain can surface this
+  // project's tasks in "Why now?". Nullable/additive.
+  lifeAreas: text("lifeAreas"),
   archivedAt: timestamp("archivedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -368,3 +376,21 @@ export const profileNatalBodies = mysqlTable("profile_natal_bodies", {
 
 export type ProfileNatalBody = typeof profileNatalBodies.$inferSelect;
 export type InsertProfileNatalBody = typeof profileNatalBodies.$inferInsert;
+
+/**
+ * Cache for LLM-generated narrative surfaces (Glance + Deep Read).
+ * Keyed per (profile, surface, date); inputHash refreshes on recompute changes.
+ * Created via direct SQL (CREATE TABLE narrative_cache) — not drizzle-kit push.
+ */
+export const narrativeCache = mysqlTable("narrative_cache", {
+  id: int("id").autoincrement().primaryKey(),
+  profileId: int("profileId").notNull(),
+  surface: varchar("surface", { length: 16 }).notNull(), // 'glance' | 'deep'
+  cacheDate: varchar("cacheDate", { length: 10 }).notNull(), // YYYY-MM-DD the content is for
+  inputHash: varchar("inputHash", { length: 64 }).notNull(),
+  model: varchar("model", { length: 48 }).notNull(),
+  content: text("content").notNull(), // glance: plain string; deep: JSON
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+});
+
+export type NarrativeCacheRow = typeof narrativeCache.$inferSelect;

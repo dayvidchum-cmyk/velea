@@ -9,6 +9,7 @@ import type { Task } from "../../../drizzle/schema";
 import ModeTag from "./ModeTag";
 import { trpc } from "@/lib/trpc";
 import { PRIORITY_EXCLAIM, MODE_OKLCH, MODE_SOLID, MODE_CARD_GRADIENT, type TaskMode } from "../../../shared/types";
+import { parseLifeAreas, housesForAreas, LIFE_AREA_BY_KEY } from "../../../shared/life-areas";
 
 
 interface TaskItemProps {
@@ -163,6 +164,14 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
   const totalCount = expanded ? subtaskList.length : collapsedTotal;
   const hasSubtasks = totalCount > 0 || collapsedTotal > 0;
 
+  // Life areas + "song" highlight: a task is in focus today when one of its
+  // life areas maps to the day's activated house (panchang).
+  const { data: todayPanchang } = trpc.panchang.today.useQuery(undefined, {});
+  const lifeAreaKeys = parseLifeAreas((task as any).lifeAreas ?? null);
+  const todayHouse = (todayPanchang as any)?.houseActivated as number | undefined;
+  const inFocusToday =
+    !task.isCompleted && todayHouse != null && housesForAreas(lifeAreaKeys).includes(todayHouse);
+
   const overdue = task.dueDate ? isOverdue(task.dueDate) : false;
   const dueToday = task.dueDate ? isDueToday(task.dueDate) : false;
 
@@ -247,6 +256,25 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
                 {completedCount}/{totalCount}
               </span>
             )}
+            {/* "In focus today" — a life area matches the day's activated house */}
+            {inFocusToday && (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                style={{ background: "rgba(var(--ink),0.28)", color: "rgba(var(--ink),1)", letterSpacing: "0.03em" }}
+              >
+                ✦ In focus today
+              </span>
+            )}
+            {/* Life-area chips */}
+            {lifeAreaKeys.slice(0, 2).map((k) => (
+              <span
+                key={k}
+                className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                style={{ background: "rgba(var(--ink),0.14)", color: "rgba(var(--ink),0.9)", letterSpacing: "0.02em", opacity: task.isCompleted ? 0.5 : 0.9 }}
+              >
+                <span className="max-w-[90px] truncate">{LIFE_AREA_BY_KEY[k]?.label ?? k}</span>
+              </span>
+            ))}
             {/* Project badge — subtle, only when a project is assigned */}
             {task.projectName && (
               <span

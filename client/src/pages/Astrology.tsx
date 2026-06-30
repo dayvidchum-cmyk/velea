@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { ChevronDown, Info } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -339,7 +339,7 @@ function SiderealNote() {
 
 // ── Natal section ──────────────────────────────────────────────────────────
 
-function NatalSection() {
+export function NatalSection() {
   const { data: subject, isLoading, error } = trpc.profiles.getSubject.useQuery();
 
   if (isLoading) {
@@ -408,11 +408,22 @@ function formatDate(dateStr: string) {
   return `${m}/${d}/${y}`;
 }
 
-function DashaSection() {
+export function DashaSection() {
   const [expandedMaha, setExpandedMaha] = useState<string | null>(null);
+  const didAutoOpen = useRef(false);
   const dayLabelColor = useDayModeColor();
 
   const { data, isLoading, error } = trpc.dasha.timeline.useQuery(undefined, { retry: false });
+
+  // The current dasha opens by default on first visit, and stays open until the user
+  // minimizes it (the auto-open fires once).
+  const currentMahaForInit = data?.entries?.find((d: any) => d.isCurrent)?.mahadasha ?? null;
+  useEffect(() => {
+    if (currentMahaForInit && !didAutoOpen.current) {
+      didAutoOpen.current = true;
+      setExpandedMaha(currentMahaForInit);
+    }
+  }, [currentMahaForInit]);
 
   if (isLoading) {
     return (
@@ -440,9 +451,7 @@ function DashaSection() {
   return (
     <div className="space-y-3 pb-24" data-tour="dasha">
       <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-        {data.userName ? `${data.userName} · ` : ""}
-        {data.lagnaSign ? `${data.lagnaSign} Lagna · ` : ""}
-        Moon in {data.moonNakshatra} · {data.startingDashaLord} Mahadasha at birth
+        Your Karmic Schedule (From Birth to 120 Years Old)
       </p>
 
       {currentPeriod && (() => {
@@ -458,8 +467,13 @@ function DashaSection() {
               className="w-full flex items-center justify-between px-4 py-3"
               onClick={() => setExpandedMaha(isOpen ? null : currentMaha)}
             >
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: t.muted }} />
+              <span className="flex items-center gap-2.5">
+                <span
+                  className="dasha-active-glyph flex-shrink-0 leading-none"
+                  style={{ ["--glow-color" as any]: activeColor, color: t.primary, fontSize: "1.4rem" }}
+                >
+                  {PLANET_SYMBOLS[currentPeriod.mahadasha] ?? "●"}
+                </span>
                 <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: t.muted }}>
                   Active Period
                 </span>

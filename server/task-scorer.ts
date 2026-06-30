@@ -23,6 +23,7 @@ import type { Task } from "../drizzle/schema";
 import type { TaskMode } from "../shared/types";
 import type { CurrentLayers, TransitingPlanet } from "./layers/types";
 import { themeMatchesTask } from "./layers/time-lord-theme";
+import { housesForAreas, matchedAreaLabels } from "../shared/life-areas";
 
 export type PersonalEnergy = "Low" | "Medium" | "High";
 
@@ -203,9 +204,14 @@ export function scoreTasks(
     currentState?: CurrentState | null;
     /** Pressure layers — multiply only the soft subscore; never the floors. */
     layers?: CurrentLayers | null;
+    /** The day's domain house(s) — the activated house from the panchang. */
+    dayHouses?: number[];
+    /** projectId → the project's life-area keys. */
+    projectAreas?: Map<number, string[]>;
   }
 ): ScoredTask[] {
-  const { todayMode, todayDate, personalEnergy, currentState, layers } = opts;
+  const { todayMode, todayDate, personalEnergy, currentState, layers, dayHouses, projectAreas } = opts;
+  const dayHouseSet = new Set(dayHouses ?? []);
   const today = new Date(todayDate);
 
   return tasks
@@ -301,6 +307,23 @@ export function scoreTasks(
         soft += ageDays;
         if (ageDays >= 7) {
           reasons.push(`In queue ${ageDays} days`);
+        }
+      }
+
+      // 10. Domain alignment (soft) — the day's activated house surfaces tasks
+      // from thematically-matching projects. Weighted comparably to a strong
+      // day-mode match (+100) so aligned project work rises in "Why now?".
+      if (task.projectId != null && dayHouseSet.size > 0 && projectAreas) {
+        const keys = projectAreas.get(task.projectId);
+        if (keys && keys.length > 0) {
+          const projectHouses = housesForAreas(keys);
+          if (projectHouses.some((h) => dayHouseSet.has(h))) {
+            soft += 120;
+            const labels = matchedAreaLabels(Array.from(dayHouseSet), keys);
+            if (labels.length > 0) {
+              reasons.push(`Today's ${labels[0]} focus`);
+            }
+          }
         }
       }
 

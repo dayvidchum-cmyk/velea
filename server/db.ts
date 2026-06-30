@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, checkIns, panchang, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, users, natalBodies, type User } from "../drizzle/schema";
+import { InsertUser, checkIns, panchang, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, users, natalBodies, narrativeCache, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -213,6 +213,7 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
       snoozedUntil: tasks.snoozedUntil,
       notes: tasks.notes,
       recurrence: tasks.recurrence,
+      lifeAreas: tasks.lifeAreas,
       createdAt: tasks.createdAt,
       updatedAt: tasks.updatedAt,
       projectName: projects.name,
@@ -267,6 +268,7 @@ export async function createTask(data: {
   emotionalLoad?: "Low" | "Medium" | "High" | null;
   notes?: string | null;
   recurrence?: "none" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
+  lifeAreas?: string | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
@@ -301,6 +303,7 @@ export async function updateTask(
     emotionalLoad: "Low" | "Medium" | "High" | null;
     notes: string | null;
     recurrence: "none" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
+    lifeAreas: string | null;
   }>
 ) {
   const db = await getDb();
@@ -471,6 +474,27 @@ export async function getSystemPromptByKey(key: string) {
   return result[0];
 }
 
+// ===== NARRATIVE CACHE (LLM Glance / Deep Read) =====
+export async function getNarrativeCache(profileId: number, surface: string, cacheDate: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(narrativeCache)
+    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, surface), eq(narrativeCache.cacheDate, cacheDate)))
+    .limit(1);
+  return result[0];
+}
+
+export async function upsertNarrativeCache(profileId: number, surface: string, cacheDate: string, inputHash: string, model: string, content: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .insert(narrativeCache)
+    .values({ profileId, surface, cacheDate, inputHash, model, content, generatedAt: new Date() })
+    .onDuplicateKeyUpdate({ set: { inputHash, model, content, generatedAt: new Date() } });
+}
+
 export async function upsertSystemPrompt(key: string, title: string, content: string) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
@@ -558,11 +582,34 @@ export async function getAllProjectsByUser(userId: number, profileId?: number | 
     .orderBy(asc(projects.archivedAt), asc(projects.createdAt));
 }
 
-export async function createProject(userId: number, name: string, profileId?: number | null) {
+export async function createProject(
+  userId: number,
+  name: string,
+  profileId?: number | null,
+  lifeAreas?: string[],
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  const [result] = await db.insert(projects).values({ userId, name, profileId: profileId ?? null }).$returningId();
+  const [result] = await db
+    .insert(projects)
+    .values({ userId, name, profileId: profileId ?? null, lifeAreas: JSON.stringify(lifeAreas ?? []) })
+    .$returningId();
   return result;
+}
+
+export async function setProjectLifeAreas(
+  id: number,
+  userId: number,
+  lifeAreas: string[],
+  profileId?: number | null,
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const profileFilter = profileId != null ? eq(projects.profileId, profileId) : isNull(projects.profileId);
+  await db
+    .update(projects)
+    .set({ lifeAreas: JSON.stringify(lifeAreas) })
+    .where(and(eq(projects.id, id), eq(projects.userId, userId), profileFilter));
 }
 
 export async function renameProject(id: number, userId: number, name: string) {

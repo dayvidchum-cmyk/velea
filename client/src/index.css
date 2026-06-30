@@ -823,3 +823,22 @@ html.light .card-celestial {
   background: #FFFFFF;
   border: 1px solid #E5E5E5;
 }
+
+/* ── ACTIVE DASHA GLYPH — obvious glowing pulse (color set per-planet via --glow-color) ── */
+@keyframes dasha-glow-pulse {
+  0%, 100% {
+    text-shadow: 0 0 4px var(--glow-color), 0 0 9px var(--glow-color);
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    text-shadow: 0 0 11px var(--glow-color), 0 0 24px var(--glow-color), 0 0 38px var(--glow-color);
+    transform: scale(1.22);
+    opacity: 1;
+  }
+}
+.dasha-active-glyph {
+  display: inline-block;
+  animation: dasha-glow-pulse 1.5s ease-in-out infinite;
+  will-change: transform, text-shadow;
+}

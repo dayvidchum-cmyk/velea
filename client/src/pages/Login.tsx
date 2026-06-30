@@ -55,7 +55,7 @@ export default function Login() {
   };
 
   const inputStyle: React.CSSProperties = {
-    background: dark ? "rgba(18,16,28,0.22)" : "rgba(255,255,255,0.18)",
+    background: dark ? "rgba(10,10,20,0.55)" : "rgba(255,255,255,0.18)",
     border: `1px solid ${GOLD}`,
     borderRadius: 14,
     padding: "1.05rem 1rem",
@@ -82,10 +82,10 @@ export default function Login() {
       style={{
         backgroundColor: dark ? "#0b0a14" : "#ffffff",
         backgroundImage: dark
-          ? "linear-gradient(180deg, rgba(8,8,18,0.5) 0%, rgba(8,8,18,0.72) 100%), url('/shell-night.jpg')"
+          ? "linear-gradient(180deg, rgba(6,6,16,0.5) 0%, rgba(6,6,16,0.38) 32%, rgba(6,6,16,0.8) 100%), url('/shell-night.jpg')"
           : "linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.5) 100%), url('/shell-sunset.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundSize: dark ? "auto 118%" : "cover",
+        backgroundPosition: dark ? "center 78%" : "center",
         backgroundRepeat: "no-repeat",
       }}
     >

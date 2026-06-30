@@ -10,6 +10,7 @@ import AddTaskSheet from "@/components/AddTaskSheet";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_RGBA, MODE_TINT, MODE_SOLID, MODE_DARK, PRIORITY_EXCLAIM, type TaskMode } from "../../../shared/types";
 import type { Task } from "../../../drizzle/schema";
 import { Sunrise, Moon, ChevronDown, LogIn } from "lucide-react";
+import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
 import CheckInCard from "@/components/CheckInCard";
 import TaskItem from "@/components/TaskItem";
@@ -89,6 +90,7 @@ export default function Home() {
 
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
+  const [readOpen, setReadOpen] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
 
   // Let the guided tour open the synthesis sections so they're visible while
@@ -223,6 +225,21 @@ export default function Home() {
   const modeRgba = taskMode ? MODE_RGBA[taskMode] : MODE_RGBA.Action;
   const { theme } = useTheme();
 
+  // LLM daily signal (Glance) — personalized to this profile's Time Lord.
+  // Falls back to the static mode question if unavailable.
+  const { data: activeProfile } = trpc.profiles.getActive.useQuery();
+  const glanceProfileId = activeProfile?.id;
+  const localToday = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
+  const { data: glance } = trpc.narrative.glance.useQuery(
+    { profileId: glanceProfileId as number, date: localToday },
+    { enabled: !!glanceProfileId, staleTime: 1000 * 60 * 30 },
+  );
+  const glanceContent = glance?.content ?? null;
+  const [, navigate] = useLocation();
+
   return (
     <div className="container py-6 space-y-5 relative">
             {/* Header */}
@@ -301,7 +318,6 @@ export default function Home() {
                     lineHeight: 1.55,
                     color: 'rgba(255,255,255,0.88)',
                     marginBottom: '1.25rem',
-                    maxWidth: '36ch',
                   }}
                 >
                   {timeLordData?.recommendedBehavior ?? todayPanchang.instruction}
@@ -311,66 +327,63 @@ export default function Home() {
                 <div style={{ marginBottom: '1.5rem' }}>
                   <p
                     style={{
-                      fontFamily: "'Inter', ui-sans-serif, sans-serif",
-                      fontSize: 'clamp(0.8rem, 3.2vw, 0.9rem)',
-                      lineHeight: 1.65,
-                      color: 'rgba(255,255,255,0.9)',
-                      fontWeight: 400,
-                      marginBottom: '0.75rem',
+                      fontSize: '0.6rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.14em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(0,0,0,0.55)',
+                      marginBottom: '0.4rem',
                     }}
                   >
-                    {composeNarrative({
+                    The Read
+                  </p>
+                  {(() => {
+                    const paras = (glanceContent?.narrative ?? composeNarrative({
                       moonSign: todayPanchang.moonSign ?? '',
                       houseActivated: todayPanchang.houseActivated ?? 1,
                       nakshatra: todayPanchang.nakshatra ?? '',
                       tithi: todayPanchang.tithi ?? '',
                       tithiPaksha: todayPanchang.tithiPaksha ?? 'Shukla',
                       timeLord: timeLordData?.timeLord ?? null,
-                    })}
-                  </p>
-                  <button
-                    onClick={() => setWhyOpen((v) => !v)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      letterSpacing: '0.04em',
-                      color: 'rgba(255,255,255,0.98)',
-                      textDecoration: 'underline',
-                      textUnderlineOffset: '3px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                    }}
-                  >
-                    {whyOpen ? 'Hide breakdown' : 'See full breakdown'}
-                    <ChevronDown
-                      size={12}
-                      style={{
-                        color: 'rgba(255,255,255,0.98)',
-                        transform: whyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 200ms ease',
-                      }}
-                    />
-                  </button>
-                  {whyOpen && (
-                    <div
-                      className="mt-3 px-3 py-2.5 rounded-xl"
-                      style={{
-                        background: 'rgba(0,0,0,0.18)',
-                        border: '1px solid rgba(255,255,255,0.15)',
-                      }}
-                    >
-                      <ReasoningChain
-                        panchang={todayPanchang as any}
-                        timeLord={timeLordData as any}
-                        modeColor={modeColor ?? undefined}
-                      />
-                    </div>
-                  )}
+                    })).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+                    const shown = readOpen ? paras : paras.slice(-1);
+                    return (
+                      <>
+                        {shown.map((para, i) => (
+                          <p
+                            key={i}
+                            style={{
+                              fontFamily: "'Inter', ui-sans-serif, sans-serif",
+                              fontSize: 'clamp(0.8rem, 3.2vw, 0.9rem)',
+                              lineHeight: 1.65,
+                              color: 'rgba(255,255,255,0.9)',
+                              fontWeight: 400,
+                              marginBottom: '0.75rem',
+                            }}
+                          >
+                            {para}
+                          </p>
+                        ))}
+                        {paras.length > 1 && (
+                          <button
+                            onClick={() => setReadOpen((v) => !v)}
+                            style={{
+                              background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                              fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.14em',
+                              textTransform: 'uppercase', color: '#fff', textDecoration: 'underline',
+                              textUnderlineOffset: '3px', display: 'flex', alignItems: 'center', gap: '4px',
+                            }}
+                          >
+                            {readOpen ? 'Hide' : 'The full read'}
+                            <ChevronDown
+                              size={12}
+                              style={{ color: '#fff', transform: readOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+                            />
+                          </button>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Panchang mini row */}
@@ -420,7 +433,7 @@ export default function Home() {
                       color: 'rgba(255,255,255,0.98)',
                     }}
                   >
-                    {questionText}
+                    {glanceContent?.question ?? questionText}
                   </p>
                 </div>
               </>
@@ -436,60 +449,7 @@ export default function Home() {
         );
       })()}
 
-      {/* Current Time Lord Movement — collapsible, below hero card */}
-      {(() => {
-        const tlDate = new Date().toISOString().split('T')[0];
-        const tlGradient = taskMode === 'Action'
-          ? 'var(--kala-action-gradient)'
-          : taskMode === 'Build'
-          ? 'var(--kala-build-gradient)'
-          : taskMode === 'Selective'
-          ? 'var(--kala-selective-gradient)'
-          : taskMode === 'Restraint'
-          ? 'var(--kala-restraint-gradient)'
-          : 'var(--card)';
-        return (
-          <div
-            data-tour="time-lord"
-            className="overflow-hidden"
-            style={{
-              borderRadius: '20px',
-              background: tlGradient,
-              marginBottom: '1.25rem',
-            }}
-          >
-            <button
-              className="w-full flex items-center justify-between px-4 py-3"
-              onClick={() => setTlOpen((v) => !v)}
-            >
-              <span
-                style={{
-                  fontSize: '0.65rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.96)',
-                }}
-              >
-                Time Lord Movement
-              </span>
-              <ChevronDownIcon
-                size={14}
-                style={{
-                  color: 'rgba(255,255,255,0.6)',
-                  transform: tlOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 200ms ease',
-                }}
-              />
-            </button>
-            {tlOpen && (
-              <div className="px-5 pb-5">
-                <TimeLordMovement selectedDate={tlDate} variant="immersive" accentColor={modeColor} darkColor={taskMode ? MODE_DARK[taskMode] : undefined} />
-              </div>
-            )}
-          </div>
-        );
-      })()}
+      {/* Time Lord Movement card moved to the Time Lord page (was noise on Today). */}
       {/* Mode Orbs */}
       {isAuthenticated && modeCounts && (
         <div>
@@ -602,7 +562,7 @@ export default function Home() {
             className="text-sm font-bold uppercase"
             style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
           >
-            Aligned for Today
+            Why now? · Aligned for today
           </h3>
           </div>
 
@@ -702,7 +662,7 @@ export default function Home() {
         <AddTaskSheet
           open={!!editPinnedTask}
           onClose={() => setEditPinnedTask(null)}
-          editTask={editPinnedTask ? { id: String(editPinnedTask.id), title: editPinnedTask.title, mode: editPinnedTask.mode, priority: editPinnedTask.priority === 'High' ? 3 : editPinnedTask.priority === 'Medium' ? 2 : 1, dueDate: editPinnedTask.dueDate ? new Date(editPinnedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editPinnedTask.isPinned, wealthFlow: (editPinnedTask as any).wealthFlow ?? false, projectId: (editPinnedTask as any).projectId ?? null, cognitiveLoad: (editPinnedTask as any).cognitiveLoad ?? null, physicalLoad: (editPinnedTask as any).physicalLoad ?? null, creativeRequired: (editPinnedTask as any).creativeRequired ?? null, socialRequired: (editPinnedTask as any).socialRequired ?? null, emotionalLoad: (editPinnedTask as any).emotionalLoad ?? null, notes: (editPinnedTask as any).notes ?? null, recurrence: (editPinnedTask as any).recurrence ?? null } : undefined}
+          editTask={editPinnedTask ? { id: String(editPinnedTask.id), title: editPinnedTask.title, mode: editPinnedTask.mode, priority: editPinnedTask.priority === 'High' ? 3 : editPinnedTask.priority === 'Medium' ? 2 : 1, dueDate: editPinnedTask.dueDate ? new Date(editPinnedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editPinnedTask.isPinned, wealthFlow: (editPinnedTask as any).wealthFlow ?? false, projectId: (editPinnedTask as any).projectId ?? null, cognitiveLoad: (editPinnedTask as any).cognitiveLoad ?? null, physicalLoad: (editPinnedTask as any).physicalLoad ?? null, creativeRequired: (editPinnedTask as any).creativeRequired ?? null, socialRequired: (editPinnedTask as any).socialRequired ?? null, emotionalLoad: (editPinnedTask as any).emotionalLoad ?? null, notes: (editPinnedTask as any).notes ?? null, recurrence: (editPinnedTask as any).recurrence ?? null, lifeAreas: (editPinnedTask as any).lifeAreas ?? null } : undefined}
         />
       )}
 
@@ -711,7 +671,7 @@ export default function Home() {
         <AddTaskSheet
           open={!!editAlignedTask}
           onClose={() => setEditAlignedTask(null)}
-          editTask={editAlignedTask ? { id: String(editAlignedTask.id), title: editAlignedTask.title, mode: editAlignedTask.mode, priority: editAlignedTask.priority === 'High' ? 3 : editAlignedTask.priority === 'Medium' ? 2 : 1, dueDate: editAlignedTask.dueDate ? new Date(editAlignedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editAlignedTask.isPinned, wealthFlow: (editAlignedTask as any).wealthFlow ?? false, projectId: (editAlignedTask as any).projectId ?? null, cognitiveLoad: (editAlignedTask as any).cognitiveLoad ?? null, physicalLoad: (editAlignedTask as any).physicalLoad ?? null, creativeRequired: (editAlignedTask as any).creativeRequired ?? null, socialRequired: (editAlignedTask as any).socialRequired ?? null, emotionalLoad: (editAlignedTask as any).emotionalLoad ?? null, notes: (editAlignedTask as any).notes ?? null, recurrence: (editAlignedTask as any).recurrence ?? null } : undefined}
+          editTask={editAlignedTask ? { id: String(editAlignedTask.id), title: editAlignedTask.title, mode: editAlignedTask.mode, priority: editAlignedTask.priority === 'High' ? 3 : editAlignedTask.priority === 'Medium' ? 2 : 1, dueDate: editAlignedTask.dueDate ? new Date(editAlignedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editAlignedTask.isPinned, wealthFlow: (editAlignedTask as any).wealthFlow ?? false, projectId: (editAlignedTask as any).projectId ?? null, cognitiveLoad: (editAlignedTask as any).cognitiveLoad ?? null, physicalLoad: (editAlignedTask as any).physicalLoad ?? null, creativeRequired: (editAlignedTask as any).creativeRequired ?? null, socialRequired: (editAlignedTask as any).socialRequired ?? null, emotionalLoad: (editAlignedTask as any).emotionalLoad ?? null, notes: (editAlignedTask as any).notes ?? null, recurrence: (editAlignedTask as any).recurrence ?? null, lifeAreas: (editAlignedTask as any).lifeAreas ?? null } : undefined}
         />
       )}
 

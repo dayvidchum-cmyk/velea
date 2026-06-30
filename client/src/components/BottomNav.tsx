@@ -18,15 +18,14 @@ import {
 } from "lucide-react";
 
 const PRIMARY_NAV = [
-  { path: "/astrology", label: "Chart", icon: CircleDot },
   { path: "/", label: "Today", icon: BookOpen },
-  { path: "/planner", label: "Planner", icon: CalendarDays },
   { path: "/projects", label: "Projects", icon: Folder },
+  { path: "/profection", label: "Chart", icon: CircleDot },
 ];
 
 const EXPLORE_ITEMS = [
   { path: "/glossary", label: "Glossary", icon: Library },
-  { path: "/profiles", label: "Profiles", icon: Users },
+  { path: "/profiles", label: "Users", icon: Users },
   { path: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -192,7 +191,7 @@ export default function BottomNav() {
             return (
               <button
                 key={path}
-                data-tour={path === "/astrology" ? "chart-nav" : undefined}
+                data-tour={path === "/profection" ? "chart-nav" : undefined}
                 onClick={() => {
                   setExploreOpen(false);
                   navigate(path);

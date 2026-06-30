@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown, Repeat } from "lucide-react";
+import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown, Repeat, Layers } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { TASK_MODES, MODE_OKLCH } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
+import { LIFE_AREAS, parseLifeAreas } from "../../../shared/life-areas";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 const TASK_PRIORITIES: TaskPriority[] = ["High", "Medium", "Low"];
@@ -32,6 +33,7 @@ interface AddTaskSheetProps {
     emotionalLoad?: LoadLevel | null;
     notes?: string | null;
     recurrence?: Recurrence | null;
+    lifeAreas?: string | string[] | null;
   };
 }
 
@@ -252,6 +254,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
   const [emotionalLoad, setEmotionalLoad] = useState<LoadLevel>("Low");
   const [notes, setNotes] = useState("");
   const [recurrence, setRecurrence] = useState<Recurrence>("none");
+  const [lifeAreas, setLifeAreas] = useState<string[]>([]);
   // The native date input always renders a date-shaped placeholder, which reads
   // as "due today." Hide it behind an explicit affordance until the user opts in.
   const [showDuePicker, setShowDuePicker] = useState(false);
@@ -303,6 +306,11 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setEmotionalLoad((editTask.emotionalLoad as LoadLevel) ?? "Low");
       setNotes(editTask.notes ?? "");
       setRecurrence((editTask.recurrence as Recurrence) ?? "none");
+      setLifeAreas(
+        Array.isArray(editTask.lifeAreas)
+          ? editTask.lifeAreas
+          : parseLifeAreas(editTask.lifeAreas ?? null)
+      );
       setShowDuePicker(!!editTask.dueDate);
     } else {
       setTitle("");
@@ -321,6 +329,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setEmotionalLoad("Low");
       setNotes("");
       setRecurrence("none");
+      setLifeAreas([]);
       setShowDuePicker(false);
     }
 
@@ -384,6 +393,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           emotionalLoad,
           notes: notes || null,
           recurrence,
+          lifeAreas,
         });
       } else {
         const task = await createTask.mutateAsync({
@@ -401,6 +411,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           emotionalLoad,
           notes: notes || null,
           recurrence,
+          lifeAreas,
         });
 
         if (task && subtasks.length > 0) {
@@ -417,7 +428,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
     } catch (error) {
       console.error("Error saving task:", error);
     }
-  }, [title, mode, priority, dueDate, isPinned, wealthFlow, projectId, cognitiveLoad, physicalLoad, creativeRequired, socialRequired, emotionalLoad, notes, recurrence, subtasks, editTask, createTask, updateTask, createSubtask, utils, onClose]);
+  }, [title, mode, priority, dueDate, isPinned, wealthFlow, projectId, cognitiveLoad, physicalLoad, creativeRequired, socialRequired, emotionalLoad, notes, recurrence, lifeAreas, subtasks, editTask, createTask, updateTask, createSubtask, utils, onClose]);
 
   // Title field: Enter does NOT save — user must tap Save button.
   // This prevents accidental saves and avoids the scroll-lock bug where
@@ -621,6 +632,44 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
                 Completing this task rolls it forward to the next {RECURRENCE_OPTIONS.find((o) => o.value === recurrence)?.label.toLowerCase()} date instead of finishing it.
               </p>
             )}
+          </div>
+
+          {/* Life areas */}
+          <div className="mb-6">
+            <label
+              className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wide uppercase mb-2"
+              style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
+            >
+              <Layers className="w-3 h-3" />
+              Life Areas
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {LIFE_AREAS.map((area) => {
+                const active = lifeAreas.includes(area.key);
+                return (
+                  <button
+                    key={area.key}
+                    type="button"
+                    onClick={() =>
+                      setLifeAreas((cur) =>
+                        cur.includes(area.key) ? cur.filter((k) => k !== area.key) : [...cur, area.key]
+                      )
+                    }
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                    style={{
+                      background: active ? "var(--filter-pill-bg-active)" : "var(--color-secondary)",
+                      color: active ? "var(--color-primary)" : "var(--color-muted-foreground)",
+                      border: `1px solid ${active ? "var(--filter-pill-border-active)" : "var(--color-border)"}`,
+                    }}
+                  >
+                    {area.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] mt-1.5" style={{ color: "var(--color-muted-foreground)" }}>
+              Tags this task to a life area so it surfaces on days (and years) that activate the matching house.
+            </p>
           </div>
 
           {/* Project selector */}

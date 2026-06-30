@@ -572,13 +572,36 @@ export function getNakshatraModifier(nakshatra: string): NakshatraModifier {
 
 export function getTithiPacing(tithi: string, paksha: 'Shukla' | 'Krishna'): TithiPacing {
   const isWaxing = paksha === 'Shukla';
+  // Full moon and new moon are turning points, not generic waxing/waning days.
+  // Purnima is the APEX of the waxing cycle — culmination, not a new start.
+  if (tithi === 'Purnima') {
+    return {
+      tithi,
+      paksha,
+      phase: 'waxing',
+      pacingLabel: 'Culmination',
+      pacingNote:
+        'Full moon — the peak of the waxing cycle. A time of culmination and fullness: harvest, complete, and bring to light what the waxing built. Not a time to start something new.',
+    };
+  }
+  // Amavasya is the dark, still point — reset and seed, not active output.
+  if (tithi === 'Amavasya') {
+    return {
+      tithi,
+      paksha,
+      phase: 'waning',
+      pacingLabel: 'Reset',
+      pacingNote:
+        'New moon — the dark, still point before the next cycle. Rest, reset, and tend the seed; prepare rather than launch.',
+    };
+  }
   return {
     tithi,
     paksha,
     phase: isWaxing ? 'waxing' : 'waning',
     pacingLabel: isWaxing ? 'Outward' : 'Inward',
     pacingNote: isWaxing
-      ? 'Waxing phase supports outward growth, expansion, and new starts.'
+      ? 'Waxing phase supports building, growth, and expansion toward fullness.'
       : 'Waning phase supports reduction, refinement, and completion.',
   };
 }

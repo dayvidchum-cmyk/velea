@@ -28,6 +28,7 @@ import {
   getProjectsByUser,
   getAllProjectsByUser,
   createProject,
+  setProjectLifeAreas,
   renameProject,
   archiveProject,
   unarchiveProject,
@@ -55,12 +56,14 @@ import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STR
 import { calculateFinalMode } from "./panchang/interpreter.js";
 import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
 import { scoreTasks } from "./task-scorer.js";
+import { parseLifeAreas } from "@shared/life-areas";
 import { getCurrentLayers } from "./layers/index.js";
 import { rateLimit } from "./_core/rateLimit.js";
 import { timezoneForCoords } from "./geo/timezone.js";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { profectionRouter } from "./profection/router.js";
+import { narrativeRouter } from "./narrative/router.js";
 import { dashaRouter } from "./routers/dasha.js";
 import { profilesRouter } from "./routers/profiles.js";
 import { timeLordTransitRouter } from "./profection/transit-router.js";
@@ -295,6 +298,7 @@ export const appRouter = router({
           emotionalLoad: z.enum(["Low", "Medium", "High"]).nullable().optional(),
           notes: z.string().nullable().optional(),
           recurrence: RecurrenceEnum.optional(),
+          lifeAreas: z.array(z.string()).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -317,6 +321,7 @@ export const appRouter = router({
           emotionalLoad: input.emotionalLoad ?? null,
           notes: input.notes ?? null,
           recurrence: input.recurrence ?? "none",
+          lifeAreas: input.lifeAreas && input.lifeAreas.length ? JSON.stringify(input.lifeAreas) : null,
         });
       }),
 
@@ -339,16 +344,20 @@ export const appRouter = router({
           emotionalLoad: z.enum(["Low", "Medium", "High"]).nullable().optional(),
           notes: z.string().nullable().optional(),
           recurrence: RecurrenceEnum.optional(),
+          lifeAreas: z.array(z.string()).optional(),
           // When provided and isPinned=true, the task's mode is set to this value.
           // Ignored when isPinned is false or undefined.
           dayMode: TaskModeEnum.optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const { dayMode, ...rest } = input;
+        const { dayMode, lifeAreas, ...rest } = input;
         // Auto-assign current day mode when pinning
         const effectiveMode =
           rest.isPinned === true && dayMode ? dayMode : rest.mode;
+        // lifeAreas is stored as a JSON string; only touch it when provided.
+        const areaPatch =
+          lifeAreas !== undefined ? { lifeAreas: JSON.stringify(lifeAreas) } : {};
 
         // Recurring roll-forward: completing a recurring task advances its due
         // date to the next occurrence and keeps it active instead of done.
@@ -359,6 +368,7 @@ export const appRouter = router({
             const base = rest.dueDate ?? existing.dueDate ?? null;
             return updateTask(rest.id, ctx.user.id, {
               ...rest,
+              ...areaPatch,
               mode: effectiveMode,
               isCompleted: false,
               completedAt: null,
@@ -367,7 +377,7 @@ export const appRouter = router({
           }
         }
 
-        return updateTask(rest.id, ctx.user.id, { ...rest, mode: effectiveMode });
+        return updateTask(rest.id, ctx.user.id, { ...rest, ...areaPatch, mode: effectiveMode });
       }),
 
     delete: protectedProcedure
@@ -428,24 +438,33 @@ export const appRouter = router({
           todayMode: z.string(),
           todayDate: z.string(), // YYYY-MM-DD
           personalEnergy: z.enum(["Low", "Medium", "High"]).default("Medium"),
+          todayHouse: z.number().optional(), // the day's domain (activated house)
         })
       )
       .query(async ({ ctx, input }) => {
         const subject = ctx.subject;
         const profileId = subject?.profileId ?? null;
-        const [allTasksRaw, checkIn] = await Promise.all([
+        const [allTasksRaw, checkIn, projectRows] = await Promise.all([
           getTasksByUser(ctx.user.id, profileId),
           getTodayCheckIn(ctx.user.id, profileId),
+          getProjectsByUser(ctx.user.id, profileId),
         ]);
         // Exclude snoozed tasks from ranking
         const now = Date.now();
         const allTasks = allTasksRaw.filter((t) => !t.snoozedUntil || t.snoozedUntil <= now);
         // Pressure layers feed the soft subscore (cached 5 min per profile).
         const layers = subject ? await getCurrentLayers(subject) : null;
+        // Map each project to its life-area keys so the day's domain can surface
+        // thematically-matching tasks.
+        const projectAreas = new Map<number, string[]>(
+          projectRows.map((p) => [p.id, parseLifeAreas((p as any).lifeAreas)])
+        );
         return scoreTasks(allTasks, {
           todayMode: input.todayMode,
           todayDate: input.todayDate,
           personalEnergy: input.personalEnergy,
+          dayHouses: input.todayHouse != null ? [input.todayHouse] : [],
+          projectAreas,
           layers,
           currentState: checkIn
             ? {
@@ -885,21 +904,32 @@ export const appRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
       const subject = ctx.subject;
       const profileId = subject?.profileId ?? null;
-      return getProjectsByUser(ctx.user.id, profileId);
+      const rows = await getProjectsByUser(ctx.user.id, profileId);
+      return rows.map((p) => ({ ...p, lifeAreas: parseLifeAreas((p as any).lifeAreas) }));
     }),
 
     listAll: protectedProcedure.query(async ({ ctx }) => {
       const subject = ctx.subject;
       const profileId = subject?.profileId ?? null;
-      return getAllProjectsByUser(ctx.user.id, profileId);
+      const rows = await getAllProjectsByUser(ctx.user.id, profileId);
+      return rows.map((p) => ({ ...p, lifeAreas: parseLifeAreas((p as any).lifeAreas) }));
     }),
 
     create: protectedProcedure
-      .input(z.object({ name: z.string().min(1).max(256) }))
+      .input(z.object({ name: z.string().min(1).max(256), lifeAreas: z.array(z.string()).optional() }))
       .mutation(async ({ ctx, input }) => {
         const subject = ctx.subject;
         const profileId = subject?.profileId ?? null;
-        return createProject(ctx.user.id, input.name, profileId);
+        return createProject(ctx.user.id, input.name, profileId, input.lifeAreas ?? []);
+      }),
+
+    setLifeAreas: protectedProcedure
+      .input(z.object({ id: z.number(), lifeAreas: z.array(z.string()) }))
+      .mutation(async ({ ctx, input }) => {
+        const subject = ctx.subject;
+        const profileId = subject?.profileId ?? null;
+        await setProjectLifeAreas(input.id, ctx.user.id, input.lifeAreas, profileId);
+        return { success: true };
       }),
 
     rename: protectedProcedure
@@ -999,6 +1029,9 @@ export const appRouter = router({
   // ── PROFECTION YEARS ───────────────────────────────────────
   profection: profectionRouter,
   timeLordTransit: timeLordTransitRouter,
+
+  // ── NARRATIVE (LLM Glance + Deep Read) ────────────────────
+  narrative: narrativeRouter,
 
   // ── DASHA TIMELINE ────────────────────────────────────────
   dasha: dashaRouter,

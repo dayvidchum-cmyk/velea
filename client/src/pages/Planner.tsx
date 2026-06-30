@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, Search, X, ChevronDown, Pin, FolderOpen, Moon, Sunrise } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
@@ -9,11 +9,14 @@ import ModeTag from "@/components/ModeTag";
 import TaskItem from "@/components/TaskItem";
 import SwipeableTaskRow from "@/components/SwipeableTaskRow";
 import AddTaskSheet from "@/components/AddTaskSheet";
+import ModeOrb from "@/components/ModeOrb";
+import ModeOrbSheet from "@/components/ModeOrbSheet";
+import DueOrbSheet from "@/components/DueOrbSheet";
+import { useSettingsContext } from "@/contexts/SettingsContext";
 
-import { PANCHANG_TO_TASK_MODE, PRIORITY_EXCLAIM, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_CARD_GRADIENT, MODE_SOLID, MODE_DARK, TASK_MODES, MODE_RGBA } from "../../../shared/types";
+import { PANCHANG_TO_TASK_MODE, PRIORITY_EXCLAIM, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_CARD_GRADIENT, MODE_SOLID, MODE_DARK, MODE_RGBA } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
 import type { Task } from "../../../drizzle/schema";
-import ReasoningChain from "@/components/ReasoningChain";
 import AppHeader from "@/components/AppHeader";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { composeNarrative } from "@/lib/narrative-data";
@@ -21,8 +24,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-type FilterMode = TaskMode | "All" | "Snoozed";
 
 function toDateStr(d: Date) {
   const y = d.getFullYear();
@@ -59,15 +60,6 @@ function darkenOklch(oklch: string, factor: number): string {
   return `oklch(${L.toFixed(3)} ${m[2]} ${m[3]})`;
 }
 
-const MODE_FILTER_COLORS: Record<string, string> = {
-  Snoozed: "oklch(0.65 0.15 250)",
-  Restraint: "oklch(0.65 0.12 15)",
-  Build:     "oklch(0.80 0.15 92)",
-  Selective: "oklch(0.72 0.10 200)",
-  Action:    "oklch(0.72 0.16 145)",
-  All:       "var(--foreground)",
-};
-
 // Planner-specific mode colors — now identical to shared since shared was fixed to gold
 const PLANNER_MODE_OKLCH: Record<TaskMode, string> = {
   ...MODE_OKLCH,
@@ -77,74 +69,11 @@ const PLANNER_MODE_TINT: Record<TaskMode, string> = {
   ...MODE_TINT,
 };
 
-function CompletedArchive({
-  tasks,
-  onToggleComplete,
-  onTogglePin,
-  onDelete,
-  onEdit,
-  dayLabelColor,
-}: {
-  tasks: Task[];
-  onToggleComplete: (id: number, current: boolean) => void;
-  onTogglePin: (id: number, current: boolean) => void;
-  onDelete: (id: number) => void;
-  onEdit: (task: Task) => void;
-  dayLabelColor: string;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 w-full py-2 transition-all"
-      >
-        <span
-          className="text-sm font-bold uppercase"
-          style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-        >
-          Completed ({tasks.length})
-        </span>
-        <ChevronDown
-          size={12}
-          style={{
-            color: "var(--color-muted-foreground)",
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 200ms ease",
-          }}
-        />
-      </button>
-      {open && (
-        <div className="space-y-2 mt-1">
-          {tasks.map((task) => (
-            <SwipeableTaskRow
-              key={task.id}
-              isCompleted={task.isCompleted}
-              isPinned={task.isPinned}
-              onSwipeLeft={() => onToggleComplete(task.id, task.isCompleted)}
-              onSwipeRight={() => onTogglePin(task.id, task.isPinned)}
-              modeColor={PLANNER_MODE_OKLCH[task.mode as TaskMode]}
-            >
-              <TaskItem
-                task={task}
-                onToggleComplete={onToggleComplete}
-                onTogglePin={onTogglePin}
-                onDelete={onDelete}
-                onEdit={onEdit}
-                taskModeColor={PLANNER_MODE_OKLCH[task.mode as TaskMode]}
-              />
-            </SwipeableTaskRow>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function Planner() {
   const [, navigate] = useLocation();
   const { isAuthenticated } = useAuth();
   const { theme } = useTheme();
+  const { settings } = useSettingsContext();
 
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -153,16 +82,23 @@ export default function Planner() {
   const [reflectionSaved, setReflectionSaved] = useState(false);
 
   // Task list state
-  const [filter, setFilter] = useState<FilterMode>("All");
-  const [projectFilter, setProjectFilter] = useState<number | null>(null);
-  const [search, setSearch] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
-  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
-  const [allTasksOpen, setAllTasksOpen] = useState(false);
+  // Edit sheets for the curated daily lists (ported from the retired Today page)
+  const [editPinnedTask, setEditPinnedTask] = useState<Task | null>(null);
+  const [editAlignedTask, setEditAlignedTask] = useState<Task | null>(null);
+  const [heroOpen, setHeroOpen] = useState(true);
   const [whyOpen, setWhyOpen] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+  // Orb sheets reflect TODAY (not the calendar-selected date).
+  const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
+  const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
+  const [dueSheetOpen, setDueSheetOpen] = useState(false);
+  // "Plan ahead" planning tools are collapsed by default — today-first.
+  const [planOpen, setPlanOpen] = useState(false);
+  const [pinnedOpen, setPinnedOpen] = useState(true);
+  const [alignedOpen, setAlignedOpen] = useState(true);
 
   function getHouseSuffix(n: number | undefined): string {
     if (!n) return "th";
@@ -181,7 +117,19 @@ export default function Planner() {
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
-  const { data: allTasks = [], isLoading: tasksLoading } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: allTasks = [] } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
+
+  // Ranked-for-today suggestions powering the "Aligned for today" list (ported from Home).
+  const todayDateStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const { data: rankedTasks } = trpc.tasks.rankedForToday.useQuery(
+    {
+      todayMode: todayTaskMode ?? "Build",
+      todayDate: todayDateStr,
+      personalEnergy: settings.personalEnergy,
+      todayHouse: todayPanchang?.houseActivated ?? undefined,
+    },
+    { enabled: isAuthenticated && !!todayTaskMode }
+  );
   const { data: savedReflection } = trpc.reflections.get.useQuery(
     { date: selectedDate },
     { enabled: isAuthenticated }
@@ -190,6 +138,21 @@ export default function Planner() {
     { date: selectedDate },
     { enabled: isAuthenticated }
   );
+
+  // LLM daily signal (Glance) — the SAME cached source the Today/Home hero uses.
+  // Only fetched when the selected date is today, so the Planner hero mirrors
+  // Home's cached content exactly (same profileId + local date string = same
+  // cache key). Other calendar dates keep the deterministic composed narrative,
+  // which also avoids triggering on-demand LLM generation per calendar click.
+  const { data: activeProfile } = trpc.profiles.getActive.useQuery();
+  const glanceProfileId = activeProfile?.id;
+  // The prose generates for ANY selected date (server-caches per profile+date, so
+  // re-selecting a day is free). The mode card and its narrative both track selectedDate.
+  const { data: glance } = trpc.narrative.glance.useQuery(
+    { profileId: glanceProfileId as number, date: selectedDate },
+    { enabled: !!glanceProfileId, staleTime: 1000 * 60 * 30 },
+  );
+  const glanceContent = glance?.content ?? null;
 
   const utils = trpc.useUtils();
 
@@ -243,7 +206,7 @@ export default function Planner() {
       await utils.tasks.list.cancel();
       const prev = utils.tasks.list.getData();
       utils.tasks.list.setData(undefined, (old) =>
-        old?.map((t) => (t.id === input.id ? { ...t, ...input } : t))
+        old?.map((t) => (t.id === input.id ? ({ ...t, ...input } as typeof t) : t))
       );
       return { prev };
     },
@@ -255,6 +218,7 @@ export default function Planner() {
       utils.tasks.list.invalidate();
       utils.tasks.modeCounts.invalidate();
       utils.tasks.pinnedForToday.invalidate();
+      utils.tasks.rankedForToday.invalidate();
     },
   });
 
@@ -272,6 +236,7 @@ export default function Planner() {
     onSettled: () => {
       utils.tasks.list.invalidate();
       utils.tasks.modeCounts.invalidate();
+      utils.tasks.rankedForToday.invalidate();
     },
   });
 
@@ -378,51 +343,55 @@ export default function Planner() {
     return allTasks.filter((t) => t.dueDate === selectedDate && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= now));
   }, [allTasks, selectedDate]);
 
-  // Filtered task list (all tasks, not date-scoped)
-  const { data: activeProjects = [] } = trpc.projects.list.useQuery(undefined, { enabled: isAuthenticated });
-
-  const filteredTasks = useMemo(() => {
-    let list = allTasks;
+  // Orb counts reflect TODAY, derived from the single allTasks source so there is
+  // no extra fetch. Mirrors server tasks.modeCounts / tasks.dueList semantics.
+  const orbModeCounts = useMemo(() => {
     const now = Date.now();
-    if (filter === "Snoozed") {
-      // Show only currently snoozed tasks
-      list = list.filter((t) => t.snoozedUntil && t.snoozedUntil > now);
-    } else {
-      // Exclude snoozed tasks from normal views
-      list = list.filter((t) => !t.snoozedUntil || t.snoozedUntil <= now);
-      if (filter !== "All") list = list.filter((t) => t.mode === filter);
-    }
-    if (projectFilter !== null) list = list.filter((t) => (t as any).projectId === projectFilter);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter((t) => t.title.toLowerCase().includes(q));
-    }
-    return list;
-  }, [allTasks, filter, projectFilter, search]);
+    const active = allTasks.filter((t) => !t.snoozedUntil || t.snoozedUntil <= now);
+    return {
+      Restraint: active.filter((t) => t.mode === "Restraint" && !t.isCompleted).length,
+      Build: active.filter((t) => t.mode === "Build" && !t.isCompleted).length,
+      Selective: active.filter((t) => t.mode === "Selective" && !t.isCompleted).length,
+      Action: active.filter((t) => t.mode === "Action" && !t.isCompleted).length,
+    } as Record<TaskMode, number>;
+  }, [allTasks]);
 
-  const activeTasks = filteredTasks.filter((t) => !t.isCompleted);
-  const completedTasks = filteredTasks.filter((t) => t.isCompleted);
+  const orbDueCount = useMemo(() => {
+    const now = Date.now();
+    return allTasks.filter((t) => t.dueDate && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= now)).length;
+  }, [allTasks]);
 
   // Priority sort order (title-case to match DB enum)
-  const PRIORITY_SORT: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
+  const PRIORITY_RANK: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
 
-  // When filter is "All", group active tasks by mode with today's mode first
-  const modeGroups = useMemo(() => {
-    if (filter !== "All") return null; // flat list handled separately
-    const todayMode = todayTaskMode; // e.g. "Action"
-    // Build ordered mode list: today's mode first, then the rest in TASK_MODES order
-    const orderedModes: TaskMode[] = todayMode
-      ? [todayMode, ...TASK_MODES.filter((m) => m !== todayMode)]
-      : [...TASK_MODES];
-    return orderedModes
-      .map((mode) => {
-        const tasks = activeTasks
-          .filter((t) => t.mode === mode)
-          .sort((a, b) => (PRIORITY_SORT[a.priority] ?? 1) - (PRIORITY_SORT[b.priority] ?? 1));
-        return { mode, tasks };
-      })
-      .filter((g) => g.tasks.length > 0); // omit empty groups
-  }, [filter, activeTasks, todayTaskMode]);
+  // Today's mode color for the curated daily lists (ported from Home).
+  const todayModeColor = todayTaskMode ? MODE_OKLCH[todayTaskMode] : "var(--color-border)";
+
+  // Pinned for Now: explicitly pinned, not completed, sorted by priority.
+  const pinnedForNow = useMemo(() => {
+    const now = Date.now();
+    return allTasks
+      .filter((t) =>
+        t.isPinned &&
+        !t.isCompleted &&
+        (!t.snoozedUntil || t.snoozedUntil <= now)
+      )
+      .sort((a, b) => {
+        const pa = PRIORITY_RANK[a.priority ?? "Low"] ?? 2;
+        const pb = PRIORITY_RANK[b.priority ?? "Low"] ?? 2;
+        return pa - pb;
+      });
+  }, [allTasks]);
+
+  // Aligned for Today: ranked tasks that are NOT already pinned (avoid duplication),
+  // limited by the user's todayTaskLimit. Display order follows the backend score.
+  const alignedForToday = useMemo(() => {
+    if (!rankedTasks) return [];
+    const pinnedIds = new Set(pinnedForNow.map((t) => t.id));
+    const limit = settings.todayTaskLimit;
+    const filtered = rankedTasks.filter((t) => !pinnedIds.has(t.id));
+    return limit === "unlimited" ? filtered : filtered.slice(0, Number(limit));
+  }, [rankedTasks, pinnedForNow, settings.todayTaskLimit]);
 
   // Calendar
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
@@ -462,8 +431,6 @@ export default function Planner() {
 
   // Calendar card: use today's mode color for strip header + border
   const calModeColor = todayTaskMode ? MODE_SOLID[todayTaskMode] : '#888';
-  // Solid hex for all-caps section labels — changes with today's mode
-  const dayLabelColor = todayTaskMode ? MODE_SOLID[todayTaskMode] : MODE_SOLID.Build;
 
   return (
     <div className="min-h-screen w-full relative">
@@ -475,6 +442,406 @@ export default function Planner() {
       <AppHeader heroMode={{ qualifier: todayPanchang?.qualifier ?? null }} />
 
 
+      {/* ── 3. HERO DAY MODE CARD ── */}
+      {selectedPanchang ? (
+        <div className="relative z-10">
+          <div
+            className="relative overflow-hidden"
+            style={{
+              borderRadius: '28px',
+              padding: '1.75rem 1.75rem 1.5rem',
+              background: heroGradient,
+              minHeight: heroOpen ? '280px' : undefined,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* DATE label — toggles the day card open/closed */}
+            <button
+              type="button"
+              onClick={() => setHeroOpen((v) => !v)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginBottom: '0.25rem' }}
+            >
+              <span
+                style={{
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(0,0,0,0.50)',
+                }}
+              >
+                {selectedDate === toDateStr(today) ? "TODAY'S MODE" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
+              </span>
+              <ChevronDown
+                size={13}
+                style={{ color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+              />
+            </button>
+
+            {/* GIANT MODE NAME */}
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+                fontSize: 'clamp(3.5rem, 16vw, 5rem)',
+                fontWeight: 700,
+                lineHeight: 1,
+                color: 'rgba(255,255,255,0.95)',
+                letterSpacing: '-0.02em',
+                marginBottom: '0.65rem',
+              }}
+            >
+              {selectedTaskModeForHero ?? selectedPanchang.mode}
+            </h2>
+
+            {heroOpen && (<>
+            {/* Instruction */}
+            <p
+              style={{
+                fontSize: '0.9375rem',
+                lineHeight: 1.55,
+                color: 'rgba(255,255,255,0.88)',
+                marginBottom: '1rem',
+              }}
+            >
+              {selectedPanchang.instruction}
+            </p>
+
+            {/* Narrative paragraph */}
+            {(() => {
+              const paras = (glanceContent?.narrative ?? composeNarrative({
+                  moonSign: selectedPanchang.moonSign ?? '',
+                  houseActivated: selectedPanchang.houseActivated ?? 1,
+                  nakshatra: selectedPanchang.nakshatra ?? '',
+                  tithi: selectedPanchang.tithi ?? '',
+                  tithiPaksha: selectedPanchang.tithiPaksha ?? 'Shukla',
+                  timeLord: timeLordData?.timeLord ?? null,
+                })).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+              const shown = whyOpen ? paras : paras.slice(-1);
+              return (
+                <div style={{ marginBottom: '1.25rem' }}>
+                  {shown.map((para, i) => (
+                    <p
+                      key={i}
+                      style={{
+                        fontFamily: "'Inter', ui-sans-serif, sans-serif",
+                        fontSize: 'clamp(0.8rem, 3.2vw, 0.875rem)',
+                        lineHeight: 1.65,
+                        color: 'rgba(255,255,255,0.9)',
+                        fontWeight: 400,
+                        marginBottom: '0.65rem',
+                      }}
+                    >
+                      {para}
+                    </p>
+                  ))}
+                  {paras.length > 1 && (
+                    <button
+                      onClick={() => setWhyOpen((v) => !v)}
+                      style={{
+                        background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                        fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.04em',
+                        color: 'rgba(255,255,255,0.98)', textDecoration: 'underline',
+                        textUnderlineOffset: '3px', display: 'flex', alignItems: 'center', gap: '4px',
+                      }}
+                    >
+                      {whyOpen ? 'Hide' : 'THE FULL READ'}
+                      <ChevronDown
+                        size={12}
+                        style={{ color: 'rgba(255,255,255,0.98)', transform: whyOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+                      />
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Panchang mini row */}
+            <div className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
+              <div className="flex items-center gap-1.5">
+                <Moon size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />
+                {selectedPanchang.nakshatraTransitionTime && selectedPanchang.nakshatraAfterTransition ? (
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>
+                    {selectedPanchang.nakshatraAtSunrise}
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}> → </span>
+                    {selectedPanchang.nakshatraAfterTransition}
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}> {selectedPanchang.nakshatraTransitionTime}</span>
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.nakshatra}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>☽</span>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.moonSign}</span>
+              </div>
+              {selectedPanchang.sunriseLocal && (
+                <div className="flex items-center gap-1.5">
+                  <Sunrise size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.sunriseLocal}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>◑</span>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.tithi}</span>
+              </div>
+            </div>
+
+            {/* Italic question — mirrors Today page */}
+            <p
+              style={{
+                marginTop: 'auto',
+                paddingTop: '1rem',
+                fontFamily: "'Inter', ui-sans-serif, sans-serif",
+                fontStyle: 'italic',
+                fontSize: 'clamp(0.875rem, 3.5vw, 1rem)',
+                lineHeight: 1.5,
+                color: 'rgba(255,255,255,0.8)',
+                textAlign: 'center',
+              }}
+            >
+              {glanceContent?.question ?? (selectedTaskModeForHero === 'Action'
+                ? 'What is ready to be shared, launched, or made visible today?'
+                : selectedTaskModeForHero === 'Build'
+                ? 'What body of work can you advance most significantly through consistent effort today?'
+                : selectedTaskModeForHero === 'Selective'
+                ? 'Which opportunity, relationship, or project deserves your full attention today?'
+                : 'What should be stabilized, repaired, protected, or completed before moving forward?')}
+            </p>
+            </>)}
+          </div>
+        </div>
+      ) : (
+        <div className="glass-card p-4 text-center relative z-10">
+          <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>No panchang data for this date.</p>
+        </div>
+      )}
+
+      {/* ── MODE ORBS (reflect TODAY) ── */}
+      {isAuthenticated && (
+        <div className="relative z-10">
+          <h3
+            className="text-sm font-bold uppercase mb-3"
+            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+          >
+            Tasks
+          </h3>
+          <div className="flex justify-around items-end">
+            {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => (
+              <ModeOrb
+                key={m}
+                mode={m}
+                count={orbModeCounts[m] ?? 0}
+                active={todayTaskMode === m}
+                showCount={settings.showOrbCounts}
+                onClick={() => {
+                  const count = orbModeCounts[m] ?? 0;
+                  if (count === 0) {
+                    setQuickAddMode(m);
+                  } else {
+                    setOrbSheetMode(m);
+                  }
+                }}
+              />
+            ))}
+            {/* Due orb */}
+            <button
+              onClick={() => setDueSheetOpen(true)}
+              className="flex flex-col items-center gap-1.5 group transition-all duration-200 cursor-pointer"
+            >
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:scale-105"
+                style={{
+                  background: "oklch(0.55 0.14 250)",
+                  color: "oklch(1 0 0)",
+                }}
+              >
+                <span className="text-sm font-bold">
+                  {!settings.showOrbCounts ? (
+                    <span style={{ fontSize: "0.75rem", opacity: 0.85 }}>●</span>
+                  ) : orbDueCount === 0 ? "+" : orbDueCount}
+                </span>
+              </div>
+              <span
+                className="text-xs font-bold uppercase"
+                style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+              >
+                Due
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Pinned for Now — explicit user pins (ported from the retired Today page) */}
+      {isAuthenticated && (
+        <div className="relative z-10">
+          <button
+            onClick={() => setPinnedOpen((v) => !v)}
+            className="flex items-center gap-2 w-full mb-3"
+          >
+            <h3
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              Pinned for Now
+            </h3>
+            <ChevronDown
+              size={13}
+              style={{ color: "var(--color-muted-foreground)", transform: pinnedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+
+          {pinnedOpen && (pinnedForNow.length === 0 ? (
+            <div
+              className="p-4 text-center rounded-lg"
+              style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
+            >
+              <p className="text-sm">No pinned tasks.</p>
+              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
+                Pin tasks to see them here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {pinnedForNow.map((task) => (
+                <SwipeableTaskRow
+                  key={task.id}
+                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                  isCompleted={task.isCompleted}
+                  isPinned={task.isPinned}
+                  modeColor={todayModeColor}
+                >
+                  <TaskItem
+                    task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                    onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                    onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onDelete={() => deleteMutation.mutate({ id: task.id })}
+                    onEdit={(t: Task) => setEditPinnedTask(t)}
+                    dayMode={todayTaskMode}
+                  />
+                </SwipeableTaskRow>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Aligned for Today — system-ranked suggestions (ported from the retired Today page) */}
+      {isAuthenticated && !!todayTaskMode && (
+        <div className="relative z-10">
+          <button
+            onClick={() => setAlignedOpen((v) => !v)}
+            className="flex items-center gap-2 w-full mb-3"
+          >
+            <h3
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              Why now? · Aligned for today
+            </h3>
+            <ChevronDown
+              size={13}
+              style={{ color: "var(--color-muted-foreground)", transform: alignedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+
+          {alignedOpen && (alignedForToday.length === 0 ? (
+            <div
+              className="p-4 text-center rounded-lg"
+              style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
+            >
+              <p className="text-sm">No suggestions for today's mode.</p>
+              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
+                Add tasks tagged {todayTaskMode} to see recommendations here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {alignedForToday.map((task) => (
+                <SwipeableTaskRow
+                  key={task.id}
+                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                  isCompleted={task.isCompleted}
+                  isPinned={task.isPinned}
+                  modeColor={todayModeColor}
+                >
+                  <TaskItem
+                    task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                    onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                    onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onDelete={() => deleteMutation.mutate({ id: task.id })}
+                    onEdit={(t: Task) => setEditAlignedTask(t)}
+                    dayMode={todayTaskMode}
+                  />
+                  {/* Pressure-layer disclosure bubbles — why this ranked high (positives only, max 3) */}
+                  {((task as any).layerBubbles?.length > 0) && (
+                    <div className="px-4 pb-1.5 flex flex-wrap gap-1">
+                      {((task as any).layerBubbles as string[]).map((b: string) => (
+                        <span
+                          key={b}
+                          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          style={{
+                            letterSpacing: "0.03em",
+                            background: todayModeColor,
+                            color: "#fff",
+                          }}
+                        >
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {/* Transparent ranking reasons */}
+                  {(task as any).reasons?.length > 0 && (
+                    <div className="px-4 pb-2 flex flex-wrap gap-1">
+                      {((task as any).reasons as string[]).map((r: string) => (
+                        <span
+                          key={r}
+                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                          style={{
+                            letterSpacing: "0.02em",
+                            background: `rgba(${MODE_RGBA[todayTaskMode ?? 'Action']}, 0.12)`,
+                            color: todayModeColor,
+                            border: `1px solid rgba(${MODE_RGBA[todayTaskMode ?? 'Action']}, 0.2)`,
+                          }}
+                        >
+                          {r}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </SwipeableTaskRow>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── PLAN AHEAD (planning tools, collapsed by default) ── */}
+      <button
+        onClick={() => setPlanOpen((v) => !v)}
+        className="flex items-center justify-between w-full py-2 transition-all relative z-10"
+      >
+        <span
+          className="text-sm font-bold uppercase"
+          style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+        >
+          Plan ahead
+        </span>
+        <ChevronDown
+          size={13}
+          style={{
+            color: "var(--color-muted-foreground)",
+            transform: planOpen ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 200ms ease",
+          }}
+        />
+      </button>
+      {planOpen && (
+        <div className="space-y-5">
       {/* ── 1. CALENDAR ── */}
       <div
         className="relative z-10 overflow-hidden"
@@ -614,231 +981,7 @@ export default function Planner() {
       </div>{/* end calendar body */}
       </div>{/* end calendar card */}
 
-      {/* ── 2. TIME LORD MOVEMENT ── */}
-      {selectedPanchang && (
-        <div
-          className="relative z-10 overflow-hidden"
-          style={{
-            borderRadius: '20px',
-            background: heroGradient,
-          }}
-        >
-          <button
-            className="w-full flex items-center justify-between px-4 py-3"
-            onClick={() => setTlOpen((v) => !v)}
-          >
-            <span
-              style={{
-                fontSize: '0.65rem',
-                fontWeight: 700,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.96)',
-              }}
-            >
-              Time Lord Movement
-            </span>
-            <ChevronDown
-              size={14}
-              style={{
-                color: 'rgba(255,255,255,0.6)',
-                transform: tlOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 200ms ease',
-              }}
-            />
-          </button>
-          {tlOpen && (
-            <div className="px-5 pb-5">
-              <TimeLordMovement selectedDate={selectedDate} variant="immersive" accentColor={selectedModeColor} darkColor={selectedTaskModeForHero ? MODE_DARK[selectedTaskModeForHero] : undefined} />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── 3. HERO DAY MODE CARD ── */}
-      {selectedPanchang ? (
-        <div className="relative z-10">
-          <div
-            className="relative overflow-hidden"
-            style={{
-              borderRadius: '28px',
-              padding: '1.75rem 1.75rem 1.5rem',
-              background: heroGradient,
-              minHeight: '280px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {/* DATE label */}
-            <span
-              style={{
-                fontSize: '0.65rem',
-                fontWeight: 700,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'rgba(0,0,0,0.50)',
-                marginBottom: '0.25rem',
-                display: 'block',
-              }}
-            >
-              {selectedDate === toDateStr(today) ? "TODAY'S MODE" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
-            </span>
-
-            {/* GIANT MODE NAME */}
-            <h2
-              style={{
-                fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
-                fontSize: 'clamp(3.5rem, 16vw, 5rem)',
-                fontWeight: 700,
-                lineHeight: 1,
-                color: 'rgba(255,255,255,0.95)',
-                letterSpacing: '-0.02em',
-                marginBottom: '0.65rem',
-              }}
-            >
-              {selectedTaskModeForHero ?? selectedPanchang.mode}
-            </h2>
-
-            {/* Instruction */}
-            <p
-              style={{
-                fontSize: '0.9375rem',
-                lineHeight: 1.55,
-                color: 'rgba(255,255,255,0.88)',
-                marginBottom: '1rem',
-                maxWidth: '36ch',
-              }}
-            >
-              {selectedPanchang.instruction}
-            </p>
-
-            {/* Narrative paragraph */}
-            <div style={{ marginBottom: '1.25rem' }}>
-              <p
-                style={{
-                  fontFamily: "'Inter', ui-sans-serif, sans-serif",
-                  fontSize: 'clamp(0.8rem, 3.2vw, 0.875rem)',
-                  lineHeight: 1.65,
-                  color: 'rgba(255,255,255,0.9)',
-                  fontWeight: 400,
-                  marginBottom: '0.65rem',
-                }}
-              >
-                {composeNarrative({
-                  moonSign: selectedPanchang.moonSign ?? '',
-                  houseActivated: selectedPanchang.houseActivated ?? 1,
-                  nakshatra: selectedPanchang.nakshatra ?? '',
-                  tithi: selectedPanchang.tithi ?? '',
-                  tithiPaksha: selectedPanchang.tithiPaksha ?? 'Shukla',
-                  timeLord: timeLordData?.timeLord ?? null,
-                })}
-              </p>
-              <button
-                onClick={() => setWhyOpen((v) => !v)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.04em',
-                  color: 'rgba(255,255,255,0.98)',
-                  textDecoration: 'underline',
-                  textUnderlineOffset: '3px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
-              >
-                {whyOpen ? 'Hide breakdown' : 'See full breakdown'}
-                <ChevronDown
-                  size={12}
-                  style={{
-                    color: 'rgba(255,255,255,0.98)',
-                    transform: whyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 200ms ease',
-                  }}
-                />
-              </button>
-              {whyOpen && (
-                <div
-                  className="mt-3 px-3 py-2.5 rounded-xl"
-                  style={{
-                    background: 'rgba(0,0,0,0.18)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                  }}
-                >
-                  <ReasoningChain
-                    panchang={selectedPanchang as any}
-                    timeLord={timeLordData as any}
-                    modeColor={selectedModeColor}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Panchang mini row */}
-            <div className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
-              <div className="flex items-center gap-1.5">
-                <Moon size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />
-                {selectedPanchang.nakshatraTransitionTime && selectedPanchang.nakshatraAfterTransition ? (
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>
-                    {selectedPanchang.nakshatraAtSunrise}
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }}> → </span>
-                    {selectedPanchang.nakshatraAfterTransition}
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }}> {selectedPanchang.nakshatraTransitionTime}</span>
-                  </span>
-                ) : (
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.nakshatra}</span>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>☽</span>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.moonSign}</span>
-              </div>
-              {selectedPanchang.sunriseLocal && (
-                <div className="flex items-center gap-1.5">
-                  <Sunrise size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.sunriseLocal}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1.5">
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>◑</span>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.tithi}</span>
-              </div>
-            </div>
-
-            {/* Italic question — mirrors Today page */}
-            <p
-              style={{
-                marginTop: 'auto',
-                paddingTop: '1rem',
-                fontFamily: "'Inter', ui-sans-serif, sans-serif",
-                fontStyle: 'italic',
-                fontSize: 'clamp(0.875rem, 3.5vw, 1rem)',
-                lineHeight: 1.5,
-                color: 'rgba(255,255,255,0.8)',
-                textAlign: 'center',
-              }}
-            >
-              {selectedTaskModeForHero === 'Action'
-                ? 'What is ready to be shared, launched, or made visible today?'
-                : selectedTaskModeForHero === 'Build'
-                ? 'What body of work can you advance most significantly through consistent effort today?'
-                : selectedTaskModeForHero === 'Selective'
-                ? 'Which opportunity, relationship, or project deserves your full attention today?'
-                : 'What should be stabilized, repaired, protected, or completed before moving forward?'}
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="glass-card p-4 text-center relative z-10">
-          <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>No panchang data for this date.</p>
-        </div>
-      )}
-
-      {/* Due this day */}
+      {/* Due this day — tied to the calendar's selected date */}
       {isAuthenticated && dueTasks.length > 0 && (
         <div className="relative z-10">
           <p
@@ -869,256 +1012,42 @@ export default function Planner() {
         </div>
       )}
 
-      {/* All Tasks — collapsed by default, expands inline */}
-      {isAuthenticated && (
-        <div className="relative z-10">
+      {/* ── 2. TIME LORD MOVEMENT ── */}
+      {selectedPanchang && (
+        <div
+          className="relative z-10 overflow-hidden"
+          style={{
+            borderRadius: '20px',
+            background: heroGradient,
+          }}
+        >
           <button
-            onClick={() => setAllTasksOpen((v) => !v)}
-            className="flex items-center justify-between w-full py-2 transition-all"
+            className="w-full flex items-center justify-between px-4 py-3"
+            onClick={() => setTlOpen((v) => !v)}
           >
             <span
-              className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+              style={{
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.96)',
+              }}
             >
-              All Tasks ({allTasks.filter((t) => !t.isCompleted).length})
+              Current Time Lord Movement
             </span>
             <ChevronDown
-              size={13}
+              size={14}
               style={{
-                color: "var(--color-muted-foreground)",
-                transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 200ms ease",
+                color: 'rgba(255,255,255,0.6)',
+                transform: tlOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 200ms ease',
               }}
             />
           </button>
-
-          {allTasksOpen && (
-            <div className="space-y-3 mt-1">
-              {/* Search */}
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-muted-foreground)" }} />
-                <input
-                  className="glass-input w-full pl-8 pr-8 py-2.5 text-sm"
-                  placeholder="Search tasks…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                {search && (
-                  <button className="absolute right-3 top-1/2 -translate-y-1/2" onClick={() => setSearch("")} style={{ color: "var(--color-muted-foreground)" }}>
-                    <X size={13} />
-                  </button>
-                )}
-              </div>
-
-              {/* Mode filter pills */}
-              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                {(["All", ...TASK_MODES, "Snoozed"] as FilterMode[]).map((m) => {
-                  const active = filter === m;
-                  return (
-                    <button
-                      key={m}
-                      onClick={() => setFilter(m)}
-                      className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-150"
-                      style={{
-                        letterSpacing: "0.02em",
-                        background: active ? `color-mix(in oklch, ${MODE_FILTER_COLORS[m]} 20%, transparent)` : "var(--color-border)",
-                        color: active ? MODE_FILTER_COLORS[m] : "var(--color-muted-foreground)",
-                        border: `1px solid ${active ? `color-mix(in oklch, ${MODE_FILTER_COLORS[m]} 40%, transparent)` : "var(--color-border)"}`,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (active) return;
-                        e.currentTarget.style.background = `color-mix(in oklch, ${MODE_FILTER_COLORS[m]} 16%, transparent)`;
-                        e.currentTarget.style.color = MODE_FILTER_COLORS[m];
-                        e.currentTarget.style.borderColor = `color-mix(in oklch, ${MODE_FILTER_COLORS[m]} 40%, transparent)`;
-                      }}
-                      onMouseLeave={(e) => {
-                        if (active) return;
-                        e.currentTarget.style.background = "var(--color-border)";
-                        e.currentTarget.style.color = "var(--color-muted-foreground)";
-                        e.currentTarget.style.borderColor = "var(--color-border)";
-                      }}
-                    >
-                      {m}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Project filter pills — only shown when there are projects */}
-              {activeProjects.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                  <button
-                    onClick={() => setProjectFilter(null)}
-                    className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-150 flex items-center gap-1.5"
-                    style={{
-                      letterSpacing: "0.02em",
-                      background: projectFilter === null ? "var(--filter-pill-bg-active)" : "var(--color-border)",
-                      color: projectFilter === null ? "var(--foreground)" : "var(--color-muted-foreground)",
-                      border: `1px solid ${projectFilter === null ? "var(--filter-pill-border-active)" : "var(--color-border)"}`,
-                    }}
-                    onMouseEnter={(e) => {
-                      if (projectFilter === null) return;
-                      e.currentTarget.style.background = "var(--filter-pill-bg-active)";
-                      e.currentTarget.style.color = "var(--foreground)";
-                      e.currentTarget.style.borderColor = "var(--filter-pill-border-active)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (projectFilter === null) return;
-                      e.currentTarget.style.background = "var(--color-border)";
-                      e.currentTarget.style.color = "var(--color-muted-foreground)";
-                      e.currentTarget.style.borderColor = "var(--color-border)";
-                    }}
-                  >
-                    <FolderOpen size={10} />
-                    All Projects
-                  </button>
-                  {activeProjects.map((project) => {
-                    const active = projectFilter === project.id;
-                    return (
-                      <button
-                        key={project.id}
-                        onClick={() => setProjectFilter(active ? null : project.id)}
-                        className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-150 flex items-center gap-1.5 max-w-[140px]"
-                        style={{
-                          letterSpacing: "0.02em",
-                          background: active ? "var(--filter-pill-bg-active)" : "var(--color-border)",
-                          color: active ? "var(--foreground)" : "var(--color-muted-foreground)",
-                          border: `1px solid ${active ? "var(--filter-pill-border-active)" : "var(--color-border)"}`,
-                        }}
-                        onMouseEnter={(e) => {
-                          if (active) return;
-                          e.currentTarget.style.background = "var(--filter-pill-bg-active)";
-                          e.currentTarget.style.color = "var(--foreground)";
-                          e.currentTarget.style.borderColor = "var(--filter-pill-border-active)";
-                        }}
-                        onMouseLeave={(e) => {
-                          if (active) return;
-                          e.currentTarget.style.background = "var(--color-border)";
-                          e.currentTarget.style.color = "var(--color-muted-foreground)";
-                          e.currentTarget.style.borderColor = "var(--color-border)";
-                        }}
-                      >
-                        <FolderOpen size={10} style={{ flexShrink: 0 }} />
-                        <span className="truncate">{project.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Task list */}
-              {tasksLoading ? (
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="glass-card h-14 animate-pulse" style={{ opacity: 0.5 }} />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Grouped by mode when filter is "All" */}
-                  {modeGroups !== null ? (
-                    modeGroups.length > 0 ? (
-                      <div className="space-y-5">
-                        {modeGroups.map(({ mode, tasks: groupTasks }) => (
-                          <div key={mode}>
-                            {/* Mode group header */}
-                            <div
-                              className="flex items-center gap-2 mb-2"
-                            >
-                              <span
-                                className="text-xs font-bold uppercase tracking-widest"
-                                style={{ color: MODE_FILTER_COLORS[mode] }}
-                              >
-                                {mode}
-                              </span>
-                              <span
-                                className="text-xs"
-                                style={{ color: "var(--color-muted-foreground)" }}
-                              >
-                                ({groupTasks.length})
-                              </span>
-                              <div
-                                className="flex-1 h-px"
-                                style={{ background: `color-mix(in oklch, ${MODE_FILTER_COLORS[mode]} 25%, transparent)` }}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              {groupTasks.map((task) => (
-                                <SwipeableTaskRow
-                                  key={task.id}
-                                  isCompleted={task.isCompleted}
-                                  isPinned={task.isPinned}
-                                  isExpanded={expandedTaskId === task.id}
-                                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                                  modeColor={PLANNER_MODE_OKLCH[task.mode as TaskMode]}
-                                >
-                                  <TaskItem
-                                    task={task}
-                                    onToggleComplete={(id, current) => updateMutation.mutate({ id, isCompleted: !current })}
-                                    onTogglePin={(id, current) => updateMutation.mutate({ id, isPinned: !current, ...(!current && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                                    onDelete={(id) => deleteMutation.mutate({ id })}
-                                    onEdit={handleEdit}
-                                    onExpandChange={(exp) => setExpandedTaskId(exp ? task.id : null)}
-                                    taskModeColor={PLANNER_MODE_OKLCH[task.mode as TaskMode]}
-                                  />
-                                </SwipeableTaskRow>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null
-                  ) : (
-                    /* Flat list for single-mode or Snoozed filters */
-                    activeTasks.length > 0 && (
-                      <div className="space-y-2">
-                        {activeTasks
-                          .slice()
-                          .sort((a, b) => ({ High: 0, Medium: 1, Low: 2 }[a.priority] ?? 1) - ({ High: 0, Medium: 1, Low: 2 }[b.priority] ?? 1))
-                          .map((task) => (
-                            <SwipeableTaskRow
-                              key={task.id}
-                              isCompleted={task.isCompleted}
-                              isPinned={task.isPinned}
-                              isExpanded={expandedTaskId === task.id}
-                              onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                              onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                              modeColor={PLANNER_MODE_OKLCH[task.mode as TaskMode]}
-                            >
-                              <TaskItem
-                                task={task}
-                                onToggleComplete={(id, current) => updateMutation.mutate({ id, isCompleted: !current })}
-                                onTogglePin={(id, current) => updateMutation.mutate({ id, isPinned: !current, ...(!current && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                                onDelete={(id) => deleteMutation.mutate({ id })}
-                                onEdit={handleEdit}
-                                onExpandChange={(exp) => setExpandedTaskId(exp ? task.id : null)}
-                                taskModeColor={PLANNER_MODE_OKLCH[task.mode as TaskMode]}
-                              />
-                            </SwipeableTaskRow>
-                          ))}
-                      </div>
-                    )
-                  )}
-                  {completedTasks.length > 0 && (
-                    <CompletedArchive
-                      tasks={completedTasks}
-                      onToggleComplete={(id, current) => updateMutation.mutate({ id, isCompleted: !current })}
-                      onTogglePin={(id, current) => updateMutation.mutate({ id, isPinned: !current, ...(!current && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                      onDelete={(id) => deleteMutation.mutate({ id })}
-                      onEdit={handleEdit}
-                      dayLabelColor={dayLabelColor}
-                    />
-                  )}
-                  {filteredTasks.length === 0 && (
-                    <div className="glass-card p-6 text-center">
-                      <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>
-                        {search ? "No tasks match your search." : filter === "Snoozed" ? "No snoozed tasks." : filter === "All" ? "No tasks yet. Tap + to add one." : `No ${filter} tasks yet.`}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
+          {tlOpen && (
+            <div className="px-5 pb-5">
+              <TimeLordMovement selectedDate={selectedDate} variant="immersive" accentColor={selectedModeColor} darkColor={selectedTaskModeForHero ? MODE_DARK[selectedTaskModeForHero] : undefined} />
             </div>
           )}
         </div>
@@ -1171,6 +1100,9 @@ export default function Planner() {
         </div>
       )}
 
+        </div>
+      )}
+
       {/* Reflection history link */}
       {isAuthenticated && (
         <button
@@ -1187,11 +1119,50 @@ export default function Planner() {
         </button>
       )}
 
+      {/* Mode Orb Sheet */}
+      {orbSheetMode && (
+        <ModeOrbSheet
+          mode={orbSheetMode}
+          open={!!orbSheetMode}
+          onClose={() => setOrbSheetMode(null)}
+        />
+      )}
+
+      {/* Quick Add Sheet (zero-count orb shortcut) */}
+      {quickAddMode && (
+        <AddTaskSheet
+          open={!!quickAddMode}
+          onClose={() => setQuickAddMode(null)}
+          editTask={undefined}
+        />
+      )}
+
+      {/* Edit Pinned Task Sheet */}
+      {editPinnedTask && (
+        <AddTaskSheet
+          open={!!editPinnedTask}
+          onClose={() => setEditPinnedTask(null)}
+          editTask={editPinnedTask ? { id: String(editPinnedTask.id), title: editPinnedTask.title, mode: editPinnedTask.mode, priority: editPinnedTask.priority === 'High' ? 3 : editPinnedTask.priority === 'Medium' ? 2 : 1, dueDate: editPinnedTask.dueDate ? new Date(editPinnedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editPinnedTask.isPinned, wealthFlow: (editPinnedTask as any).wealthFlow ?? false, projectId: (editPinnedTask as any).projectId ?? null, cognitiveLoad: (editPinnedTask as any).cognitiveLoad ?? null, physicalLoad: (editPinnedTask as any).physicalLoad ?? null, creativeRequired: (editPinnedTask as any).creativeRequired ?? null, socialRequired: (editPinnedTask as any).socialRequired ?? null, emotionalLoad: (editPinnedTask as any).emotionalLoad ?? null, notes: (editPinnedTask as any).notes ?? null, recurrence: (editPinnedTask as any).recurrence ?? null, lifeAreas: (editPinnedTask as any).lifeAreas ?? null } : undefined}
+        />
+      )}
+
+      {/* Edit Aligned Task Sheet */}
+      {editAlignedTask && (
+        <AddTaskSheet
+          open={!!editAlignedTask}
+          onClose={() => setEditAlignedTask(null)}
+          editTask={editAlignedTask ? { id: String(editAlignedTask.id), title: editAlignedTask.title, mode: editAlignedTask.mode, priority: editAlignedTask.priority === 'High' ? 3 : editAlignedTask.priority === 'Medium' ? 2 : 1, dueDate: editAlignedTask.dueDate ? new Date(editAlignedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editAlignedTask.isPinned, wealthFlow: (editAlignedTask as any).wealthFlow ?? false, projectId: (editAlignedTask as any).projectId ?? null, cognitiveLoad: (editAlignedTask as any).cognitiveLoad ?? null, physicalLoad: (editAlignedTask as any).physicalLoad ?? null, creativeRequired: (editAlignedTask as any).creativeRequired ?? null, socialRequired: (editAlignedTask as any).socialRequired ?? null, emotionalLoad: (editAlignedTask as any).emotionalLoad ?? null, notes: (editAlignedTask as any).notes ?? null, recurrence: (editAlignedTask as any).recurrence ?? null, lifeAreas: (editAlignedTask as any).lifeAreas ?? null } : undefined}
+        />
+      )}
+
+      {/* Due Orb Sheet */}
+      <DueOrbSheet open={dueSheetOpen} onClose={() => setDueSheetOpen(false)} />
+
       {/* Add/Edit sheet */}
       <AddTaskSheet
         open={sheetOpen}
         onClose={() => { setSheetOpen(false); setEditTask(null); }}
-         editTask={editTask ? { id: String(editTask.id), title: editTask.title, mode: editTask.mode, priority: editTask.priority === 'High' ? 3 : editTask.priority === 'Medium' ? 2 : 1, dueDate: editTask.dueDate ? new Date(editTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editTask.isPinned, wealthFlow: editTask.wealthFlow ?? false, projectId: editTask.projectId ?? null, cognitiveLoad: (editTask as any).cognitiveLoad ?? null, physicalLoad: (editTask as any).physicalLoad ?? null, creativeRequired: (editTask as any).creativeRequired ?? null, socialRequired: (editTask as any).socialRequired ?? null, emotionalLoad: (editTask as any).emotionalLoad ?? null, notes: (editTask as any).notes ?? null, recurrence: (editTask as any).recurrence ?? null } : undefined}
+         editTask={editTask ? { id: String(editTask.id), title: editTask.title, mode: editTask.mode, priority: editTask.priority === 'High' ? 3 : editTask.priority === 'Medium' ? 2 : 1, dueDate: editTask.dueDate ? new Date(editTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editTask.isPinned, wealthFlow: editTask.wealthFlow ?? false, projectId: editTask.projectId ?? null, cognitiveLoad: (editTask as any).cognitiveLoad ?? null, physicalLoad: (editTask as any).physicalLoad ?? null, creativeRequired: (editTask as any).creativeRequired ?? null, socialRequired: (editTask as any).socialRequired ?? null, emotionalLoad: (editTask as any).emotionalLoad ?? null, notes: (editTask as any).notes ?? null, recurrence: (editTask as any).recurrence ?? null, lifeAreas: (editTask as any).lifeAreas ?? null } : undefined}
       />
 
 

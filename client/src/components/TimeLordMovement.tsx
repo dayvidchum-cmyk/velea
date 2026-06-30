@@ -104,9 +104,12 @@ interface TimeLordMovementProps {
   accentColor?: string;
   /** In immersive mode, use this darker color for section label headers (replaces accentColor for better readability on gradient backgrounds) */
   darkColor?: string;
+  /** Engine-generated, chart-personalized chapter lists; override the static house lists when present */
+  bestUses?: string[];
+  avoid?: string[];
 }
 
-export function TimeLordMovement({ selectedDate, variant = "default", accentColor, darkColor }: TimeLordMovementProps) {
+export function TimeLordMovement({ selectedDate, variant = "default", accentColor, darkColor, bestUses: propBestUses, avoid: propAvoid }: TimeLordMovementProps) {
   const { data: transit, isLoading } = trpc.timeLordTransit.forDate.useQuery(
     { date: selectedDate },
     { enabled: !!selectedDate }
@@ -141,8 +144,8 @@ export function TimeLordMovement({ selectedDate, variant = "default", accentColo
   }
 
   const house = transit.house ?? 0;
-  const bestUses = HOUSE_BEST_USES[house] ?? [];
-  const avoid = HOUSE_AVOID[house] ?? [];
+  const bestUses = (propBestUses && propBestUses.length ? propBestUses : HOUSE_BEST_USES[house]) ?? [];
+  const avoid = (propAvoid && propAvoid.length ? propAvoid : HOUSE_AVOID[house]) ?? [];
   const focus = HOUSE_FOCUS[house] ?? transit.operationalMeaning ?? "";
   const planetLabel = PLANET_YEAR_LABEL[transit.timeLord] ?? `${transit.timeLord} Year`;
   const houseLabel = HOUSE_ORDINAL[house] ? `${HOUSE_ORDINAL[house]} House` : "";
@@ -213,7 +216,7 @@ export function TimeLordMovement({ selectedDate, variant = "default", accentColo
                 className="flex items-start gap-1.5 text-base"
                 style={{ color: mutedColor }}
               >
-                <span style={{ color: dotColor, marginTop: "0.25em", flexShrink: 0 }}>•</span>
+                <span style={{ color: dotColor, flexShrink: 0, width: "0.7rem", lineHeight: "1.5rem", textAlign: "center" }}>•</span>
                 {use.charAt(0).toUpperCase() + use.slice(1)}
               </li>
             ))}
@@ -235,7 +238,7 @@ export function TimeLordMovement({ selectedDate, variant = "default", accentColo
                 className="flex items-start gap-1.5 text-base"
                 style={{ color: mutedColor }}
               >
-                <span style={{ color: dotColor, marginTop: "0.25em", flexShrink: 0 }}>•</span>
+                <span style={{ color: dotColor, flexShrink: 0, width: "0.7rem", lineHeight: "1.5rem", textAlign: "center" }}>•</span>
                 {item.charAt(0).toUpperCase() + item.slice(1)}
               </li>
             ))}

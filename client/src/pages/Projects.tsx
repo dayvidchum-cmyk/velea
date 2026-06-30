@@ -6,6 +6,7 @@ import { useDayModeColor, useDayModeGradient } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
+import { LIFE_AREAS } from "@shared/life-areas";
 
 
 type Project = {
@@ -15,6 +16,7 @@ type Project = {
   archivedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  lifeAreas?: string[];
 };
 
 // ─── Inline editable project name ──────────────────────────────────────────
@@ -108,6 +110,64 @@ function ProjectNameEditor({
           <Pencil size={13} />
         </button>
       )}
+    </div>
+  );
+}
+
+// ─── Life-areas multi-select ────────────────────────────────────────────────
+// Tag a project with the life areas it covers. The day's astrological domain
+// (activated house) matches these to surface the project's tasks in "Why now?".
+
+function LifeAreasPicker({
+  project,
+  dayLabelColor,
+}: {
+  project: Project;
+  dayLabelColor: string;
+}) {
+  const utils = trpc.useUtils();
+  const selected = project.lifeAreas ?? [];
+
+  const setMutation = trpc.projects.setLifeAreas.useMutation({
+    onSuccess: () => {
+      utils.projects.list.invalidate();
+      utils.projects.listAll.invalidate();
+      utils.tasks.rankedForToday.invalidate();
+    },
+    onError: () => toast.error("Failed to update life areas"),
+  });
+
+  const toggle = (key: string) => {
+    const next = selected.includes(key)
+      ? selected.filter((k) => k !== key)
+      : [...selected, key];
+    setMutation.mutate({ id: project.id, lifeAreas: next });
+  };
+
+  return (
+    <div className="flex flex-wrap gap-1.5 pt-2" onClick={(e) => e.stopPropagation()}>
+      {LIFE_AREAS.map((area) => {
+        const on = selected.includes(area.key);
+        return (
+          <button
+            key={area.key}
+            onClick={() => toggle(area.key)}
+            disabled={setMutation.isPending}
+            className="px-2 py-1 rounded-full text-[10px] font-medium transition-all disabled:opacity-50"
+            style={{
+              background: on
+                ? `color-mix(in srgb, ${dayLabelColor} 22%, var(--color-card))`
+                : "var(--color-secondary)",
+              color: on ? dayLabelColor : "var(--color-muted-foreground)",
+              border: on
+                ? `1px solid color-mix(in srgb, ${dayLabelColor} 45%, transparent)`
+                : "1px solid var(--color-border)",
+            }}
+          >
+            {area.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -414,45 +474,52 @@ export default function Projects() {
               {activeProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="group flex items-center gap-3 px-4 py-3.5 transition-colors cursor-pointer hover:bg-secondary/50"
+                  className="group px-4 py-3.5 transition-colors"
                   style={{ background: "transparent" }}
-                  onClick={() => navigate(`/projects/${project.id}`)}
                 >
-                  {/* Mode-colored folder chip */}
                   <div
-                    className="flex-shrink-0 flex items-center justify-center rounded-xl"
-                    style={{
-                      width: "2.25rem",
-                      height: "2.25rem",
-                      background: `color-mix(in srgb, ${dayLabelColor} 20%, var(--color-card))`,
-                      color: dayLabelColor,
-                      border: `1px solid color-mix(in srgb, ${dayLabelColor} 35%, transparent)`,
-                    }}
+                    className="flex items-center gap-3 cursor-pointer"
+                    onClick={() => navigate(`/projects/${project.id}`)}
                   >
-                    <FolderOpen size={16} />
-                  </div>
-                  <ProjectNameEditor project={project} onRename={handleRename} />
-                  <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => setArchiveTarget(project)}
-                      className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                      style={{ color: "var(--color-muted-foreground)" }}
-                      title="Archive project"
-                      aria-label="Archive project"
+                    {/* Mode-colored folder chip */}
+                    <div
+                      className="flex-shrink-0 flex items-center justify-center rounded-xl"
+                      style={{
+                        width: "2.25rem",
+                        height: "2.25rem",
+                        background: `color-mix(in srgb, ${dayLabelColor} 20%, var(--color-card))`,
+                        color: dayLabelColor,
+                        border: `1px solid color-mix(in srgb, ${dayLabelColor} 35%, transparent)`,
+                      }}
                     >
-                      <Archive size={14} />
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(project)}
-                      className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                      style={{ color: "oklch(0.52 0.12 15)" }}
-                      title="Delete project"
-                      aria-label="Delete project"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                      <FolderOpen size={16} />
+                    </div>
+                    <ProjectNameEditor project={project} onRename={handleRename} />
+                    <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => setArchiveTarget(project)}
+                        className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        style={{ color: "var(--color-muted-foreground)" }}
+                        title="Archive project"
+                        aria-label="Archive project"
+                      >
+                        <Archive size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(project)}
+                        className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        style={{ color: "oklch(0.52 0.12 15)" }}
+                        title="Delete project"
+                        aria-label="Delete project"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <ChevronRight size={16} className="flex-shrink-0" style={{ color: "var(--color-muted-foreground)", opacity: 0.5 }} />
                   </div>
-                  <ChevronRight size={16} className="flex-shrink-0" style={{ color: "var(--color-muted-foreground)", opacity: 0.5 }} />
+                  <div className="pl-[3rem]">
+                    <LifeAreasPicker project={project} dayLabelColor={dayLabelColor} />
+                  </div>
                 </div>
               ))}
             </div>

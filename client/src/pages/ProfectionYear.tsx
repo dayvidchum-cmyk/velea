@@ -1,10 +1,34 @@
 import { trpc } from "../lib/trpc";
+import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
+import { ProfectionWheel } from "@/components/ProfectionWheel";
+import { WhyNowChain } from "@/components/WhyNowChain";
+import { CurrentTriggerBreakdown } from "@/components/CurrentTriggerBreakdown";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "../../../shared/types";
+import { LIFE_AREAS } from "../../../shared/life-areas";
+
+// House ordinals + plain-language glosses (mirrors HOUSE_GLOSS in WhyNowChain.tsx /
+// CurrentTriggerBreakdown.tsx) so the "Current Time Lord Movement" card can name the
+// chapter the Time Lord is currently transiting — deterministic, no API call.
+const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const HOUSE_GLOSS: Record<number, string> = {
+  1: "self, body, how you are seen",
+  2: "money, possessions, self-worth, speech",
+  3: "communication, siblings, short trips, skill",
+  4: "home, roots, mother, the inner ground",
+  5: "creativity, children, romance, the heart's expression",
+  6: "work, service, health, daily duty",
+  7: "partnership, clients, the one across from you",
+  8: "intimacy, shared resources, transformation, the hidden",
+  9: "belief, teachers, higher learning, long journeys",
+  10: "career, public standing, reputation",
+  11: "networks, community, gains, hopes",
+  12: "rest, retreat, release, the unseen",
+};
 
 export default function ProfectionYear() {
   const modeColor = useDayModeColor();
@@ -21,6 +45,12 @@ export default function ProfectionYear() {
   const [s8, setS8] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
   const [expandedTransitId, setExpandedTransitId] = useState<number | null>(null);
+  const [chartTab, setChartTab] = useState<"timelord" | "natal" | "dasha">("timelord");
+  const CHART_TABS: { id: "timelord" | "natal" | "dasha"; label: string }[] = [
+    { id: "timelord", label: "Time Lord" },
+    { id: "natal", label: "Natal" },
+    { id: "dasha", label: "Dasha" },
+  ];
 
   const { data: profectionData, error: profectionError } = trpc.profection.current.useQuery();
   const { data: transitsData, error: transitsError, isLoading: transitsLoading } = trpc.profection.timeLordTransits.useQuery(undefined, {
@@ -28,6 +58,30 @@ export default function ProfectionYear() {
   });
 
   const { data: todayPanchang } = trpc.panchang.today.useQuery();
+
+  // LLM Deep Read — six sections + synthesis, personalized to this chart.
+  const { data: activeProfile } = trpc.profiles.getActive.useQuery();
+  const { data: subject } = trpc.profiles.getSubject.useQuery();
+  const localToday = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
+  const { data: triggerData } = trpc.narrative.currentTransits.useQuery(
+    { profileId: activeProfile?.id as number, date: localToday },
+    { enabled: !!activeProfile?.id },
+  );
+  const deepProfileId = activeProfile?.id;
+  const { data: deepReadResult, isLoading: deepReadLoading } = trpc.narrative.deepRead.useQuery(
+    { profileId: deepProfileId as number, date: localToday },
+    { enabled: !!deepProfileId, staleTime: 1000 * 60 * 60 },
+  );
+  const deepRead = deepReadResult?.read ?? null;
+
+  // Where the Time Lord is transiting right now — used to name the current "chapter".
+  const { data: tlTransit } = trpc.timeLordTransit.forDate.useQuery(
+    { date: localToday },
+    { enabled: !!localToday },
+  );
   const taskMode: TaskMode | undefined = todayPanchang?.mode
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
@@ -40,7 +94,7 @@ export default function ProfectionYear() {
 
   const accentColor = taskMode ? MODE_OKLCH[taskMode] : 'var(--color-border)';
   const darkColor = taskMode ? MODE_DARK[taskMode] : undefined;
-  const todayDateStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayDateStr = localToday;
 
   const card = (
     title: string,
@@ -48,92 +102,284 @@ export default function ProfectionYear() {
     setOpen: (v: boolean) => void,
     content: React.ReactNode
   ) => (
-    <div style={{ border: `1.5px solid ${modeColor}`, borderRadius: "0.75rem", overflow: "hidden", marginBottom: "1.25rem", background: `color-mix(in srgb, ${modeColor} 14%, var(--background))` }}>
+    <div style={{ borderRadius: "20px", overflow: "hidden", marginBottom: "1.25rem", background: tlGradient }}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.65rem 1.25rem", background: modeColor, border: "none", cursor: "pointer" }}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}
       >
-        <span style={{ color: "#fff", fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{title}</span>
-        <ChevronDown size={16} style={{ color: "rgba(255,255,255,0.8)", flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+        <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>{title}</span>
+        <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
       </button>
       {open ? content : null}
     </div>
   );
 
+  // "The Read" accordions: a CLOSED card is a flat solid color; an OPEN card carries a
+  // subtle gradient. Synthesis-first means each section opens in near-black (the human
+  // truth) with the planet/house mechanics demoted to gray afterwards.
+  const readAccordion = (
+    label: string,
+    open: boolean,
+    setOpen: (v: boolean) => void,
+    content: React.ReactNode,
+  ) => (
+    <div style={{
+      border: "1px solid rgba(255,255,255,0.14)",
+      borderRadius: "0.85rem",
+      overflow: "hidden",
+      marginBottom: "0.85rem",
+      background: open ? "rgba(0,0,0,0.22)" : "rgba(0,0,0,0.12)",
+      transition: "background 200ms ease",
+    }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.85rem 1.1rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+      >
+        <span style={{ color: open ? "#fff" : "rgba(255,255,255,0.85)", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{label}</span>
+        <ChevronDown size={16} style={{ color: "rgba(255,255,255,0.7)", flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+      </button>
+      {open && <div style={{ padding: "0 1.1rem 1.1rem" }}>{content}</div>}
+    </div>
+  );
+
+  // The why (gray mechanics) renders as a simple little list — one line per clause —
+  // so the chart data informs without overwhelming. Splits on "; " (the dasha chain
+  // separates maha / antar that way); a single clause stays a single line.
+  const whyBlock = (why: string) => {
+    const items = why.split(/;\s+/).map((s) => s.trim()).filter(Boolean);
+    if (items.length <= 1) return <p style={{ color: "rgba(255,255,255,0.68)", fontSize: "0.95rem", lineHeight: 1.65, margin: "0.6rem 0 0" }}>{why}</p>;
+    return (
+      <ul style={{ listStyle: "none", margin: "0.6rem 0 0", padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+        {items.map((it, i) => (
+          <li key={i} style={{ color: "rgba(255,255,255,0.68)", fontSize: "0.95rem", lineHeight: 1.55, display: "flex", gap: "0.5rem" }}>
+            <span style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0, lineHeight: "1.5rem" }}>·</span>
+            <span>{it}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  // Synthesis (white, the human truth) first; the why (muted-white mechanics) after, as a list.
+  const sectionBody = (sec: { synthesis: string; why: string }) => (
+    <>
+      <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: 0 }}>{sec.synthesis}</p>
+      {sec.why && whyBlock(sec.why)}
+    </>
+  );
+
   if (profectionError) return (
     <div style={{ padding: "2rem" }}>
-      <AppHeader pageTitle="Profection Year" />
+      <AppHeader pageTitle="Your Charts" />
       <p style={{ color: TEXT_MUTED, marginTop: "1rem" }}>Error: {profectionError.message}</p>
     </div>
   );
 
   if (!profectionData) return (
     <div style={{ padding: "2rem" }}>
-      <AppHeader pageTitle="Profection Year" />
+      <AppHeader pageTitle="Your Charts" />
       <p style={{ color: TEXT_MUTED, marginTop: "1rem" }}>Please set your birth date and lagna sign in settings to view your profection year.</p>
     </div>
   );
 
-  const { age, activatedHouse, activatedSign, timeLord, yearStart, yearEnd, lagnaSign } = profectionData.profection;
+  const { age, activatedHouse, activatedSign, timeLord, lagnaSign } = profectionData.profection;
+  const tlBody: any = (subject as any)?.natalBodies?.find((b: any) => b.planet === timeLord);
 
   return (
     <div style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto", paddingBottom: "7rem" }}>
-      <div style={{ marginBottom: "2rem" }}>
-        <AppHeader pageTitle="Profection Year" />
-        <p style={{ color: TEXT_PRIMARY, fontSize: "0.875rem", marginTop: "0.25rem", marginBottom: "0.5rem", fontWeight: 500, lineHeight: 1.5 }}>
-          {lagnaSign} Lagna · Age {age}<br />
-          <span style={{ whiteSpace: "nowrap" }}>{yearStart} to {yearEnd}</span>
+      <div style={{ marginBottom: "1.5rem" }}>
+        <AppHeader pageTitle="Your Charts" />
+      </div>
+
+      {/* Chart tabs — Time Lord · Natal · Dasha (3 clickable views, like before) */}
+      <div style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", borderRadius: "0.75rem", background: "var(--muted)", marginBottom: "1.5rem" }}>
+        {CHART_TABS.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setChartTab(id)}
+            style={{
+              flex: 1,
+              borderRadius: "0.5rem",
+              padding: "0.55rem",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              transition: "all 200ms ease",
+              background: chartTab === id ? `color-mix(in srgb, ${modeColor} 15%, var(--card))` : "transparent",
+              color: chartTab === id ? modeColor : TEXT_MUTED,
+              border: chartTab === id ? `1px solid ${modeColor}` : "1px solid transparent",
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {chartTab === "natal" && <NatalSection />}
+      {chartTab === "dasha" && <DashaSection />}
+
+      {chartTab === "timelord" && (<>
+      {/* What a Time Lord / profection year is — short explainer */}
+      <div style={{ borderRadius: "16px", background: "var(--muted)", padding: "1rem 1.25rem", marginBottom: "1.25rem" }}>
+        <p style={{ color: TEXT_PRIMARY, fontSize: "0.98rem", lineHeight: 1.65, margin: 0 }}>
+          In astrology, <strong>annual profection</strong> is an ancient timing technique that follows the
+          movement of your <strong>Lagna</strong> (Ascendant, Rising Sign), which activates one house of your
+          birth chart each year of your life. At birth you are age 0 and your <strong>1st house</strong> is
+          activated; at age 1, the 2nd house; and after 12 years the cycle repeats. The ruler of the activated
+          house is your <strong>Time Lord</strong> — the planet running your year.
         </p>
       </div>
 
-      {card("Current Annual Focus", s1, setS1,
-        <div style={{ padding: "1.25rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-          {[["Activated House", activatedHouse], ["Activated Sign", activatedSign], ["Time Lord", timeLord], ["Age", age]].map(([label, value]) => (
-            <div key={String(label)}>
-              <p style={{ color: TEXT_MUTED, fontSize: "0.75rem", marginBottom: "0.25rem" }}>{label}</p>
-              <p style={{ color: TEXT_PRIMARY, fontSize: "1.125rem", fontWeight: 600 }}>{value}</p>
+      {/* Your Time Lords wheel — image deepens the concept (words first, then the picture) */}
+      <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem" }}>
+        <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor, marginBottom: "1rem" }}>Your Time Lords (from birth to 120 years old)</p>
+        <ProfectionWheel lagnaSign={lagnaSign} age={age} />
+      </div>
+
+      {/* WHY NOW? — deterministic logic chain (computed from the chart, auditable) */}
+      <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem" }}>
+        <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor, marginBottom: "1.1rem" }}>Why now?</p>
+        <WhyNowChain
+          age={age}
+          activatedHouse={activatedHouse}
+          activatedSign={activatedSign}
+          timeLord={timeLord}
+          tlNatalHouse={tlBody?.house}
+          tlNatalSign={tlBody?.sign}
+          tlNatalNakshatra={tlBody?.nakshatra}
+          accentColor={modeColor}
+        />
+      </div>
+
+      {/* This year's life areas — the houses this profection year activates ("the party") */}
+      {(() => {
+        const yearAreas = LIFE_AREAS.filter((a) => a.houses.includes(activatedHouse));
+        if (yearAreas.length === 0) return null;
+        return (
+          <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem" }}>
+            <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor, marginBottom: "0.4rem" }}>This year's life areas</p>
+            <p style={{ fontSize: "0.8rem", color: TEXT_MUTED, marginBottom: "1rem", lineHeight: 1.5 }}>
+              House {activatedHouse} is lit up this year, so these are the areas of life in focus. Tasks you tag with them rise on days the year's themes are echoed.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+              {yearAreas.map((a) => (
+                <span
+                  key={a.key}
+                  style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    padding: "0.4rem 0.8rem",
+                    borderRadius: "999px",
+                    background: `color-mix(in srgb, ${modeColor} 16%, transparent)`,
+                    color: modeColor,
+                    border: `1px solid color-mix(in srgb, ${modeColor} 40%, transparent)`,
+                  }}
+                >
+                  {a.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* LLM Deep Read — the full structured read (The Read). Sits ABOVE Current Trigger.
+          Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
+      {deepRead && (
+        <div style={{ borderRadius: "20px", background: tlGradient, padding: "1.5rem", marginBottom: "1.25rem", overflow: "hidden" }}>
+          <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", marginBottom: "1.25rem" }}>The Read · your year</p>
+
+          {readAccordion("Core Theme", s1, setS1, sectionBody(deepRead.coreTheme))}
+
+          {readAccordion("Why Now — the dasha", s2, setS2, sectionBody(deepRead.whyNow))}
+
+          {deepRead.manifestations?.length > 0 && readAccordion("Manifestations", s3, setS3, (
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+              {deepRead.manifestations.map((m, i) => (
+                <div key={i}>
+                  <p style={{ color: "rgba(255,255,255,0.92)", fontSize: "0.9rem", fontWeight: 700, margin: "0 0 0.3rem" }}>{m.area}</p>
+                  <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>{m.synthesis}</p>
+                  {m.why && whyBlock(m.why)}
+                </div>
+              ))}
             </div>
           ))}
+
+          {readAccordion("The Lesson", s5, setS5, sectionBody(deepRead.developmentalTask))}
+
+          {deepRead.confidence && readAccordion(`${deepRead.confidence.level} Confidence`, s6, setS6, (
+            <>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {deepRead.confidence.factors?.map((f, i) => (
+                  <li key={i} style={{ display: "flex", gap: "0.5rem", alignItems: "baseline", lineHeight: 1.55 }}>
+                    <span style={{ color: "rgba(255,255,255,0.55)", flexShrink: 0 }}>·</span>
+                    <span style={{ fontSize: "0.95rem" }}>
+                      <span style={{ color: "rgba(255,255,255,0.96)", fontWeight: 600 }}>{f.plain}</span>
+                      {f.astro && <span style={{ color: "rgba(255,255,255,0.66)" }}>{" — "}{f.astro}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", margin: "0.75rem 0 0", fontStyle: "italic" }}>The more independent techniques point at one life area, the higher the confidence.</p>
+            </>
+          ))}
+        </div>
+      )}
+      {!deepRead && deepReadLoading && (
+        <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem", color: TEXT_MUTED, fontSize: "0.85rem" }}>
+          Generating your reading…
+        </div>
+      )}
+
+      {/* CURRENT TRIGGER — deterministic transit breakdown (ephemeris math, auditable) */}
+      {triggerData?.available && (
+        <div style={{ borderRadius: "20px", background: tlGradient, padding: "1.5rem", marginBottom: "1.25rem", overflow: "hidden" }}>
+          <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", marginBottom: "1.1rem" }}>Current Trigger</p>
+          <CurrentTriggerBreakdown
+            transits={triggerData.transits}
+            activatedHouse={triggerData.activatedHouse}
+            timeLord={triggerData.timeLord}
+            accentColor="rgba(255,255,255,0.85)"
+            onDark
+          />
         </div>
       )}
 
       {/* Time Lord Movement — immersive gradient */}
       <div style={{ borderRadius: "20px", background: tlGradient, marginBottom: "1.25rem", overflow: "hidden" }}>
         <button type="button" onClick={() => setTlOpen(v => !v)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}>
-          <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Current Time Lord Movement</span>
+          <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Current Time Lord Movement</span>
           <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: tlOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
         </button>
         {tlOpen && (
           <div style={{ padding: "0 1.25rem 1.25rem" }}>
-            <TimeLordMovement selectedDate={todayDateStr} variant="immersive" accentColor={accentColor} darkColor={darkColor} />
+            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.65, marginBottom: "1rem" }}>
+              When the Time Lord moves, life moves. As it passes through each house, that area of your life is activated in turn — and the <strong>friction</strong> you feel there shows you what needs to be resolved.
+            </p>
+            {tlTransit?.house != null && (
+              <div style={{ marginBottom: "1rem" }}>
+                <p style={{ color: "#fff", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
+                  Chapter: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
+                </p>
+                <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.6, margin: 0 }}>
+                  Your Time Lord {tlTransit.timeLord} is passing through this part of your chart right now — so this is the life-area where the year's growth and friction actually play out.
+                </p>
+              </div>
+            )}
+            <TimeLordMovement selectedDate={todayDateStr} variant="immersive" accentColor={accentColor} darkColor={darkColor} bestUses={deepRead?.chapterGoodFor} avoid={deepRead?.chapterAvoid} />
           </div>
         )}
       </div>
 
-      {card("Natal Anchor", s2, setS2,
-        <div style={{ padding: "1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          {[["Lagna", lagnaSign], ["Activated House", activatedHouse], ["Activated Sign", activatedSign], ["Time Lord", timeLord]].map(([label, value]) => (
-            <div key={String(label)} style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>{label}</span>
-              <span style={{ fontWeight: 500, color: TEXT_PRIMARY }}>{value}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {card("Operational Chain", s3, setS3,
-        <div style={{ padding: "1rem 1.25rem", fontSize: "0.875rem", color: TEXT_PRIMARY, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
-          {profectionData.interpretation.operationalChain || "Operational chain unavailable."}
-        </div>
-      )}
-
       {card("Time Lord Movement", s4, setS4,
-        <div style={{ padding: "1rem" }}>
+        <div style={{ padding: "0 1rem 1rem" }}>
           {transitsError ? (
-            <p style={{ color: TEXT_MUTED, fontSize: "0.875rem" }}>Error loading transits.</p>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Error loading transits.</p>
           ) : transitsLoading ? (
-            <p style={{ color: TEXT_MUTED, fontSize: "0.875rem" }}>Loading...</p>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Loading...</p>
           ) : transitsData?.transits?.length ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {transitsData.transits.map((transit: any, idx: number) => {
@@ -141,19 +387,19 @@ export default function ProfectionYear() {
                 const today = new Date().toISOString().split('T')[0];
                 const isCurrent = transit.startDate <= today && today <= transit.endDate;
                 return (
-                  <div key={idx} style={{ border: `1.5px solid ${isCurrent ? modeColor : "var(--border)"}`, borderRadius: "0.5rem", overflow: "hidden", background: isCurrent ? `color-mix(in srgb, ${modeColor} 10%, var(--background))` : "var(--background)" }}>
+                  <div key={idx} style={{ border: `1.5px solid ${isCurrent ? modeColor : "rgba(255,255,255,0.15)"}`, borderRadius: "0.5rem", overflow: "hidden", background: isCurrent ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.14)" }}>
                     <button type="button" onClick={() => setExpandedTransitId(isExpanded ? null : idx)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}>
-                      <p style={{ margin: 0, fontWeight: isCurrent ? 700 : 500, color: isCurrent ? modeColor : TEXT_PRIMARY, fontSize: "0.875rem" }}>
+                      <p style={{ margin: 0, fontWeight: isCurrent ? 700 : 500, color: isCurrent ? modeColor : "rgba(255,255,255,0.9)", fontSize: "0.95rem" }}>
                         {transit.startDate} – {transit.endDate} — {transit.sign} in House {transit.house}
                       </p>
-                      <ChevronDown size={16} style={{ color: isCurrent ? modeColor : TEXT_MUTED, transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0, marginLeft: "0.5rem" }} />
+                      <ChevronDown size={16} style={{ color: isCurrent ? modeColor : "rgba(255,255,255,0.6)", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0, marginLeft: "0.5rem" }} />
                     </button>
                     {isExpanded && (
-                      <div style={{ padding: "1rem", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "0.75rem", fontSize: "0.875rem" }}>
+                      <div style={{ padding: "1rem", borderTop: "1px solid rgba(255,255,255,0.12)", display: "flex", flexDirection: "column", gap: "0.75rem", fontSize: "0.95rem" }}>
                         {[["Motion", transit.isRetrograde ? "Retrograde" : "Direct"], ["Combustion", transit.combustionStatus ? "Yes" : "No"], ["Solitary", transit.solitaryStatus ? "Yes" : "No"]].map(([label, value]) => (
                           <div key={String(label)} style={{ display: "flex", justifyContent: "space-between" }}>
-                            <span style={{ color: TEXT_MUTED }}>{label}:</span>
-                            <span style={{ color: TEXT_PRIMARY, fontWeight: 500 }}>{value}</span>
+                            <span style={{ color: "rgba(255,255,255,0.6)" }}>{label}:</span>
+                            <span style={{ color: "rgba(255,255,255,0.92)", fontWeight: 500 }}>{value}</span>
                           </div>
                         ))}
                       </div>
@@ -163,39 +409,13 @@ export default function ProfectionYear() {
               })}
             </div>
           ) : (
-            <p style={{ color: TEXT_MUTED, fontSize: "0.875rem" }}>No transit data available.</p>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>No transit data available.</p>
           )}
         </div>
       )}
 
-      {card("Yearly Focus", s5, setS5,
-        <div style={{ padding: "1rem 1.25rem" }}>
-          <p style={{ color: TEXT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6 }}>{profectionData.interpretation.section5}</p>
-        </div>
-      )}
+      </>)}
 
-      {card("What Supports Growth", s6, setS6,
-        <div style={{ padding: "1rem 1.25rem" }}>
-          <p style={{ color: TEXT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{profectionData.interpretation.section6}</p>
-        </div>
-      )}
-
-      {card("What Creates Friction", s7, setS7,
-        <div style={{ padding: "1rem 1.25rem" }}>
-          <p style={{ color: TEXT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{profectionData.interpretation.section7}</p>
-        </div>
-      )}
-
-      {card("Quick Reference", s8, setS8,
-        <div style={{ padding: "1rem 1.25rem" }}>
-          <p style={{ color: TEXT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
-{`• Age ${age}: House ${activatedHouse} (${activatedSign}) activated by ${timeLord}
-• Period: ${new Date(yearStart + 'T12:00:00').toLocaleDateString()} – ${new Date(yearEnd + 'T12:00:00').toLocaleDateString()}
-• Core Work: Integrate ${activatedSign} qualities into this life area
-• Key Focus: ${profectionData.interpretation.section5.split('.')[0]}.`}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

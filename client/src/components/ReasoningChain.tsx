@@ -386,14 +386,20 @@ export default function ReasoningChain({ panchang, timeLord, modeColor }: Reason
           <>
             <p>
               <strong style={{ color: "rgba(255,255,255,0.95)" }}>Phase:</strong>{" "}
-              {tithiPacing.phase === "waxing" ? "Waxing moon" : "Waning moon"} — {tithiPacing.pacingLabel.toLowerCase()} movement.
+              {tithiPacing.pacingLabel === "Culmination"
+                ? "Full moon — culmination."
+                : tithiPacing.pacingLabel === "Reset"
+                ? "New moon — reset."
+                : `${tithiPacing.phase === "waxing" ? "Waxing moon" : "Waning moon"} — ${tithiPacing.pacingLabel.toLowerCase()} movement.`}
             </p>
             <p className="mt-1">{tithiPacing.pacingNote}</p>
-            <p className="mt-1">
-              {tithiPacing.phase === "waxing"
-                ? "Supports outward movement. Reinforces expansion."
-                : "Supports inward movement. Reinforces restraint."}
-            </p>
+            {tithiPacing.pacingLabel !== "Culmination" && tithiPacing.pacingLabel !== "Reset" && (
+              <p className="mt-1">
+                {tithiPacing.phase === "waxing"
+                  ? "Supports outward movement. Reinforces expansion."
+                  : "Supports inward movement. Reinforces restraint."}
+              </p>
+            )}
           </>
         ) : (
           <p>
@@ -425,17 +431,6 @@ export default function ReasoningChain({ panchang, timeLord, modeColor }: Reason
               </p>
             </div>
           )}
-          {timeLord.bestUses && timeLord.bestUses.length > 0 && (
-            <div>
-              <p
-                className="text-[10px] font-bold tracking-wide uppercase mb-1 mt-1"
-                style={{ color: "rgba(255,255,255,0.45)" }}
-              >
-                Translation — This year favors
-              </p>
-              <BulletList items={timeLord.bestUses} accentColor={modeColor} />
-            </div>
-          )}
           {timeLord.reasoning && (
             <p className="text-xs pt-1" style={{ color: "rgba(255,255,255,0.6)", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
               {timeLord.reasoning}
@@ -444,57 +439,8 @@ export default function ReasoningChain({ panchang, timeLord, modeColor }: Reason
         </Section>
       )}
 
-      {/* ── Final Synthesis ──────────────────────────────────────────────── */}
-      <div className="pt-3 pb-1">
-        <p
-          className="text-[10px] font-bold tracking-wide uppercase mb-2"
-          style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.04em" }}
-        >
-          Final Synthesis
-        </p>
-        <div className="space-y-1.5">
-          <div className="flex items-baseline gap-2">
-            <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)", minWidth: "5rem" }}>Base Mode</span>
-            <span className="text-xs font-bold" style={{ color: "rgba(255,255,255,0.95)" }}>{baseMode}</span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)", minWidth: "5rem" }}>Expression</span>
-            <span className="text-xs font-bold" style={{ color: "rgba(255,255,255,0.95)" }}>{qualifier}</span>
-          </div>
-          {timeLord?.timeLordLabel && (
-            <div className="flex items-baseline gap-2">
-              <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)", minWidth: "5rem" }}>Time Lord</span>
-              <span className="text-xs" style={{ color: "rgba(255,255,255,0.82)" }}>{timeLord.timeLordLabel}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Best Uses */}
-        {timeLord?.bestUses && timeLord.bestUses.length > 0 && (
-          <div className="mt-3">
-            <p
-              className="text-[10px] font-bold tracking-wide uppercase mb-1.5"
-              style={{ color: "rgba(255,255,255,0.45)" }}
-            >
-              Good for
-            </p>
-            <BulletList items={timeLord.bestUses} accentColor={modeColor} />
-          </div>
-        )}
-
-        {/* Avoid */}
-        {timeLord?.avoidToday && timeLord.avoidToday.length > 0 && (
-          <div className="mt-3">
-            <p
-              className="text-[10px] font-bold tracking-wide uppercase mb-1.5"
-              style={{ color: "rgba(255,255,255,0.45)" }}
-            >
-              Avoid
-            </p>
-            <BulletList items={timeLord.avoidToday} accentColor={modeColor} />
-          </div>
-        )}
-      </div>
+      {/* Trimmed to just the 5 deterministic factors — the Final Synthesis restated the
+          mode and carried the generic per-Time-Lord good-for/avoid lists (noise). */}
     </div>
   );
 }
