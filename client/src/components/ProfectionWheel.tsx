@@ -109,7 +109,7 @@ export function ProfectionWheel({ lagnaSign, age }: { lagnaSign: string; age: nu
         <span style={{ width: 12, height: 12, borderRadius: "50%", background: currentColor, flexShrink: 0 }} />
         <span>This year — house {currentHouse}, <strong><span style={{ fontFamily: GLYPH_FONT }}>{GLYPH[currentSign]}</span> {currentSign}</strong>, ruled by <strong>{timeLord}</strong></span>
       </div>
-      <div style={{ width: "100%", maxWidth: 380, borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
+      <div style={{ width: "100%", borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
         <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted-foreground)", textAlign: "center", marginBottom: "0.75rem" }}>Planets &amp; the signs they rule</p>
         <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: "0.55rem", columnGap: "1.25rem", fontSize: "0.9rem", alignItems: "baseline" }}>
           {RULERSHIP.map(({ planet, signs }) => (
