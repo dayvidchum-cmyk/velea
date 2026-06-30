@@ -438,12 +438,14 @@ export default function ProfectionYear() {
           ))}
 
           {deepRead.manifestations?.length > 0 && readAccordion("Possible Manifestations", s3, setS3, (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {deepRead.manifestations.map((m, i) => (
-                <div key={i}>
-                  <p style={{ color: "rgba(255,255,255,0.92)", fontSize: "0.9rem", fontWeight: 700, margin: "0 0 0.3rem" }}>{m.area}</p>
-                  <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>{m.synthesis}</p>
-                  {m.why && whyBlock(m.why)}
+                <div key={i} style={{ background: "rgba(0,0,0,0.18)", borderRadius: "0.7rem", padding: "0.85rem 1rem" }}>
+                  <p style={{ color: "#E7C766", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, margin: "0 0 0.4rem" }}>{m.area}</p>
+                  <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0 }}>{m.synthesis}</p>
+                  {m.why && (
+                    <p style={{ color: "rgba(255,255,255,0.58)", fontSize: "0.82rem", lineHeight: 1.45, margin: "0.45rem 0 0" }}>{m.why}</p>
+                  )}
                 </div>
               ))}
             </div>
