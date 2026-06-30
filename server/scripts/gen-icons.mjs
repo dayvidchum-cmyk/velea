@@ -1,32 +1,23 @@
-// One-off: regenerate the app icons with a pared-down starry-night background
-// (deep indigo field + a few stars + the gold orbit & dot). Run with sharp
-// temporarily installed; outputs kala-icon-{512,192,180,32}.png to public.
+// Regenerate the app icons: the Velea emblem (gold circle + comet) composited
+// over a pared-down starry-indigo field. Outputs kala-icon-{512,192,180,32}.png.
+// Run with sharp temporarily installed.
 import sharp from "sharp";
 
 const SIZE = 512;
-const GOLD = "#C9A84C";
-const GOLD_DOT = "#E3C76C";
 
-// A sparse, hand-placed star field — "pared down" vs. the full photo background.
+// Sparse star field over a deep-indigo radial gradient (no gold ring — the
+// emblem supplies the gold).
 const stars = [
-  [40, 60, 1.1, 0.7], [88, 140, 0.8, 0.5], [150, 40, 1.4, 0.85], [210, 90, 0.7, 0.4],
-  [300, 55, 1.0, 0.6], [360, 120, 1.3, 0.8], [420, 70, 0.8, 0.5], [470, 150, 1.1, 0.65],
-  [60, 230, 0.9, 0.55], [130, 300, 1.2, 0.75], [40, 380, 0.8, 0.45], [100, 440, 1.0, 0.6],
-  [200, 470, 1.3, 0.8], [280, 430, 0.7, 0.4], [360, 460, 1.1, 0.65], [440, 400, 0.9, 0.55],
-  [470, 300, 1.2, 0.7], [420, 240, 0.7, 0.4], [330, 300, 0.8, 0.45], [180, 205, 0.6, 0.35],
-  [250, 150, 0.7, 0.4], [300, 360, 0.9, 0.5], [150, 360, 0.8, 0.45], [400, 330, 0.7, 0.4],
-  [70, 170, 0.7, 0.4], [235, 260, 0.6, 0.3], [285, 210, 0.6, 0.3], [190, 420, 0.8, 0.45],
+  [40, 60, 1.1, 0.6], [88, 140, 0.8, 0.45], [150, 40, 1.3, 0.7], [300, 55, 1.0, 0.55],
+  [420, 70, 0.8, 0.45], [470, 150, 1.1, 0.6], [60, 230, 0.9, 0.5], [40, 380, 0.8, 0.4],
+  [100, 440, 1.0, 0.55], [200, 470, 1.2, 0.65], [360, 460, 1.0, 0.55], [470, 300, 1.1, 0.6],
+  [470, 410, 0.9, 0.45], [30, 300, 0.8, 0.4], [250, 30, 0.7, 0.4], [410, 470, 0.8, 0.45],
 ];
 const starEls = stars
   .map(([x, y, r, o]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#dfe7ff" opacity="${o}"/>`)
   .join("");
 
-const cx = 256, cy = 256, R = 176;
-const a = (55 * Math.PI) / 180; // dot sits upper-right on the ring, like the logo
-const dotX = (cx + R * Math.sin(a)).toFixed(1);
-const dotY = (cy - R * Math.cos(a)).toFixed(1);
-
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
+const bgSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
   <defs>
     <radialGradient id="bg" cx="42%" cy="38%" r="85%">
       <stop offset="0%" stop-color="#1b1c3a"/>
@@ -36,11 +27,23 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${S
   </defs>
   <rect width="${SIZE}" height="${SIZE}" fill="url(#bg)"/>
   ${starEls}
-  <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${GOLD}" stroke-width="7" opacity="0.95"/>
-  <circle cx="${dotX}" cy="${dotY}" r="14" fill="${GOLD_DOT}"/>
 </svg>`;
 
+const bg = await sharp(Buffer.from(bgSvg)).png().toBuffer();
+
+// Emblem at ~88% so the circle stays in the safe zone; the comet streaks toward
+// the top-right corner (slightly trimmed by the OS rounding, which reads fine).
+const emblemBox = Math.round(SIZE * 0.88);
+const emblem = await sharp("client/public/velea-emblem.png")
+  .resize(emblemBox, emblemBox, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .toBuffer();
+
+const master = await sharp(bg)
+  .composite([{ input: emblem, gravity: "center" }])
+  .png()
+  .toBuffer();
+
 for (const s of [512, 192, 180, 32]) {
-  await sharp(Buffer.from(svg)).resize(s, s).png().toFile(`client/public/kala-icon-${s}.png`);
+  await sharp(master).resize(s, s).png().toFile(`client/public/kala-icon-${s}.png`);
   console.log("wrote kala-icon-" + s + ".png");
 }
