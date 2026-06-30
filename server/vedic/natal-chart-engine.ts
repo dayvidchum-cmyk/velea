@@ -326,3 +326,51 @@ export async function getSiderealLongitudes(
   }
   return out;
 }
+
+const PLANET_INDEX_NAMES = [
+  "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Rahu", "Ketu",
+] as const;
+
+/**
+ * Sidereal longitude AND daily speed for the given planets at a moment. Same
+ * ayanamsa/method as getSiderealLongitudes (so directly comparable to natal),
+ * plus SEFLG_SPEED so we get longitudeSpeed (deg/day). Negative speed = retrograde.
+ */
+export async function getSiderealLongitudesWithSpeed(
+  when: Date,
+  planetNames: readonly string[] = PLANET_INDEX_NAMES,
+): Promise<Record<string, { longitude: number; speed: number }>> {
+  const se = await initSwissEph();
+  const jd = se.julday(
+    when.getUTCFullYear(),
+    when.getUTCMonth() + 1,
+    when.getUTCDate(),
+    when.getUTCHours() + when.getUTCMinutes() / 60 + when.getUTCSeconds() / 3600
+  );
+  const flags = se.SEFLG_SWIEPH | se.SEFLG_SIDEREAL | se.SEFLG_SPEED;
+  // Note: this binding has SE_MEAN_NODE (10) but no SE_RAHU/SE_KETU. Rahu = mean
+  // node; Ketu = Rahu + 180°. (The older getSiderealLongitudes above still uses the
+  // undefined se.SE_RAHU and returns 0 for the nodes — a latent bug there.)
+  const index: Record<string, number> = {
+    Sun: se.SE_SUN, Moon: se.SE_MOON, Mercury: se.SE_MERCURY, Venus: se.SE_VENUS,
+    Mars: se.SE_MARS, Jupiter: se.SE_JUPITER, Saturn: se.SE_SATURN,
+  };
+  const out: Record<string, { longitude: number; speed: number }> = {};
+  for (const name of planetNames) {
+    if (name === "Rahu" || name === "Ketu") {
+      const calc = se.calc_ut(jd, se.SE_MEAN_NODE, flags);
+      const rahuLon = ((calc[0] % 360) + 360) % 360;
+      const speed = calc[3] ?? 0;
+      out[name] = name === "Rahu"
+        ? { longitude: rahuLon, speed }
+        : { longitude: (rahuLon + 180) % 360, speed };
+      continue;
+    }
+    const idx = index[name];
+    if (idx === undefined) continue;
+    const calc = se.calc_ut(jd, idx, flags);
+    out[name] = { longitude: ((calc[0] % 360) + 360) % 360, speed: calc[3] ?? 0 };
+  }
+  return out;
+}
+

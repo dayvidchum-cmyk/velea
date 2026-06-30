@@ -59,6 +59,7 @@ import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
 import { scoreTasks } from "./task-scorer.js";
 import { parseLifeAreas } from "@shared/life-areas";
 import { getCurrentLayers } from "./layers/index.js";
+import { getCurrentSky } from "./sky/current-sky.js";
 import { rateLimit } from "./_core/rateLimit.js";
 import { timezoneForCoords } from "./geo/timezone.js";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -1037,6 +1038,16 @@ export const appRouter = router({
   // ── PROFECTION YEARS ───────────────────────────────────────
   profection: profectionRouter,
   timeLordTransit: timeLordTransitRouter,
+
+  // ── CURRENT SKY (all planets now: positions, retro, stations, eclipses) ──
+  sky: router({
+    /** Live sky for the active profile: every planet's position/motion, the houses
+     *  it transits from this Lagna, hits to natal points, stations, eclipses. */
+    current: protectedProcedure.query(async ({ ctx }) => {
+      if (!ctx.subject) return null;
+      return getCurrentSky(ctx.subject);
+    }),
+  }),
 
   // ── NARRATIVE (LLM Glance + Deep Read) ────────────────────
   narrative: narrativeRouter,
