@@ -482,6 +482,95 @@ function formatDate(dateStr: string) {
   return `${m}/${d}/${y}`;
 }
 
+// ── What are Dashas? ─────────────────────────────────────────────────────────
+// The dasha-page heads-up, mirroring NatalExplainer: a one-line definition that
+// opens into an accurate Vimshottari explanation.
+
+const DASHA_LORDS: { lord: string; years: number }[] = [
+  { lord: "Ketu", years: 7 },
+  { lord: "Venus", years: 20 },
+  { lord: "Sun", years: 6 },
+  { lord: "Moon", years: 10 },
+  { lord: "Mars", years: 7 },
+  { lord: "Rahu", years: 18 },
+  { lord: "Jupiter", years: 16 },
+  { lord: "Saturn", years: 19 },
+  { lord: "Mercury", years: 17 },
+];
+
+function DashaExplainer() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="rounded-xl px-3.5 py-3"
+      style={{
+        background: "var(--color-secondary)",
+        border: "1px solid var(--color-border)",
+      }}
+    >
+      <div className="flex items-start gap-2.5">
+        <Info size={15} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, marginTop: "1px" }} />
+        <div className="flex-1">
+          <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
+            <strong>Dashas are planetary periods</strong> — the Vedic timing system that says which
+            planet is running your life right now, and for how long. This is your karmic schedule
+            this lifetime: the order and timing were fixed at your birth.
+          </p>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="mt-1.5 text-[11px] font-semibold inline-flex items-center gap-1"
+            style={{ color: "var(--color-muted-foreground)" }}
+          >
+            {open ? "Hide" : "What are Dashas?"}
+            <ChevronDown
+              size={11}
+              style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+
+          {open && (
+            <div className="mt-2.5 space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+              <p>
+                Where a Western chart describes who you are, dashas describe <em>when</em>. Velea uses
+                the <strong>Vimshottari</strong> system — a 120-year cycle split into nine planetary
+                periods called <strong>Mahadashas</strong>. Each is ruled by one planet and runs for a
+                fixed length, always in the same order.
+              </p>
+
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
+                  The nine periods (120 years)
+                </p>
+                <div className="grid grid-cols-3 gap-x-3 gap-y-1">
+                  {DASHA_LORDS.map(({ lord, years }) => (
+                    <div key={lord} className="flex items-baseline justify-between gap-1">
+                      <span style={{ color: "var(--color-foreground)", fontWeight: 600 }}>{lord}</span>
+                      <span>{years} yrs</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <p>
+                Your starting point is set by the <strong>Moon's nakshatra</strong> at birth — which is
+                why the cycle keys off the Moon, the seat of the mind. From there the planets run in
+                sequence for the rest of your life.
+              </p>
+
+              <p>
+                Each Mahadasha is subdivided into <strong>Antardashas</strong> (sub-periods) in the same
+                planetary order, so at any moment a major and a minor lord color the time together. The
+                planet whose period is running activates its themes, the houses it rules, and its
+                condition in your chart — bringing those karmas to the surface to be lived out.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function DashaSection() {
   const [expandedMaha, setExpandedMaha] = useState<string | null>(null);
   const didAutoOpen = useRef(false);
@@ -524,6 +613,8 @@ export function DashaSection() {
 
   return (
     <div className="space-y-3 pb-24" data-tour="dasha">
+      <DashaExplainer />
+
       <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
         Your Karmic Schedule (From Birth to 120 Years Old)
       </p>
