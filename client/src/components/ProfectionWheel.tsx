@@ -85,38 +85,11 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
       const ri = hole + r * ringW, ro = hole + (r + 1) * ringW;
       const ageVal = r * 12 + h;
       const isCurrent = ageVal === age;
-      const isBirth = ageVal === 0;
-      const special = isCurrent || isBirth;
-      const midA = (a0 + a1) / 2;
-      const rMid = (ri + ro) / 2;
-      // On the birth/now cells, nudge the age number inward to make room for the label.
-      const [tx, ty] = polar(cx, cy, special ? rMid - 2.6 : rMid, midA);
+      const [tx, ty] = polar(cx, cy, (ri + ro) / 2, (a0 + a1) / 2);
       cells.push(
         <path key={`c${h}-${r}`} d={annular(cx, cy, ri, ro, a0, a1)} fill={isCurrent ? currentColor : base} stroke={isCurrent ? currentColor : "var(--border)"} strokeWidth={0.5} />,
-        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={special ? 6 : 7} fontWeight={isCurrent ? 800 : 400} fill={isCurrent ? "#000" : "var(--muted-foreground)"} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
+        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={7} fontWeight={isCurrent ? 800 : 400} fill={isCurrent ? "#000" : "var(--muted-foreground)"} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
       );
-      if (special) {
-        // Drawn into `labels` so it sits on top of every cell. Halo keeps it legible.
-        const [lx2, ly2] = polar(cx, cy, rMid + 3.6, midA);
-        labels.push(
-          <text
-            key={`cl${h}-${r}`}
-            x={lx2}
-            y={ly2}
-            fontSize={5.4}
-            fontWeight={800}
-            fill={isCurrent ? "#000" : "var(--foreground)"}
-            stroke="var(--card)"
-            strokeWidth={1.7}
-            paintOrder="stroke"
-            textAnchor="middle"
-            dominantBaseline="central"
-            style={{ letterSpacing: "0.03em" }}
-          >
-            {isBirth ? "BIRTH" : "NOW"}
-          </text>,
-        );
-      }
     }
 
     const [lx, ly] = polar(cx, cy, ringOuter + labelBand / 2, (a0 + a1) / 2);
@@ -125,11 +98,33 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
     );
   }
 
+  // BIRTH / NOW callouts — sit just outside (under) the wedge's zodiac glyph, in
+  // light grey, with a thin black line pointing back to that wedge's section.
+  const callouts: ReactElement[] = [];
+  const mkCallout = (h: number, text: string, bump: number) => {
+    const midA = h * 30 + 15;
+    const rText = ringOuter + labelBand + 8 + bump;
+    const [lx, ly] = polar(cx, cy, rText, midA);
+    const [p1x, p1y] = polar(cx, cy, ringOuter + labelBand + 1, midA);
+    const [p2x, p2y] = polar(cx, cy, rText - 5, midA);
+    callouts.push(
+      <line key={`co-l-${text}`} x1={p1x} y1={p1y} x2={p2x} y2={p2y} stroke="#000" strokeWidth={0.6} />,
+      <text key={`co-t-${text}`} x={lx} y={ly} fontSize={6.5} fontWeight={700} fill="#9CA3AF" textAnchor="middle" dominantBaseline="central" style={{ letterSpacing: "0.08em" }}>{text}</text>,
+    );
+  };
+  const nowH = age % 12;
+  mkCallout(0, "BIRTH", 0);
+  // If the current year falls on the birth wedge (age is a multiple of 12), stack NOW below.
+  mkCallout(nowH, "NOW", nowH === 0 ? 11 : 0);
+
+  const M = 22; // outer margin so the callouts aren't clipped
+
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
-      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" style={{ display: "block" }}>
+      <svg viewBox={`${-M} ${-M} ${SIZE + 2 * M} ${SIZE + 2 * M}`} width="100%" style={{ display: "block" }}>
         {cells}
         {labels}
+        {callouts}
         <circle cx={cx} cy={cy} r={hole} fill="var(--background)" stroke="var(--border)" strokeWidth={0.5} />
       </svg>
       <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 0.9rem", borderRadius: "999px", background: "var(--muted)", fontSize: "0.95rem", color: "var(--foreground)" }}>
