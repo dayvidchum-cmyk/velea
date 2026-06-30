@@ -30,6 +30,35 @@ const HOUSE_GLOSS: Record<number, string> = {
   12: "rest, retreat, release, the unseen",
 };
 
+// Deterministic dasha-breakdown helpers (no API): a lord's dignity + the houses
+// it rules from the lagna.
+const ZODIAC = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+const SIGN_RULERS: Record<string, string> = { Aries: "Mars", Taurus: "Venus", Gemini: "Mercury", Cancer: "Moon", Leo: "Sun", Virgo: "Mercury", Libra: "Venus", Scorpio: "Mars", Sagittarius: "Jupiter", Capricorn: "Saturn", Aquarius: "Saturn", Pisces: "Jupiter" };
+const DIGN: Record<string, { ex: string; de: string; own: string[] }> = {
+  Sun: { ex: "Aries", de: "Libra", own: ["Leo"] },
+  Moon: { ex: "Taurus", de: "Scorpio", own: ["Cancer"] },
+  Mars: { ex: "Capricorn", de: "Cancer", own: ["Aries", "Scorpio"] },
+  Mercury: { ex: "Virgo", de: "Pisces", own: ["Gemini", "Virgo"] },
+  Jupiter: { ex: "Cancer", de: "Capricorn", own: ["Sagittarius", "Pisces"] },
+  Venus: { ex: "Pisces", de: "Virgo", own: ["Taurus", "Libra"] },
+  Saturn: { ex: "Libra", de: "Aries", own: ["Capricorn", "Aquarius"] },
+};
+function dignityWord(planet: string, sign: string): string | null {
+  const d = DIGN[planet];
+  if (!d) return null;
+  if (sign === d.ex) return "exalted";
+  if (sign === d.de) return "debilitated";
+  if (d.own.includes(sign)) return "own sign";
+  return null;
+}
+function housesRuledFromLagna(planet: string, lagna: string): number[] {
+  const li = ZODIAC.indexOf(lagna);
+  if (li < 0) return [];
+  return ZODIAC.filter((s) => SIGN_RULERS[s] === planet)
+    .map((s) => ((ZODIAC.indexOf(s) - li + 12) % 12) + 1)
+    .sort((a, b) => a - b);
+}
+
 export default function ProfectionYear() {
   const modeColor = useDayModeColor();
   const TEXT_PRIMARY = "var(--foreground)";
@@ -68,6 +97,7 @@ export default function ProfectionYear() {
   // LLM Deep Read — six sections + synthesis, personalized to this chart.
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
   const { data: subject } = trpc.profiles.getSubject.useQuery();
+  const { data: dashaTimeline } = trpc.dasha.timeline.useQuery(undefined, { retry: false });
   const localToday = useMemo(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -241,6 +271,38 @@ export default function ProfectionYear() {
   const { age, activatedHouse, activatedSign, timeLord, lagnaSign } = profectionData.profection;
   const tlBody: any = (subject as any)?.natalBodies?.find((b: any) => b.planet === timeLord);
 
+  // Deterministic Mahadasha / Antardasha breakdown — placement + ruled houses for
+  // each current dasha lord, computed straight from the chart (not the LLM).
+  const dashaGroups = (() => {
+    const cur: any = (dashaTimeline as any)?.entries?.find((e: any) => e.isCurrent);
+    const bodies: any[] = (subject as any)?.natalBodies ?? [];
+    if (!cur || !lagnaSign || bodies.length === 0) return [];
+    const build = (lord: string, period: string) => {
+      const bullets: { head: string; gloss: string }[] = [];
+      const b = bodies.find((x) => x.planet === lord);
+      if (b) {
+        const states = [dignityWord(lord, b.sign), b.isRetrograde ? "retrograde" : null].filter(Boolean) as string[];
+        const cond = states.join(" and ");
+        const head = cond
+          ? `${cond.charAt(0).toUpperCase()}${cond.slice(1)} in the ${ORD[b.house]} house`
+          : `In the ${ORD[b.house]} house`;
+        bullets.push({ head, gloss: HOUSE_GLOSS[b.house] ?? "" });
+      }
+      for (const h of housesRuledFromLagna(lord, lagnaSign)) {
+        bullets.push({ head: `Rules the ${ORD[h]} house`, gloss: HOUSE_GLOSS[h] ?? "" });
+      }
+      return { label: `${lord} ${period}`, bullets };
+    };
+    return [build(cur.mahadasha, "Mahadasha"), build(cur.antardasha, "Antardasha")].filter((g) => g.bullets.length > 0);
+  })();
+
+  // The interpretive takeaway = the part of whyNow.why after a late em dash.
+  const dashaTakeaway = (() => {
+    const w = deepRead?.whyNow?.why ?? "";
+    const i = w.lastIndexOf("—");
+    return i > w.length * 0.4 ? w.slice(i + 1).trim().replace(/^so[,\s]+/i, "") : "";
+  })();
+
   return (
     <div style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto", paddingBottom: "7rem" }}>
       <div style={{ marginBottom: "1.5rem" }}>
@@ -343,7 +405,37 @@ export default function ProfectionYear() {
         <>
           {readAccordion("Core Theme", s1, setS1, sectionBody(deepRead.coreTheme))}
 
-          {readAccordion("Your Current Karmic Chapter — Dasha", s2, setS2, sectionBody(deepRead.whyNow))}
+          {readAccordion("Your Current Karmic Chapter — Dasha", s2, setS2, (
+            <>
+              <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: 0 }}>{deepRead.whyNow.synthesis}</p>
+              {dashaGroups.length > 0 ? (
+                dashaGroups.map((g) => (
+                  <div key={g.label} style={{ marginTop: "0.95rem" }}>
+                    <p style={{ color: "rgba(255,255,255,0.92)", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" as const, margin: "0 0 0.45rem" }}>{g.label}</p>
+                    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                      {g.bullets.map((bl, i) => (
+                        <li key={i} style={{ fontSize: "0.9rem", lineHeight: 1.45, display: "flex", gap: "0.55rem" }}>
+                          <span style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0, fontWeight: 700, lineHeight: "1.35rem" }}>•</span>
+                          <span>
+                            <span style={{ color: "rgba(255,255,255,0.92)" }}>{bl.head}</span>
+                            {bl.gloss && <span style={{ color: "rgba(255,255,255,0.6)" }}> ({bl.gloss})</span>}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : (
+                deepRead.whyNow.why && whyBlock(deepRead.whyNow.why)
+              )}
+              {dashaGroups.length > 0 && dashaTakeaway && (
+                <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.95rem" }}>
+                  <CircleDot size={17} style={{ color: "#E7C766", flexShrink: 0, marginTop: "0.15rem" }} />
+                  <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{dashaTakeaway}</p>
+                </div>
+              )}
+            </>
+          ))}
 
           {deepRead.manifestations?.length > 0 && readAccordion("Possible Manifestations", s3, setS3, (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
