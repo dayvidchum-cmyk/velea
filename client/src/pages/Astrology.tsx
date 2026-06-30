@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { ChevronDown, Info } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { ModeCard } from "@/components/ModeCard";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
@@ -315,46 +315,44 @@ const DIFF_ROWS: { feature: string; western: string; vedic: string }[] = [
   },
 ];
 
-function NatalExplainer() {
+// Collapsible "learn" card matching the Time Lord page's panel(): white card,
+// rounded, with a mode-colored uppercase title + chevron. Used for the natal and
+// dasha definition cards so they read as the same element family as that page.
+function ExplainerPanel({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const modeColor = useDayModeColor();
   return (
-    <div
-      className="rounded-xl px-3.5 py-3"
-      style={{
-        background: "var(--color-secondary)",
-        border: "1px solid var(--color-border)",
-      }}
-    >
-      <div className="flex items-start gap-2.5">
-        <Info size={15} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, marginTop: "1px" }} />
-        <div className="flex-1">
-          <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
-            <strong>Velea uses the Vedic (sidereal) zodiac.</strong> A natal chart is a snapshot
-            of the sky at the exact moment and place you were born — the map every reading is
-            built from. Your signs may differ from the Western ones you know; a Western Leo Sun
-            is often Cancer here. That's expected, not a mistake.
-          </p>
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="mt-1.5 text-[11px] font-semibold inline-flex items-center gap-1"
-            style={{ color: "var(--color-muted-foreground)" }}
-          >
-            {open ? "Hide" : "What is a natal chart?"}
-            <ChevronDown
-              size={11}
-              style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
+    <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+      >
+        <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor }}>{title}</span>
+        <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+      </button>
+      {open && <div style={{ padding: "0 1.25rem 1.25rem" }}>{children}</div>}
+    </div>
+  );
+}
 
-          {open && (
-            <div className="mt-2.5 space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
-              <p>
-                A natal chart freezes where the Sun, Moon, and planets sat at your birth. Western
-                and Vedic astrology read that same sky in different ways — they pin the zodiac to
-                different reference points, so the same birth produces different signs.
-              </p>
+function NatalExplainer() {
+  return (
+    <ExplainerPanel title="What is a natal chart?">
+      <div className="space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+        <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
+          <strong>Velea uses the Vedic (sidereal) zodiac.</strong> A natal chart is a snapshot of
+          the sky at the exact moment and place you were born — the map every reading is built
+          from. Your signs may differ from the Western ones you know; a Western Leo Sun is often
+          Cancer here. That's expected, not a mistake.
+        </p>
 
-              <div>
+        <p>
+          Western and Vedic astrology read that same sky in different ways — they pin the zodiac to
+          different reference points, so the same birth produces different signs.
+        </p>
+
+        <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
                   Core differences at a glance
                 </p>
@@ -403,11 +401,8 @@ function NatalExplainer() {
                   tracks the real, observable stars.
                 </p>
               </div>
-            </div>
-          )}
-        </div>
       </div>
-    </div>
+    </ExplainerPanel>
   );
 }
 
@@ -499,45 +494,23 @@ const DASHA_LORDS: { lord: string; years: number }[] = [
 ];
 
 function DashaExplainer() {
-  const [open, setOpen] = useState(false);
   return (
-    <div
-      className="rounded-xl px-3.5 py-3"
-      style={{
-        background: "var(--color-secondary)",
-        border: "1px solid var(--color-border)",
-      }}
-    >
-      <div className="flex items-start gap-2.5">
-        <Info size={15} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, marginTop: "1px" }} />
-        <div className="flex-1">
-          <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
-            <strong>Dashas are planetary periods</strong> — the Vedic timing system that says which
-            planet is running your life right now, and for how long. This is your karmic schedule
-            this lifetime: the order and timing were fixed at your birth.
-          </p>
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="mt-1.5 text-[11px] font-semibold inline-flex items-center gap-1"
-            style={{ color: "var(--color-muted-foreground)" }}
-          >
-            {open ? "Hide" : "What are Dashas?"}
-            <ChevronDown
-              size={11}
-              style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
+    <ExplainerPanel title="What are Dashas?">
+      <div className="space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+        <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
+          <strong>Dashas are planetary periods</strong> — the Vedic timing system that says which
+          planet is running your life right now, and for how long. This is your karmic schedule
+          this lifetime: the order and timing were fixed at your birth.
+        </p>
 
-          {open && (
-            <div className="mt-2.5 space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
-              <p>
-                Where a Western chart describes who you are, dashas describe <em>when</em>. Velea uses
-                the <strong>Vimshottari</strong> system — a 120-year cycle split into nine planetary
-                periods called <strong>Mahadashas</strong>. Each is ruled by one planet and runs for a
-                fixed length, always in the same order.
-              </p>
+        <p>
+          Where a Western chart describes who you are, dashas describe <em>when</em>. Velea uses the{" "}
+          <strong>Vimshottari</strong> system — a 120-year cycle split into nine planetary periods
+          called <strong>Mahadashas</strong>. Each is ruled by one planet and runs for a fixed
+          length, always in the same order.
+        </p>
 
-              <div>
+        <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
                   The nine periods (120 years)
                 </p>
@@ -563,11 +536,8 @@ function DashaExplainer() {
                 planet whose period is running activates its themes, the houses it rules, and its
                 condition in your chart — bringing those karmas to the surface to be lived out.
               </p>
-            </div>
-          )}
-        </div>
       </div>
-    </div>
+    </ExplainerPanel>
   );
 }
 
