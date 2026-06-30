@@ -85,11 +85,38 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
       const ri = hole + r * ringW, ro = hole + (r + 1) * ringW;
       const ageVal = r * 12 + h;
       const isCurrent = ageVal === age;
-      const [tx, ty] = polar(cx, cy, (ri + ro) / 2, (a0 + a1) / 2);
+      const isBirth = ageVal === 0;
+      const special = isCurrent || isBirth;
+      const midA = (a0 + a1) / 2;
+      const rMid = (ri + ro) / 2;
+      // On the birth/now cells, nudge the age number inward to make room for the label.
+      const [tx, ty] = polar(cx, cy, special ? rMid - 2.6 : rMid, midA);
       cells.push(
         <path key={`c${h}-${r}`} d={annular(cx, cy, ri, ro, a0, a1)} fill={isCurrent ? currentColor : base} stroke={isCurrent ? currentColor : "var(--border)"} strokeWidth={0.5} />,
-        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={7} fontWeight={isCurrent ? 800 : 400} fill={isCurrent ? "#000" : "var(--muted-foreground)"} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
+        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={special ? 6 : 7} fontWeight={isCurrent ? 800 : 400} fill={isCurrent ? "#000" : "var(--muted-foreground)"} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
       );
+      if (special) {
+        // Drawn into `labels` so it sits on top of every cell. Halo keeps it legible.
+        const [lx2, ly2] = polar(cx, cy, rMid + 3.6, midA);
+        labels.push(
+          <text
+            key={`cl${h}-${r}`}
+            x={lx2}
+            y={ly2}
+            fontSize={5.4}
+            fontWeight={800}
+            fill={isCurrent ? "#000" : "var(--foreground)"}
+            stroke="var(--card)"
+            strokeWidth={1.7}
+            paintOrder="stroke"
+            textAnchor="middle"
+            dominantBaseline="central"
+            style={{ letterSpacing: "0.03em" }}
+          >
+            {isBirth ? "BIRTH" : "NOW"}
+          </text>,
+        );
+      }
     }
 
     const [lx, ly] = polar(cx, cy, ringOuter + labelBand / 2, (a0 + a1) / 2);
