@@ -69,6 +69,35 @@ const PLANNER_MODE_TINT: Record<TaskMode, string> = {
   ...MODE_TINT,
 };
 
+// Plain-language day-mode reference shown at the bottom of Today (collapsible),
+// to help decide which tasks fit which mode. Mirrors the Glossary "Modes" entries.
+const DAY_MODE_DEFS: { mode: TaskMode; essence: string; bestFor: string[]; avoid: string[] }[] = [
+  {
+    mode: "Action",
+    essence: "Visible movement. The day favors initiating, publishing, reaching out, and making decisions.",
+    bestFor: ["Publishing or launching", "Outreach and first contact", "Making decisions", "Starting something new"],
+    avoid: ["Endless prep", "Waiting for perfect conditions", "Second-guessing"],
+  },
+  {
+    mode: "Build",
+    essence: "Preparation and systems. The day favors strengthening the container — drafting, editing, and setup — over going public.",
+    bestFor: ["Drafting and editing", "Setup and organizing", "Planning and research", "Fixing what's broken"],
+    avoid: ["Launching or big public asks", "Forcing visibility", "Cold outreach"],
+  },
+  {
+    mode: "Selective",
+    essence: "Advance, don't initiate. The day favors moving existing threads forward — warm leads, live conversations, follow-ups — not brand-new fronts.",
+    bestFor: ["Following up on warm leads", "Active conversations", "Advancing work in motion", "Finishing one thing"],
+    avoid: ["Cold starts", "Opening many new fronts", "Broad untargeted outreach"],
+  },
+  {
+    mode: "Restraint",
+    essence: "Contain and stabilize. The day favors repair, rest, and reducing exposure — finish rather than start, and don't force outcomes.",
+    bestFor: ["Repair and cleanup", "Resting and recovering", "Finishing rather than starting", "Quiet behind-the-scenes work"],
+    avoid: ["Launching or going public", "Confrontation or high-stakes asks", "Forcing outcomes"],
+  },
+];
+
 export default function Planner() {
   const [, navigate] = useLocation();
   const { isAuthenticated } = useAuth();
@@ -102,6 +131,8 @@ export default function Planner() {
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());
   const [completedOpen, setCompletedOpen] = useState(false);
+  const [modesOpen, setModesOpen] = useState(false);
+  const [openModeDef, setOpenModeDef] = useState<string | null>(null);
 
   function getHouseSuffix(n: number | undefined): string {
     if (!n) return "th";
@@ -1286,6 +1317,75 @@ export default function Planner() {
             View reflection log
           </span>
         </button>
+      )}
+
+      {/* ── DAY MODES (reference, collapsed by default) ── */}
+      {isAuthenticated && (
+        <div className="relative z-10">
+          <button
+            onClick={() => setModesOpen((v) => !v)}
+            className="flex items-center justify-between w-full py-2 transition-all"
+          >
+            <span className="text-sm font-bold uppercase" style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}>
+              Day modes
+            </span>
+            <ChevronDown
+              size={13}
+              style={{ color: "var(--color-muted-foreground)", transform: modesOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+          {modesOpen && (
+            <div className="space-y-2" style={{ marginTop: "0.25rem" }}>
+              {DAY_MODE_DEFS.map(({ mode, essence, bestFor, avoid }) => {
+                const color = PLANNER_MODE_OKLCH[mode];
+                const open = openModeDef === mode;
+                return (
+                  <div key={mode} style={{ borderRadius: "14px", border: "1px solid var(--color-border)", background: "var(--color-card)", overflow: "hidden" }}>
+                    <button
+                      onClick={() => setOpenModeDef(open ? null : mode)}
+                      className="w-full flex items-center justify-between"
+                      style={{ padding: "0.8rem 1rem" }}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span style={{ width: 9, height: 9, borderRadius: 999, background: color, flexShrink: 0 }} />
+                        <span className="text-sm font-bold" style={{ color: "var(--foreground)" }}>{mode}</span>
+                      </span>
+                      <ChevronDown
+                        size={14}
+                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+                      />
+                    </button>
+                    {open && (
+                      <div style={{ padding: "0 1rem 1rem" }}>
+                        <p className="text-sm" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.55, marginBottom: "0.85rem" }}>
+                          {essence}
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <p className="font-bold uppercase" style={{ fontSize: "0.62rem", letterSpacing: "0.1em", color, marginBottom: "0.4rem" }}>Best for</p>
+                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                              {bestFor.map((t) => (
+                                <li key={t} className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4 }}>{t}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="font-bold uppercase" style={{ fontSize: "0.62rem", letterSpacing: "0.1em", color: "var(--color-muted-foreground)", marginBottom: "0.4rem" }}>Ease off</p>
+                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                              {avoid.map((t) => (
+                                <li key={t} className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>{t}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Mode Orb Sheet */}
