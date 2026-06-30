@@ -131,7 +131,7 @@ export default function ProfectionYear() {
     content: React.ReactNode,
   ) => (
     <div style={{
-      border: "1px solid rgba(255,255,255,0.18)",
+      border: "none",
       borderRadius: "0.85rem",
       overflow: "hidden",
       marginBottom: "0.85rem",
