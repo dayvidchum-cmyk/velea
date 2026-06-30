@@ -508,6 +508,28 @@ export default function Planner() {
               {selectedTaskModeForHero ?? selectedPanchang.mode}
             </h2>
 
+            {/* Qualifier — the filtered-down mode (e.g. "Cautious Selective") */}
+            {(() => {
+              const q = (selectedPanchang as any).qualifier as string | undefined;
+              const base = selectedTaskModeForHero ?? selectedPanchang.mode;
+              if (!q || q === base) return null;
+              return (
+                <p
+                  style={{
+                    fontSize: 'clamp(0.8rem, 3.4vw, 1rem)',
+                    fontWeight: 700,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.82)',
+                    marginTop: '-0.35rem',
+                    marginBottom: '0.85rem',
+                  }}
+                >
+                  {q}
+                </p>
+              );
+            })()}
+
             {heroOpen && (<>
             {/* Instruction */}
             <p

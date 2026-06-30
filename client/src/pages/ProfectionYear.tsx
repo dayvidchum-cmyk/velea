@@ -302,7 +302,7 @@ export default function ProfectionYear() {
 
           {readAccordion("Your Current Karmic Chapter — Dasha", s2, setS2, sectionBody(deepRead.whyNow))}
 
-          {deepRead.manifestations?.length > 0 && readAccordion("Manifestations", s3, setS3, (
+          {deepRead.manifestations?.length > 0 && readAccordion("Possible Manifestations", s3, setS3, (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
               {deepRead.manifestations.map((m, i) => (
                 <div key={i}>
