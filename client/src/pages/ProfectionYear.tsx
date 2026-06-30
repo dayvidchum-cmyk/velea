@@ -237,6 +237,34 @@ export default function ProfectionYear() {
     <div style={{ borderRadius: "14px", background: tlGradient, padding: "1.25rem", overflow: "hidden" }}>{children}</div>
   );
 
+  // One-sentence synthesis, carried by the gold Chart icon. Used at the end of every
+  // Read breakdown so the placement bullets resolve into a single human takeaway.
+  const goldTakeaway = (text: string) => (
+    <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.95rem" }}>
+      <CircleDot size={17} style={{ color: "#E7C766", flexShrink: 0, marginTop: "0.15rem" }} />
+      <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{text}</p>
+    </div>
+  );
+
+  // A planet's placement, under a gold header that names WHO it is (Venus · Time Lord,
+  // Moon Mahadasha…). Without the header a bullet like "Sits in the 6th" has no subject.
+  const planetGroupBlock = (g: { label: string; bullets: { head: string; gloss: string }[] }) => (
+    <div style={{ marginTop: "0.95rem" }}>
+      <p style={{ color: "#E7C766", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" as const, margin: "0 0 0.45rem" }}>{g.label}</p>
+      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+        {g.bullets.map((bl, i) => (
+          <li key={i} style={{ fontSize: "0.9rem", lineHeight: 1.45, display: "flex", gap: "0.55rem" }}>
+            <span style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0, fontWeight: 700, lineHeight: "1.35rem" }}>•</span>
+            <span>
+              <span style={{ color: "rgba(255,255,255,0.92)" }}>{bl.head}</span>
+              {bl.gloss && <span style={{ color: "rgba(255,255,255,0.6)" }}> ({bl.gloss})</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   // The why (gray mechanics) renders as a simple little list — one line per clause —
   // so the chart data informs without overwhelming. Splits on "; " (the dasha chain
   // separates maha / antar that way); a single clause stays a single line.
@@ -261,12 +289,7 @@ export default function ProfectionYear() {
             </li>
           ))}
         </ul>
-        {takeaway && (
-          <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.85rem" }}>
-            <CircleDot size={17} style={{ color: "#E7C766", flexShrink: 0, marginTop: "0.15rem" }} />
-            <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{takeaway}</p>
-          </div>
-        )}
+        {takeaway && goldTakeaway(takeaway)}
       </div>
     );
   };
@@ -296,29 +319,40 @@ export default function ProfectionYear() {
   const { age, activatedHouse, activatedSign, timeLord, lagnaSign } = profectionData.profection;
   const tlBody: any = (subject as any)?.natalBodies?.find((b: any) => b.planet === timeLord);
 
+  // A planet's placement as deterministic bullets (dignity + house it sits in, houses
+  // it rules), under a label that names WHO it is — computed from the chart, not the LLM.
+  const buildPlanetGroup = (lord: string, label: string) => {
+    const bodies: any[] = (subject as any)?.natalBodies ?? [];
+    if (!lord || !lagnaSign || bodies.length === 0) return null;
+    const bullets: { head: string; gloss: string }[] = [];
+    const b = bodies.find((x) => x.planet === lord);
+    if (b) {
+      const states = [dignityWord(lord, b.sign), b.isRetrograde ? "retrograde" : null].filter(Boolean) as string[];
+      const cond = states.join(" and ");
+      const head = cond
+        ? `${cond.charAt(0).toUpperCase()}${cond.slice(1)} in the ${ORD[b.house]} house`
+        : `In the ${ORD[b.house]} house`;
+      bullets.push({ head, gloss: HOUSE_GLOSS[b.house] ?? "" });
+    }
+    for (const h of housesRuledFromLagna(lord, lagnaSign)) {
+      bullets.push({ head: `Rules the ${ORD[h]} house`, gloss: HOUSE_GLOSS[h] ?? "" });
+    }
+    return bullets.length ? { label, bullets } : null;
+  };
+
+  // Core Theme is carried by the year lord; name it so its bullets have a subject.
+  const timeLordGroup = buildPlanetGroup(timeLord, `${timeLord} · Time Lord`);
+  const coreTakeaway = peelTakeaway(deepRead?.coreTheme?.why ?? "").takeaway;
+
   // Deterministic Mahadasha / Antardasha breakdown — placement + ruled houses for
   // each current dasha lord, computed straight from the chart (not the LLM).
   const dashaGroups = (() => {
     const cur: any = (dashaTimeline as any)?.entries?.find((e: any) => e.isCurrent);
-    const bodies: any[] = (subject as any)?.natalBodies ?? [];
-    if (!cur || !lagnaSign || bodies.length === 0) return [];
-    const build = (lord: string, period: string) => {
-      const bullets: { head: string; gloss: string }[] = [];
-      const b = bodies.find((x) => x.planet === lord);
-      if (b) {
-        const states = [dignityWord(lord, b.sign), b.isRetrograde ? "retrograde" : null].filter(Boolean) as string[];
-        const cond = states.join(" and ");
-        const head = cond
-          ? `${cond.charAt(0).toUpperCase()}${cond.slice(1)} in the ${ORD[b.house]} house`
-          : `In the ${ORD[b.house]} house`;
-        bullets.push({ head, gloss: HOUSE_GLOSS[b.house] ?? "" });
-      }
-      for (const h of housesRuledFromLagna(lord, lagnaSign)) {
-        bullets.push({ head: `Rules the ${ORD[h]} house`, gloss: HOUSE_GLOSS[h] ?? "" });
-      }
-      return { label: `${lord} ${period}`, bullets };
-    };
-    return [build(cur.mahadasha, "Mahadasha"), build(cur.antardasha, "Antardasha")].filter((g) => g.bullets.length > 0);
+    if (!cur) return [];
+    return [
+      buildPlanetGroup(cur.mahadasha, `${cur.mahadasha} Mahadasha`),
+      buildPlanetGroup(cur.antardasha, `${cur.antardasha} Antardasha`),
+    ].filter(Boolean) as { label: string; bullets: { head: string; gloss: string }[] }[];
   })();
 
   // The interpretive takeaway = the part of whyNow.why after a late em dash.
@@ -424,37 +458,29 @@ export default function ProfectionYear() {
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
       {deepRead && panel("The Read · your year", readOpen, setReadOpen, (
         <>
-          {readAccordion("Core Theme", s1, setS1, sectionBody(deepRead.coreTheme))}
+          {readAccordion("Core Theme", s1, setS1, (
+            <>
+              <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: 0 }}>{deepRead.coreTheme.synthesis}</p>
+              {timeLordGroup ? (
+                <>
+                  {planetGroupBlock(timeLordGroup)}
+                  {coreTakeaway && goldTakeaway(coreTakeaway)}
+                </>
+              ) : (
+                deepRead.coreTheme.why && whyBlock(deepRead.coreTheme.why)
+              )}
+            </>
+          ))}
 
           {readAccordion("Your Current Karmic Chapter — Dasha", s2, setS2, (
             <>
               <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: 0 }}>{deepRead.whyNow.synthesis}</p>
               {dashaGroups.length > 0 ? (
-                dashaGroups.map((g) => (
-                  <div key={g.label} style={{ marginTop: "0.95rem" }}>
-                    <p style={{ color: "#E7C766", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" as const, margin: "0 0 0.45rem" }}>{g.label}</p>
-                    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                      {g.bullets.map((bl, i) => (
-                        <li key={i} style={{ fontSize: "0.9rem", lineHeight: 1.45, display: "flex", gap: "0.55rem" }}>
-                          <span style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0, fontWeight: 700, lineHeight: "1.35rem" }}>•</span>
-                          <span>
-                            <span style={{ color: "rgba(255,255,255,0.92)" }}>{bl.head}</span>
-                            {bl.gloss && <span style={{ color: "rgba(255,255,255,0.6)" }}> ({bl.gloss})</span>}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))
+                dashaGroups.map((g) => <div key={g.label}>{planetGroupBlock(g)}</div>)
               ) : (
                 deepRead.whyNow.why && whyBlock(deepRead.whyNow.why)
               )}
-              {dashaGroups.length > 0 && dashaTakeaway && (
-                <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.95rem" }}>
-                  <CircleDot size={17} style={{ color: "#E7C766", flexShrink: 0, marginTop: "0.15rem" }} />
-                  <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{dashaTakeaway}</p>
-                </div>
-              )}
+              {dashaGroups.length > 0 && dashaTakeaway && goldTakeaway(dashaTakeaway)}
             </>
           ))}
 
