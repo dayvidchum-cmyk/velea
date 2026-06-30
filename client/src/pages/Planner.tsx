@@ -101,6 +101,7 @@ export default function Planner() {
   const [alignedOpen, setAlignedOpen] = useState(true);
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());
+  const [completedOpen, setCompletedOpen] = useState(false);
 
   function getHouseSuffix(n: number | undefined): string {
     if (!n) return "th";
@@ -240,6 +241,17 @@ export default function Planner() {
       utils.tasks.modeCounts.invalidate();
       utils.tasks.rankedForToday.invalidate();
     },
+  });
+
+  const purgeCompleted = trpc.tasks.purgeCompleted.useMutation({
+    onSuccess: ({ removed }) => {
+      utils.tasks.list.invalidate();
+      utils.tasks.modeCounts.invalidate();
+      utils.tasks.rankedForToday.invalidate();
+      utils.tasks.dueList.invalidate();
+      toast.success(removed > 0 ? `Cleared ${removed} completed task${removed > 1 ? "s" : ""}` : "No completed tasks to clear");
+    },
+    onError: () => toast.error("Failed to clear completed tasks"),
   });
 
   const toggleComplete = trpc.tasks.update.useMutation({
@@ -892,6 +904,68 @@ export default function Planner() {
           ))}
         </div>
       )}
+
+      {/* ── COMPLETED (collapsible, purgeable) ── */}
+      {isAuthenticated && (() => {
+        const completed = allTasks.filter((t) => t.isCompleted);
+        return (
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <button onClick={() => setCompletedOpen((v) => !v)} className="flex items-center gap-2">
+                <h3 className="text-sm font-bold uppercase" style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}>
+                  Completed ({completed.length})
+                </h3>
+                <ChevronDown
+                  size={13}
+                  style={{ color: "var(--color-muted-foreground)", transform: completedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+                />
+              </button>
+              {completed.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Permanently delete ${completed.length} completed task${completed.length > 1 ? "s" : ""}? This can't be undone.`)) {
+                      purgeCompleted.mutate();
+                    }
+                  }}
+                  disabled={purgeCompleted.isPending}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full transition-opacity disabled:opacity-50"
+                  style={{ color: "#c0504d", border: "1px solid var(--color-border)" }}
+                >
+                  {purgeCompleted.isPending ? "Clearing…" : "Clear all"}
+                </button>
+              )}
+            </div>
+
+            {completedOpen && (completed.length === 0 ? (
+              <div className="p-4 text-center rounded-lg" style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}>
+                <p className="text-sm">No completed tasks.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {completed.map((task) => (
+                  <SwipeableTaskRow
+                    key={task.id}
+                    onSwipeLeft={() => deleteMutation.mutate({ id: task.id })}
+                    onSwipeRight={() => updateMutation.mutate({ id: task.id, isCompleted: false })}
+                    isCompleted={task.isCompleted}
+                    isPinned={task.isPinned}
+                    modeColor={PLANNER_MODE_OKLCH[task.mode as TaskMode]}
+                  >
+                    <TaskItem
+                      task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                      onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                      onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned })}
+                      onDelete={() => deleteMutation.mutate({ id: task.id })}
+                      onEdit={(t: Task) => setEditPinnedTask(t)}
+                      dayMode={todayTaskMode}
+                    />
+                  </SwipeableTaskRow>
+                ))}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* ── PLAN AHEAD (planning tools, collapsed by default) ── */}
       <button

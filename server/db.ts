@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, checkIns, panchang, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, users, natalBodies, narrativeCache, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -320,6 +320,22 @@ export async function deleteTask(id: number, userId: number) {
   // Cascade delete subtasks first
   await db.delete(subtasks).where(and(eq(subtasks.taskId, id), eq(subtasks.userId, userId)));
   await db.delete(tasks).where(and(eq(tasks.id, id), eq(tasks.userId, userId)));
+}
+
+/** Purge all completed tasks (and their subtasks) for a user/profile. Returns count removed. */
+export async function deleteCompletedTasks(userId: number, profileId?: number | null): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const profileFilter = profileId != null ? eq(tasks.profileId, profileId) : isNull(tasks.profileId);
+  const rows = await db
+    .select({ id: tasks.id })
+    .from(tasks)
+    .where(and(eq(tasks.userId, userId), profileFilter, eq(tasks.isCompleted, true)));
+  if (rows.length === 0) return 0;
+  const ids = rows.map((r) => r.id);
+  await db.delete(subtasks).where(and(eq(subtasks.userId, userId), inArray(subtasks.taskId, ids)));
+  await db.delete(tasks).where(and(eq(tasks.userId, userId), inArray(tasks.id, ids)));
+  return ids.length;
 }
 
 export async function snoozeTask(id: number, userId: number, snoozedUntil: number) {

@@ -6,6 +6,7 @@ import {
   createTask,
   createSubtask,
   deleteTask,
+  deleteCompletedTasks,
   deleteSubtask,
   getAllSystemPrompts,
   getPanchangByDate,
@@ -384,6 +385,13 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         return deleteTask(input.id, ctx.user.id);
+      }),
+
+    purgeCompleted: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const profileId = ctx.subject?.profileId ?? null;
+        const removed = await deleteCompletedTasks(ctx.user.id, profileId);
+        return { removed };
       }),
 
     snooze: protectedProcedure
