@@ -404,19 +404,19 @@ export default function ProfectionYear() {
                 const today = new Date().toISOString().split('T')[0];
                 const isCurrent = transit.startDate <= today && today <= transit.endDate;
                 return (
-                  <div key={idx} style={{ border: `1.5px solid ${isCurrent ? modeColor : "rgba(255,255,255,0.15)"}`, borderRadius: "0.5rem", overflow: "hidden", background: isCurrent ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.14)" }}>
+                  <div key={idx} style={{ border: `1.5px solid ${isCurrent ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.15)"}`, borderRadius: "0.5rem", overflow: "hidden", background: isCurrent ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.14)" }}>
                     <button type="button" onClick={() => setExpandedTransitId(isExpanded ? null : idx)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}>
-                      <p style={{ margin: 0, fontWeight: isCurrent ? 700 : 500, color: isCurrent ? modeColor : "rgba(255,255,255,0.9)", fontSize: "0.95rem" }}>
+                      <p style={{ margin: 0, fontWeight: isCurrent ? 700 : 500, color: isCurrent ? "#111111" : "rgba(255,255,255,0.9)", fontSize: "0.95rem" }}>
                         {transit.startDate} – {transit.endDate} — {transit.sign} in House {transit.house}
                       </p>
-                      <ChevronDown size={16} style={{ color: isCurrent ? modeColor : "rgba(255,255,255,0.6)", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0, marginLeft: "0.5rem" }} />
+                      <ChevronDown size={16} style={{ color: isCurrent ? "#111111" : "rgba(255,255,255,0.6)", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0, marginLeft: "0.5rem" }} />
                     </button>
                     {isExpanded && (
-                      <div style={{ padding: "1rem", borderTop: "1px solid rgba(255,255,255,0.12)", display: "flex", flexDirection: "column", gap: "0.75rem", fontSize: "0.95rem" }}>
+                      <div style={{ padding: "1rem", borderTop: `1px solid ${isCurrent ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.12)"}`, display: "flex", flexDirection: "column", gap: "0.75rem", fontSize: "0.95rem" }}>
                         {[["Motion", transit.isRetrograde ? "Retrograde" : "Direct"], ["Combustion", transit.combustionStatus ? "Yes" : "No"], ["Solitary", transit.solitaryStatus ? "Yes" : "No"]].map(([label, value]) => (
                           <div key={String(label)} style={{ display: "flex", justifyContent: "space-between" }}>
-                            <span style={{ color: "rgba(255,255,255,0.6)" }}>{label}:</span>
-                            <span style={{ color: "rgba(255,255,255,0.92)", fontWeight: 500 }}>{value}</span>
+                            <span style={{ color: isCurrent ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.6)" }}>{label}:</span>
+                            <span style={{ color: isCurrent ? "rgba(0,0,0,0.88)" : "rgba(255,255,255,0.92)", fontWeight: 500 }}>{value}</span>
                           </div>
                         ))}
                       </div>
