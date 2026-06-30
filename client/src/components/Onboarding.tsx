@@ -86,7 +86,7 @@ const TOUR: TourStep[] = [
     tab: "natal",
     selector: '[data-tour="natal-chart"]',
     title: "Your birth chart",
-    body: "The sky at the moment you were born, in the Vedic (sidereal) zodiac. Your signs may differ from Western astrology — the note above the chart explains why.",
+    body: "The sky at the moment you were born, in the Vedic (sidereal) zodiac. Your signs may differ from Western astrology — tap “What is a natal chart?” above the chart to see why.",
   },
   {
     route: "/astrology",
@@ -107,7 +107,7 @@ const TOUR: TourStep[] = [
     tab: "dasha",
     selector: '[data-tour="dasha"]',
     title: "Your life chapter",
-    body: "Dasha is the long arc — the multi-year planetary periods you're living through. It colors the whole season of your life beneath everything else.",
+    body: "Dasha is the long arc — the multi-year planetary periods you're living through, your karmic schedule this lifetime. New to it? Tap “What are Dashas?” at the top to see how the periods work.",
   },
   {
     route: "/",
