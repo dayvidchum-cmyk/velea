@@ -287,12 +287,35 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
   );
 }
 
-// ── Sidereal heads-up ───────────────────────────────────────────────────────
+// ── What is a natal chart? ───────────────────────────────────────────────────
 // New users who only know their Western sun sign will see "wrong" signs here
-// (a Western Leo Sun is often Cancer in the sidereal zodiac). Explain why so it
-// reads as intentional, not broken.
+// (a Western Leo Sun is often Cancer in the sidereal zodiac). Explain what a
+// natal chart is and how Vedic differs from Western so it reads as intentional.
 
-function SiderealNote() {
+const DIFF_ROWS: { feature: string; western: string; vedic: string }[] = [
+  {
+    feature: "Zodiac system",
+    western: "Tropical — fixed to the seasons; starts at the spring equinox.",
+    vedic: "Sidereal — tied to the physical, observable constellations.",
+  },
+  {
+    feature: "Primary focus",
+    western: "Psychology, personal growth, and behavioral traits.",
+    vedic: "Karma, destiny, life path (Dharma), and the timing of events.",
+  },
+  {
+    feature: "Key body",
+    western: "The Sun — core identity and ego.",
+    vedic: "The Moon — the mind, emotions, and inner perception.",
+  },
+  {
+    feature: "Timing tools",
+    western: "Transits and progressions — how the chart evolves over a lifetime.",
+    vedic: "Dashas — planetary periods that predict when events occur.",
+  },
+];
+
+function NatalExplainer() {
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -306,30 +329,81 @@ function SiderealNote() {
         <Info size={15} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, marginTop: "1px" }} />
         <div className="flex-1">
           <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
-            Velea uses the <strong>Vedic (sidereal) zodiac</strong>, so your signs may
-            differ from the Western ones you know — a Western Leo Sun is often Cancer here.
-            That's expected, not a mistake.
+            <strong>Velea uses the Vedic (sidereal) zodiac.</strong> A natal chart is a snapshot
+            of the sky at the exact moment and place you were born — the map every reading is
+            built from. Your signs may differ from the Western ones you know; a Western Leo Sun
+            is often Cancer here. That's expected, not a mistake.
           </p>
           <button
             onClick={() => setOpen((v) => !v)}
             className="mt-1.5 text-[11px] font-semibold inline-flex items-center gap-1"
             style={{ color: "var(--color-muted-foreground)" }}
           >
-            {open ? "Hide" : "Why are they different?"}
+            {open ? "Hide" : "What is a natal chart?"}
             <ChevronDown
               size={11}
               style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
             />
           </button>
+
           {open && (
-            <p className="mt-2 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
-              Western astrology pins the zodiac to the <strong>seasons</strong> (0° Aries = the
-              spring equinox). Vedic astrology pins it to the <strong>actual constellations</strong>.
-              Because the Earth slowly wobbles on its axis (an effect called <em>precession</em>),
-              those two reference points have drifted about <strong>24°</strong> apart over the last
-              ~1,700 years — almost a full sign. Neither is "wrong"; they simply measure different
-              things. Velea tracks the real stars.
-            </p>
+            <div className="mt-2.5 space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+              <p>
+                A natal chart freezes where the Sun, Moon, and planets sat at your birth. Western
+                and Vedic astrology read that same sky in different ways — they pin the zodiac to
+                different reference points, so the same birth produces different signs.
+              </p>
+
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
+                  Core differences at a glance
+                </p>
+                <table className="w-full border-collapse" style={{ fontSize: "11px" }}>
+                  <thead>
+                    <tr>
+                      <th className="text-left font-semibold py-1 pr-2 align-bottom" style={{ color: "var(--color-foreground)", width: "26%" }}></th>
+                      <th className="text-left font-semibold py-1 pr-2 align-bottom" style={{ color: "var(--color-foreground)" }}>Western</th>
+                      <th className="text-left font-semibold py-1 align-bottom" style={{ color: "var(--color-foreground)" }}>Vedic (Jyotish)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {DIFF_ROWS.map((r) => (
+                      <tr key={r.feature} style={{ borderTop: "1px solid var(--color-border)" }}>
+                        <td className="py-1.5 pr-2 align-top font-semibold" style={{ color: "var(--color-foreground)" }}>{r.feature}</td>
+                        <td className="py-1.5 pr-2 align-top">{r.western}</td>
+                        <td className="py-1.5 align-top">{r.vedic}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-foreground)" }}>
+                  How deep each goes
+                </p>
+                <p>
+                  <strong style={{ color: "var(--color-foreground)" }}>Western</strong> works mainly
+                  from the birth chart (the wheel) to map psychological themes, relationships, and
+                  motivations. <strong style={{ color: "var(--color-foreground)" }}>Vedic</strong> uses
+                  that chart as a base but leans on <em>vargas</em> (divisional charts) to zoom into
+                  specific areas like career or marriage, and on the 27 <em>nakshatras</em> (lunar
+                  mansions) for precise readings.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-foreground)" }}>
+                  How they differ in practice
+                </p>
+                <p>
+                  Because the Earth slowly wobbles on its axis (an effect called <em>precession</em>),
+                  the chart shifts back roughly <strong>23–24°</strong>. So a Western Aries usually
+                  becomes a Vedic Pisces. Neither is "wrong" — they measure different things. Velea
+                  tracks the real, observable stars.
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -374,8 +448,8 @@ export function NatalSection() {
         </p>
       </div>
 
-      {/* Sidereal vs. Western heads-up */}
-      <SiderealNote />
+      {/* What is a natal chart? — Vedic vs. Western heads-up */}
+      <NatalExplainer />
 
       {/* Chart grid */}
       <div data-tour="natal-chart">
