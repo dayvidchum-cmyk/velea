@@ -44,6 +44,7 @@ export default function ProfectionYear() {
   const [s7, setS7] = useState(false);
   const [s8, setS8] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
+  const [triggerOpen, setTriggerOpen] = useState(false);
   const [expandedTransitId, setExpandedTransitId] = useState<number | null>(null);
   const [chartTab, setChartTab] = useState<"timelord" | "natal" | "dasha">("timelord");
   const CHART_TABS: { id: "timelord" | "natal" | "dasha"; label: string }[] = [
@@ -148,13 +149,18 @@ export default function ProfectionYear() {
   // so the chart data informs without overwhelming. Splits on "; " (the dasha chain
   // separates maha / antar that way); a single clause stays a single line.
   const whyBlock = (why: string) => {
-    const items = why.split(/;\s+/).map((s) => s.trim()).filter(Boolean);
-    if (items.length <= 1) return <p style={{ color: "rgba(255,255,255,0.68)", fontSize: "0.95rem", lineHeight: 1.65, margin: "0.6rem 0 0" }}>{why}</p>;
+    // Break the gray mechanics into scannable bullets — split on sentence ends
+    // and clause separators so it never reads as a wall of words.
+    const items = why
+      .split(/(?<=\.)\s+|;\s+/)
+      .map((s) => s.trim().replace(/\.$/, ""))
+      .filter(Boolean);
+    const list = items.length ? items : [why];
     return (
-      <ul style={{ listStyle: "none", margin: "0.6rem 0 0", padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-        {items.map((it, i) => (
-          <li key={i} style={{ color: "rgba(255,255,255,0.68)", fontSize: "0.95rem", lineHeight: 1.55, display: "flex", gap: "0.5rem" }}>
-            <span style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0, lineHeight: "1.5rem" }}>·</span>
+      <ul style={{ listStyle: "none", margin: "0.7rem 0 0", padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        {list.map((it, i) => (
+          <li key={i} style={{ color: "rgba(255,255,255,0.68)", fontSize: "0.92rem", lineHeight: 1.5, display: "flex", gap: "0.6rem" }}>
+            <span style={{ color: "rgba(255,255,255,0.55)", flexShrink: 0, lineHeight: "1.4rem", fontWeight: 700 }}>•</span>
             <span>{it}</span>
           </li>
         ))}
@@ -294,7 +300,7 @@ export default function ProfectionYear() {
 
           {readAccordion("Core Theme", s1, setS1, sectionBody(deepRead.coreTheme))}
 
-          {readAccordion("Why Now — the dasha", s2, setS2, sectionBody(deepRead.whyNow))}
+          {readAccordion("Your Current Karmic Chapter — Dasha", s2, setS2, sectionBody(deepRead.whyNow))}
 
           {deepRead.manifestations?.length > 0 && readAccordion("Manifestations", s3, setS3, (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
@@ -336,15 +342,26 @@ export default function ProfectionYear() {
 
       {/* CURRENT TRIGGER — deterministic transit breakdown (ephemeris math, auditable) */}
       {triggerData?.available && (
-        <div style={{ borderRadius: "20px", background: tlGradient, padding: "1.5rem", marginBottom: "1.25rem", overflow: "hidden" }}>
-          <p style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", marginBottom: "1.1rem" }}>Current Trigger</p>
-          <CurrentTriggerBreakdown
-            transits={triggerData.transits}
-            activatedHouse={triggerData.activatedHouse}
-            timeLord={triggerData.timeLord}
-            accentColor="rgba(255,255,255,0.85)"
-            onDark
-          />
+        <div style={{ borderRadius: "20px", background: tlGradient, marginBottom: "1.25rem", overflow: "hidden" }}>
+          <button
+            type="button"
+            onClick={() => setTriggerOpen((v) => !v)}
+            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.95rem 1.25rem", background: "transparent", border: "none", cursor: "pointer" }}
+          >
+            <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)" }}>Current Trigger</span>
+            <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: triggerOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+          </button>
+          {triggerOpen && (
+            <div style={{ padding: "0 1.25rem 1.25rem" }}>
+              <CurrentTriggerBreakdown
+                transits={triggerData.transits}
+                activatedHouse={triggerData.activatedHouse}
+                timeLord={triggerData.timeLord}
+                accentColor="rgba(255,255,255,0.85)"
+                onDark
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -374,7 +391,7 @@ export default function ProfectionYear() {
         )}
       </div>
 
-      {card("Time Lord Movement", s4, setS4,
+      {card("Time Lord Movement This Year", s4, setS4,
         <div style={{ padding: "0 1rem 1rem" }}>
           {transitsError ? (
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Error loading transits.</p>
