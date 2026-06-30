@@ -34,7 +34,7 @@ const CARDS = [
   {
     icon: Sparkles,
     title: "Welcome to Velea",
-    body: "Velea reads today's sky and turns it into one simple thing you can act on: your day mode. No astrology knowledge required.",
+    body: "Velea reads today's sky and turns it into one simple thing you can act on: your day mode. The whole app even tints itself to that mode's color, so you can feel what kind of day it is at a glance. No astrology knowledge required.",
   },
   {
     icon: Sun,
