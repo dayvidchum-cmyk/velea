@@ -103,22 +103,18 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
   const callouts: ReactElement[] = [];
   const mkCallout = (h: number, text: string, bump: number) => {
     const midA = h * 30 + 15;
-    const rText = ringOuter + labelBand + 20 + bump;
+    const rText = ringOuter + labelBand + 12 + bump;
     const [lx, ly] = polar(cx, cy, rText, midA);
-    // Thin black leader from just outside the glyph band out to the label.
-    const [p1x, p1y] = polar(cx, cy, ringOuter + labelBand + 2, midA);
-    const [p2x, p2y] = polar(cx, cy, rText - 7, midA);
     callouts.push(
-      <line key={`co-l-${text}`} x1={p1x} y1={p1y} x2={p2x} y2={p2y} stroke="#000" strokeWidth={0.75} />,
       <text key={`co-t-${text}`} x={lx} y={ly} fontSize={6.5} fontWeight={700} fill="#9CA3AF" textAnchor="middle" dominantBaseline="central" style={{ letterSpacing: "0.08em" }}>{text}</text>,
     );
   };
   const nowH = age % 12;
   mkCallout(0, "BIRTH", 0);
   // If the current year falls on the birth wedge (age is a multiple of 12), stack NOW further out.
-  mkCallout(nowH, "NOW", nowH === 0 ? 14 : 0);
+  mkCallout(nowH, "NOW", nowH === 0 ? 9 : 0);
 
-  const M = 30; // outer margin so the callouts + leader lines aren't clipped
+  const M = 26; // outer margin so the callouts aren't clipped
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
