@@ -250,7 +250,7 @@ export default function ProfectionYear() {
   const goldTakeaway = (text: string) => (
     <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.95rem" }}>
       <CircleDot size={17} style={{ color: "#E7C766", flexShrink: 0, marginTop: "0.15rem" }} />
-      <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{text}</p>
+      <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{text.charAt(0).toUpperCase() + text.slice(1)}</p>
     </div>
   );
 
