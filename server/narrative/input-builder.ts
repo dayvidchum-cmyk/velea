@@ -54,7 +54,23 @@ export async function buildNarrativeInput(profileId: number, dateStr: string) {
   const lat = parseFloat(p.birthLocationLat || "42.36");
   const lon = parseFloat(p.birthLocationLon || "-71.06");
   const byPlanet = Object.fromEntries(bodies.map((b) => [b.planet, b]));
-  const nat = (b: any) => (b ? { sign: b.sign, house: b.house, nakshatra: b.nakshatra, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(b.planet, b.sign), retrograde: !!b.isRetrograde } : null);
+  // Natal conjunctions: planets within 10° of each other (a planet + a node is the
+  // loudest — e.g. Moon conjunct Ketu). Surfaced so the read fuses them instead of
+  // reading each placement in isolation.
+  const lonAll: Record<string, number> = {};
+  for (const x of bodies) if (x.longitude != null && x.longitude !== "") { const v = parseFloat(x.longitude); if (!Number.isNaN(v)) lonAll[x.planet] = ((v % 360) + 360) % 360; }
+  const conjunctOf = (name: string) => {
+    const base = lonAll[name];
+    if (base === undefined) return [] as { name: string; orb: number }[];
+    const out: { name: string; orb: number }[] = [];
+    for (const [k, v] of Object.entries(lonAll)) {
+      if (k === name) continue;
+      const o = Math.abs(((base - v + 540) % 360) - 180);
+      if (o <= 10) out.push({ name: k, orb: +o.toFixed(1) });
+    }
+    return out.sort((a, b) => a.orb - b.orb);
+  };
+  const nat = (b: any) => (b ? { sign: b.sign, house: b.house, nakshatra: b.nakshatra, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(b.planet, b.sign), retrograde: !!b.isRetrograde, conjunct: conjunctOf(b.planet) } : null);
 
   const lagnaDeg = p.ascendantDegree != null && !isNaN(parseFloat(p.ascendantDegree)) ? +parseFloat(p.ascendantDegree).toFixed(1) : null;
   const natal = {
@@ -63,7 +79,7 @@ export async function buildNarrativeInput(profileId: number, dateStr: string) {
     lagnaThreshold: threshold(lagna, lagnaDeg),
     planets: PLANETS.map((n) => {
       const b = byPlanet[n];
-      return b ? { name: n, sign: b.sign, house: b.house, nakshatra: b.nakshatra, pada: b.pada, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(n, b.sign), retrograde: !!b.isRetrograde, rulesHouses: rulesHouses(n, lagna) } : null;
+      return b ? { name: n, sign: b.sign, house: b.house, nakshatra: b.nakshatra, pada: b.pada, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(n, b.sign), retrograde: !!b.isRetrograde, rulesHouses: rulesHouses(n, lagna), conjunct: conjunctOf(n) } : null;
     }).filter(Boolean),
   };
 

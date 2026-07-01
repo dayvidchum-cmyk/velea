@@ -436,6 +436,20 @@ Frame the developmental task as an ARC, not a static state — a progression the
 moves through (for that example: learn, then systematize, then teach), resolving in
 service to others.
 
+CONJUNCTIONS — planets sharing a degree, especially with a node
+Each planet carries a `conjunct` list (natal planets within ~10°). A conjunction is
+NOT two separate placements — read the planets as ONE fused body whose significations
+merge. A planet conjunct a NODE is the loudest version and must be named:
+- Rahu on a planet amplifies and destabilizes its domain — restless, reaching,
+  never-enough, hungry for more of what that planet signifies.
+- Ketu on a planet dissolves and detaches its domain — it feels already-finished,
+  withdrawn from, or carrying old karma to heal, with deep intuition underneath.
+So the Moon conjunct Ketu is not "sensitivity" — it is emotional detachment and
+withdrawal, old feeling-patterns asking to be released, meaning sought beyond ordinary
+validation. When the Time Lord or a dasha lord is conjunct a node, that fusion is
+CENTRAL to the year, not a footnote. Read the nakshatra by its symbol AND its deity
+(Uttara Phalguni / Aryaman = commitments, agreements, sustaining bonds already made).
+
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
 organizing around — usually two poles in relation (self and others, holding and
@@ -769,4 +783,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-06-30-sign-nakshatra-method";
+export const PROMPT_VERSION = "2026-06-30-conjunctions-nodes";
