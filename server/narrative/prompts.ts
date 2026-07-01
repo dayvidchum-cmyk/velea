@@ -404,8 +404,9 @@ something IS the work that pays, lived through the same days.
 A planet also carries its own KARAKAS — what it naturally signifies — into every
 house it rules or sits in, and those must show up in the reading. Venus is love,
 money, pleasure, and value; Mars is drive, conflict, and severance; Jupiter is
-faith, expansion, and counsel; the Moon is the mind and the felt body; Saturn is
-time, limit, and duty. So "Venus in the 6th" is never just service and the grind —
+faith, expansion, and counsel; the Moon is the mind and emotional self AND the
+mother — extending to the women in your life, women in general, and, for a woman,
+motherhood itself; Saturn is time, limit, and duty. So "Venus in the 6th" is never just service and the grind —
 it is love and money brought INTO daily work, health, and the body. When two of a
 planet's own significations meet in one house, read them as interdependent, one
 leaning on the other: with Venus, worth and love, money and affection, are a single
