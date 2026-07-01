@@ -1227,8 +1227,10 @@ export default function Planner() {
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
             const hasMode = !!modeColor;
             // Whole cell is tinted by the day's mode — far more legible than a tiny
-            // dot, and selected/today get a stronger fill + solid border.
-            const tintAlpha = isSelected ? 0.55 : isToday ? 0.34 : 0.20;
+            // dot, and selected/today get a stronger fill + solid border. Dark mode
+            // needs more saturation: the low-alpha tints wash out on the dark bg.
+            const isDark = theme === "dark";
+            const tintAlpha = isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20);
             const accent = modeColor ?? "var(--color-foreground)";
             const restingBg = hasMode
               ? withAlpha(accent, tintAlpha)
