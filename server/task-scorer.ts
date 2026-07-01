@@ -93,6 +93,8 @@ export interface CurrentState {
 
 export interface ScoredTask extends Task {
   score: number;
+  /** How well the task fits today (0–100), independent of the floor. */
+  alignment: number;
   reasons: string[];
   /** Positive-only layer disclosure chips (max 3), e.g. "Venus theme", "Saturn pressure". */
   layerBubbles: string[];
@@ -317,12 +319,14 @@ export function scoreTasks(
       // 10. Domain alignment (soft) — the day's activated house surfaces tasks
       // whose OWN life areas map to it ("the song"). Weighted comparably to a
       // strong day-mode match so aligned work rises in "Why now?".
+      let domainMatch = false;
       if (dayHouseSet.size > 0) {
         const keys = parseLifeAreas((task as any).lifeAreas ?? null);
         if (keys.length > 0) {
           const taskHouses = housesForAreas(keys);
           if (taskHouses.some((h) => dayHouseSet.has(h))) {
             soft += 120;
+            domainMatch = true;
             const labels = matchedAreaLabels(Array.from(dayHouseSet), keys);
             if (labels.length > 0) {
               reasons.push(`Today's ${labels[0]} focus`);
@@ -341,7 +345,17 @@ export function scoreTasks(
       const base = floor + soft * multiplier * gm.multiplier * verdictBias;
       const score = csBand * 1000 + base;
 
-      return { ...task, score, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _cs: csBand, _base: base };
+      // Alignment with TODAY (0–100), independent of the floor — how well the task
+      // fits the day (mode/energy/weather/focus). Shown as a gold dot meter so a
+      // user-pinned "Do Now" task reveals its fit even though the floor forces it up.
+      let alignment = 55; // baseline: it matches today's mode
+      if (cs) alignment += Math.max(-35, Math.min(35, cs.delta * 0.5));
+      if (domainMatch) alignment += 12;
+      alignment += (gm.multiplier - 1) * 30;
+      alignment += (multiplier - 1) * 30;
+      alignment = Math.round(Math.max(5, Math.min(100, alignment)));
+
+      return { ...task, score, alignment, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _cs: csBand, _base: base };
     })
     .sort((a, b) => (b._cs - a._cs) || (b._base - a._base))
     .map(({ _cs, _base, ...t }) => t);

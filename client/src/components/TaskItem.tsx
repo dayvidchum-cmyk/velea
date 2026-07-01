@@ -7,6 +7,7 @@ const RECURRENCE_SHORT: Record<string, string> = {
 };
 import type { Task } from "../../../drizzle/schema";
 import ModeTag from "./ModeTag";
+import AlignmentDots from "./AlignmentDots";
 import { trpc } from "@/lib/trpc";
 import { PRIORITY_EXCLAIM, MODE_OKLCH, MODE_SOLID, MODE_CARD_GRADIENT, type TaskMode } from "../../../shared/types";
 import { parseLifeAreas, housesForAreas, LIFE_AREA_BY_KEY } from "../../../shared/life-areas";
@@ -24,6 +25,8 @@ interface TaskItemProps {
   taskModeColor?: string;
   /** Active day mode — used to tint the card wrapper in the day's color */
   dayMode?: TaskMode;
+  /** Alignment with today (0–100) — renders a gold dot meter when provided. */
+  alignment?: number;
 }
 
 function formatDueDate(dateStr: string): string {
@@ -54,7 +57,7 @@ function isDueToday(dateStr: string): boolean {
 
 
 
-export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode }: TaskItemProps) {
+export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment }: TaskItemProps) {
   const [expanded, setExpanded] = useState(false);
   const [addingSubtask, setAddingSubtask] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
@@ -220,6 +223,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {task.title}
           </span>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
             {/* Due date badge */}
             {task.dueDate && !task.isCompleted && (
               <span

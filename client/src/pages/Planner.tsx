@@ -458,6 +458,15 @@ export default function Planner() {
     return limit === "unlimited" ? filtered : filtered.slice(0, Number(limit));
   }, [rankedTasks, pinnedForNow, settings.todayTaskLimit]);
 
+  // Alignment-with-today per task (from the scored list), so Do Now / pinned tasks
+  // can show their fit even though the floor forces them to the top. Off-mode tasks
+  // aren't scored today → low alignment (20 ≈ 1 dot).
+  const alignmentById = useMemo(() => {
+    const m = new Map<number, number>();
+    (rankedTasks ?? []).forEach((t: any) => { if (typeof t.alignment === "number") m.set(t.id, t.alignment); });
+    return m;
+  }, [rankedTasks]);
+
   // Calendar
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
   const firstDayOfWeek = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
@@ -827,7 +836,7 @@ export default function Planner() {
                 marginTop: 'auto',
                 marginLeft: 'auto',
                 marginRight: 'auto',
-                maxWidth: '70ch',
+                maxWidth: '80ch',
                 paddingTop: '1rem',
                 fontFamily: "'Inter', ui-sans-serif, sans-serif",
                 fontStyle: 'italic',
@@ -1036,6 +1045,7 @@ export default function Planner() {
                     onDelete={() => deleteMutation.mutate({ id: task.id })}
                     onEdit={(t: Task) => setEditPinnedTask(t)}
                     dayMode={todayTaskMode}
+                    alignment={alignmentById.get(task.id) ?? 20}
                   />
                 </SwipeableTaskRow>
               ))}
@@ -1091,6 +1101,7 @@ export default function Planner() {
                     onDelete={() => deleteMutation.mutate({ id: task.id })}
                     onEdit={(t: Task) => setEditAlignedTask(t)}
                     dayMode={todayTaskMode}
+                    alignment={(task as any).alignment ?? alignmentById.get(task.id)}
                   />
                   {/* Pressure-layer disclosure bubbles — why this ranked high (positives only, max 3) */}
                   {((task as any).layerBubbles?.length > 0) && (
@@ -1371,6 +1382,11 @@ export default function Planner() {
                       ? "The sky was auspicious and your check-in aligned."
                       : "The sky is auspicious. Are you aligned? Update your current state to see."}
                   </span>
+                )}
+                {isToday && !isGolden && (
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true" style={{ position: "absolute", top: "3px", left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }}>
+                    <path d="M12 2 L17.9 20.1 L2.5 8.9 L21.5 8.9 L6.1 20.1 Z" />
+                  </svg>
                 )}
                 {isGolden ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
