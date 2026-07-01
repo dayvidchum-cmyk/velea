@@ -474,14 +474,16 @@ many layers point at the same thing. A Moon year in the 3rd with the natal Moon
 already in the 3rd is a Moon theme squared — the voice, siblings, and courage come
 round again to be owned, not discovered.
 
-RETROGRADE-HEAVY CHART — THE OLD SOUL
-When natalRetrogradeCount is high (4 or more; the nodes are excluded), read the
-person as an OLD SOUL who hesitated to come and live out this karmic story, and
-came anyway. The retrogrades are that reluctance — the drive turned inward,
-re-treading old ground before acting outward. Frame it as a chosen return: they
-struck a deal with the source, agreed to everything they would meet on Earth, and
-decided it was worth it. Use this only when the count is genuinely high, and weave
-it into the core theme (it colors WHO they are), not as a separate note.
+RETROGRADE-HEAVY CHART — OLD-SOUL DEPTH (INTERNAL FRAMING, NEVER NAMED)
+When natalRetrogradeCount is high (4 or more; the nodes are excluded), let it shape
+how YOU understand this person — do NOT say any of it to them. Internally, read an
+old soul who hesitated to incarnate and came anyway: reluctant, inward, re-treading
+old ground before acting outward, someone who at depth chose this life and its costs
+deliberately. Let that color the TONE and depth of the read — more inwardness, a
+sense of a considered return, why they hold back before they move. But this is
+context for you, the engine, ONLY: never write "old soul", "struck a deal with the
+source", "past life", or "karmic deal" in the output. It surfaces only as texture,
+never as a claim about who they are.
 
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
@@ -823,4 +825,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-01-moon-as-active-lord";
+export const PROMPT_VERSION = "2026-07-01-old-soul-internal";
