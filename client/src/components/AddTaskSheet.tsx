@@ -240,6 +240,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
   const [title, setTitle] = useState("");
   const [mode, setMode] = useState<TaskMode>("Build");
   const [priority, setPriority] = useState<TaskPriority>("Medium");
+  const [intent, setIntent] = useState<"want" | "need">("need");
   const [dueDate, setDueDate] = useState("");
   const [isPinned, setIsPinned] = useState(false);
   const [wealthFlow, setWealthFlow] = useState(false);
@@ -295,6 +296,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setTitle(editTask.title);
       setMode(editTask.mode as TaskMode);
       setPriority(editTask.priority === 3 ? "High" : editTask.priority === 2 ? "Medium" : "Low");
+      setIntent(((editTask as any).intent as "want" | "need") ?? "need");
       setDueDate(editTask.dueDate || "");
       setIsPinned(editTask.isPinned);
       setWealthFlow(editTask.wealthFlow ?? false);
@@ -316,6 +318,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setTitle("");
       setMode(initialMode ?? "Build");
       setPriority("Medium");
+      setIntent("need");
       setDueDate("");
       setIsPinned(false);
       setWealthFlow(false);
@@ -382,6 +385,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           title,
           mode,
           priority,
+          intent,
           dueDate: dueDate || null,
           isPinned,
           wealthFlow,
@@ -400,6 +404,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           title,
           mode,
           priority,
+          intent,
           dueDate: dueDate || null,
           isPinned,
           wealthFlow,
@@ -428,7 +433,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
     } catch (error) {
       console.error("Error saving task:", error);
     }
-  }, [title, mode, priority, dueDate, isPinned, wealthFlow, projectId, cognitiveLoad, physicalLoad, creativeRequired, socialRequired, emotionalLoad, notes, recurrence, lifeAreas, subtasks, editTask, createTask, updateTask, createSubtask, utils, onClose]);
+  }, [title, mode, priority, intent, dueDate, isPinned, wealthFlow, projectId, cognitiveLoad, physicalLoad, creativeRequired, socialRequired, emotionalLoad, notes, recurrence, lifeAreas, subtasks, editTask, createTask, updateTask, createSubtask, utils, onClose]);
 
   // Title field: Enter does NOT save — user must tap Save button.
   // This prevents accidental saves and avoids the scroll-lock bug where
@@ -549,6 +554,36 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
                     }}
                   >
                     {PRIORITY_EXCLAIM[p]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Want / Need */}
+          <div className="mb-6">
+            <label
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
+              style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
+            >
+              Want or Need
+            </label>
+            <div className="flex gap-2">
+              {(["need", "want"] as const).map((v) => {
+                const active = intent === v;
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setIntent(v)}
+                    className="flex-1 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide transition-all duration-150"
+                    style={{
+                      letterSpacing: "0.04em",
+                      background: active ? "var(--color-foreground)" : "var(--color-secondary)",
+                      color: active ? "var(--color-background)" : "var(--color-muted-foreground)",
+                      border: `1px solid ${active ? "var(--color-foreground)" : "var(--border)"}`,
+                    }}
+                  >
+                    {v}
                   </button>
                 );
               })}
