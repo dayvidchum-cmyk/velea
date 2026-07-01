@@ -14,6 +14,25 @@ import { getActiveProfile, getProfileNatalBodies } from "./routers/profiles.js";
 import { profiles } from "../drizzle/schema.js";
 import { and, eq } from "drizzle-orm";
 
+const ZODIAC_ORDER = [
+  "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+  "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+];
+
+/**
+ * Derive the lagna from the natal bodies (the true chart) — a body's whole-sign
+ * house means lagnaSign = bodySign − (house − 1). Guards against a stale/incorrect
+ * profiles.lagnaSign field diverging from the actual chart, which would throw off
+ * the wheel, profection, and transits. Returns null if it can't be derived.
+ */
+function lagnaFromBodies(bodies: Awaited<ReturnType<typeof getProfileNatalBodies>>): string | null {
+  const ref = bodies.find((b) => b.planet === "Sun") ?? bodies.find((b) => b.sign && b.house);
+  if (!ref || !ref.sign || !ref.house) return null;
+  const si = ZODIAC_ORDER.indexOf(ref.sign);
+  if (si < 0) return null;
+  return ZODIAC_ORDER[((si - (ref.house - 1)) % 12 + 12) % 12];
+}
+
 export interface AstrologySubject {
   /** Where the data came from */
   source: "profile" | "owner";
@@ -69,7 +88,9 @@ function profileToSubject(
     birthLocationLat: p.birthLocationLat ?? null,
     birthLocationLon: p.birthLocationLon ?? null,
     birthTimezone: p.birthTimezone ?? null,
-    lagnaSign: p.lagnaSign ?? null,
+    // Prefer the lagna implied by the natal bodies (the true chart) over a possibly
+    // stale profiles.lagnaSign field, so every consumer stays consistent.
+    lagnaSign: lagnaFromBodies(bodies) ?? p.lagnaSign ?? null,
     sunHouse: p.sunHouse ?? null,
     moonHouse: p.moonHouse ?? null,
     marsHouse: p.marsHouse ?? null,
