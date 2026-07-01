@@ -16,7 +16,7 @@
  *  - Eclipse window: |daysAway| <= 10.
  */
 
-import type { TaskMode } from "../shared/types";
+import type { TaskMode } from "../../shared/types";
 import type { CurrentSky } from "./current-sky";
 
 export type SignalKind = "retrograde" | "station" | "natal-hit" | "lit-house" | "eclipse";
