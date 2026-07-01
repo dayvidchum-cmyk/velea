@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
-import StagAntlers from "@/components/StagAntlers";
+import TripleMoon from "@/components/TripleMoon";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1315,8 +1315,8 @@ export default function Planner() {
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
                 {isGolden && (
-                  <span style={{ position: "absolute", top: "3px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
-                    <StagAntlers size={26} color="#C9A84C" />
+                  <span style={{ position: "absolute", top: "4px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+                    <TripleMoon size={30} color="#C9A84C" />
                   </span>
                 )}
                 <span

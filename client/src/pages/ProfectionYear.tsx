@@ -45,6 +45,14 @@ const SIGN_GLYPH: Record<string, string> = {
   Libra: "♎︎", Scorpio: "♏︎", Sagittarius: "♐︎", Capricorn: "♑︎", Aquarius: "♒︎", Pisces: "♓︎",
 };
 const GLYPH_FONT = "'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols2',serif";
+// Whole-sign house of a transiting sign from the lagna — recomputed at display time
+// so a stale stored `house` (from an old lagna) can never show a wrong number.
+function houseFromSign(lagnaSign: string, sign: string): number {
+  const li = ZODIAC.indexOf(lagnaSign);
+  const si = ZODIAC.indexOf(sign);
+  if (li < 0 || si < 0) return 0;
+  return ((si - li + 12) % 12) + 1;
+}
 const DIGN: Record<string, { ex: string; de: string; own: string[] }> = {
   Sun: { ex: "Aries", de: "Libra", own: ["Leo"] },
   Moon: { ex: "Taurus", de: "Scorpio", own: ["Cancer"] },
@@ -612,7 +620,7 @@ export default function ProfectionYear() {
                         <button
                           key={idx}
                           type="button"
-                          title={`${t.sign} · House ${t.house} · ${fmtLong(t.startDate)}–${fmtLong(t.endDate)}`}
+                          title={`${t.sign} · House ${houseFromSign(lagnaSign, t.sign)} · ${fmtLong(t.startDate)}–${fmtLong(t.endDate)}`}
                           onClick={() => setExpandedTransitId(selected ? null : idx)}
                           style={{
                             flex: `${dur} 0 0`, minWidth: 30, height: "100%", background: color,
@@ -642,7 +650,7 @@ export default function ProfectionYear() {
                     <div style={{ marginTop: "0.9rem", background: "var(--secondary)", border: "1px solid var(--border)", borderRadius: 12, padding: "0.85rem 1rem" }}>
                       <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.5rem", color: TEXT_PRIMARY, fontWeight: 700, fontSize: "0.98rem" }}>
                         <span style={{ fontFamily: GLYPH_FONT, color: SIGN_COLOR[sel.sign] ?? TEXT_PRIMARY }}>{SIGN_GLYPH[sel.sign]}</span>
-                        {sel.sign} in the {ORD[sel.house]} house
+                        {sel.sign} in the {ORD[houseFromSign(lagnaSign, sel.sign)]} house
                       </p>
                       <p style={{ margin: "0.2rem 0 0.7rem", color: TEXT_MUTED, fontSize: "0.82rem" }}>
                         {fmtLong(sel.startDate)} – {fmtLong(sel.endDate)}
