@@ -408,10 +408,27 @@ function _AstrologyDebugPanel_UNUSED() {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function fmtBirthDate(d?: string | null) {
+  if (!d) return null;
+  const [y, m, day] = d.split("-").map(Number);
+  if (!y || !m || !day) return d;
+  return `${MONTHS_LONG[m - 1]} ${day}, ${y}`;
+}
+function fmtBirthTime(t?: string | null) {
+  if (!t) return null;
+  const [h, mi] = t.split(":").map(Number);
+  if (Number.isNaN(h)) return t;
+  const period = h >= 12 ? "PM" : "AM";
+  return `${h % 12 || 12}:${String(mi ?? 0).padStart(2, "0")} ${period}`;
+}
+
 export default function Settings() {
   const { settings, updateSetting, saveSettings } = useSettingsContext();
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const modeColor = useDayModeColor();
+  const { data: subject } = trpc.profiles.getSubject.useQuery();
 
   function handleReplayIntro() {
     resetOnboarding(user?.id);
@@ -482,6 +499,32 @@ export default function Settings() {
       )}
 
       <div className="space-y-5">
+
+        {/* ── Profile ───────────────────────────────────────────────────── */}
+        <SettingsSection title="Profile">
+          <div className="py-4" style={{ borderBottom: "1px solid var(--border)" }}>
+            <p className="text-base font-bold" style={{ color: "var(--color-foreground)" }}>
+              {subject?.name ?? user?.name ?? "Your profile"}
+            </p>
+            <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+              {[fmtBirthDate(subject?.birthDate), fmtBirthTime(subject?.birthTime), subject?.birthLocationCity].filter(Boolean).join(" · ") || "No birth details yet"}
+            </p>
+            {subject?.lagnaSign && (
+              <p className="text-xs font-semibold uppercase mt-1.5" style={{ color: modeColor, letterSpacing: "0.06em" }}>
+                {subject.lagnaSign} Lagna
+              </p>
+            )}
+          </div>
+          <div className="pt-4">
+            <button
+              onClick={() => navigate("/profiles")}
+              className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
+              style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}
+            >
+              Edit birth details
+            </button>
+          </div>
+        </SettingsSection>
 
         {/* ── Interface & Focus ─────────────────────────────────────────── */}
         <SettingsSection title="Interface & Focus">
