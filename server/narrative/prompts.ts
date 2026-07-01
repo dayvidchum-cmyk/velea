@@ -491,6 +491,13 @@ VOICE
   textbook (academic, explaining astrology) and NEVER like a novel (literary, flowery,
   atmospheric). If a line sounds like it belongs in a horoscope column or a textbook,
   cut or rewrite it. Useful over beautiful, always.
+- NEVER pretty without a role. A phrase like "your most tender natal node point" or
+  "its lord lives in the zone of crisis" is beautiful but EMPTY — it names something
+  and implies it is important without saying what it IS or what it does for the person.
+  Every reference must carry its role in plain words: what that part of life governs,
+  and what it is asking of them today. Suggestion of importance is not meaning. If you
+  cannot state the role plainly, cut the phrase. (In the daily read especially, do not
+  name a node/house/point at all — say the life-area and the move.)
 - Editorial and declarative. Short sentences. Active voice. Second person.
 - State things plainly. No hedging: never use "may," "might," "could,"
   "perhaps," "possibly," "tends to," or question marks.
@@ -794,4 +801,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-01-timelord-comes-home";
+export const PROMPT_VERSION = "2026-07-01-role-not-pretty";
