@@ -596,10 +596,6 @@ export default function ProfectionYear() {
               const segs = transitsData.transits as any[];
               const todayStr = new Date().toISOString().split("T")[0];
               const ms = (d: string) => new Date(d + "T12:00:00").getTime();
-              const start = ms(segs[0].startDate);
-              const end = ms(segs[segs.length - 1].endDate);
-              const span = Math.max(end - start, 1);
-              const nowPct = Math.max(0, Math.min(100, ((Date.now() - start) / span) * 100));
               const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" });
               const fmtLong = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
               // Default the detail + highlight to TODAY's segment (the one whose date
@@ -627,6 +623,7 @@ export default function ProfectionYear() {
                           title={`${t.sign} · House ${houseFromSign(lagnaSign, t.sign)} · ${fmtLong(t.startDate)}–${fmtLong(t.endDate)}`}
                           onClick={() => setExpandedTransitId(selected ? null : idx)}
                           style={{
+                            position: "relative",
                             flex: `${dur} 0 0`, minWidth: 30, height: "100%", background: color,
                             opacity: selected ? 1 : isCurrent ? 0.96 : 0.8,
                             border: "none", borderRight: idx < segs.length - 1 ? "1px solid rgba(0,0,0,0.28)" : "none",
@@ -634,13 +631,19 @@ export default function ProfectionYear() {
                             cursor: "pointer", overflow: "hidden", boxShadow: selected ? "inset 0 0 0 2px #fff" : "none",
                           }}
                         >
+                          {/* Today marker — lives INSIDE the current segment, positioned at
+                              the fraction of time elapsed within it, so it's always on the
+                              correct band and moves with time (no drift from flex/gaps). */}
+                          {isCurrent && (() => {
+                            const s = ms(t.startDate), e = ms(t.endDate);
+                            const frac = Math.max(0, Math.min(1, (Date.now() - s) / Math.max(e - s, 1)));
+                            return <div style={{ position: "absolute", top: -1, bottom: -1, left: `${frac * 100}%`, width: 4, marginLeft: -2, background: "#fff", boxShadow: "0 0 5px rgba(0,0,0,0.6)", pointerEvents: "none", borderRadius: 2, zIndex: 2 }} />;
+                          })()}
                           <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>{SIGN_GLYPH[t.sign]}</span>
                           {t.isRetrograde && <span style={{ fontSize: "0.75rem", color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
                         </button>
                       );
                     })}
-                    {/* Today marker */}
-                    <div style={{ position: "absolute", top: -1, bottom: -1, left: `${nowPct}%`, width: 4, marginLeft: -2, background: "#fff", boxShadow: "0 0 5px rgba(0,0,0,0.6)", pointerEvents: "none", borderRadius: 2 }} />
                   </div>
 
                   {/* Axis labels */}
