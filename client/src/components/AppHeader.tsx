@@ -255,15 +255,15 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             <span
               lang="km"
               title="លវេលា (Velea) — Khmer for 'time'. លវេលាល្អ (velealor) — the auspicious, golden moment."
-              style={{ fontFamily: "'Moul', serif", fontSize: "1.35rem", lineHeight: 1, color: "#C9A84C", marginLeft: "0.15rem" }}
+              style={{ fontFamily: "'Hanuman', serif", fontSize: "1.35rem", lineHeight: 1, color: "#C9A84C", marginLeft: "0.15rem" }}
             >
               លវេលា
             </span>
           </div>
           <p style={{ margin: "0.3rem 0 0", fontSize: "0.62rem", letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
-            <span lang="km" style={{ fontFamily: "'Moul', serif", textTransform: "none" }}>លវេលា</span> time
+            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលា</span> time
             <span style={{ opacity: 0.5 }}> · </span>
-            <span lang="km" style={{ fontFamily: "'Moul', serif", textTransform: "none" }}>លវេលាល្អ</span> the golden moment
+            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលាល្អ</span> the golden moment
           </p>
         </div>
         {/* Utility row: date left, location + state right */}
