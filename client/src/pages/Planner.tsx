@@ -1282,11 +1282,24 @@ export default function Planner() {
             const isDark = theme === "dark";
             const tintAlpha = isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20);
             const accent = modeColor ?? "var(--color-foreground)";
-            const restingBg = hasMode
+            // Golden days are full gold TILES — the standout treatment, not a faint icon.
+            const GOLD = "#C9A84C", GOLD_BRIGHT = "#E7C766";
+            const goldGradient = `linear-gradient(155deg, ${GOLD_BRIGHT} 0%, ${GOLD} 100%)`;
+            const goldGradientSoft = `linear-gradient(155deg, ${GOLD} 0%, #A8842F 100%)`;
+            const goldText = isGolden ? "#fff" : null;
+            const restingBg = isConfirmedGolden
+              ? goldGradient
+              : isPotentialGolden
+              ? goldGradientSoft
+              : hasMode
               ? withAlpha(accent, tintAlpha)
               : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
-            const hoverBg = hasMode ? darkenOklch(accent, 0.82) : "var(--color-secondary)";
-            const pressBg = hasMode ? darkenOklch(accent, 0.64) : "var(--color-border)";
+            const hoverBg = isConfirmedGolden
+              ? goldGradient
+              : isPotentialGolden
+              ? goldGradientSoft
+              : hasMode ? darkenOklch(accent, 0.82) : "var(--color-secondary)";
+            const pressBg = isGolden ? restingBg : hasMode ? darkenOklch(accent, 0.64) : "var(--color-border)";
 
             return (
               <button
@@ -1295,26 +1308,26 @@ export default function Planner() {
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
                   minHeight: isGolden ? "3.2rem" : "2.1rem",
-                  color: hasMode ? "var(--color-foreground)" : undefined,
+                  color: goldText ?? (hasMode ? "var(--color-foreground)" : undefined),
                   background: restingBg,
                   border: isConfirmedGolden
-                    ? "2px solid #C9A84C"
+                    ? `1.5px solid ${GOLD_BRIGHT}`
                     : isPotentialGolden
-                    ? "1.5px dashed color-mix(in srgb, #C9A84C 55%, transparent)"
+                    ? "1px solid color-mix(in srgb, #C9A84C 60%, transparent)"
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : isToday
                     ? `1.5px solid ${withAlpha(accent, 0.55)}`
                     : "1px solid transparent",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}
-                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
-                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode && !isGolden) e.currentTarget.style.color = "var(--color-foreground)"; }}
+                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
+                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
               >
                 {isGolden && (
-                  <span style={{ position: "absolute", top: "4px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", opacity: isConfirmedGolden ? 1 : 0.5 }}>
-                    <TripleMoon size={30} color="#C9A84C" filled={isConfirmedGolden} />
+                  <span style={{ position: "absolute", top: "5px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+                    <TripleMoon size={28} color="#ffffff" filled={isConfirmedGolden} />
                   </span>
                 )}
                 {isGolden && goldenTip === dateStr && (
@@ -1341,9 +1354,11 @@ export default function Planner() {
                 <span
                   className="text-xs"
                   style={{
-                    color: hasMode ? "inherit" : "var(--color-muted-foreground)",
-                    fontWeight: isSelected || isToday ? 700 : 600,
+                    color: isGolden ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)",
+                    fontWeight: isGolden || isSelected || isToday ? 700 : 600,
                     marginTop: isGolden ? "0.95rem" : 0,
+                    position: "relative",
+                    textShadow: isGolden ? "0 1px 2px rgba(0,0,0,0.25)" : undefined,
                   }}
                 >
                   {day}
