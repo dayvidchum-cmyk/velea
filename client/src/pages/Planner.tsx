@@ -1320,7 +1320,10 @@ export default function Planner() {
                 {isGolden && goldenTip === dateStr && (
                   <span
                     style={{
-                      position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)",
+                      position: "absolute",
+                      // Flip below the cell on the top row so the card's overflow:hidden can't clip it.
+                      ...(Math.floor(idx / 7) === 0 ? { top: "calc(100% + 6px)" } : { bottom: "calc(100% + 6px)" }),
+                      left: "50%", transform: "translateX(-50%)",
                       width: 172, zIndex: 60, pointerEvents: "none", textAlign: "left",
                       background: "var(--color-card)", border: "1px solid #C9A84C", borderRadius: "var(--radius-card)",
                       padding: "0.5rem 0.6rem", fontSize: "0.7rem", lineHeight: 1.4, color: "var(--foreground)",
