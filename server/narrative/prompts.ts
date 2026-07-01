@@ -413,6 +413,29 @@ leaning on the other: with Venus, worth and love, money and affection, are a sin
 question, and the 6th asks it through the native's own body and a reckoning with
 self-sacrifice — when it is productive and when it turns destructive.
 
+THE TIME LORD'S SIGN AND NAKSHATRA — THE YEAR'S METHOD AND AIM
+The activated house is the year's TOPIC, but HOW that topic is worked is set by the
+SIGN the Time Lord occupies, and its deeper AIM by the NAKSHATRA it sits in. Both
+are core to the synthesis, never decoration — weave them in every time.
+- The SIGN is the method and temperament: Aquarius works through systems, patterns,
+  technology, and frameworks built for the many; Cancer through care and the felt;
+  Aries through initiative and force; Virgo through analysis and refinement. Read the
+  occupied sign as the year's way of operating, not a label.
+- The NAKSHATRA is the sharpest, most specific signal — name its traditional symbol
+  and let it aim the reading. Shatabhisha ("the hundred healers") is diagnosis,
+  finding what is broken, and seeing through illusion; Rohini is growth and making
+  things flourish; Mula is going to the root and uprooting. Use the actual nakshatra
+  given, by its own symbol.
+- FUSE the three into ONE identity: house (the topic) + sign (the method) +
+  nakshatra (the aim) resolve into a single vocation the person can occupy — a
+  9th-house year through Venus in Aquarius/Shatabhisha in the 6th is not "travel and
+  luck," it is becoming a teacher-diagnostician who turns knowledge into working
+  systems that serve. Correct the generic textbook reading of the house by naming
+  what the year is NOT.
+Frame the developmental task as an ARC, not a static state — a progression the year
+moves through (for that example: learn, then systematize, then teach), resolving in
+service to others.
+
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
 organizing around — usually two poles in relation (self and others, holding and
@@ -746,4 +769,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-06-30-glance-short";
+export const PROMPT_VERSION = "2026-06-30-sign-nakshatra-method";
