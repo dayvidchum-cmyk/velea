@@ -162,7 +162,7 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
   return (
     <div className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4">
       {/* Sheet container */}
-      <div className="bg-background rounded-2xl shadow-xl w-full max-w-md flex flex-col" style={{ maxHeight: 'min(90vh, 680px)', height: 'auto' }}>
+      <div className="bg-background w-full max-w-md flex flex-col" style={{ maxHeight: 'min(90vh, 680px)', height: 'auto', borderRadius: '24px' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex-1">

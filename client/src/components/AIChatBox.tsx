@@ -191,10 +191,10 @@ export function AIChatBox({
     <div
       ref={containerRef}
       className={cn(
-        "flex flex-col bg-card text-card-foreground rounded-lg border shadow-sm",
+        "flex flex-col bg-card text-card-foreground border",
         className
       )}
-      style={{ height }}
+      style={{ height, borderRadius: "20px" }}
     >
       {/* Messages Area */}
       <div ref={scrollAreaRef} className="flex-1 overflow-hidden">
