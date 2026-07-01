@@ -14,6 +14,7 @@ import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { profiles, profileNatalBodies } from "../../drizzle/schema";
+import { timezoneForCoords } from "../geo/timezone.js";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
 
@@ -378,7 +379,14 @@ export const profilesRouter = router({
 
         const lat = input.birthLocationLat ? parseFloat(input.birthLocationLat) : 0;
         const lon = input.birthLocationLon ? parseFloat(input.birthLocationLon) : 0;
-        const timezone = input.birthTimezone || 'UTC';
+        // The birthplace coordinates are the source of truth for the timezone — a
+        // manually-picked or stale tz (e.g. Pacific for a Boston chart) throws the
+        // ascendant off by hours. Derive it from lat/lon and prefer it; fall back to
+        // the provided tz, then UTC. The derived value is what we store.
+        const derivedTz = (input.birthLocationLat && input.birthLocationLon)
+          ? timezoneForCoords(lat, lon)
+          : null;
+        const timezone = derivedTz || input.birthTimezone || 'UTC';
 
         const chart = await computeChart(input.birthDate, input.birthTime, lat, lon, timezone);
 
