@@ -17,7 +17,9 @@
  */
 
 import type { TaskMode } from "../../shared/types";
+import type { Task } from "../../drizzle/schema";
 import type { CurrentSky } from "./current-sky";
+import { PLANET_KEYWORDS } from "../layers/time-lord-theme";
 
 export type SignalKind = "retrograde" | "station" | "natal-hit" | "lit-house" | "eclipse";
 export type SignalDirection = "favor" | "caution";
@@ -155,4 +157,54 @@ export function computeGoldenMoment(
 
   out.sort((a, b) => b.weight - a.weight);
   return out;
+}
+
+// ── Ranking effect (Phase 3b) ────────────────────────────────────────────────
+// Turn the signals into a bounded multiplier on a task's SOFT subscore. This is
+// how the stage nudges which tasks rise — never touching the mode filter or the
+// pinned/overdue/due floors. Two nudges combine: a gentle mode-based one (favors/
+// opposes today's mode) and a stronger content-based one (a signal's planet
+// domain matching the task's text), so it actually re-orders within a mode.
+
+// Words that read as "beginning" vs "finishing" — used for eclipse windows.
+const LAUNCH_WORDS = ["launch", "start", "publish", "announce", "open", "begin", "kickoff", "send", "ship", "post", "pitch"];
+const FINISH_WORDS = ["finish", "close", "wrap", "complete", "archive", "cancel", "end", "review", "edit", "revise", "cleanup", "release"];
+
+export function goldenMomentEffect(
+  task: Task & { projectName?: string | null },
+  signals: GoldenMomentSignal[] | null | undefined,
+): { multiplier: number; bubbles: string[] } {
+  if (!signals || signals.length === 0) return { multiplier: 1, bubbles: [] };
+
+  const mode = task.mode as TaskMode;
+  const raw = `${task.title ?? ""} ${task.projectName ?? ""}`.toLowerCase();
+  const words = new Set(raw.split(/[^a-z]+/).filter(Boolean));
+  const hasAny = (list: string[]) => list.some((w) => words.has(w) || raw.includes(w));
+  const matchesPlanet = (planet: string) =>
+    (PLANET_KEYWORDS[planet as keyof typeof PLANET_KEYWORDS] ?? []).some((k) =>
+      k.includes(" ") || k.includes("-") ? raw.includes(k) : words.has(k),
+    );
+
+  let mult = 1;
+  const bubbles: string[] = [];
+  const seen = new Set<string>();
+  const addBubble = (l: string) => { if (!seen.has(l)) { seen.add(l); bubbles.push(l); } };
+
+  for (const sig of signals) {
+    // Gentle mode-based nudge (uniform across a mode; mostly balances vs floors).
+    if (sig.favorModes.includes(mode)) mult *= 1 + 0.08 * sig.weight;
+    else if (sig.opposeModes.includes(mode)) mult *= 1 - 0.08 * sig.weight;
+
+    // Content-based nudge — what actually re-orders within a mode.
+    if (sig.kind === "eclipse") {
+      if (hasAny(LAUNCH_WORDS)) mult *= 1 - 0.15 * sig.weight;
+      else if (hasAny(FINISH_WORDS)) { mult *= 1 + 0.12 * sig.weight; addBubble("eclipse: finish"); }
+    } else if (sig.planet && matchesPlanet(sig.planet)) {
+      if (sig.direction === "favor") { mult *= 1 + 0.15 * sig.weight; addBubble(`${sig.planet} favors`); }
+      else mult *= 1 - 0.15 * sig.weight; // caution: dampen, no bubble (never disclose why lower)
+    }
+  }
+
+  mult = Math.max(0.7, Math.min(1.4, mult)); // locked clamp
+  return { multiplier: mult, bubbles: bubbles.slice(0, 2) };
 }

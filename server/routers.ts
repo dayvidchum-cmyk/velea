@@ -465,6 +465,15 @@ export const appRouter = router({
         const allTasks = allTasksRaw.filter((t) => !t.snoozedUntil || t.snoozedUntil <= now);
         // Pressure layers feed the soft subscore (cached 5 min per profile).
         const layers = subject ? await getCurrentLayers(subject) : null;
+        // Golden Moment (slow-planet weather) — a bounded soft multiplier (cached 30 min).
+        let goldenSignals = null;
+        if (subject) {
+          try {
+            const sky = await getCurrentSky(subject);
+            const litHouses = Array.from(new Set([1, 10, ...(input.todayHouse != null ? [input.todayHouse] : [])]));
+            goldenSignals = computeGoldenMoment(sky, { litHouses });
+          } catch { /* degrade to no golden-moment effect */ }
+        }
         // Map each project to its life-area keys so the day's domain can surface
         // thematically-matching tasks.
         const projectAreas = new Map<number, string[]>(
@@ -477,6 +486,7 @@ export const appRouter = router({
           dayHouses: input.todayHouse != null ? [input.todayHouse] : [],
           projectAreas,
           layers,
+          goldenSignals,
           currentState: checkIn
             ? {
                 physicalEnergy: checkIn.physicalEnergy,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeGoldenMoment } from "./golden-moment";
+import { computeGoldenMoment, goldenMomentEffect, type GoldenMomentSignal } from "./golden-moment";
 import type { CurrentSky, SkyPlanet } from "./current-sky";
 
 function planet(p: Partial<SkyPlanet> & { planet: string }): SkyPlanet {
@@ -84,6 +84,39 @@ describe("computeGoldenMoment", () => {
     expect(ecl[0].eclipseType).toBe("solar");
     expect(ecl[0].opposeModes).toContain("Action");
     expect(ecl[0].weight).toBeGreaterThan(0.7);
+  });
+
+  it("(effect) dampens launch-flavored tasks and lifts finish-flavored tasks during an eclipse", () => {
+    const eclipse: GoldenMomentSignal = { kind: "eclipse", eclipseType: "solar", daysAway: 0, direction: "caution", domain: "beginnings", weight: 0.9, favorModes: ["Restraint", "Build"], opposeModes: ["Action"], qualifierLean: "caution", summary: "" };
+    const launch: any = { title: "Launch the new campaign", mode: "Selective", projectName: null };
+    const finish: any = { title: "Finish the report", mode: "Selective", projectName: null };
+    expect(goldenMomentEffect(launch, [eclipse]).multiplier).toBeLessThan(1);
+    const f = goldenMomentEffect(finish, [eclipse]);
+    expect(f.multiplier).toBeGreaterThan(1);
+    expect(f.bubbles).toContain("eclipse: finish");
+  });
+
+  it("(effect) lifts a task whose content matches a favoring planet, with a bubble", () => {
+    const jup: GoldenMomentSignal = { kind: "lit-house", planet: "Jupiter", house: 10, direction: "favor", domain: "growth", weight: 0.4, favorModes: ["Action", "Build"], opposeModes: [], qualifierLean: null, summary: "" };
+    const task: any = { title: "Study for the course", mode: "Selective", projectName: null };
+    const e = goldenMomentEffect(task, [jup]);
+    expect(e.multiplier).toBeGreaterThan(1);
+    expect(e.bubbles).toContain("Jupiter favors");
+  });
+
+  it("(effect) dampens a domain-matching task under a retrograde caution, with no bubble", () => {
+    const merc: GoldenMomentSignal = { kind: "retrograde", planet: "Mercury", direction: "caution", domain: "communication", weight: 0.5, favorModes: ["Build", "Selective"], opposeModes: ["Action", "Selective"], qualifierLean: "review", summary: "" };
+    const task: any = { title: "Send email to client", mode: "Build", projectName: null };
+    const e = goldenMomentEffect(task, [merc]);
+    expect(e.multiplier).toBeLessThan(1);
+    expect(e.bubbles).toHaveLength(0);
+  });
+
+  it("(effect) is 1.0 with no signals and stays within the [0.7, 1.4] clamp", () => {
+    const task: any = { title: "Launch launch launch publish ship", mode: "Action", projectName: null };
+    expect(goldenMomentEffect(task, []).multiplier).toBe(1);
+    const manyEclipses: GoldenMomentSignal[] = Array.from({ length: 8 }, () => ({ kind: "eclipse", eclipseType: "solar", daysAway: 0, direction: "caution", domain: "beginnings", weight: 1, favorModes: ["Restraint"], opposeModes: ["Action"], qualifierLean: "caution", summary: "" }));
+    expect(goldenMomentEffect(task, manyEclipses).multiplier).toBeGreaterThanOrEqual(0.7);
   });
 
   it("returns signals sorted by weight descending", () => {

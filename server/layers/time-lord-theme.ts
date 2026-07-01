@@ -133,7 +133,7 @@ const THEME: Record<DashaLord, Record<DashaLord, string>> = {
  * task's title + projectName for the ×1.2 theme-alignment boost. Kept small and
  * deliberate — false positives dilute the signal.
  */
-const PLANET_KEYWORDS: Record<DashaLord, string[]> = {
+export const PLANET_KEYWORDS: Record<DashaLord, string[]> = {
   Sun: ["leadership", "authority", "visibility", "launch", "present", "decision", "identity", "reputation"],
   Moon: ["care", "nurture", "home", "family", "wellbeing", "audience", "mood", "routine"],
   Mars: ["action", "execute", "ship", "build", "push", "fix", "drive", "compete", "deadline"],

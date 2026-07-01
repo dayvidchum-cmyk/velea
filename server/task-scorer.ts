@@ -23,6 +23,7 @@ import type { Task } from "../drizzle/schema";
 import type { TaskMode } from "../shared/types";
 import type { CurrentLayers, TransitingPlanet } from "./layers/types";
 import { themeMatchesTask } from "./layers/time-lord-theme";
+import { goldenMomentEffect, type GoldenMomentSignal } from "./sky/golden-moment";
 import { housesForAreas, matchedAreaLabels, parseLifeAreas } from "../shared/life-areas";
 
 export type PersonalEnergy = "Low" | "Medium" | "High";
@@ -208,9 +209,11 @@ export function scoreTasks(
     dayHouses?: number[];
     /** projectId → the project's life-area keys. */
     projectAreas?: Map<number, string[]>;
+    /** Golden Moment signals — slow-planet weather; a bounded soft multiplier. */
+    goldenSignals?: GoldenMomentSignal[] | null;
   }
 ): ScoredTask[] {
-  const { todayMode, todayDate, personalEnergy, currentState, layers, dayHouses, projectAreas } = opts;
+  const { todayMode, todayDate, personalEnergy, currentState, layers, dayHouses, projectAreas, goldenSignals } = opts;
   const dayHouseSet = new Set(dayHouses ?? []);
   const today = new Date(todayDate);
 
@@ -327,11 +330,12 @@ export function scoreTasks(
         }
       }
 
-      // Pressure layers scale ONLY the soft subscore; floors are preserved.
+      // Pressure layers + Golden Moment scale ONLY the soft subscore; floors preserved.
       const { multiplier, bubbles } = layerEffect(task, layers);
-      const score = floor + soft * multiplier;
+      const gm = goldenMomentEffect(task, goldenSignals);
+      const score = floor + soft * multiplier * gm.multiplier;
 
-      return { ...task, score, reasons, layerBubbles: bubbles };
+      return { ...task, score, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3) };
     })
     .sort((a, b) => b.score - a.score);
 }
