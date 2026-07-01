@@ -1345,16 +1345,17 @@ export default function Planner() {
                       : "The sky is auspicious. Check in on the day to confirm it's yours."}
                   </span>
                 )}
-                <span
-                  className="text-xs"
-                  style={{
-                    color: isGolden ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)",
-                    fontWeight: isGolden || isSelected || isToday ? 700 : 600,
-                    textShadow: isGolden ? "0 1px 2px rgba(0,0,0,0.25)" : undefined,
-                  }}
-                >
-                  {day}
-                </span>
+                {!isGolden && (
+                  <span
+                    className="text-xs"
+                    style={{
+                      color: hasMode ? "inherit" : "var(--color-muted-foreground)",
+                      fontWeight: isSelected || isToday ? 700 : 600,
+                    }}
+                  >
+                    {day}
+                  </span>
+                )}
               </button>
             );
           })}
