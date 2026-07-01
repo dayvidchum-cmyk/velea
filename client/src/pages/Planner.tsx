@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
-import TripleMoon from "@/components/TripleMoon";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, CircleDot } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
@@ -1348,7 +1347,7 @@ export default function Planner() {
                 )}
                 {isGolden ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                    <TripleMoon size={30} color="#ffffff" />
+                    <CircleDot size={22} color="#ffffff" strokeWidth={2} />
                   </span>
                 ) : (
                   <span
