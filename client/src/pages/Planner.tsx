@@ -109,6 +109,7 @@ export default function Planner() {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(toDateStr(today));
+  const [goldenTip, setGoldenTip] = useState<string | null>(null); // tapped golden day showing its tooltip
   const [reflection, setReflection] = useState("");
   const [reflectionSaved, setReflectionSaved] = useState(false);
 
@@ -1290,7 +1291,7 @@ export default function Planner() {
             return (
               <button
                 key={dateStr}
-                onClick={() => setSelectedDate(dateStr)}
+                onClick={() => { setSelectedDate(dateStr); setGoldenTip(isGolden ? (goldenTip === dateStr ? null : dateStr) : null); }}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
                   minHeight: isGolden ? "3.2rem" : "2.1rem",
@@ -1314,6 +1315,24 @@ export default function Planner() {
                 {isGolden && (
                   <span style={{ position: "absolute", top: "4px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", opacity: isConfirmedGolden ? 1 : 0.5 }}>
                     <TripleMoon size={30} color="#C9A84C" filled={isConfirmedGolden} />
+                  </span>
+                )}
+                {isGolden && goldenTip === dateStr && (
+                  <span
+                    style={{
+                      position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)",
+                      width: 172, zIndex: 60, pointerEvents: "none", textAlign: "left",
+                      background: "var(--color-card)", border: "1px solid #C9A84C", borderRadius: "var(--radius-card)",
+                      padding: "0.5rem 0.6rem", fontSize: "0.7rem", lineHeight: 1.4, color: "var(--foreground)",
+                      fontWeight: 400, textTransform: "none", letterSpacing: 0,
+                    }}
+                  >
+                    <span style={{ display: "block", fontWeight: 700, color: "#C9A84C", marginBottom: "0.15rem" }}>
+                      {isConfirmedGolden ? "Golden moment" : "Auspicious day"}
+                    </span>
+                    {isConfirmedGolden
+                      ? "The sky was auspicious and your check-in aligned."
+                      : "The sky is auspicious. Check in on the day to confirm it's yours."}
                   </span>
                 )}
                 <span
