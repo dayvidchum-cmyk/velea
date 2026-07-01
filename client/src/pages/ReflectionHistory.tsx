@@ -1,4 +1,6 @@
-import { BookOpen } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, ChevronDown } from "lucide-react";
+import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
@@ -15,12 +17,19 @@ function formatDate(dateStr: string) {
 
 export default function ReflectionHistory() {
   const dayLabelColor = useDayModeColor();
+  const [, navigate] = useLocation();
+  const [openIds, setOpenIds] = useState<Set<number>>(new Set());
+  const toggle = (id: number) => setOpenIds((prev) => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
   const { data: reflections, isLoading } = trpc.reflections.history.useQuery({ limit: 120 });
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="container py-6">
-        <AppHeader pageTitle="Reflection Log" />
+        <AppHeader pageTitle="Reflection Log" onBack={() => navigate("/")} backLabel="Today" />
       </div>
 
       {/* Content */}
@@ -51,25 +60,32 @@ export default function ReflectionHistory() {
             >
               {reflections.length} {reflections.length === 1 ? "entry" : "entries"}
             </p>
-            {reflections.map((r: { id: number; date: string; content: string }) => (
-              <div
-                key={r.id}
-                className="rounded-xl overflow-hidden"
-                style={{ border: `1.5px solid ${dayLabelColor}`, background: `color-mix(in srgb, ${dayLabelColor} 14%, var(--background))` }}
-              >
-                <div className="px-4 py-2" style={{ background: dayLabelColor }}>
-                <p
-                  className="text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: "#ffffff" }}
+            {reflections.map((r: { id: number; date: string; content: string }) => {
+              const open = openIds.has(r.id);
+              return (
+                <div
+                  key={r.id}
+                  className="rounded-xl overflow-hidden"
+                  style={{ border: `1.5px solid ${dayLabelColor}`, background: `color-mix(in srgb, ${dayLabelColor} 14%, var(--background))` }}
                 >
-                  {formatDate(r.date)}
-                </p>
+                  <button
+                    onClick={() => toggle(r.id)}
+                    className="w-full flex items-center justify-between px-4 py-2"
+                    style={{ background: dayLabelColor }}
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#ffffff" }}>
+                      {formatDate(r.date)}
+                    </span>
+                    <ChevronDown size={14} style={{ color: "#ffffff", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+                  </button>
+                  {open && (
+                    <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap p-4">
+                      {r.content}
+                    </p>
+                  )}
                 </div>
-                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap p-4">
-                  {r.content}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </>
         )}
       </div>

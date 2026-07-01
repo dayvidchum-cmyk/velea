@@ -1478,8 +1478,9 @@ export default function Planner() {
         {isAuthenticated && (
           <button
             onClick={() => navigate("/reflections")}
-            className="flex items-center w-full py-2 transition-opacity hover:opacity-70"
+            className="flex items-center gap-2 w-full py-2 transition-opacity hover:opacity-70"
           >
+            <BookOpen size={14} style={{ color: "var(--color-muted-foreground)" }} />
             <span
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
