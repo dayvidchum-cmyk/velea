@@ -1354,23 +1354,23 @@ export default function Planner() {
         </div>
       )}
 
-      {/* ── DAY MODES (reference, collapsed by default) ── */}
+      {/* ── DAY MODES (reference, collapsed by default) — ExplainerPanel style ── */}
       {isAuthenticated && (
-        <div className="relative z-10">
+        <div className="relative z-10" style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden" }}>
           <button
             onClick={() => setModesOpen((v) => !v)}
-            className="flex items-center justify-between w-full py-2 transition-all"
+            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
           >
-            <span className="text-sm font-bold uppercase" style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}>
+            <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: todayModeColor }}>
               What are day modes?
             </span>
             <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: modesOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+              size={16}
+              style={{ color: todayModeColor, opacity: 0.7, flexShrink: 0, transform: modesOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
             />
           </button>
           {modesOpen && (
-            <div className="space-y-2" style={{ marginTop: "0.25rem" }}>
+            <div className="space-y-2" style={{ padding: "0 1.25rem 1.25rem" }}>
               <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.35rem" }}>
                 A day mode is Velea's read of what today's sky favors — the kind of work that flows with the day instead of against it. The Moon moving through your chart sets it. Here's what each of the four means and which tasks fit.
               </p>
