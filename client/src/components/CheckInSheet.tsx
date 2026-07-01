@@ -269,7 +269,6 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
               color: allFilled ? "#1a1a1a" : "rgba(255,255,255,0.85)",
               letterSpacing: "0.08em",
               border: allFilled ? "none" : "1px solid rgba(255,255,255,0.3)",
-              boxShadow: allFilled ? "0 4px 16px rgba(0,0,0,0.25)" : "none",
               opacity: createMutation.isPending ? 0.7 : 1,
             }}
           >
