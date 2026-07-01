@@ -235,9 +235,19 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   return (
     <>
       <div className="relative z-10">
-        {/* Brand mark */}
+        {/* Brand mark — masked so it takes the foreground color (black in light) */}
         <div className="flex items-center gap-2 mb-4">
-          <img src="/velea-logo.png" alt="" style={{ width: 30, height: 30, objectFit: "contain" }} />
+          <span
+            aria-hidden="true"
+            style={{
+              display: "inline-block", width: 30, height: 30,
+              background: "var(--foreground)",
+              WebkitMaskImage: "url(/velea-logo.png)", maskImage: "url(/velea-logo.png)",
+              WebkitMaskSize: "contain", maskSize: "contain",
+              WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center", maskPosition: "center",
+            }}
+          />
           <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--foreground)" }}>
             Velea
           </span>
