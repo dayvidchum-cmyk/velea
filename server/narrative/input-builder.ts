@@ -40,7 +40,29 @@ const PLANETS = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu"
 
 export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 
+// Short-TTL memo: deepRead and currentTransits both build the same input on one
+// page load (~50 ephemeris calls + panchang each). For a given (profile, date) the
+// result is deterministic, so reuse it briefly instead of recomputing per request.
+const INPUT_CACHE = new Map<string, { at: number; value: any }>();
+const INPUT_TTL_MS = 5 * 60 * 1000;
+
 export async function buildNarrativeInput(profileId: number, dateStr: string) {
+  const key = `${profileId}|${dateStr}`;
+  const cached = INPUT_CACHE.get(key);
+  if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
+  const value = await buildNarrativeInputUncached(profileId, dateStr);
+  INPUT_CACHE.set(key, { at: Date.now(), value });
+  return value;
+}
+
+/** Drop memoized inputs for a profile (call after its chart changes). */
+export function invalidateNarrativeInput(profileId: number) {
+  for (const key of Array.from(INPUT_CACHE.keys())) {
+    if (key.startsWith(`${profileId}|`)) INPUT_CACHE.delete(key);
+  }
+}
+
+async function buildNarrativeInputUncached(profileId: number, dateStr: string) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);

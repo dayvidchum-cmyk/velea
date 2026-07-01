@@ -480,6 +480,8 @@ export const profilesRouter = router({
         try {
           const today = new Date().toISOString().split('T')[0];
           const { getDeepReadCached, getGlanceCached } = await import('../narrative/service.js');
+          const { invalidateNarrativeInput } = await import('../narrative/input-builder.js');
+          invalidateNarrativeInput(input.id); // chart changed — drop any stale memo
           void getDeepReadCached(input.id, today).catch(() => {});
           void getGlanceCached(input.id, today).catch(() => {});
         } catch { /* ignore */ }
