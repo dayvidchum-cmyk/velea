@@ -653,7 +653,7 @@
    Same structure, inverted colors. Calm, high-contrast, white foundation.
    ══════════════════════════════════════════════════════════════════════════════ */
 html.light {
-  --background: #FFFFFF;
+  --background: #fffefd;
   --foreground: #000000;
   --card: #FFFFFF;
   --card-foreground: #000000;

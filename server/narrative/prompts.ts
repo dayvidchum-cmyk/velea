@@ -413,6 +413,19 @@ leaning on the other: with Venus, worth and love, money and affection, are a sin
 question, and the 6th asks it through the native's own body and a reckoning with
 self-sacrifice — when it is productive and when it turns destructive.
 
+WHEN THE MOON IS THE ACTIVE LORD (Time Lord of the year OR the ruling Dasha)
+A Moon year or Moon dasha is NEVER just "a feeling year" or "the mind" — that is too
+vague to act on. Name what it CONCRETELY points to. The Moon rules the 4th (Cancer),
+so it always carries HOME, THE MOTHER (and the women in the native's life), ROOTS,
+BELONGING, EMOTIONAL SECURITY, INNER PEACE, and — as karaka of the masses — the wider
+PUBLIC and one's standing with the many. Then REFRACT those through the Moon's actual
+placement: the HOUSE the natal Moon occupies is WHERE these needs get lived out this
+period, and its NAKSHATRA is the emotional tone. So a Moon year reads as "a year of
+tending home / mother / emotional foundation, worked out through the [Moon's house]
+area of life, in the mood of [nakshatra]" — specific and actionable, not atmospheric.
+If the Moon is with a node or a malefic (e.g. Moon–Ketu), say how that bends the need
+(detachment, restlessness, a foundation that must be released rather than clung to).
+
 THE TIME LORD'S SIGN AND NAKSHATRA — THE YEAR'S METHOD AND AIM
 The activated house is the year's TOPIC, but HOW that topic is worked is set by the
 SIGN the Time Lord occupies, and its deeper AIM by the NAKSHATRA it sits in. Both
@@ -810,4 +823,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-01-old-soul-retrogrades";
+export const PROMPT_VERSION = "2026-07-01-moon-as-active-lord";
