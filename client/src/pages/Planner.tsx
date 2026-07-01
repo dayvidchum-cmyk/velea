@@ -511,57 +511,66 @@ export default function Planner() {
 
       {/* ── THE STAGE detail (toggled by the header chip) ── */}
       {isAuthenticated && stage && stageOpen && (stage.signals.length > 0 || stage.retrogrades.length > 0) && (
-        <div className="relative z-10" style={{ marginTop: "-0.5rem", marginBottom: "1rem" }}>
+        <div className="relative z-10" style={{ marginTop: "-0.5rem", marginBottom: "1rem", borderRadius: "16px", border: "1px solid var(--color-border)", background: "var(--color-card)", overflow: "hidden" }}>
           {stage.verdict && (
-            <div style={{ marginBottom: "0.85rem", paddingBottom: "0.85rem", borderBottom: "1px solid var(--color-border)" }}>
-              <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.1em", color: todayModeColor, margin: 0 }}>
+            <div style={{ padding: "1rem 1.1rem", background: `color-mix(in srgb, ${todayModeColor} 8%, var(--color-card))`, borderBottom: "1px solid var(--color-border)" }}>
+              <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.12em", color: "var(--color-muted-foreground)", margin: 0 }}>
                 Today's call
               </p>
-              <p className="text-sm font-bold" style={{ color: "var(--foreground)", margin: "0.15rem 0 0" }}>
+              <p style={{ fontSize: "1.15rem", fontWeight: 800, color: todayModeColor, margin: "0.15rem 0 0", lineHeight: 1.2 }}>
                 {stage.verdict.call}
               </p>
-              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0.2rem 0 0" }}>
+              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0.35rem 0 0" }}>
                 {stage.verdict.summary}
               </p>
               {stage.verdict.forPersonal && stage.verdict.forCollective && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", marginTop: "0.55rem" }}>
-                  <p className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4, margin: 0 }}>
-                    <span style={{ fontWeight: 700 }}>High-stakes / personal:</span> {stage.verdict.forPersonal}
-                  </p>
-                  <p className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4, margin: 0 }}>
-                    <span style={{ fontWeight: 700 }}>Launches / sends:</span> {stage.verdict.forCollective}
-                  </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.75rem" }}>
+                  {[["High-stakes / personal", stage.verdict.forPersonal], ["Launches / sends", stage.verdict.forCollective]].map(([label, body]) => (
+                    <div key={label} style={{ background: "var(--color-secondary)", borderRadius: 10, padding: "0.5rem 0.7rem" }}>
+                      <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: todayModeColor, margin: 0 }}>{label}</p>
+                      <p className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4, margin: "0.15rem 0 0" }}>{body}</p>
+                    </div>
+                  ))}
                 </div>
               )}
               {!stage.verdict.hasCheckIn && (
-                <p className="text-xs" style={{ color: todayModeColor, margin: "0.5rem 0 0", fontWeight: 600 }}>
+                <p className="text-xs" style={{ color: todayModeColor, margin: "0.6rem 0 0", fontWeight: 600 }}>
                   Tap “Current State” (top right) to check in for your full call.
                 </p>
               )}
             </div>
           )}
-          <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.7rem" }}>
-            The slower planets — the backdrop your day plays on. The Moon still sets today's mode; this is the weather behind it.
-          </p>
-          {stage.signals.length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>
-              Clear skies — no notable slow-planet weather right now.
+          <div style={{ padding: "0.9rem 1.1rem" }}>
+            <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)", margin: "0 0 0.55rem" }}>
+              The stage
             </p>
-          ) : (
-            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.55rem" }}>
-              {stage.signals.map((sig, i) => (
-                <li key={i} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
-                  <span style={{ width: 7, height: 7, borderRadius: 999, flexShrink: 0, marginTop: "0.45rem", background: sig.direction === "favor" ? "#3E8E5A" : "#C0862E" }} />
-                  <span className="text-sm" style={{ color: "var(--foreground)", lineHeight: 1.45 }}>{sig.summary}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {stage.retrogrades.length > 0 && (
-            <p className="text-xs" style={{ color: "var(--color-muted-foreground)", marginTop: "0.75rem" }}>
-              Retrograde now: {stage.retrogrades.join(", ")}
-            </p>
-          )}
+            {stage.signals.length === 0 ? (
+              <p className="text-sm" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>
+                Clear skies — no notable slow-planet weather right now.
+              </p>
+            ) : (
+              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                {stage.signals.map((sig, i) => {
+                  const c = sig.direction === "favor" ? "#3E8E5A" : "#C0862E";
+                  return (
+                    <li key={i} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start", background: `color-mix(in srgb, ${c} 8%, var(--color-card))`, borderRadius: 10, padding: "0.55rem 0.7rem", borderLeft: `3px solid ${c}` }}>
+                      <span className="text-sm" style={{ color: "var(--foreground)", lineHeight: 1.45 }}>{sig.summary}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {stage.retrogrades.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", alignItems: "center", marginTop: "0.7rem" }}>
+                <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>Retrograde:</span>
+                {stage.retrogrades.map((p) => (
+                  <span key={p} className="text-xs font-semibold" style={{ color: "var(--foreground)", background: "var(--color-secondary)", borderRadius: 999, padding: "0.15rem 0.55rem" }}>
+                    {p} ℞
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
