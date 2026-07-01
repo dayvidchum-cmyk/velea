@@ -510,6 +510,34 @@ export default function Planner() {
       {/* ── THE STAGE detail (toggled by the header chip) ── */}
       {isAuthenticated && stage && stageOpen && (stage.signals.length > 0 || stage.retrogrades.length > 0) && (
         <div className="relative z-10" style={{ marginTop: "-0.5rem", marginBottom: "1rem" }}>
+          {stage.verdict && (
+            <div style={{ marginBottom: "0.85rem", paddingBottom: "0.85rem", borderBottom: "1px solid var(--color-border)" }}>
+              <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.1em", color: todayModeColor, margin: 0 }}>
+                Today's call
+              </p>
+              <p className="text-sm font-bold" style={{ color: "var(--foreground)", margin: "0.15rem 0 0" }}>
+                {stage.verdict.call}
+              </p>
+              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0.2rem 0 0" }}>
+                {stage.verdict.summary}
+              </p>
+              {stage.verdict.forPersonal && stage.verdict.forCollective && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", marginTop: "0.55rem" }}>
+                  <p className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4, margin: 0 }}>
+                    <span style={{ fontWeight: 700 }}>High-stakes / personal:</span> {stage.verdict.forPersonal}
+                  </p>
+                  <p className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4, margin: 0 }}>
+                    <span style={{ fontWeight: 700 }}>Launches / sends:</span> {stage.verdict.forCollective}
+                  </p>
+                </div>
+              )}
+              {!stage.verdict.hasCheckIn && (
+                <p className="text-xs" style={{ color: todayModeColor, margin: "0.5rem 0 0", fontWeight: 600 }}>
+                  Tap “Current State” (top right) to check in for your full call.
+                </p>
+              )}
+            </div>
+          )}
           <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.7rem" }}>
             The slower planets — the backdrop your day plays on. The Moon still sets today's mode; this is the weather behind it.
           </p>
