@@ -235,6 +235,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   return (
     <>
       <div className="relative z-10">
+        {/* Brand mark */}
+        <div className="flex items-center gap-2 mb-4">
+          <img src="/velea-logo.png" alt="" style={{ width: 30, height: 30, objectFit: "contain" }} />
+          <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--foreground)" }}>
+            Velea
+          </span>
+        </div>
         {/* Utility row: date left, location + state right */}
         <div className="flex items-center justify-between mb-5">
           <span
