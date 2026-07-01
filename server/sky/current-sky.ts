@@ -261,7 +261,17 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
 // scan (stations are single-day and dominated by the eclipse/retro terms here).
 const GOLDEN_DAYS_CACHE = new Map<string, { at: number; value: string[] }>();
 const GOLDEN_DAYS_TTL_MS = 6 * 60 * 60 * 1000;
-const GOLDEN_NET_THRESHOLD = 1.2; // favor surplus a day needs to count as golden
+const GOLDEN_NET_THRESHOLD = 0.8; // universal favor surplus (the "season")
+// The individual (chart) signal per day = the Moon's house from the lagna → its mode.
+// A golden day is ALIGNMENT: universal favorable AND the personal day is a "go" mode.
+const HOUSE_MODE: Record<number, string> = {
+  1: "Action", 10: "Action", 11: "Action",
+  3: "Build", 6: "Build",
+  5: "Selective", 7: "Selective",
+  4: "Restraint", 8: "Restraint", 12: "Restraint",
+  2: "Flex", 9: "Flex",
+};
+const INDIVIDUAL_GO_MODES = new Set(["Action", "Build"]);
 
 export async function computeGoldenDays(
   subject: AstrologySubject,
@@ -298,11 +308,15 @@ export async function computeGoldenDays(
       eclipses: dayEclipses,
     };
     const signals = computeGoldenMoment(daySky, { litHouses });
-    // A golden day is a genuine standout, not merely "net positive" — require a
-    // strong favor surplus AND no caution dragging it. Keeps them rare/special.
+    // Universal signal: favor beating caution by a clear margin (net surplus).
     const net = signals.reduce((a, s) => a + (s.direction === "favor" ? s.weight : -s.weight), 0);
-    const hasCaution = signals.some((s) => s.direction === "caution");
-    if (net >= GOLDEN_NET_THRESHOLD && !hasCaution) {
+    const universalGo = net >= GOLDEN_NET_THRESHOLD;
+    // Individual signal: the Moon's house from the lagna → a "go" day mode.
+    const moonLon = positions.Moon?.longitude ?? 0;
+    const moonHouse = lagnaIdx >= 0 ? ((Math.floor(moonLon / 30) % 12) - lagnaIdx + 12) % 12 + 1 : 0;
+    const individualGo = INDIVIDUAL_GO_MODES.has(HOUSE_MODE[moonHouse] ?? "");
+    // A golden day is ALIGNMENT — universal AND individual both saying go.
+    if (universalGo && individualGo) {
       golden.push(`${yearMonth}-${String(d).padStart(2, "0")}`);
     }
   }
