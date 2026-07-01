@@ -1,4 +1,5 @@
-import { Fragment, type ReactElement } from "react";
+import { Fragment, useState, type ReactElement } from "react";
+import { ChevronDown } from "lucide-react";
 
 // Personalized traditional annual-profection wheel. Twelve house sectors carry the
 // user's whole-sign signs (labels colored by each sign's ruling planet); ages spiral
@@ -55,6 +56,7 @@ function annular(cx: number, cy: number, ri: number, ro: number, a0: number, a1:
 }
 
 export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: string; age: number; headingColor?: string }) {
+  const [rulersOpen, setRulersOpen] = useState(false);
   const lagIdx = ZODIAC.indexOf(lagnaSign);
   if (lagIdx < 0 || age == null) return null;
 
@@ -133,19 +135,28 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
         <span>This year — house {currentHouse}, <strong><span style={{ fontFamily: GLYPH_FONT }}>{GLYPH[currentSign]}</span> {currentSign}</strong>, ruled by <strong>{timeLord}</strong></span>
       </div>
       <div style={{ width: "100%", borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
-        <p style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: headingColor ?? "var(--muted-foreground)", textAlign: "left", marginBottom: "0.75rem" }}>Planets &amp; the signs they rule</p>
-        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: "0.55rem", columnGap: "1.25rem", fontSize: "0.9rem", alignItems: "baseline" }}>
-          {RULERSHIP.map(({ planet, signs }) => (
-            <Fragment key={planet}>
-              <span style={{ color: "var(--foreground)", fontWeight: 600, whiteSpace: "nowrap" }}>{PLANET_GLYPH[planet]} {planet}</span>
-              <span style={{ display: "flex", gap: "1.1rem", flexWrap: "wrap" }}>
-                {signs.map((s) => (
-                  <span key={s} style={{ color: SIGN_COLOR[s] ?? "var(--foreground)", fontWeight: 600, whiteSpace: "nowrap" }}>{GLYPH[s]} {s}</span>
-                ))}
-              </span>
-            </Fragment>
-          ))}
-        </div>
+        <button
+          type="button"
+          onClick={() => setRulersOpen((v) => !v)}
+          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "transparent", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
+        >
+          <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: headingColor ?? "var(--muted-foreground)" }}>Planets &amp; the signs they rule</span>
+          <ChevronDown size={15} style={{ color: headingColor ?? "var(--muted-foreground)", opacity: 0.75, flexShrink: 0, transform: rulersOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+        </button>
+        {rulersOpen && (
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: "0.55rem", columnGap: "1.25rem", fontSize: "0.9rem", alignItems: "baseline", marginTop: "0.85rem" }}>
+            {RULERSHIP.map(({ planet, signs }) => (
+              <Fragment key={planet}>
+                <span style={{ color: "var(--foreground)", fontWeight: 600, whiteSpace: "nowrap" }}>{PLANET_GLYPH[planet]} {planet}</span>
+                <span style={{ display: "flex", gap: "1.1rem", flexWrap: "wrap" }}>
+                  {signs.map((s) => (
+                    <span key={s} style={{ color: SIGN_COLOR[s] ?? "var(--foreground)", fontWeight: 600, whiteSpace: "nowrap" }}>{GLYPH[s]} {s}</span>
+                  ))}
+                </span>
+              </Fragment>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
