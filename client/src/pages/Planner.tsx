@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
+import StagAntlers from "@/components/StagAntlers";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1284,7 +1285,7 @@ export default function Planner() {
                 onClick={() => setSelectedDate(dateStr)}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
-                  minHeight: "2.1rem",
+                  minHeight: isToday ? "2.9rem" : "2.1rem",
                   color: hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
                   border: isSelected
@@ -1298,11 +1299,17 @@ export default function Planner() {
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
+                {isToday && (
+                  <span style={{ position: "absolute", top: "2px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+                    <StagAntlers size={15} color="#C9A84C" />
+                  </span>
+                )}
                 <span
                   className="text-xs"
                   style={{
                     color: hasMode ? "inherit" : "var(--color-muted-foreground)",
                     fontWeight: isSelected || isToday ? 700 : 600,
+                    marginTop: isToday ? "0.6rem" : 0,
                   }}
                 >
                   {day}
