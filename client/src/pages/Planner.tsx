@@ -1347,7 +1347,7 @@ export default function Planner() {
                 )}
                 {isGolden ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                    <CircleDot size={22} color="#5C4708" strokeWidth={2.25} />
+                    <CircleDot size={22} color="#FFEB3B" strokeWidth={2.25} />
                   </span>
                 ) : (
                   <span
