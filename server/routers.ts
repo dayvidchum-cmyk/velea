@@ -60,7 +60,7 @@ import { scoreTasks } from "./task-scorer.js";
 import { parseLifeAreas } from "@shared/life-areas";
 import { getCurrentLayers } from "./layers/index.js";
 import { getCurrentSky } from "./sky/current-sky.js";
-import { computeGoldenMoment } from "./sky/golden-moment.js";
+import { computeGoldenMoment, computeVerdict } from "./sky/golden-moment.js";
 import { calculateProfectionYear } from "./profection/calculator.js";
 import { rateLimit } from "./_core/rateLimit.js";
 import { timezoneForCoords } from "./geo/timezone.js";
@@ -1075,7 +1075,14 @@ export const appRouter = router({
         } catch { /* fall back to [1, 10] */ }
       }
       const signals = computeGoldenMoment(sky, { litHouses });
-      return { computedAt: sky.computedAt, signals, retrogrades: sky.retrogrades, eclipses: sky.eclipses };
+      // The verdict fuses these universal signals with the personal Check-In.
+      const profileId = ctx.subject.profileId ?? null;
+      const ci = await getTodayCheckIn(ctx.user.id, profileId);
+      const checkInAvg = ci
+        ? (ci.physicalEnergy + ci.mentalClarity + ci.emotionalStability + ci.creativeFlow + ci.motivation) / 5
+        : null;
+      const verdict = computeVerdict(signals, checkInAvg);
+      return { computedAt: sky.computedAt, signals, retrogrades: sky.retrogrades, eclipses: sky.eclipses, verdict };
     }),
   }),
 

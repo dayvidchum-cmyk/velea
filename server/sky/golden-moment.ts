@@ -208,3 +208,83 @@ export function goldenMomentEffect(
   mult = Math.max(0.7, Math.min(1.4, mult)); // locked clamp
   return { multiplier: mult, bubbles: bubbles.slice(0, 2) };
 }
+
+// ── The verdict: Golden Moment (universal) × Check-In (personal) ─────────────
+// Fuses the two signals into one go/hold call, per references/velea-concept.md's
+// matrix. INTERNAL machinery — the verdict text is user-facing, the names aren't.
+
+export type VerdictLevel = "favorable" | "neutral" | "unfavorable";
+
+export interface Verdict {
+  call: string;              // headline (Go all in / Hold / Mixed / Proceed with judgment / weather-only)
+  summary: string;           // one-line plain read
+  universalLevel: VerdictLevel;
+  personalLevel: VerdictLevel | "unknown";
+  forPersonal: string | null;    // guidance for high-stakes / personal acts
+  forCollective: string | null;  // guidance for launches / sends / collective acts
+  hasCheckIn: boolean;
+}
+
+/** Net universal favorability from the signals (favor − caution, weighted). */
+export function universalLevel(signals: GoldenMomentSignal[]): VerdictLevel {
+  let net = 0;
+  for (const s of signals) net += s.direction === "favor" ? s.weight : -s.weight;
+  if (net > 0.4) return "favorable";
+  if (net < -0.4) return "unfavorable";
+  return "neutral";
+}
+
+/** Personal readiness from the Check-In's 5-measure average (null = no check-in). */
+export function personalLevel(checkInAvg: number | null): VerdictLevel | "unknown" {
+  if (checkInAvg == null) return "unknown";
+  if (checkInAvg >= 3.7) return "favorable";
+  if (checkInAvg <= 2.3) return "unfavorable";
+  return "neutral";
+}
+
+export function computeVerdict(signals: GoldenMomentSignal[], checkInAvg: number | null): Verdict {
+  const u = universalLevel(signals);
+  const p = personalLevel(checkInAvg);
+  const hasCheckIn = checkInAvg != null;
+
+  // No check-in → universal-only read (the display adds the "check in for your full call" prompt).
+  if (p === "unknown") {
+    const call = u === "favorable" ? "The day is with you"
+      : u === "unfavorable" ? "Choppy weather"
+      : "A neutral day";
+    const summary = u === "favorable" ? "The slower planets are supportive — a good backdrop to act on."
+      : u === "unfavorable" ? "The backdrop is unsettled — favor review and finishing over new pushes."
+      : "No strong weather either way — go by your own read.";
+    return { call, summary, universalLevel: u, personalLevel: p, forPersonal: null, forCollective: null, hasCheckIn };
+  }
+
+  const both = (a: VerdictLevel) => p === a && u === a;
+  if (both("favorable")) {
+    return { call: "Go all in", summary: "Inner and outer are aligned — the strongest day to act, launch, and decide.", universalLevel: u, personalLevel: p, forPersonal: "Make the high-stakes call.", forCollective: "Launch and send freely.", hasCheckIn };
+  }
+  if (both("unfavorable")) {
+    return { call: "Hold", summary: "Neither you nor the day is set up to push — repair, rest, or quiet behind-the-scenes work.", universalLevel: u, personalLevel: p, forPersonal: "Postpone anything that matters.", forCollective: "Hold launches and sends.", hasCheckIn };
+  }
+
+  // Disagreement (or a neutral axis) → mixed call with the task-type split.
+  const personalStrong = p === "favorable";
+  const universalStrong = u === "favorable";
+  const forPersonal = personalStrong
+    ? "You're ready — trust yourself on high-stakes and personal moves."
+    : p === "unfavorable"
+      ? "Hold high-stakes and personal decisions until you're steadier."
+      : "Personal moves: fine if the specific one feels right.";
+  const forCollective = universalStrong
+    ? "The moment carries it — send what's ready and show up to collective things."
+    : u === "unfavorable"
+      ? "Hold launches and sends a beat; favor finishing what's moving."
+      : "Launches: proceed if already in motion, don't force new ones.";
+
+  const call = (p === "neutral" && u === "neutral") ? "Proceed with judgment" : "Mixed — depends on the act";
+  const summary = personalStrong
+    ? "You're readier than the day is — lean on your own high-stakes calls, ease off launches."
+    : universalStrong
+      ? "The day is readier than you are — send what's prepared, hold the high-stakes personal stuff."
+      : "A judgment day — no strong push either way; act where it's already moving.";
+  return { call, summary, universalLevel: u, personalLevel: p, forPersonal, forCollective, hasCheckIn };
+}

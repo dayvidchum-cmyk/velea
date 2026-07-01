@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeGoldenMoment, goldenMomentEffect, type GoldenMomentSignal } from "./golden-moment";
+import { computeGoldenMoment, goldenMomentEffect, computeVerdict, universalLevel, personalLevel, type GoldenMomentSignal } from "./golden-moment";
 import type { CurrentSky, SkyPlanet } from "./current-sky";
 
 function planet(p: Partial<SkyPlanet> & { planet: string }): SkyPlanet {
@@ -133,5 +133,52 @@ describe("computeGoldenMoment", () => {
     for (let i = 1; i < s.length; i++) {
       expect(s[i - 1].weight).toBeGreaterThanOrEqual(s[i].weight);
     }
+  });
+});
+
+describe("computeVerdict", () => {
+  const favor: GoldenMomentSignal = { kind: "lit-house", planet: "Jupiter", direction: "favor", domain: "growth", weight: 0.9, favorModes: ["Action"], opposeModes: [], qualifierLean: null, summary: "" };
+  const caution: GoldenMomentSignal = { kind: "eclipse", eclipseType: "solar", direction: "caution", domain: "beginnings", weight: 0.9, favorModes: ["Restraint"], opposeModes: ["Action"], qualifierLean: "caution", summary: "" };
+
+  it("levels: net favor/caution and check-in average map to the right buckets", () => {
+    expect(universalLevel([favor])).toBe("favorable");
+    expect(universalLevel([caution])).toBe("unfavorable");
+    expect(universalLevel([])).toBe("neutral");
+    expect(personalLevel(null)).toBe("unknown");
+    expect(personalLevel(4.2)).toBe("favorable");
+    expect(personalLevel(2.0)).toBe("unfavorable");
+    expect(personalLevel(3.0)).toBe("neutral");
+  });
+
+  it("no check-in → weather-only read, no task-type split", () => {
+    const v = computeVerdict([favor], null);
+    expect(v.hasCheckIn).toBe(false);
+    expect(v.personalLevel).toBe("unknown");
+    expect(v.forPersonal).toBeNull();
+    expect(v.forCollective).toBeNull();
+  });
+
+  it("both favorable → Go all in", () => {
+    const v = computeVerdict([favor], 4.5);
+    expect(v.call).toBe("Go all in");
+    expect(v.forPersonal).toBeTruthy();
+  });
+
+  it("both unfavorable → Hold", () => {
+    const v = computeVerdict([caution], 2.0);
+    expect(v.call).toBe("Hold");
+  });
+
+  it("personal favorable but universal unfavorable → mixed, trust self / hold launches", () => {
+    const v = computeVerdict([caution], 4.5);
+    expect(v.call).toContain("Mixed");
+    expect(v.forPersonal).toMatch(/trust yourself/i);
+    expect(v.forCollective).toMatch(/hold launches/i);
+  });
+
+  it("personal unfavorable but universal favorable → mixed, hold personal / moment carries collective", () => {
+    const v = computeVerdict([favor], 2.0);
+    expect(v.call).toContain("Mixed");
+    expect(v.forCollective).toMatch(/carries/i);
   });
 });
