@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { MapPin, LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Star } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -256,9 +256,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
                   e.currentTarget.style.borderColor = "transparent";
                 }}
               >
-                <Sparkles size={11} />
+                <Star size={11} />
                 <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
-                  STAGE{stage.count > 0 ? ` ${stage.count}` : ""}
+                  THE STAGE
                 </span>
                 <ChevronDown size={10} style={{ transform: stage.open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
               </button>

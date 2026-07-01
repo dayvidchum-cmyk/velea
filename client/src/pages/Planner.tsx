@@ -523,6 +523,78 @@ export default function Planner() {
         </div>
       )}
 
+      {/* ── WHAT ARE DAY MODES? (ExplainerPanel style) — above the hero ── */}
+      {isAuthenticated && (
+        <div className="relative z-10" style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden", marginBottom: "1rem" }}>
+          <button
+            onClick={() => setModesOpen((v) => !v)}
+            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+          >
+            <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: todayModeColor }}>
+              What are day modes?
+            </span>
+            <ChevronDown
+              size={16}
+              style={{ color: todayModeColor, opacity: 0.7, flexShrink: 0, transform: modesOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+          {modesOpen && (
+            <div className="space-y-2" style={{ padding: "0 1.25rem 1.25rem" }}>
+              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.35rem" }}>
+                A day mode is Velea's read of what today's sky favors — the kind of work that flows with the day instead of against it. The Moon moving through your chart sets it. Here's what each of the four means and which tasks fit.
+              </p>
+              {DAY_MODE_DEFS.map(({ mode, essence, bestFor, avoid }) => {
+                const color = PLANNER_MODE_OKLCH[mode];
+                const open = openModeDef === mode;
+                return (
+                  <div key={mode} style={{ borderRadius: "14px", border: "1px solid var(--color-border)", background: "var(--color-card)", overflow: "hidden" }}>
+                    <button
+                      onClick={() => setOpenModeDef(open ? null : mode)}
+                      className="w-full flex items-center justify-between"
+                      style={{ padding: "0.8rem 1rem" }}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span style={{ width: 9, height: 9, borderRadius: 999, background: color, flexShrink: 0 }} />
+                        <span className="text-sm font-bold" style={{ color: "var(--foreground)" }}>{mode}</span>
+                      </span>
+                      <ChevronDown
+                        size={14}
+                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+                      />
+                    </button>
+                    {open && (
+                      <div style={{ padding: "0 1rem 1rem" }}>
+                        <p className="text-sm" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.55, marginBottom: "0.85rem" }}>
+                          {essence}
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <p className="font-bold uppercase" style={{ fontSize: "0.62rem", letterSpacing: "0.1em", color, marginBottom: "0.4rem" }}>Best for</p>
+                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                              {bestFor.map((t) => (
+                                <li key={t} className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4 }}>{t}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="font-bold uppercase" style={{ fontSize: "0.62rem", letterSpacing: "0.1em", color: "var(--color-muted-foreground)", marginBottom: "0.4rem" }}>Ease off</p>
+                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                              {avoid.map((t) => (
+                                <li key={t} className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>{t}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── 3. HERO DAY MODE CARD ── */}
       {selectedPanchang ? (
         <div className="relative z-10">
@@ -584,8 +656,8 @@ export default function Planner() {
                 <p
                   style={{
                     fontSize: 'clamp(0.8rem, 3.4vw, 1rem)',
-                    fontWeight: 700,
-                    letterSpacing: '0.12em',
+                    fontWeight: 400,
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'rgba(255,255,255,0.82)',
                     marginTop: '-0.35rem',
@@ -1354,77 +1426,6 @@ export default function Planner() {
         </div>
       )}
 
-      {/* ── DAY MODES (reference, collapsed by default) — ExplainerPanel style ── */}
-      {isAuthenticated && (
-        <div className="relative z-10" style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden" }}>
-          <button
-            onClick={() => setModesOpen((v) => !v)}
-            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
-          >
-            <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: todayModeColor }}>
-              What are day modes?
-            </span>
-            <ChevronDown
-              size={16}
-              style={{ color: todayModeColor, opacity: 0.7, flexShrink: 0, transform: modesOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
-          {modesOpen && (
-            <div className="space-y-2" style={{ padding: "0 1.25rem 1.25rem" }}>
-              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.35rem" }}>
-                A day mode is Velea's read of what today's sky favors — the kind of work that flows with the day instead of against it. The Moon moving through your chart sets it. Here's what each of the four means and which tasks fit.
-              </p>
-              {DAY_MODE_DEFS.map(({ mode, essence, bestFor, avoid }) => {
-                const color = PLANNER_MODE_OKLCH[mode];
-                const open = openModeDef === mode;
-                return (
-                  <div key={mode} style={{ borderRadius: "14px", border: "1px solid var(--color-border)", background: "var(--color-card)", overflow: "hidden" }}>
-                    <button
-                      onClick={() => setOpenModeDef(open ? null : mode)}
-                      className="w-full flex items-center justify-between"
-                      style={{ padding: "0.8rem 1rem" }}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <span style={{ width: 9, height: 9, borderRadius: 999, background: color, flexShrink: 0 }} />
-                        <span className="text-sm font-bold" style={{ color: "var(--foreground)" }}>{mode}</span>
-                      </span>
-                      <ChevronDown
-                        size={14}
-                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-                      />
-                    </button>
-                    {open && (
-                      <div style={{ padding: "0 1rem 1rem" }}>
-                        <p className="text-sm" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.55, marginBottom: "0.85rem" }}>
-                          {essence}
-                        </p>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <p className="font-bold uppercase" style={{ fontSize: "0.62rem", letterSpacing: "0.1em", color, marginBottom: "0.4rem" }}>Best for</p>
-                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                              {bestFor.map((t) => (
-                                <li key={t} className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4 }}>{t}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="font-bold uppercase" style={{ fontSize: "0.62rem", letterSpacing: "0.1em", color: "var(--color-muted-foreground)", marginBottom: "0.4rem" }}>Ease off</p>
-                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                              {avoid.map((t) => (
-                                <li key={t} className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>{t}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Mode Orb Sheet */}
       {orbSheetMode && (
