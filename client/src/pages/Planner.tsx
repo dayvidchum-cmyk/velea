@@ -210,19 +210,6 @@ export default function Planner() {
 
   const utils = trpc.useUtils();
 
-  // Pin/lock the day's read so it never regenerates (even across prompt changes).
-  const { data: readLock } = trpc.narrative.lockStatus.useQuery(
-    { profileId: glanceProfileId as number, date: selectedDate },
-    { enabled: !!glanceProfileId },
-  );
-  const readLocked = readLock?.locked ?? false;
-  const setReadLock = trpc.narrative.setLock.useMutation({
-    onSuccess: () => {
-      utils.narrative.lockStatus.invalidate();
-      utils.narrative.glance.invalidate();
-    },
-  });
-
   const saveReflection = trpc.reflections.upsert.useMutation({
     onSuccess: () => {
       setReflectionSaved(true);
@@ -697,18 +684,6 @@ export default function Planner() {
               flexDirection: 'column',
             }}
           >
-            {/* Pin this read — locked reads never regenerate */}
-            {glanceProfileId && (
-              <button
-                type="button"
-                onClick={() => setReadLock.mutate({ profileId: glanceProfileId, date: selectedDate, locked: !readLocked })}
-                title={readLocked ? "Read pinned — tap to unpin" : "Pin this read so it stops regenerating"}
-                aria-label={readLocked ? "Unpin read" : "Pin read"}
-                style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 5, background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: readLocked ? '#fff' : 'rgba(255,255,255,0.5)' }}
-              >
-                <Pin size={16} fill={readLocked ? 'currentColor' : 'none'} />
-              </button>
-            )}
             {/* DATE label — toggles the day card open/closed */}
             <button
               type="button"
