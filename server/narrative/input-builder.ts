@@ -85,7 +85,14 @@ export async function buildNarrativeInput(profileId: number, dateStr: string) {
 
   const pf = calculateProfectionYear(p.birthDate, dateStr, lagna);
   const tlb = byPlanet[pf.timeLord];
-  const profection = { age: pf.age, activatedHouse: pf.activatedHouse, activatedSign: pf.activatedSign, timeLord: pf.timeLord, timeLordNatal: nat(tlb), timeLordRulesHouses: rulesHouses(pf.timeLord, lagna) };
+  const profection = {
+    age: pf.age, activatedHouse: pf.activatedHouse, activatedSign: pf.activatedSign,
+    timeLord: pf.timeLord, timeLordNatal: nat(tlb), timeLordRulesHouses: rulesHouses(pf.timeLord, lagna),
+    // "The Time Lord comes home" — the year lord natally sits in the very house the
+    // year activates, and/or in the activated sign. A strong repetition / return.
+    timeLordReturnsHome: tlb ? tlb.house === pf.activatedHouse : false,
+    timeLordInActivatedSign: tlb ? tlb.sign === pf.activatedSign : false,
+  };
 
   const moon = byPlanet["Moon"];
   const tl = calculateDashaTimeline(p.birthDate, moon.nakshatra || "", moon.sign, moon.degree, dateStr, moon.longitude);

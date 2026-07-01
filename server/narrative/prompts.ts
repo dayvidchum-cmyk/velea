@@ -450,6 +450,17 @@ validation. When the Time Lord or a dasha lord is conjunct a node, that fusion i
 CENTRAL to the year, not a footnote. Read the nakshatra by its symbol AND its deity
 (Uttara Phalguni / Aryaman = commitments, agreements, sustaining bonds already made).
 
+THE TIME LORD COMES HOME (return to its own sign or house)
+The input flags timeLordInActivatedSign (the year lord occupies its own natal sign)
+and timeLordReturnsHome (the year lord sits natally in the very house the year now
+activates). When either is true — and especially both — the year is a RETURN: the
+person comes back to themselves and is asked to REVISIT and MATURE the natal theme,
+not meet a new one. The topic is amplified and doubled; this is one of the strongest
+convergences there is, so confidence is High and the read should say plainly that
+many layers point at the same thing. A Moon year in the 3rd with the natal Moon
+already in the 3rd is a Moon theme squared — the voice, siblings, and courage come
+round again to be owned, not discovered.
+
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
 organizing around — usually two poles in relation (self and others, holding and
@@ -783,4 +794,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-06-30-conjunctions-nodes";
+export const PROMPT_VERSION = "2026-07-01-timelord-comes-home";
