@@ -290,12 +290,10 @@ export function scoreTasks(
         reasons.push(`Aligned with ${todayMode} mode`);
       }
 
-      // 7. Current State Fit (soft)
-      if (currentState) {
-        const { delta, reasons: csReasons } = currentStateScore(task, currentState);
-        soft += delta;
-        reasons.push(...csReasons);
-      }
+      // 7. Current State Fit — computed here for reasons; applied as a dominant
+      // OVERRIDE band below (not a soft nudge).
+      const cs = currentState ? currentStateScore(task, currentState) : null;
+      if (cs) reasons.push(...cs.reasons);
 
       // 8. Personal energy bonus (soft, legacy)
       if (personalEnergy === "High" && task.priority === "High") {
@@ -336,9 +334,16 @@ export function scoreTasks(
       // Pressure layers + Golden Moment scale ONLY the soft subscore; floors preserved.
       const { multiplier, bubbles } = layerEffect(task, layers);
       const gm = goldenMomentEffect(task, goldenSignals);
-      const score = floor + soft * multiplier * gm.multiplier * verdictBias;
+      // Current State OVERRIDE: a dominant discretionary band (×10) so how you feel
+      // outweighs the other soft signals (priority, domain, age…). Hard floors
+      // (pinned/overdue/due-today) remain a strict tier above it via the sort below.
+      const csBand = cs ? cs.delta * 10 : 0;
+      const disc = csBand + soft * multiplier * gm.multiplier * verdictBias;
+      const score = floor + disc;
 
-      return { ...task, score, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3) };
+      return { ...task, score, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _floor: floor, _disc: disc };
     })
-    .sort((a, b) => b.score - a.score);
+    // Floors are a strict tier; within a tier, Current State fit dominates ordering.
+    .sort((a, b) => (b._floor - a._floor) || (b._disc - a._disc))
+    .map(({ _floor, _disc, ...t }) => t);
 }
