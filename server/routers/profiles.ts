@@ -466,6 +466,16 @@ export const profilesRouter = router({
           console.warn('[Profile Chart] Transit precompute failed (will lazy-generate on view):', preErr);
         }
 
+        // Warm the narrative caches in the background so the Core Theme / daily read
+        // is ready by the time the user opens the chart. Fire-and-forget — never
+        // blocks the save, and no-ops when there's no Anthropic key.
+        try {
+          const today = new Date().toISOString().split('T')[0];
+          const { getDeepReadCached, getGlanceCached } = await import('../narrative/service.js');
+          void getDeepReadCached(input.id, today).catch(() => {});
+          void getGlanceCached(input.id, today).catch(() => {});
+        } catch { /* ignore */ }
+
         return { success: true, chart };
       } catch (error) {
         console.error('[Profile Chart] Calculation failed:', error);

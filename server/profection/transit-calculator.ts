@@ -7,6 +7,25 @@ const ZODIAC_SIGNS = [
 
 const LAHIRI_AYANAMSA_J2000 = 23.6044; // Lahiri ayanamsa at J2000 epoch
 
+// Reuse one warm Swiss Ephemeris instance instead of a cold init on every call.
+let _sharedSe: any = null;
+async function getSharedSe() {
+  if (!_sharedSe) {
+    const se = new (SwissEph as any)();
+    await se.initSwissEph();
+    _sharedSe = se;
+  }
+  return _sharedSe;
+}
+
+// Scan step (days) tuned to the Time Lord's sign-dwell time — well under half the
+// minimum time it spends in a sign, so no sign/retrograde change is skipped.
+// The Moon changes sign every ~2.25 days (needs a daily step); slow planets sit
+// for months to years, so a coarse step avoids hundreds of wasted ephemeris calls.
+const SCAN_STEP_DAYS: Record<string, number> = {
+  Moon: 1, Sun: 2, Mercury: 2, Venus: 2, Mars: 3, Jupiter: 6, Saturn: 8, Rahu: 8, Ketu: 8,
+};
+
 function getZodiacSign(longitude: number): string {
   const normalized = ((longitude % 360) + 360) % 360;
   const index = Math.floor(normalized / 30);
@@ -150,24 +169,24 @@ export async function calculateTimeLordTransits(
   const transits: TimeLordTransit[] = [];
 
   try {
-    // Initialize Swiss Ephemeris
-    const se = new SwissEph();
-    await se.initSwissEph();
+    // Reuse the warm Swiss Ephemeris singleton (no cold init per call).
+    const se = await getSharedSe();
 
     const startDate = new Date(yearStart);
     const endDate = new Date(yearEnd);
     const planetNum = getPlanetNumber(timeLordPlanet);
+    const stepDays = SCAN_STEP_DAYS[timeLordPlanet] ?? 2;
 
-    // Step 1: Scan with 1-day intervals to find all sign/house/retrograde changes
+    // Step 1: Scan (step tuned to the planet's speed) for sign/house/retrograde changes
     const changePoints: { date: Date; state: any }[] = [];
-    
+
     let currentDate = new Date(startDate);
     let lastState = getPlanetState(se, dateToJD(currentDate), planetNum, lagnaLongitude, lagnaSign);
     changePoints.push({ date: new Date(currentDate), state: lastState });
 
-    // Scan: every 1 day for accuracy
+    // Scan at the planet-tuned step for accuracy without wasted calls
     while (currentDate < endDate) {
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate.setDate(currentDate.getDate() + stepDays);
       if (currentDate > endDate) currentDate = new Date(endDate);
 
       const newState = getPlanetState(se, dateToJD(currentDate), planetNum, lagnaLongitude, lagnaSign);
@@ -226,6 +245,20 @@ export async function calculateTimeLordTransits(
         );
         transits.push(transit);
       }
+    }
+
+    // Final segment: the loop only covers gaps BETWEEN change points, so the last
+    // change point through the end of the year would otherwise be dropped.
+    const lastCp = changePoints[changePoints.length - 1];
+    if (lastCp && new Date(lastCp.date) >= startDate) {
+      transits.push(createTransit(
+        formatDate(lastCp.date),
+        formatDate(endDate),
+        timeLordPlanet,
+        lastCp.state.sign,
+        lastCp.state.house,
+        lastCp.state.isRetrograde,
+      ));
     }
 
   } catch (error) {
