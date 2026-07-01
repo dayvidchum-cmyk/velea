@@ -24,6 +24,8 @@ interface AppHeaderProps {
   pageTitle?: string;
   /** Render the page title in sans-serif instead of the default serif (e.g. project names) */
   sansTitle?: boolean;
+  /** Scale the page title font (e.g. 0.8 to shrink project titles 20%) */
+  titleScale?: number;
   /** When provided, shows a small back link directly above the page title */
   onBack?: () => void;
   /** Label for the back link (defaults to "Back") */
@@ -39,7 +41,7 @@ interface AppHeaderProps {
  *   - Large editorial serif greeting below
  * Other pages use the standard compact layout.
  */
-export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, backLabel = "Back", stage }: AppHeaderProps = {}) {
+export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale = 1, onBack, backLabel = "Back", stage }: AppHeaderProps = {}) {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === "admin";
   const modeColor = useDayModeColor();
@@ -348,7 +350,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
                 ? "'Inter', ui-sans-serif, system-ui, sans-serif"
                 : "'Playfair Display', 'Georgia', ui-serif, serif",
               fontWeight: sansTitle ? 700 : 600,
-              fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
+              fontSize: `calc(clamp(1.25rem, 4vw, 1.75rem) * ${titleScale})`,
               color: "var(--foreground)",
               letterSpacing: sansTitle ? "-0.02em" : "-0.01em",
               marginTop: onBack ? "0.4rem" : "1.25rem",

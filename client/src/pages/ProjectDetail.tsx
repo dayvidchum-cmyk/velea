@@ -162,7 +162,7 @@ export default function ProjectDetail() {
         className="container py-6 space-y-6 relative"
         style={{ background: "var(--color-background)" }}
       >
-        <AppHeader pageTitle={stats.projectName} sansTitle onBack={() => navigate("/projects")} backLabel="Projects" />
+        <AppHeader pageTitle={stats.projectName} sansTitle titleScale={0.8} onBack={() => navigate("/projects")} backLabel="Projects" />
 
         {/* Progress Card — immersive hero gradient (like the Today page) */}
         <div className="overflow-hidden" style={{ borderRadius: "24px", background: heroGradient, padding: "1.5rem" }}>
