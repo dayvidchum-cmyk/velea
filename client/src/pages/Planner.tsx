@@ -1371,6 +1371,9 @@ export default function Planner() {
           </button>
           {modesOpen && (
             <div className="space-y-2" style={{ marginTop: "0.25rem" }}>
+              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.35rem" }}>
+                A day mode is Velea's read of what today's sky favors — the kind of work that flows with the day instead of against it. The Moon moving through your chart sets it. Here's what each of the four means and which tasks fit.
+              </p>
               {DAY_MODE_DEFS.map(({ mode, essence, bestFor, avoid }) => {
                 const color = PLANNER_MODE_OKLCH[mode];
                 const open = openModeDef === mode;
