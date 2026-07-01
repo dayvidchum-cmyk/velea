@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
-import TripleMoon from "@/components/TripleMoon";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1307,7 +1306,7 @@ export default function Planner() {
                 onClick={() => { setSelectedDate(dateStr); setGoldenTip(isGolden ? (goldenTip === dateStr ? null : dateStr) : null); }}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
-                  minHeight: isGolden ? "3.2rem" : "2.1rem",
+                  minHeight: "2.1rem",
                   color: goldText ?? (hasMode ? "var(--color-foreground)" : undefined),
                   background: restingBg,
                   border: isConfirmedGolden
@@ -1325,11 +1324,6 @@ export default function Planner() {
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
               >
-                {isGolden && (
-                  <span style={{ position: "absolute", top: "5px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
-                    <TripleMoon size={28} color="#ffffff" filled={isConfirmedGolden} />
-                  </span>
-                )}
                 {isGolden && goldenTip === dateStr && (
                   <span
                     style={{
@@ -1356,8 +1350,6 @@ export default function Planner() {
                   style={{
                     color: isGolden ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)",
                     fontWeight: isGolden || isSelected || isToday ? 700 : 600,
-                    marginTop: isGolden ? "0.95rem" : 0,
-                    position: "relative",
                     textShadow: isGolden ? "0 1px 2px rgba(0,0,0,0.25)" : undefined,
                   }}
                 >
