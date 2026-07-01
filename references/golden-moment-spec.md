@@ -85,16 +85,17 @@ nine current transits. Add prompt guidance: when a Golden Moment signal is stron
 - **Moon primacy visible:** wherever the Golden Moment shows, the day mode is
   bigger/first. Stage under trigger, always.
 
-## 6. Open decisions (need owner input)
+## 6. Decisions (locked 2026-06-30)
 
-1. **Mode influence:** confirm the Golden Moment never changes the base mode
-   (recommended), OR may it shift only the *qualifier* (e.g., push toward the
-   "cautious/review" qualifier on a Mercury-Rx day)?
-2. **Scope of "slow":** treat Jupiter+Saturn+nodes as the stage, or include
-   Mars/Venus/Mercury retrogrades too (recommended: include their retrogrades as
-   caution signals, since Mercury Rx is the canonical example)?
-3. **Eclipse window length** (proposed ~10 days) and strength.
-4. **Ranking aggression:** the [0.7, 1.4] clamp — looser or tighter?
+1. **Mode influence:** base mode is NEVER changed. The Golden Moment MAY nudge the
+   **qualifier only** (e.g., push toward a cautious/review qualifier on a Mercury-Rx
+   day). Mode stays pure Moon.
+2. **Scope of "stage":** Jupiter, Saturn, Rahu/Ketu as the slow stage, PLUS
+   Mercury/Venus/Mars **when retrograde** as caution signals, PLUS eclipses.
+3. **Eclipse window:** flag when `|daysAway| <= 10`; strength scales with closeness.
+4. **Ranking aggression:** total Golden Moment multiplier on the soft score clamped
+   to **[0.7, 1.4]** (moderate). Floors (pinned/overdue/due) and the mode hard-filter
+   are never touched.
 
 ## 7. Phasing
 
