@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw } from "lucide-react";
+import { MapPin, LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -28,6 +28,8 @@ interface AppHeaderProps {
   onBack?: () => void;
   /** Label for the back link (defaults to "Back") */
   backLabel?: string;
+  /** Today-only: a "Stage" chip in the utility row (Golden Moment). */
+  stage?: { count: number; open: boolean; onToggle: () => void };
 }
 
 /**
@@ -37,7 +39,7 @@ interface AppHeaderProps {
  *   - Large editorial serif greeting below
  * Other pages use the standard compact layout.
  */
-export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, backLabel = "Back" }: AppHeaderProps = {}) {
+export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, backLabel = "Back", stage }: AppHeaderProps = {}) {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === "admin";
   const modeColor = useDayModeColor();
@@ -240,6 +242,27 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
             {heroDateLabel}
           </span>
           <div className="flex items-center gap-3">
+            {stage && (
+              <button
+                onClick={stage.onToggle}
+                className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"
+                style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
+                  e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "transparent";
+                }}
+              >
+                <Sparkles size={11} />
+                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+                  STAGE{stage.count > 0 ? ` ${stage.count}` : ""}
+                </span>
+                <ChevronDown size={10} style={{ transform: stage.open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+              </button>
+            )}
             <button
               onClick={() => setLocationSheetOpen(true)}
               className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"

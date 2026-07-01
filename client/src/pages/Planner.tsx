@@ -486,8 +486,42 @@ export default function Planner() {
         className="container py-6 space-y-5 relative z-10"
       >
       {/* Shared app header — hero layout identical to Today page */}
-      <AppHeader heroMode={{ qualifier: todayPanchang?.qualifier ?? null }} />
+      <AppHeader
+        heroMode={{ qualifier: todayPanchang?.qualifier ?? null }}
+        stage={
+          isAuthenticated && stage && (stage.signals.length > 0 || stage.retrogrades.length > 0)
+            ? { count: stage.signals.length, open: stageOpen, onToggle: () => setStageOpen((v) => !v) }
+            : undefined
+        }
+      />
 
+      {/* ── THE STAGE detail (toggled by the header chip) ── */}
+      {isAuthenticated && stage && stageOpen && (stage.signals.length > 0 || stage.retrogrades.length > 0) && (
+        <div className="relative z-10" style={{ marginTop: "-0.5rem", marginBottom: "1rem" }}>
+          <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.7rem" }}>
+            The slower planets — the backdrop your day plays on. The Moon still sets today's mode; this is the weather behind it.
+          </p>
+          {stage.signals.length === 0 ? (
+            <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>
+              Clear skies — no notable slow-planet weather right now.
+            </p>
+          ) : (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+              {stage.signals.map((sig, i) => (
+                <li key={i} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
+                  <span style={{ width: 7, height: 7, borderRadius: 999, flexShrink: 0, marginTop: "0.45rem", background: sig.direction === "favor" ? "#3E8E5A" : "#C0862E" }} />
+                  <span className="text-sm" style={{ color: "var(--foreground)", lineHeight: 1.45 }}>{sig.summary}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {stage.retrogrades.length > 0 && (
+            <p className="text-xs" style={{ color: "var(--color-muted-foreground)", marginTop: "0.75rem" }}>
+              Retrograde now: {stage.retrogrades.join(", ")}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ── 3. HERO DAY MODE CARD ── */}
       {selectedPanchang ? (
@@ -1309,9 +1343,8 @@ export default function Planner() {
       {isAuthenticated && (
         <button
           onClick={() => navigate("/reflections")}
-          className="flex items-center gap-2 w-full py-2 px-1 transition-opacity hover:opacity-70 relative z-10"
+          className="flex items-center w-full py-2 transition-opacity hover:opacity-70 relative z-10"
         >
-          <BookOpen size={12} style={{ color: "var(--color-muted-foreground)" }} />
           <span
             className="text-sm font-bold uppercase"
             style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
@@ -1385,57 +1418,6 @@ export default function Planner() {
                   </div>
                 );
               })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── THE STAGE (Golden Moment — slow-planet weather, read-only) ── */}
-      {isAuthenticated && stage && (stage.signals.length > 0 || stage.retrogrades.length > 0) && (
-        <div className="relative z-10">
-          <button
-            onClick={() => setStageOpen((v) => !v)}
-            className="flex items-center justify-between w-full py-2 transition-all"
-          >
-            <span className="flex items-center gap-2" style={{ minWidth: 0 }}>
-              <span className="text-sm font-bold uppercase" style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}>
-                The stage
-              </span>
-              {stage.signals.length > 0 && (
-                <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-                  ({stage.signals.length})
-                </span>
-              )}
-            </span>
-            <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: stageOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
-          {stageOpen && (
-            <div style={{ marginTop: "0.25rem" }}>
-              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.7rem" }}>
-                The slower planets — the backdrop your day plays on. The Moon still sets today's mode; this is the weather behind it.
-              </p>
-              {stage.signals.length === 0 ? (
-                <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>
-                  Clear skies — no notable slow-planet weather right now.
-                </p>
-              ) : (
-                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.55rem" }}>
-                  {stage.signals.map((sig, i) => (
-                    <li key={i} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
-                      <span style={{ width: 7, height: 7, borderRadius: 999, flexShrink: 0, marginTop: "0.45rem", background: sig.direction === "favor" ? "#3E8E5A" : "#C0862E" }} />
-                      <span className="text-sm" style={{ color: "var(--foreground)", lineHeight: 1.45 }}>{sig.summary}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {stage.retrogrades.length > 0 && (
-                <p className="text-xs" style={{ color: "var(--color-muted-foreground)", marginTop: "0.75rem" }}>
-                  Retrograde now: {stage.retrogrades.join(", ")}
-                </p>
-              )}
             </div>
           )}
         </div>
