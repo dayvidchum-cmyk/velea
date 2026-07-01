@@ -993,11 +993,14 @@ export default function Planner() {
             onClick={() => setPinnedOpen((v) => !v)}
             className="flex items-center gap-2 w-full mb-3"
           >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--foreground)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
+              <path d="M12 2 L17.9 20.1 L2.5 8.9 L21.5 8.9 L6.1 20.1 Z" />
+            </svg>
             <h3
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
             >
-              Pinned for Now
+              Do Now
             </h3>
             <ChevronDown
               size={13}
