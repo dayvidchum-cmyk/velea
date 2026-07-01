@@ -2,6 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
 import { getGlanceCached, getDeepReadCached } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
+import { setNarrativeLock, isNarrativeLocked } from "../db.js";
 
 const todayUTC = () => new Date().toISOString().split("T")[0];
 
@@ -32,6 +33,27 @@ export const narrativeRouter = router({
       console.error("[narrative.deepRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
     }
+  }),
+
+  // Is today's (or a given date's) read pinned/locked?
+  lockStatus: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional() })).query(async ({ input }) => {
+    const date = input.date ?? todayUTC();
+    try { return { locked: await isNarrativeLocked(input.profileId, date) }; }
+    catch { return { locked: false }; }
+  }),
+
+  // Pin / unpin the read for a date — a locked read is returned as-is regardless of
+  // prompt-version or input changes, so it never regenerates until unpinned.
+  setLock: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional(), locked: z.boolean() })).mutation(async ({ input }) => {
+    const date = input.date ?? todayUTC();
+    // Ensure both surfaces exist before locking, so there's a row to pin.
+    if (input.locked) {
+      await getGlanceCached(input.profileId, date, false).catch(() => {});
+      await getDeepReadCached(input.profileId, date, false).catch(() => {});
+    }
+    await setNarrativeLock(input.profileId, "glance", date, input.locked);
+    await setNarrativeLock(input.profileId, "deep", date, input.locked);
+    return { locked: input.locked };
   }),
 
   // Deterministic (ephemeris) current transits for the CURRENT TRIGGER breakdown.

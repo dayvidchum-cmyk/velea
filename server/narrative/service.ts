@@ -23,7 +23,7 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
 
   if (!refresh) {
     const row = await getNarrativeCache(profileId, "glance", date);
-    if (row && row.inputHash === hash) {
+    if (row && (row.locked || row.inputHash === hash)) {
       try {
         return { available: true, content: JSON.parse(row.content) as GlanceContent, generatedAt: row.generatedAt, cached: true };
       } catch {
@@ -43,7 +43,7 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
 
   if (!refresh) {
     const row = await getNarrativeCache(profileId, "deep", date);
-    if (row && row.inputHash === hash) {
+    if (row && (row.locked || row.inputHash === hash)) {
       try {
         const read = JSON.parse(row.content);
         // Only trust a cached read that is complete; partial/old rows regenerate.

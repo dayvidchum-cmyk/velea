@@ -6,6 +6,7 @@ import {
   mysqlTable,
   text,
   timestamp,
+  unique,
   varchar,
 } from "drizzle-orm/mysql-core";
 
@@ -392,6 +393,10 @@ export const narrativeCache = mysqlTable("narrative_cache", {
   model: varchar("model", { length: 48 }).notNull(),
   content: text("content").notNull(), // glance: plain string; deep: JSON
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
-});
+  locked: boolean("locked").notNull().default(false), // pinned — return as-is regardless of prompt/input hash
+}, (t) => ({
+  // One cached read per profile+surface+date, so upsert dedupes (no duplicate rows).
+  uniqRead: unique("uniq_read").on(t.profileId, t.surface, t.cacheDate),
+}));
 
 export type NarrativeCacheRow = typeof narrativeCache.$inferSelect;

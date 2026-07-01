@@ -501,6 +501,7 @@ export async function getNarrativeCache(profileId: number, surface: string, cach
     .select()
     .from(narrativeCache)
     .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, surface), eq(narrativeCache.cacheDate, cacheDate)))
+    .orderBy(desc(narrativeCache.id))
     .limit(1);
   return result[0];
 }
@@ -512,6 +513,21 @@ export async function upsertNarrativeCache(profileId: number, surface: string, c
     .insert(narrativeCache)
     .values({ profileId, surface, cacheDate, inputHash, model, content, generatedAt: new Date() })
     .onDuplicateKeyUpdate({ set: { inputHash, model, content, generatedAt: new Date() } });
+}
+
+/** Pin/unpin a cached read (both surfaces) — locked rows never regenerate. */
+export async function setNarrativeLock(profileId: number, surface: string, cacheDate: string, locked: boolean) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(narrativeCache)
+    .set({ locked })
+    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, surface), eq(narrativeCache.cacheDate, cacheDate)));
+}
+
+export async function isNarrativeLocked(profileId: number, cacheDate: string): Promise<boolean> {
+  const row = await getNarrativeCache(profileId, "glance", cacheDate);
+  return !!(row as any)?.locked;
 }
 
 export async function upsertSystemPrompt(key: string, title: string, content: string) {
