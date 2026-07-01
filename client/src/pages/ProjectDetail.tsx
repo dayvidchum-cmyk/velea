@@ -165,7 +165,7 @@ export default function ProjectDetail() {
         <AppHeader pageTitle={stats.projectName} sansTitle titleScale={0.8} onBack={() => navigate("/projects")} backLabel="Projects" />
 
         {/* Progress Card — immersive hero gradient (like the Today page) */}
-        <div className="overflow-hidden" style={{ borderRadius: "24px", background: heroGradient, padding: "1.5rem" }}>
+        <div className="overflow-hidden" style={{ borderRadius: "var(--radius-hero)", background: heroGradient, padding: "1.5rem" }}>
           <div className="flex items-center justify-between mb-4">
             <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
               Progress
@@ -201,7 +201,7 @@ export default function ProjectDetail() {
 
         {/* Recommended Next Task — immersive hero gradient, task in a translucent panel */}
         {recommendedTask && (
-          <div className="overflow-hidden" style={{ borderRadius: "24px", background: heroGradient }}>
+          <div className="overflow-hidden" style={{ borderRadius: "var(--radius-hero)", background: heroGradient }}>
             <div className="px-5 pt-4 pb-1">
               <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
                 Recommended Next
@@ -234,7 +234,7 @@ export default function ProjectDetail() {
 
         {/* Insights */}
         {insights && (insights.commonMode || insights.upcomingDue.length > 0 || insights.highPriority.length > 0) && (
-          <div className="overflow-hidden" style={{ borderRadius: "24px", background: heroGradient }}>
+          <div className="overflow-hidden" style={{ borderRadius: "var(--radius-hero)", background: heroGradient }}>
             <div className="px-5 pt-4 pb-1">
               <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
                 Insights
@@ -351,7 +351,7 @@ export default function ProjectDetail() {
         )}
 
         {/* Project Notes \u2014 immersive hero gradient */}
-        <div className="overflow-hidden" style={{ borderRadius: "24px", background: heroGradient }}>
+        <div className="overflow-hidden" style={{ borderRadius: "var(--radius-hero)", background: heroGradient }}>
           <div className="px-5 pt-4 pb-2 flex items-center justify-between">
             <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
               Project Notes

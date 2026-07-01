@@ -398,7 +398,7 @@ export default function Projects() {
         {isAuthenticated && (
           <div
             className="overflow-hidden relative z-10"
-            style={{ borderRadius: "24px", background: heroGradient, padding: "1.25rem" }}
+            style={{ borderRadius: "var(--radius-hero)", background: heroGradient, padding: "1.25rem" }}
           >
             <label
               className="block"
@@ -443,7 +443,7 @@ export default function Projects() {
         {/* Active projects list */}
         <div
           className="relative z-10 overflow-hidden"
-          style={{ borderRadius: "24px", border: `1px solid color-mix(in srgb, ${dayLabelColor} 40%, transparent)`, background: "var(--color-card)" }}
+          style={{ borderRadius: "var(--radius-hero)", border: `1px solid color-mix(in srgb, ${dayLabelColor} 40%, transparent)`, background: "var(--color-card)" }}
         >
           <div className="px-5 py-3" style={{ background: heroGradient }}>
             <span
@@ -530,7 +530,7 @@ export default function Projects() {
         {archivedProjects.length > 0 && (
           <div
             className="relative z-10 overflow-hidden"
-            style={{ borderRadius: "24px", border: `1px solid color-mix(in srgb, ${dayLabelColor} 40%, transparent)`, background: "var(--color-card)" }}
+            style={{ borderRadius: "var(--radius-hero)", border: `1px solid color-mix(in srgb, ${dayLabelColor} 40%, transparent)`, background: "var(--color-card)" }}
           >
             <button
               onClick={() => setShowArchived((v) => !v)}

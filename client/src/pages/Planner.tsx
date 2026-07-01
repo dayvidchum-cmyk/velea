@@ -578,7 +578,7 @@ export default function Planner() {
 
       {/* ── WHAT ARE DAY MODES? (ExplainerPanel style) — above the hero ── */}
       {isAuthenticated && (
-        <div className="relative z-10" style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden", marginBottom: "1rem" }}>
+        <div className="relative z-10" style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden", marginBottom: "1rem" }}>
           <button
             onClick={() => setModesOpen((v) => !v)}
             style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
@@ -1391,7 +1391,7 @@ export default function Planner() {
         <div
           className="relative z-10 overflow-hidden"
           style={{
-            borderRadius: '20px',
+            borderRadius: "var(--radius-card)",
             background: heroGradient,
           }}
         >

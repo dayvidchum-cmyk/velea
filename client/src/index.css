@@ -32,6 +32,9 @@
   --input: rgba(255, 255, 255, 0.06);
   --ring: oklch(0.767 0.139 91.1);
   --radius: 0.75rem;
+  /* Editorial card radii — one family for flat cards + immersive heroes */
+  --radius-card: 20px;
+  --radius-hero: 24px;
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
   --space-deep: #000000;

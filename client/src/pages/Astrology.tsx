@@ -469,7 +469,7 @@ function ExplainerPanel({ title, children }: { title: string; children: React.Re
   const [open, setOpen] = useState(false);
   const modeColor = useDayModeColor();
   return (
-    <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden" }}>
+    <div style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden" }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -766,7 +766,7 @@ export function DashaSection() {
         const t = { primary: "rgba(0,0,0,0.85)", muted: "rgba(0,0,0,0.6)", faint: "rgba(0,0,0,0.5)" };
         const isOpen = expandedMaha === currentMaha;
         return (
-          <div className="overflow-hidden" style={{ borderRadius: "20px", background: planetGradient(activeColor), border: `4px solid ${activeColor}`, boxShadow: `0 0 20px ${activeColor}44` }}>
+          <div className="overflow-hidden" style={{ borderRadius: "var(--radius-card)", background: planetGradient(activeColor), border: `4px solid ${activeColor}`, boxShadow: `0 0 20px ${activeColor}44` }}>
             <button
               className="w-full flex items-center justify-between px-4 py-3"
               onClick={() => setExpandedMaha(isOpen ? null : currentMaha)}
@@ -925,7 +925,7 @@ function ProfectionSection() {
     subtitle?: React.ReactNode,
     bg: string = cardGradient,
   ) => (
-    <div className="overflow-hidden" style={{ borderRadius: "20px", background: bg }}>
+    <div className="overflow-hidden" style={{ borderRadius: "var(--radius-card)", background: bg }}>
       <button className="w-full flex items-center justify-between px-4 py-3" onClick={() => setOpen(!open)}>
         <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.15rem", textAlign: "left" }}>
           <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
@@ -991,7 +991,7 @@ function ProfectionSection() {
       )}
 
       {/* Current Time Lord Movement — immersive gradient */}
-      <div data-tour="time-lord-transits" className="overflow-hidden" style={{ borderRadius: "20px", background: tlGradient }}>
+      <div data-tour="time-lord-transits" className="overflow-hidden" style={{ borderRadius: "var(--radius-card)", background: tlGradient }}>
         <button className="w-full flex items-center justify-between px-4 py-3" onClick={() => setTlOpen((v) => !v)}>
           <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
             Current Time Lord Movement

@@ -196,7 +196,7 @@ export default function ProfectionYear() {
     setOpen: (v: boolean) => void,
     content: React.ReactNode
   ) => (
-    <div style={{ borderRadius: "20px", overflow: "hidden", marginBottom: "1.25rem", background: tlGradient }}>
+    <div style={{ borderRadius: "var(--radius-card)", overflow: "hidden", marginBottom: "1.25rem", background: tlGradient }}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -245,7 +245,7 @@ export default function ProfectionYear() {
     setOpen: (v: boolean) => void,
     content: React.ReactNode,
   ) => (
-    <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", marginBottom: "1.25rem", overflow: "hidden" }}>
+    <div style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", marginBottom: "1.25rem", overflow: "hidden" }}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -549,7 +549,7 @@ export default function ProfectionYear() {
         </>
       ))}
       {!deepRead && deepReadLoading && (
-        <div style={{ borderRadius: "20px", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem", color: TEXT_MUTED, fontSize: "0.85rem" }}>
+        <div style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem", color: TEXT_MUTED, fontSize: "0.85rem" }}>
           Generating your reading…
         </div>
       )}
