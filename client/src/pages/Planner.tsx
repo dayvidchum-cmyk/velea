@@ -149,7 +149,7 @@ export default function Planner() {
   const yearMonth = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, "0")}`;
 
   const { data: monthPanchang = [] } = trpc.panchang.byMonth.useQuery({ yearMonth });
-  const { data: selectedPanchang } = trpc.panchang.byDate.useQuery({ date: selectedDate });
+  const { data: selectedPanchang, isFetching: panchangFetching } = trpc.panchang.byDate.useQuery({ date: selectedDate });
   // Today's panchang is needed to know the current day mode for auto-assigning on pin
   const { data: todayPanchang } = trpc.panchang.today.useQuery();
   const { data: stage } = trpc.sky.stage.useQuery(undefined, { staleTime: 30 * 60 * 1000 });
@@ -827,7 +827,7 @@ export default function Planner() {
                 marginTop: 'auto',
                 marginLeft: 'auto',
                 marginRight: 'auto',
-                maxWidth: '26ch',
+                maxWidth: '34ch',
                 paddingTop: '1rem',
                 fontFamily: "'Inter', ui-sans-serif, sans-serif",
                 fontStyle: 'italic',
@@ -850,8 +850,12 @@ export default function Planner() {
           </div>
         </div>
       ) : (
-        <div className="glass-card p-4 text-center relative z-10">
-          <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>No panchang data for this date.</p>
+        <div className="glass-card p-4 relative z-10">
+          {panchangFetching ? (
+            <ProseLoading color="var(--color-muted-foreground)" label="Reading the day…" />
+          ) : (
+            <p className="text-sm text-center" style={{ color: "var(--color-muted-foreground)" }}>No panchang data for this date.</p>
+          )}
         </div>
       )}
 
