@@ -238,16 +238,16 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         {/* Utility row: date left, location + state right */}
         <div className="flex items-center justify-between mb-5">
           <span
-            className="text-[13px] font-bold tracking-widest"
-            style={{ color: modeColor, letterSpacing: "0.10em" }}
+            className="text-[10px] font-bold tracking-wide whitespace-nowrap"
+            style={{ color: modeColor, letterSpacing: "0.03em" }}
           >
             {heroDateLabel}
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {stage && (
               <button
                 onClick={stage.onToggle}
-                className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"
+                className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
                 style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
@@ -259,7 +259,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 }}
               >
                 <Star size={11} />
-                <span className="text-[13px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+                <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
                   THE STAGE
                 </span>
                 <ChevronDown size={10} style={{ transform: stage.open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
@@ -267,7 +267,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             )}
             <button
               onClick={() => setLocationSheetOpen(true)}
-              className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"
+              className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
               style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
@@ -279,14 +279,14 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               }}
             >
               <MapPin size={11} />
-              <span className="text-[13px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+              <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
                 {cityLabel}
               </span>
             </button>
             <button
                 data-tour="current-state"
                 onClick={() => setCheckInSheetOpen(true)}
-                className="flex items-center gap-1 px-2 py-1 -mx-1 rounded-full transition-all duration-150"
+                className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
                 style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
                 title="Update current state"
                 onMouseEnter={(e) => {
@@ -299,7 +299,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 }}
               >
                 <RefreshCw size={11} />
-                <span className="text-[13px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+                <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
                   CURRENT STATE
                 </span>
               </button>
