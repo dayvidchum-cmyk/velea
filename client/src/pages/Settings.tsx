@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, Users, RefreshCw, Compass } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { resetOnboarding } from "@/components/Onboarding";
+import { resetOnboarding, fireTaskGuide } from "@/components/Onboarding";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import type { SettingsState, TodayTaskLimit } from "@/hooks/useSettings";
 import { toast } from "sonner";
@@ -639,6 +639,26 @@ export default function Settings() {
             >
               <Compass size={14} />
               Replay
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between py-4" style={{ borderTop: "1px solid var(--border)" }}>
+            <div className="pr-4">
+              <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
+                How to add a task
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
+                A quick walkthrough of the mode orbs and the + button, on the Today screen.
+              </p>
+            </div>
+            <Button
+              onClick={() => { fireTaskGuide(); navigate("/"); }}
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0 gap-1.5"
+            >
+              <Compass size={14} />
+              Show me
             </Button>
           </div>
         </SettingsSection>

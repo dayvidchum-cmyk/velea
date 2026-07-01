@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
+import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -100,7 +101,7 @@ const DAY_MODE_DEFS: { mode: TaskMode; essence: string; bestFor: string[]; avoid
 
 export default function Planner() {
   const [, navigate] = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
   const { settings } = useSettingsContext();
 
@@ -153,7 +154,18 @@ export default function Planner() {
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
-  const { data: allTasks = [] } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: allTasks = [], isSuccess: tasksLoaded } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
+
+  // First zero-task day → nudge the standalone "how to add a task" guide, once.
+  const taskGuideFiredRef = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated || !tasksLoaded || taskGuideFiredRef.current) return;
+    if (allTasks.length !== 0) return;
+    if (hasSeenTaskGuide(user?.id)) return;
+    taskGuideFiredRef.current = true;
+    const t = setTimeout(() => fireTaskGuide(), 900);
+    return () => clearTimeout(t);
+  }, [isAuthenticated, tasksLoaded, allTasks.length, user?.id]);
 
   // Ranked-for-today suggestions powering the "Aligned for today" list (ported from Home).
   const todayDateStr = useMemo(() => new Date().toISOString().split("T")[0], []);
@@ -810,7 +822,7 @@ export default function Planner() {
               style={{ color: "var(--color-muted-foreground)", transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
             />
           </button>
-          <div className="flex justify-around items-end">
+          <div className="flex justify-around items-end" data-tour="mode-orbs">
             {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => (
               <ModeOrb
                 key={m}

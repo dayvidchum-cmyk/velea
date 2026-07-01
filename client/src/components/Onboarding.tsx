@@ -13,6 +13,8 @@ import { useDayModeColor } from "@/hooks/useDayModeColor";
  */
 
 const STORAGE_PREFIX = "kala_onboard_v1_";
+const TASK_GUIDE_PREFIX = "kala_taskguide_v1_";
+const TASK_GUIDE_EVENT = "velea-task-guide";
 
 /** Clear the seen-flag so the intro + tour run again next time Today opens. */
 export function resetOnboarding(userId: number | string | null | undefined) {
@@ -21,6 +23,25 @@ export function resetOnboarding(userId: number | string | null | undefined) {
     localStorage.removeItem(`${STORAGE_PREFIX}${userId}`);
   } catch {
     /* ignore */
+  }
+}
+
+/** Fire the standalone "how to add a task" guide (Settings, zero-task nudge). */
+export function fireTaskGuide() {
+  try {
+    window.dispatchEvent(new CustomEvent(TASK_GUIDE_EVENT));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Has this user already seen the task-making guide? (auto-fire gating) */
+export function hasSeenTaskGuide(userId: number | string | null | undefined): boolean {
+  if (userId == null) return true; // unknown user → don't auto-fire
+  try {
+    return localStorage.getItem(`${TASK_GUIDE_PREFIX}${userId}`) === "1";
+  } catch {
+    return true;
   }
 }
 
@@ -59,6 +80,27 @@ type TourStep = {
   /** Open a collapsible synthesis section on Today via a window event. */
   expand?: "why" | "timelord";
 };
+
+// Task-making steps — used both inside the main tour (below) and as the
+// standalone "how to add a task" guide (TASK_TOUR).
+const TASK_STEPS: TourStep[] = [
+  {
+    route: "/",
+    selector: '[data-tour="mode-orbs"]',
+    title: "Add by mode",
+    body: "Each orb is a day mode. Tap one to add a task in that mode — or open it to see what's queued there. Tasks rise on the days that match their mode.",
+  },
+  {
+    route: "/",
+    selector: '[data-tour="add-fab"]',
+    title: "Add anything",
+    body: "Tap + to add a task. Give it a mode, a life area, a due date, and — if it repeats — a recurrence. It'll surface on the right day.",
+  },
+];
+
+// The standalone task-making guide (fired from Settings, on a first zero-task
+// day, and as a one-time FAB coachmark).
+const TASK_TOUR: TourStep[] = TASK_STEPS;
 
 const TOUR: TourStep[] = [
   {
@@ -109,6 +151,7 @@ const TOUR: TourStep[] = [
     title: "Your life chapter",
     body: "Dasha is the long arc — the multi-year planetary periods you're living through, your karmic schedule this lifetime. New to it? Tap “What are Dashas?” at the top to see how the periods work.",
   },
+  ...TASK_STEPS,
   {
     route: "/",
     selector: '[data-tour="today-mode"]',
@@ -121,10 +164,26 @@ export default function Onboarding({ active, userId }: Props) {
   const accent = useDayModeColor();
   const storageKey = userId != null ? `${STORAGE_PREFIX}${userId}` : null;
 
-  // phase: null = not running, "cards" = intro deck, "tour" = coachmarks
-  const [phase, setPhase] = useState<"cards" | "tour" | null>(null);
+  // phase: null = not running, "cards" = intro deck, "tour" = full coachmark tour,
+  // "task" = standalone task-making guide.
+  const [phase, setPhase] = useState<"cards" | "tour" | "task" | null>(null);
   const [cardIndex, setCardIndex] = useState(0);
   const [tourIndex, setTourIndex] = useState(0);
+  const taskKey = userId != null ? `${TASK_GUIDE_PREFIX}${userId}` : null;
+  const markTaskSeen = useCallback(() => {
+    if (taskKey) { try { localStorage.setItem(taskKey, "1"); } catch { /* ignore */ } }
+  }, [taskKey]);
+
+  // Standalone task guide — fired via window event (Settings, zero-task nudge).
+  useEffect(() => {
+    const onFire = () => {
+      // Don't interrupt the main onboarding if it's running.
+      setPhase((p) => (p === null ? "task" : p));
+      setTourIndex(0);
+    };
+    window.addEventListener(TASK_GUIDE_EVENT, onFire);
+    return () => window.removeEventListener(TASK_GUIDE_EVENT, onFire);
+  }, []);
 
   // Decide whether to show on mount / when becoming active.
   useEffect(() => {
@@ -159,8 +218,14 @@ export default function Onboarding({ active, userId }: Props) {
         /* ignore */
       }
     }
+    markTaskSeen(); // the main tour includes the task steps — don't re-nudge later
     setPhase(null);
-  }, [storageKey]);
+  }, [storageKey, markTaskSeen]);
+
+  const finishTaskGuide = useCallback(() => {
+    markTaskSeen();
+    setPhase(null);
+  }, [markTaskSeen]);
 
   if (phase === "cards") {
     return (
@@ -184,6 +249,18 @@ export default function Onboarding({ active, userId }: Props) {
         index={tourIndex}
         setIndex={setTourIndex}
         onFinish={finish}
+      />
+    );
+  }
+
+  if (phase === "task") {
+    return (
+      <TourLayer
+        accent={accent}
+        index={tourIndex}
+        setIndex={setTourIndex}
+        steps={TASK_TOUR}
+        onFinish={finishTaskGuide}
       />
     );
   }
@@ -305,11 +382,13 @@ function TourLayer({
   index,
   setIndex,
   onFinish,
+  steps = TOUR,
 }: {
   accent: string;
   index: number;
   setIndex: (n: number) => void;
   onFinish: () => void;
+  steps?: TourStep[];
 }) {
   const [rect, setRect] = useState<Rect | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -318,8 +397,8 @@ function TourLayer({
   // switch), show a loading beat instead of an empty centered tooltip.
   const [waiting, setWaiting] = useState(true);
   const [location, navigate] = useLocation();
-  const step = TOUR[index];
-  const isLast = index === TOUR.length - 1;
+  const step = steps[index];
+  const isLast = index === steps.length - 1;
 
   // Drive the app to the right place for this step: navigate routes, switch the
   // Chart tab, and open Today's collapsible synthesis sections.
@@ -544,7 +623,7 @@ function TourLayer({
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            {TOUR.map((_, i) => (
+            {steps.map((_, i) => (
               <span
                 key={i}
                 className="h-1.5 rounded-full transition-all duration-200"

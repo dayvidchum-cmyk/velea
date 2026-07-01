@@ -129,6 +129,7 @@ const { user, loading } = useAuth();
         <button
           onClick={() => setQuickAddMode(fabMode)}
           aria-label="Add task"
+          data-tour="add-fab"
           className="fixed z-[60] transition-all duration-200 active:scale-95"
           style={{
             bottom: `calc(72px + env(safe-area-inset-bottom, 0px) + 16px)`,
