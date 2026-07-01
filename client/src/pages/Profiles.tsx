@@ -602,15 +602,20 @@ export default function Profiles() {
 
       await utils.profiles.list.invalidate();
       await utils.profiles.getActive.invalidate();
+      await utils.profiles.getSubject.invalidate();
       if (makeActive) {
         await Promise.all([
+          utils.settings.getBirthChart.invalidate(),
           utils.panchang.today.invalidate(),
           utils.panchang.byDate.invalidate(),
           utils.panchang.byMonth.invalidate(),
           utils.panchang.timeLordInfluence.invalidate(),
           utils.dasha.timeline.invalidate(),
           utils.profection.current.invalidate(),
+          utils.profection.timeLordTransits.invalidate(),
           utils.timeLordTransit.forDate.invalidate(),
+          utils.narrative.deepRead.invalidate(),
+          utils.narrative.currentTransits.invalidate(),
           utils.diagnostics.day.invalidate(),
           utils.diagnostics.range.invalidate(),
         ]);
@@ -663,13 +668,18 @@ export default function Profiles() {
       await Promise.all([
         utils.profiles.list.invalidate(),
         utils.profiles.getActive.invalidate(),
+        utils.profiles.getSubject.invalidate(),   // the natal chart reads this — was missing, so edits looked "stuck"
+        utils.settings.getBirthChart.invalidate(),
         utils.panchang.today.invalidate(),
         utils.panchang.byDate.invalidate(),
         utils.panchang.byMonth.invalidate(),
         utils.panchang.timeLordInfluence.invalidate(),
         utils.dasha.timeline.invalidate(),
         utils.profection.current.invalidate(),
+        utils.profection.timeLordTransits.invalidate(),
         utils.timeLordTransit.forDate.invalidate(),
+        utils.narrative.deepRead.invalidate(),
+        utils.narrative.currentTransits.invalidate(),
         utils.diagnostics.day.invalidate(),
         utils.diagnostics.range.invalidate(),
       ]);
