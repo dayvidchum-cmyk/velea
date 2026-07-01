@@ -198,18 +198,14 @@ async function findEclipses(when: Date): Promise<{ type: "solar" | "lunar"; date
 const CACHE = new Map<string, { at: number; value: CurrentSky }>();
 const CACHE_TTL_MS = 30 * 60 * 1000;
 
-export async function getCurrentSky(subject: AstrologySubject, when: Date = new Date()): Promise<CurrentSky> {
-  const cacheKey = `${subject.lagnaSign ?? "?"}|${subject.ascendantDegree ?? "?"}|${Math.floor(when.getTime() / CACHE_TTL_MS)}`;
-  const cached = CACHE.get(cacheKey);
-  if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.value;
-
-  const positions = await getSiderealLongitudesWithSpeed(when, ALL_PLANETS);
-  const natal = natalPointsFromSubject(subject);
-  const lagnaIdx = subject.lagnaSign ? ZODIAC.indexOf(subject.lagnaSign) : -1;
-  const stations = await detectStations(when);
-  const eclipses = await findEclipses(when);
-
-  const planets: SkyPlanet[] = ALL_PLANETS.map((p) => {
+// Map raw positions → SkyPlanet[] (shared by the live sky and per-day evaluation).
+function buildPlanets(
+  positions: Record<string, { longitude: number; speed: number }>,
+  natal: { point: string; longitude: number }[],
+  lagnaIdx: number,
+  stations: Record<string, SkyStation>,
+): SkyPlanet[] {
+  return ALL_PLANETS.map((p) => {
     const pos = positions[p];
     const longitude = pos?.longitude ?? 0;
     const speed = pos?.speed ?? 0;
@@ -220,7 +216,7 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
     const nakIdx = Math.floor(longitude / (360 / 27)) % 27;
     const hits = natal
       .map((n) => ({ natalPoint: n.point, orb: Math.round(angularSeparation(longitude, n.longitude) * 10) / 10 }))
-      .filter((h) => h.orb <= HIT_ORB && h.natalPoint !== p) // ignore a planet's conjunction to its own natal position
+      .filter((h) => h.orb <= HIT_ORB && h.natalPoint !== p)
       .sort((a, b) => a.orb - b.orb);
     return {
       planet: p,
@@ -235,6 +231,19 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
       hits,
     };
   });
+}
+
+export async function getCurrentSky(subject: AstrologySubject, when: Date = new Date()): Promise<CurrentSky> {
+  const cacheKey = `${subject.lagnaSign ?? "?"}|${subject.ascendantDegree ?? "?"}|${Math.floor(when.getTime() / CACHE_TTL_MS)}`;
+  const cached = CACHE.get(cacheKey);
+  if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.value;
+
+  const positions = await getSiderealLongitudesWithSpeed(when, ALL_PLANETS);
+  const natal = natalPointsFromSubject(subject);
+  const lagnaIdx = subject.lagnaSign ? ZODIAC.indexOf(subject.lagnaSign) : -1;
+  const stations = await detectStations(when);
+  const eclipses = await findEclipses(when);
+  const planets = buildPlanets(positions, natal, lagnaIdx, stations);
 
   const value: CurrentSky = {
     computedAt: when.toISOString(),
@@ -244,4 +253,59 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
   };
   CACHE.set(cacheKey, { at: Date.now(), value });
   return value;
+}
+
+// ── Golden days across a month ───────────────────────────────────────────────
+// Which days in a month are "golden" (universal signal favorable). Cheap per-day
+// eval: real positions + hits + eclipse windows, skipping the expensive station
+// scan (stations are single-day and dominated by the eclipse/retro terms here).
+const GOLDEN_DAYS_CACHE = new Map<string, { at: number; value: string[] }>();
+const GOLDEN_DAYS_TTL_MS = 6 * 60 * 60 * 1000;
+const GOLDEN_NET_THRESHOLD = 1.2; // favor surplus a day needs to count as golden
+
+export async function computeGoldenDays(
+  subject: AstrologySubject,
+  yearMonth: string, // "YYYY-MM"
+  litHouses: number[],
+): Promise<string[]> {
+  const key = `${subject.lagnaSign ?? "?"}|${yearMonth}`;
+  const cached = GOLDEN_DAYS_CACHE.get(key);
+  if (cached && Date.now() - cached.at < GOLDEN_DAYS_TTL_MS) return cached.value;
+
+  const { computeGoldenMoment } = await import("./golden-moment.js");
+  const [y, m] = yearMonth.split("-").map(Number);
+  if (!y || !m) return [];
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const natal = natalPointsFromSubject(subject);
+  const lagnaIdx = subject.lagnaSign ? ZODIAC.indexOf(subject.lagnaSign) : -1;
+
+  // Eclipses whose ±10-day window can touch this month (scan from ~25d before).
+  const monthStart = Date.UTC(y, m - 1, 1, 12);
+  const eclipses = await findEclipses(new Date(monthStart - 25 * DAY_MS));
+
+  const golden: string[] = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dayNoon = new Date(Date.UTC(y, m - 1, d, 12));
+    const positions = await getSiderealLongitudesWithSpeed(dayNoon, ALL_PLANETS);
+    const planets = buildPlanets(positions, natal, lagnaIdx, {});
+    const dayEclipses = eclipses
+      .map((e) => ({ type: e.type, date: e.date, daysAway: Math.round((new Date(e.date).getTime() - dayNoon.getTime()) / DAY_MS) }))
+      .filter((e) => Math.abs(e.daysAway) <= 10);
+    const daySky: CurrentSky = {
+      computedAt: dayNoon.toISOString(),
+      planets,
+      retrogrades: planets.filter((p) => p.isRetrograde).map((p) => p.planet),
+      eclipses: dayEclipses,
+    };
+    const signals = computeGoldenMoment(daySky, { litHouses });
+    // A golden day is a genuine standout, not merely "net positive" — require a
+    // strong favor surplus AND no caution dragging it. Keeps them rare/special.
+    const net = signals.reduce((a, s) => a + (s.direction === "favor" ? s.weight : -s.weight), 0);
+    const hasCaution = signals.some((s) => s.direction === "caution");
+    if (net >= GOLDEN_NET_THRESHOLD && !hasCaution) {
+      golden.push(`${yearMonth}-${String(d).padStart(2, "0")}`);
+    }
+  }
+  GOLDEN_DAYS_CACHE.set(key, { at: Date.now(), value: golden });
+  return golden;
 }

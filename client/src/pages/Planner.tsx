@@ -152,6 +152,8 @@ export default function Planner() {
   // Today's panchang is needed to know the current day mode for auto-assigning on pin
   const { data: todayPanchang } = trpc.panchang.today.useQuery();
   const { data: stage } = trpc.sky.stage.useQuery(undefined, { staleTime: 30 * 60 * 1000 });
+  const { data: goldenDaysList = [] } = trpc.sky.goldenDays.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
+  const goldenDays = useMemo(() => new Set(goldenDaysList), [goldenDaysList]);
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
@@ -1274,9 +1276,9 @@ export default function Planner() {
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
             const panchang = panchangByDate[dateStr];
             const isToday = dateStr === toDateStr(today);
-            // A "golden moment" — today, when the universal (Golden Moment) signal is
-            // favorable. Only these days get the gold antlers + gold border.
-            const isGolden = isToday && stage?.verdict?.universalLevel === "favorable";
+            // Golden-moment days (universal signal favorable this month) get the gold
+            // triple-moon + gold border.
+            const isGolden = goldenDays.has(dateStr);
             const isSelected = dateStr === selectedDate;
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
             const hasMode = !!modeColor;

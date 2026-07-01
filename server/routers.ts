@@ -59,7 +59,7 @@ import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
 import { scoreTasks } from "./task-scorer.js";
 import { parseLifeAreas } from "@shared/life-areas";
 import { getCurrentLayers } from "./layers/index.js";
-import { getCurrentSky } from "./sky/current-sky.js";
+import { getCurrentSky, computeGoldenDays } from "./sky/current-sky.js";
 import { computeGoldenMoment, computeVerdict } from "./sky/golden-moment.js";
 import { calculateProfectionYear } from "./profection/calculator.js";
 import { rateLimit } from "./_core/rateLimit.js";
@@ -1096,6 +1096,20 @@ export const appRouter = router({
       const verdict = computeVerdict(signals, checkInAvg);
       return { computedAt: sky.computedAt, signals, retrogrades: sky.retrogrades, eclipses: sky.eclipses, verdict };
     }),
+
+    /** Golden-moment days in a month (universal signal favorable) — for the calendar. */
+    goldenDays: protectedProcedure
+      .input(z.object({ yearMonth: z.string() }))
+      .query(async ({ ctx, input }) => {
+        if (!ctx.subject?.birthDate || !ctx.subject?.lagnaSign) return [] as string[];
+        let litHouses = [1, 10];
+        try {
+          const today = new Date().toISOString().split("T")[0];
+          const prof = calculateProfectionYear(ctx.subject.birthDate, today, ctx.subject.lagnaSign);
+          litHouses = Array.from(new Set([1, 10, prof.activatedHouse]));
+        } catch { /* fall back to [1, 10] */ }
+        return computeGoldenDays(ctx.subject, input.yearMonth, litHouses);
+      }),
   }),
 
   // ── NARRATIVE (LLM Glance + Deep Read) ────────────────────
