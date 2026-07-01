@@ -979,6 +979,7 @@ export default function Planner() {
                                 task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
                                 onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
                                 onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
                                 onDelete={() => deleteMutation.mutate({ id: task.id })}
                                 onEdit={(t: Task) => setEditPinnedTask(t)}
                                 dayMode={todayTaskMode}
@@ -1042,6 +1043,7 @@ export default function Planner() {
                     task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
                     onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
                     onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
                     onDelete={() => deleteMutation.mutate({ id: task.id })}
                     onEdit={(t: Task) => setEditPinnedTask(t)}
                     dayMode={todayTaskMode}
@@ -1098,6 +1100,7 @@ export default function Planner() {
                     task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
                     onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
                     onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
                     onDelete={() => deleteMutation.mutate({ id: task.id })}
                     onEdit={(t: Task) => setEditAlignedTask(t)}
                     dayMode={todayTaskMode}

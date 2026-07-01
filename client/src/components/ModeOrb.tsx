@@ -48,8 +48,8 @@ export default function ModeOrb({ mode, count, active = false, size = "md", onCl
         </span>
         {active && (
           <span
-            className="absolute inset-0 rounded-full animate-ping opacity-20"
-            style={{ background: "inherit" }}
+            className="absolute inset-0 rounded-full animate-ping"
+            style={{ background: "inherit", opacity: 0.28 }}
           />
         )}
       </div>

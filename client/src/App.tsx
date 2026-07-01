@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
 import { Plus } from "lucide-react";
@@ -65,6 +65,140 @@ const { user, loading } = useAuth();
     (todayMode && PANCHANG_TO_TASK_MODE[todayMode as keyof typeof PANCHANG_TO_TASK_MODE]) ||
     "Action";
 
+  // ── Draggable FAB ──────────────────────────────────────────────────
+  // Persisted position (viewport pixels, left/top). null = default corner.
+  const FAB_SIZE = 48;
+  const FAB_NAV_CLEARANCE = 80; // keep clear of the bottom nav
+  const FAB_MARGIN = 8;
+  const [fabPos, setFabPos] = useState<{ x: number; y: number } | null>(null);
+  const [fabDragging, setFabDragging] = useState(false);
+  const fabDragRef = useRef<{
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+    moved: boolean;
+  } | null>(null);
+
+  const clampFabPos = useCallback((x: number, y: number) => {
+    const maxX = Math.max(FAB_MARGIN, window.innerWidth - FAB_SIZE - FAB_MARGIN);
+    const maxY = Math.max(FAB_MARGIN, window.innerHeight - FAB_SIZE - FAB_NAV_CLEARANCE);
+    return {
+      x: Math.min(Math.max(x, FAB_MARGIN), maxX),
+      y: Math.min(Math.max(y, FAB_MARGIN), maxY),
+    };
+  }, []);
+
+  // Load persisted position on mount.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("kala_fab_pos");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed?.x === "number" && typeof parsed?.y === "number") {
+          setFabPos(clampFabPos(parsed.x, parsed.y));
+        }
+      }
+    } catch {
+      /* ignore malformed storage */
+    }
+  }, [clampFabPos]);
+
+  // Re-clamp on viewport resize so the FAB can't end up off-screen.
+  useEffect(() => {
+    const onResize = () => {
+      setFabPos((prev) => (prev ? clampFabPos(prev.x, prev.y) : prev));
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [clampFabPos]);
+
+  const handleFabPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    fabDragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      moved: false,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, []);
+
+  const handleFabPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLButtonElement>) => {
+      const drag = fabDragRef.current;
+      if (!drag) return;
+      const dx = e.clientX - drag.startX;
+      const dy = e.clientY - drag.startY;
+      if (!drag.moved && Math.hypot(dx, dy) > 6) {
+        drag.moved = true;
+        setFabDragging(true);
+      }
+      if (drag.moved) {
+        setFabPos(clampFabPos(e.clientX - drag.offsetX, e.clientY - drag.offsetY));
+      }
+    },
+    [clampFabPos],
+  );
+
+  const handleFabPointerUp = useCallback(
+    (e: React.PointerEvent<HTMLButtonElement>) => {
+      const drag = fabDragRef.current;
+      fabDragRef.current = null;
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+      if (drag?.moved) {
+        // Persist the dragged position.
+        setFabPos((prev) => {
+          if (prev) {
+            try {
+              localStorage.setItem("kala_fab_pos", JSON.stringify(prev));
+            } catch {
+              /* ignore storage failure */
+            }
+          }
+          return prev;
+        });
+        setFabDragging(false);
+      } else {
+        // Treat as a tap → open the add sheet.
+        setQuickAddMode(fabMode);
+      }
+    },
+    [fabMode, setQuickAddMode],
+  );
+
+  // ── Pin bottom nav to the visual viewport bottom (iOS Safari) ───────
+  useEffect(() => {
+    if (!showNav) return;
+    const vv = window.visualViewport;
+    const root = document.documentElement;
+    const update = () => {
+      if (!vv) {
+        root.style.setProperty("--nav-offset", "0px");
+        return;
+      }
+      const offset = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
+      root.style.setProperty("--nav-offset", `${offset}px`);
+    };
+    update();
+    if (vv) {
+      vv.addEventListener("resize", update);
+      vv.addEventListener("scroll", update);
+    }
+    window.addEventListener("resize", update);
+    return () => {
+      if (vv) {
+        vv.removeEventListener("resize", update);
+        vv.removeEventListener("scroll", update);
+      }
+      window.removeEventListener("resize", update);
+      root.style.setProperty("--nav-offset", "0px");
+    };
+  }, [showNav]);
+
 
   // Show loading state while checking auth
   if (loading) {
@@ -127,13 +261,19 @@ const { user, loading } = useAuth();
       {/* FAB — floating add task button, above nav bar */}
       {showNav && (
         <button
-          onClick={() => setQuickAddMode(fabMode)}
+          onPointerDown={handleFabPointerDown}
+          onPointerMove={handleFabPointerMove}
+          onPointerUp={handleFabPointerUp}
           aria-label="Add task"
           data-tour="add-fab"
-          className="fixed z-[60] transition-all duration-200 active:scale-95"
+          className={`fixed z-[60] active:scale-95 ${fabDragging ? "" : "transition-all duration-200"}`}
           style={{
-            bottom: `calc(72px + env(safe-area-inset-bottom, 0px) + 16px)`,
-            right: '20px',
+            ...(fabPos
+              ? { left: `${fabPos.x}px`, top: `${fabPos.y}px` }
+              : {
+                  bottom: `calc(72px + env(safe-area-inset-bottom, 0px) + 16px)`,
+                  right: '20px',
+                }),
             width: '48px',
             height: '48px',
             borderRadius: '50%',
@@ -144,6 +284,8 @@ const { user, loading } = useAuth();
             justifyContent: 'center',
             boxShadow: '0 4px 16px oklch(0 0 0 / 0.35)',
             border: 'none',
+            touchAction: 'none',
+            cursor: fabDragging ? 'grabbing' : 'pointer',
           }}
         >
           <Plus size={22} strokeWidth={2.5} />

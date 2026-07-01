@@ -27,6 +27,8 @@ interface TaskItemProps {
   dayMode?: TaskMode;
   /** Alignment with today (0–100) — renders a gold dot meter when provided. */
   alignment?: number;
+  /** Quick-cycle the priority from the collapsed row (Low→Medium→High→Low). */
+  onCyclePriority?: (id: number, next: "Low" | "Medium" | "High") => void;
 }
 
 function formatDueDate(dateStr: string): string {
@@ -57,7 +59,8 @@ function isDueToday(dateStr: string): boolean {
 
 
 
-export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment }: TaskItemProps) {
+export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment, onCyclePriority }: TaskItemProps) {
+  const NEXT_PRIORITY: Record<string, "Low" | "Medium" | "High"> = { Low: "Medium", Medium: "High", High: "Low" };
   const [expanded, setExpanded] = useState(false);
   const [addingSubtask, setAddingSubtask] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
@@ -297,27 +300,27 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           </div>
         </div>
 
-        {/* Priority indicator */}
-        {task.priority && task.priority !== 'Low' ? (
-          <span
-            className="text-[12px] font-bold tracking-tight flex-shrink-0"
-            style={{ color: "rgba(var(--ink),0.5)", opacity: task.isCompleted ? 0.4 : 1, letterSpacing: "-0.02em" }}
-          >
-            {PRIORITY_EXCLAIM[task.priority as keyof typeof PRIORITY_EXCLAIM]}
-          </span>
-        ) : task.priority === 'Low' ? (
-          <span
-            className="text-[12px] font-bold tracking-tight flex-shrink-0"
-            style={{ color: "rgba(var(--ink),0.35)", opacity: task.isCompleted ? 0.3 : 1, letterSpacing: "-0.02em" }}
-          >
-            !
-          </span>
-        ) : null}
+        {/* Priority — tap to cycle Low→Medium→High */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onCyclePriority?.(task.id, NEXT_PRIORITY[task.priority ?? "Low"]); }}
+          className="text-[12px] font-bold tracking-tight flex-shrink-0 px-1 py-1 -mx-0.5 rounded"
+          style={{ color: task.priority && task.priority !== "Low" ? "rgba(var(--ink),0.6)" : "rgba(var(--ink),0.3)", opacity: task.isCompleted ? 0.4 : 1, letterSpacing: "-0.02em" }}
+          aria-label={`Priority ${task.priority ?? "Low"} — tap to change`}
+          title={`Priority: ${task.priority ?? "Low"} (tap to change)`}
+        >
+          {PRIORITY_EXCLAIM[(task.priority as keyof typeof PRIORITY_EXCLAIM) ?? "Low"] ?? "!"}
+        </button>
 
-        {/* Pin indicator */}
-        {task.isPinned && (
-          <Pin size={12} style={{ color: "rgba(var(--ink),0.45)", flexShrink: 0 }} />
-        )}
+        {/* Pin — tap to pin / unpin */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onTogglePin(task.id, !!task.isPinned); }}
+          className="flex-shrink-0 p-1 rounded"
+          style={{ color: task.isPinned ? "rgba(var(--ink),0.9)" : "rgba(var(--ink),0.3)" }}
+          aria-label={task.isPinned ? "Unpin task" : "Pin task"}
+          title={task.isPinned ? "Unpin" : "Pin to Do Now"}
+        >
+          <Pin size={13} fill={task.isPinned ? "currentColor" : "none"} />
+        </button>
 
         {/* Snooze / Unsnooze — quick access without expanding the task */}
         {!task.isCompleted && (
