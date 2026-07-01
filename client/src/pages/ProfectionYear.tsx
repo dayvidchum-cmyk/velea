@@ -34,6 +34,17 @@ const HOUSE_GLOSS: Record<number, string> = {
 // it rules from the lagna.
 const ZODIAC = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
 const SIGN_RULERS: Record<string, string> = { Aries: "Mars", Taurus: "Venus", Gemini: "Mercury", Cancer: "Moon", Leo: "Sun", Virgo: "Mercury", Libra: "Venus", Scorpio: "Mars", Sagittarius: "Jupiter", Capricorn: "Saturn", Aquarius: "Saturn", Pisces: "Jupiter" };
+// Sign colors + glyphs for the Time Lord movement ribbon (mirrors ProfectionWheel).
+const SIGN_COLOR: Record<string, string> = {
+  Aries: "#E23B4E", Scorpio: "#8E1E3A", Taurus: "#F4A9C2", Libra: "#B23A78",
+  Gemini: "#7FD4B8", Virgo: "#2E9C7C", Cancer: "#A9B4C2", Leo: "#EE9A2E",
+  Sagittarius: "#E6C24A", Pisces: "#B0851F", Capricorn: "#6E7BD4", Aquarius: "#313E8C",
+};
+const SIGN_GLYPH: Record<string, string> = {
+  Aries: "♈︎", Taurus: "♉︎", Gemini: "♊︎", Cancer: "♋︎", Leo: "♌︎", Virgo: "♍︎",
+  Libra: "♎︎", Scorpio: "♏︎", Sagittarius: "♐︎", Capricorn: "♑︎", Aquarius: "♒︎", Pisces: "♓︎",
+};
+const GLYPH_FONT = "'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols2',serif";
 const DIGN: Record<string, { ex: string; de: string; own: string[] }> = {
   Sun: { ex: "Aries", de: "Libra", own: ["Leo"] },
   Moon: { ex: "Taurus", de: "Scorpio", own: ["Cancer"] },
@@ -573,33 +584,80 @@ export default function ProfectionYear() {
           ) : transitsLoading ? (
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Loading...</p>
           ) : transitsData?.transits?.length ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {transitsData.transits.map((transit: any, idx: number) => {
-                const isExpanded = expandedTransitId === idx;
-                const today = new Date().toISOString().split('T')[0];
-                const isCurrent = transit.startDate <= today && today <= transit.endDate;
-                return (
-                  <div key={idx} style={{ border: `1.5px solid ${isCurrent ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.15)"}`, borderRadius: "0.5rem", overflow: "hidden", background: isCurrent ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.14)" }}>
-                    <button type="button" onClick={() => setExpandedTransitId(isExpanded ? null : idx)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}>
-                      <p style={{ margin: 0, fontWeight: isCurrent ? 700 : 500, color: isCurrent ? "#111111" : "rgba(255,255,255,0.9)", fontSize: "0.95rem" }}>
-                        {transit.startDate} – {transit.endDate} — {transit.sign} in House {transit.house}
-                      </p>
-                      <ChevronDown size={16} style={{ color: isCurrent ? "#111111" : "rgba(255,255,255,0.6)", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0, marginLeft: "0.5rem" }} />
-                    </button>
-                    {isExpanded && (
-                      <div style={{ padding: "1rem", borderTop: `1px solid ${isCurrent ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.12)"}`, display: "flex", flexDirection: "column", gap: "0.75rem", fontSize: "0.95rem" }}>
-                        {[["Motion", transit.isRetrograde ? "Retrograde" : "Direct"], ["Combustion", transit.combustionStatus ? "Yes" : "No"], ["Solitary", transit.solitaryStatus ? "Yes" : "No"]].map(([label, value]) => (
-                          <div key={String(label)} style={{ display: "flex", justifyContent: "space-between" }}>
-                            <span style={{ color: isCurrent ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.6)" }}>{label}:</span>
-                            <span style={{ color: isCurrent ? "rgba(0,0,0,0.88)" : "rgba(255,255,255,0.92)", fontWeight: 500 }}>{value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+            (() => {
+              const segs = transitsData.transits as any[];
+              const todayStr = new Date().toISOString().split("T")[0];
+              const ms = (d: string) => new Date(d + "T12:00:00").getTime();
+              const start = ms(segs[0].startDate);
+              const end = ms(segs[segs.length - 1].endDate);
+              const span = Math.max(end - start, 1);
+              const nowPct = Math.max(0, Math.min(100, ((Date.now() - start) / span) * 100));
+              const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+              const fmtLong = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+              const sel = expandedTransitId != null ? segs[expandedTransitId] : null;
+              return (
+                <div>
+                  <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "0.75rem" }}>
+                    Your Time Lord's path this year, sign by sign. Tap a band for detail; the white line is today.
+                  </p>
+
+                  {/* Ribbon */}
+                  <div style={{ position: "relative", display: "flex", width: "100%", height: 52, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.18)" }}>
+                    {segs.map((t, idx) => {
+                      const dur = Math.max(ms(t.endDate) - ms(t.startDate), 1);
+                      const color = SIGN_COLOR[t.sign] ?? "#888";
+                      const isCurrent = t.startDate <= todayStr && todayStr <= t.endDate;
+                      const selected = expandedTransitId === idx;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          title={`${t.sign} · House ${t.house} · ${fmtLong(t.startDate)}–${fmtLong(t.endDate)}`}
+                          onClick={() => setExpandedTransitId(selected ? null : idx)}
+                          style={{
+                            flex: `${dur} 0 0`, minWidth: 0, height: "100%", background: color,
+                            opacity: selected ? 1 : isCurrent ? 0.96 : 0.8,
+                            border: "none", borderRight: idx < segs.length - 1 ? "1px solid rgba(0,0,0,0.28)" : "none",
+                            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
+                            cursor: "pointer", overflow: "hidden", boxShadow: selected ? "inset 0 0 0 2px #fff" : "none",
+                          }}
+                        >
+                          <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>{SIGN_GLYPH[t.sign]}</span>
+                          {t.isRetrograde && <span style={{ fontSize: "0.75rem", color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
+                        </button>
+                      );
+                    })}
+                    {/* Today marker */}
+                    <div style={{ position: "absolute", top: -1, bottom: -1, left: `${nowPct}%`, width: 2, background: "#fff", boxShadow: "0 0 5px rgba(0,0,0,0.6)", pointerEvents: "none" }} />
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Axis labels */}
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.4rem" }}>
+                    <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
+                    <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
+                  </div>
+
+                  {/* Selected segment detail */}
+                  {sel && (
+                    <div style={{ marginTop: "0.9rem", background: "rgba(0,0,0,0.2)", borderRadius: 12, padding: "0.85rem 1rem" }}>
+                      <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.5rem", color: "#fff", fontWeight: 700, fontSize: "0.98rem" }}>
+                        <span style={{ fontFamily: GLYPH_FONT, color: SIGN_COLOR[sel.sign] ?? "#fff" }}>{SIGN_GLYPH[sel.sign]}</span>
+                        {sel.sign} in the {ORD[sel.house]} house
+                      </p>
+                      <p style={{ margin: "0.2rem 0 0.7rem", color: "rgba(255,255,255,0.6)", fontSize: "0.82rem" }}>
+                        {fmtLong(sel.startDate)} – {fmtLong(sel.endDate)}
+                      </p>
+                      {[["Motion", sel.isRetrograde ? "Retrograde" : "Direct"], ["Combustion", sel.combustionStatus ? "Yes" : "No"], ["Solitary", sel.solitaryStatus ? "Yes" : "No"]].map(([label, value]) => (
+                        <div key={String(label)} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", padding: "0.15rem 0" }}>
+                          <span style={{ color: "rgba(255,255,255,0.6)" }}>{label}</span>
+                          <span style={{ color: "rgba(255,255,255,0.92)", fontWeight: 500 }}>{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()
           ) : (
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>No transit data available.</p>
           )}
