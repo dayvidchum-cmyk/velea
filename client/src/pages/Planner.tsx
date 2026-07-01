@@ -827,7 +827,7 @@ export default function Planner() {
                 marginTop: 'auto',
                 marginLeft: 'auto',
                 marginRight: 'auto',
-                maxWidth: '34ch',
+                maxWidth: '45ch',
                 paddingTop: '1rem',
                 fontFamily: "'Inter', ui-sans-serif, sans-serif",
                 fontStyle: 'italic',
