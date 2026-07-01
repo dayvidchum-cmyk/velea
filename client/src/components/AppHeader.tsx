@@ -235,22 +235,34 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   return (
     <>
       <div className="relative z-10">
-        {/* Brand mark — masked so it takes the foreground color (black in light) */}
-        <div className="flex items-center gap-2 mb-4">
-          <span
-            aria-hidden="true"
-            style={{
-              display: "inline-block", width: 30, height: 30,
-              background: "var(--foreground)",
-              WebkitMaskImage: "url(/velea-logo.png)", maskImage: "url(/velea-logo.png)",
-              WebkitMaskSize: "contain", maskSize: "contain",
-              WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center", maskPosition: "center",
-            }}
-          />
-          <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--foreground)" }}>
-            Velea
-          </span>
+        {/* Brand mark — Velea + លវេលា (Moul), with the Khmer meaning */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              style={{
+                display: "inline-block", width: 30, height: 30,
+                background: "var(--foreground)",
+                WebkitMaskImage: "url(/velea-logo.png)", maskImage: "url(/velea-logo.png)",
+                WebkitMaskSize: "contain", maskSize: "contain",
+                WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center", maskPosition: "center",
+              }}
+            />
+            <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--foreground)" }}>
+              Velea
+            </span>
+            <span
+              lang="km"
+              title="លវេលា (Velea) — Khmer for the auspicious, golden moment to act"
+              style={{ fontFamily: "'Moul', serif", fontSize: "1.35rem", lineHeight: 1, color: "#C9A84C", marginLeft: "0.15rem" }}
+            >
+              លវេលា
+            </span>
+          </div>
+          <p style={{ margin: "0.3rem 0 0", fontSize: "0.62rem", letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+            Khmer — the auspicious, golden moment to act
+          </p>
         </div>
         {/* Utility row: date left, location + state right */}
         <div className="flex items-center justify-between mb-5">

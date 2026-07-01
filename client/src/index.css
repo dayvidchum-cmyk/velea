@@ -6,6 +6,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Moul — Khmer display font for the លវេលា brand mark (OFL, see /fonts/Moul-OFL.txt) */
+@font-face {
+  font-family: 'Moul';
+  src: url('/fonts/Moul.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    KALA — LUXURY TERMINAL AESTHETIC
    Dark mode only. Pure black. High contrast. Calm. Information-dense.
