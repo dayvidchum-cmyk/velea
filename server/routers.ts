@@ -35,6 +35,7 @@ import {
   unarchiveProject,
   deleteProject,
   getTodayCheckIn,
+  getCheckInAveragesForMonth,
   createCheckIn,
   getUserByEmail,
   createUserWithPassword,
@@ -1097,18 +1098,29 @@ export const appRouter = router({
       return { computedAt: sky.computedAt, signals, retrogrades: sky.retrogrades, eclipses: sky.eclipses, verdict };
     }),
 
-    /** Golden-moment days in a month (universal signal favorable) — for the calendar. */
+    /**
+     * Golden-moment days in a month. `potential` = universal signal favorable (the
+     * weather); `confirmed` = today/past potential days where the check-in (acting as
+     * Panchapakshi, the individual signal) also averages favorable. The calendar shows
+     * a light moon for potential and a solid moon for confirmed.
+     */
     goldenDays: protectedProcedure
       .input(z.object({ yearMonth: z.string() }))
-      .query(async ({ ctx, input }) => {
-        if (!ctx.subject?.birthDate || !ctx.subject?.lagnaSign) return [] as string[];
+      .query(async ({ ctx, input }): Promise<{ potential: string[]; confirmed: string[] }> => {
+        if (!ctx.subject?.birthDate || !ctx.subject?.lagnaSign) return { potential: [], confirmed: [] };
+        const today = new Date().toISOString().split("T")[0];
         let litHouses = [1, 10];
         try {
-          const today = new Date().toISOString().split("T")[0];
           const prof = calculateProfectionYear(ctx.subject.birthDate, today, ctx.subject.lagnaSign);
           litHouses = Array.from(new Set([1, 10, prof.activatedHouse]));
         } catch { /* fall back to [1, 10] */ }
-        return computeGoldenDays(ctx.subject, input.yearMonth, litHouses);
+        const potential = await computeGoldenDays(ctx.subject, input.yearMonth, litHouses);
+        // Confirm today/past potential days where the check-in also aligns (avg >= 3.7).
+        const checkInAvgByDate = await getCheckInAveragesForMonth(ctx.user.id, ctx.subject.profileId ?? null, input.yearMonth);
+        const confirmed = potential.filter(
+          (d) => d <= today && checkInAvgByDate[d] != null && checkInAvgByDate[d] >= 3.7,
+        );
+        return { potential, confirmed };
       }),
   }),
 

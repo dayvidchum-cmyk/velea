@@ -261,17 +261,7 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
 // scan (stations are single-day and dominated by the eclipse/retro terms here).
 const GOLDEN_DAYS_CACHE = new Map<string, { at: number; value: string[] }>();
 const GOLDEN_DAYS_TTL_MS = 6 * 60 * 60 * 1000;
-const GOLDEN_NET_THRESHOLD = 0.8; // universal favor surplus (the "season")
-// The individual (chart) signal per day = the Moon's house from the lagna → its mode.
-// A golden day is ALIGNMENT: universal favorable AND the personal day is a "go" mode.
-const HOUSE_MODE: Record<number, string> = {
-  1: "Action", 10: "Action", 11: "Action",
-  3: "Build", 6: "Build",
-  5: "Selective", 7: "Selective",
-  4: "Restraint", 8: "Restraint", 12: "Restraint",
-  2: "Flex", 9: "Flex",
-};
-const INDIVIDUAL_GO_MODES = new Set(["Action", "Build"]);
+const GOLDEN_NET_THRESHOLD = 0.5; // universal favor surplus -> a "potential golden" day
 
 export async function computeGoldenDays(
   subject: AstrologySubject,
@@ -309,14 +299,10 @@ export async function computeGoldenDays(
     };
     const signals = computeGoldenMoment(daySky, { litHouses });
     // Universal signal: favor beating caution by a clear margin (net surplus).
+    // These are the "potential golden" days; the individual signal (the check-in,
+    // acting as Panchapakshi) confirms them in the router where check-in data lives.
     const net = signals.reduce((a, s) => a + (s.direction === "favor" ? s.weight : -s.weight), 0);
-    const universalGo = net >= GOLDEN_NET_THRESHOLD;
-    // Individual signal: the Moon's house from the lagna → a "go" day mode.
-    const moonLon = positions.Moon?.longitude ?? 0;
-    const moonHouse = lagnaIdx >= 0 ? ((Math.floor(moonLon / 30) % 12) - lagnaIdx + 12) % 12 + 1 : 0;
-    const individualGo = INDIVIDUAL_GO_MODES.has(HOUSE_MODE[moonHouse] ?? "");
-    // A golden day is ALIGNMENT — universal AND individual both saying go.
-    if (universalGo && individualGo) {
+    if (net >= GOLDEN_NET_THRESHOLD) {
       golden.push(`${yearMonth}-${String(d).padStart(2, "0")}`);
     }
   }

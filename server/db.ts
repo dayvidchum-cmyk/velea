@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { and, asc, desc, eq, isNull, or, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull, lt, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, checkIns, panchang, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, users, natalBodies, narrativeCache, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -688,6 +688,37 @@ export async function getTodayCheckIn(userId: number, profileId?: number | null)
     .limit(50);
   const todayRows = rows.filter((r) => r.recordedAt >= todayStart);
   return todayRows[0];
+}
+
+/**
+ * Check-in averages by date (YYYY-MM-DD) for a month — the latest check-in per day,
+ * averaged across the five measures (1–5). Powers "confirmed golden" days.
+ */
+export async function getCheckInAveragesForMonth(
+  userId: number,
+  profileId: number | null | undefined,
+  yearMonth: string, // "YYYY-MM"
+): Promise<Record<string, number>> {
+  const db = await getDb();
+  if (!db) return {};
+  const [y, m] = yearMonth.split("-").map(Number);
+  if (!y || !m) return {};
+  const start = new Date(Date.UTC(y, m - 1, 1));
+  const end = new Date(Date.UTC(y, m, 1));
+  const profileFilter = profileId != null ? eq(checkIns.profileId, profileId) : isNull(checkIns.profileId);
+  const rows = await db
+    .select()
+    .from(checkIns)
+    .where(and(eq(checkIns.userId, userId), profileFilter, gte(checkIns.recordedAt, start), lt(checkIns.recordedAt, end)))
+    .orderBy(desc(checkIns.recordedAt));
+  const byDate: Record<string, number> = {};
+  for (const r of rows) {
+    const d = r.recordedAt.toISOString().split("T")[0];
+    if (byDate[d] == null) {
+      byDate[d] = (r.physicalEnergy + r.mentalClarity + r.emotionalStability + r.creativeFlow + r.motivation) / 5;
+    }
+  }
+  return byDate;
 }
 
 /**

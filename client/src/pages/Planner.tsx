@@ -152,8 +152,9 @@ export default function Planner() {
   // Today's panchang is needed to know the current day mode for auto-assigning on pin
   const { data: todayPanchang } = trpc.panchang.today.useQuery();
   const { data: stage } = trpc.sky.stage.useQuery(undefined, { staleTime: 30 * 60 * 1000 });
-  const { data: goldenDaysList = [] } = trpc.sky.goldenDays.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
-  const goldenDays = useMemo(() => new Set(goldenDaysList), [goldenDaysList]);
+  const { data: goldenData } = trpc.sky.goldenDays.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
+  const goldenConfirmed = useMemo(() => new Set(goldenData?.confirmed ?? []), [goldenData]);
+  const goldenPotential = useMemo(() => new Set(goldenData?.potential ?? []), [goldenData]);
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
@@ -1276,9 +1277,12 @@ export default function Planner() {
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
             const panchang = panchangByDate[dateStr];
             const isToday = dateStr === toDateStr(today);
-            // Golden-moment days (universal signal favorable this month) get the gold
-            // triple-moon + gold border.
-            const isGolden = goldenDays.has(dateStr);
+            // Golden moments: confirmed (universal + check-in aligned) shows a SOLID
+            // gold triple-moon; potential (universal favorable, unconfirmed) shows a
+            // LIGHT outline moon.
+            const isConfirmedGolden = goldenConfirmed.has(dateStr);
+            const isPotentialGolden = goldenPotential.has(dateStr) && !isConfirmedGolden;
+            const isGolden = isConfirmedGolden || isPotentialGolden;
             const isSelected = dateStr === selectedDate;
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
             const hasMode = !!modeColor;
@@ -1303,8 +1307,10 @@ export default function Planner() {
                   minHeight: isGolden ? "3.2rem" : "2.1rem",
                   color: hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
-                  border: isGolden
+                  border: isConfirmedGolden
                     ? "2px solid #C9A84C"
+                    : isPotentialGolden
+                    ? "1.5px dashed color-mix(in srgb, #C9A84C 55%, transparent)"
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : isToday
@@ -1317,8 +1323,8 @@ export default function Planner() {
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
                 {isGolden && (
-                  <span style={{ position: "absolute", top: "4px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
-                    <TripleMoon size={30} color="#C9A84C" />
+                  <span style={{ position: "absolute", top: "4px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", opacity: isConfirmedGolden ? 1 : 0.5 }}>
+                    <TripleMoon size={30} color="#C9A84C" filled={isConfirmedGolden} />
                   </span>
                 )}
                 <span
