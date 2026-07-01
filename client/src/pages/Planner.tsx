@@ -1218,7 +1218,7 @@ export default function Planner() {
       {/* ── PLAN AHEAD (planning tools, collapsed by default) ── */}
       <button
         onClick={() => setPlanOpen((v) => !v)}
-        className="flex items-center justify-between w-full py-2 transition-all relative z-10"
+        className="flex items-center gap-2 w-full py-2 transition-all relative z-10"
       >
         <span
           className="text-sm font-bold uppercase"
