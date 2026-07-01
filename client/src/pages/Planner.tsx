@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, CircleDot } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, CircleDot, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
@@ -209,6 +209,19 @@ export default function Planner() {
   const glanceContent = glance?.content ?? null;
 
   const utils = trpc.useUtils();
+
+  // The read is stable for the day; this deliberately regenerates it "to the moment".
+  const [refreshingRead, setRefreshingRead] = useState(false);
+  const updateToMoment = async () => {
+    if (!glanceProfileId) return;
+    setRefreshingRead(true);
+    try {
+      await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true });
+      await utils.narrative.glance.invalidate({ profileId: glanceProfileId, date: selectedDate });
+    } finally {
+      setRefreshingRead(false);
+    }
+  };
 
   const saveReflection = trpc.reflections.upsert.useMutation({
     onSuccess: () => {
@@ -684,6 +697,19 @@ export default function Planner() {
               flexDirection: 'column',
             }}
           >
+            {/* Update to the moment — the read holds for the day; this regenerates it now */}
+            {glanceProfileId && glanceContent && (
+              <button
+                type="button"
+                onClick={updateToMoment}
+                disabled={refreshingRead}
+                title="Update to the moment"
+                aria-label="Update to the moment"
+                style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 5, background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,0.6)' }}
+              >
+                <RefreshCw size={15} className={refreshingRead ? 'animate-spin' : ''} />
+              </button>
+            )}
             {/* DATE label — toggles the day card open/closed */}
             <button
               type="button"
