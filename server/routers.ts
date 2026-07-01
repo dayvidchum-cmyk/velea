@@ -1107,16 +1107,11 @@ export const appRouter = router({
     goldenDays: protectedProcedure
       .input(z.object({ yearMonth: z.string() }))
       .query(async ({ ctx, input }): Promise<{ potential: string[]; confirmed: string[] }> => {
-        if (!ctx.subject?.birthDate || !ctx.subject?.lagnaSign) return { potential: [], confirmed: [] };
         const today = new Date().toISOString().split("T")[0];
-        let litHouses = [1, 10];
-        try {
-          const prof = calculateProfectionYear(ctx.subject.birthDate, today, ctx.subject.lagnaSign);
-          litHouses = Array.from(new Set([1, 10, prof.activatedHouse]));
-        } catch { /* fall back to [1, 10] */ }
-        const potential = await computeGoldenDays(ctx.subject, input.yearMonth, litHouses);
-        // Confirm today/past potential days where the check-in also aligns (avg >= 3.7).
-        const checkInAvgByDate = await getCheckInAveragesForMonth(ctx.user.id, ctx.subject.profileId ?? null, input.yearMonth);
+        // Potential = collective panchang day-quality (no chart needed).
+        const potential = await computeGoldenDays(input.yearMonth);
+        // Confirm today/past potential days where the check-in (Panchapakshi) aligns.
+        const checkInAvgByDate = await getCheckInAveragesForMonth(ctx.user.id, ctx.subject?.profileId ?? null, input.yearMonth);
         const confirmed = potential.filter(
           (d) => d <= today && checkInAvgByDate[d] != null && checkInAvgByDate[d] >= 3.7,
         );

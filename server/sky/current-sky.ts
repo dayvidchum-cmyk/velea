@@ -256,56 +256,29 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
 }
 
 // ── Golden days across a month ───────────────────────────────────────────────
-// Which days in a month are "golden" (universal signal favorable). Cheap per-day
-// eval: real positions + hits + eclipse windows, skipping the expensive station
-// scan (stations are single-day and dominated by the eclipse/retro terms here).
+// The UNIVERSAL side of a golden moment = panchang day-quality (auspicious tithi +
+// nakshatra + yoga), which is COLLECTIVE (same for everyone) and derivable from the
+// sidereal Sun & Moon alone. These are the "potential golden" days; the individual
+// side (the check-in, acting as Panchapakshi) confirms them per person in the router.
 const GOLDEN_DAYS_CACHE = new Map<string, { at: number; value: string[] }>();
-const GOLDEN_DAYS_TTL_MS = 6 * 60 * 60 * 1000;
-const GOLDEN_NET_THRESHOLD = 0.5; // universal favor surplus -> a "potential golden" day
+const GOLDEN_DAYS_TTL_MS = 12 * 60 * 60 * 1000;
 
-export async function computeGoldenDays(
-  subject: AstrologySubject,
-  yearMonth: string, // "YYYY-MM"
-  litHouses: number[],
-): Promise<string[]> {
-  const key = `${subject.lagnaSign ?? "?"}|${yearMonth}`;
-  const cached = GOLDEN_DAYS_CACHE.get(key);
+export async function computeGoldenDays(yearMonth: string): Promise<string[]> {
+  const cached = GOLDEN_DAYS_CACHE.get(yearMonth);
   if (cached && Date.now() - cached.at < GOLDEN_DAYS_TTL_MS) return cached.value;
 
-  const { computeGoldenMoment } = await import("./golden-moment.js");
+  const { dayQuality } = await import("../panchang/auspiciousness.js");
   const [y, m] = yearMonth.split("-").map(Number);
   if (!y || !m) return [];
   const daysInMonth = new Date(y, m, 0).getDate();
-  const natal = natalPointsFromSubject(subject);
-  const lagnaIdx = subject.lagnaSign ? ZODIAC.indexOf(subject.lagnaSign) : -1;
-
-  // Eclipses whose ±10-day window can touch this month (scan from ~25d before).
-  const monthStart = Date.UTC(y, m - 1, 1, 12);
-  const eclipses = await findEclipses(new Date(monthStart - 25 * DAY_MS));
 
   const golden: string[] = [];
   for (let d = 1; d <= daysInMonth; d++) {
     const dayNoon = new Date(Date.UTC(y, m - 1, d, 12));
-    const positions = await getSiderealLongitudesWithSpeed(dayNoon, ALL_PLANETS);
-    const planets = buildPlanets(positions, natal, lagnaIdx, {});
-    const dayEclipses = eclipses
-      .map((e) => ({ type: e.type, date: e.date, daysAway: Math.round((new Date(e.date).getTime() - dayNoon.getTime()) / DAY_MS) }))
-      .filter((e) => Math.abs(e.daysAway) <= 10);
-    const daySky: CurrentSky = {
-      computedAt: dayNoon.toISOString(),
-      planets,
-      retrogrades: planets.filter((p) => p.isRetrograde).map((p) => p.planet),
-      eclipses: dayEclipses,
-    };
-    const signals = computeGoldenMoment(daySky, { litHouses });
-    // Universal signal: favor beating caution by a clear margin (net surplus).
-    // These are the "potential golden" days; the individual signal (the check-in,
-    // acting as Panchapakshi) confirms them in the router where check-in data lives.
-    const net = signals.reduce((a, s) => a + (s.direction === "favor" ? s.weight : -s.weight), 0);
-    if (net >= GOLDEN_NET_THRESHOLD) {
-      golden.push(`${yearMonth}-${String(d).padStart(2, "0")}`);
-    }
+    const pos = await getSiderealLongitudesWithSpeed(dayNoon, ["Sun", "Moon"]);
+    const q = dayQuality(pos.Sun?.longitude ?? 0, pos.Moon?.longitude ?? 0);
+    if (q.auspicious) golden.push(`${yearMonth}-${String(d).padStart(2, "0")}`);
   }
-  GOLDEN_DAYS_CACHE.set(key, { at: Date.now(), value: golden });
+  GOLDEN_DAYS_CACHE.set(yearMonth, { at: Date.now(), value: golden });
   return golden;
 }
