@@ -577,12 +577,12 @@ export default function ProfectionYear() {
         </>
       ))}
 
-      {panel("Time Lord Movement This Year", s4, setS4, ombre(
+      {panel("Time Lord Movement This Year", s4, setS4, (
         <div>
           {transitsError ? (
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Error loading transits.</p>
+            <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Error loading transits.</p>
           ) : transitsLoading ? (
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Loading...</p>
+            <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Loading...</p>
           ) : transitsData?.transits?.length ? (
             (() => {
               const segs = transitsData.transits as any[];
@@ -592,17 +592,17 @@ export default function ProfectionYear() {
               const end = ms(segs[segs.length - 1].endDate);
               const span = Math.max(end - start, 1);
               const nowPct = Math.max(0, Math.min(100, ((Date.now() - start) / span) * 100));
-              const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+              const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" });
               const fmtLong = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
               const sel = expandedTransitId != null ? segs[expandedTransitId] : null;
               return (
                 <div>
-                  <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "0.75rem" }}>
+                  <p style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "0.75rem" }}>
                     Your Time Lord's path this year, sign by sign. Tap a band for detail; the white line is today.
                   </p>
 
                   {/* Ribbon */}
-                  <div style={{ position: "relative", display: "flex", width: "100%", height: 52, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.18)" }}>
+                  <div style={{ position: "relative", display: "flex", width: "100%", height: 52, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}>
                     {segs.map((t, idx) => {
                       const dur = Math.max(ms(t.endDate) - ms(t.startDate), 1);
                       const color = SIGN_COLOR[t.sign] ?? "#888";
@@ -615,7 +615,7 @@ export default function ProfectionYear() {
                           title={`${t.sign} · House ${t.house} · ${fmtLong(t.startDate)}–${fmtLong(t.endDate)}`}
                           onClick={() => setExpandedTransitId(selected ? null : idx)}
                           style={{
-                            flex: `${dur} 0 0`, minWidth: 0, height: "100%", background: color,
+                            flex: `${dur} 0 0`, minWidth: 30, height: "100%", background: color,
                             opacity: selected ? 1 : isCurrent ? 0.96 : 0.8,
                             border: "none", borderRight: idx < segs.length - 1 ? "1px solid rgba(0,0,0,0.28)" : "none",
                             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
@@ -628,29 +628,29 @@ export default function ProfectionYear() {
                       );
                     })}
                     {/* Today marker */}
-                    <div style={{ position: "absolute", top: -1, bottom: -1, left: `${nowPct}%`, width: 2, background: "#fff", boxShadow: "0 0 5px rgba(0,0,0,0.6)", pointerEvents: "none" }} />
+                    <div style={{ position: "absolute", top: -1, bottom: -1, left: `${nowPct}%`, width: 4, marginLeft: -2, background: "#fff", boxShadow: "0 0 5px rgba(0,0,0,0.6)", pointerEvents: "none", borderRadius: 2 }} />
                   </div>
 
                   {/* Axis labels */}
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.4rem" }}>
-                    <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
-                    <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
+                    <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
+                    <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
                   </div>
 
                   {/* Selected segment detail */}
                   {sel && (
-                    <div style={{ marginTop: "0.9rem", background: "rgba(0,0,0,0.2)", borderRadius: 12, padding: "0.85rem 1rem" }}>
-                      <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.5rem", color: "#fff", fontWeight: 700, fontSize: "0.98rem" }}>
-                        <span style={{ fontFamily: GLYPH_FONT, color: SIGN_COLOR[sel.sign] ?? "#fff" }}>{SIGN_GLYPH[sel.sign]}</span>
+                    <div style={{ marginTop: "0.9rem", background: "var(--secondary)", border: "1px solid var(--border)", borderRadius: 12, padding: "0.85rem 1rem" }}>
+                      <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.5rem", color: TEXT_PRIMARY, fontWeight: 700, fontSize: "0.98rem" }}>
+                        <span style={{ fontFamily: GLYPH_FONT, color: SIGN_COLOR[sel.sign] ?? TEXT_PRIMARY }}>{SIGN_GLYPH[sel.sign]}</span>
                         {sel.sign} in the {ORD[sel.house]} house
                       </p>
-                      <p style={{ margin: "0.2rem 0 0.7rem", color: "rgba(255,255,255,0.6)", fontSize: "0.82rem" }}>
+                      <p style={{ margin: "0.2rem 0 0.7rem", color: TEXT_MUTED, fontSize: "0.82rem" }}>
                         {fmtLong(sel.startDate)} – {fmtLong(sel.endDate)}
                       </p>
                       {[["Motion", sel.isRetrograde ? "Retrograde" : "Direct"], ["Combustion", sel.combustionStatus ? "Yes" : "No"], ["Solitary", sel.solitaryStatus ? "Yes" : "No"]].map(([label, value]) => (
                         <div key={String(label)} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", padding: "0.15rem 0" }}>
-                          <span style={{ color: "rgba(255,255,255,0.6)" }}>{label}</span>
-                          <span style={{ color: "rgba(255,255,255,0.92)", fontWeight: 500 }}>{value}</span>
+                          <span style={{ color: TEXT_MUTED }}>{label}</span>
+                          <span style={{ color: TEXT_PRIMARY, fontWeight: 500 }}>{value}</span>
                         </div>
                       ))}
                     </div>
@@ -659,7 +659,7 @@ export default function ProfectionYear() {
               );
             })()
           ) : (
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>No transit data available.</p>
+            <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>No transit data available.</p>
           )}
         </div>
       ))}
