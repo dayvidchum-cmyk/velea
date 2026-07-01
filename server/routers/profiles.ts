@@ -441,6 +441,31 @@ export const profilesRouter = router({
           });
         }
 
+        // Precompute the profection year + Time Lord transits now (during save,
+        // behind its spinner) so the chart page loads from cache instead of running
+        // the year-long ephemeris scan on first view. Best-effort: if it fails the
+        // view path still regenerates lazily.
+        try {
+          const { calculateProfectionYear } = await import('../profection/calculator.js');
+          const { getOrCreateProfectionYear } = await import('../profection/db.js');
+          const { calculateTimeLordTransits } = await import('../profection/transit-calculator.js');
+          const { createTimeLordTransits } = await import('../profection/transit-db.js');
+          const today = new Date().toISOString().split('T')[0];
+          const prof = calculateProfectionYear(input.birthDate, today, chart.lagna.sign);
+          const py = await getOrCreateProfectionYear(
+            ctx.user.id, prof.age, prof.activatedHouse, prof.activatedSign,
+            prof.timeLord, prof.yearStart, prof.yearEnd, input.id,
+          );
+          const timeline = await calculateTimeLordTransits(
+            prof.timeLord, prof.yearStart, prof.yearEnd, chart.lagna.degree, timezone, chart.lagna.sign,
+          );
+          if (timeline.transits && timeline.transits.length > 0) {
+            await createTimeLordTransits(py.id, ctx.user.id, timeline.transits, input.id);
+          }
+        } catch (preErr) {
+          console.warn('[Profile Chart] Transit precompute failed (will lazy-generate on view):', preErr);
+        }
+
         return { success: true, chart };
       } catch (error) {
         console.error('[Profile Chart] Calculation failed:', error);
