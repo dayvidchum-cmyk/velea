@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
+import TripleMoon from "@/components/TripleMoon";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1345,7 +1346,11 @@ export default function Planner() {
                       : "The sky is auspicious. Check in on the day to confirm it's yours."}
                   </span>
                 )}
-                {!isGolden && (
+                {isGolden ? (
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                    <TripleMoon size={30} color="#ffffff" />
+                  </span>
+                ) : (
                   <span
                     className="text-xs"
                     style={{
