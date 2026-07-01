@@ -437,7 +437,7 @@ moves through (for that example: learn, then systematize, then teach), resolving
 service to others.
 
 CONJUNCTIONS — planets sharing a degree, especially with a node
-Each planet carries a `conjunct` list (natal planets within ~10°). A conjunction is
+Each planet carries a "conjunct" list (natal planets within ~10°). A conjunction is
 NOT two separate placements — read the planets as ONE fused body whose significations
 merge. A planet conjunct a NODE is the loudest version and must be named:
 - Rahu on a planet amplifies and destabilizes its domain — restless, reaching,
