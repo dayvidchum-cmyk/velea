@@ -269,7 +269,7 @@ export default function DashaTimeline() {
                     {formatDate(g.periods[0].startDate)} · {g.periods.length} sub-periods
                   </div>
                 </div>
-                <span style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.7rem" }}>
+                <span style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.8rem" }}>
                   {isExpanded ? "▲" : "▼"}
                 </span>
               </button>

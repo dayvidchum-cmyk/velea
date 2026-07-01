@@ -183,7 +183,7 @@ export default function ProfectionYear() {
         onClick={() => setOpen(!open)}
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}
       >
-        <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>{title}</span>
+        <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>{title}</span>
         <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
       </button>
       {open ? content : null}
@@ -232,7 +232,7 @@ export default function ProfectionYear() {
         onClick={() => setOpen(!open)}
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
       >
-        <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
+        <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
         <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
       </button>
       {open && <div style={{ padding: "0 1.25rem 1.25rem" }}>{content}</div>}
@@ -501,7 +501,7 @@ export default function ProfectionYear() {
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {deepRead.manifestations.map((m, i) => (
                 <div key={i} style={{ background: "rgba(0,0,0,0.18)", borderRadius: "0.7rem", padding: "0.85rem 1rem" }}>
-                  <p style={{ color: "#E7C766", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, margin: "0 0 0.4rem" }}>{m.area}</p>
+                  <p style={{ color: "#E7C766", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, margin: "0 0 0.4rem" }}>{m.area}</p>
                   <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0 }}>{m.synthesis}</p>
                   {m.why && whyBlock(m.why)}
                 </div>

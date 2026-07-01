@@ -223,7 +223,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {/* Due date badge */}
             {task.dueDate && !task.isCompleted && (
               <span
-                className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                className="inline-flex items-center gap-1 text-[12px] font-semibold px-1.5 py-0.5 rounded-full"
                 style={{
                   background: "rgba(var(--ink),0.16)",
                   color: "rgba(var(--ink),0.96)",
@@ -237,7 +237,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {/* Recurrence badge */}
             {(task as any).recurrence && (task as any).recurrence !== "none" && !task.isCompleted && (
               <span
-                className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                className="inline-flex items-center gap-1 text-[12px] font-semibold px-1.5 py-0.5 rounded-full"
                 style={{ background: "rgba(var(--ink),0.16)", color: "rgba(var(--ink),0.96)", letterSpacing: "0.03em" }}
               >
                 <Repeat size={9} />
@@ -247,7 +247,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {/* Subtask progress badge */}
             {hasSubtasks && (
               <span
-                className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                className="text-[12px] font-medium px-1.5 py-0.5 rounded-full"
                 style={{
                   background: "rgba(var(--ink),0.16)",
                   color: "rgba(var(--ink),0.96)",
@@ -259,7 +259,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {/* "In focus today" — a life area matches the day's activated house */}
             {inFocusToday && (
               <span
-                className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                className="inline-flex items-center gap-1 text-[12px] font-bold px-1.5 py-0.5 rounded-full"
                 style={{ background: "rgba(var(--ink),0.28)", color: "rgba(var(--ink),1)", letterSpacing: "0.03em" }}
               >
                 ✦ In focus today
@@ -269,7 +269,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {lifeAreaKeys.slice(0, 2).map((k) => (
               <span
                 key={k}
-                className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                className="inline-flex items-center text-[12px] font-medium px-1.5 py-0.5 rounded-full"
                 style={{ background: "rgba(var(--ink),0.14)", color: "rgba(var(--ink),0.9)", letterSpacing: "0.02em", opacity: task.isCompleted ? 0.5 : 0.9 }}
               >
                 <span className="max-w-[90px] truncate">{LIFE_AREA_BY_KEY[k]?.label ?? k}</span>
@@ -278,7 +278,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {/* Project badge — subtle, only when a project is assigned */}
             {task.projectName && (
               <span
-                className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                className="inline-flex items-center gap-1 text-[12px] font-medium px-1.5 py-0.5 rounded-full"
                 style={{
                   background: "rgba(var(--ink),0.16)",
                   color: "rgba(var(--ink),0.93)",
@@ -296,14 +296,14 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
         {/* Priority indicator */}
         {task.priority && task.priority !== 'Low' ? (
           <span
-            className="text-[9px] font-bold tracking-tight flex-shrink-0"
+            className="text-[12px] font-bold tracking-tight flex-shrink-0"
             style={{ color: "rgba(var(--ink),0.5)", opacity: task.isCompleted ? 0.4 : 1, letterSpacing: "-0.02em" }}
           >
             {PRIORITY_EXCLAIM[task.priority as keyof typeof PRIORITY_EXCLAIM]}
           </span>
         ) : task.priority === 'Low' ? (
           <span
-            className="text-[9px] font-bold tracking-tight flex-shrink-0"
+            className="text-[12px] font-bold tracking-tight flex-shrink-0"
             style={{ color: "rgba(var(--ink),0.35)", opacity: task.isCompleted ? 0.3 : 1, letterSpacing: "-0.02em" }}
           >
             !
@@ -455,7 +455,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               <button
                 onClick={handleAddSubtask}
                 disabled={!newSubtaskTitle.trim() || createSubtask.isPending}
-                className="text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors disabled:opacity-40"
+                className="text-[12px] font-medium px-2 py-0.5 rounded-full transition-colors disabled:opacity-40"
                 style={{ background: "rgba(var(--ink),0.25)", color: "rgba(var(--ink),1)" }}
               >
                 Add
@@ -504,7 +504,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             {/* Row 1: mode label + priority pill on left, action buttons on right */}
             <div className="flex items-center gap-2">
               <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide"
+                className="text-[12px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide"
                 style={{ background: "rgba(var(--ink),0.20)", color: "rgba(var(--ink),0.96)" }}
               >
                 {task.mode}

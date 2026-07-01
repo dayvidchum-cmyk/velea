@@ -197,7 +197,7 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
               {done.length > 0 && (
                 <div className="pt-2">
                   <p
-                    className="text-[10px] tracking-wide uppercase mb-2 px-1"
+                    className="text-[12px] tracking-wide uppercase mb-2 px-1"
                     style={{ color: "var(--color-muted-foreground)" }}
                   >
                     Completed

@@ -449,12 +449,12 @@ function ProfileCard({ profile, onSelect, onEdit, onDelete, onLoginCreated }: Pr
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-sm truncate">{profile.name}</span>
             {isOwner && (
-              <Badge variant="outline" className="text-[10px] py-0 px-1.5 shrink-0" style={{ borderColor: "var(--amber-gold, #c9a84c)", color: "var(--amber-gold, #c9a84c)" }}>
+              <Badge variant="outline" className="text-[12px] py-0 px-1.5 shrink-0" style={{ borderColor: "var(--amber-gold, #c9a84c)", color: "var(--amber-gold, #c9a84c)" }}>
                 My Chart
               </Badge>
             )}
             {isActive && (
-              <Badge variant="outline" className="text-[10px] py-0 px-1.5 shrink-0" style={{ borderColor: "var(--color-primary)", color: "var(--color-primary)" }}>
+              <Badge variant="outline" className="text-[12px] py-0 px-1.5 shrink-0" style={{ borderColor: "var(--color-primary)", color: "var(--color-primary)" }}>
                 Active
               </Badge>
             )}
@@ -549,7 +549,7 @@ function ProfileCard({ profile, onSelect, onEdit, onDelete, onLoginCreated }: Pr
       {!isOwner && hasLogin && (
         <div className="mt-2 ml-[52px] flex items-center gap-1.5">
           <ShieldCheck size={11} style={{ color: "var(--amber-gold, #c9a84c)" }} />
-          <span className="text-[11px]" style={{ color: "var(--color-muted-foreground)" }}>Login active</span>
+          <span className="text-[13px]" style={{ color: "var(--color-muted-foreground)" }}>Login active</span>
         </div>
       )}
 

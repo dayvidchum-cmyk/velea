@@ -219,7 +219,7 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
         <div className="flex-1 overflow-y-auto px-4 pt-8 pb-4">
           <SheetHeader className="mb-5">
             <span
-              className="text-left text-[0.65rem] font-bold uppercase"
+              className="text-left text-[0.75rem] font-bold uppercase"
               style={{ color: modeColor, letterSpacing: "0.16em" }}
             >
               Check-In

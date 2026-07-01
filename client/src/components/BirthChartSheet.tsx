@@ -228,7 +228,7 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
                   <Globe size={14} />
                   Birth Timezone
-                  <span className="text-[10px] font-normal normal-case text-muted-foreground/70">(required for accurate chart)</span>
+                  <span className="text-[12px] font-normal normal-case text-muted-foreground/70">(required for accurate chart)</span>
                 </label>
                 <input
                   type="text"

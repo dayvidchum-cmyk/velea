@@ -185,7 +185,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
                   style={{ color: isActive ? "var(--color-primary)" : "var(--color-foreground)" }}
                 >
                   <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold"
+                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[12px] font-bold"
                     style={{
                       background: isActive ? "var(--color-primary)" : "var(--color-secondary)",
                       color: isActive ? "var(--color-primary-foreground)" : "var(--color-muted-foreground)",
@@ -199,11 +199,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
                     <p className="font-medium truncate">
                       {profile.name}
                       {profile.isOwner && (
-                        <span className="ml-1.5 text-[10px]" style={{ color: "var(--amber-gold)" }}>★ My Chart</span>
+                        <span className="ml-1.5 text-[12px]" style={{ color: "var(--amber-gold)" }}>★ My Chart</span>
                       )}
                     </p>
                     {profile.lagnaSign && (
-                      <p className="text-[11px] truncate" style={{ color: "var(--color-muted-foreground)" }}>
+                      <p className="text-[13px] truncate" style={{ color: "var(--color-muted-foreground)" }}>
                         {profile.lagnaSign} lagna
                       </p>
                     )}
@@ -236,7 +236,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
         {/* Utility row: date left, location + state right */}
         <div className="flex items-center justify-between mb-5">
           <span
-            className="text-[11px] font-bold tracking-widest"
+            className="text-[13px] font-bold tracking-widest"
             style={{ color: modeColor, letterSpacing: "0.10em" }}
           >
             {heroDateLabel}
@@ -257,7 +257,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
                 }}
               >
                 <Star size={11} />
-                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+                <span className="text-[13px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
                   THE STAGE
                 </span>
                 <ChevronDown size={10} style={{ transform: stage.open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
@@ -277,7 +277,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
               }}
             >
               <MapPin size={11} />
-              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+              <span className="text-[13px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
                 {cityLabel}
               </span>
             </button>
@@ -297,7 +297,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, onBack, back
                 }}
               >
                 <RefreshCw size={11} />
-                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
+                <span className="text-[13px] font-bold uppercase tracking-widest" style={{ letterSpacing: "0.08em" }}>
                   CURRENT STATE
                 </span>
               </button>

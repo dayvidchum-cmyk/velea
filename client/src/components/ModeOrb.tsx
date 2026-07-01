@@ -26,7 +26,7 @@ interface ModeOrbProps {
 export default function ModeOrb({ mode, count, active = false, size = "md", onClick, showCount = true }: ModeOrbProps) {
   const orbCls = ORB_CLASSES[mode];
   const sizeMap = { sm: "w-10 h-10 text-xs", md: "w-14 h-14 text-sm", lg: "w-18 h-18 text-base" };
-  const textSize = size === "sm" ? "text-[10px]" : size === "md" ? "text-[10px]" : "text-xs";
+  const textSize = size === "sm" ? "text-[12px]" : size === "md" ? "text-[12px]" : "text-xs";
 
   return (
     <button

@@ -288,7 +288,7 @@ function _AstrologyDebugPanel_UNUSED() {
 
   const monoStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '11px',
+    fontSize: '13px',
     color: 'var(--color-foreground)',
     lineHeight: '1.6',
   };

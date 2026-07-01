@@ -493,7 +493,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* Mode selector */}
           <div className="mb-6">
             <label
-              className="block text-[10px] font-semibold tracking-wide uppercase mb-2"
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
               style={{
                 color: "var(--color-muted-foreground)",
                 letterSpacing: "0.04em",
@@ -526,7 +526,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* Priority selector */}
           <div className="mb-6">
             <label
-              className="block text-[10px] font-semibold tracking-wide uppercase mb-2"
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
               style={{
                 color: "var(--color-muted-foreground)",
                 letterSpacing: "0.04em",
@@ -558,7 +558,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* Due date */}
           <div className="mb-6">
             <label
-              className="block text-[10px] font-semibold tracking-wide uppercase mb-2"
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
               style={{
                 color: "var(--color-muted-foreground)",
                 letterSpacing: "0.04em",
@@ -601,7 +601,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* Repeat / recurrence */}
           <div className="mb-6">
             <label
-              className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wide uppercase mb-2"
+              className="flex items-center gap-1.5 text-[12px] font-semibold tracking-wide uppercase mb-2"
               style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
             >
               <Repeat className="w-3 h-3" />
@@ -628,7 +628,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
               })}
             </div>
             {recurrence !== "none" && (
-              <p className="text-[11px] mt-1.5" style={{ color: "var(--color-muted-foreground)" }}>
+              <p className="text-[13px] mt-1.5" style={{ color: "var(--color-muted-foreground)" }}>
                 Completing this task rolls it forward to the next {RECURRENCE_OPTIONS.find((o) => o.value === recurrence)?.label.toLowerCase()} date instead of finishing it.
               </p>
             )}
@@ -637,7 +637,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* Life areas */}
           <div className="mb-6">
             <label
-              className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wide uppercase mb-2"
+              className="flex items-center gap-1.5 text-[12px] font-semibold tracking-wide uppercase mb-2"
               style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
             >
               <Layers className="w-3 h-3" />
@@ -667,7 +667,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
                 );
               })}
             </div>
-            <p className="text-[11px] mt-1.5" style={{ color: "var(--color-muted-foreground)" }}>
+            <p className="text-[13px] mt-1.5" style={{ color: "var(--color-muted-foreground)" }}>
               Tags this task to a life area so it surfaces on days (and years) that activate the matching house.
             </p>
           </div>
@@ -675,7 +675,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* Project selector */}
           <div className="mb-6">
             <label
-              className="block text-[10px] font-semibold tracking-wide uppercase mb-2"
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
               style={{
                 color: "var(--color-muted-foreground)",
                 letterSpacing: "0.04em",
@@ -689,7 +689,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* ── Task Metadata (Current State scoring) ─────────────────────── */}
           <div className="mb-6">
             <label
-              className="block text-[10px] font-semibold tracking-wide uppercase mb-1"
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-1"
               style={{
                 color: "var(--color-muted-foreground)",
                 letterSpacing: "0.04em",
@@ -698,7 +698,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
               Task Character
             </label>
             <p
-              className="text-[10px] mb-3"
+              className="text-[12px] mb-3"
               style={{ color: "var(--color-muted-foreground)", opacity: 0.7 }}
             >
               Helps Velea match tasks to your current state.
@@ -706,7 +706,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
 
             {/* Cognitive Load */}
             <div className="mb-3">
-              <p className="text-[10px] tracking-wide uppercase mb-1.5" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>Cognitive Load</p>
+              <p className="text-[12px] tracking-wide uppercase mb-1.5" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>Cognitive Load</p>
               <div className="flex gap-2">
                 {LOAD_LEVELS.map((l) => (
                   <button
@@ -725,7 +725,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
 
             {/* Physical Load */}
             <div className="mb-3">
-              <p className="text-[10px] tracking-wide uppercase mb-1.5" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>Physical Load</p>
+              <p className="text-[12px] tracking-wide uppercase mb-1.5" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>Physical Load</p>
               <div className="flex gap-2">
                 {LOAD_LEVELS.map((l) => (
                   <button
@@ -744,7 +744,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
 
             {/* Emotional Load */}
             <div className="mb-3">
-              <p className="text-[10px] tracking-wide uppercase mb-1.5" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>Emotional Load</p>
+              <p className="text-[12px] tracking-wide uppercase mb-1.5" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>Emotional Load</p>
               <div className="flex gap-2">
                 {LOAD_LEVELS.map((l) => (
                   <button
@@ -791,7 +791,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {/* Notes */}
           <div className="mb-6">
             <label
-              className="block text-[10px] font-semibold tracking-wide uppercase mb-2"
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
               style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
             >
               Notes (optional)
@@ -850,7 +850,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           {!editTask && (
             <div className="mb-8">
               <label
-                className="block text-[10px] font-semibold tracking-wide uppercase mb-2"
+                className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
                 style={{
                   color: "var(--color-muted-foreground)",
                   letterSpacing: "0.04em",

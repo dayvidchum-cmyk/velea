@@ -83,7 +83,7 @@ function Section({ number, title, subtitle, children, defaultOpen = false, accen
       >
         <div className="flex items-start gap-2.5 min-w-0">
           <span
-            className="flex-shrink-0 text-[10px] font-bold tracking-wide mt-0.5"
+            className="flex-shrink-0 text-[12px] font-bold tracking-wide mt-0.5"
             style={{
               color: "rgba(255,255,255,0.55)",
               minWidth: "1rem",
@@ -93,7 +93,7 @@ function Section({ number, title, subtitle, children, defaultOpen = false, accen
           </span>
           <div className="min-w-0">
             <p
-              className="text-[10px] font-bold tracking-wide uppercase leading-none"
+              className="text-[12px] font-bold tracking-wide uppercase leading-none"
               style={{
                 color: "rgba(255,255,255,0.9)",
                 letterSpacing: "0.04em",
@@ -149,7 +149,7 @@ function WhyItMatters({ text }: { text: string }) {
       }}
     >
       <span
-        className="text-[10px] font-bold tracking-wide uppercase mr-1.5"
+        className="text-[12px] font-bold tracking-wide uppercase mr-1.5"
         style={{ color: "rgba(255,255,255,0.45)" }}
       >
         Why it matters:
@@ -165,7 +165,7 @@ function Result({ label, value }: { label: string; value: string; accentColor?: 
   return (
     <div className="flex items-center gap-2 pt-0.5">
       <span
-        className="text-[10px] font-bold tracking-wide uppercase"
+        className="text-[12px] font-bold tracking-wide uppercase"
         style={{ color: "rgba(255,255,255,0.45)" }}
       >
         {label}:
@@ -265,7 +265,7 @@ export default function ReasoningChain({ panchang, timeLord, modeColor }: Reason
         <div className="flex items-baseline gap-3 flex-wrap">
           <div className="flex items-baseline gap-2">
             <span
-              className="text-[10px] font-bold tracking-wide uppercase"
+              className="text-[12px] font-bold tracking-wide uppercase"
               style={{
                 color: "rgba(255,255,255,0.5)",
                 minWidth: "5.5rem",
@@ -282,7 +282,7 @@ export default function ReasoningChain({ panchang, timeLord, modeColor }: Reason
           </div>
           <div className="flex items-baseline gap-2">
             <span
-              className="text-[10px] font-bold tracking-wide uppercase"
+              className="text-[12px] font-bold tracking-wide uppercase"
               style={{
                 color: "rgba(255,255,255,0.5)",
                 minWidth: "5.5rem",
@@ -421,7 +421,7 @@ export default function ReasoningChain({ panchang, timeLord, modeColor }: Reason
           {timeLord.operationalChain && (
             <div>
               <p
-                className="text-[10px] font-bold tracking-wide uppercase mb-1"
+                className="text-[12px] font-bold tracking-wide uppercase mb-1"
                 style={{ color: "rgba(255,255,255,0.45)" }}
               >
                 Operational Chain

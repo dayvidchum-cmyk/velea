@@ -300,7 +300,7 @@ export default function Glossary() {
                   {item.term}
                 </h3>
                 <span
-                  className="flex-shrink-0 text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full"
+                  className="flex-shrink-0 text-[12px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full"
                   style={{
                     background: `color-mix(in oklch, ${catColor} 15%, transparent)`,
                     color: catColor,

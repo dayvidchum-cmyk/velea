@@ -167,7 +167,7 @@ export default function AdminPrompts() {
                   <p className="text-sm font-semibold" style={{ color: "oklch(0.90 0.02 80)" }}>
                     {prompt.title}
                   </p>
-                  <p className="text-[10px] mt-0.5 tracking-wider" style={{ color: "var(--color-muted-foreground)" }}>
+                  <p className="text-[12px] mt-0.5 tracking-wider" style={{ color: "var(--color-muted-foreground)" }}>
                     {prompt.key}
                   </p>
                 </div>

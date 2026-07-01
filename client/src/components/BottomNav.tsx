@@ -58,7 +58,7 @@ export default function BottomNav() {
                 style={active ? { filter: `drop-shadow(0 0 6px ${accent}66)` } : {}}
               />
               <span
-                className="text-[10px] font-medium tracking-wide uppercase"
+                className="text-[12px] font-medium tracking-wide uppercase"
                 style={{ letterSpacing: "0.04em" }}
               >
                 {label}

@@ -153,7 +153,7 @@ function LifeAreasPicker({
             key={area.key}
             onClick={() => toggle(area.key)}
             disabled={setMutation.isPending}
-            className="px-2 py-1 rounded-full text-[10px] font-medium transition-all disabled:opacity-50"
+            className="px-2 py-1 rounded-full text-[12px] font-medium transition-all disabled:opacity-50"
             style={{
               background: on
                 ? `color-mix(in srgb, ${dayLabelColor} 22%, var(--color-card))`
@@ -402,7 +402,7 @@ export default function Projects() {
           >
             <label
               className="block"
-              style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)", marginBottom: "0.75rem" }}
+              style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)", marginBottom: "0.75rem" }}
             >
               New Project
             </label>
@@ -447,7 +447,7 @@ export default function Projects() {
         >
           <div className="px-5 py-3" style={{ background: heroGradient }}>
             <span
-              style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}
+              style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}
             >
               Active ({activeProjects.length})
             </span>
@@ -538,12 +538,12 @@ export default function Projects() {
               style={{ background: heroGradient }}
             >
               <span
-                style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}
+                style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}
               >
                 Archived ({archivedProjects.length})
               </span>
               <span
-                className="text-[10px] font-medium transition-transform"
+                className="text-[12px] font-medium transition-transform"
                 style={{
                   color: "rgba(255,255,255,0.7)",
                   display: "inline-block",

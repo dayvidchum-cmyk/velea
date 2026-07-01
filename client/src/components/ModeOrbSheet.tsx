@@ -172,7 +172,7 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
           <div className="flex items-center gap-3">
             <div
               className={`${ORB_CLASSES[mode]} w-8 h-8 rounded-full flex items-center justify-center`}
-              style={{ color: "var(--color-foreground)", fontSize: "11px", fontWeight: 700 }}
+              style={{ color: "var(--color-foreground)", fontSize: "13px", fontWeight: 700 }}
             >
               {activeTasks.length}
             </div>
@@ -183,7 +183,7 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
               >
                 {mode}
               </h2>
-              <p className="text-[10px]" style={{ color: "var(--color-muted-foreground)" }}>
+              <p className="text-[12px]" style={{ color: "var(--color-muted-foreground)" }}>
                 {activeTasks.length} active · {completedTasks.length} done
               </p>
             </div>
@@ -256,7 +256,7 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
               {completedTasks.length > 0 && (
                 <div className="mt-3">
                   <p
-                    className="text-[10px] font-semibold tracking-wide uppercase mb-2 px-1"
+                    className="text-[12px] font-semibold tracking-wide uppercase mb-2 px-1"
                     style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
                   >
                     Completed

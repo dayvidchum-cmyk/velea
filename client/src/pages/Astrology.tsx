@@ -311,7 +311,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
           >
             <div className="flex items-start justify-between">
               <div>
-                <p style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accent, margin: 0 }}>
+                <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accent, margin: 0 }}>
                   House {sel} · {selSign}{sel === 1 ? " Lagna" : ""}
                 </p>
                 <p style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0.15rem 0 0" }}>
@@ -332,7 +332,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
             </p>
 
             <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
-              <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
+              <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
                 In your chart
               </p>
               <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: 0 }}>
@@ -341,7 +341,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
             </div>
 
             <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
-              <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.45rem" }}>
+              <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.45rem" }}>
                 Planets here
               </p>
               {selPlanets.length === 0 ? (
@@ -402,7 +402,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
         }}
       >
         {headers.map((label) => (
-          <span key={label} style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#fff", textAlign: "center" }}>
+          <span key={label} style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#fff", textAlign: "center" }}>
             {label}
           </span>
         ))}
@@ -426,8 +426,8 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
           </span>
           <span style={{ fontSize: "0.75rem", textAlign: "center", color: "var(--color-foreground)" }}>{b.sign}</span>
           <span style={{ fontSize: "0.75rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.house}</span>
-          <span style={{ fontSize: "0.7rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.nakshatra ?? "—"}</span>
-          <span style={{ fontSize: "0.7rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.pada ?? "—"}</span>
+          <span style={{ fontSize: "0.8rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.nakshatra ?? "—"}</span>
+          <span style={{ fontSize: "0.8rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.pada ?? "—"}</span>
         </div>
       ))}
     </div>
@@ -475,7 +475,7 @@ function ExplainerPanel({ title, children }: { title: string; children: React.Re
         onClick={() => setOpen((v) => !v)}
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
       >
-        <span style={{ fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor }}>{title}</span>
+        <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor }}>{title}</span>
         <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
       </button>
       {open && <div style={{ padding: "0 1.25rem 1.25rem" }}>{children}</div>}
@@ -486,7 +486,7 @@ function ExplainerPanel({ title, children }: { title: string; children: React.Re
 function NatalExplainer() {
   return (
     <ExplainerPanel title="What is a natal chart?">
-      <div className="space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+      <div className="space-y-3 text-[13px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
         <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
           <strong>Velea uses the Vedic (sidereal) zodiac.</strong> A natal chart is a snapshot of
           the sky at the exact moment and place you were born — the map every reading is built
@@ -500,10 +500,10 @@ function NatalExplainer() {
         </p>
 
         <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
+                <p className="text-[12px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
                   Core differences at a glance
                 </p>
-                <table className="w-full border-collapse" style={{ fontSize: "11px" }}>
+                <table className="w-full border-collapse" style={{ fontSize: "13px" }}>
                   <thead>
                     <tr>
                       <th className="text-left font-semibold py-1 pr-2 align-bottom" style={{ color: "var(--color-foreground)", width: "26%" }}></th>
@@ -524,7 +524,7 @@ function NatalExplainer() {
               </div>
 
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-foreground)" }}>
+                <p className="text-[12px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-foreground)" }}>
                   How deep each goes
                 </p>
                 <p>
@@ -538,7 +538,7 @@ function NatalExplainer() {
               </div>
 
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-foreground)" }}>
+                <p className="text-[12px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-foreground)" }}>
                   How they differ in practice
                 </p>
                 <p>
@@ -669,7 +669,7 @@ const DASHA_LORDS: { lord: string; years: number }[] = [
 function DashaExplainer() {
   return (
     <ExplainerPanel title="What are Dashas?">
-      <div className="space-y-3 text-[11px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+      <div className="space-y-3 text-[13px] leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
         <p className="text-xs leading-relaxed" style={{ color: "var(--color-foreground)" }}>
           <strong>Dashas are planetary periods</strong> — the Vedic timing system that says which
           planet is running your life right now, and for how long. This is your karmic schedule
@@ -684,7 +684,7 @@ function DashaExplainer() {
         </p>
 
         <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
+                <p className="text-[12px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--color-foreground)" }}>
                   The nine periods (120 years)
                 </p>
                 <div className="grid grid-cols-3 gap-x-3 gap-y-1">
@@ -778,7 +778,7 @@ export function DashaSection() {
                 >
                   {PLANET_SYMBOLS[currentPeriod.mahadasha] ?? "●"}
                 </span>
-                <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: t.muted }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: t.muted }}>
                   Active Period
                 </span>
               </span>
@@ -833,7 +833,7 @@ export function DashaSection() {
                     {formatDate(g.periods[0].startDate)} · {g.periods.length} sub-periods
                   </div>
                 </div>
-                <span style={{ color: t.muted, fontSize: "0.7rem" }}>{isExpanded ? "▲" : "▼"}</span>
+                <span style={{ color: t.muted, fontSize: "0.8rem" }}>{isExpanded ? "▲" : "▼"}</span>
               </button>
 
               {isExpanded && (
@@ -928,11 +928,11 @@ function ProfectionSection() {
     <div className="overflow-hidden" style={{ borderRadius: "20px", background: bg }}>
       <button className="w-full flex items-center justify-between px-4 py-3" onClick={() => setOpen(!open)}>
         <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.15rem", textAlign: "left" }}>
-          <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
+          <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
             {title}
           </span>
           {subtitle && (
-            <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.55)" }}>{subtitle}</span>
+            <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.55)" }}>{subtitle}</span>
           )}
         </span>
         <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0 }} />
@@ -973,7 +973,7 @@ function ProfectionSection() {
               </div>
             ))}
           </div>
-          <p style={{ color: LIGHT_MUTED, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "0.4rem" }}>Yearly Focus</p>
+          <p style={{ color: LIGHT_MUTED, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "0.4rem" }}>Yearly Focus</p>
           <p style={{ color: LIGHT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, fontWeight: 500 }}>{profectionData.interpretation.section5}</p>
         </>,
         undefined,
@@ -993,7 +993,7 @@ function ProfectionSection() {
       {/* Current Time Lord Movement — immersive gradient */}
       <div data-tour="time-lord-transits" className="overflow-hidden" style={{ borderRadius: "20px", background: tlGradient }}>
         <button className="w-full flex items-center justify-between px-4 py-3" onClick={() => setTlOpen((v) => !v)}>
-          <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
+          <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
             Current Time Lord Movement
           </span>
           <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: tlOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />

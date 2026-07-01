@@ -284,7 +284,7 @@ export default function Home() {
                 {/* TODAY'S MODE label */}
                 <span
                   style={{
-                    fontSize: '0.65rem',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
                     letterSpacing: '0.14em',
                     textTransform: 'uppercase',
@@ -327,7 +327,7 @@ export default function Home() {
                 <div style={{ marginBottom: '1.5rem' }}>
                   <p
                     style={{
-                      fontSize: '0.6rem',
+                      fontSize: '0.75rem',
                       fontWeight: 700,
                       letterSpacing: '0.14em',
                       textTransform: 'uppercase',
@@ -369,7 +369,7 @@ export default function Home() {
                             onClick={() => setReadOpen((v) => !v)}
                             style={{
                               background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                              fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.14em',
+                              fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.14em',
                               textTransform: 'uppercase', color: '#fff', textDecoration: 'underline',
                               textUnderlineOffset: '3px', display: 'flex', alignItems: 'center', gap: '4px',
                             }}
@@ -601,7 +601,7 @@ export default function Home() {
                       {((task as any).layerBubbles as string[]).map((b: string) => (
                         <span
                           key={b}
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          className="text-[12px] font-bold px-2 py-0.5 rounded-full"
                           style={{
                             letterSpacing: "0.03em",
                             background: modeColor,
@@ -619,7 +619,7 @@ export default function Home() {
                       {((task as any).reasons as string[]).map((r: string) => (
                         <span
                           key={r}
-                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                          className="text-[12px] font-semibold px-1.5 py-0.5 rounded-full"
                           style={{
                             letterSpacing: "0.02em",
                             background: `rgba(${MODE_RGBA[taskMode ?? 'Action']}, 0.12)`,
