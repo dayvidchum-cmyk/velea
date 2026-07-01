@@ -1362,7 +1362,7 @@ export default function Planner() {
             className="flex items-center justify-between w-full py-2 transition-all"
           >
             <span className="text-sm font-bold uppercase" style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}>
-              Day modes
+              What are day modes?
             </span>
             <ChevronDown
               size={13}
