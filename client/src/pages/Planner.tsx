@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
+import ProseLoading from "@/components/ProseLoading";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, CircleDot } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -201,7 +202,7 @@ export default function Planner() {
   const glanceProfileId = activeProfile?.id;
   // The prose generates for ANY selected date (server-caches per profile+date, so
   // re-selecting a day is free). The mode card and its narrative both track selectedDate.
-  const { data: glance } = trpc.narrative.glance.useQuery(
+  const { data: glance, isFetching: glanceFetching } = trpc.narrative.glance.useQuery(
     { profileId: glanceProfileId as number, date: selectedDate },
     { enabled: !!glanceProfileId, staleTime: 1000 * 60 * 30 },
   );
@@ -727,6 +728,9 @@ export default function Planner() {
             {/* Narrative paragraph — the personalized read stands on its own; the
                 templated mode instruction is intentionally omitted (redundant). */}
             {(() => {
+              if (glanceFetching && !glanceContent) {
+                return <div style={{ marginBottom: '1.25rem' }}><ProseLoading /></div>;
+              }
               const paras = (glanceContent?.narrative ?? composeNarrative({
                   moonSign: selectedPanchang.moonSign ?? '',
                   houseActivated: selectedPanchang.houseActivated ?? 1,
