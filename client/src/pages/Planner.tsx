@@ -724,19 +724,8 @@ export default function Planner() {
             })()}
 
             {heroOpen && (<>
-            {/* Instruction */}
-            <p
-              style={{
-                fontSize: '0.9375rem',
-                lineHeight: 1.55,
-                color: 'rgba(255,255,255,0.88)',
-                marginBottom: '1rem',
-              }}
-            >
-              {selectedPanchang.instruction}
-            </p>
-
-            {/* Narrative paragraph */}
+            {/* Narrative paragraph — the personalized read stands on its own; the
+                templated mode instruction is intentionally omitted (redundant). */}
             {(() => {
               const paras = (glanceContent?.narrative ?? composeNarrative({
                   moonSign: selectedPanchang.moonSign ?? '',
