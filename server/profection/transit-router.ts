@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
-import { calculateTimeLordTransits } from "./transit-calculator";
+import { calculateTimeLordTransits, timeLordCurrentSign } from "./transit-calculator";
 import {
   createTimeLordTransits,
   getTimeLordTransitsForYear,
@@ -92,6 +92,19 @@ export const timeLordTransitRouter = router({
 
       // ── 3. Try to find an existing transit row ──────────────────────────────
       let transit = await getTimeLordTransitForDate(profectionYear.id, input.date);
+
+      // ── 3b. Heal stale rows: if the row covering today disagrees with the Time
+      // Lord's actual sidereal sign (the old ayanamsa double-count), wipe & rebuild.
+      if (transit && profileId != null) {
+        const todayStr = new Date().toISOString().split("T")[0];
+        const todayRow = input.date === todayStr ? transit : await getTimeLordTransitForDate(profectionYear.id, todayStr);
+        const actualSign = await timeLordCurrentSign(profectionYear.timeLord);
+        if (todayRow && actualSign && todayRow.sign !== actualSign) {
+          const { deleteTimeLordTransitsForProfile } = await import("./transit-db.js");
+          await deleteTimeLordTransitsForProfile(profileId);
+          transit = null;
+        }
+      }
 
       // ── 4. If no transits exist, generate them on-demand ──────────────────────
       if (!transit && subject?.lagnaSign) {

@@ -5,7 +5,6 @@ const ZODIAC_SIGNS = [
   "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
 ];
 
-const LAHIRI_AYANAMSA_J2000 = 23.6044; // Lahiri ayanamsa at J2000 epoch
 
 // Reuse one warm Swiss Ephemeris instance instead of a cold init on every call.
 let _sharedSe: any = null;
@@ -30,6 +29,18 @@ function getZodiacSign(longitude: number): string {
   const normalized = ((longitude % 360) + 360) % 360;
   const index = Math.floor(normalized / 30);
   return ZODIAC_SIGNS[index] || "Aries";
+}
+
+/** The Time Lord planet's actual sidereal sign right now — for detecting stale rows. */
+export async function timeLordCurrentSign(planet: string): Promise<string | null> {
+  try {
+    const se = await getSharedSe();
+    const r = se.calc(dateToJD(new Date()), getPlanetNumber(planet), se.SEFLG_SIDEREAL);
+    if (r?.longitude == null) return null;
+    return getZodiacSign(r.longitude);
+  } catch {
+    return null;
+  }
 }
 
 function getNakshatraFromLongitude(longitude: number): string {
@@ -127,9 +138,10 @@ function dateToJD(date: Date): number {
 }
 
 function getPlanetState(se: any, jd: number, planetNum: number, lagnaLongitude: number, lagnaSign: string) {
+  // SEFLG_SIDEREAL already returns Lahiri sidereal longitude — do NOT subtract the
+  // ayanamsa again (that double-count put every Time Lord ~one sign behind).
   const result = se.calc(jd, planetNum, se.SEFLG_SIDEREAL);
-  const siderealLon = result.longitude - LAHIRI_AYANAMSA_J2000;
-  const normalizedLon = ((siderealLon % 360) + 360) % 360;
+  const normalizedLon = ((result.longitude % 360) + 360) % 360;
   const transitSign = getZodiacSign(normalizedLon);
   
   // Use Whole Sign house mapping instead of longitude-based
