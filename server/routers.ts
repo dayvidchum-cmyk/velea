@@ -60,6 +60,8 @@ import { scoreTasks } from "./task-scorer.js";
 import { parseLifeAreas } from "@shared/life-areas";
 import { getCurrentLayers } from "./layers/index.js";
 import { getCurrentSky } from "./sky/current-sky.js";
+import { computeGoldenMoment } from "./sky/golden-moment.js";
+import { calculateProfectionYear } from "./profection/calculator.js";
 import { rateLimit } from "./_core/rateLimit.js";
 import { timezoneForCoords } from "./geo/timezone.js";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -1046,6 +1048,24 @@ export const appRouter = router({
     current: protectedProcedure.query(async ({ ctx }) => {
       if (!ctx.subject) return null;
       return getCurrentSky(ctx.subject);
+    }),
+
+    /** The "Golden Moment" stage — derived signals for display (read-only). The
+     *  slow-planet weather read against this chart. Moon/day-mode stay primary. */
+    stage: protectedProcedure.query(async ({ ctx }) => {
+      if (!ctx.subject) return null;
+      const sky = await getCurrentSky(ctx.subject);
+      // Lit houses = the profection-activated house plus the angular 1st/10th.
+      let litHouses = [1, 10];
+      if (ctx.subject.birthDate && ctx.subject.lagnaSign) {
+        try {
+          const today = new Date().toISOString().split("T")[0];
+          const prof = calculateProfectionYear(ctx.subject.birthDate, today, ctx.subject.lagnaSign);
+          litHouses = Array.from(new Set([1, 10, prof.activatedHouse]));
+        } catch { /* fall back to [1, 10] */ }
+      }
+      const signals = computeGoldenMoment(sky, { litHouses });
+      return { computedAt: sky.computedAt, signals, retrogrades: sky.retrogrades, eclipses: sky.eclipses };
     }),
   }),
 
