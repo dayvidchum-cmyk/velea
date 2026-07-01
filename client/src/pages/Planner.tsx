@@ -1342,7 +1342,7 @@ export default function Planner() {
                     </span>
                     {isConfirmedGolden
                       ? "The sky was auspicious and your check-in aligned."
-                      : "The sky is auspicious. Check in that day to see if it's golden for you."}
+                      : "The sky is auspicious. Are you aligned? Update your current state to see."}
                   </span>
                 )}
                 {isGolden ? (
