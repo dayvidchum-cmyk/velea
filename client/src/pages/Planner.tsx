@@ -491,6 +491,17 @@ export default function Planner() {
     : selectedPanchang
     ? `rgba(${selectedTaskModeForHero ? MODE_RGBA[selectedTaskModeForHero] : modeRgba}, 0.25)`
     : 'var(--card)';
+  // Angled card gradient — reads flatter/cleaner on short cards (e.g. the collapsed
+  // Time Lord pill) than the tall 180deg hero gradient.
+  const heroCardGradient = selectedTaskModeForHero === 'Action'
+    ? 'var(--kala-action-card-gradient)'
+    : selectedTaskModeForHero === 'Build'
+    ? 'var(--kala-build-card-gradient)'
+    : selectedTaskModeForHero === 'Selective'
+    ? 'var(--kala-selective-card-gradient)'
+    : selectedTaskModeForHero === 'Restraint'
+    ? 'var(--kala-restraint-card-gradient)'
+    : heroGradient;
   const selectedModeColor = selectedTaskModeForHero ? MODE_OKLCH[selectedTaskModeForHero] : 'var(--color-border)';
   const selectedModeRgba = selectedTaskModeForHero ? MODE_RGBA[selectedTaskModeForHero] : modeRgba;
 
@@ -809,10 +820,14 @@ export default function Planner() {
               </div>
             </div>
 
-            {/* Italic question — mirrors Today page */}
+            {/* Italic question — mirrors Today page. Narrowed + balanced wrapping to
+                avoid orphan/widow words on the second line. */}
             <p
               style={{
                 marginTop: 'auto',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                maxWidth: '26ch',
                 paddingTop: '1rem',
                 fontFamily: "'Inter', ui-sans-serif, sans-serif",
                 fontStyle: 'italic',
@@ -820,6 +835,7 @@ export default function Planner() {
                 lineHeight: 1.5,
                 color: 'rgba(255,255,255,0.8)',
                 textAlign: 'center',
+                textWrap: 'balance',
               }}
             >
               {glanceContent?.question ?? (selectedTaskModeForHero === 'Action'
@@ -1425,7 +1441,7 @@ export default function Planner() {
           className="relative z-10 overflow-hidden"
           style={{
             borderRadius: "var(--radius-card)",
-            background: heroGradient,
+            background: heroCardGradient,
           }}
         >
           <button
