@@ -197,35 +197,12 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew }: ProfileFormPr
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="pf-date">Birth Date</Label>
-          <Input
-  id="pf-date"
-  type="date"
-  autoComplete="off"
-  value={form.birthDate}
-  onChange={set("birthDate")}
-/>
-
-<Input
-  id="pf-time"
-  type="time"
-  autoComplete="off"
-  value={form.birthTime}
-  onChange={set("birthTime")}
-/>
-
-<Input
-  id="pf-lat"
-  autoComplete="off"
-  value={form.birthLocationLat}
-  onChange={set("birthLocationLat")}
-/>
-
-<Input
-  id="pf-lon"
-  autoComplete="off"
-  value={form.birthLocationLon}
-  onChange={set("birthLocationLon")}
-/> </div>
+          <Input id="pf-date" type="date" autoComplete="off" value={form.birthDate} onChange={set("birthDate")} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="pf-time">Birth Time</Label>
+          <Input id="pf-time" type="time" autoComplete="off" value={form.birthTime} onChange={set("birthTime")} />
+        </div>
       </div>
 
       {/* City + geocode */}
