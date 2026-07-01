@@ -1336,22 +1336,22 @@ export default function Planner() {
         </div>
       )}
 
-        </div>
-      )}
-
-      {/* Reflection history link */}
-      {isAuthenticated && (
-        <button
-          onClick={() => navigate("/reflections")}
-          className="flex items-center w-full py-2 transition-opacity hover:opacity-70 relative z-10"
-        >
-          <span
-            className="text-sm font-bold uppercase"
-            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+        {/* View reflection log — bottom of Plan ahead */}
+        {isAuthenticated && (
+          <button
+            onClick={() => navigate("/reflections")}
+            className="flex items-center w-full py-2 transition-opacity hover:opacity-70"
           >
-            View reflection log
-          </span>
-        </button>
+            <span
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              View reflection log
+            </span>
+          </button>
+        )}
+
+        </div>
       )}
 
       {/* ── DAY MODES (reference, collapsed by default) ── */}
