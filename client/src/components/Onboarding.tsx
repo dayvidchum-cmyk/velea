@@ -138,7 +138,15 @@ export default function Onboarding({ active, userId }: Props) {
     }
     if (!seen) {
       // Small delay so the Today page has painted before we dim it.
-      const t = setTimeout(() => setPhase("cards"), 450);
+      const t = setTimeout(() => {
+        // Mark seen as soon as we START. The tour navigates the app around (to the
+        // chart page, etc.), and a transient needsBirthData redirect can unmount +
+        // remount this component mid-flow; without persisting up front it would
+        // restart from scratch every remount — an infinite loop. Show-once is the
+        // safe default; finish() also sets it (idempotent).
+        try { localStorage.setItem(storageKey, "1"); } catch { /* ignore */ }
+        setPhase("cards");
+      }, 450);
       return () => clearTimeout(t);
     }
   }, [active, storageKey, phase]);
