@@ -3,18 +3,25 @@
 ## How the deploy works
 `railway.json` drives it:
 - **Build**: Nixpacks runs `npm run build` (Vite client bundle + esbuild server bundle).
-- **Pre-deploy** (runs once, before the new release goes live): `npm run db:migrate`
-  → `drizzle-kit migrate` applies all committed migrations in `drizzle/` to the
-  database (creates the full schema on a fresh DB; applies only new ones after).
+- **Pre-deploy** (runs once, before the new release goes live): `npm run db:deploy`
+  → `drizzle-kit push --force` syncs the database to `drizzle/schema.ts` directly
+  (non-interactive). On a fresh DB this creates the full schema; on later deploys it
+  applies the delta. `schema.ts` is the single source of truth (not the migration
+  journal), so every column is created — including ones added out-of-band.
 - **Start**: `npm start` → `NODE_ENV=production node dist/index.js`.
 
-A fresh Railway MySQL starts **empty** — the pre-deploy migrate is what creates
+A fresh Railway MySQL starts **empty** — the pre-deploy `db:deploy` is what creates
 every table (`users`, `tasks`, `profiles`, `sessions`, …). Do not skip it.
+
+> `npm run db:migrate` (interactive `drizzle-kit push`) is for **local** use — it
+> prompts before destructive changes. The deploy uses `db:deploy` (`--force`,
+> non-interactive) so it never hangs waiting for a prompt.
 
 ## Required environment variables (Railway → Variables)
 | Var | Value | Notes |
 |-----|-------|-------|
 | `DATABASE_URL` | from Railway MySQL plugin | Reference the MySQL service's connection URL. |
+| `ANTHROPIC_API_KEY` | your Anthropic key | Powers the narrative reads. Without it, reads fall back to the deterministic (non-LLM) text — the app still works, but the prose is generic. Use the same key as local `.env`. |
 | `JWT_SECRET` | a long random string | Generate with `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"` and paste the output. |
 | `NODE_ENV` | `production` | `start` also forces this; set it so pre-deploy/migrate match. |
 | `PORT` | (leave unset) | Railway injects it; the app reads `process.env.PORT`. |
