@@ -211,9 +211,12 @@ export function scoreTasks(
     projectAreas?: Map<number, string[]>;
     /** Golden Moment signals — slow-planet weather; a bounded soft multiplier. */
     goldenSignals?: GoldenMomentSignal[] | null;
+    /** Optional global tilt from the daily verdict (opt-in setting). 1 = no effect. */
+    verdictBias?: number;
   }
 ): ScoredTask[] {
   const { todayMode, todayDate, personalEnergy, currentState, layers, dayHouses, projectAreas, goldenSignals } = opts;
+  const verdictBias = opts.verdictBias ?? 1;
   const dayHouseSet = new Set(dayHouses ?? []);
   const today = new Date(todayDate);
 
@@ -333,7 +336,7 @@ export function scoreTasks(
       // Pressure layers + Golden Moment scale ONLY the soft subscore; floors preserved.
       const { multiplier, bubbles } = layerEffect(task, layers);
       const gm = goldenMomentEffect(task, goldenSignals);
-      const score = floor + soft * multiplier * gm.multiplier;
+      const score = floor + soft * multiplier * gm.multiplier * verdictBias;
 
       return { ...task, score, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3) };
     })

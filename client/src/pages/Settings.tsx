@@ -565,6 +565,19 @@ export default function Settings() {
             />
           </SettingRow>
 
+          {/* Verdict shapes ranking */}
+          <SettingRow
+            label="Let the daily verdict shape my task order"
+            description="When on, the day's go/hold call gently tilts task ranking — discretionary work rises on a strong day, recedes on a hold day."
+          >
+            <TogglePair
+              options={["on", "off"] as const}
+              value={draft.verdictShapesRanking ? "on" : "off"}
+              onChange={(v) => updateDraft("verdictShapesRanking", v === "on")}
+              renderLabel={(v) => <span>{v === "on" ? "On" : "Off"}</span>}
+            />
+          </SettingRow>
+
           {/* 3. Today Task Limit */}
           <SettingRow
             label="Tasks Shown At One Time"

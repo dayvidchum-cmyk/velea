@@ -450,6 +450,7 @@ export const appRouter = router({
           todayDate: z.string(), // YYYY-MM-DD
           personalEnergy: z.enum(["Low", "Medium", "High"]).default("Medium"),
           todayHouse: z.number().optional(), // the day's domain (activated house)
+          verdictShapesRanking: z.boolean().default(false), // opt-in: verdict tilts order
         })
       )
       .query(async ({ ctx, input }) => {
@@ -474,6 +475,16 @@ export const appRouter = router({
             goldenSignals = computeGoldenMoment(sky, { litHouses });
           } catch { /* degrade to no golden-moment effect */ }
         }
+        // Opt-in: let the daily verdict globally tilt the soft score (Go all in lifts
+        // discretionary work; Hold recedes it toward the pinned/overdue floors).
+        let verdictBias = 1;
+        if (input.verdictShapesRanking && goldenSignals) {
+          const avg = checkIn
+            ? (checkIn.physicalEnergy + checkIn.mentalClarity + checkIn.emotionalStability + checkIn.creativeFlow + checkIn.motivation) / 5
+            : null;
+          const v = computeVerdict(goldenSignals, avg);
+          verdictBias = v.universalLevel === "favorable" ? 1.15 : v.universalLevel === "unfavorable" ? 0.85 : 1;
+        }
         // Map each project to its life-area keys so the day's domain can surface
         // thematically-matching tasks.
         const projectAreas = new Map<number, string[]>(
@@ -487,6 +498,7 @@ export const appRouter = router({
           projectAreas,
           layers,
           goldenSignals,
+          verdictBias,
           currentState: checkIn
             ? {
                 physicalEnergy: checkIn.physicalEnergy,

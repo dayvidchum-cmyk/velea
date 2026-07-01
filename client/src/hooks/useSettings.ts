@@ -31,6 +31,8 @@ export interface SettingsState {
   todayTaskLimit: TodayTaskLimit;
   /** Current personal energy level — influences task selection ranking */
   personalEnergy: PersonalEnergy;
+  /** Let the daily go/hold verdict tilt task ordering (default off) */
+  verdictShapesRanking: boolean;
 
   // ── Future preferences (not yet implemented) ──────────────────────────────
   // showAstrologyDetails: boolean;
@@ -46,6 +48,7 @@ const DEFAULTS: SettingsState = {
   showOrbCounts: true,
   todayTaskLimit: 3,
   personalEnergy: "Medium",
+  verdictShapesRanking: false,
 };
 
 const STORAGE_KEY = "kala_settings";
