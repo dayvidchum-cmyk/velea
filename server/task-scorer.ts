@@ -334,16 +334,15 @@ export function scoreTasks(
       // Pressure layers + Golden Moment scale ONLY the soft subscore; floors preserved.
       const { multiplier, bubbles } = layerEffect(task, layers);
       const gm = goldenMomentEffect(task, goldenSignals);
-      // Current State OVERRIDE: a dominant discretionary band (×10) so how you feel
-      // outweighs the other soft signals (priority, domain, age…). Hard floors
-      // (pinned/overdue/due-today) remain a strict tier above it via the sort below.
-      const csBand = cs ? cs.delta * 10 : 0;
-      const disc = csBand + soft * multiplier * gm.multiplier * verdictBias;
-      const score = floor + disc;
+      // Current State is the PRIMARY sort key — it overrides everything, including
+      // the floors (pinned/overdue/due-today). How you feel now decides the order;
+      // floor + soft only break ties among equally-fitting tasks.
+      const csBand = cs ? cs.delta : 0;
+      const base = floor + soft * multiplier * gm.multiplier * verdictBias;
+      const score = csBand * 1000 + base;
 
-      return { ...task, score, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _floor: floor, _disc: disc };
+      return { ...task, score, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _cs: csBand, _base: base };
     })
-    // Floors are a strict tier; within a tier, Current State fit dominates ordering.
-    .sort((a, b) => (b._floor - a._floor) || (b._disc - a._disc))
-    .map(({ _floor, _disc, ...t }) => t);
+    .sort((a, b) => (b._cs - a._cs) || (b._base - a._base))
+    .map(({ _cs, _base, ...t }) => t);
 }
