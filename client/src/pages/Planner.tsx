@@ -1389,21 +1389,23 @@ export default function Planner() {
                       : "The sky is auspicious. Are you aligned? Update your current state to see."}
                   </span>
                 )}
-                {isToday && !isGolden && (
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true" style={{ position: "absolute", top: "3px", left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }}>
-                    <path d="M12 2 L17.9 20.1 L2.5 8.9 L21.5 8.9 L6.1 20.1 Z" />
-                  </svg>
-                )}
                 {isGolden ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                     <CircleDot size={22} color="#FFEB3B" strokeWidth={2.25} />
+                  </span>
+                ) : isToday ? (
+                  // Today = a light pentagram, centered (no number) — styled like the golden mark.
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={hasMode ? "rgba(255,255,255,0.85)" : "var(--color-muted-foreground)"} strokeWidth="1.75" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
+                      <path d="M12 2 L17.9 20.1 L2.5 8.9 L21.5 8.9 L6.1 20.1 Z" />
+                    </svg>
                   </span>
                 ) : (
                   <span
                     className="text-xs"
                     style={{
                       color: hasMode ? "inherit" : "var(--color-muted-foreground)",
-                      fontWeight: isSelected || isToday ? 700 : 600,
+                      fontWeight: isSelected ? 700 : 600,
                     }}
                   >
                     {day}
