@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `intent` enum('want','need') DEFAULT 'need' NOT NULL;

@@ -80,6 +80,7 @@ export const tasks = mysqlTable("tasks", {
   title: varchar("title", { length: 512 }).notNull(),
   mode: mysqlEnum("mode", ["Restraint", "Build", "Selective", "Action"]).notNull().default("Build"),
   priority: mysqlEnum("priority", ["High", "Medium", "Low"]).notNull().default("Medium"),
+  intent: mysqlEnum("intent", ["want", "need"]).notNull().default("need"), // want vs need — a ranking filter layer
   isPinned: boolean("isPinned").notNull().default(false),
   isCompleted: boolean("isCompleted").notNull().default(false),
   completedAt: timestamp("completedAt"),

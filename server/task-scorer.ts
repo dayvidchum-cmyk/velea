@@ -286,6 +286,16 @@ export function scoreTasks(
         reasons.push("Medium priority");
       }
 
+      // 5b. Want vs Need (soft) — an important layer: a "need" (essential) rises,
+      // a "want" (optional) recedes, so the day leans toward what must happen.
+      if (task.intent === "need") {
+        soft += 100;
+        reasons.push("A need");
+      } else if (task.intent === "want") {
+        soft -= 40;
+        reasons.push("A want");
+      }
+
       // 6. Mode alignment (soft) — the strongest discretionary signal.
       if (task.mode === todayMode) {
         soft += 200;

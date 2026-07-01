@@ -199,6 +199,7 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
       title: tasks.title,
       mode: tasks.mode,
       priority: tasks.priority,
+      intent: tasks.intent,
       isPinned: tasks.isPinned,
       isCompleted: tasks.isCompleted,
       completedAt: tasks.completedAt,
@@ -257,6 +258,7 @@ export async function createTask(data: {
   title: string;
   mode: "Restraint" | "Build" | "Selective" | "Action";
   priority: "High" | "Medium" | "Low";
+  intent?: "want" | "need";
   isPinned: boolean;
   dueDate?: string | null;
   wealthFlow?: boolean;
@@ -290,6 +292,7 @@ export async function updateTask(
     title: string;
     mode: "Restraint" | "Build" | "Selective" | "Action";
     priority: "High" | "Medium" | "Low";
+    intent: "want" | "need";
     isPinned: boolean;
     isCompleted: boolean;
     completedAt: Date | null;

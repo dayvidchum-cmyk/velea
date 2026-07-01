@@ -29,6 +29,8 @@ interface TaskItemProps {
   alignment?: number;
   /** Quick-cycle the priority from the collapsed row (Low→Medium→High→Low). */
   onCyclePriority?: (id: number, next: "Low" | "Medium" | "High") => void;
+  /** Toggle want/need from the collapsed row. */
+  onSetIntent?: (id: number, next: "want" | "need") => void;
 }
 
 function formatDueDate(dateStr: string): string {
@@ -59,8 +61,9 @@ function isDueToday(dateStr: string): boolean {
 
 
 
-export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment, onCyclePriority }: TaskItemProps) {
+export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment, onCyclePriority, onSetIntent }: TaskItemProps) {
   const NEXT_PRIORITY: Record<string, "Low" | "Medium" | "High"> = { Low: "Medium", Medium: "High", High: "Low" };
+  const taskIntent = ((task as any).intent as "want" | "need" | undefined) ?? "need";
   const [expanded, setExpanded] = useState(false);
   const [addingSubtask, setAddingSubtask] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
@@ -227,6 +230,20 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           </span>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
+            {/* Want / Need — tap to toggle */}
+            <button
+              onClick={(e) => { e.stopPropagation(); onSetIntent?.(task.id, taskIntent === "need" ? "want" : "need"); }}
+              className="inline-flex items-center text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full flex-shrink-0"
+              style={{
+                letterSpacing: "0.06em",
+                background: taskIntent === "need" ? "rgba(var(--ink),0.16)" : "transparent",
+                color: taskIntent === "need" ? "rgba(var(--ink),0.9)" : "rgba(var(--ink),0.5)",
+                border: `1px solid ${taskIntent === "need" ? "transparent" : "rgba(var(--ink),0.3)"}`,
+              }}
+              title={`${taskIntent === "need" ? "Need" : "Want"} — tap to toggle`}
+            >
+              {taskIntent}
+            </button>
             {/* Due date badge */}
             {task.dueDate && !task.isCompleted && (
               <span
