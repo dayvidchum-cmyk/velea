@@ -735,7 +735,7 @@ export default function Profiles() {
   return (
     <div className="min-h-screen pb-32">
       <div className="container py-6 space-y-5">
-        <AppHeader pageTitle={mode === "create" ? "New Profile" : mode === "edit" ? "Edit Profile" : "Profiles"} />
+        <AppHeader pageTitle={mode === "create" ? "New Profile" : mode === "edit" ? "Edit Profile" : isAdmin ? "Profiles" : "Your Profile"} />
 
         {mode === "list" && needsBirthData && (
           <div
