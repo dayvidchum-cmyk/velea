@@ -598,7 +598,7 @@ export default function ProfectionYear() {
               return (
                 <div>
                   <p style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "0.75rem" }}>
-                    Your Time Lord's path this year, sign by sign. Tap a band for detail; the white line is today.
+                    {timeLord}'s path this year, sign by sign. Tap a band for detail; the white line is today.
                   </p>
 
                   {/* Ribbon */}

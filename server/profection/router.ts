@@ -205,7 +205,7 @@ export const profectionRouter = router({
       const profection = calculateProfectionYear(subject.birthDate, today, subject.lagnaSign);
 
       // Get or create the profection year record
-      const profectionYear = await getOrCreateProfectionYear(
+      let profectionYear = await getOrCreateProfectionYear(
         ctx.user.id,
         profection.age,
         profection.activatedHouse,
@@ -215,6 +215,26 @@ export const profectionRouter = router({
         profection.yearEnd,
         subject.profileId ?? null
       );
+
+      // Staleness guard: if the cached year no longer matches the chart (e.g. the
+      // lagna was corrected, changing the activated sign / Time Lord), the stored
+      // transits are for the wrong planet and houses. Wipe and rebuild.
+      if (profectionYear.timeLord !== profection.timeLord || profectionYear.activatedSign !== profection.activatedSign) {
+        const { deleteTimeLordTransitsForProfile } = await import("./transit-db.js");
+        const { deleteProfectionYearsForProfile } = await import("./db.js");
+        await deleteTimeLordTransitsForProfile(subject.profileId ?? null);
+        await deleteProfectionYearsForProfile(subject.profileId ?? null);
+        profectionYear = await getOrCreateProfectionYear(
+          ctx.user.id,
+          profection.age,
+          profection.activatedHouse,
+          profection.activatedSign,
+          profection.timeLord,
+          profection.yearStart,
+          profection.yearEnd,
+          subject.profileId ?? null
+        );
+      }
 
       // Get existing transits
       let transits = await getTimeLordTransitsForYear(profectionYear.id);

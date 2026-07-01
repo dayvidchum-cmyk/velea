@@ -74,6 +74,22 @@ export const timeLordTransitRouter = router({
         }
       }
 
+      // ── 2b. Staleness guard — if the cached year no longer matches the chart
+      // (lagna corrected → different activated sign / Time Lord), wipe & rebuild.
+      if (profileId != null && subject?.birthDate && subject?.lagnaSign) {
+        const fresh = calculateProfectionYear(subject.birthDate, input.date, subject.lagnaSign);
+        if (profectionYear.timeLord !== fresh.timeLord || profectionYear.activatedSign !== fresh.activatedSign) {
+          const { deleteTimeLordTransitsForProfile } = await import("./transit-db.js");
+          const { deleteProfectionYearsForProfile } = await import("./db.js");
+          await deleteTimeLordTransitsForProfile(profileId);
+          await deleteProfectionYearsForProfile(profileId);
+          profectionYear = await getOrCreateProfectionYear(
+            ctx.user.id, fresh.age, fresh.activatedHouse, fresh.activatedSign,
+            fresh.timeLord, fresh.yearStart, fresh.yearEnd, profileId,
+          );
+        }
+      }
+
       // ── 3. Try to find an existing transit row ──────────────────────────────
       let transit = await getTimeLordTransitForDate(profectionYear.id, input.date);
 
