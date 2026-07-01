@@ -1264,6 +1264,9 @@ export default function Planner() {
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
             const panchang = panchangByDate[dateStr];
             const isToday = dateStr === toDateStr(today);
+            // A "golden moment" — today, when the universal (Golden Moment) signal is
+            // favorable. Only these days get the gold antlers + gold border.
+            const isGolden = isToday && stage?.verdict?.universalLevel === "favorable";
             const isSelected = dateStr === selectedDate;
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
             const hasMode = !!modeColor;
@@ -1285,10 +1288,12 @@ export default function Planner() {
                 onClick={() => setSelectedDate(dateStr)}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
-                  minHeight: isToday ? "2.9rem" : "2.1rem",
+                  minHeight: isGolden ? "3.2rem" : "2.1rem",
                   color: hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
-                  border: isSelected
+                  border: isGolden
+                    ? "2px solid #C9A84C"
+                    : isSelected
                     ? `1.5px solid ${accent}`
                     : isToday
                     ? `1.5px solid ${withAlpha(accent, 0.55)}`
@@ -1299,9 +1304,9 @@ export default function Planner() {
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
-                {isToday && (
-                  <span style={{ position: "absolute", top: "2px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
-                    <StagAntlers size={15} color="#C9A84C" />
+                {isGolden && (
+                  <span style={{ position: "absolute", top: "3px", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+                    <StagAntlers size={26} color="#C9A84C" />
                   </span>
                 )}
                 <span
@@ -1309,7 +1314,7 @@ export default function Planner() {
                   style={{
                     color: hasMode ? "inherit" : "var(--color-muted-foreground)",
                     fontWeight: isSelected || isToday ? 700 : 600,
-                    marginTop: isToday ? "0.6rem" : 0,
+                    marginTop: isGolden ? "0.95rem" : 0,
                   }}
                 >
                   {day}
