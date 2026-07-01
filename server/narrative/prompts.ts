@@ -461,6 +461,15 @@ many layers point at the same thing. A Moon year in the 3rd with the natal Moon
 already in the 3rd is a Moon theme squared — the voice, siblings, and courage come
 round again to be owned, not discovered.
 
+RETROGRADE-HEAVY CHART — THE OLD SOUL
+When natalRetrogradeCount is high (4 or more; the nodes are excluded), read the
+person as an OLD SOUL who hesitated to come and live out this karmic story, and
+came anyway. The retrogrades are that reluctance — the drive turned inward,
+re-treading old ground before acting outward. Frame it as a chosen return: they
+struck a deal with the source, agreed to everything they would meet on Earth, and
+decided it was worth it. Use this only when the count is genuinely high, and weave
+it into the core theme (it colors WHO they are), not as a separate note.
+
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
 organizing around — usually two poles in relation (self and others, holding and
@@ -801,4 +810,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-01-role-not-pretty";
+export const PROMPT_VERSION = "2026-07-01-old-soul-retrogrades";

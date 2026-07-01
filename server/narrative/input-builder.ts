@@ -177,5 +177,11 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string) {
     : null;
 
   // Name is intentionally omitted so the model writes in second person ("you").
-  return { subject: { profileId: p.id }, date: dateStr, natal, profection, dasha, transits, panchang, humanTime, timeLordTransit };
+  // Natal retrograde count (excluding the nodes, which are always retrograde) —
+  // a retrograde-heavy chart carries the "old soul" reading (see prompt).
+  const natalRetrogradeCount = (natal.planets as any[]).filter(
+    (pl) => pl && pl.retrograde && pl.name !== "Rahu" && pl.name !== "Ketu",
+  ).length;
+
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, humanTime, timeLordTransit };
 }
