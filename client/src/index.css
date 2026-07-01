@@ -6,6 +6,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Hanuman — self-hosted Khmer font for the លវេលា brand mark (OFL, /fonts/Hanuman-OFL.txt) */
+@font-face {
+  font-family: 'Hanuman';
+  src: url('/fonts/Hanuman.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hanuman';
+  src: url('/fonts/Hanuman-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    KALA — LUXURY TERMINAL AESTHETIC
    Dark mode only. Pure black. High contrast. Calm. Information-dense.
