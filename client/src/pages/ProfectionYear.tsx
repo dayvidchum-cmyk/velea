@@ -602,7 +602,11 @@ export default function ProfectionYear() {
               const nowPct = Math.max(0, Math.min(100, ((Date.now() - start) / span) * 100));
               const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" });
               const fmtLong = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-              const sel = expandedTransitId != null ? segs[expandedTransitId] : null;
+              // Default the detail + highlight to TODAY's segment (the one whose date
+              // range contains today), so it never shows a stale past band by default.
+              const currentIdx = segs.findIndex((t) => t.startDate <= todayStr && todayStr <= t.endDate);
+              const activeIdx = expandedTransitId != null ? expandedTransitId : currentIdx;
+              const sel = activeIdx >= 0 ? segs[activeIdx] : null;
               return (
                 <div>
                   <p style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "0.75rem" }}>
@@ -615,7 +619,7 @@ export default function ProfectionYear() {
                       const dur = Math.max(ms(t.endDate) - ms(t.startDate), 1);
                       const color = SIGN_COLOR[t.sign] ?? "#888";
                       const isCurrent = t.startDate <= todayStr && todayStr <= t.endDate;
-                      const selected = expandedTransitId === idx;
+                      const selected = activeIdx === idx;
                       return (
                         <button
                           key={idx}

@@ -189,11 +189,11 @@ function DeleteConfirmDialog({
       style={{ background: "var(--dialog-overlay)" }}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-6 space-y-4"
+        className="w-full max-w-sm p-6 space-y-4"
         style={{
           background: "var(--color-card)",
           border: "1px solid var(--color-border)",
-          boxShadow: "0 8px 32px oklch(0 0 0 / 0.25)",
+          borderRadius: "var(--radius-hero)",
         }}
       >
         <h3
@@ -255,11 +255,11 @@ function ArchiveConfirmDialog({
       style={{ background: "var(--dialog-overlay)" }}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-6 space-y-4"
+        className="w-full max-w-sm p-6 space-y-4"
         style={{
           background: "var(--color-card)",
           border: "1px solid var(--color-border)",
-          boxShadow: "0 8px 32px oklch(0 0 0 / 0.25)",
+          borderRadius: "var(--radius-hero)",
         }}
       >
         <h3
