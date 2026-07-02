@@ -7,13 +7,13 @@ import {
   Settings,
   Folder,
   Users,
-  CircleDot,
 } from "lucide-react";
+import VeleaMark from "./VeleaMark";
 
 const BASE_NAV = [
   { path: "/", label: "Today", icon: BookOpen },
   { path: "/projects", label: "Projects", icon: Folder },
-  { path: "/profection", label: "Chart", icon: CircleDot },
+  { path: "/profection", label: "Chart", icon: VeleaMark },
   { path: "/glossary", label: "Glossary", icon: Library },
 ];
 

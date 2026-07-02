@@ -1,7 +1,8 @@
 import { trpc } from "../lib/trpc";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
-import { ChevronDown, CircleDot } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
@@ -268,7 +269,7 @@ export default function ProfectionYear() {
   // Read breakdown so the placement bullets resolve into a single human takeaway.
   const goldTakeaway = (text: string) => (
     <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.95rem" }}>
-      <CircleDot size={17} style={{ color: "#E7C766", flexShrink: 0, marginTop: "0.15rem" }} />
+      <VeleaMark size={17} color="#E7C766" style={{ flexShrink: 0, marginTop: "0.15rem" }} />
       <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{text.charAt(0).toUpperCase() + text.slice(1)}</p>
     </div>
   );

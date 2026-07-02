@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, CircleDot, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
+import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
@@ -1417,7 +1418,7 @@ export default function Planner() {
                 )}
                 {isGolden ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                    <CircleDot size={22} color="#FFEB3B" strokeWidth={2.25} />
+                    <VeleaMark size={22} color="#ffffff" />
                   </span>
                 ) : isToday ? (
                   // Today = a light pentagram, centered (no number) — styled like the golden mark.
