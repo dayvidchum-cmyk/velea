@@ -36,6 +36,7 @@ export default function Login() {
         await loginMutation.mutateAsync({ email, password });
       }
       await utils.auth.me.invalidate();
+      try { sessionStorage.setItem("velea_splash", "1"); } catch { /* ignore */ }
       setLocation("/");
     } catch (err: any) {
       setError(

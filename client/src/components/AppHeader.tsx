@@ -235,36 +235,22 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   return (
     <>
       <div className="relative z-10">
-        {/* Brand mark — Velea + លវេលា (Moul), with the Khmer meaning */}
-        <div className="mb-4">
-          <div className="flex items-center gap-2">
-            <span
-              aria-hidden="true"
-              style={{
-                display: "inline-block", width: 30, height: 30,
-                background: "var(--foreground)",
-                WebkitMaskImage: "url(/velea-logo.png)", maskImage: "url(/velea-logo.png)",
-                WebkitMaskSize: "contain", maskSize: "contain",
-                WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center", maskPosition: "center",
-              }}
-            />
-            <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--foreground)" }}>
-              Velea
-            </span>
-            <span
-              lang="km"
-              title="លវេលា (Velea) — Khmer for 'time'. លវេលាល្អ (velealor) — the auspicious, golden moment."
-              style={{ fontFamily: "'Hanuman', serif", fontSize: "1.35rem", lineHeight: 1, color: "#C9A84C", marginLeft: "0.15rem" }}
-            >
-              លវេលា
-            </span>
-          </div>
-          <p style={{ margin: "0.3rem 0 0", fontSize: "0.62rem", letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
-            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលា</span> time
-            <span style={{ opacity: 0.5 }}> · </span>
-            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលាល្អ</span> the golden moment
-          </p>
+        {/* Brand mark — logo + wordmark (the full Khmer story lives in the login splash) */}
+        <div className="flex items-center gap-2 mb-4">
+          <span
+            aria-hidden="true"
+            style={{
+              display: "inline-block", width: 30, height: 30,
+              background: "var(--brand-gold)",
+              WebkitMaskImage: "url(/velea-logo.png)", maskImage: "url(/velea-logo.png)",
+              WebkitMaskSize: "contain", maskSize: "contain",
+              WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center", maskPosition: "center",
+            }}
+          />
+          <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>
+            Velea
+          </span>
         </div>
         {/* Utility row: date left, location + state right */}
         <div className="flex items-center justify-between mb-5">
@@ -274,8 +260,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           >
             {heroDateLabel}
           </span>
-          <div className="flex items-center gap-2">
-            {stage && (
+          {stage && (
               <button
                 onClick={stage.onToggle}
                 className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
@@ -334,7 +319,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                   CURRENT STATE
                 </span>
               </button>
-          </div>
         </div>
 
         {/* Large editorial greeting — the visual anchor */}

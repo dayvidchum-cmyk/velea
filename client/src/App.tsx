@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
 import { Plus } from "lucide-react";
+import BrandSplash from "@/components/BrandSplash";
 import { PANCHANG_TO_TASK_MODE, type TaskMode } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 
@@ -36,6 +37,17 @@ function AppLayoutContent() {
   const [location] = useLocation();
 const { user, loading } = useAuth();
   const { quickAddMode, setQuickAddMode } = useAddTask();
+  // Post-login brand splash — shown once when the "velea_splash" flag is set by login.
+  const [showSplash, setShowSplash] = useState(false);
+  useEffect(() => {
+    if (!user) return;
+    try {
+      if (sessionStorage.getItem("velea_splash") === "1") {
+        sessionStorage.removeItem("velea_splash");
+        setShowSplash(true);
+      }
+    } catch { /* ignore */ }
+  }, [user]);
   const showNav = !location.startsWith("/404") && !location.startsWith("/login");
 
   // Ensure the owner's "My Chart" profile exists (idempotent migration)
@@ -227,6 +239,7 @@ const { user, loading } = useAuth();
 
   return (
     <div className="fixed inset-0 bg-background text-foreground flex flex-col star-bg">
+      {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
       {/* Scrollable content area — single scroll container */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
