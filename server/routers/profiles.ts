@@ -549,4 +549,4 @@ export const profilesRouter = router({
 });
 
 // Export helpers for use by other routers
-export { getActiveProfile, getProfileNatalBodies };
+export { getActiveProfile, getProfileNatalBodies, upsertProfileNatalBody };

@@ -711,6 +711,48 @@ export const appRouter = router({
             console.warn('[Birth Chart] Cascade clear failed:', cascadeErr);
           }
 
+          // Sync the user's ACTIVE PROFILE too. The app displays the chart from the
+          // profile (profile_natal_bodies), not the user row — so without this, an
+          // edited birth chart (location/timezone included) never actually shows.
+          try {
+            const { getActiveProfile, upsertProfileNatalBody } = await import('./routers/profiles.js');
+            const activeProfile = await getActiveProfile(ctx.user.id);
+            const pdb = await getDb();
+            if (activeProfile && pdb) {
+              await pdb.update(profiles).set({
+                birthDate: input.birthDate,
+                birthTime: input.birthTime,
+                birthLocationCity: input.birthLocationCity,
+                birthLocationLat: input.birthLocationLat || null,
+                birthLocationLon: input.birthLocationLon || null,
+                birthTimezone: timezone,
+                lagnaSign: chart.lagna.sign,
+                sunHouse: chart.sun.house,
+                moonHouse: chart.moon.house,
+                marsHouse: chart.mars.house,
+                mercuryHouse: chart.mercury.house,
+                jupiterHouse: chart.jupiter.house,
+                venusHouse: chart.venus.house,
+                saturnHouse: chart.saturn.house,
+                rahuHouse: chart.rahu.house,
+                ketuHouse: chart.ketu.house,
+                ascendantDegree: chart.lagna.degree.toFixed(2),
+              }).where(eq(profiles.id, activeProfile.id));
+              for (const planet of planetData) {
+                await upsertProfileNatalBody(activeProfile.id, planet.name, {
+                  sign: planet.data.sign,
+                  degree: planet.data.degree.toFixed(6),
+                  house: planet.data.house,
+                  nakshatra: planet.data.nakshatra || null,
+                  pada: planet.data.pada || null,
+                  longitude: planet.data.longitude != null ? planet.data.longitude.toFixed(6) : null,
+                });
+              }
+            }
+          } catch (profileSyncErr) {
+            console.warn('[Birth Chart] Profile sync failed:', profileSyncErr);
+          }
+
           return { success: true, chart };
         } catch (error) {
           console.error('[Birth Chart] Calculation failed:', error);
