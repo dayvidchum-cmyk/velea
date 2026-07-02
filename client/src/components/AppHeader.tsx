@@ -251,27 +251,27 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           >
             {heroDateLabel}
           </span>
-          {stage && (
-              <button
-                onClick={stage.onToggle}
-                className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-                style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
-                  e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.borderColor = "transparent";
-                }}
-              >
-                <Star size={11} />
-                <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
-                  THE STAGE
-                </span>
-                <ChevronDown size={10} style={{ transform: stage.open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
-              </button>
-            )}
+          {/* The Stage — always in the header for consistency. Toggles the panel on
+              Today; from other pages it navigates to Today (where the Stage lives). */}
+          <button
+            onClick={() => (stage ? stage.onToggle() : navigate("/"))}
+            className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
+            style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
+              e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.borderColor = "transparent";
+            }}
+          >
+            <Star size={11} />
+            <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
+              THE STAGE
+            </span>
+            <ChevronDown size={10} style={{ transform: stage?.open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+          </button>
             <button
               onClick={() => setLocationSheetOpen(true)}
               className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"

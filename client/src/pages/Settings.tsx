@@ -515,7 +515,7 @@ export default function Settings() {
               </p>
             )}
           </div>
-          <div className="pt-4">
+          <div className="py-4">
             <button
               onClick={() => navigate("/profiles")}
               className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
