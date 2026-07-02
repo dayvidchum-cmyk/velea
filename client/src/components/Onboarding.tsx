@@ -1,6 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, Sun, Compass, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import VeleaMark from "./VeleaMark";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 
 /**
@@ -53,17 +54,17 @@ type Props = {
 
 const CARDS = [
   {
-    icon: Sparkles,
+    icon: VeleaMark,
     title: "Welcome to Velea",
     body: "Velea reads today's sky and turns it into one simple thing you can act on: your day mode. The whole app even tints itself to that mode's color, so you can feel what kind of day it is at a glance. No astrology knowledge required.",
   },
   {
-    icon: Sun,
+    icon: BookOpen,
     title: "Start on Today",
     body: "Today tells you what kind of day this is — Action, Build, Selective, or Restraint — and what to focus on. If you only ever read one screen, read this one.",
   },
   {
-    icon: Compass,
+    icon: VeleaMark,
     title: "Go deeper when you're curious",
     body: "Chart, Profection, and Dasha reveal the astrology underneath. They're optional — ignore them until you want to explore. Today is all you need to begin.",
   },
