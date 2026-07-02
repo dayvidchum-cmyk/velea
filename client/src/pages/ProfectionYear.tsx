@@ -331,14 +331,14 @@ export default function ProfectionYear() {
   );
 
   if (profectionError) return (
-    <div style={{ padding: "2rem" }}>
+    <div className="container" style={{ paddingTop: "2rem", paddingBottom: "7rem" }}>
       <AppHeader pageTitle="Your Charts" />
       <p style={{ color: TEXT_MUTED, marginTop: "1rem" }}>Error: {profectionError.message}</p>
     </div>
   );
 
   if (!profectionData) return (
-    <div style={{ padding: "2rem" }}>
+    <div className="container" style={{ paddingTop: "2rem", paddingBottom: "7rem" }}>
       <AppHeader pageTitle="Your Charts" />
       <p style={{ color: TEXT_MUTED, marginTop: "1rem" }}>Please set your birth date and lagna sign in settings to view your profection year.</p>
     </div>
@@ -387,7 +387,7 @@ export default function ProfectionYear() {
   const dashaTakeaway = peelTakeaway(deepRead?.whyNow?.why ?? "").takeaway;
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto", paddingBottom: "7rem" }}>
+    <div className="container" style={{ paddingTop: "2rem", paddingBottom: "7rem" }}>
       <div style={{ marginBottom: "1.5rem" }}>
         <AppHeader pageTitle="Your Charts" />
       </div>

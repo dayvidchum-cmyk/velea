@@ -1,39 +1,37 @@
 import type { CSSProperties } from "react";
 
 /**
- * VeleaMark — the Velea logo rendered as a tintable monochrome icon (via CSS mask).
- * Use anywhere an app/brand mark is wanted. (The circle-dot is reserved for the Sun,
- * being its alchemical symbol.) Defaults to currentColor so it inherits like a
- * lucide icon; `strokeWidth` is accepted and ignored for drop-in compatibility.
+ * VeleaMark — an even-weight icon interpretation of the Velea logo (a ring + the
+ * line), for small UI sizes where the detailed tapered logo reads too thin. Strokes
+ * in currentColor by default so it inherits like a lucide icon and matches their
+ * weight. (The full detailed logo art is used at hero/splash sizes.)
  */
 export default function VeleaMark({
-  size = 20,
+  size = 22,
   color = "currentColor",
+  strokeWidth = 2,
   style,
 }: {
   size?: number;
   color?: string;
-  style?: CSSProperties;
   strokeWidth?: number;
+  style?: CSSProperties;
 }) {
   return (
-    <span
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={style}
       aria-hidden="true"
-      style={{
-        display: "inline-block",
-        width: size,
-        height: size,
-        background: color,
-        WebkitMaskImage: "url(/velea-mark.svg)",
-        maskImage: "url(/velea-mark.svg)",
-        WebkitMaskSize: "contain",
-        maskSize: "contain",
-        WebkitMaskRepeat: "no-repeat",
-        maskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-        maskPosition: "center",
-        ...style,
-      }}
-    />
+    >
+      <circle cx="11" cy="13" r="7.5" />
+      <path d="M20.8 3.2 L13.4 10.6" />
+    </svg>
   );
 }
