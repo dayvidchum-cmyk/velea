@@ -613,7 +613,7 @@ export default function ProfectionYear() {
               return (
                 <div>
                   <p style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "0.75rem" }}>
-                    {timeLord}'s path this year, sign by sign. Tap a band for detail; the white line is today.
+                    {timeLord}'s path this year, sign by sign. Tap a band for detail; the Velea mark is today.
                   </p>
 
                   {/* Ribbon */}
@@ -644,9 +644,15 @@ export default function ProfectionYear() {
                           {isCurrent && (() => {
                             const s = ms(t.startDate), e = ms(t.endDate);
                             const frac = Math.max(0, Math.min(1, (Date.now() - s) / Math.max(e - s, 1)));
-                            return <div style={{ position: "absolute", top: -1, bottom: -1, left: `${frac * 100}%`, width: 4, marginLeft: -2, background: "#fff", boxShadow: "0 0 5px rgba(0,0,0,0.6)", pointerEvents: "none", borderRadius: 2, zIndex: 2 }} />;
+                            // The Velea mark IS today — a clear, tappable marker at today's
+                            // spot in the current band (no cross-segment drift).
+                            return (
+                              <div style={{ position: "absolute", bottom: 3, left: `${frac * 100}%`, transform: "translateX(-50%)", zIndex: 3, pointerEvents: "none", lineHeight: 0 }}>
+                                <VeleaMark size={17} color="#fff" style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.8))" }} />
+                              </div>
+                            );
                           })()}
-                          <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>{SIGN_GLYPH[t.sign]}</span>
+                          <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)", marginBottom: isCurrent ? 6 : 0 }}>{SIGN_GLYPH[t.sign]}</span>
                           {t.isRetrograde && <span style={{ fontSize: "0.75rem", color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
                         </button>
                       );

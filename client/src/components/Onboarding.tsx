@@ -644,16 +644,16 @@ function TourLayer({
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Skip-all */}
-      <button
-        onClick={onFinish}
-        className="absolute top-5 right-5 text-xs font-semibold px-3 py-1.5 rounded-full"
-        style={{ background: "rgba(0,0,0,0.4)", color: "#fff", pointerEvents: "auto" }}
-      >
-        Skip tour
-      </button>
+          {/* Skip lives inside the card — reachable, away from the phone's top UI */}
+          <button
+            onClick={onFinish}
+            className="w-full text-center text-xs font-medium mt-4 pt-3"
+            style={{ color: "var(--color-muted-foreground)", borderTop: "1px solid var(--color-border)", pointerEvents: "auto" }}
+          >
+            Skip the tour
+          </button>
+      </div>
     </div>
   );
 }

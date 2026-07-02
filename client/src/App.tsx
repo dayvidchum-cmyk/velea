@@ -214,6 +214,14 @@ const { user, loading } = useAuth();
     return <Redirect to="/profiles" />;
   }
 
+  const hardRefresh = async () => {
+    try {
+      if ("caches" in window) { const keys = await caches.keys(); await Promise.all(keys.map((k) => caches.delete(k))); }
+      if ("serviceWorker" in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map((r) => r.update())); }
+    } catch { /* best-effort */ }
+    window.location.reload();
+  };
+
   return (
     <div className="fixed inset-0 bg-background text-foreground flex flex-col star-bg">
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
@@ -253,6 +261,12 @@ const { user, loading } = useAuth();
             }}
           >
             Velea v{APP_VERSION}
+            <button
+              onClick={hardRefresh}
+              style={{ marginLeft: 12, background: "none", border: "none", color: "inherit", font: "inherit", letterSpacing: "inherit", textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}
+            >
+              Refresh app
+            </button>
           </div>
         )}
       </main>

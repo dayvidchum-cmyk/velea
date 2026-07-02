@@ -24,6 +24,7 @@ import AppHeader from "@/components/AppHeader";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { composeNarrative } from "@/lib/narrative-data";
 import GlossaryText from "@/components/GlossaryText";
+import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -560,6 +561,8 @@ export default function Planner() {
       <AppHeader
         heroMode={{ qualifier: todayPanchang?.qualifier ?? null }}
       />
+
+      {isAuthenticated && <AddToHomeScreenNote />}
 
       {/* ── WHAT ARE DAY MODES? (ExplainerPanel style) — above the hero ── */}
       {isAuthenticated && (
