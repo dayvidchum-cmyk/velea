@@ -12,6 +12,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { SettingsProvider, useSettingsContext } from "./contexts/SettingsContext";
 import { AddTaskProvider, useAddTask } from "./contexts/AddTaskContext";
 import BottomNav from "./components/BottomNav";
+import { APP_VERSION } from "./lib/version";
 import AddTaskSheet from "./components/AddTaskSheet";
 import Onboarding from "./components/Onboarding";
 import Home from "./pages/Home";
@@ -238,6 +239,22 @@ const { user, loading } = useAuth();
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>
+
+        {/* Version tag — bottom of every page's scroll, clearing the fixed nav */}
+        {showNav && (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "1.25rem 0 calc(88px + env(safe-area-inset-bottom, 0px))",
+              fontSize: "0.66rem",
+              letterSpacing: "0.1em",
+              color: "var(--color-muted-foreground)",
+              opacity: 0.55,
+            }}
+          >
+            Velea v{APP_VERSION}
+          </div>
+        )}
       </main>
 
       {/* Global add task sheet */}
