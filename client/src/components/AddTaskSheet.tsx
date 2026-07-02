@@ -58,18 +58,23 @@ const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
  * Only listens to `resize` — NOT `scroll` — to avoid jumps during
  * iOS rubber-band bounce scrolling.
  */
-function useSheetHeight(navBarHeight = 83): string {
-  const [height, setHeight] = useState<string>(`calc(100dvh - ${navBarHeight}px)`);
+function useSheetHeight(navBarHeight = 83): { height: string; bottom: number } {
+  const [vp, setVp] = useState<{ height: string; bottom: number }>({
+    height: `calc(100dvh - ${navBarHeight}px)`,
+    bottom: 0,
+  });
 
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
 
     function update() {
-      // Use the visual viewport height (shrinks when keyboard opens)
-      // minus a small top margin so the sheet doesn't fill the entire screen
+      // Keyboard height = gap between the layout-viewport bottom and the visible
+      // (visual-viewport) bottom. Push the sheet UP by that much so its bottom
+      // edge (the Save button) sits above the keyboard instead of sliding under it.
+      const keyboard = Math.max(0, window.innerHeight - vv!.height - vv!.offsetTop);
       const availableHeight = vv!.height - navBarHeight;
-      setHeight(`${Math.max(200, availableHeight)}px`);
+      setVp({ height: `${Math.max(200, availableHeight)}px`, bottom: keyboard });
     }
 
     update();
@@ -77,7 +82,7 @@ function useSheetHeight(navBarHeight = 83): string {
     return () => vv.removeEventListener("resize", update);
   }, [navBarHeight]);
 
-  return height;
+  return vp;
 }
 
 // ─── Inline project selector ─────────────────────────────────────────────────
@@ -264,7 +269,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
   const subtaskInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const sheetHeight = useSheetHeight(83);
+  const { height: sheetHeight, bottom: sheetBottom } = useSheetHeight(83);
 
   const utils = trpc.useUtils();
 
@@ -459,7 +464,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       {/* Sheet Container — height tracks visual viewport so keyboard doesn't cover content */}
       <div
         className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-3xl bg-background flex flex-col"
-        style={{ height: sheetHeight, maxHeight: sheetHeight }}
+        style={{ height: sheetHeight, maxHeight: sheetHeight, bottom: sheetBottom }}
       >
         {/* Header — never scrolls */}
         <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-border">

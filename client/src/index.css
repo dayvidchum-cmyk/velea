@@ -40,6 +40,11 @@
   from { opacity: 0; transform: scale(1.08) translateY(10px); }
   to { opacity: 1; transform: none; }
 }
+/* Night sky + mountains settling in behind the words — the final layer. */
+@keyframes velea-sky-in {
+  from { opacity: 0; transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
 
 /* ══════════════════════════════════════════════════════════════════════════════
    VELEA — LUXURY TERMINAL AESTHETIC
