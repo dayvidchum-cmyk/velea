@@ -7,6 +7,7 @@ import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import LocationSheet from "@/components/LocationSheet";
 import CheckInSheet from "@/components/CheckInSheet";
+import StageSheet from "@/components/StageSheet";
 import VeleaMark from "./VeleaMark";
 import { toast } from "sonner";
 import {
@@ -31,8 +32,6 @@ interface AppHeaderProps {
   onBack?: () => void;
   /** Label for the back link (defaults to "Back") */
   backLabel?: string;
-  /** Today-only: a "Stage" chip in the utility row (Golden Moment). */
-  stage?: { count: number; open: boolean; onToggle: () => void };
 }
 
 /**
@@ -42,12 +41,13 @@ interface AppHeaderProps {
  *   - Large editorial serif greeting below
  * Other pages use the standard compact layout.
  */
-export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale = 1, onBack, backLabel = "Back", stage }: AppHeaderProps = {}) {
+export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale = 1, onBack, backLabel = "Back" }: AppHeaderProps = {}) {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === "admin";
   const modeColor = useDayModeColor();
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
   const [checkInSheetOpen, setCheckInSheetOpen] = useState(false);
+  const [stageSheetOpen, setStageSheetOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [switching, setSwitching] = useState<number | "own" | null>(null);
   const [, navigate] = useLocation();
@@ -251,10 +251,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           >
             {heroDateLabel}
           </span>
-          {/* The Stage — always in the header for consistency. Toggles the panel on
-              Today; from other pages it navigates to Today (where the Stage lives). */}
+          {/* The Stage — always in the header; opens the Stage pop-up on any page. */}
           <button
-            onClick={() => (stage ? stage.onToggle() : navigate("/"))}
+            onClick={() => setStageSheetOpen(true)}
             className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
             style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
             onMouseEnter={(e) => {
@@ -270,7 +269,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
               THE STAGE
             </span>
-            <ChevronDown size={10} style={{ transform: stage?.open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+            <ChevronDown size={10} />
           </button>
             <button
               onClick={() => setLocationSheetOpen(true)}
@@ -391,6 +390,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         open={checkInSheetOpen}
         onClose={() => setCheckInSheetOpen(false)}
       />
+      <StageSheet open={stageSheetOpen} onClose={() => setStageSheetOpen(false)} />
     </>
   );
 }
