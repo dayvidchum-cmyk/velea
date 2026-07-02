@@ -23,6 +23,7 @@ import type { Task } from "../../../drizzle/schema";
 import AppHeader from "@/components/AppHeader";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { composeNarrative } from "@/lib/narrative-data";
+import GlossaryText from "@/components/GlossaryText";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -750,7 +751,7 @@ export default function Planner() {
                         marginBottom: '0.65rem',
                       }}
                     >
-                      {para}
+                      <GlossaryText>{para}</GlossaryText>
                     </p>
                   ))}
                   {paras.length > 1 && (

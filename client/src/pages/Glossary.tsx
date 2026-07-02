@@ -2,14 +2,15 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useSettingsContext } from "@/contexts/SettingsContext";
 
-interface GlossaryTerm {
+export interface GlossaryTerm {
   term: string;
   category: string;
   definition: string;
 }
 
-const GLOSSARY: GlossaryTerm[] = [
+export const GLOSSARY: GlossaryTerm[] = [
   // ── Modes ───────────────────────────────────────────────────────────────────
   { term: "Day Mode", category: "Modes", definition: "Velea reads the day's panchang and distills it into one of four day modes — Action, Build, Selective, or Restraint — telling you what kind of work the day favors. The whole app tints to the current mode's color. Tag a task with the mode it suits and it rises on days that match, so what you do lines up with what the day supports." },
   { term: "Action", category: "Modes", definition: "Visible movement. The day favors initiating, publishing, reaching out, and making decisions. Best for: publishing or launching, outreach and first contact, committing to decisions, starting something new. Ease off: endless prep, waiting for perfect conditions, second-guessing." },
@@ -188,6 +189,8 @@ export function findGlossaryTerm(value: string): GlossaryTerm | undefined {
 }
 
 export default function Glossary() {
+  const { settings, saveSettings } = useSettingsContext();
+  const tooltipsOn = settings.glossaryTooltips;
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [highlightedTerm, setHighlightedTerm] = useState<string | null>(null);
@@ -232,6 +235,26 @@ export default function Glossary() {
   return (
     <div className="container py-6 space-y-5">
       <AppHeader pageTitle="Glossary" />
+
+      {/* Inline-tooltips toggle — lives here, where the feature is explained. */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", padding: "0.75rem 0.9rem", borderRadius: 12, border: "1px solid var(--color-border)", background: "var(--color-card)" }}>
+        <span style={{ fontSize: "0.82rem", color: "var(--foreground)", lineHeight: 1.45 }}>
+          Explain terms inline
+          <span style={{ display: "block", fontSize: "0.72rem", color: "var(--color-muted-foreground)", marginTop: 2 }}>
+            Underline glossary words across the app and define them on tap.
+          </span>
+        </span>
+        <button
+          onClick={() => saveSettings({ ...settings, glossaryTooltips: !tooltipsOn })}
+          aria-pressed={tooltipsOn}
+          style={{ flexShrink: 0, fontSize: "0.75rem", fontWeight: 700, padding: "0.3rem 0.8rem", borderRadius: 999, cursor: "pointer",
+            border: `1px solid ${tooltipsOn ? "var(--brand-gold)" : "var(--color-border)"}`,
+            background: tooltipsOn ? "color-mix(in srgb, var(--brand-gold) 18%, transparent)" : "transparent",
+            color: tooltipsOn ? "var(--brand-gold)" : "var(--color-muted-foreground)" }}
+        >
+          {tooltipsOn ? "On" : "Off"}
+        </button>
+      </div>
 
       {/* Search */}
       <div className="relative">

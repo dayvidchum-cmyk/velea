@@ -1,6 +1,8 @@
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useSettingsContext } from "@/contexts/SettingsContext";
+import GlossaryText from "@/components/GlossaryText";
 
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 const HOUSE_GLOSS: Record<number, string> = {
@@ -56,8 +58,11 @@ function narrate(ch: Chapter): { headline: string; body: string; reflect?: boole
 export default function MeridianCard() {
   const accent = useDayModeColor();
   const [, navigate] = useLocation();
+  const { settings, saveSettings } = useSettingsContext();
   const { data } = trpc.meridian.current.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   if (!data) return null;
+  const liftOn = settings.meridianLift;
+  const toggleLift = () => saveSettings({ ...settings, meridianLift: !liftOn });
 
   const chapters = (data.chapters ?? []) as Chapter[];
   const tone: Record<string, string> = { current: accent, recent: "#C0862E", upcoming: "var(--color-muted-foreground)" };
@@ -90,8 +95,8 @@ export default function MeridianCard() {
                 <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: tone[ch.status], margin: 0 }}>
                   {ch.status === "current" ? "Now" : ch.status === "recent" ? "Just closed" : "Forming"}
                 </p>
-                <p style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--foreground)", margin: "0.2rem 0 0", lineHeight: 1.4 }}>{n.headline}</p>
-                <p style={{ fontSize: "0.84rem", color: "var(--color-muted-foreground)", margin: "0.25rem 0 0", lineHeight: 1.55 }}>{n.body}</p>
+                <p style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--foreground)", margin: "0.2rem 0 0", lineHeight: 1.4 }}><GlossaryText>{n.headline}</GlossaryText></p>
+                <p style={{ fontSize: "0.84rem", color: "var(--color-muted-foreground)", margin: "0.25rem 0 0", lineHeight: 1.55 }}><GlossaryText>{n.body}</GlossaryText></p>
                 {n.reflect && (
                   <button onClick={() => navigate("/reflections")} style={{ marginTop: "0.4rem", fontSize: "0.78rem", fontWeight: 600, color: accent, background: "none", border: "none", padding: 0, cursor: "pointer" }}>
                     What did it land? → Reflect
@@ -102,6 +107,23 @@ export default function MeridianCard() {
           })}
         </div>
       )}
+
+      {/* The lift toggle lives here — where the thing is explained, not buried in Settings. */}
+      <div style={{ marginTop: "1rem", paddingTop: "0.85rem", borderTop: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
+        <span style={{ fontSize: "0.78rem", color: "var(--color-muted-foreground)", lineHeight: 1.45 }}>
+          Let a live chapter gently lift its life-areas in your day
+        </span>
+        <button
+          onClick={toggleLift}
+          aria-pressed={liftOn}
+          style={{ flexShrink: 0, fontSize: "0.75rem", fontWeight: 700, padding: "0.3rem 0.75rem", borderRadius: "999px", cursor: "pointer",
+            border: `1px solid ${liftOn ? accent : "var(--color-border)"}`,
+            background: liftOn ? `color-mix(in srgb, ${accent} 18%, transparent)` : "transparent",
+            color: liftOn ? accent : "var(--color-muted-foreground)" }}
+        >
+          {liftOn ? "On" : "Off"}
+        </button>
+      </div>
     </div>
   );
 }

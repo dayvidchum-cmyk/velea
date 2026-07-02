@@ -35,6 +35,8 @@ export interface SettingsState {
   verdictShapesRanking: boolean;
   /** While a slow planet activates your MC/IC, let the pole's life-areas rise (default off) */
   meridianLift: boolean;
+  /** Underline glossary terms in prose and explain them on tap/hover (default off) */
+  glossaryTooltips: boolean;
 
   // ── Future preferences (not yet implemented) ──────────────────────────────
   // showAstrologyDetails: boolean;
@@ -52,6 +54,7 @@ const DEFAULTS: SettingsState = {
   personalEnergy: "Medium",
   verdictShapesRanking: false,
   meridianLift: false,
+  glossaryTooltips: false,
 };
 
 const STORAGE_KEY = "velea_settings";
