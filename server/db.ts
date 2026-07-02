@@ -152,6 +152,7 @@ export async function updateUserBirthChart(
     rahuHouse?: number | null;
     ketuHouse?: number | null;
     ascendantDegree?: string | null;
+    mcLongitude?: string | null;
     birthDate?: string | null;
     birthTime?: string | null;
     birthLocationCity?: string | null;

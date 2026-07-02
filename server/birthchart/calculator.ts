@@ -193,6 +193,8 @@ export interface BirthChartResult {
   utcBirthIso: string;
   julianDay: number;
   lagna: { sign: string; degree: number; longitude: number };
+  mc: { sign: string; degree: number; longitude: number };
+  ic: { sign: string; degree: number; longitude: number };
   sun: PlanetData;
   moon: PlanetData;
   mercury: PlanetData;

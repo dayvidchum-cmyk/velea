@@ -707,6 +707,7 @@ export const appRouter = router({
             rahuHouse: chart.rahu.house,
             ketuHouse: chart.ketu.house,
             ascendantDegree: chart.lagna.degree.toFixed(2),
+            mcLongitude: chart.mc?.longitude != null ? String(chart.mc.longitude.toFixed(4)) : null,
           });
 
           // Store complete natal body data for all 9 planets
@@ -772,6 +773,7 @@ export const appRouter = router({
                 rahuHouse: chart.rahu.house,
                 ketuHouse: chart.ketu.house,
                 ascendantDegree: chart.lagna.degree.toFixed(2),
+                mcLongitude: chart.mc?.longitude != null ? String(chart.mc.longitude.toFixed(4)) : null,
               }).where(eq(profiles.id, activeProfile.id));
               for (const planet of planetData) {
                 await upsertProfileNatalBody(activeProfile.id, planet.name, {

@@ -50,6 +50,9 @@ export const users = mysqlTable("users", {
   rahuHouse: int("rahuHouse"),
   ketuHouse: int("ketuHouse"),
   ascendantDegree: varchar("ascendantDegree", { length: 16 }), // optional precise degree
+  // Sidereal Midheaven longitude (0–360°). The Western meridian axis Vedic drops;
+  // IC = (mc + 180). Feeds the Meridian / Long-Arc layer.
+  mcLongitude: varchar("mcLongitude", { length: 24 }),
   // Guided-tour state (JSON): { seen: string[], enabled: boolean }. Server-side so it
   // survives across devices and iOS PWA localStorage clears (the reason it re-fired).
   tourState: text("tourState"),
@@ -351,6 +354,7 @@ export const profiles = mysqlTable("profiles", {
   rahuHouse: int("rahuHouse"),
   ketuHouse: int("ketuHouse"),
   ascendantDegree: varchar("ascendantDegree", { length: 16 }),
+  mcLongitude: varchar("mcLongitude", { length: 24 }), // sidereal Midheaven (Meridian layer)
   archivedAt: timestamp("archivedAt"),
   linkedUserId: int("linkedUserId"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
