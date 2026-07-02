@@ -47,7 +47,11 @@ export function getSessionCookieOptions(
   return {
     httpOnly: true,
     path: "/",
-    sameSite: secure ? "none" : "lax",
+    // App and API are same-origin (SPA + /api/trpc), and login is an in-app
+    // email/password form with no cross-origin redirect — so Lax is sufficient AND
+    // reliable. SameSite=None is silently dropped by iOS standalone PWAs (ITP), which
+    // made "Add to Home Screen" login fail to persist. Lax fixes that.
+    sameSite: "lax",
     secure,
   };
 }
