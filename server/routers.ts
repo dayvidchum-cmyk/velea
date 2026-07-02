@@ -1154,9 +1154,30 @@ export const appRouter = router({
       if (!profile || !(profile as any).mcLongitude) return null;
       const bodies = await getProfileNatalBodies(profile.id);
       const natalHouseByPlanet: Record<string, number | null> = {};
-      for (const b of bodies) natalHouseByPlanet[b.planet] = b.house ?? null;
-      const { computeMeridianRead } = await import("./meridian/activations.js");
-      return computeMeridianRead(parseFloat((profile as any).mcLongitude), natalHouseByPlanet);
+      let moon: any = null;
+      for (const b of bodies) { natalHouseByPlanet[b.planet] = b.house ?? null; if (b.planet === "Moon") moon = b; }
+      const mcLon = parseFloat((profile as any).mcLongitude);
+      const { computeMeridianRead, computeMeridianArc } = await import("./meridian/activations.js");
+      const read = await computeMeridianRead(mcLon, natalHouseByPlanet);
+      const chapters = await computeMeridianArc(mcLon, natalHouseByPlanet);
+
+      // Overlay the antardasha (sub-lord) at each chapter's open/peak/close — the
+      // karmic thread that sets the stage, carries it, and shows the lesson.
+      if (moon?.nakshatra && (profile as any).birthDate) {
+        try {
+          const { calculateDashaTimeline } = await import("./dasha-calculator.js");
+          const today = new Date().toISOString().slice(0, 10);
+          const tl = calculateDashaTimeline(
+            String((profile as any).birthDate).slice(0, 10),
+            moon.nakshatra, moon.sign, String(moon.degree), today, moon.longitude ?? null,
+          );
+          const adAt = (iso?: string) => iso ? (tl.entries.find((e) => e.startDate <= iso && iso <= e.endDate)?.antardasha ?? null) : null;
+          for (const ch of chapters) {
+            ch.antardasha = { open: adAt(ch.enterDateISO) ?? "?", carry: adAt(ch.peakDateISO) ?? "?", close: adAt(ch.exitDateISO) ?? "?" };
+          }
+        } catch { /* dasha overlay is best-effort */ }
+      }
+      return { ...read, chapters };
     }),
   }),
 
