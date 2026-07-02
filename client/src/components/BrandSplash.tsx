@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 const GOLD = "#C9A84C";
 
 /**
- * BrandSplash — the post-login moment. The gold logo rises, the Khmer លវេលា morphs
+ * BrandSplash — the post-login moment. The gold logo rises, the Khmer វេលា morphs
  * into the English "Velea" (both gold), and the meaning is spelled out below in the
  * theme's foreground color. Auto-dismisses (~6.2s) or taps to skip.
  */
@@ -50,7 +50,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
             animation: "velea-rise 0.7s cubic-bezier(0.2,0.8,0.2,1) 0.4s both, velea-morph-out 0.8s ease 1.9s forwards",
           }}
         >
-          លវេលា
+          វេលា
         </span>
         <span
           style={{
@@ -75,10 +75,10 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         }}
       >
         <p style={{ margin: 0, fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--foreground)" }}>
-          <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលា</span> — time
+          <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>វេលា</span> — time
         </p>
         <p style={{ margin: "0.4rem 0 0", fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--foreground)" }}>
-          <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលាល្អ</span>{" "}
+          <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>វេលាល្អ</span>{" "}
           <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.75 }}>velea l'or</span> — the auspicious, golden moment
         </p>
       </div>
