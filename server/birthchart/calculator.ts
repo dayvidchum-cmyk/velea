@@ -249,6 +249,12 @@ export async function calculateBirthChart(
   const houseResult = se.houses_ex(jd, flags, latitude, longitude, 'P');
   const lagnaLongitude = houseResult.ascmc[0]; // sidereal ascendant
   const lagnaData = getLongitudeSign(lagnaLongitude);
+  // Sidereal Midheaven (MC) — ascmc[1]. The IC is the opposite point (mc + 180).
+  // Vedic whole-sign ignores this degree, but it's the Western meridian axis we read.
+  const mcLongitude = houseResult.ascmc[1];
+  const mcData = getLongitudeSign(mcLongitude);
+  const icLongitude = (mcLongitude + 180) % 360;
+  const icData = getLongitudeSign(icLongitude);
 
   // Calculate planetary positions
   const planetCodes = [
@@ -269,6 +275,8 @@ export async function calculateBirthChart(
       ...lagnaData,
       longitude: lagnaLongitude,
     },
+    mc: { ...mcData, longitude: mcLongitude },
+    ic: { ...icData, longitude: icLongitude },
   };
 
   for (const planet of planetCodes) {
