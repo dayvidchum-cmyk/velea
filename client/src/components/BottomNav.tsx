@@ -47,7 +47,7 @@ export default function BottomNav() {
               key={path}
               data-tour={path === "/profection" ? "chart-nav" : undefined}
               onClick={() => navigate(path)}
-              className="flex flex-col items-center gap-0.5 px-2 py-3 flex-1 transition-all duration-200 relative"
+              className="flex flex-col items-center gap-0.5 px-2 py-2 flex-1 transition-all duration-200 relative"
               style={active ? { color: accent } : { color: "var(--muted-foreground)" }}
               onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = accent; }}
               onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "var(--muted-foreground)"; }}
