@@ -32,8 +32,8 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
       <img
         src="/velea-logo.png"
         alt=""
-        width={92}
-        height={92}
+        width={132}
+        height={132}
         style={{ objectFit: "contain", animation: "velea-logo-in 0.9s cubic-bezier(0.2,0.8,0.2,1) both", marginBottom: "1.5rem" }}
       />
 
@@ -78,7 +78,8 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
           <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលា</span> — time
         </p>
         <p style={{ margin: "0.4rem 0 0", fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--foreground)" }}>
-          <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលាល្អ</span> — the auspicious, golden moment
+          <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>លវេលាល្អ</span>{" "}
+          <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.75 }}>velea l'or</span> — the auspicious, golden moment
         </p>
       </div>
     </div>
