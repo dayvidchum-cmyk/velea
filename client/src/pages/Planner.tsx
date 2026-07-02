@@ -471,10 +471,23 @@ export default function Planner() {
   const alignedForToday = useMemo(() => {
     if (!rankedTasks) return [];
     const pinnedIds = new Set(pinnedForNow.map((t) => t.id));
+    // Respect the optimistic `list` state (updated instantly on complete/delete) so
+    // an aligned task leaves the list the moment it's tapped — instead of waiting for
+    // rankedForToday to refetch from the (slow) server.
+    const liveById = new Map(allTasks.map((t) => [t.id, t]));
     const limit = settings.todayTaskLimit;
-    const filtered = rankedTasks.filter((t) => !pinnedIds.has(t.id));
+    const filtered = rankedTasks.filter((t) => {
+      if (pinnedIds.has(t.id)) return false;
+      // Only trust the live list once it has loaded, so a cold/slow list load
+      // doesn't briefly hide everything.
+      if (tasksLoaded) {
+        const live = liveById.get(t.id);
+        if (!live || live.isCompleted) return false; // deleted or just-completed
+      }
+      return true;
+    });
     return limit === "unlimited" ? filtered : filtered.slice(0, Number(limit));
-  }, [rankedTasks, pinnedForNow, settings.todayTaskLimit]);
+  }, [rankedTasks, pinnedForNow, allTasks, tasksLoaded, settings.todayTaskLimit]);
 
   // Alignment-with-today per task (from the scored list), so Do Now / pinned tasks
   // can show their fit even though the floor forces them to the top. Off-mode tasks
