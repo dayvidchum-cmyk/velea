@@ -507,7 +507,7 @@
   /* Safari bottom nav safe area */
   .nav-safe-area {
     position: fixed;
-    bottom: var(--nav-offset, 0px);
+    bottom: 0;
     left: 0;
     right: 0;
     z-index: 50;

@@ -99,16 +99,16 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         {/* Meaning — light on the dark night sky. */}
         <div
           style={{
-            marginTop: "1.8rem", maxWidth: "22rem",
+            marginTop: "2rem", maxWidth: "28rem",
             animation: "velea-rise 0.75s cubic-bezier(0.2,0.8,0.2,1) 2.6s both",
           }}
         >
-          <p style={{ margin: 0, fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.86)" }}>
-            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>វេលា</span> — time
+          <p style={{ margin: 0, fontSize: "clamp(1.05rem, 4.6vw, 1.3rem)", letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
+            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none", fontSize: "1.4em" }}>វេលា</span> — time
           </p>
-          <p style={{ margin: "0.4rem 0 0", fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.86)" }}>
-            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none" }}>វេលាល្អ</span>{" "}
-            <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.75 }}>velea l'or</span> — the auspicious, golden moment
+          <p style={{ margin: "0.8rem 0 0", fontSize: "clamp(1.05rem, 4.6vw, 1.3rem)", letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
+            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none", fontSize: "1.4em" }}>វេលាល្អ</span>{" "}
+            <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.8 }}>velea l'or</span> — the auspicious, golden moment
           </p>
         </div>
       </div>

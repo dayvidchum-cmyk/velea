@@ -182,34 +182,10 @@ const { user, loading } = useAuth();
     [fabMode, setQuickAddMode],
   );
 
-  // ── Pin bottom nav to the visual viewport bottom (iOS Safari) ───────
-  useEffect(() => {
-    if (!showNav) return;
-    const vv = window.visualViewport;
-    const root = document.documentElement;
-    const update = () => {
-      if (!vv) {
-        root.style.setProperty("--nav-offset", "0px");
-        return;
-      }
-      const offset = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
-      root.style.setProperty("--nav-offset", `${offset}px`);
-    };
-    update();
-    // Only react to resize (keyboard open/close, chrome show/hide) — NOT scroll.
-    // Updating on scroll makes the fixed footer jitter during iOS rubber-band bounce.
-    if (vv) {
-      vv.addEventListener("resize", update);
-    }
-    window.addEventListener("resize", update);
-    return () => {
-      if (vv) {
-        vv.removeEventListener("resize", update);
-      }
-      window.removeEventListener("resize", update);
-      root.style.setProperty("--nav-offset", "0px");
-    };
-  }, [showNav]);
+  // The bottom nav is pinned via CSS (position: fixed; bottom: 0 + safe-area padding).
+  // We deliberately do NOT drive its position from visualViewport: on iOS Safari that
+  // reads the dynamic toolbar as if it were the keyboard, pushing the nav up and
+  // doubling the apparent footer. The keyboard is handled by AddTaskSheet itself.
 
 
   // Show loading state while checking auth
