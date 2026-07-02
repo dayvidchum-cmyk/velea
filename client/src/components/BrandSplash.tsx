@@ -33,7 +33,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
-          backgroundImage: "url(/starry-night.png)",
+          backgroundImage: "url(/starry-night.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center bottom",
           animation: "velea-sky-in 1.8s ease 2.7s both",

@@ -196,15 +196,15 @@ const { user, loading } = useAuth();
       root.style.setProperty("--nav-offset", `${offset}px`);
     };
     update();
+    // Only react to resize (keyboard open/close, chrome show/hide) — NOT scroll.
+    // Updating on scroll makes the fixed footer jitter during iOS rubber-band bounce.
     if (vv) {
       vv.addEventListener("resize", update);
-      vv.addEventListener("scroll", update);
     }
     window.addEventListener("resize", update);
     return () => {
       if (vv) {
         vv.removeEventListener("resize", update);
-        vv.removeEventListener("scroll", update);
       }
       window.removeEventListener("resize", update);
       root.style.setProperty("--nav-offset", "0px");
