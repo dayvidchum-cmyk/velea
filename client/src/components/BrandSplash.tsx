@@ -11,8 +11,8 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const fade = setTimeout(() => setLeaving(true), 6200);
-    const done = setTimeout(onDone, 7000);
+    const fade = setTimeout(() => setLeaving(true), 5400);
+    const done = setTimeout(onDone, 6200);
     return () => { clearTimeout(fade); clearTimeout(done); };
   }, [onDone]);
 
@@ -47,7 +47,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
             fontSize: "clamp(2.2rem, 11vw, 3rem)",
             lineHeight: 1.3,
             color: GOLD,
-            animation: "velea-rise 0.7s cubic-bezier(0.2,0.8,0.2,1) 0.4s both, velea-morph-out 0.8s ease 2.7s forwards",
+            animation: "velea-rise 0.7s cubic-bezier(0.2,0.8,0.2,1) 0.4s both, velea-morph-out 0.8s ease 1.9s forwards",
           }}
         >
           លវេលា
@@ -60,7 +60,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
             fontWeight: 700,
             letterSpacing: "0.01em",
             color: GOLD,
-            animation: "velea-morph-in 0.8s cubic-bezier(0.2,0.8,0.2,1) 2.7s both",
+            animation: "velea-morph-in 0.8s cubic-bezier(0.2,0.8,0.2,1) 1.9s both",
           }}
         >
           Velea
@@ -71,7 +71,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
       <div
         style={{
           marginTop: "1.8rem", maxWidth: "22rem",
-          animation: "velea-rise 0.75s cubic-bezier(0.2,0.8,0.2,1) 3.4s both",
+          animation: "velea-rise 0.75s cubic-bezier(0.2,0.8,0.2,1) 2.6s both",
         }}
       >
         <p style={{ margin: 0, fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--foreground)" }}>
