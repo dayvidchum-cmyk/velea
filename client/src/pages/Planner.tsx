@@ -27,6 +27,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+// Planetary glyphs for the Time Lord (Sun's is the circle-dot, its alchemical symbol).
+const PLANET_GLYPH: Record<string, string> = {
+  Sun: "☉", Moon: "☽", Mercury: "☿", Venus: "♀", Mars: "♂",
+  Jupiter: "♃", Saturn: "♄", Rahu: "☊", Ketu: "☋",
+};
+const GLYPH_FONT = "'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols2',serif";
 
 function toDateStr(d: Date) {
   const y = d.getFullYear();
@@ -1506,16 +1512,23 @@ export default function Planner() {
             className="w-full flex items-center justify-between px-4 py-3"
             onClick={() => setTlOpen((v) => !v)}
           >
-            <span
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.96)',
-              }}
-            >
-              Current Time Lord Movement
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {(timeLordData as any)?.timeLord && PLANET_GLYPH[(timeLordData as any).timeLord] && (
+                <span style={{ fontFamily: GLYPH_FONT, fontSize: '1rem', lineHeight: 1, color: 'rgba(255,255,255,0.96)' }}>
+                  {PLANET_GLYPH[(timeLordData as any).timeLord]}
+                </span>
+              )}
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.96)',
+                }}
+              >
+                Current Time Lord Movement
+              </span>
             </span>
             <ChevronDown
               size={14}
