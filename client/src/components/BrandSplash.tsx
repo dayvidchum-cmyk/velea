@@ -8,8 +8,9 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const fade = setTimeout(() => setLeaving(true), 3000);
-    const done = setTimeout(onDone, 3650);
+    // Everything is revealed by ~2s; hold well past that so it can be read, then fade.
+    const fade = setTimeout(() => setLeaving(true), 5600);
+    const done = setTimeout(onDone, 6500);
     return () => { clearTimeout(fade); clearTimeout(done); };
   }, [onDone]);
 
