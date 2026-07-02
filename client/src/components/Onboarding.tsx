@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { trpc } from "@/lib/trpc";
 
 /**
  * First-run onboarding for newcomers who only know their Western sun sign.
@@ -161,100 +162,88 @@ const TOUR: TourStep[] = [
   },
 ];
 
+// Per-page tours — each teaches its own page the first time you land there. Single
+// page each (no confusing cross-page jumps), pointing only at elements that exist now.
+const PAGE_TOURS: { route: string; key: string; steps: TourStep[] }[] = [
+  {
+    route: "/",
+    key: "today",
+    steps: [
+      { selector: '[data-tour="today-mode"]', title: "Your day's mode", body: "Velea reads today's sky — moon sign, nakshatra, tithi, and your ruling time lord — and distills it into one mode for the day. This card is that signal; tap it to follow the reasoning." },
+      { selector: '[data-tour="mode-orbs"]', title: "Four day-modes", body: "Action, Build, Selective, Restraint. Tap an orb to add a task in that mode — tasks rise on the days that match." },
+      { selector: '[data-tour="current-state"]', title: "Tune your day", body: "Tell Velea where you are and how you're feeling. It folds that in so the guidance fits your real day." },
+      { selector: '[data-tour="add-fab"]', title: "Add anything", body: "Tap + to add a task — a mode, a life area, a due date. It surfaces on the right day." },
+    ],
+  },
+  {
+    route: "/profection",
+    key: "chart",
+    steps: [
+      { selector: '[data-tour="chart-tabs"]', title: "Three lenses on your chart", body: "Time Lord (the planet running your year), Natal (your birth chart), and Dasha (your long life chapters). Optional depth — Today is all you need day to day." },
+      { selector: '[data-tour="profection-wheel"]', title: "Your Time Lord's path", body: "Each ring is a year of your life and the sign your ascendant profects into — sign by sign, from birth to 120." },
+      { selector: '[data-tour="current-state"]', title: "Always in the header", body: "Your location and current state ride along at the top of every page, quietly tuning the guidance." },
+    ],
+  },
+];
+
 export default function Onboarding({ active, userId }: Props) {
   const accent = useDayModeColor();
-  const storageKey = userId != null ? `${STORAGE_PREFIX}${userId}` : null;
+  const [location] = useLocation();
 
-  // phase: null = not running, "cards" = intro deck, "tour" = full coachmark tour,
-  // "task" = standalone task-making guide.
-  const [phase, setPhase] = useState<"cards" | "tour" | "task" | null>(null);
-  const [cardIndex, setCardIndex] = useState(0);
+  // Server-persisted tour state ({ seen: string[], enabled }). Reliable across
+  // devices and iOS PWA localStorage clears — that's why it used to re-fire.
+  const tourState = trpc.settings.getTourState.useQuery(undefined, { enabled: userId != null, staleTime: 60_000 });
+  const utils = trpc.useUtils();
+  const markSeen = trpc.settings.markTourSeen.useMutation({
+    onSuccess: () => { utils.settings.getTourState.invalidate(); },
+  });
+
+  // The active per-page tour, plus the standalone "how to add a task" guide.
+  const [running, setRunning] = useState<{ key: string; steps: TourStep[] } | null>(null);
   const [tourIndex, setTourIndex] = useState(0);
+  const [taskGuide, setTaskGuide] = useState(false);
   const taskKey = userId != null ? `${TASK_GUIDE_PREFIX}${userId}` : null;
-  const markTaskSeen = useCallback(() => {
-    if (taskKey) { try { localStorage.setItem(taskKey, "1"); } catch { /* ignore */ } }
-  }, [taskKey]);
 
   // Standalone task guide — fired via window event (Settings, zero-task nudge).
   useEffect(() => {
-    const onFire = () => {
-      // Don't interrupt the main onboarding if it's running.
-      setPhase((p) => (p === null ? "task" : p));
-      setTourIndex(0);
-    };
+    const onFire = () => setTaskGuide((on) => (running ? on : true));
     window.addEventListener(TASK_GUIDE_EVENT, onFire);
     return () => window.removeEventListener(TASK_GUIDE_EVENT, onFire);
-  }, []);
+  }, [running]);
 
-  // Decide whether to show on mount / when becoming active.
+  // Run the current page's tour the first time the user lands there — once per page.
   useEffect(() => {
-    if (!active || !storageKey) return;
-    if (phase !== null) return;
-    let seen = false;
-    try {
-      seen = localStorage.getItem(storageKey) === "1";
-    } catch {
-      seen = false;
-    }
-    if (!seen) {
-      // Small delay so the Today page has painted before we dim it.
-      const t = setTimeout(() => {
-        // Mark seen as soon as we START. The tour navigates the app around (to the
-        // chart page, etc.), and a transient needsBirthData redirect can unmount +
-        // remount this component mid-flow; without persisting up front it would
-        // restart from scratch every remount — an infinite loop. Show-once is the
-        // safe default; finish() also sets it (idempotent).
-        try { localStorage.setItem(storageKey, "1"); } catch { /* ignore */ }
-        setPhase("cards");
-      }, 450);
-      return () => clearTimeout(t);
-    }
-  }, [active, storageKey, phase]);
+    if (!active || userId == null || running || taskGuide) return;
+    const data = tourState.data;
+    if (!data || !data.enabled) return;
+    const pageTour = PAGE_TOURS.find((p) => p.route === location);
+    if (!pageTour || data.seen.includes(pageTour.key)) return;
+    const t = setTimeout(() => { setTourIndex(0); setRunning({ key: pageTour.key, steps: pageTour.steps }); }, 700);
+    return () => clearTimeout(t);
+  }, [active, userId, running, taskGuide, tourState.data, location]);
 
-  const finish = useCallback(() => {
-    if (storageKey) {
-      try {
-        localStorage.setItem(storageKey, "1");
-      } catch {
-        /* ignore */
-      }
-    }
-    markTaskSeen(); // the main tour includes the task steps — don't re-nudge later
-    setPhase(null);
-  }, [storageKey, markTaskSeen]);
+  const finishTour = useCallback(() => {
+    setRunning((r) => { if (r) markSeen.mutate({ key: r.key }); return null; });
+  }, [markSeen]);
 
   const finishTaskGuide = useCallback(() => {
-    markTaskSeen();
-    setPhase(null);
-  }, [markTaskSeen]);
+    if (taskKey) { try { localStorage.setItem(taskKey, "1"); } catch { /* ignore */ } }
+    setTaskGuide(false);
+  }, [taskKey]);
 
-  if (phase === "cards") {
-    return (
-      <CardsDeck
-        accent={accent}
-        index={cardIndex}
-        setIndex={setCardIndex}
-        onSkip={finish}
-        onDone={() => {
-          setTourIndex(0);
-          setPhase("tour");
-        }}
-      />
-    );
-  }
-
-  if (phase === "tour") {
+  if (running) {
     return (
       <TourLayer
         accent={accent}
         index={tourIndex}
         setIndex={setTourIndex}
-        onFinish={finish}
+        steps={running.steps}
+        onFinish={finishTour}
       />
     );
   }
 
-  if (phase === "task") {
+  if (taskGuide) {
     return (
       <TourLayer
         accent={accent}

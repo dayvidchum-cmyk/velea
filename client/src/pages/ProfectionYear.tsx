@@ -393,7 +393,7 @@ export default function ProfectionYear() {
       </div>
 
       {/* Chart tabs — Time Lord · Natal · Dasha (3 clickable views, like before) */}
-      <div style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", borderRadius: "0.75rem", background: "var(--muted)", marginBottom: "1.5rem" }}>
+      <div data-tour="chart-tabs" style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", borderRadius: "0.75rem", background: "var(--muted)", marginBottom: "1.5rem" }}>
         {CHART_TABS.map(({ id, label }) => (
           <button
             key={id}
@@ -434,9 +434,11 @@ export default function ProfectionYear() {
       ))}
 
       {/* Your Time Lords wheel — open by default */}
+      <div data-tour="profection-wheel">
       {panel("Your Time Lords (from birth to 120 years old)", wheelOpen, setWheelOpen, (
         <ProfectionWheel lagnaSign={lagnaSign} age={age} headingColor={modeColor} />
       ))}
+      </div>
 
       {/* WHY NOW? — deterministic logic chain (computed from the chart, auditable) */}
       {panel("Why now?", whyNowOpen, setWhyNowOpen, (

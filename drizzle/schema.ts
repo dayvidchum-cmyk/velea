@@ -50,6 +50,9 @@ export const users = mysqlTable("users", {
   rahuHouse: int("rahuHouse"),
   ketuHouse: int("ketuHouse"),
   ascendantDegree: varchar("ascendantDegree", { length: 16 }), // optional precise degree
+  // Guided-tour state (JSON): { seen: string[], enabled: boolean }. Server-side so it
+  // survives across devices and iOS PWA localStorage clears (the reason it re-fired).
+  tourState: text("tourState"),
 });
 
 export type User = typeof users.$inferSelect;

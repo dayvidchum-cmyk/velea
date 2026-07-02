@@ -635,6 +635,7 @@ export default function Planner() {
       {selectedPanchang ? (
         <div className="relative z-10">
           <div
+            data-tour="today-mode"
             className="relative overflow-hidden"
             style={{
               borderRadius: '28px',

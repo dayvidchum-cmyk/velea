@@ -290,7 +290,7 @@ const { user, loading } = useAuth();
 
       {/* First-run onboarding for newcomers (intro cards + guided tour) */}
       <Onboarding
-        active={!!user && !needsBirthData && !subjectLoading && location === "/"}
+        active={!!user && !needsBirthData && !subjectLoading}
         userId={user?.id}
       />
     </div>

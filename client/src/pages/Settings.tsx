@@ -429,10 +429,22 @@ export default function Settings() {
   const [, navigate] = useLocation();
   const modeColor = useDayModeColor();
   const { data: subject } = trpc.profiles.getSubject.useQuery();
+  const utils = trpc.useUtils();
+
+  // ── Guided tours (server-persisted) ──
+  const tourStateQ = trpc.settings.getTourState.useQuery();
+  const toursEnabled = tourStateQ.data?.enabled ?? true;
+  const setToursEnabledMutation = trpc.settings.setToursEnabled.useMutation({
+    onSuccess: () => utils.settings.getTourState.invalidate(),
+  });
+  const resetToursMutation = trpc.settings.resetTours.useMutation({
+    onSuccess: () => utils.settings.getTourState.invalidate(),
+  });
 
   function handleReplayIntro() {
-    resetOnboarding(user?.id);
-    toast.success("Replaying the intro…");
+    resetToursMutation.mutate();
+    resetOnboarding(user?.id); // clear legacy localStorage flag too
+    toast.success("Tours reset — you'll see each page's tour again");
     navigate("/");
   }
 
@@ -638,10 +650,30 @@ export default function Settings() {
           <div className="flex items-center justify-between py-4">
             <div className="pr-4">
               <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
-                Replay the intro
+                Guided tours
               </p>
               <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
-                Show the welcome cards and guided tour again from the Today screen.
+                Show a short coachmark tour the first time you open each page.
+              </p>
+            </div>
+            <Button
+              onClick={() => setToursEnabledMutation.mutate({ enabled: !toursEnabled })}
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0"
+              disabled={setToursEnabledMutation.isPending}
+            >
+              {toursEnabled ? "On" : "Off"}
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between py-4" style={{ borderTop: "1px solid var(--border)" }}>
+            <div className="pr-4">
+              <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
+                Replay the tours
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
+                Reset every page's tour so they show again as you visit each page.
               </p>
             </div>
             <Button

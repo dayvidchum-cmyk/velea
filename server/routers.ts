@@ -535,6 +535,41 @@ export const appRouter = router({
 
   // ── SETTINGS ────────────────────────────────────────────────
   settings: router({
+    // ── Guided-tour state (server-side; survives iOS PWA localStorage clears) ──
+    getTourState: protectedProcedure.query(async ({ ctx }) => {
+      const user = await getUserById(ctx.user.id);
+      let state = { seen: [] as string[], enabled: true };
+      try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
+      return state;
+    }),
+    markTourSeen: protectedProcedure
+      .input(z.object({ key: z.string().max(64) }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb(); if (!db) return { ok: false };
+        const user = await getUserById(ctx.user.id);
+        let state = { seen: [] as string[], enabled: true };
+        try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
+        if (!state.seen.includes(input.key)) state.seen.push(input.key);
+        await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
+        return { ok: true };
+      }),
+    setToursEnabled: protectedProcedure
+      .input(z.object({ enabled: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb(); if (!db) return { ok: false };
+        const user = await getUserById(ctx.user.id);
+        let state = { seen: [] as string[], enabled: true };
+        try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
+        state.enabled = input.enabled;
+        await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
+        return { ok: true };
+      }),
+    resetTours: protectedProcedure.mutation(async ({ ctx }) => {
+      const db = await getDb(); if (!db) return { ok: false };
+      await db.update(users).set({ tourState: JSON.stringify({ seen: [], enabled: true }) }).where(eq(users.id, ctx.user.id));
+      return { ok: true };
+    }),
+
     getLocation: protectedProcedure.query(async ({ ctx }) => {
       const user = await getUserById(ctx.user.id);
       if (!user) return null;
