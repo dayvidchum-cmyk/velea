@@ -498,7 +498,7 @@ export default function Projects() {
                     <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => setArchiveTarget(project)}
-                        className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        className="p-1.5 rounded-lg transition-all opacity-70 hover:opacity-100"
                         style={{ color: "var(--color-muted-foreground)" }}
                         title="Archive project"
                         aria-label="Archive project"
@@ -507,7 +507,7 @@ export default function Projects() {
                       </button>
                       <button
                         onClick={() => setDeleteTarget(project)}
-                        className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        className="p-1.5 rounded-lg transition-all opacity-70 hover:opacity-100"
                         style={{ color: "oklch(0.52 0.12 15)" }}
                         title="Delete project"
                         aria-label="Delete project"
@@ -575,7 +575,7 @@ export default function Projects() {
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button
                         onClick={() => unarchiveMutation.mutate({ id: project.id })}
-                        className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        className="p-1.5 rounded-lg transition-all opacity-70 hover:opacity-100"
                         style={{ color: "var(--foreground)" }}
                         title="Restore project"
                         aria-label="Restore project"
@@ -584,7 +584,7 @@ export default function Projects() {
                       </button>
                       <button
                         onClick={() => setDeleteTarget(project)}
-                        className="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        className="p-1.5 rounded-lg transition-all opacity-70 hover:opacity-100"
                         style={{ color: "oklch(0.52 0.12 15)" }}
                         title="Delete project"
                         aria-label="Delete project"

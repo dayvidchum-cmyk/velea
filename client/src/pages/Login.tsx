@@ -207,16 +207,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-xs mt-6" style={{ color: inkSoft, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
-          {isSignup ? "Already have an account?" : "New to Velea?"}{" "}
-          <button
-            type="button"
-            onClick={toggleMode}
-            style={{ color: "#ffffff", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, textShadow: "0 1px 6px rgba(0,0,0,0.65), 0 0 2px rgba(0,0,0,0.5)" }}
-          >
-            {isSignup ? "Sign in" : "Sign up"}
-          </button>
-        </p>
+        {/* Signup disabled for now — invite-only. Accounts are provisioned directly. */}
       </div>
     </div>
   );
