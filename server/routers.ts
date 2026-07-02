@@ -1237,7 +1237,13 @@ export const appRouter = router({
         ? (ci.physicalEnergy + ci.mentalClarity + ci.emotionalStability + ci.creativeFlow + ci.motivation) / 5
         : null;
       const verdict = computeVerdict(signals, checkInAvg);
-      return { computedAt: sky.computedAt, signals, retrogrades: sky.retrogrades, eclipses: sky.eclipses, verdict };
+      // Personal layer: which house each retrograde is transiting for THIS chart (free
+      // lookup — SkyPlanet already carries the whole-sign house from the lagna).
+      const retrogradesDetail = sky.retrogrades.map((name) => {
+        const p = sky.planets.find((sp) => sp.planet === name);
+        return { planet: name, sign: p?.sign ?? null, house: p?.house ?? null };
+      });
+      return { computedAt: sky.computedAt, signals, retrogrades: sky.retrogrades, retrogradesDetail, eclipses: sky.eclipses, verdict };
     }),
 
     /**

@@ -10,7 +10,7 @@ import { findGlossaryTerm, type GlossaryTerm } from "@/pages/Glossary";
  * GlossaryText's auto-linking.
  */
 
-function PopoverCard({ entry, anchor, onClose }: { entry: GlossaryTerm; anchor: DOMRect; onClose: () => void }) {
+function PopoverCard({ entry, anchor, onClose, extra }: { entry: GlossaryTerm; anchor: DOMRect; onClose: () => void; extra?: ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [style, setStyle] = useState<{ left: number; top: number }>({ left: -9999, top: -9999 });
 
@@ -48,6 +48,9 @@ function PopoverCard({ entry, anchor, onClose }: { entry: GlossaryTerm; anchor: 
     >
       <p style={{ margin: 0, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>{entry.term}</p>
       <p style={{ margin: "0.3rem 0 0", fontSize: "0.8rem", color: "var(--foreground)", lineHeight: 1.55 }}>{entry.definition}</p>
+      {extra && (
+        <p style={{ margin: "0.55rem 0 0", paddingTop: "0.5rem", borderTop: "1px solid var(--color-border)", fontSize: "0.78rem", color: "var(--brand-gold)", lineHeight: 1.5 }}>{extra}</p>
+      )}
     </div>,
     document.body,
   );
@@ -59,12 +62,14 @@ export function GlossaryLink({
   style,
   className,
   underline = true,
+  extra,
 }: {
   term: string;
   children: ReactNode;
   style?: React.CSSProperties;
   className?: string;
   underline?: boolean;
+  extra?: ReactNode;
 }) {
   const entry = findGlossaryTerm(term);
   const [open, setOpen] = useState(false);
@@ -87,7 +92,7 @@ export function GlossaryLink({
       style={{ cursor: "help", ...(underline ? { borderBottom: "1px dotted var(--brand-gold)" } : {}), ...style }}
     >
       {children}
-      {open && anchor && <PopoverCard entry={entry} anchor={anchor} onClose={() => setOpen(false)} />}
+      {open && anchor && <PopoverCard entry={entry} anchor={anchor} onClose={() => setOpen(false)} extra={extra} />}
     </span>
   );
 }

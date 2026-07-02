@@ -4,6 +4,13 @@ import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { GlossaryLink } from "@/components/GlossaryPopover";
 
+const RX_ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const RX_HOUSE_THEME: Record<number, string> = {
+  1: "self & body", 2: "voice & values", 3: "skill & courage", 4: "home & roots",
+  5: "creativity & heart", 6: "work & service", 7: "partnership", 8: "depth & shared",
+  9: "belief & teachers", 10: "vocation & standing", 11: "community & gains", 12: "retreat & release",
+};
+
 /**
  * StageSheet — "The Stage" as a pop-up, openable from the header on every page.
  * Today's verdict (universal x check-in) + the slow-planet weather + retrogrades.
@@ -73,8 +80,15 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                 {stage.retrogrades.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", alignItems: "center", marginTop: "0.7rem" }}>
                     <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>Retrograde:</span>
-                    {stage.retrogrades.map((p) => (
-                      <GlossaryLink key={p} term="Retrograde (Vakri)" underline={false} className="text-xs font-semibold" style={{ display: "inline-block", color: "var(--foreground)", background: "var(--color-secondary)", borderRadius: 999, padding: "0.15rem 0.55rem" }}>{p} ℞</GlossaryLink>
+                    {(stage.retrogradesDetail ?? stage.retrogrades.map((p) => ({ planet: p, house: null as number | null, sign: null }))).map((r) => (
+                      <GlossaryLink
+                        key={r.planet}
+                        term="Retrograde (Vakri)"
+                        underline={false}
+                        className="text-xs font-semibold"
+                        style={{ display: "inline-block", color: "var(--foreground)", background: "var(--color-secondary)", borderRadius: 999, padding: "0.15rem 0.55rem" }}
+                        extra={r.house ? <>Right now: <strong>{r.planet}</strong> is retrograde in your <strong>{RX_ORD[r.house]} house</strong>{RX_HOUSE_THEME[r.house] ? ` — ${RX_HOUSE_THEME[r.house]}` : ""}. The review lands here.</> : undefined}
+                      >{r.planet} ℞</GlossaryLink>
                     ))}
                   </div>
                 )}
