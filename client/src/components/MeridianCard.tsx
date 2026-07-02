@@ -64,9 +64,14 @@ export default function MeridianCard() {
 
   return (
     <div style={{ borderRadius: "16px", border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
-      <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: 0 }}>
-        The Meridian · your voice axis
-      </p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
+        <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: 0 }}>
+          The Meridian · your voice axis
+        </p>
+        <button onClick={() => navigate("/glossary")} style={{ fontSize: "0.68rem", color: accent, background: "none", border: "none", padding: 0, cursor: "pointer", whiteSpace: "nowrap" }}>
+          What's this?
+        </button>
+      </div>
       <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: "0.5rem 0 0", lineHeight: 1.55 }}>
         <strong style={{ color: accent }}>{data.mc.sign}</strong> outer voice — what you're called to say and build; balanced by{" "}
         <strong style={{ color: accent }}>{data.ic.sign}</strong> inner voice — the ground you speak it from.
