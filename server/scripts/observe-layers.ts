@@ -8,7 +8,7 @@ import { layerEffect } from "../task-scorer.js";
 import { themeTags } from "../layers/time-lord-theme.js";
 
 async function main() {
-  const email = process.argv[2] ?? "david@kala.local";
+  const email = process.argv[2] ?? "david@velea.local";
   const user = await getUserByEmail(email);
   if (!user) { console.error("No user:", email); process.exit(1); }
 

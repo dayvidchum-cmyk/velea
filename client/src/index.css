@@ -33,7 +33,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   KALA — LUXURY TERMINAL AESTHETIC
+   VELEA — LUXURY TERMINAL AESTHETIC
    Dark mode only. Pure black. High contrast. Calm. Information-dense.
    ══════════════════════════════════════════════════════════════════════════════ */
 
@@ -104,27 +104,27 @@
   --dialog-delete-text: oklch(1 0 0);
   --dialog-archive-text: oklch(0.1 0 0);
 
-  /* ── KALA MODE PALETTE (exact brand values from design brief) ── */
+  /* ── VELEA MODE PALETTE (exact brand values from design brief) ── */
   /* ACTION — sage green brightening to chartreuse, deepening to dark forest-moss */
-  --kala-action-primary: #a3cd8f;
-  --kala-action-highlight: #c8e4b8;
-  --kala-action-shadow: #5a8f4a;
-  --kala-action-gradient: linear-gradient(180deg, #a0e39a 0%, #268d58 50%, #163311 100%);
+  --velea-action-primary: #a3cd8f;
+  --velea-action-highlight: #c8e4b8;
+  --velea-action-shadow: #5a8f4a;
+  --velea-action-gradient: linear-gradient(180deg, #a0e39a 0%, #268d58 50%, #163311 100%);
   /* BUILD — warm gold brightening to champagne, deepening to ochre-rose (unchanged) */
-  --kala-build-primary: #D4AF37;
-  --kala-build-highlight: #E8D87A;
-  --kala-build-shadow: #BC886F;
-  --kala-build-gradient: linear-gradient(180deg, #E8C84A 0%, #D4AF37 35%, #C49A2E 65%, #BC886F 100%);
+  --velea-build-primary: #D4AF37;
+  --velea-build-highlight: #E8D87A;
+  --velea-build-shadow: #BC886F;
+  --velea-build-gradient: linear-gradient(180deg, #E8C84A 0%, #D4AF37 35%, #C49A2E 65%, #BC886F 100%);
   /* SELECTIVE — cool teal brightening to ice-blue, deepening to deep slate-indigo */
-  --kala-selective-primary: #357E85;
-  --kala-selective-highlight: #8AC8D0;
-  --kala-selective-shadow: #1A2B4A;
-  --kala-selective-gradient: linear-gradient(180deg, #8AC8D0 0%, #4A9099 30%, #357E85 60%, #1A2B4A 100%);
+  --velea-selective-primary: #357E85;
+  --velea-selective-highlight: #8AC8D0;
+  --velea-selective-shadow: #1A2B4A;
+  --velea-selective-gradient: linear-gradient(180deg, #8AC8D0 0%, #4A9099 30%, #357E85 60%, #1A2B4A 100%);
   /* RESTRAINT — blush rose brightening to petal pink, deepening to deep plum-burgundy */
-  --kala-restraint-primary: #B15F71;
-  --kala-restraint-highlight: #F0A8B8;
-  --kala-restraint-shadow: #4A1A2E;
-  --kala-restraint-gradient: linear-gradient(180deg, #F0A8B8 0%, #D4788A 30%, #B15F71 60%, #4A1A2E 100%);
+  --velea-restraint-primary: #B15F71;
+  --velea-restraint-highlight: #F0A8B8;
+  --velea-restraint-shadow: #4A1A2E;
+  --velea-restraint-gradient: linear-gradient(180deg, #F0A8B8 0%, #D4788A 30%, #B15F71 60%, #4A1A2E 100%);
 
   /* Card gradients — darker variants for short accordion cards. They start at the
      mode's mid tone (never the pale highlight) so white text stays legible even
@@ -132,12 +132,12 @@
   /* Each mode's card uses its own direction (never flat horizontal — that reads
      oddly in the small card). The lightest stop stays toward the top so white
      title text remains legible. */
-  --kala-rose-ochre: #BC886F;
-  --kala-action-card-gradient: linear-gradient(160deg, #4b805c 0%, #3a6448 55%, #284734 100%);
+  --velea-rose-ochre: #BC886F;
+  --velea-action-card-gradient: linear-gradient(160deg, #4b805c 0%, #3a6448 55%, #284734 100%);
   /* Build runs primary gold → rose-ochre (#BC886F) across the diagonal. */
-  --kala-build-card-gradient: linear-gradient(200deg, #c9a531 0%, #b0863a 38%, #a8775a 72%, #8a5f52 100%);
-  --kala-selective-card-gradient: linear-gradient(135deg, #3c97a0 0%, #2f7d86 55%, #235e66 100%);
-  --kala-restraint-card-gradient: linear-gradient(185deg, #c2666c 0%, #9c525b 55%, #5f343b 100%);
+  --velea-build-card-gradient: linear-gradient(200deg, #c9a531 0%, #b0863a 38%, #a8775a 72%, #8a5f52 100%);
+  --velea-selective-card-gradient: linear-gradient(135deg, #3c97a0 0%, #2f7d86 55%, #235e66 100%);
+  --velea-restraint-card-gradient: linear-gradient(185deg, #c2666c 0%, #9c525b 55%, #5f343b 100%);
 }
 
 @theme inline {

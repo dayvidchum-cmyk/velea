@@ -12,8 +12,8 @@ import { useDayModeColor } from "@/hooks/useDayModeColor";
  * `data-tour="..."` attributes elsewhere in the app.
  */
 
-const STORAGE_PREFIX = "kala_onboard_v1_";
-const TASK_GUIDE_PREFIX = "kala_taskguide_v1_";
+const STORAGE_PREFIX = "velea_onboard_v1_";
+const TASK_GUIDE_PREFIX = "velea_taskguide_v1_";
 const TASK_GUIDE_EVENT = "velea-task-guide";
 
 /** Clear the seen-flag so the intro + tour run again next time Today opens. */
@@ -410,10 +410,10 @@ function TourLayer({
     // may mount its listener slightly after navigation, so fire a few times.
     const fire = () => {
       if (step.tab) {
-        window.dispatchEvent(new CustomEvent("kala-tour-tab", { detail: step.tab }));
+        window.dispatchEvent(new CustomEvent("velea-tour-tab", { detail: step.tab }));
       }
       if (step.expand) {
-        window.dispatchEvent(new CustomEvent("kala-tour-expand", { detail: step.expand }));
+        window.dispatchEvent(new CustomEvent("velea-tour-expand", { detail: step.expand }));
       }
     };
     const delays = step.route && location !== step.route ? [120, 350, 650, 1000] : [0, 200];

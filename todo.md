@@ -1,7 +1,7 @@
-# Kala — Project TODO
+# Velea — Project TODO
 
 ## Design & Theme
-- [x] Rename app to "Kala" across all files
+- [x] Rename app to "Velea" across all files
 - [x] Dark glass celestial theme: deep space background, frosted glass cards, bold typography
 - [x] Futura (or fallback) for headers, Inter for paragraphs
 - [x] All Tailwind classes statically declared (no purge risk)
@@ -158,7 +158,7 @@
 - [x] Glossary.tsx, AdminPrompts.tsx, NotFound.tsx: all hardcoded colors replaced with CSS variables
 
 ## Edit Round 10 — Naming, Nav, Glossary, Calendar Markers
-- [x] Rename app from "The Read" to "Kala" everywhere (index.html, Home.tsx, server comments, todo.md)
+- [x] Rename app from "The Read" to "Velea" everywhere (index.html, Home.tsx, server comments, todo.md)
 - [x] Add Glossary to bottom nav bar
 - [x] Rebuild Glossary with 70+ Vedic astrology terms across 8 categories with search and category filters
 - [x] Fix Glossary dark mode colors — all text uses CSS variables
@@ -338,7 +338,7 @@
 
 ## Summary
 
-Kala is now feature-complete with:
+Velea is now feature-complete with:
 - Three-layer Vedic astrology architecture (Natal Chart Engine, Profection Logic, Page Rendering)
 - Accurate Swiss Ephemeris calculations for natal charts
 - Profection Year calculations with operational meaning synthesis
@@ -546,7 +546,7 @@ Kala is now feature-complete with:
 - [x] Disable theme switching (switchable = false) in App.tsx
 - [x] Remove theme toggle UI from BottomNav.tsx
 - [x] Remove theme toggle button from ComponentShowcase.tsx
-- [x] Kala now exists in dark mode only
+- [x] Velea now exists in dark mode only
 
 ## Pinned Task Background Opacity Update
 
@@ -865,7 +865,7 @@ Kala is now feature-complete with:
 
 ## Global Header + Daily Decision Question
 
-- [x] Extract shared AppHeader component (KALA / date / greeting / location) from Today page
+- [x] Extract shared AppHeader component (VELEA / date / greeting / location) from Today page
 - [x] Apply AppHeader to Today, Planner, Projects, Settings pages
 - [x] Add Daily Decision Question section to Today page (below header, above Day Card)
 - [x] Mode-to-question mapping: Action / Build / Selective / Restraint
@@ -1027,7 +1027,7 @@ Kala is now feature-complete with:
 - [x] Remove light mode entirely (dark mode only)
 - [x] Task cards: dark forest green tint (rgba(25,50,25,0.7) bg, rgba(60,120,60,0.25) border)
 - [x] Information cards: black/charcoal/neutral (#0A0A0A or rgba(255,255,255,0.04))
-- [x] Typography Level 1: KALA — largest text, app identity
+- [x] Typography Level 1: VELEA — largest text, app identity
 - [x] Typography Level 2: Primary decisions (mode names, Venus Year) — large, mode color accent
 - [x] Typography Level 3: Card headers (CURRENT STATE, etc.) — 11px/600/tracking-widest/uppercase across all pages
 - [x] Typography Level 4: Body text — 13px, Inter, high contrast
@@ -1054,20 +1054,20 @@ Kala is now feature-complete with:
 ## Remove Gold Plus Button & Typography Hierarchy (June 17, 2026)
 
 - [x] Remove FloatingAddButton from App.tsx + remove plus button from Planner.tsx
-- [x] Apply PDF typography: KALA title — 30px, light weight (300), Futura, clean
+- [x] Apply PDF typography: VELEA title — 30px, light weight (300), Futura, clean
 - [x] Apply PDF typography: metadata (greeting, date, location) — 15px regular, sentence case
 - [x] Apply PDF typography: section headers — text-sm font-bold uppercase, letterSpacing 0.04em
 - [x] Apply PDF typography: body text — text-base (16px), regular weight
 - [x] Apply PDF typography: labels — bold prefix + regular data, uppercase
 - [x] Remove tracking-widest → tracking-wide; letterSpacing 0.04em (labels) / 0.02em (headings)
-- [x] Simplify font stack: Inter for everything, Futura only for KALA title in AppHeader
+- [x] Simplify font stack: Inter for everything, Futura only for VELEA title in AppHeader
 - [x] CSS headings updated from Futura 300 → Inter 700
 - [x] All 139 tests passing, TypeScript clean
 
 
 ## Gold Color Rule (June 17, 2026)
 
-- [x] Gold (oklch(0.78 0.08 85)) only for: KALA title, section headings (QUESTION FOR TODAY, CURRENT STATE, TODAY'S ASSETS, TASKS, PINNED FOR NOW, DUE THIS DAY, etc.), and emphasized words
+- [x] Gold (oklch(0.78 0.08 85)) only for: VELEA title, section headings (QUESTION FOR TODAY, CURRENT STATE, TODAY'S ASSETS, TASKS, PINNED FOR NOW, DUE THIS DAY, etc.), and emphasized words
 - [x] Everything else is white (#FFFFFF or rgba(255,255,255,x))
 - [x] BottomNav: active state → white, not gold
 - [x] CheckInCard: CTA, scores → white; section headings (Today's Assets) → gold
@@ -1120,8 +1120,8 @@ Kala is now feature-complete with:
 ✓ Dark mode: black (#000000) bg, white (#FFFFFF) text, rgba(255,255,255,0.10) borders
 ✓ Mode gradients: Home, Planner, Projects all show mode color → transparent ombré
 ✓ Color tokens: all pages use CSS variables (--foreground, --background, --card, --border, --muted-foreground, --input)
-✓ Typography: consistent across all pages (KALA title, section headers, body text)
-✓ Gold rule: only on KALA title and section headings; mode colors used for accents
+✓ Typography: consistent across all pages (VELEA title, section headers, body text)
+✓ Gold rule: only on VELEA title and section headings; mode colors used for accents
 ✓ All 139 tests passing, TypeScript clean (0 errors)
 
 
@@ -1154,7 +1154,7 @@ Kala is now feature-complete with:
 - [x] Test light/dark mode toggle across all pages
 
 ### Phase 2: Global Header Component
-- [x] Create reusable AppHeader component with: KALA, Greeting, Location, Date
+- [x] Create reusable AppHeader component with: VELEA, Greeting, Location, Date
 - [x] Apply header to Today page (verify existing)
 - [x] Apply header to Planner page (already applied)
 - [x] Apply header to Projects page (already applied)
@@ -1366,11 +1366,11 @@ Kala is now feature-complete with:
 - [x] Profile switch triggers full cache invalidation
 - [x] Tests for profile CRUD and active profile switching
 
-## Visual Polish — Action Row + Planner Kala Design + Calendar Dots (Jun 25 2026)
+## Visual Polish — Action Row + Planner Velea Design + Calendar Dots (Jun 25 2026)
 
 - [x] Action row buttons in expanded task cards: updated to white-on-transparent (rgba(255,255,255,0.85) text, rgba(255,255,255,0.18) borders) for full consistency with solid mode-color card background
 - [x] ModeTag and priority pill in action row: updated to white text on semi-transparent background
-- [x] Planner page: replaced ombré gradient + glass day panel with Kala hero card (solid mode gradient, giant serif mode name, narrative paragraph, panchang mini-row, italic question)
+- [x] Planner page: replaced ombré gradient + glass day panel with Velea hero card (solid mode gradient, giant serif mode name, narrative paragraph, panchang mini-row, italic question)
 - [x] Planner page: added collapsible Time Lord Movement card below hero card (matches Today page pattern)
 - [x] Calendar dot color verification: David (Virgo lagna) and Lang (Taurus lagna) produce different modes on 15/21 sampled days in June 2026 — personalization system confirmed working
 

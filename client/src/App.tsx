@@ -104,7 +104,7 @@ const { user, loading } = useAuth();
   // Load persisted position on mount.
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("kala_fab_pos");
+      const raw = localStorage.getItem("velea_fab_pos");
       if (raw) {
         const parsed = JSON.parse(raw);
         if (typeof parsed?.x === "number" && typeof parsed?.y === "number") {
@@ -166,7 +166,7 @@ const { user, loading } = useAuth();
         setFabPos((prev) => {
           if (prev) {
             try {
-              localStorage.setItem("kala_fab_pos", JSON.stringify(prev));
+              localStorage.setItem("velea_fab_pos", JSON.stringify(prev));
             } catch {
               /* ignore storage failure */
             }

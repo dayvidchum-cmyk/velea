@@ -504,26 +504,26 @@ export default function Planner() {
     ? PANCHANG_TO_TASK_MODE[selectedPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
   const heroGradient = selectedTaskModeForHero === 'Action'
-    ? 'var(--kala-action-gradient)'
+    ? 'var(--velea-action-gradient)'
     : selectedTaskModeForHero === 'Build'
-    ? 'var(--kala-build-gradient)'
+    ? 'var(--velea-build-gradient)'
     : selectedTaskModeForHero === 'Selective'
-    ? 'var(--kala-selective-gradient)'
+    ? 'var(--velea-selective-gradient)'
     : selectedTaskModeForHero === 'Restraint'
-    ? 'var(--kala-restraint-gradient)'
+    ? 'var(--velea-restraint-gradient)'
     : selectedPanchang
     ? `rgba(${selectedTaskModeForHero ? MODE_RGBA[selectedTaskModeForHero] : modeRgba}, 0.25)`
     : 'var(--card)';
   // Angled card gradient — reads flatter/cleaner on short cards (e.g. the collapsed
   // Time Lord pill) than the tall 180deg hero gradient.
   const heroCardGradient = selectedTaskModeForHero === 'Action'
-    ? 'var(--kala-action-card-gradient)'
+    ? 'var(--velea-action-card-gradient)'
     : selectedTaskModeForHero === 'Build'
-    ? 'var(--kala-build-card-gradient)'
+    ? 'var(--velea-build-card-gradient)'
     : selectedTaskModeForHero === 'Selective'
-    ? 'var(--kala-selective-card-gradient)'
+    ? 'var(--velea-selective-card-gradient)'
     : selectedTaskModeForHero === 'Restraint'
-    ? 'var(--kala-restraint-card-gradient)'
+    ? 'var(--velea-restraint-card-gradient)'
     : heroGradient;
   const selectedModeColor = selectedTaskModeForHero ? MODE_OKLCH[selectedTaskModeForHero] : 'var(--color-border)';
   const selectedModeRgba = selectedTaskModeForHero ? MODE_RGBA[selectedTaskModeForHero] : modeRgba;

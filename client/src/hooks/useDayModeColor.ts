@@ -26,5 +26,5 @@ export function useDayModeGradient(): string {
     ? PANCHANG_TO_TASK_MODE[todayMode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
   const key = (taskMode ?? "Build").toLowerCase();
-  return `var(--kala-${key}-gradient)`;
+  return `var(--velea-${key}-gradient)`;
 }

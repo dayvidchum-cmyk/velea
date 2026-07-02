@@ -1,1 +1,0 @@
-ALTER TABLE `profiles` ADD `isOwner` boolean DEFAULT false NOT NULL;

@@ -123,18 +123,18 @@ export const MODE_SOLID: Record<TaskMode, string> = {
 /** Mode card gradient — deeper variant of each mode family, dark enough to carry
  * white text. Matches the hero gradients' family (defined in index.css). */
 export const MODE_CARD_GRADIENT: Record<TaskMode, string> = {
-  Build: "var(--kala-build-card-gradient)",
-  Action: "var(--kala-action-card-gradient)",
-  Selective: "var(--kala-selective-card-gradient)",
-  Restraint: "var(--kala-restraint-card-gradient)",
+  Build: "var(--velea-build-card-gradient)",
+  Action: "var(--velea-action-card-gradient)",
+  Selective: "var(--velea-selective-card-gradient)",
+  Restraint: "var(--velea-restraint-card-gradient)",
 };
 
 /** Mode dark hex — darkest stop of each mode gradient, for readable text on gradient backgrounds */
 export const MODE_DARK: Record<TaskMode, string> = {
-  Build: "#BC886F",      // --kala-build-shadow (ochre-rose)
-  Action: "#5a8f4a",     // --kala-action-shadow (medium sage-green)
-  Selective: "#1A2B4A",  // --kala-selective-shadow (deep slate-indigo)
-  Restraint: "#4A1A2E",  // --kala-restraint-shadow (deep plum-burgundy)
+  Build: "#BC886F",      // --velea-build-shadow (ochre-rose)
+  Action: "#5a8f4a",     // --velea-action-shadow (medium sage-green)
+  Selective: "#1A2B4A",  // --velea-selective-shadow (deep slate-indigo)
+  Restraint: "#4A1A2E",  // --velea-restraint-shadow (deep plum-burgundy)
 };
 
 // ── Color legibility helpers ─────────────────────────────────────────────────

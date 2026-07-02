@@ -1,4 +1,4 @@
-# Deploying Kala to Railway
+# Deploying Velea to Railway
 
 ## How the deploy works
 `railway.json` drives it:

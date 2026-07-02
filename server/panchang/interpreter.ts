@@ -1,5 +1,5 @@
 /**
- * INTERPRETATION LAYER — Kala / Celestial Field Notes
+ * INTERPRETATION LAYER — Velea / Celestial Field Notes
  *
  * Architecture (Base Mode + Qualifier):
  *   1. Moon sign → house from Lagna → BASE MODE (primary, not overrideable by single modifier)
@@ -318,7 +318,7 @@ function resolveFlexScore(nakshatra: string, paksha: 'Shukla' | 'Krishna'): numb
 }
 
 // ─── Nakshatra behavioral library ────────────────────────────────────────────
-// Source: Kala Nakshatra Interpretation Library
+// Source: Velea Nakshatra Interpretation Library
 // These are operational behavioral modifiers, NOT predictive meanings.
 
 const NAKSHATRA_LIBRARY: Record<string, NakshatraModifier> = {
@@ -898,7 +898,7 @@ function buildExplanation(
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 /**
- * Apply Kala interpretation rules to raw astronomy data.
+ * Apply Velea interpretation rules to raw astronomy data.
  *
  * Architecture:
  *   1. Moon house from Lagna → BASE MODE

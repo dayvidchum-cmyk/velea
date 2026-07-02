@@ -173,18 +173,18 @@ export default function ProfectionYear() {
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
 
-  const tlGradient = taskMode === 'Action' ? 'var(--kala-action-gradient)'
-    : taskMode === 'Build' ? 'var(--kala-build-gradient)'
-    : taskMode === 'Selective' ? 'var(--kala-selective-gradient)'
-    : taskMode === 'Restraint' ? 'var(--kala-restraint-gradient)'
+  const tlGradient = taskMode === 'Action' ? 'var(--velea-action-gradient)'
+    : taskMode === 'Build' ? 'var(--velea-build-gradient)'
+    : taskMode === 'Selective' ? 'var(--velea-selective-gradient)'
+    : taskMode === 'Restraint' ? 'var(--velea-restraint-gradient)'
     : 'var(--card)';
 
   // Angled (diagonal) variant for short closed accordion bars — a horizontal/vertical
   // gradient reads oddly squeezed into the thin closed strip.
-  const tlCardGradient = taskMode === 'Action' ? 'var(--kala-action-card-gradient)'
-    : taskMode === 'Build' ? 'var(--kala-build-card-gradient)'
-    : taskMode === 'Selective' ? 'var(--kala-selective-card-gradient)'
-    : taskMode === 'Restraint' ? 'var(--kala-restraint-card-gradient)'
+  const tlCardGradient = taskMode === 'Action' ? 'var(--velea-action-card-gradient)'
+    : taskMode === 'Build' ? 'var(--velea-build-card-gradient)'
+    : taskMode === 'Selective' ? 'var(--velea-selective-card-gradient)'
+    : taskMode === 'Restraint' ? 'var(--velea-restraint-card-gradient)'
     : 'var(--card)';
 
   const accentColor = taskMode ? MODE_OKLCH[taskMode] : 'var(--color-border)';

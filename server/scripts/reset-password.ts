@@ -3,7 +3,7 @@
  * Reset a user's password (bcrypt) and revoke all their existing sessions.
  *
  * Usage:
- *   npx tsx server/scripts/reset-password.ts --email david@kala.local --password 'YourNewPassword'
+ *   npx tsx server/scripts/reset-password.ts --email david@velea.local --password 'YourNewPassword'
  *
  * The new password is hashed with bcrypt before storage — plaintext is never saved.
  */
@@ -25,7 +25,7 @@ if (values.help || !values.email || !values.password) {
   console.log(`
 Usage: npx tsx server/scripts/reset-password.ts --email <email> --password <newPassword>
 
-  --email     The account email (e.g. david@kala.local)
+  --email     The account email (e.g. david@velea.local)
   --password  The new password (min 8 characters recommended)
 `);
   process.exit(values.help ? 0 : 1);

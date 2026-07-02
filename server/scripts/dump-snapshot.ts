@@ -41,7 +41,7 @@ function housesRuledBy(planet: string, lagna: string): number[] {
 }
 
 async function main() {
-  const email = process.argv[2] ?? "david@kala.local";
+  const email = process.argv[2] ?? "david@velea.local";
   const today = new Date().toISOString().split("T")[0];
   const user = await getUserByEmail(email);
   if (!user) { console.error("No user:", email); process.exit(1); }

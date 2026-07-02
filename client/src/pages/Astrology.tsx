@@ -896,16 +896,16 @@ function ProfectionSection() {
 
   const todayMode = todayPanchang?.mode;
   const taskMode: TaskMode | undefined = todayMode ? PANCHANG_TO_TASK_MODE[todayMode as keyof typeof PANCHANG_TO_TASK_MODE] : undefined;
-  const tlGradient = taskMode === "Action" ? "var(--kala-action-gradient)"
-    : taskMode === "Build" ? "var(--kala-build-gradient)"
-    : taskMode === "Selective" ? "var(--kala-selective-gradient)"
-    : taskMode === "Restraint" ? "var(--kala-restraint-gradient)"
+  const tlGradient = taskMode === "Action" ? "var(--velea-action-gradient)"
+    : taskMode === "Build" ? "var(--velea-build-gradient)"
+    : taskMode === "Selective" ? "var(--velea-selective-gradient)"
+    : taskMode === "Restraint" ? "var(--velea-restraint-gradient)"
     : "var(--card)";
   // Darker gradient for the short accordion cards so white text stays legible.
-  const cardGradient = taskMode === "Action" ? "var(--kala-action-card-gradient)"
-    : taskMode === "Build" ? "var(--kala-build-card-gradient)"
-    : taskMode === "Selective" ? "var(--kala-selective-card-gradient)"
-    : taskMode === "Restraint" ? "var(--kala-restraint-card-gradient)"
+  const cardGradient = taskMode === "Action" ? "var(--velea-action-card-gradient)"
+    : taskMode === "Build" ? "var(--velea-build-card-gradient)"
+    : taskMode === "Selective" ? "var(--velea-selective-card-gradient)"
+    : taskMode === "Restraint" ? "var(--velea-restraint-card-gradient)"
     : "var(--card)";
   const accentColor = taskMode ? MODE_OKLCH[taskMode] : "var(--color-border)";
   const darkColor = taskMode ? MODE_DARK[taskMode] : undefined;
@@ -1097,8 +1097,8 @@ export default function Astrology() {
       const next = (e as CustomEvent).detail as Tab;
       if (next === "natal" || next === "profection" || next === "dasha") setTab(next);
     };
-    window.addEventListener("kala-tour-tab", onTab);
-    return () => window.removeEventListener("kala-tour-tab", onTab);
+    window.addEventListener("velea-tour-tab", onTab);
+    return () => window.removeEventListener("velea-tour-tab", onTab);
   }, []);
 
   return (

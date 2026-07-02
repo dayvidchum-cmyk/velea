@@ -1,5 +1,5 @@
 /**
- * QUALIFIER BEHAVIORAL STYLES — Kala Guidance Engine
+ * QUALIFIER BEHAVIORAL STYLES — Velea Guidance Engine
  *
  * Each qualifier maps to a distinct behavioral style that modifies HOW the
  * base mode expresses itself. These styles are composed with the base mode

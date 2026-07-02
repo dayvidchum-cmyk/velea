@@ -36,7 +36,7 @@ interface AppHeaderProps {
 
 /**
  * AppHeader — shared across all pages.
- * Pass `heroMode` on the Today page to get the Kala mockup layout:
+ * Pass `heroMode` on the Today page to get the Velea mockup layout:
  *   - Top utility row: date left, location + current state right
  *   - Large editorial serif greeting below
  * Other pages use the standard compact layout.

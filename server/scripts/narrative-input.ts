@@ -75,7 +75,7 @@ async function buildInput(email:string, dateStr:string){
 }
 
 async function main(){
-  const email=process.argv[2]??"david@kala.local";
+  const email=process.argv[2]??"david@velea.local";
   const arg=process.argv[3]??new Date().toISOString().split("T")[0];
   const {p}=await getOwnerSubject(email);
   const today=new Date().toISOString().split("T")[0];

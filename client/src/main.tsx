@@ -60,7 +60,7 @@ createRoot(document.getElementById("root")!).render(
   </trpc.Provider>
 );
 
-// Register the service worker in production so Kala is installable as a
+// Register the service worker in production so Velea is installable as a
 // standalone app (Chrome/Edge desktop install + offline app shell).
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {

@@ -101,8 +101,8 @@ export default function Home() {
       if (which === "why") setWhyOpen(true);
       if (which === "timelord") setTlOpen(true);
     };
-    window.addEventListener("kala-tour-expand", onExpand);
-    return () => window.removeEventListener("kala-tour-expand", onExpand);
+    window.addEventListener("velea-tour-expand", onExpand);
+    return () => window.removeEventListener("velea-tour-expand", onExpand);
   }, []);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
   const [dueSheetOpen, setDueSheetOpen] = useState(false);
@@ -249,13 +249,13 @@ export default function Home() {
             {/* ── HERO CARD — immersive full-width mode gradient ── */}
       {(() => {
         const heroGradient = taskMode === 'Action'
-          ? 'var(--kala-action-gradient)'
+          ? 'var(--velea-action-gradient)'
           : taskMode === 'Build'
-          ? 'var(--kala-build-gradient)'
+          ? 'var(--velea-build-gradient)'
           : taskMode === 'Selective'
-          ? 'var(--kala-selective-gradient)'
+          ? 'var(--velea-selective-gradient)'
           : taskMode === 'Restraint'
-          ? 'var(--kala-restraint-gradient)'
+          ? 'var(--velea-restraint-gradient)'
           : `rgba(${modeRgba}, 0.15)`;
         const questionText = timeLordData?.questionForToday
           ? timeLordData.questionForToday

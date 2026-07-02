@@ -3,7 +3,7 @@
  *
  * Orchestrates the two-layer engine:
  *   1. astronomy.ts  → raw sky data (Swiss Ephemeris WASM)
- *   2. interpreter.ts → base mode + modifiers → final mode (Kala rules)
+ *   2. interpreter.ts → base mode + modifiers → final mode (Velea rules)
  *
  * Also handles DB caching: calculates once, stores, returns cached on repeat calls.
  */

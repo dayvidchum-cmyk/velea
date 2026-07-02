@@ -1,7 +1,7 @@
 /**
  * useSettings — extensible user interface preferences
  *
- * Preferences are persisted to localStorage under "kala_settings" ONLY when
+ * Preferences are persisted to localStorage under "velea_settings" ONLY when
  * saveSettings() is explicitly called. Components that need live-preview can
  * use updateSetting() for local state changes, then call saveSettings() to
  * commit them permanently.
@@ -51,7 +51,7 @@ const DEFAULTS: SettingsState = {
   verdictShapesRanking: false,
 };
 
-const STORAGE_KEY = "kala_settings";
+const STORAGE_KEY = "velea_settings";
 
 // ─── Persistence helpers ──────────────────────────────────────────────────────
 

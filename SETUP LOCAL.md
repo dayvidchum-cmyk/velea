@@ -1,6 +1,6 @@
-# Running Kala Locally - Setup Guide
+# Running Velea Locally - Setup Guide
 
-This guide walks you through running Kala on your Mac for development.
+This guide walks you through running Velea on your Mac for development.
 No Manus, no cloud hosting, just on your laptop.
 
 ---
@@ -59,12 +59,12 @@ Type your password, you should land in the MySQL prompt. Type `exit` to leave.
 
 ### Step 1: Extract your project
 
-You already have the zip. Extract it somewhere stable like `~/projects/kala`.
+You already have the zip. Extract it somewhere stable like `~/projects/velea`.
 
 ```bash
 cd ~/projects
-unzip ~/Downloads/the-hours.zip -d kala
-cd kala
+unzip ~/Downloads/the-hours.zip -d velea
+cd velea
 ```
 
 (Adjust paths to wherever you actually saved it.)
@@ -91,7 +91,7 @@ Edit the `DATABASE_URL` line - replace `yourpassword` with your actual MySQL roo
 
 If you used an empty password during MySQL setup:
 ```
-DATABASE_URL=mysql://root@localhost:3306/kala
+DATABASE_URL=mysql://root@localhost:3306/velea
 ```
 
 ### Step 4: Install dependencies
@@ -106,7 +106,7 @@ This takes 1-3 minutes. Some warnings are normal.
 ### Step 5: Create the database
 
 ```bash
-mysql -u root -p -e "CREATE DATABASE kala;"
+mysql -u root -p -e "CREATE DATABASE velea;"
 ```
 
 ### Step 6: Run database migrations
@@ -115,7 +115,7 @@ mysql -u root -p -e "CREATE DATABASE kala;"
 pnpm db:push
 ```
 
-This creates all the tables (users, profiles, tasks, panchang, etc.) in your local kala database.
+This creates all the tables (users, profiles, tasks, panchang, etc.) in your local velea database.
 
 ### Step 7: Start the dev server
 
@@ -153,7 +153,7 @@ Once it loads, you'll be a brand new user with no birth data. You'll need to:
 
 To start working:
 ```bash
-cd ~/projects/kala
+cd ~/projects/velea
 pnpm dev
 ```
 
@@ -182,13 +182,13 @@ MySQL isn't running. Start it: `brew services start mysql`
 **"Access denied for user 'root'"**
 Password in `DATABASE_URL` doesn't match your MySQL root password. Fix the `.env`.
 
-**"Database 'kala' doesn't exist"**
+**"Database 'velea' doesn't exist"**
 Run step 5 again.
 
 **Migration errors on first run**
 Drop and recreate the database, then re-run migrations:
 ```bash
-mysql -u root -p -e "DROP DATABASE kala; CREATE DATABASE kala;"
+mysql -u root -p -e "DROP DATABASE velea; CREATE DATABASE velea;"
 pnpm db:push
 ```
 

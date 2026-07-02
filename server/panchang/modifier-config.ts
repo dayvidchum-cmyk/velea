@@ -1,5 +1,5 @@
 /**
- * MODIFIER CONFIGURATION — Kala Mode Engine
+ * MODIFIER CONFIGURATION — Velea Mode Engine
  *
  * This file contains ALL modifier values in one place for review and adjustment.
  * The interpreter.ts imports from here.

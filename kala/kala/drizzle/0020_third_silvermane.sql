@@ -1,1 +1,0 @@
-ALTER TABLE `tasks` ADD `archivedAt` timestamp;

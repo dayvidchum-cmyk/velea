@@ -1,5 +1,5 @@
 // Regenerate the app icons: the Velea emblem (gold circle + comet) composited
-// over a pared-down starry-indigo field. Outputs kala-icon-{512,192,180,32}.png.
+// over a pared-down starry-indigo field. Outputs velea-icon-{512,192,180,32}.png.
 // Run with sharp temporarily installed.
 import sharp from "sharp";
 
@@ -44,6 +44,6 @@ const master = await sharp(bg)
   .toBuffer();
 
 for (const s of [512, 192, 180, 32]) {
-  await sharp(master).resize(s, s).png().toFile(`client/public/kala-icon-${s}.png`);
-  console.log("wrote kala-icon-" + s + ".png");
+  await sharp(master).resize(s, s).png().toFile(`client/public/velea-icon-${s}.png`);
+  console.log("wrote velea-icon-" + s + ".png");
 }

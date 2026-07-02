@@ -4,7 +4,7 @@ Captured 2026-06-29 from the owner's design notes. Conceptual; not yet built.
 
 ## The core idea: two energies, read together
 
-Kala already tracks two distinct signals. Velea is the synthesis of them.
+Velea already tracks two distinct signals. Velea is the synthesis of them.
 
 - **Personal energy → Panchapakshi.** Your internal readiness. Reflects whether
   *you*, the vessel, are charged for an act.
@@ -35,7 +35,7 @@ creativeFlow, motivation — each 1–5, stamped at the exact moment of submissi
 
 Panchapakshi means "five birds." The Check-In *is* five measures — not computed
 from a static table, but **read live from the actual vessel**. So the Check-In
-can serve as Kala's Personal-energy signal, unblocking the deferred Layer 1
+can serve as Velea's Personal-energy signal, unblocking the deferred Layer 1
 without needing the classical table.
 
 ## Golden Moment — still to define
