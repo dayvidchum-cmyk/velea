@@ -2,6 +2,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { GlossaryLink } from "@/components/GlossaryPopover";
 
 /**
  * StageSheet — "The Stage" as a pop-up, openable from the header on every page.
@@ -73,7 +74,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", alignItems: "center", marginTop: "0.7rem" }}>
                     <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>Retrograde:</span>
                     {stage.retrogrades.map((p) => (
-                      <span key={p} className="text-xs font-semibold" style={{ color: "var(--foreground)", background: "var(--color-secondary)", borderRadius: 999, padding: "0.15rem 0.55rem" }}>{p} ℞</span>
+                      <GlossaryLink key={p} term="Retrograde (Vakri)" underline={false} className="text-xs font-semibold" style={{ display: "inline-block", color: "var(--foreground)", background: "var(--color-secondary)", borderRadius: 999, padding: "0.15rem 0.55rem" }}>{p} ℞</GlossaryLink>
                     ))}
                   </div>
                 )}

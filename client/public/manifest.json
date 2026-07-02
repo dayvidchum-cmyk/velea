@@ -2,6 +2,7 @@
   "name": "Velea",
   "short_name": "Velea",
   "description": "Your personal astrological intelligence system",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

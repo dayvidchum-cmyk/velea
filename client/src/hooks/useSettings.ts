@@ -54,7 +54,7 @@ const DEFAULTS: SettingsState = {
   personalEnergy: "Medium",
   verdictShapesRanking: false,
   meridianLift: false,
-  glossaryTooltips: false,
+  glossaryTooltips: true,
 };
 
 const STORAGE_KEY = "velea_settings";
@@ -65,9 +65,17 @@ export function loadSettings(): SettingsState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULTS;
-    const parsed = JSON.parse(raw) as Partial<SettingsState>;
+    const parsed = JSON.parse(raw) as Partial<SettingsState> & { _glossOn?: boolean };
     // Merge with defaults so new keys are always present
-    return { ...DEFAULTS, ...parsed };
+    const merged = { ...DEFAULTS, ...parsed };
+    // One-time migration: inline glossary tooltips ship on by default. Existing testers
+    // had it persisted false from the prior build — flip it on once, then respect choice.
+    if (!parsed._glossOn) {
+      merged.glossaryTooltips = true;
+      (merged as any)._glossOn = true;
+      persistSettings(merged);
+    }
+    return merged;
   } catch {
     return DEFAULTS;
   }

@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import GlossaryText from "@/components/GlossaryText";
+import { GlossaryLink } from "@/components/GlossaryPopover";
 
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 const HOUSE_GLOSS: Record<number, string> = {
@@ -71,15 +72,15 @@ export default function MeridianCard() {
     <div style={{ borderRadius: "16px", border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
         <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: 0 }}>
-          The Meridian · your voice axis
+          The Meridian · your dharma axis
         </p>
-        <button onClick={() => navigate("/glossary")} style={{ fontSize: "0.68rem", color: accent, background: "none", border: "none", padding: 0, cursor: "pointer", whiteSpace: "nowrap" }}>
+        <GlossaryLink term="Meridian chapter" underline={false} style={{ fontSize: "0.68rem", color: accent, whiteSpace: "nowrap" }}>
           What's this?
-        </button>
+        </GlossaryLink>
       </div>
       <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: "0.5rem 0 0", lineHeight: 1.55 }}>
-        <strong style={{ color: accent }}>{data.mc.sign}</strong> outer voice — what you're called to say and build; balanced by{" "}
-        <strong style={{ color: accent }}>{data.ic.sign}</strong> inner voice — the ground you speak it from.
+        <strong style={{ color: accent }}>{data.mc.sign}</strong> — your Midheaven: how you appear on the world's stage — career, life-calling, your <strong style={{ color: accent }}>dharma</strong> (and the outer voice that carries it). Balanced by{" "}
+        <strong style={{ color: accent }}>{data.ic.sign}</strong> — your roots and private ground: home, foundation, the inner voice you speak from.
       </p>
 
       {chapters.length === 0 ? (
@@ -111,7 +112,7 @@ export default function MeridianCard() {
       {/* The lift toggle lives here — where the thing is explained, not buried in Settings. */}
       <div style={{ marginTop: "1rem", paddingTop: "0.85rem", borderTop: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
         <span style={{ fontSize: "0.78rem", color: "var(--color-muted-foreground)", lineHeight: 1.45 }}>
-          Let a live chapter gently lift its life-areas in your day
+          Let a live chapter gently lift its life-areas — your tasks in those areas (e.g. vocation for the outer voice) rise higher in today's list
         </span>
         <button
           onClick={toggleLift}
