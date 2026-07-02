@@ -1,15 +1,14 @@
 import type { CSSProperties } from "react";
 
 /**
- * VeleaMark — an even-weight icon interpretation of the Velea logo (a ring + the
- * line), for small UI sizes where the detailed tapered logo reads too thin. Strokes
- * in currentColor by default so it inherits like a lucide icon and matches their
- * weight. (The full detailed logo art is used at hero/splash sizes.)
+ * VeleaMark — the Velea mark (velea-mark.svg) as a tintable icon via CSS mask.
+ * The mask is zoomed so the mark fills the box (the source has ~30% padding), so it
+ * reads bold at small sizes instead of shrinking to a faint arc. `strokeWidth` is
+ * accepted and ignored for drop-in compatibility with lucide icon slots.
  */
 export default function VeleaMark({
   size = 22,
   color = "currentColor",
-  strokeWidth = 2,
   style,
 }: {
   size?: number;
@@ -18,20 +17,23 @@ export default function VeleaMark({
   style?: CSSProperties;
 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={style}
+    <span
       aria-hidden="true"
-    >
-      <circle cx="11" cy="13" r="7.5" />
-      <path d="M20.8 3.2 L13.4 10.6" />
-    </svg>
+      style={{
+        display: "inline-block",
+        width: size,
+        height: size,
+        background: color,
+        WebkitMaskImage: "url(/velea-mark.svg)",
+        maskImage: "url(/velea-mark.svg)",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "142%",
+        maskSize: "142%",
+        ...style,
+      }}
+    />
   );
 }

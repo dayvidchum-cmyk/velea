@@ -7,6 +7,7 @@ import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import LocationSheet from "@/components/LocationSheet";
 import CheckInSheet from "@/components/CheckInSheet";
+import VeleaMark from "./VeleaMark";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -235,19 +236,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   return (
     <>
       <div className="relative z-10">
-        {/* Brand mark — logo + wordmark (the full Khmer story lives in the login splash) */}
+        {/* Brand mark — the Velea mark + wordmark (Khmer story lives in the login splash) */}
         <div className="flex items-center gap-2 mb-4">
-          <span
-            aria-hidden="true"
-            style={{
-              display: "inline-block", width: 30, height: 30,
-              background: "var(--brand-gold)",
-              WebkitMaskImage: "url(/velea-logo.png)", maskImage: "url(/velea-logo.png)",
-              WebkitMaskSize: "contain", maskSize: "contain",
-              WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center", maskPosition: "center",
-            }}
-          />
+          <VeleaMark size={28} color="var(--brand-gold)" />
           <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>
             Velea
           </span>
