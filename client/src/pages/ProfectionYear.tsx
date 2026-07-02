@@ -8,6 +8,7 @@ import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { ProfectionWheel } from "@/components/ProfectionWheel";
 import { WhyNowChain } from "@/components/WhyNowChain";
+import MeridianCard from "@/components/MeridianCard";
 import { CurrentTriggerBreakdown } from "@/components/CurrentTriggerBreakdown";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "../../../shared/types";
 import { LIFE_AREAS } from "../../../shared/life-areas";
@@ -439,6 +440,9 @@ export default function ProfectionYear() {
         <ProfectionWheel lagnaSign={lagnaSign} age={age} headingColor={modeColor} />
       ))}
       </div>
+
+      {/* The Meridian — MC/IC voice axis + who's activating it now (read-only) */}
+      <MeridianCard />
 
       {/* WHY NOW? — deterministic logic chain (computed from the chart, auditable) */}
       {panel("Why now?", whyNowOpen, setWhyNowOpen, (

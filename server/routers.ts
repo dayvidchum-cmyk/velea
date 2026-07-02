@@ -1146,6 +1146,20 @@ export const appRouter = router({
   profection: profectionRouter,
   timeLordTransit: timeLordTransitRouter,
 
+  // ── MERIDIAN (MC/IC axis: which grahas are activating your voice axis now) ──
+  meridian: router({
+    current: protectedProcedure.query(async ({ ctx }) => {
+      const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile || !(profile as any).mcLongitude) return null;
+      const bodies = await getProfileNatalBodies(profile.id);
+      const natalHouseByPlanet: Record<string, number | null> = {};
+      for (const b of bodies) natalHouseByPlanet[b.planet] = b.house ?? null;
+      const { computeMeridianRead } = await import("./meridian/activations.js");
+      return computeMeridianRead(parseFloat((profile as any).mcLongitude), natalHouseByPlanet);
+    }),
+  }),
+
   // ── CURRENT SKY (all planets now: positions, retro, stations, eclipses) ──
   sky: router({
     /** Live sky for the active profile: every planet's position/motion, the houses
