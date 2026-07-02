@@ -125,6 +125,11 @@ export type Chapter = {
   peakDateISO?: string;
   enterDateISO?: string;
   exitDateISO?: string;
+  // Retrograde stations + shadow — the *official* threshold, tighter than the orb.
+  retrograde?: boolean;
+  stationDirect?: { month: string; sign: string; degree: number };
+  shadowCleared?: boolean;
+  shadowClearedMonth?: string;
 };
 
 const SLOW_PAIRS: [string, string][] = [["Jupiter", "jupiter"], ["Saturn", "saturn"], ["Rahu", "rahu"], ["Ketu", "ketu"]];
@@ -145,13 +150,14 @@ export async function computeMeridianArc(
   const end = now.getTime() + spanMs;
 
   // Sample slow-planet longitudes across the span (one chart per sample date).
-  const samples: { t: number; lon: Record<string, number> }[] = [];
+  const samples: { t: number; lon: Record<string, number>; retro: Record<string, boolean> }[] = [];
   for (let t = start; t <= end; t += stepDays * DAY) {
     const d = new Date(t);
     const chart: any = await calculateBirthChart(d.toISOString().slice(0, 10), "12:00", 0, 0, "UTC");
     const lon: Record<string, number> = {};
-    for (const [Name, key] of SLOW_PAIRS) if (chart[key]) lon[Name] = chart[key].longitude;
-    samples.push({ t, lon });
+    const retro: Record<string, boolean> = {};
+    for (const [Name, key] of SLOW_PAIRS) if (chart[key]) { lon[Name] = chart[key].longitude; retro[Name] = chart[key].isRetrograde; }
+    samples.push({ t, lon, retro });
   }
 
   const chapters: Chapter[] = [];
@@ -176,6 +182,35 @@ export async function computeMeridianArc(
     wins.sort((a, b) => Math.abs((a.start + a.end) / 2 - now.getTime()) - Math.abs((b.start + b.end) / 2 - now.getTime()));
     const w = wins[0];
     const status: Chapter["status"] = now.getTime() < w.start ? "upcoming" : now.getTime() > w.end ? "recent" : "current";
+
+    // Retrograde stations + shadow-clearance — the *official* close of the chapter,
+    // tighter than the orb window. A slow planet only truly lets go of the axis once
+    // it stations direct and re-passes the degree where it first turned back.
+    const flips: { t: number; lon: number; toRetro: boolean }[] = [];
+    for (let k = 1; k < samples.length; k++) {
+      const a = samples[k - 1].retro[Name], b = samples[k].retro[Name];
+      if (a == null || b == null || a === b) continue;
+      flips.push({ t: samples[k].t, lon: samples[k].lon[Name], toRetro: b === true });
+    }
+    let stationDirect: Chapter["stationDirect"];
+    let shadowCleared: boolean | undefined;
+    let shadowClearedMonth: string | undefined;
+    let retrograde: boolean | undefined;
+    const near = (t: number) => Math.abs(t - w.peakT);
+    const directs = flips.filter((f) => !f.toRetro);
+    const lastDirect = directs.length ? directs.reduce((best, f) => (near(f.t) < near(best.t) ? f : best)) : undefined;
+    const retrosBefore = lastDirect ? flips.filter((f) => f.toRetro && f.t < lastDirect.t) : [];
+    const retroBefore = retrosBefore.length ? retrosBefore[retrosBefore.length - 1] : undefined;
+    if (lastDirect && retroBefore && near(lastDirect.t) <= 150 * DAY) {
+      retrograde = true;
+      stationDirect = { month: fmtMonth(lastDirect.t), sign: ZODIAC[Math.floor(lastDirect.lon / 30)], degree: lastDirect.lon % 30 };
+      const nowSample = [...samples].reverse().find((s) => s.t <= now.getTime() && s.lon[Name] != null);
+      const curLon = nowSample?.lon[Name] ?? lastDirect.lon;
+      shadowCleared = curLon > retroBefore.lon;
+      const clr = samples.find((s) => s.t > lastDirect.t && s.lon[Name] != null && s.lon[Name] > retroBefore.lon);
+      shadowClearedMonth = clr ? fmtMonth(clr.t) : undefined;
+    }
+
     chapters.push({
       planet: Name,
       pole: w.pole,
@@ -188,6 +223,10 @@ export async function computeMeridianArc(
       enterDateISO: new Date(w.start).toISOString().slice(0, 10),
       peakDateISO: new Date(w.peakT).toISOString().slice(0, 10),
       exitDateISO: new Date(w.end).toISOString().slice(0, 10),
+      retrograde,
+      stationDirect,
+      shadowCleared,
+      shadowClearedMonth,
     });
   }
   const rank = { current: 0, recent: 1, upcoming: 2 };

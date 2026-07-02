@@ -13,6 +13,10 @@ type Chapter = {
   planet: string; poleLabel: string; enterMonth: string; exitMonth: string;
   peakDignity: string; natalHouse: number | null; status: "current" | "recent" | "upcoming";
   antardasha?: { open: string; carry: string; close: string };
+  retrograde?: boolean;
+  stationDirect?: { month: string; sign: string; degree: number };
+  shadowCleared?: boolean;
+  shadowClearedMonth?: string;
 };
 
 /** Frame each chapter as human orientation — naming the ending / threshold / beginning. */
@@ -27,9 +31,15 @@ function narrate(ch: Chapter): { headline: string; body: string; reflect?: boole
     };
   }
   if (ch.status === "recent") {
+    const st = ch.stationDirect;
+    // The precise threshold, when a retrograde loop gives us stations + shadow.
+    const official = st
+      ? `${ch.planet} stationed direct on your ${ch.poleLabel} in ${st.month} (${st.sign} ${Math.round(st.degree)}°)${ch.shadowCleared && ch.shadowClearedMonth ? ` and officially cleared its shadow in ${ch.shadowClearedMonth} — the chapter is truly closed` : `, still separating out of its shadow`}.`
+      : `${ch.planet} finished crossing your ${ch.poleLabel} around ${ch.exitMonth}${dign ? `, ${ch.peakDignity} at its height` : ""}.`;
+    const adPhrase = ad ? (ad.carry === ad.close ? ` It ran under your ${ad.carry} antardasha throughout.` : ` The ${ad.carry} antardasha that carried it has handed off to ${ad.close}.`) : "";
     return {
       headline: `A chapter just closed — ${ch.planet} has left your ${ch.poleLabel}.`,
-      body: `${ch.planet} finished crossing your ${ch.poleLabel} around ${ch.exitMonth}${dign ? `, ${ch.peakDignity} at its height` : ""}.${ad ? (ad.carry === ad.close ? ` It ran under your ${ad.carry} antardasha throughout.` : ` The ${ad.carry} antardasha that carried it has handed off to ${ad.close}.`) : ""} A threshold: an ending, and the opening of what's next.`,
+      body: `${official}${adPhrase} A threshold: an ending, and the opening of what's next.`,
       reflect: true,
     };
   }
