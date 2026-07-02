@@ -215,6 +215,9 @@ export function scoreTasks(
     goldenSignals?: GoldenMomentSignal[] | null;
     /** Optional global tilt from the daily verdict (opt-in setting). 1 = no effect. */
     verdictBias?: number;
+    /** Meridian lift (opt-in): pole house(s) of a live MC/IC chapter — the pole's
+     *  life-areas get a gentle, persistent soft lift (the "song at the party"). */
+    meridianHouses?: number[];
   }
 ): ScoredTask[] {
   const { todayMode, todayDate, personalEnergy, currentState, layers, dayHouses, projectAreas, goldenSignals } = opts;
@@ -342,6 +345,16 @@ export function scoreTasks(
               reasons.push(`Today's ${labels[0]} focus`);
             }
           }
+        }
+      }
+
+      // Meridian lift (opt-in): while a slow planet activates the MC/IC, the pole's
+      // life-areas quietly rise — the song playing at the party. Soft only, never a floor.
+      if (opts.meridianHouses && opts.meridianHouses.length > 0) {
+        const mkeys = parseLifeAreas((task as any).lifeAreas ?? null);
+        if (mkeys.length > 0 && housesForAreas(mkeys).some((h) => opts.meridianHouses!.includes(h))) {
+          soft += 150;
+          reasons.push("Your voice-axis chapter is lit");
         }
       }
 

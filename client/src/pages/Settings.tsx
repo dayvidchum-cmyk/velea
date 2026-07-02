@@ -590,6 +590,19 @@ export default function Settings() {
             />
           </SettingRow>
 
+          {/* Meridian lift */}
+          <SettingRow
+            label="Let a Meridian chapter lift its life-areas"
+            description="When a slow planet is on your MC/IC (see the Chart's Meridian card), the pole's life-areas quietly rise — vocation for the outer voice, home & roots for the inner. A gentle, persistent tilt; never changes the day's mode."
+          >
+            <TogglePair
+              options={["on", "off"] as const}
+              value={draft.meridianLift ? "on" : "off"}
+              onChange={(v) => updateDraft("meridianLift", v === "on")}
+              renderLabel={(v) => <span>{v === "on" ? "On" : "Off"}</span>}
+            />
+          </SettingRow>
+
           {/* 3. Today Task Limit */}
           <SettingRow
             label="Tasks Shown At One Time"

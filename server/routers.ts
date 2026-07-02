@@ -455,6 +455,7 @@ export const appRouter = router({
           personalEnergy: z.enum(["Low", "Medium", "High"]).default("Medium"),
           todayHouse: z.number().optional(), // the day's domain (activated house)
           verdictShapesRanking: z.boolean().default(false), // opt-in: verdict tilts order
+          meridianLift: z.boolean().default(false), // opt-in: MC/IC chapter lifts its pole's areas
         })
       )
       .query(async ({ ctx, input }) => {
@@ -494,11 +495,35 @@ export const appRouter = router({
         const projectAreas = new Map<number, string[]>(
           projectRows.map((p) => [p.id, parseLifeAreas((p as any).lifeAreas)])
         );
+
+        // Meridian lift (opt-in): while a SLOW planet activates the MC/IC, lift the
+        // pole's life-areas — MC → vocation (house 10), IC → home/roots (house 4).
+        let meridianHouses: number[] | undefined;
+        if (input.meridianLift && subject) {
+          try {
+            const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+            const profile = await getActiveProfile(ctx.user.id);
+            if (profile && (profile as any).mcLongitude) {
+              const bodies = await getProfileNatalBodies(profile.id);
+              const hb: Record<string, number | null> = {};
+              for (const b of bodies) hb[b.planet] = b.house ?? null;
+              const { computeMeridianRead } = await import("./meridian/activations.js");
+              const read = await computeMeridianRead(parseFloat((profile as any).mcLongitude), hb);
+              const poles = new Set(read.hits.filter((h) => h.slow).map((h) => h.pole));
+              const houses: number[] = [];
+              if (poles.has("MC")) houses.push(10);
+              if (poles.has("IC")) houses.push(4);
+              if (houses.length) meridianHouses = houses;
+            }
+          } catch { /* degrade to no meridian lift */ }
+        }
+
         return scoreTasks(allTasks, {
           todayMode: input.todayMode,
           todayDate: input.todayDate,
           personalEnergy: input.personalEnergy,
           dayHouses: input.todayHouse != null ? [input.todayHouse] : [],
+          meridianHouses,
           projectAreas,
           layers,
           goldenSignals,

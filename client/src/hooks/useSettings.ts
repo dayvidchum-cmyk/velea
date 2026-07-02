@@ -33,6 +33,8 @@ export interface SettingsState {
   personalEnergy: PersonalEnergy;
   /** Let the daily go/hold verdict tilt task ordering (default off) */
   verdictShapesRanking: boolean;
+  /** While a slow planet activates your MC/IC, let the pole's life-areas rise (default off) */
+  meridianLift: boolean;
 
   // ── Future preferences (not yet implemented) ──────────────────────────────
   // showAstrologyDetails: boolean;
@@ -49,6 +51,7 @@ const DEFAULTS: SettingsState = {
   todayTaskLimit: 3,
   personalEnergy: "Medium",
   verdictShapesRanking: false,
+  meridianLift: false,
 };
 
 const STORAGE_KEY = "velea_settings";

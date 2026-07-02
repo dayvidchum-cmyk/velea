@@ -186,6 +186,7 @@ export default function Planner() {
       personalEnergy: settings.personalEnergy,
       todayHouse: todayPanchang?.houseActivated ?? undefined,
       verdictShapesRanking: settings.verdictShapesRanking,
+      meridianLift: settings.meridianLift,
     },
     { enabled: isAuthenticated && !!todayTaskMode }
   );
