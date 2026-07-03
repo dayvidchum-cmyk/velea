@@ -869,7 +869,7 @@ export default function Planner() {
           className="text-sm font-bold uppercase"
           style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
         >
-          Planner
+          Calendar
         </span>
         <ChevronDown
           size={13}
