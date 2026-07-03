@@ -16,7 +16,7 @@ export const ACTIVITY_STRENGTH: Record<Activity, number> = {
 
 // App-facing names, matching the reference app the user validates against.
 export const ACTIVITY_LABEL: Record<Activity, string> = {
-  Ruling: "Succeed", Eating: "Energize", Walking: "Action", Sleeping: "Rest", Dying: "Caution",
+  Ruling: "Succeed", Eating: "Energize", Walking: "Action", Sleeping: "Relax", Dying: "Caution",
 };
 
 export type Quality = "golden" | "good" | "neutral" | "low" | "avoid";
