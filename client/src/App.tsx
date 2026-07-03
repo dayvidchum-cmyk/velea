@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import BrandSplash from "@/components/BrandSplash";
 import { PANCHANG_TO_TASK_MODE, type TaskMode } from "@shared/types";
 import { trpc } from "@/lib/trpc";
@@ -254,21 +254,19 @@ const { user, loading } = useAuth();
         {showNav && (
           <div
             style={{
-              textAlign: "center",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: "0.6rem",
               padding: "1.25rem 0 calc(88px + env(safe-area-inset-bottom, 0px))",
-              fontSize: "0.66rem",
-              letterSpacing: "0.1em",
-              color: "var(--color-muted-foreground)",
-              opacity: 0.55,
             }}
           >
-            Velea v{APP_VERSION}
             <button
               onClick={hardRefresh}
-              style={{ marginLeft: 12, background: "none", border: "none", color: "inherit", font: "inherit", letterSpacing: "inherit", textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.5rem 1rem", borderRadius: 999, background: "transparent", border: "1px solid var(--color-border)", color: "var(--foreground)", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" }}
             >
-              Refresh app
+              <RefreshCw size={15} /> Refresh app
             </button>
+            <span style={{ fontSize: "0.66rem", letterSpacing: "0.1em", color: "var(--color-muted-foreground)", opacity: 0.6 }}>
+              Velea v{APP_VERSION}
+            </span>
           </div>
         )}
       </main>

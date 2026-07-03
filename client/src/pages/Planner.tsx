@@ -996,14 +996,11 @@ export default function Planner() {
             onClick={() => setPinnedOpen((v) => !v)}
             className="flex items-center gap-2 w-full mb-3"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--foreground)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
-              <path d="M12 2 L17.9 20.1 L2.5 8.9 L21.5 8.9 L6.1 20.1 Z" />
-            </svg>
             <h3
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
             >
-              Do Now · pinned by you
+              To Do
             </h3>
             <ChevronDown
               size={13}
@@ -1016,8 +1013,8 @@ export default function Planner() {
               className="p-4 text-center rounded-lg"
               style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
             >
-              <p className="text-sm">Nothing pinned yet.</p>
-              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+              <p className="text-base font-bold" style={{ color: "var(--foreground)" }}>Nothing pinned yet.</p>
+              <p className="text-sm mt-1.5" style={{ color: "var(--foreground)", opacity: 0.85, lineHeight: 1.55 }}>
                 This list is entirely yours — pin any task (tap the 📌) to keep it right here, in focus. Velea suggests; you decide.
               </p>
             </div>

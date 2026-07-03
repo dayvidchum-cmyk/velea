@@ -273,24 +273,11 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
 
   const utils = trpc.useUtils();
 
-  const createTask = trpc.tasks.create.useMutation({
-    onSuccess: () => {
-      utils.tasks.list.invalidate();
-      utils.tasks.modeCounts.invalidate();
-      utils.tasks.pinnedForToday.invalidate();
-      utils.tasks.dueList.invalidate();
-    },
-  });
-
-  const updateTask = trpc.tasks.update.useMutation({
-    onSuccess: async () => {
-      await utils.tasks.list.invalidate();
-      await utils.tasks.modeCounts.invalidate();
-      await utils.tasks.pinnedForToday.invalidate();
-      await utils.tasks.dueList.invalidate();
-      await utils.tasks.rankedForToday.invalidate(); // the aligned list — was stale after edit
-    },
-  });
+  // Invalidate ALL task + project queries on any create/update — an explicit allowlist kept
+  // missing one (ranked list, project task list…), forcing manual refreshes. This is leak-proof.
+  const refreshAllLists = async () => { await utils.tasks.invalidate(); await utils.projects.invalidate(); };
+  const createTask = trpc.tasks.create.useMutation({ onSuccess: refreshAllLists });
+  const updateTask = trpc.tasks.update.useMutation({ onSuccess: refreshAllLists });
 
   const createSubtask = trpc.subtasks.create.useMutation();
 
