@@ -52,7 +52,7 @@ export default function ManifestoIntro({ onBegin }: { onBegin: () => void }) {
               Velea reads three things at once —
             </p>
             <p style={{ fontSize: "1.12rem", lineHeight: 1.65, color: "rgba(255,255,255,0.85)", margin: "1rem 0 0" }}>
-              the <strong style={{ color: "#fff" }}>sky</strong> as it moves right now, your <strong style={{ color: "#fff" }}>birth chart</strong> — the lens that bends that sky into <em style={{ fontStyle: "italic", color: "#fff" }}>your</em> meaning — and <strong style={{ color: "#fff" }}>how you actually are</strong> today.
+              <strong style={{ color: "#fff" }}>The sky</strong> as it moves right now. <strong style={{ color: "#fff" }}>Your birth chart</strong> — the lens that bends that sky into <em style={{ fontStyle: "italic", color: "#fff" }}>your</em> meaning. And <strong style={{ color: "#fff" }}>how you actually are</strong> today.
             </p>
             <p style={{ fontSize: "1.12rem", lineHeight: 1.65, color: "rgba(255,255,255,0.85)", margin: "1rem 0 0" }}>
               Where those three meet is data. Velea uses it to tell you which of your tasks belongs to this moment — and why.

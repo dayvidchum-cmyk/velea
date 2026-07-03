@@ -23,24 +23,20 @@ function SettingRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
-      <div className="flex-1 min-w-0">
-        <p
-          className="text-sm font-semibold"
-          style={{ color: "var(--color-foreground)" }}
-        >
+    <div className="py-4" style={{ borderBottom: "1px solid var(--border)" }}>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
           {label}
         </p>
-        {description && (
-          <p
-            className="text-xs mt-0.5 leading-relaxed"
-            style={{ color: "var(--color-muted-foreground)" }}
-          >
-            {description}
-          </p>
-        )}
+        <div className="flex-shrink-0">{children}</div>
       </div>
-      <div className="flex-shrink-0">{children}</div>
+      {/* Description spans the FULL width below (not squeezed beside the control) so long
+          copy wraps to fewer lines and the row stays short. */}
+      {description && (
+        <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
+          {description}
+        </p>
+      )}
     </div>
   );
 }
@@ -91,8 +87,9 @@ function TogglePair<T extends string>({
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 
-function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
+function SettingsSection({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const modeColor = useDayModeColor();
+  const [open, setOpen] = useState(defaultOpen); // collapsed by default — minimize overload
   return (
     <div
       className="rounded-lg overflow-hidden"
@@ -101,18 +98,17 @@ function SettingsSection({ title, children }: { title: string; children: React.R
         background: `color-mix(in srgb, ${modeColor} 14%, var(--background))`,
       }}
     >
-      <div
-        className="px-5 py-3"
-        style={{ background: modeColor, borderBottom: `1px solid ${modeColor}` }}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full px-5 py-3 flex items-center justify-between"
+        style={{ background: modeColor, border: "none", cursor: "pointer" }}
       >
-        <p
-          className="text-sm font-bold uppercase"
-          style={{ color: "#ffffff", letterSpacing: "0.08em" }}
-        >
+        <span className="text-sm font-bold uppercase" style={{ color: "#ffffff", letterSpacing: "0.08em" }}>
           {title}
-        </p>
-      </div>
-      <div className="px-5">{children}</div>
+        </span>
+        <ChevronDown size={18} style={{ color: "#ffffff", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+      </button>
+      {open && <div className="px-5">{children}</div>}
     </div>
   );
 }
@@ -675,15 +671,20 @@ export default function Settings() {
                 Show a short coachmark tour the first time you open each page.
               </p>
             </div>
-            <Button
+            <button
               onClick={() => setToursEnabledMutation.mutate({ enabled: !toursEnabled })}
-              variant="outline"
-              size="sm"
-              className="flex-shrink-0"
               disabled={setToursEnabledMutation.isPending}
+              aria-pressed={toursEnabled}
+              className="flex-shrink-0 flex items-center gap-2"
+              style={{ background: "none", border: "none", cursor: "pointer" }}
             >
-              {toursEnabled ? "On" : "Off"}
-            </Button>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: toursEnabled ? "var(--color-primary)" : "var(--color-muted-foreground)" }}>
+                {toursEnabled ? "On" : "Off"}
+              </span>
+              <span style={{ width: 46, height: 28, borderRadius: 999, background: toursEnabled ? "var(--color-primary)" : "var(--color-border)", display: "inline-flex", alignItems: "center", padding: 3, transition: "background 0.2s", justifyContent: toursEnabled ? "flex-end" : "flex-start" }}>
+                <span style={{ width: 22, height: 22, borderRadius: 999, background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.35)" }} />
+              </span>
+            </button>
           </div>
 
           <div className="flex items-center justify-between py-4" style={{ borderTop: "1px solid var(--border)" }}>

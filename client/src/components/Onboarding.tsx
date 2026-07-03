@@ -115,7 +115,7 @@ const TASK_STEPS: TourStep[] = [
     route: "/",
     selector: '[data-tour="add-fab"]',
     title: "Add tasks — this is what turns it on",
-    body: "This is the part that matters: Velea reads the sky, but it only works FOR you once you add your real tasks. Tap + to add one — a mode, a life area, a due date, a recurrence — and Velea times and ranks it onto the days that fit. Without tasks, it's all analysis and no action.",
+    body: "This is the part that matters: Velea reads the sky, but it only works FOR you once you add your real tasks. Tap + to add one — a mode, a life area, a due date, a recurrence — and Velea times and ranks it onto the days that fit. You can also press and drag this button anywhere on screen — park it where your thumb likes it. Without tasks, it's all analysis and no action.",
   },
 ];
 

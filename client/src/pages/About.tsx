@@ -21,7 +21,7 @@ export default function About() {
         <ChevronLeft size={17} /> Settings
       </button>
 
-      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0.5rem 0 0" }}>Why the Moon</p>
+      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.5rem 0 0" }}>Why the Moon</p>
       <h1 style={{ fontFamily: serif, fontSize: "2.4rem", fontWeight: 800, color: "var(--color-foreground)", margin: "0.3rem 0 0", letterSpacing: "0.02em" }}>Velea</h1>
 
       <div style={{ marginTop: "1.6rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
@@ -31,7 +31,7 @@ export default function About() {
         <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
           So the soul does the one tender thing: it borrows the Sun's light and steps close. Close enough to pull the tides. Close enough to pull a body that's mostly water. And it agrees to move — through all twelve rooms, every month, never still.
         </p>
-        <p style={{ fontSize: "1.15rem", lineHeight: 1.65, color: "var(--color-foreground)", margin: 0, fontFamily: serif }}>
+        <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
           That's the Moon. The Sun's reflection, made gentle enough to be a gate. The <em>“I am”</em> you can't stare into, turned toward you. Restless, never in one house for long, slipping through all twelve palaces in a month — moving at the speed life actually changes.
         </p>
       </div>
