@@ -117,8 +117,8 @@ export default function MeridianCard() {
     <div data-tour="meridian" style={{ borderRadius: "16px", border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
       {/* Header — tap to collapse/expand */}
       <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
-        <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: 0 }}>
-          The Meridian · your dharma axis
+        <p style={{ fontSize: "0.875rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--foreground)", margin: 0 }}>
+          The Meridian <span style={{ color: "var(--color-muted-foreground)", fontWeight: 600 }}>· your dharma axis</span>
         </p>
         <ChevronDown size={18} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
       </button>
@@ -133,8 +133,8 @@ export default function MeridianCard() {
             <GlossaryLink term="Meridian chapter" underline={false} style={{ fontSize: "0.68rem", color: accent, whiteSpace: "nowrap" }}>What's this?</GlossaryLink>
           </div>
           <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: "0.15rem 0 0", lineHeight: 1.55 }}>
-            <strong style={{ color: accent }}>{data.mc.sign}</strong> — your Midheaven: how you appear on the world's stage — career, life-calling, your <strong style={{ color: accent }}>dharma</strong> (and the outer voice that carries it). Balanced by{" "}
-            <strong style={{ color: accent }}>{data.ic.sign}</strong> — your roots and private ground: home, foundation, the inner voice you speak from.
+            <strong style={{ color: accent }}>{data.mc.sign}</strong> — your Midheaven (MC): how you appear on the world's stage — career, life-calling, your <strong style={{ color: accent }}>dharma</strong> (and the outer voice that carries it). Balanced by{" "}
+            <strong style={{ color: accent }}>{data.ic.sign}</strong> — your Imum Coeli (IC): your roots, private ground, home, foundation, and the inner voice you speak from.
           </p>
 
           {/* WHO'S ON YOUR AXIS NOW — both poles, live */}

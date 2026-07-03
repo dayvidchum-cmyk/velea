@@ -75,9 +75,9 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
             lang="km"
             style={{
               gridArea: "1 / 1",
-              fontFamily: "'Hanuman', serif",
-              fontSize: "clamp(2.2rem, 11vw, 3rem)",
-              lineHeight: 1.3,
+              fontFamily: "'Moul', 'Hanuman', serif", // Moul = heavy Khmer display, mirrors the English logo weight
+              fontSize: "clamp(1.9rem, 9.5vw, 2.7rem)",
+              lineHeight: 1.35,
               color: GOLD,
               animation: "velea-rise 0.7s cubic-bezier(0.2,0.8,0.2,1) 0.4s both, velea-morph-out 0.8s ease 1.9s forwards",
             }}
@@ -99,23 +99,37 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
           </span>
         </div>
 
-        {/* Meaning — light on the dark night sky. */}
+        {/* Meaning — the etymology (វេលា time + ល្អ good → the golden moment), light on the sky. */}
         <div
           style={{
-            marginTop: "2rem", maxWidth: "28rem",
+            marginTop: "2rem", maxWidth: "30rem",
+            display: "flex", flexDirection: "column", gap: "0.65rem",
             animation: "velea-rise 0.75s cubic-bezier(0.2,0.8,0.2,1) 2.6s both",
           }}
         >
-          <p style={{ margin: 0, fontSize: "clamp(1.05rem, 4.6vw, 1.3rem)", letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
-            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none", fontSize: "1.4em" }}>វេលា</span>{" "}
-            <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.8 }}>Ve-lea</span> — time
-          </p>
-          <p style={{ margin: "0.8rem 0 0", fontSize: "clamp(1.05rem, 4.6vw, 1.3rem)", letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
-            <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none", fontSize: "1.4em" }}>វេលាល្អ</span>{" "}
-            <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.8 }}>velea l'or</span>
-            <br />
-            the auspicious, golden moment
-          </p>
+          {[
+            { km: "វេលា", roman: "ve-lea", gloss: "time" },
+            { km: "ល្អ", roman: "l'or", gloss: "good" },
+          ].map((row) => (
+            <p key={row.roman} style={{ margin: 0, display: "flex", alignItems: "baseline", justifyContent: "center", flexWrap: "wrap", gap: "0.55rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.4 }}>
+              <span lang="km" style={{ fontFamily: "'Hanuman', serif", fontSize: "1.55rem", color: GOLD }}>{row.km}</span>
+              <span style={{ opacity: 0.4 }}>•</span>
+              <span style={{ fontStyle: "italic", opacity: 0.82, fontSize: "1.05rem" }}>{row.roman}</span>
+              <span style={{ opacity: 0.4 }}>•</span>
+              <span style={{ textTransform: "uppercase", letterSpacing: "0.09em", fontSize: "1.02rem" }}>{row.gloss}</span>
+            </p>
+          ))}
+          {/* The compound — the payoff */}
+          <div style={{ marginTop: "0.5rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(201,168,76,0.3)" }}>
+            <p style={{ margin: 0, display: "flex", alignItems: "baseline", justifyContent: "center", flexWrap: "wrap", gap: "0.55rem", color: "rgba(255,255,255,0.95)" }}>
+              <span lang="km" style={{ fontFamily: "'Hanuman', serif", fontSize: "1.7rem", color: GOLD }}>វេលាល្អ</span>
+              <span style={{ opacity: 0.4 }}>•</span>
+              <span style={{ fontStyle: "italic", opacity: 0.85, fontSize: "1.1rem" }}>ve-lea l'or</span>
+            </p>
+            <p style={{ margin: "0.55rem 0 0", textTransform: "uppercase", letterSpacing: "0.13em", fontSize: "clamp(0.95rem, 4vw, 1.15rem)", color: GOLD, fontWeight: 600, lineHeight: 1.4 }}>
+              the auspicious, golden moment
+            </p>
+          </div>
         </div>
       </div>
     </div>
