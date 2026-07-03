@@ -1,47 +1,37 @@
 import { useEffect, useState } from "react";
 
-/** TEMP diagnostic — measures the nav + a real label's pixel box so we fix from data. */
+/** TEMP diagnostic — polls the nav + label boxes so we can't miss them. */
 export default function SafeAreaDebug() {
   const [info, setInfo] = useState("measuring…");
 
   useEffect(() => {
-    const measure = (h: string) => {
-      const p = document.createElement("div");
-      p.style.cssText = `position:fixed;top:0;left:0;width:0;height:${h};visibility:hidden`;
-      document.body.appendChild(p);
-      const px = p.getBoundingClientRect().height;
-      document.body.removeChild(p);
-      return px.toFixed(0);
-    };
     const read = () => {
-      const shell = document.querySelector(".app-shell-height") as HTMLElement | null;
-      const nav = document.querySelector(".nav-safe-area") as HTMLElement | null;
-      const shellR = shell?.getBoundingClientRect();
-      const navR = nav?.getBoundingClientRect();
-      // find a label span (the uppercase text nodes inside the nav)
-      let labelBottom = "?";
-      let labelText = "?";
-      const spans = nav?.querySelectorAll("span") ?? [];
+      const shell = (document.querySelector(".app-shell-height") as HTMLElement | null)?.getBoundingClientRect();
+      const navSafe = (document.querySelector(".nav-safe-area") as HTMLElement | null)?.getBoundingClientRect();
+      const glass = (document.querySelector(".glass-nav") as HTMLElement | null)?.getBoundingClientRect();
+      // first real label span in the nav
+      let lBottom = "?", lText = "?";
+      const spans = document.querySelectorAll(".glass-nav span");
       for (const s of Array.from(spans)) {
         const r = s.getBoundingClientRect();
         if ((s.textContent ?? "").trim().length > 2 && r.height > 4) {
-          labelBottom = r.bottom.toFixed(0);
-          labelText = (s.textContent ?? "").trim();
-          break;
+          lBottom = r.bottom.toFixed(0); lText = (s.textContent ?? "").trim(); break;
         }
       }
+      const sc = window.screen.height;
       setInfo(
         [
-          `screen=${window.screen.height} inner=${window.innerHeight} lvh=${measure("100lvh")}`,
-          `shellH=${shellR ? shellR.height.toFixed(0) : "?"} shellBottom=${shellR ? shellR.bottom.toFixed(0) : "?"}`,
-          `navTop=${navR ? navR.top.toFixed(0) : "?"} navBottom=${navR ? navR.bottom.toFixed(0) : "?"}`,
-          `label "${labelText}" bottom=${labelBottom} (screenGap=${labelBottom !== "?" ? (window.screen.height - Number(labelBottom)).toFixed(0) : "?"})`,
+          `screen=${sc} inner=${window.innerHeight}`,
+          `shell b=${shell ? shell.bottom.toFixed(0) : "?"} h=${shell ? shell.height.toFixed(0) : "?"}`,
+          `navSafe t=${navSafe ? navSafe.top.toFixed(0) : "?"} b=${navSafe ? navSafe.bottom.toFixed(0) : "?"}`,
+          `glass t=${glass ? glass.top.toFixed(0) : "?"} b=${glass ? glass.bottom.toFixed(0) : "?"} h=${glass ? glass.height.toFixed(0) : "?"}`,
+          `label "${lText}" b=${lBottom} offScreen=${lBottom !== "?" ? (Number(lBottom) > sc ? "YES(" + (Number(lBottom) - sc).toFixed(0) + ")" : "no") : "?"}`,
         ].join("\n"),
       );
     };
     read();
-    const t = setTimeout(read, 700);
-    return () => clearTimeout(t);
+    const id = setInterval(read, 800);
+    return () => clearInterval(id);
   }, []);
 
   return (
