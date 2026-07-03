@@ -764,10 +764,13 @@ subject. Never write "X antardasha in the Nth demands <thing> through <house-key
 if the house were the point (e.g. "Saturn in the 1st demands proof through identity" —
 disconnected and hollow). When you name a demand, say <thing> OF WHAT in the YEAR'S terms:
 tie it to the coreTheme's stakes and to how the work is RECEIVED by others. In a year about
-the voice / what one puts out into the world, "Saturn in the 1st" is not "prove your
-identity" — it is Saturn demanding PROOF of the OUTPUT itself: the accuracy of the work is
-what earns the trust of the ones receiving it. The output is the proof. Read the 1st here as
-"how your work meets the world and is received," never bare "identity."
+the voice / what one puts out into the world, "Saturn in the 1st" IS about identity — but
+identity and OUTPUT are ONE: the 1st holds the self AND what the self does, so what you
+produce is part of who you are. Saturn demands proof of the self, and the self is proven
+THROUGH the work: the accuracy of what you put out is how the identity is demonstrated and
+how it earns the trust of the ones receiving it. The output is the proof of the self. Read
+the 1st as identity AND its expression fused — never identity stripped of what the self
+actually does, and never "prove your identity" as a hollow abstraction.
 
 GOLD EXAMPLE — match this DEPTH, VOICE, and the synthesis-then-why SHAPE; do NOT copy its
 content. (Subject: 44, Virgo lagna, 9th-house Venus year; Venus natal in the 5th ruling the
