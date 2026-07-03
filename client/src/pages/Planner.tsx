@@ -860,262 +860,6 @@ export default function Planner() {
         </div>
       )}
 
-      {/* ── MODE ORBS (reflect TODAY) ── */}
-      {isAuthenticated && (
-        <div className="relative z-10">
-          <button
-            onClick={() => setAllTasksOpen((v) => !v)}
-            className="flex items-center gap-2 mb-3"
-          >
-            <h3
-              className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-            >
-              All Tasks ({allTasks.filter((t) => !t.isCompleted).length})
-            </h3>
-            <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
-          <div className="flex justify-around items-end" data-tour="mode-orbs">
-            {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => (
-              <ModeOrb
-                key={m}
-                mode={m}
-                count={orbModeCounts[m] ?? 0}
-                active={todayTaskMode === m}
-                showCount={settings.showOrbCounts}
-                onClick={() => {
-                  const count = orbModeCounts[m] ?? 0;
-                  if (count === 0) {
-                    setQuickAddMode(m);
-                  } else {
-                    setOrbSheetMode(m);
-                  }
-                }}
-              />
-            ))}
-            {/* Due orb */}
-            <button
-              onClick={() => setDueSheetOpen(true)}
-              className="flex flex-col items-center gap-1.5 group transition-all duration-200 cursor-pointer"
-            >
-              <div
-                className="w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:scale-105"
-                style={{
-                  background: "oklch(0.55 0.14 250)",
-                  color: "oklch(1 0 0)",
-                }}
-              >
-                <span className="text-sm font-bold">
-                  {!settings.showOrbCounts ? (
-                    <span style={{ fontSize: "0.75rem", opacity: 0.85 }}>●</span>
-                  ) : orbDueCount === 0 ? "+" : orbDueCount}
-                </span>
-              </div>
-              <span
-                className="text-xs font-bold uppercase"
-                style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-              >
-                Due
-              </span>
-            </button>
-          </div>
-
-          {/* All-tasks accordion — collapsible groups by mode (the old Planner view) */}
-          {allTasksOpen && (
-            <div className="mt-4 space-y-2">
-              {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => {
-                const groupTasks = allTasks.filter(
-                  (t) => t.mode === m && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= Date.now())
-                );
-                const open = openModeGroups.has(m);
-                const groupColor = PLANNER_MODE_OKLCH[m];
-                return (
-                  <div key={m} className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
-                    <button
-                      onClick={() =>
-                        setOpenModeGroups((cur) => {
-                          const n = new Set(cur);
-                          n.has(m) ? n.delete(m) : n.add(m);
-                          return n;
-                        })
-                      }
-                      className="w-full flex items-center justify-between px-3 py-2.5"
-                      style={{ background: "var(--color-secondary)" }}
-                    >
-                      <span className="text-xs font-bold uppercase" style={{ color: groupColor, letterSpacing: "0.04em" }}>
-                        {m} <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>
-                      </span>
-                      <ChevronDown
-                        size={13}
-                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-                      />
-                    </button>
-                    {open &&
-                      (groupTasks.length === 0 ? (
-                        <p className="text-xs px-3 py-3" style={{ color: "var(--color-muted-foreground)" }}>No {m} tasks.</p>
-                      ) : (
-                        <div className="p-2 space-y-2">
-                          {groupTasks.map((task) => (
-                            <SwipeableTaskRow
-                              key={task.id}
-                              onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                              onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
-                              isCompleted={task.isCompleted}
-                              isPinned={task.isPinned}
-                              modeColor={groupColor}
-                            >
-                              <TaskItem
-                                task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
-                                onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                                onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
-                    onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
-                                onDelete={() => deleteMutation.mutate({ id: task.id })}
-                                onEdit={(t: Task) => setEditPinnedTask(t)}
-                                dayMode={todayTaskMode}
-                              />
-                            </SwipeableTaskRow>
-                          ))}
-                        </div>
-                      ))}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Pinned for Now — explicit user pins (ported from the retired Today page) */}
-      {isAuthenticated && (
-        <div className="relative z-10">
-          <button
-            onClick={() => setPinnedOpen((v) => !v)}
-            className="flex items-center gap-2 w-full mb-3"
-          >
-            <h3
-              className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-            >
-              To Do
-            </h3>
-            <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: pinnedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
-
-          {pinnedOpen && (pinnedForNow.length === 0 ? (
-            <div
-              className="p-4 text-center rounded-lg"
-              style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
-            >
-              <p className="text-base font-bold" style={{ color: "var(--foreground)" }}>Nothing pinned yet.</p>
-              <p className="text-sm mt-1.5" style={{ color: "var(--foreground)", opacity: 0.85, lineHeight: 1.55 }}>
-                This list is entirely yours — pin any task (tap the 📌) to keep it right here, in focus. Velea suggests; you decide.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {pinnedForNow.map((task) => (
-                <SwipeableTaskRow
-                  key={task.id}
-                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
-                  isCompleted={task.isCompleted}
-                  isPinned={task.isPinned}
-                  modeColor={todayModeColor}
-                >
-                  <TaskItem
-                    task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
-                    onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                    onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
-                    onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
-                    onDelete={() => deleteMutation.mutate({ id: task.id })}
-                    onEdit={(t: Task) => setEditPinnedTask(t)}
-                    dayMode={todayTaskMode}
-                    alignment={alignmentById.get(task.id) ?? 20}
-                  />
-                </SwipeableTaskRow>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Aligned for Today — system-ranked suggestions (ported from the retired Today page) */}
-      {isAuthenticated && !!todayTaskMode && (
-        <div className="relative z-10">
-          <button
-            onClick={() => setAlignedOpen((v) => !v)}
-            className="flex items-center gap-2 w-full mb-3"
-          >
-            <h3
-              className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-            >
-              Aligned for today
-            </h3>
-            <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: alignedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
-
-          {alignedOpen && (alignedForToday.length === 0 ? (
-            <div
-              className="p-4 text-center rounded-lg"
-              style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
-            >
-              <p className="text-sm">No suggestions for today's mode.</p>
-              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
-                Add tasks tagged {todayTaskMode} to see recommendations here.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {alignedForToday.map((task) => (
-                <SwipeableTaskRow
-                  key={task.id}
-                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
-                  isCompleted={task.isCompleted}
-                  isPinned={task.isPinned}
-                  modeColor={todayModeColor}
-                >
-                  <TaskItem
-                    task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
-                    onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                    onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
-                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
-                    onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
-                    onDelete={() => deleteMutation.mutate({ id: task.id })}
-                    onEdit={(t: Task) => setEditAlignedTask(t)}
-                    dayMode={todayTaskMode}
-                    alignment={(task as any).alignment ?? alignmentById.get(task.id)}
-                    compact
-                  />
-                  {/* The reasoning lives behind an obvious "Why now?" — the card stays clean */}
-                  {(((task as any).reasons?.length > 0) || ((task as any).layerBubbles?.length > 0)) && (
-                    <button
-                      onClick={() => setWhyNowTask(task)}
-                      className="mx-3 mb-2 mt-0.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                      style={{ background: `color-mix(in srgb, ${todayModeColor} 14%, var(--color-card))`, color: todayModeColor, border: `1px solid color-mix(in srgb, ${todayModeColor} 34%, transparent)`, fontSize: "0.8rem", fontWeight: 700 }}
-                    >
-                      Why now? →
-                    </button>
-                  )}
-                </SwipeableTaskRow>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* ── PLAN AHEAD (planning tools, collapsed by default) ── */}
       <button
         onClick={() => setPlanOpen((v) => !v)}
@@ -1478,6 +1222,262 @@ export default function Planner() {
           </button>
         )}
 
+        </div>
+      )}
+
+      {/* ── MODE ORBS (reflect TODAY) ── */}
+      {isAuthenticated && (
+        <div className="relative z-10">
+          <button
+            onClick={() => setAllTasksOpen((v) => !v)}
+            className="flex items-center gap-2 mb-3"
+          >
+            <h3
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              All Tasks ({allTasks.filter((t) => !t.isCompleted).length})
+            </h3>
+            <ChevronDown
+              size={13}
+              style={{ color: "var(--color-muted-foreground)", transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+          <div className="flex justify-around items-end" data-tour="mode-orbs">
+            {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => (
+              <ModeOrb
+                key={m}
+                mode={m}
+                count={orbModeCounts[m] ?? 0}
+                active={todayTaskMode === m}
+                showCount={settings.showOrbCounts}
+                onClick={() => {
+                  const count = orbModeCounts[m] ?? 0;
+                  if (count === 0) {
+                    setQuickAddMode(m);
+                  } else {
+                    setOrbSheetMode(m);
+                  }
+                }}
+              />
+            ))}
+            {/* Due orb */}
+            <button
+              onClick={() => setDueSheetOpen(true)}
+              className="flex flex-col items-center gap-1.5 group transition-all duration-200 cursor-pointer"
+            >
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:scale-105"
+                style={{
+                  background: "oklch(0.55 0.14 250)",
+                  color: "oklch(1 0 0)",
+                }}
+              >
+                <span className="text-sm font-bold">
+                  {!settings.showOrbCounts ? (
+                    <span style={{ fontSize: "0.75rem", opacity: 0.85 }}>●</span>
+                  ) : orbDueCount === 0 ? "+" : orbDueCount}
+                </span>
+              </div>
+              <span
+                className="text-xs font-bold uppercase"
+                style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+              >
+                Due
+              </span>
+            </button>
+          </div>
+
+          {/* All-tasks accordion — collapsible groups by mode (the old Planner view) */}
+          {allTasksOpen && (
+            <div className="mt-4 space-y-2">
+              {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => {
+                const groupTasks = allTasks.filter(
+                  (t) => t.mode === m && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= Date.now())
+                );
+                const open = openModeGroups.has(m);
+                const groupColor = PLANNER_MODE_OKLCH[m];
+                return (
+                  <div key={m} className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
+                    <button
+                      onClick={() =>
+                        setOpenModeGroups((cur) => {
+                          const n = new Set(cur);
+                          n.has(m) ? n.delete(m) : n.add(m);
+                          return n;
+                        })
+                      }
+                      className="w-full flex items-center justify-between px-3 py-2.5"
+                      style={{ background: "var(--color-secondary)" }}
+                    >
+                      <span className="text-xs font-bold uppercase" style={{ color: groupColor, letterSpacing: "0.04em" }}>
+                        {m} <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>
+                      </span>
+                      <ChevronDown
+                        size={13}
+                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+                      />
+                    </button>
+                    {open &&
+                      (groupTasks.length === 0 ? (
+                        <p className="text-xs px-3 py-3" style={{ color: "var(--color-muted-foreground)" }}>No {m} tasks.</p>
+                      ) : (
+                        <div className="p-2 space-y-2">
+                          {groupTasks.map((task) => (
+                            <SwipeableTaskRow
+                              key={task.id}
+                              onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                              onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
+                              isCompleted={task.isCompleted}
+                              isPinned={task.isPinned}
+                              modeColor={groupColor}
+                            >
+                              <TaskItem
+                                task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                                onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                                onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
+                    onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
+                                onDelete={() => deleteMutation.mutate({ id: task.id })}
+                                onEdit={(t: Task) => setEditPinnedTask(t)}
+                                dayMode={todayTaskMode}
+                              />
+                            </SwipeableTaskRow>
+                          ))}
+                        </div>
+                      ))}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Pinned for Now — explicit user pins (ported from the retired Today page) */}
+      {isAuthenticated && (
+        <div className="relative z-10">
+          <button
+            onClick={() => setPinnedOpen((v) => !v)}
+            className="flex items-center gap-2 w-full mb-3"
+          >
+            <h3
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              To Do
+            </h3>
+            <ChevronDown
+              size={13}
+              style={{ color: "var(--color-muted-foreground)", transform: pinnedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+
+          {pinnedOpen && (pinnedForNow.length === 0 ? (
+            <div
+              className="p-4 text-center rounded-lg"
+              style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
+            >
+              <p className="text-base font-bold" style={{ color: "var(--foreground)" }}>Nothing pinned yet.</p>
+              <p className="text-sm mt-1.5" style={{ color: "var(--foreground)", opacity: 0.85, lineHeight: 1.55 }}>
+                This list is entirely yours — pin any task (tap the 📌) to keep it right here, in focus. Velea suggests; you decide.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {pinnedForNow.map((task) => (
+                <SwipeableTaskRow
+                  key={task.id}
+                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
+                  isCompleted={task.isCompleted}
+                  isPinned={task.isPinned}
+                  modeColor={todayModeColor}
+                >
+                  <TaskItem
+                    task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                    onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                    onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
+                    onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
+                    onDelete={() => deleteMutation.mutate({ id: task.id })}
+                    onEdit={(t: Task) => setEditPinnedTask(t)}
+                    dayMode={todayTaskMode}
+                    alignment={alignmentById.get(task.id) ?? 20}
+                  />
+                </SwipeableTaskRow>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Aligned for Today — system-ranked suggestions (ported from the retired Today page) */}
+      {isAuthenticated && !!todayTaskMode && (
+        <div className="relative z-10">
+          <button
+            onClick={() => setAlignedOpen((v) => !v)}
+            className="flex items-center gap-2 w-full mb-3"
+          >
+            <h3
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              Aligned for today
+            </h3>
+            <ChevronDown
+              size={13}
+              style={{ color: "var(--color-muted-foreground)", transform: alignedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+            />
+          </button>
+
+          {alignedOpen && (alignedForToday.length === 0 ? (
+            <div
+              className="p-4 text-center rounded-lg"
+              style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
+            >
+              <p className="text-sm">No suggestions for today's mode.</p>
+              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
+                Add tasks tagged {todayTaskMode} to see recommendations here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {alignedForToday.map((task) => (
+                <SwipeableTaskRow
+                  key={task.id}
+                  onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
+                  isCompleted={task.isCompleted}
+                  isPinned={task.isPinned}
+                  modeColor={todayModeColor}
+                >
+                  <TaskItem
+                    task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                    onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                    onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                    onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
+                    onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
+                    onDelete={() => deleteMutation.mutate({ id: task.id })}
+                    onEdit={(t: Task) => setEditAlignedTask(t)}
+                    dayMode={todayTaskMode}
+                    alignment={(task as any).alignment ?? alignmentById.get(task.id)}
+                    compact
+                  />
+                  {/* The reasoning lives behind an obvious "Why now?" — the card stays clean */}
+                  {(((task as any).reasons?.length > 0) || ((task as any).layerBubbles?.length > 0)) && (
+                    <button
+                      onClick={() => setWhyNowTask(task)}
+                      className="mx-3 mb-2 mt-0.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                      style={{ background: `color-mix(in srgb, ${todayModeColor} 14%, var(--color-card))`, color: todayModeColor, border: `1px solid color-mix(in srgb, ${todayModeColor} 34%, transparent)`, fontSize: "0.8rem", fontWeight: 700 }}
+                    >
+                      Why now? →
+                    </button>
+                  )}
+                </SwipeableTaskRow>
+              ))}
+            </div>
+          ))}
         </div>
       )}
 
