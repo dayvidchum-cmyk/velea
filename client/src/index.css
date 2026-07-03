@@ -527,10 +527,11 @@
   }
 
   /* Full physical-screen height for the app shell. On notched iPhones the dynamic viewport
-     (100dvh / fixed inset-0) is ~62px short; 100lvh reaches the real bottom. 100vh fallback. */
+     (100dvh / fixed inset-0) is ~62px short; 100lvh reaches the real bottom. The @supports
+     block below keeps 100vh as a genuine fallback for browsers without large-viewport units
+     (the CSS minifier collapses two `height:` declarations in one rule to just the last). */
   .app-shell-height {
     height: 100vh;
-    height: 100lvh;
   }
 
   /* Safari top safe area — ensure content doesn't bleed into status bar */
@@ -538,6 +539,13 @@
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
+}
+
+/* Only override to the large-viewport unit where it's supported; browsers without it keep
+   the 100vh fallback above (kept out of the .app-shell-height rule so the minifier can't
+   drop it). */
+@supports (height: 100lvh) {
+  .app-shell-height { height: 100lvh; }
 }
 
 
