@@ -63,28 +63,12 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const setActiveMutation = trpc.profiles.setActive.useMutation();
 
   async function invalidateAll() {
-    await Promise.all([
-      utils.profiles.list.invalidate(),
-      utils.profiles.getActive.invalidate(),
-      utils.profiles.getSubject.invalidate(),
-      utils.panchang.today.invalidate(),
-      utils.panchang.byDate.invalidate(),
-      utils.panchang.byMonth.invalidate(),
-      utils.panchang.timeLordInfluence.invalidate(),
-      utils.dasha.timeline.invalidate(),
-      utils.profection.current.invalidate(),
-      utils.profection.timeLordTransits.invalidate(),
-      utils.timeLordTransit.forDate.invalidate(),
-      utils.timeLordTransit.forDateRange.invalidate(),
-      utils.diagnostics.day.invalidate(),
-      utils.diagnostics.range.invalidate(),
-      utils.tasks.list.invalidate(),
-      utils.tasks.pinnedForToday.invalidate(),
-      utils.tasks.modeCounts.invalidate(),
-      utils.tasks.rankedForToday.invalidate(),
-      utils.projects.list.invalidate(),
-      utils.projects.listAll.invalidate(),
-    ]);
+    // Almost every query derives its subject from the server-side ACTIVE profile, so its
+    // React Query key carries no profile id — switching profiles doesn't change the key and
+    // stale data (e.g. the Meridian, celestial, narrative reads) leaks across profiles. An
+    // explicit allowlist always misses one (it missed meridian.current), so on a profile
+    // switch we invalidate the ENTIRE cache — the only leak-proof option.
+    await utils.invalidate();
   }
 
   async function handleSwitchProfile(profileId: number, name: string) {
