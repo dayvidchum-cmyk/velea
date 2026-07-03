@@ -539,7 +539,11 @@
    standalone; in Safari the browser's URL bar legitimately owns that space. */
 @media (display-mode: standalone) {
   .nav-safe-area {
+    /* Drop the bar so its BACKGROUND reaches the physical bottom (covers the gap)... */
     bottom: calc(100dvh - 100lvh);
+    /* ...but add the same gap back as bottom padding so the icons + LABELS ride back UP to
+       their original comfortable spot instead of getting shoved into the home indicator. */
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + (100lvh - 100dvh));
   }
 }
 
