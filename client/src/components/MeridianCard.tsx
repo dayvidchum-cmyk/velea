@@ -33,6 +33,22 @@ type Chapter = {
   shadowClearedISO?: string;
 };
 
+/** The "so what" per planet × pole — turns axis data into a one-line orientation.
+    MC = the outer/public voice (vocation, calling); IC = the inner/private ground (roots, home). */
+const AXIS_READING: Record<string, { MC: string; IC: string }> = {
+  Sun:     { MC: "Be seen — step into the visible work.",            IC: "Turn inward — tend your private ground." },
+  Mercury: { MC: "Put it in words — pitch, write, speak.",           IC: "Think it through in private before you voice it." },
+  Venus:   { MC: "Reputation and relationships favor you now.",      IC: "Soften and beautify home and roots." },
+  Mars:    { MC: "Act on the calling — push, don't just plan.",      IC: "Channel the friction into clearing your foundation." },
+  Jupiter: { MC: "Say yes to the bigger stage.",                     IC: "Grow your base — invest in home and roots." },
+  Saturn:  { MC: "Commit and prove it — no shortcuts.",              IC: "Do the slow, patient work on your foundation." },
+  Rahu:    { MC: "Ambition spikes — aim high, stay honest.",         IC: "Restlessness at the root — don't uproot rashly." },
+  Ketu:    { MC: "The drive for visibility thins — release, don't force.", IC: "A quiet clearing at the root — let go." },
+};
+function readAxis(h: AxisHit): string {
+  return AXIS_READING[h.planet]?.[h.pole] ?? "";
+}
+
 /** One live axis occupant → a plain sentence (courier house + dignity + motion). */
 function occLine(h: AxisHit): string {
   const dgn = h.dignity && h.dignity !== "neutral" ? `, ${h.dignity}` : "";
@@ -105,9 +121,16 @@ export default function MeridianCard() {
         <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", margin: "0.15rem 0 0", lineHeight: 1.45 }}>Clear right now — no planet on this pole.</p>
       ) : (
         list.map((h, i) => (
-          <p key={i} style={{ fontSize: "0.88rem", color: "var(--foreground)", margin: "0.15rem 0 0", lineHeight: 1.5 }}>
-            <strong style={{ color: accent }}>{h.planet}</strong> — {occLine(h)}.
-          </p>
+          <div key={i} style={{ margin: "0.25rem 0 0" }}>
+            <p style={{ fontSize: "0.88rem", color: "var(--foreground)", margin: 0, lineHeight: 1.5 }}>
+              <strong style={{ color: accent }}>{h.planet}</strong> — {occLine(h)}.
+            </p>
+            {readAxis(h) && (
+              <p style={{ fontSize: "0.86rem", fontStyle: "italic", color: accent, margin: "0.12rem 0 0", lineHeight: 1.45 }}>
+                → {readAxis(h)}
+              </p>
+            )}
+          </div>
         ))
       )}
     </div>
