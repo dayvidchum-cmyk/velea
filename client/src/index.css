@@ -46,6 +46,13 @@
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Celestial signal — the image fades up like an incoming transmission from the sky. */
+@keyframes velea-signal-in {
+  0% { opacity: 0; transform: scale(1.06); filter: brightness(1.5) blur(6px); }
+  60% { opacity: 1; filter: brightness(1.1) blur(0); }
+  100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    VELEA — LUXURY TERMINAL AESTHETIC
    Dark mode only. Pure black. High contrast. Calm. Information-dense.

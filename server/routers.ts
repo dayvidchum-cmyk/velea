@@ -1238,6 +1238,44 @@ export const appRouter = router({
       }),
   }),
 
+  // ── CELESTIAL (tonight's moon phase / eclipse → shell-ocean artwork) — GATED ──
+  celestial: router({
+    today: protectedProcedure.query(async ({ ctx }) => {
+      const CELESTIAL_USER_IDS = [1, 2]; // private (David = user 2)
+      if (!CELESTIAL_USER_IDS.includes(ctx.user.id)) return null;
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const { calculateBirthChart } = await import("./birthchart/calculator.js");
+      const t: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
+      const elong = ((t.moon.longitude - t.sun.longitude) % 360 + 360) % 360;
+      const PHASES = [
+        { name: "New Moon", image: "new-moon.jpg" },
+        { name: "Waxing Crescent", image: "waxing-crescent.jpg" },
+        { name: "First Quarter", image: "first-quarter.jpg" },
+        { name: "Waxing Gibbous", image: "waxing-gibbous.jpg" },
+        { name: "Full Moon", image: "full-moon.jpg" },
+        { name: "Waning Gibbous", image: "waning-gibbous.jpg" },
+        { name: "Last Quarter", image: "last-quarter.jpg" },
+        { name: "Waning Crescent", image: "waning-crescent.jpg" },
+      ];
+      const phase = PHASES[Math.round(elong / 45) % 8];
+
+      // An eclipse today overrides the phase artwork.
+      try {
+        if (ctx.subject) {
+          const { getCurrentSky } = await import("./sky/current-sky.js");
+          const sky = await getCurrentSky(ctx.subject);
+          const ecl = (sky.eclipses ?? []).find((e) => e.daysAway === 0);
+          if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true };
+          if (ecl?.type === "solar") return { name: "Solar Eclipse", image: "solar-eclipse.jpg", isEvent: true };
+        }
+      } catch { /* no eclipse data → fall through to phase */ }
+
+      const isEvent = phase.name === "Full Moon" || phase.name === "New Moon";
+      return { name: phase.name, image: phase.image, isEvent };
+    }),
+  }),
+
   // ── CURRENT SKY (all planets now: positions, retro, stations, eclipses) ──
   sky: router({
     /** Live sky for the active profile: every planet's position/motion, the houses

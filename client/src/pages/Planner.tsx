@@ -27,6 +27,7 @@ import GlossaryText from "@/components/GlossaryText";
 import { GlossaryLink } from "@/components/GlossaryPopover";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import MasterModeCard from "@/components/MasterModeCard";
+import CelestialCard from "@/components/CelestialCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -565,6 +566,7 @@ export default function Planner() {
       />
 
       {isAuthenticated && <AddToHomeScreenNote />}
+      {isAuthenticated && <CelestialCard />}
       {isAuthenticated && <MasterModeCard />}
 
       {/* ── WHAT ARE DAY MODES? (ExplainerPanel style) — above the hero ── */}
