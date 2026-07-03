@@ -198,8 +198,8 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
       } as React.CSSProperties}
     >
       {/* Main row */}
-      <div 
-        className="flex items-center gap-3 p-3"
+      <div
+        className="flex items-center gap-2 p-3"
       >
         {/* Completion circle */}
         <button
@@ -228,7 +228,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           >
             {task.title}
           </span>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+          <div className="flex items-center gap-2 mt-0.5 flex-nowrap overflow-x-auto no-scrollbar">
             {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
             {/* Want / Need — tap to toggle */}
             <button
