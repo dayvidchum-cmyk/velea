@@ -524,9 +524,10 @@
     z-index: 50;
     flex-shrink: 0;
     background: var(--background) !important;
-    /* Sit the content as low as iOS allows — env() is exactly the home-indicator clearance,
-       nothing extra, so the labels land at the very bottom, not floating above a strip. */
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* The home indicator lives in the unreachable 62px strip below the web view, so the nav
+       content (which maxes out at the web-view bottom) is always above it — no env padding
+       needed. Zero padding keeps the labels as low as possible, minimizing the footer height. */
+    padding-bottom: 0;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }

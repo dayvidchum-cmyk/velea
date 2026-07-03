@@ -31,10 +31,21 @@ export function useDarkChromeWhile(active: boolean, color = "#05060a") {
   useEffect(() => {
     if (!active) return;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (!meta) return;
-    const prev = meta.getAttribute("content");
-    meta.setAttribute("content", color);
-    return () => { if (prev != null) meta.setAttribute("content", prev); };
+    const html = document.documentElement;
+    const body = document.body;
+    const prevMeta = meta?.getAttribute("content") ?? null;
+    meta?.setAttribute("content", color);
+    // The 62px strip below the fixed web view can't be covered by the overlay itself —
+    // only the root canvas (html/body background) reaches it. Paint it to match the dark
+    // overlay so it stops flashing the light page canvas. setProperty(...,"important")
+    // is required to beat the `!important` html background in the stylesheet.
+    html.style.setProperty("background-color", color, "important");
+    body.style.setProperty("background-color", color, "important");
+    return () => {
+      if (meta && prevMeta != null) meta.setAttribute("content", prevMeta);
+      html.style.removeProperty("background-color");
+      body.style.removeProperty("background-color");
+    };
   }, [active, color]);
 }
 
