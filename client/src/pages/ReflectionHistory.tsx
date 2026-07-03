@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BookOpen, ChevronDown } from "lucide-react";
 import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
+import GlossaryText from "@/components/GlossaryText";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
@@ -80,7 +81,7 @@ export default function ReflectionHistory() {
                   </button>
                   {open && (
                     <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap p-4">
-                      {r.content}
+                      <GlossaryText>{r.content}</GlossaryText>
                     </p>
                   )}
                 </div>

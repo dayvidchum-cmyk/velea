@@ -2,6 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import AppHeader from "@/components/AppHeader";
+import GlossaryText from "@/components/GlossaryText";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 
 // ── CONSTANTS ─────────────────────────────────────────────────
@@ -158,8 +159,9 @@ export default function DashaTimeline() {
 
       {/* Context note */}
       <p className="text-xs leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
-        The primary timing system in Jyotish. The 120-year cycle begins from the Moon's nakshatra at birth
-        ({data.moonNakshatra} — {data.startingDashaLord} Mahadasha). Each Mahadasha is subdivided into 9 Antardashas.
+        <GlossaryText>The primary timing system in Jyotish. The 120-year cycle begins from the Moon's nakshatra at birth (</GlossaryText>
+        {data.moonNakshatra} — {data.startingDashaLord}
+        <GlossaryText> Mahadasha). Each Mahadasha is subdivided into 9 Antardashas.</GlossaryText>
       </p>
 
       {/* Active period banner — tapping expands that mahadasha */}
@@ -190,7 +192,7 @@ export default function DashaTimeline() {
           </div>
           <div className="p-4">
           <p className="text-base" style={{ color: "var(--color-foreground)" }}>
-            {currentPeriod.mahadasha} / {currentPeriod.antardasha}
+            <GlossaryText>{currentPeriod.mahadasha}</GlossaryText> / <GlossaryText>{currentPeriod.antardasha}</GlossaryText>
           </p>
           <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
             Started {formatDate(currentPeriod.startDate)} · Duration {currentPeriod.duration}
