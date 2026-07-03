@@ -124,10 +124,18 @@ export const appRouter = router({
           email: z.string().email().max(320),
           password: z.string().min(8, "Password must be at least 8 characters").max(128),
           name: z.string().trim().min(1).max(120).optional(),
+          inviteCode: z.string().min(1).max(120),
         })
       )
       .mutation(async ({ ctx, input }) => {
         rateLimit(ctx.req, "register", { max: 5, windowMs: 15 * 60 * 1000 });
+
+        // Private beta: registration is invite-only. Set SIGNUP_INVITE_CODE in the env to
+        // rotate; the default below is the shareable code baked in until then.
+        const VALID_INVITE = process.env.SIGNUP_INVITE_CODE || "velea-sky-7f3a91";
+        if (input.inviteCode.trim() !== VALID_INVITE) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "That invite code isn't valid. Ask for a current invite link." });
+        }
 
         const email = input.email.trim().toLowerCase();
         const existing = await getUserByEmail(email);

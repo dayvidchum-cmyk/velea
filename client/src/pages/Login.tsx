@@ -10,7 +10,11 @@ type Mode = "signin" | "signup";
 
 export default function Login() {
   const [, setLocation] = useLocation();
-  const [mode, setMode] = useState<Mode>("signin");
+  // Invite-only signup: the signup form is only offered when arriving via an invite link
+  // (…/login?code=XXXX). A plain visit is sign-in only — registration is never public.
+  const inviteCode = (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("code") : null) ?? "";
+  const canSignup = inviteCode.trim().length > 0;
+  const [mode, setMode] = useState<Mode>(canSignup ? "signup" : "signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +36,7 @@ export default function Login() {
     setIsLoading(true);
     try {
       if (isSignup) {
-        await registerMutation.mutateAsync({ email, password, name: name.trim() || undefined });
+        await registerMutation.mutateAsync({ email, password, name: name.trim() || undefined, inviteCode: inviteCode.trim() });
       } else {
         await loginMutation.mutateAsync({ email, password });
       }
@@ -211,7 +215,17 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Signup disabled for now — invite-only. Accounts are provisioned directly. */}
+        {/* Signup is invite-only: the toggle appears solely when arriving via an invite link
+            (…/login?code=XXXX). A plain visit stays sign-in only. */}
+        {canSignup && (
+          <button
+            type="button"
+            onClick={toggleMode}
+            style={{ marginTop: "1rem", background: "none", border: "none", color: inkSoft, fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", width: "100%", textAlign: "center" }}
+          >
+            {isSignup ? "Already have an account? Sign in" : "Have an invite? Create your account"}
+          </button>
+        )}
       </div>
     </div>
   );
