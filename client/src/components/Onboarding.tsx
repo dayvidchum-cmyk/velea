@@ -121,9 +121,15 @@ const TOUR: TourStep[] = [
   },
   {
     route: "/",
-    selector: '[data-tour="current-state"]',
+    selector: '[data-tour="current-location"]',
     title: "Set your current location",
-    body: "Tap here to set where you are RIGHT NOW — your current location, which is separate from where you were born and is what makes today's timing accurate. Tell Velea how you're feeling too, and the moment you save, your tasks re-rank to fit your real state.",
+    body: "This is where you are RIGHT NOW — separate from where you were born, and it's what makes today's timing and transits accurate. Tap it whenever you travel; if it's wrong, the whole day's read is off.",
+  },
+  {
+    route: "/",
+    selector: '[data-tour="current-state"]',
+    title: "Check in — how are you today?",
+    body: "Tell Velea your real state — energy, clarity, mood. The moment you save, your tasks re-rank to fit how you actually are right now, not just what the sky says.",
   },
   {
     route: "/astrology",

@@ -259,6 +259,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             <ChevronDown size={10} />
           </button>
             <button
+              data-tour="current-location"
               onClick={() => setLocationSheetOpen(true)}
               className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
               style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
