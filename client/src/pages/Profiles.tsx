@@ -697,11 +697,10 @@ export default function Profiles() {
   async function handleSetActive(profileId: number, name: string) {
     try {
       await setActiveMutation.mutateAsync({ id: profileId });
-      await utils.profiles.list.invalidate();
-      await utils.profiles.getActive.invalidate();
-      await utils.dasha.timeline.invalidate();
-      await utils.profection.current.invalidate();
-      await utils.panchang.today.invalidate();
+      // Switching the active profile changes the ENTIRE subject — refresh every query
+      // (Meridian MC+IC, Master Mode, Celestial, panchang, dasha, tasks…) so nothing
+      // keeps showing the previous profile's chart.
+      await utils.invalidate();
       toast.success(`Switched to ${name}`);
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to switch profile");

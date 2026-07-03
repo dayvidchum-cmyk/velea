@@ -1241,9 +1241,8 @@ export const appRouter = router({
   // ── CELESTIAL (tonight's moon phase / eclipse → shell-ocean artwork) — GATED ──
   celestial: router({
     today: protectedProcedure.query(async ({ ctx }) => {
-      const CELESTIAL_USER_IDS = [1, 2]; // private (David = user 2)
-      if (!CELESTIAL_USER_IDS.includes(ctx.user.id)) return null;
-
+      // Public: everyone sees tonight's real moon phase / eclipse artwork. (Master Mode
+      // stays gated; this is just the shared sky.)
       const dateStr = new Date().toISOString().slice(0, 10);
       const { calculateBirthChart } = await import("./birthchart/calculator.js");
       const t: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");

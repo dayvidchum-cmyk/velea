@@ -91,7 +91,7 @@ export function GlossaryLink({
   const emphasis: React.CSSProperties = underline
     ? {
         fontWeight: 600,
-        borderBottom: "1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)",
+        borderBottom: "1.5px solid var(--brand-gold)",
         color: active || open ? "var(--brand-gold)" : undefined,
       }
     : {

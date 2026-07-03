@@ -810,7 +810,7 @@ export default function Planner() {
               )}
               <div className="flex items-center gap-1.5">
                 <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>◑</span>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={selectedPanchang.tithi ?? ''}>{selectedPanchang.tithi}</GlossaryLink></span>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={(selectedPanchang.tithi ?? '').replace(/^(shukla|krishna)\s+/i, '')}>{selectedPanchang.tithi}</GlossaryLink></span>
               </div>
             </div>
 
