@@ -119,9 +119,10 @@ interface ProfileFormProps {
   onCancel: () => void;
   saving: boolean;
   isNew?: boolean;
+  showMakeActive?: boolean; // only meaningful when another profile exists to switch away from
 }
 
-function ProfileForm({ initial, onSave, onCancel, saving, isNew }: ProfileFormProps) {
+function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMakeActive }: ProfileFormProps) {
   const [form, setForm] = useState<ProfileFormData>({ ...EMPTY_FORM, ...initial });
   const [makeActive, setMakeActive] = useState(isNew ?? false);
   const [geocoding, setGeocoding] = useState(false);
@@ -273,20 +274,23 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew }: ProfileFormPr
         />
       </div>
 
-      {/* Make active toggle */}
-      <label className="flex items-center gap-2.5 cursor-pointer select-none">
-        <div
-          onClick={() => setMakeActive((v) => !v)}
-          className="w-9 h-5 rounded-full transition-colors duration-200 flex items-center px-0.5"
-          style={{ background: makeActive ? "var(--color-primary)" : "var(--color-border)" }}
-        >
+      {/* Make active toggle — only shown when there's another profile to switch away from.
+          With a single profile it's the active one by definition, so the toggle is noise. */}
+      {showMakeActive && (
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
           <div
-            className="w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
-            style={{ transform: makeActive ? "translateX(16px)" : "translateX(0)" }}
-          />
-        </div>
-        <span className="text-sm">Set as active profile after saving</span>
-      </label>
+            onClick={() => setMakeActive((v) => !v)}
+            className="w-9 h-5 rounded-full transition-colors duration-200 flex items-center px-0.5"
+            style={{ background: makeActive ? "var(--color-primary)" : "var(--color-border)" }}
+          >
+            <div
+              className="w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
+              style={{ transform: makeActive ? "translateX(16px)" : "translateX(0)" }}
+            />
+          </div>
+          <span className="text-sm">Set as active profile after saving</span>
+        </label>
+      )}
 
       {/* Actions */}
       <div className="flex gap-2 pt-1">
@@ -756,6 +760,7 @@ export default function Profiles() {
         {mode === "create" && (
           <ProfileForm
             isNew
+            showMakeActive={profileList.length >= 1}
             onSave={handleCreate}
             onCancel={() => setMode("list")}
             saving={saving}
@@ -775,6 +780,7 @@ export default function Profiles() {
               birthTimezone: editingProfile.birthTimezone ?? "",
               notes: editingProfile.notes ?? "",
             }}
+            showMakeActive={profileList.length > 1}
             onSave={handleEdit}
             onCancel={() => { setMode("list"); setEditingProfile(null); }}
             saving={saving}
