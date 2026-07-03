@@ -773,6 +773,7 @@ export default function Profiles() {
               birthLocationCity: editingProfile.birthLocationCity ?? "",
               birthLocationLat: editingProfile.birthLocationLat ?? "",
               birthLocationLon: editingProfile.birthLocationLon ?? "",
+              birthTimezone: editingProfile.birthTimezone ?? "",
               notes: editingProfile.notes ?? "",
             }}
             onSave={handleEdit}
