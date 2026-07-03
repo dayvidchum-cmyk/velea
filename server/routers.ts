@@ -1206,6 +1206,38 @@ export const appRouter = router({
     }),
   }),
 
+  // ── MASTER MODE (Pancha Pakshi hourly timing) — GATED to an allowlist (private) ──
+  masterMode: router({
+    today: protectedProcedure
+      .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        // Private feature flag: only these users see Master Mode (David = user 2).
+        const MASTER_MODE_USER_IDS = [1, 2];
+        if (!MASTER_MODE_USER_IDS.includes(ctx.user.id)) return null;
+
+        const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+        const profile = await getActiveProfile(ctx.user.id);
+        if (!profile) return null;
+        const bodies = await getProfileNatalBodies(profile.id);
+        let moonNak: string | null = null, sunLon: number | null = null, moonLon: number | null = null;
+        for (const b of bodies) {
+          if (b.planet === "Moon") { moonNak = b.nakshatra ?? null; moonLon = (b as any).longitude != null ? parseFloat((b as any).longitude) : null; }
+          if (b.planet === "Sun") sunLon = (b as any).longitude != null ? parseFloat((b as any).longitude) : null;
+        }
+        if (!moonNak || sunLon == null || moonLon == null) return null;
+
+        const { pakshaFromSunMoon } = await import("./panchapakshi/tables.js");
+        const birthPaksha = pakshaFromSunMoon(sunLon, moonLon);
+        const [y, m, d] = input.date.split("-").map(Number);
+        const { computeMasterMode } = await import("./panchapakshi/compute.js");
+        return computeMasterMode({
+          birthNakshatra: moonNak, birthPaksha,
+          lat: input.lat ?? 42.3601, lon: input.lon ?? -71.0589,
+          year: y, month: m, day: d,
+        });
+      }),
+  }),
+
   // ── CURRENT SKY (all planets now: positions, retro, stations, eclipses) ──
   sky: router({
     /** Live sky for the active profile: every planet's position/motion, the houses
