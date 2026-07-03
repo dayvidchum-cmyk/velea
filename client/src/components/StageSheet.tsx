@@ -5,6 +5,10 @@ import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { GlossaryLink } from "@/components/GlossaryPopover";
 
 const RX_ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const RX_PLANET_COLOR: Record<string, string> = {
+  Sun: "#E0912F", Moon: "#9AA7C7", Mars: "#D0553E", Mercury: "#3E9E6E",
+  Jupiter: "#D9A441", Venus: "#D97FA8", Saturn: "#5E7CB0", Rahu: "#8C7AAE", Ketu: "#B0784E",
+};
 const RX_HOUSE_THEME: Record<number, string> = {
   1: "self & body", 2: "voice & values", 3: "skill & courage", 4: "home & roots",
   5: "creativity & heart", 6: "work & service", 7: "partnership", 8: "depth & shared",
@@ -80,16 +84,19 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                 {stage.retrogrades.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", alignItems: "center", marginTop: "0.7rem" }}>
                     <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>Retrograde:</span>
-                    {(stage.retrogradesDetail ?? stage.retrogrades.map((p) => ({ planet: p, house: null as number | null, sign: null }))).map((r) => (
+                    {(stage.retrogradesDetail ?? stage.retrogrades.map((p) => ({ planet: p, house: null as number | null, sign: null }))).map((r) => {
+                      const pc = RX_PLANET_COLOR[r.planet] ?? "var(--foreground)";
+                      return (
                       <GlossaryLink
                         key={r.planet}
                         term="Retrograde (Vakri)"
                         underline={false}
                         className="text-xs font-semibold"
-                        style={{ display: "inline-block", color: "var(--foreground)", background: "var(--color-secondary)", borderRadius: 999, padding: "0.15rem 0.55rem" }}
+                        style={{ display: "inline-block", color: pc, background: `color-mix(in srgb, ${pc} 14%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${pc} 42%, transparent)`, borderRadius: 999, padding: "0.15rem 0.55rem" }}
                         extra={r.house ? <>Right now: <strong>{r.planet}</strong> is retrograde in your <strong>{RX_ORD[r.house]} house</strong>{RX_HOUSE_THEME[r.house] ? ` — ${RX_HOUSE_THEME[r.house]}` : ""}. The review lands here.</> : undefined}
                       >{r.planet} ℞</GlossaryLink>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

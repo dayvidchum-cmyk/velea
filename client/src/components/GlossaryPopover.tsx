@@ -73,6 +73,7 @@ export function GlossaryLink({
 }) {
   const entry = findGlossaryTerm(term);
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(false); // hover or press
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -84,12 +85,31 @@ export function GlossaryLink({
     if (r) { setAnchor(r); setOpen(true); }
   };
 
+  // Prose terms (underline=true): bold, soft gold underline, fully golden on hover/press.
+  // Styled chips (underline=false): a gentle brightness + press-in, so the chip's own
+  // color leads. Either way there's a clear "this is tappable" signal.
+  const emphasis: React.CSSProperties = underline
+    ? {
+        fontWeight: 600,
+        borderBottom: "1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)",
+        color: active || open ? "var(--brand-gold)" : undefined,
+      }
+    : {
+        filter: active || open ? "brightness(1.15)" : undefined,
+        transform: active ? "scale(0.96)" : undefined,
+      };
+
   return (
     <span
       ref={ref}
       className={className}
       onClick={(e) => { e.stopPropagation(); e.preventDefault(); toggle(); }}
-      style={{ cursor: "help", ...(underline ? { borderBottom: "1px dotted var(--brand-gold)" } : {}), ...style }}
+      onMouseEnter={() => setActive(true)}
+      onMouseLeave={() => setActive(false)}
+      onPointerDown={() => setActive(true)}
+      onPointerUp={() => setActive(false)}
+      onPointerCancel={() => setActive(false)}
+      style={{ cursor: "pointer", transition: "color 0.15s, filter 0.15s, transform 0.1s", ...emphasis, ...style }}
     >
       {children}
       {open && anchor && <PopoverCard entry={entry} anchor={anchor} onClose={() => setOpen(false)} extra={extra} />}

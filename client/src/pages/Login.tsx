@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -201,9 +202,12 @@ export default function Login() {
               marginTop: "0.5rem",
             }}
           >
-            {isLoading
-              ? (isSignup ? "Creating…" : "Signing in…")
-              : (isSignup ? "Create Account" : "Sign In")}
+            {isLoading ? (
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.55rem" }}>
+                <Loader2 size={15} className="animate-spin" />
+                {isSignup ? "Creating…" : "Signing in…"}
+              </span>
+            ) : (isSignup ? "Create Account" : "Sign In")}
           </button>
         </form>
 

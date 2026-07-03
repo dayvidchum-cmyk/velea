@@ -1,12 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
-import { Archive, ArchiveRestore, Trash2, Pencil, Check, X, FolderOpen, ChevronRight } from "lucide-react";
+import { Archive, ArchiveRestore, Trash2, Pencil, Check, X, FolderOpen, ChevronRight, ChevronDown } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor, useDayModeGradient } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { LIFE_AREAS } from "@shared/life-areas";
+import { MODE_SOLID } from "@shared/types";
 
 
 type Project = {
@@ -327,6 +328,28 @@ export default function Projects() {
   const activeProjects = allProjects.filter((p) => !p.archivedAt);
   const archivedProjects = allProjects.filter((p) => p.archivedAt);
 
+  // Each project's dominant task mode → its accent color, so a Build-heavy project reads
+  // gold on a Build day: a glance at which projects align with today's grain.
+  const { data: allTasks = [] } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
+  const projectMode = useMemo(() => {
+    const counts: Record<number, Record<string, number>> = {};
+    for (const t of allTasks as any[]) {
+      if (t.projectId == null || t.isCompleted) continue;
+      const c = (counts[t.projectId] ??= {});
+      c[t.mode] = (c[t.mode] ?? 0) + 1;
+    }
+    const out: Record<number, string> = {};
+    for (const pid of Object.keys(counts)) {
+      const top = Object.entries(counts[Number(pid)]).sort((a, b) => b[1] - a[1])[0];
+      if (top) out[Number(pid)] = top[0];
+    }
+    return out;
+  }, [allTasks]);
+
+  const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
+  const toggleExpanded = (id: number) =>
+    setExpandedProjects((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
   const createMutation = trpc.projects.create.useMutation({
     onSuccess: () => {
       utils.projects.list.invalidate();
@@ -471,7 +494,10 @@ export default function Projects() {
             </div>
           ) : (
             <div className="divide-y" style={{ borderColor: "var(--border)" }}>
-              {activeProjects.map((project) => (
+              {activeProjects.map((project) => {
+                const projColor = projectMode[project.id] ? MODE_SOLID[projectMode[project.id] as keyof typeof MODE_SOLID] : dayLabelColor;
+                const isExpanded = expandedProjects.has(project.id);
+                return (
                 <div
                   key={project.id}
                   className="group px-4 py-3.5 transition-colors"
@@ -481,15 +507,15 @@ export default function Projects() {
                     className="flex items-center gap-3 cursor-pointer"
                     onClick={() => navigate(`/projects/${project.id}`)}
                   >
-                    {/* Mode-colored folder chip */}
+                    {/* Folder chip — colored by the project's dominant task mode */}
                     <div
                       className="flex-shrink-0 flex items-center justify-center rounded-xl"
                       style={{
                         width: "2.25rem",
                         height: "2.25rem",
-                        background: `color-mix(in srgb, ${dayLabelColor} 20%, var(--color-card))`,
-                        color: dayLabelColor,
-                        border: `1px solid color-mix(in srgb, ${dayLabelColor} 35%, transparent)`,
+                        background: `color-mix(in srgb, ${projColor} 20%, var(--color-card))`,
+                        color: projColor,
+                        border: `1px solid color-mix(in srgb, ${projColor} 35%, transparent)`,
                       }}
                     >
                       <FolderOpen size={16} />
@@ -515,13 +541,24 @@ export default function Projects() {
                         <Trash2 size={14} />
                       </button>
                     </div>
-                    <ChevronRight size={16} className="flex-shrink-0" style={{ color: "var(--color-muted-foreground)", opacity: 0.5 }} />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleExpanded(project.id); }}
+                      className="flex-shrink-0 p-1 rounded-lg transition-transform"
+                      style={{ color: "var(--color-muted-foreground)" }}
+                      aria-label={isExpanded ? "Collapse project" : "Expand project"}
+                      title={isExpanded ? "Collapse" : "Expand"}
+                    >
+                      {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} style={{ opacity: 0.55 }} />}
+                    </button>
                   </div>
-                  <div className="pl-[3rem]">
-                    <LifeAreasPicker project={project} dayLabelColor={dayLabelColor} />
-                  </div>
+                  {isExpanded && (
+                    <div className="pl-[3rem]">
+                      <LifeAreasPicker project={project} dayLabelColor={projColor} />
+                    </div>
+                  )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

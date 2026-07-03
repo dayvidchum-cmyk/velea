@@ -638,32 +638,33 @@ export default function ProfectionYear() {
                             cursor: "pointer", overflow: "hidden", boxShadow: selected ? "inset 0 0 0 2px #fff" : "none",
                           }}
                         >
-                          {/* Today marker — lives INSIDE the current segment, positioned at
-                              the fraction of time elapsed within it, so it's always on the
-                              correct band and moves with time (no drift from flex/gaps). */}
-                          {isCurrent && (() => {
-                            const s = ms(t.startDate), e = ms(t.endDate);
-                            const frac = Math.max(0, Math.min(1, (Date.now() - s) / Math.max(e - s, 1)));
-                            // The Velea mark IS today — a clear, tappable marker at today's
-                            // spot in the current band (no cross-segment drift).
-                            return (
-                              <div style={{ position: "absolute", bottom: 3, left: `${frac * 100}%`, transform: "translateX(-50%)", zIndex: 3, pointerEvents: "none", lineHeight: 0 }}>
-                                <VeleaMark size={17} color="#fff" style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.8))" }} />
-                              </div>
-                            );
-                          })()}
-                          <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)", marginBottom: isCurrent ? 6 : 0 }}>{SIGN_GLYPH[t.sign]}</span>
+                          <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>{SIGN_GLYPH[t.sign]}</span>
                           {t.isRetrograde && <span style={{ fontSize: "0.75rem", color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Axis labels */}
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.4rem" }}>
-                    <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
-                    <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
-                  </div>
+                  {/* Axis labels + the gold Velea mark (= today) on the same line, below the strip */}
+                  {(() => {
+                    const total = segs.reduce((sum, s) => sum + Math.max(ms(s.endDate) - ms(s.startDate), 1), 0);
+                    let elapsed = 0;
+                    for (const s of segs) {
+                      const d = Math.max(ms(s.endDate) - ms(s.startDate), 1);
+                      if (s.startDate <= todayStr && todayStr <= s.endDate) { elapsed += Math.max(0, Date.now() - ms(s.startDate)); break; }
+                      elapsed += d;
+                    }
+                    const todayFrac = Math.max(0, Math.min(1, elapsed / Math.max(total, 1)));
+                    return (
+                      <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.45rem", minHeight: 20 }}>
+                        <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
+                        <div style={{ position: "absolute", left: `${todayFrac * 100}%`, transform: "translateX(-50%)", lineHeight: 0, pointerEvents: "none" }} title="Today">
+                          <VeleaMark size={18} color="var(--brand-gold)" />
+                        </div>
+                        <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
+                      </div>
+                    );
+                  })()}
 
                   {/* Selected segment detail */}
                   {sel && (
