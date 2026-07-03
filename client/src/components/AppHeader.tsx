@@ -251,6 +251,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           >
             {heroDateLabel}
           </span>
+          {/* Actions grouped in their own flex row so their gaps stay even regardless of
+              how wide the date renders (month/day length no longer squeezes the chips). */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* The Stage — always in the header; opens the Stage pop-up on any page. */}
           <button
             onClick={() => setStageSheetOpen(true)}
@@ -309,6 +312,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                   CURRENT STATE
                 </span>
               </button>
+          </div>
         </div>
 
         {/* Large editorial greeting — the visual anchor */}
