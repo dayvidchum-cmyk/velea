@@ -520,14 +520,16 @@
      reaches the physical screen bottom without fixed-position hacks that don't account for
      the standalone dvh↔lvh gap. padding-bottom clears the home indicator. */
   .nav-safe-area {
-    position: relative;
+    /* Normal-document-flow shell (no fixed app-shell): the nav is fixed to the true viewport
+       bottom, so it welds to the physical edge, and env(safe-area-inset-bottom) lifts the
+       labels above the home indicator. */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 50;
-    flex-shrink: 0;
     background: var(--background) !important;
-    /* The home indicator lives in the unreachable 62px strip below the web view, so the nav
-       content (which maxes out at the web-view bottom) is always above it — no env padding
-       needed. Zero padding keeps the labels as low as possible, minimizing the footer height. */
-    padding-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }

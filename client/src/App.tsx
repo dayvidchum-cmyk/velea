@@ -12,6 +12,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { SettingsProvider, useSettingsContext } from "./contexts/SettingsContext";
 import { AddTaskProvider, useAddTask } from "./contexts/AddTaskContext";
 import BottomNav from "./components/BottomNav";
+import SafeAreaDebug from "./components/SafeAreaDebug";
 import { APP_VERSION } from "./lib/version";
 import AddTaskSheet from "./components/AddTaskSheet";
 import Onboarding from "./components/Onboarding";
@@ -223,10 +224,10 @@ const { user, loading } = useAuth();
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 app-shell-height bg-background text-foreground flex flex-col star-bg">
+    <div className="min-h-[100dvh] bg-background text-foreground star-bg">
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
-      {/* Scrollable content area — single scroll container */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 content-safe-area">
+      {/* Normal document flow — the page scrolls, the nav is fixed to the viewport bottom. */}
+      <main className="overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
           <Route path="/login" component={Login} />
           <Route path="/astrology" component={Astrology} />
@@ -318,6 +319,7 @@ const { user, loading } = useAuth();
           <BottomNav />
         </div>
       )}
+      <SafeAreaDebug />
 
       {/* First-run onboarding for newcomers (intro cards + guided tour) */}
       <Onboarding
