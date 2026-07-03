@@ -429,6 +429,9 @@ export default function Projects() {
             >
               New Project
             </label>
+            <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.5, margin: "-0.45rem 0 0.85rem" }}>
+              Not just work — a project is <strong>any ongoing area of your life</strong>: your health, a relationship, a creative practice, a move, a home. Anything you want to group tasks under.
+            </p>
             <div className="flex items-center gap-2">
               <input
                 ref={newNameRef}
@@ -438,7 +441,7 @@ export default function Projects() {
                   if (e.key === "Enter") handleCreate();
                   if (e.key === "Escape") setNewName("");
                 }}
-                placeholder="Project name..."
+                placeholder="e.g. Health · My novel · Move to Austin"
                 className="flex-1 px-3 py-2.5 rounded-xl text-sm focus:outline-none placeholder:text-white/55"
                 style={{
                   background: "rgba(255,255,255,0.15)",
