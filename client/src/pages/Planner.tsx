@@ -24,6 +24,7 @@ import AppHeader from "@/components/AppHeader";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { composeNarrative } from "@/lib/narrative-data";
 import GlossaryText from "@/components/GlossaryText";
+import { GlossaryLink } from "@/components/GlossaryPopover";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -779,23 +780,23 @@ export default function Planner() {
             })()}
 
             {/* Panchang mini row */}
-            <div className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
+            <div data-tour="panchang-terms" className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
               <div className="flex items-center gap-1.5">
                 <Moon size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />
                 {selectedPanchang.nakshatraTransitionTime && selectedPanchang.nakshatraAfterTransition ? (
                   <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>
-                    {selectedPanchang.nakshatraAtSunrise}
+                    <GlossaryLink term={selectedPanchang.nakshatraAtSunrise ?? ''}>{selectedPanchang.nakshatraAtSunrise}</GlossaryLink>
                     <span style={{ color: 'rgba(255,255,255,0.5)' }}> → </span>
-                    {selectedPanchang.nakshatraAfterTransition}
+                    <GlossaryLink term={selectedPanchang.nakshatraAfterTransition ?? ''}>{selectedPanchang.nakshatraAfterTransition}</GlossaryLink>
                     <span style={{ color: 'rgba(255,255,255,0.5)' }}> {selectedPanchang.nakshatraTransitionTime}</span>
                   </span>
                 ) : (
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.nakshatra}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={selectedPanchang.nakshatra ?? ''}>{selectedPanchang.nakshatra}</GlossaryLink></span>
                 )}
               </div>
               <div className="flex items-center gap-1.5">
                 <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>☽</span>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.moonSign}</span>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={selectedPanchang.moonSign ?? ''}>{selectedPanchang.moonSign}</GlossaryLink></span>
               </div>
               {selectedPanchang.sunriseLocal && (
                 <div className="flex items-center gap-1.5">
@@ -805,7 +806,7 @@ export default function Planner() {
               )}
               <div className="flex items-center gap-1.5">
                 <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>◑</span>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.tithi}</span>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={selectedPanchang.tithi ?? ''}>{selectedPanchang.tithi}</GlossaryLink></span>
               </div>
             </div>
 

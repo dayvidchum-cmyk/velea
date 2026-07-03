@@ -172,7 +172,8 @@ const PAGE_TOURS: { route: string; key: string; steps: TourStep[] }[] = [
       { selector: '[data-tour="today-mode"]', title: "Your day's mode", body: "Velea reads today's sky — moon sign, nakshatra, tithi, and your ruling time lord — and distills it into one mode for the day. This card is that signal; tap it to follow the reasoning." },
       { selector: '[data-tour="mode-orbs"]', title: "Four day-modes", body: "Action, Build, Selective, Restraint. Tap an orb to add a task in that mode — tasks rise on the days that match." },
       { selector: '[data-tour="current-state"]', title: "Tune your day", body: "Tell Velea where you are and how you're feeling. It folds that in so the guidance fits your real day." },
-      { selector: '[data-tour="add-fab"]', title: "Add anything", body: "Tap + to add a task — a mode, a life area, a due date. It surfaces on the right day." },
+      { selector: '[data-tour="panchang-terms"]', title: "Tap to learn any term", body: "See a word underlined in gold — a nakshatra, a tithi, a planet? Tap it for a plain-language definition. The whole app is glossary-linked, so you never have to leave to look something up." },
+      { selector: '[data-tour="add-fab"]', title: "Add anything — and use the tool", body: "Tap + to add a task with its mode, life area, and due date. And really use it: dump your whole to-do list in, flag each one, make projects for the big things. Then, day to day, Velea decides your best next move for you. Feed it little and it stays just a pretty astrology reading — the magic is in actually using it." },
     ],
   },
   {
@@ -180,7 +181,8 @@ const PAGE_TOURS: { route: string; key: string; steps: TourStep[] }[] = [
     key: "chart",
     steps: [
       { selector: '[data-tour="chart-tabs"]', title: "Three lenses on your chart", body: "Time Lord (the planet running your year), Natal (your birth chart), and Dasha (your long life chapters). Optional depth — Today is all you need day to day." },
-      { selector: '[data-tour="profection-wheel"]', title: "Your Time Lord's path", body: "Each ring is a year of your life and the sign your ascendant profects into — sign by sign, from birth to 120." },
+      { selector: '[data-tour="profection-wheel"]', title: "Your Time Lord's path", body: "Each ring is a year of your life and the sign your ascendant profects into — sign by sign, from birth to 120. The gold Velea mark below the strip is today." },
+      { selector: '[data-tour="meridian"]', title: "Your dharma axis", body: "The Meridian tracks slow planets crossing your MC/IC — the larger chapters of your public calling and private roots. When one's active it names the chapter, the antardasha carrying it, and where it's headed. Tap “What's this?” anytime." },
       { selector: '[data-tour="current-state"]', title: "Always in the header", body: "Your location and current state ride along at the top of every page, quietly tuning the guidance." },
     ],
   },
