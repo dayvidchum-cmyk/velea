@@ -17,7 +17,6 @@ const RX_HOUSE_THEME: Record<number, string> = {
   9: "belief & teachers", 10: "vocation & standing", 11: "community & gains", 12: "retreat & release",
 };
 
-// Moon-phase copy (folded in from the old Tonight's Sky card).
 const PHASE_INTENT: Record<string, string> = {
   "New Moon": "Plant intentions in the dark",
   "Waxing Crescent": "Take the first step",
@@ -43,9 +42,9 @@ const phaseLabel = (phase: string) =>
 type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string };
 
 /**
- * StageSheet — "The Stage": the whole sky for today in one place, openable from the header.
- * A swipeable hero carousel leads (the moon phase + any planet mid retrograde-cycle), then
- * today's verdict, the slow-planet weather, and retrogrades.
+ * StageSheet — "The Stage": the whole sky for today. An image-forward hero (the full moon-phase
+ * art, swipeable across any planet mid retrograde-cycle) with the reading overlaid ON the art,
+ * then today's verdict, slow-planet weather, and retrogrades below.
  */
 export default function StageSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const accent = useDayModeColor();
@@ -63,7 +62,6 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
   const moonWhere = d ? `Moon in ${d.moonSign}${house ? ` · your ${ORD[house]} house` : ""}` : "";
   const cycle = d ? (d.isEclipse ? "Eclipse today" : d.daysToNew <= d.daysToFull ? `${d.daysToNew}d to New Moon` : `${d.daysToFull}d to Full Moon`) : "";
 
-  // The hero carousel: the moon leads, then any planet mid retrograde-cycle (co-equal).
   const heroes: Hero[] = [];
   if (d) {
     heroes.push({ image: d.image, kicker: `The Stage · ${moonWhere}`, title: d.name, chips: [cycle], note: moonNote });
@@ -81,43 +79,42 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
     <>
       <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: "var(--dialog-overlay)" }} onClick={onClose}>
         <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col"
-          style={{ maxHeight: "min(85vh, 680px)", background: "var(--color-card)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1px solid var(--color-border)" }}>
-          <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, zIndex: 2, width: 32, height: 32, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.42)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-            <X size={17} />
-          </button>
-
+          style={{ maxHeight: "min(92vh, 820px)", background: "var(--color-card)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1px solid var(--color-border)" }}>
           <div className="overflow-y-auto">
-            {/* Hero carousel — swipe between the moon and any planet mid retrograde-cycle. Tap to expand. */}
+            {/* Image-forward hero — the full art leads (moon visible). Swipe across stations; tap to go full-screen. */}
             {heroes.length > 0 && (
               <>
-                <div className="no-scrollbar" onScroll={(e) => setActiveIdx(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}
-                  style={{ display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+                <div className="no-scrollbar" style={{ position: "relative", display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}
+                  onScroll={(e) => setActiveIdx(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
                   {heroes.map((h, i) => (
                     <button key={i} onClick={() => setSkyIdx(i)}
-                      style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", height: 200, border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left" }}>
-                      <img src={`/celestial/${h.image}`} alt={h.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,6,10,0.92) 4%, rgba(5,6,10,0.35) 45%, rgba(5,6,10,0.15))" }} />
-                      <div style={{ position: "absolute", left: 18, right: 18, bottom: 14 }}>
-                        <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)" }}>{h.kicker}</p>
-                        <p style={{ margin: "0.15rem 0 0", fontSize: "1.5rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 14px rgba(0,0,0,0.6)" }}>{h.title}</p>
-                        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.4rem", alignItems: "center" }}>
-                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.16)", padding: "0.12rem 0.5rem", borderRadius: 999 }}>{c}</span>)}
+                      style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", aspectRatio: "3 / 4", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
+                      <img src={`/celestial/${h.image}`} alt={h.title}
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", animation: "velea-kenburns 17s ease-in-out infinite alternate" }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,6,10,0.95) 0%, rgba(5,6,10,0.55) 26%, rgba(5,6,10,0.05) 52%, transparent 66%)" }} />
+                      <div style={{ position: "absolute", left: 20, right: 20, bottom: 20, animation: "velea-rise 0.7s ease both" }}>
+                        <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.82)" }}>{h.kicker}</p>
+                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.65)", lineHeight: 1.05 }}>{h.title}</p>
+                        <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.45, textShadow: "0 1px 10px rgba(0,0,0,0.7)" }}>{h.note}</p>
+                        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.6rem", alignItems: "center" }}>
+                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.18)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
                           {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.72)" }}>swipe →</span>}
-                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>tap ↗</span>
+                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>tap to expand ↗</span>
                         </div>
                       </div>
                     </button>
                   ))}
+                  {/* Grab handle — the reachable dismiss affordance up top */}
+                  <div style={{ position: "absolute", top: 10, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 3 }}>
+                    <div onClick={onClose} style={{ width: 42, height: 5, borderRadius: 999, background: "rgba(255,255,255,0.55)", pointerEvents: "auto", cursor: "pointer" }} />
+                  </div>
+                  <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, zIndex: 3, width: 34, height: 34, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.42)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                    <X size={17} />
+                  </button>
                 </div>
                 {heroes.length > 1 && (
-                  <div style={{ display: "flex", justifyContent: "center", gap: 6, padding: "8px 0 2px" }}>
+                  <div style={{ display: "flex", justifyContent: "center", gap: 6, padding: "9px 0 3px" }}>
                     {heroes.map((_, i) => <span key={i} style={{ width: i === idx ? 16 : 6, height: 6, borderRadius: 999, background: i === idx ? accent : "var(--color-border)", transition: "width 0.2s" }} />)}
-                  </div>
-                )}
-                {/* The active hero's meaning for you */}
-                {heroes[idx]?.note && (
-                  <div style={{ padding: "0.6rem 1.25rem 0.85rem", borderBottom: "1px solid var(--color-border)" }}>
-                    <p className="text-sm" style={{ color: "var(--foreground)", lineHeight: 1.5, margin: 0 }}>{heroes[idx].note}</p>
                   </div>
                 )}
               </>
@@ -128,7 +125,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
             ) : (
               <>
                 {stage.verdict && (
-                  <div style={{ padding: "1rem 1.25rem", background: `color-mix(in srgb, ${accent} 8%, var(--color-card))`, borderBottom: "1px solid var(--color-border)" }}>
+                  <div style={{ padding: "1rem 1.25rem", background: `color-mix(in srgb, ${accent} 8%, var(--color-card))`, borderTop: "1px solid var(--color-border)", borderBottom: "1px solid var(--color-border)" }}>
                     <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.12em", color: "var(--color-muted-foreground)", margin: 0 }}>Today's call</p>
                     <p style={{ fontSize: "1.15rem", fontWeight: 800, color: accent, margin: "0.15rem 0 0", lineHeight: 1.2 }}>{stage.verdict.call}</p>
                     <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0.35rem 0 0" }}>{stage.verdict.summary}</p>
@@ -147,7 +144,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     )}
                   </div>
                 )}
-                <div style={{ padding: "0.9rem 1.25rem 1.25rem" }}>
+                <div style={{ padding: "0.9rem 1.25rem 0.5rem" }}>
                   <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)", margin: "0 0 0.55rem" }}>Slow-planet weather</p>
                   {stage.signals.length === 0 ? (
                     <p className="text-sm" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>Clear skies — no notable slow-planet weather right now.</p>
@@ -178,6 +175,12 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     </div>
                   )}
                 </div>
+                {/* Reachable close — the corner X is a thumb-killer on a tall sheet */}
+                <div style={{ padding: "0.4rem 1.25rem 1.15rem" }}>
+                  <button onClick={onClose} style={{ width: "100%", padding: "0.7rem", borderRadius: 12, border: "1px solid var(--color-border)", background: "var(--color-secondary)", color: "var(--foreground)", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" }}>
+                    Close
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -188,7 +191,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
       {skyIdx >= 0 && heroes[skyIdx] && (
         <div className="app-shell-height" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10000, background: "#05060a" }}>
           <img src={`/celestial/${heroes[skyIdx].image}`} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.66), transparent 42%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent 44%)" }} />
           <button onClick={() => setSkyIdx(-1)} aria-label="Close" style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 0.9rem)", right: "1rem", width: 34, height: 34, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.4)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <X size={18} />
           </button>

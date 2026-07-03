@@ -53,6 +53,12 @@
   100% { opacity: 1; transform: scale(1); filter: brightness(1); }
 }
 
+/* Slow celestial drift — a living, breathing sky behind the Stage hero (very subtle). */
+@keyframes velea-kenburns {
+  0%   { transform: scale(1.0) translateY(0); }
+  100% { transform: scale(1.06) translateY(-1.2%); }
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    VELEA — LUXURY TERMINAL AESTHETIC
    Dark mode only. Pure black. High contrast. Calm. Information-dense.
