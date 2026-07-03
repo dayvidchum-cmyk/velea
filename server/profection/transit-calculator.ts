@@ -67,6 +67,33 @@ export interface TimeLordTransit {
   condition: string;
   operationalMeaning: string;
   recommendedUse: string;
+  coPresentPlanets?: string[]; // other planets sharing the sign during this segment (its "guests")
+  solitaryStatus?: boolean;    // true when no guests
+  combustionStatus?: boolean;  // Time Lord within 8° of the Sun
+}
+
+// Planets checked for co-presence in the Time Lord's sign (its "guests" this segment).
+const CO_PRESENT_PLANETS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Rahu", "Ketu"];
+
+/** Which other planets share the Time Lord's sidereal sign at `jd` (+ combustion by the Sun). */
+function computeCoPresent(se: any, jd: number, timeLordPlanet: string) {
+  const tl = se.calc(jd, getPlanetNumber(timeLordPlanet), se.SEFLG_SIDEREAL);
+  const tlLon = ((tl.longitude % 360) + 360) % 360;
+  const tlSign = getZodiacSign(tlLon);
+  const coPresentPlanets: string[] = [];
+  let combustion = false;
+  for (const name of CO_PRESENT_PLANETS) {
+    if (name === timeLordPlanet) continue;
+    const r = se.calc(jd, getPlanetNumber(name), se.SEFLG_SIDEREAL);
+    const lon = ((r.longitude % 360) + 360) % 360;
+    if (getZodiacSign(lon) === tlSign) coPresentPlanets.push(name);
+    if (name === "Sun" && timeLordPlanet !== "Sun") {
+      let orb = Math.abs(tlLon - lon);
+      if (orb > 180) orb = 360 - orb;
+      if (orb < 8) combustion = true;
+    }
+  }
+  return { coPresentPlanets, solitaryStatus: coPresentPlanets.length === 0, combustionStatus: combustion };
 }
 
 export interface TimeLordMovementTimeline {
@@ -255,6 +282,8 @@ export async function calculateTimeLordTransits(
           startPoint.state.house,
           startPoint.state.isRetrograde
         );
+        const midJd = dateToJD(new Date((transitStartDate.getTime() + dayBeforeTransition.getTime()) / 2));
+        Object.assign(transit, computeCoPresent(se, midJd, timeLordPlanet));
         transits.push(transit);
       }
     }
@@ -263,14 +292,17 @@ export async function calculateTimeLordTransits(
     // change point through the end of the year would otherwise be dropped.
     const lastCp = changePoints[changePoints.length - 1];
     if (lastCp && new Date(lastCp.date) >= startDate) {
-      transits.push(createTransit(
+      const transit = createTransit(
         formatDate(lastCp.date),
         formatDate(endDate),
         timeLordPlanet,
         lastCp.state.sign,
         lastCp.state.house,
         lastCp.state.isRetrograde,
-      ));
+      );
+      const midJd = dateToJD(new Date((new Date(lastCp.date).getTime() + endDate.getTime()) / 2));
+      Object.assign(transit, computeCoPresent(se, midJd, timeLordPlanet));
+      transits.push(transit);
     }
 
   } catch (error) {

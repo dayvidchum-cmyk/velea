@@ -640,7 +640,7 @@ export default function ProfectionYear() {
                           }}
                         >
                           <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>{SIGN_GLYPH[t.sign]}</span>
-                          {t.isRetrograde && <span style={{ fontSize: "0.75rem", color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
+                          {t.retrogradeStatus && <span style={{ fontSize: "0.75rem", color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
                         </button>
                       );
                     })}
@@ -683,10 +683,15 @@ export default function ProfectionYear() {
                       <p style={{ margin: "0.2rem 0 0.7rem", color: TEXT_MUTED, fontSize: "0.82rem" }}>
                         {fmtLong(sel.startDate)} – {fmtLong(sel.endDate)}
                       </p>
-                      {[["Motion", sel.isRetrograde ? "Retrograde" : "Direct"], ["Combustion", sel.combustionStatus ? "Yes" : "No"], ["Solitary", sel.solitaryStatus ? "Yes" : "No"]].map(([label, value]) => (
-                        <div key={String(label)} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", padding: "0.15rem 0" }}>
-                          <span style={{ color: TEXT_MUTED }}>{label}</span>
-                          <span style={{ color: TEXT_PRIMARY, fontWeight: 500 }}>{value}</span>
+                      {[
+                        ["Motion", sel.retrogradeStatus ? "Retrograde" : "Direct"],
+                        ["Combustion", sel.secondaryConditions?.combustionStatus ? "Yes" : "No"],
+                        // Who else shares the sign — list the guests, or note it travels alone.
+                        ["Guests", sel.secondaryConditions?.coPresentPlanets?.length ? sel.secondaryConditions.coPresentPlanets.join(", ") : "Solitary — travels alone"],
+                      ].map(([label, value]) => (
+                        <div key={String(label)} style={{ display: "flex", justifyContent: "space-between", gap: "1rem", fontSize: "0.88rem", padding: "0.15rem 0" }}>
+                          <span style={{ color: TEXT_MUTED, flexShrink: 0 }}>{label}</span>
+                          <span style={{ color: TEXT_PRIMARY, fontWeight: 500, textAlign: "right" }}>{value}</span>
                         </div>
                       ))}
                     </div>

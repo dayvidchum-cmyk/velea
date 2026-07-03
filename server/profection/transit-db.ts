@@ -19,6 +19,9 @@ export async function createTimeLordTransits(
     condition: string;
     operationalMeaning: string;
     recommendedUse: string;
+    coPresentPlanets?: string[];
+    solitaryStatus?: boolean;
+    combustionStatus?: boolean;
   }>,
   profileId?: number | null
 ): Promise<TimeLordTransit[]> {
@@ -39,6 +42,9 @@ export async function createTimeLordTransits(
     condition: transit.condition,
     operationalMeaning: transit.operationalMeaning,
     recommendedUse: transit.recommendedUse,
+    coPresentPlanets: JSON.stringify(transit.coPresentPlanets ?? []),
+    solitaryStatus: transit.solitaryStatus ?? false,
+    combustionStatus: transit.combustionStatus ?? false,
   }));
 
   await db.insert(timeLordTransits).values(records);
