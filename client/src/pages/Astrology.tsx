@@ -379,8 +379,8 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
 
   // Shared column layout — header and rows must use the same template. Every
   // column is centered so content reads as an even rhythm across the full width.
-  const COLS = "1.3fr 1fr 0.7fr 1.5fr 0.7fr";
-  const headers = ["Planet", "Sign", "House", "Nakshatra", "Pada"];
+  const COLS = "1.2fr 0.85fr 0.8fr 0.55fr 1.3fr 0.55fr";
+  const headers = ["Planet", "Sign", "Degree", "House", "Nakshatra", "Pada"];
 
   // Rose-ochre is a Build-palette tone — only warm into it on Build days. Other
   // days stay in their own hue (gradient into a darker shade of the day color).
@@ -425,6 +425,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
             {b.planet}{b.isRetrograde ? " Rx" : ""}
           </span>
           <span style={{ fontSize: "0.75rem", textAlign: "center", color: "var(--color-foreground)" }}>{b.sign}</span>
+          <span style={{ fontSize: "0.72rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.degree != null && b.degree !== "" ? `${parseFloat(b.degree).toFixed(1)}°` : "—"}</span>
           <span style={{ fontSize: "0.75rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.house}</span>
           <span style={{ fontSize: "0.8rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.nakshatra ?? "—"}</span>
           <span style={{ fontSize: "0.8rem", textAlign: "center", color: "var(--color-muted-foreground)" }}>{b.pada ?? "—"}</span>
