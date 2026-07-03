@@ -526,11 +526,17 @@
      reaches the physical screen bottom without fixed-position hacks that don't account for
      the standalone dvh↔lvh gap. padding-bottom clears the home indicator. */
   .nav-safe-area {
-    /* IN-FLOW, the last row of the h-[100dvh] flex column — NOT position:fixed. iOS mis-places
-       a fixed nav on first paint (it only welds after the first scroll) and rides it up during
-       momentum scroll; an in-flow flex item is simply part of the layout, so it welds on open
-       and never moves. env(safe-area-inset-bottom) lifts the labels above the home indicator. */
-    flex-shrink: 0;
+    /* ⭐ CONFIRMED-GOOD NAV — do NOT "improve" this blind (see memory: velea_nav_known_good).
+       Normal document flow (root = min-h-[100dvh], the body scrolls); the nav is position:fixed
+       to the viewport bottom so it WELDS to the physical edge, and env(safe-area-inset-bottom)
+       lifts the labels above the home indicator. NO transform here (a fixed element with its own
+       3D transform rides the GPU scroll layer on iOS). Only known flaw: a slight ride on a hard
+       momentum flick that snaps back — accepted. Everything "cleverer" (in-flow flex, main
+       scrolls internally, dvh/innerHeight pinning) was tried and made it worse. */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 50;
     background: var(--background) !important;
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -554,9 +560,7 @@
   /* Safari top safe area — ensure content doesn't bleed into status bar */
   .content-safe-area {
     padding-top: env(safe-area-inset-top, 0px);
-    /* Nav is in-flow below <main> now, so no fixed-nav clearance needed — just room for the
-       floating FAB above the last content. */
-    padding-bottom: 5rem;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 }
 

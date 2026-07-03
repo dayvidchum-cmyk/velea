@@ -42,20 +42,6 @@ const { user, loading } = useAuth();
   // Post-login brand splash — shown once when the "velea_splash" flag is set by login.
   const [showSplash, setShowSplash] = useState(false);
 
-  // iOS standalone PWA: the fixed nav sits at a stale viewport position on first paint and only
-  // welds to the edge after the first scroll settles the viewport. Force that recalc on mount
-  // (a resize event + a 1px scroll nudge on <main>) so it welds immediately, no scroll needed.
-  const mainRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const nudge = () => {
-      window.dispatchEvent(new Event("resize"));
-      const m = mainRef.current;
-      if (m && m.scrollTop === 0) { m.scrollTop = 1; requestAnimationFrame(() => { if (m.scrollTop === 1) m.scrollTop = 0; }); }
-    };
-    const t1 = setTimeout(nudge, 80);
-    const t2 = setTimeout(nudge, 400); // again after the splash clears
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
   useEffect(() => {
     if (!user) return;
     try {
@@ -239,11 +225,10 @@ const { user, loading } = useAuth();
   };
 
   return (
-    <div className="h-[100dvh] overflow-hidden flex flex-col bg-background text-foreground star-bg">
+    <div className="min-h-[100dvh] bg-background text-foreground star-bg">
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
-      {/* Body never scrolls — <main> scrolls internally. A fixed nav can't ride a scroll the body
-          doesn't do. No transform on any ancestor, so the nav still welds to the viewport bottom. */}
-      <main ref={mainRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 content-safe-area">
+      {/* Normal document flow — the page scrolls, the nav is fixed to the viewport bottom. */}
+      <main className="overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
           <Route path="/login" component={Login} />
           <Route path="/astrology" component={Astrology} />
