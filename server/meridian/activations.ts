@@ -128,8 +128,10 @@ export type Chapter = {
   // Retrograde stations + shadow — the *official* threshold, tighter than the orb.
   retrograde?: boolean;
   stationDirect?: { month: string; sign: string; degree: number };
+  stationDirectISO?: string;      // exact station-direct date, refined to the day
   shadowCleared?: boolean;
   shadowClearedMonth?: string;
+  shadowClearedISO?: string;      // exact shadow-clearance date, refined to the day
 };
 
 const SLOW_PAIRS: [string, string][] = [["Jupiter", "jupiter"], ["Saturn", "saturn"], ["Rahu", "rahu"], ["Ketu", "ketu"]];
@@ -161,7 +163,7 @@ export async function computeMeridianArc(
   }
 
   const chapters: Chapter[] = [];
-  for (const [Name] of SLOW_PAIRS) {
+  for (const [Name, key] of SLOW_PAIRS) {
     type Win = { start: number; end: number; pole: "MC" | "IC"; peakOrb: number; peakLon: number; peakT: number };
     const wins: Win[] = [];
     let cur: Win | null = null;
@@ -186,15 +188,17 @@ export async function computeMeridianArc(
     // Retrograde stations + shadow-clearance — the *official* close of the chapter,
     // tighter than the orb window. A slow planet only truly lets go of the axis once
     // it stations direct and re-passes the degree where it first turned back.
-    const flips: { t: number; lon: number; toRetro: boolean }[] = [];
+    const flips: { t: number; t0: number; lon: number; toRetro: boolean }[] = [];
     for (let k = 1; k < samples.length; k++) {
       const a = samples[k - 1].retro[Name], b = samples[k].retro[Name];
       if (a == null || b == null || a === b) continue;
-      flips.push({ t: samples[k].t, lon: samples[k].lon[Name], toRetro: b === true });
+      flips.push({ t: samples[k].t, t0: samples[k - 1].t, lon: samples[k].lon[Name], toRetro: b === true });
     }
     let stationDirect: Chapter["stationDirect"];
+    let stationDirectISO: string | undefined;
     let shadowCleared: boolean | undefined;
     let shadowClearedMonth: string | undefined;
+    let shadowClearedISO: string | undefined;
     let retrograde: boolean | undefined;
     const near = (t: number) => Math.abs(t - w.peakT);
     const directs = flips.filter((f) => !f.toRetro);
@@ -203,12 +207,28 @@ export async function computeMeridianArc(
     const retroBefore = retrosBefore.length ? retrosBefore[retrosBefore.length - 1] : undefined;
     if (lastDirect && retroBefore && near(lastDirect.t) <= 150 * DAY) {
       retrograde = true;
-      stationDirect = { month: fmtMonth(lastDirect.t), sign: ZODIAC[Math.floor(lastDirect.lon / 30)], degree: lastDirect.lon % 30 };
+      // Samples are 20 days apart — refine the station-direct crossing to the exact day.
+      let exT = lastDirect.t, exLon = lastDirect.lon;
+      for (let t = lastDirect.t0; t <= lastDirect.t; t += DAY) {
+        const cc: any = await calculateBirthChart(new Date(t).toISOString().slice(0, 10), "12:00", 0, 0, "UTC");
+        if (cc[key] && !cc[key].isRetrograde) { exT = t; exLon = cc[key].longitude; break; }
+      }
+      stationDirect = { month: fmtMonth(exT), sign: ZODIAC[Math.floor(exLon / 30)], degree: exLon % 30 };
+      stationDirectISO = new Date(exT).toISOString().slice(0, 10);
       const nowSample = [...samples].reverse().find((s) => s.t <= now.getTime() && s.lon[Name] != null);
-      const curLon = nowSample?.lon[Name] ?? lastDirect.lon;
+      const curLon = nowSample?.lon[Name] ?? exLon;
       shadowCleared = curLon > retroBefore.lon;
-      const clr = samples.find((s) => s.t > lastDirect.t && s.lon[Name] != null && s.lon[Name] > retroBefore.lon);
-      shadowClearedMonth = clr ? fmtMonth(clr.t) : undefined;
+      // Exact shadow-clearance: the day it re-passes the degree where it first turned back.
+      const clrSample = samples.find((s) => s.t > exT && s.lon[Name] != null && s.lon[Name] > retroBefore.lon);
+      if (clrSample) {
+        let clrT = clrSample.t;
+        for (let t = Math.max(exT + DAY, clrSample.t - stepDays * DAY); t <= clrSample.t; t += DAY) {
+          const cc: any = await calculateBirthChart(new Date(t).toISOString().slice(0, 10), "12:00", 0, 0, "UTC");
+          if (cc[key] && cc[key].longitude > retroBefore.lon) { clrT = t; break; }
+        }
+        shadowClearedMonth = fmtMonth(clrT);
+        shadowClearedISO = new Date(clrT).toISOString().slice(0, 10);
+      }
     }
 
     chapters.push({
@@ -225,8 +245,10 @@ export async function computeMeridianArc(
       exitDateISO: new Date(w.end).toISOString().slice(0, 10),
       retrograde,
       stationDirect,
+      stationDirectISO,
       shadowCleared,
       shadowClearedMonth,
+      shadowClearedISO,
     });
   }
   const rank = { current: 0, recent: 1, upcoming: 2 };
