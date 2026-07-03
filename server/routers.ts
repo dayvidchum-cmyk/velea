@@ -1246,6 +1246,7 @@ export const appRouter = router({
       const dateStr = new Date().toISOString().slice(0, 10);
       const { calculateBirthChart } = await import("./birthchart/calculator.js");
       const t: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
+      const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
       const elong = ((t.moon.longitude - t.sun.longitude) % 360 + 360) % 360;
       const PHASES = [
         { name: "New Moon", image: "new-moon.jpg" },
@@ -1259,19 +1260,34 @@ export const appRouter = router({
       ];
       const phase = PHASES[Math.round(elong / 45) % 8];
 
-      // An eclipse today overrides the phase artwork.
+      // Moon's current sign + the house it's transiting for THIS chart (personalized).
+      const moonSign: string = t.moon.sign;
+      let moonHouse: number | null = null;
+      if (ctx.subject?.lagnaSign) {
+        const li = ZODIAC.indexOf(ctx.subject.lagnaSign), mi = ZODIAC.indexOf(moonSign);
+        if (li >= 0 && mi >= 0) moonHouse = ((mi - li + 12) % 12) + 1;
+      }
+      // Where in the cycle — days to the next Full and New (elongation moves ~12.19°/day).
+      const RATE = 12.19048;
+      const daysToFull = Math.max(0, Math.round((elong < 180 ? 180 - elong : 540 - elong) / RATE));
+      const daysToNew = Math.max(0, Math.round((360 - elong) / RATE));
+
+      const base = { moonSign, moonHouse, daysToFull, daysToNew };
+      // An eclipse today, or Mercury retrograde, is "what else is happening" alongside the moon.
+      let mercuryRetro = false;
       try {
         if (ctx.subject) {
           const { getCurrentSky } = await import("./sky/current-sky.js");
           const sky = await getCurrentSky(ctx.subject);
           const ecl = (sky.eclipses ?? []).find((e) => e.daysAway === 0);
-          if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true };
-          if (ecl?.type === "solar") return { name: "Solar Eclipse", image: "solar-eclipse.jpg", isEvent: true };
+          if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, ...base };
+          if (ecl?.type === "solar") return { name: "Solar Eclipse", image: "solar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, ...base };
+          mercuryRetro = (sky.retrogrades ?? []).includes("Mercury");
         }
-      } catch { /* no eclipse data → fall through to phase */ }
+      } catch { /* degrade gracefully */ }
 
       const isEvent = phase.name === "Full Moon" || phase.name === "New Moon";
-      return { name: phase.name, image: phase.image, isEvent };
+      return { name: phase.name, image: phase.image, isEvent, isEclipse: false, mercuryRetro, ...base };
     }),
   }),
 

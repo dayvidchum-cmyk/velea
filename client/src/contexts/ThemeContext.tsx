@@ -14,11 +14,12 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-/** Velea is dark-only by design. Light mode leaves the iOS safe-area / nav painted
- *  near-white (the "white bar" + oversized-footer bug), so force dark regardless of the
- *  OS or the stored preference until a proper light palette is built. */
-function resolveTheme(_pref: ThemePreference): Theme {
-  return "dark";
+/** Resolve "system" to actual dark/light based on OS preference */
+function resolveTheme(pref: ThemePreference): Theme {
+  if (pref === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return pref;
 }
 
 interface ThemeProviderProps {

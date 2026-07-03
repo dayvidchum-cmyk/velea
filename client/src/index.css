@@ -519,7 +519,9 @@
     right: 0;
     z-index: 50;
     background: var(--background) !important;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* Cap the inset — on some iOS standalone/keyboard states env(safe-area-inset-bottom)
+       balloons far past the ~34px home indicator, making the footer look 2x tall. */
+    padding-bottom: min(env(safe-area-inset-bottom, 0px), 22px);
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
@@ -527,7 +529,7 @@
   /* Safari top safe area — ensure content doesn't bleed into status bar */
   .content-safe-area {
     padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(64px + min(env(safe-area-inset-bottom, 0px), 22px));
   }
 }
 
