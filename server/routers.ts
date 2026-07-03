@@ -132,7 +132,7 @@ export const appRouter = router({
 
         // Private beta: registration is invite-only. Set SIGNUP_INVITE_CODE in the env to
         // rotate; the default below is the shareable code baked in until then.
-        const VALID_INVITE = process.env.SIGNUP_INVITE_CODE || "velea-sky-7f3a91";
+        const VALID_INVITE = process.env.SIGNUP_INVITE_CODE || "velea-0f585f1d";
         if (input.inviteCode.trim() !== VALID_INVITE) {
           throw new TRPCError({ code: "FORBIDDEN", message: "That invite code isn't valid. Ask for a current invite link." });
         }
