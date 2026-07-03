@@ -288,6 +288,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       await utils.tasks.modeCounts.invalidate();
       await utils.tasks.pinnedForToday.invalidate();
       await utils.tasks.dueList.invalidate();
+      await utils.tasks.rankedForToday.invalidate(); // the aligned list — was stale after edit
     },
   });
 
