@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Pin, Trash2, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat } from "lucide-react";
+import { Pin, Trash2, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat, Pencil } from "lucide-react";
 
 const RECURRENCE_SHORT: Record<string, string> = {
   daily: "Daily", weekly: "Weekly", biweekly: "2 wks", monthly: "Monthly", yearly: "Yearly",
@@ -230,93 +230,18 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           >
             {task.title}
           </span>
-          {!compact && <div className="flex items-center gap-2 mt-0.5 flex-nowrap overflow-x-auto no-scrollbar">
-            {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
-            {/* Want / Need — tap to toggle */}
-            <button
-              onClick={(e) => { e.stopPropagation(); onSetIntent?.(task.id, taskIntent === "need" ? "want" : "need"); }}
-              className="inline-flex items-center text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full flex-shrink-0"
-              style={{
-                letterSpacing: "0.06em",
-                background: taskIntent === "need" ? "rgba(var(--ink),0.16)" : "transparent",
-                color: taskIntent === "need" ? "rgba(var(--ink),0.9)" : "rgba(var(--ink),0.5)",
-                border: `1px solid ${taskIntent === "need" ? "transparent" : "rgba(var(--ink),0.3)"}`,
-              }}
-              title={`${taskIntent === "need" ? "Need" : "Want"} — tap to toggle`}
-            >
-              {taskIntent}
-            </button>
-            {/* Due date badge */}
-            {task.dueDate && !task.isCompleted && (
-              <span
-                className="inline-flex items-center gap-1 text-[12px] font-semibold px-1.5 py-0.5 rounded-full"
-                style={{
-                  background: "rgba(var(--ink),0.16)",
-                  color: "rgba(var(--ink),0.96)",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                <CalendarDays size={9} />
-                {formatDueDate(task.dueDate)}
-              </span>
-            )}
-            {/* Recurrence badge */}
-            {(task as any).recurrence && (task as any).recurrence !== "none" && !task.isCompleted && (
-              <span
-                className="inline-flex items-center gap-1 text-[12px] font-semibold px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(var(--ink),0.16)", color: "rgba(var(--ink),0.96)", letterSpacing: "0.03em" }}
-              >
-                <Repeat size={9} />
-                {RECURRENCE_SHORT[(task as any).recurrence] ?? "Repeats"}
-              </span>
-            )}
-            {/* Subtask progress badge */}
-            {hasSubtasks && (
-              <span
-                className="text-[12px] font-medium px-1.5 py-0.5 rounded-full"
-                style={{
-                  background: "rgba(var(--ink),0.16)",
-                  color: "rgba(var(--ink),0.96)",
-                }}
-              >
-                {completedCount}/{totalCount}
-              </span>
-            )}
-            {/* "In focus today" — a life area matches the day's activated house */}
-            {inFocusToday && (
-              <span
-                className="inline-flex items-center gap-1 text-[12px] font-bold px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(var(--ink),0.28)", color: "rgba(var(--ink),1)", letterSpacing: "0.03em" }}
-              >
-                ✦ In focus today
-              </span>
-            )}
-            {/* Life-area chips */}
-            {lifeAreaKeys.slice(0, 2).map((k) => (
-              <span
-                key={k}
-                className="inline-flex items-center text-[12px] font-medium px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(var(--ink),0.14)", color: "rgba(var(--ink),0.9)", letterSpacing: "0.02em", opacity: task.isCompleted ? 0.5 : 0.9 }}
-              >
-                <span className="max-w-[90px] truncate">{LIFE_AREA_BY_KEY[k]?.label ?? k}</span>
-              </span>
-            ))}
-            {/* Project badge — subtle, only when a project is assigned */}
-            {task.projectName && (
-              <span
-                className="inline-flex items-center gap-1 text-[12px] font-medium px-1.5 py-0.5 rounded-full"
-                style={{
-                  background: "rgba(var(--ink),0.16)",
-                  color: "rgba(var(--ink),0.93)",
-                  letterSpacing: "0.03em",
-                  opacity: task.isCompleted ? 0.5 : 0.85,
-                }}
-              >
-                <FolderOpen size={8} />
-                <span className="max-w-[80px] truncate">{task.projectName}</span>
-              </span>
-            )}
-          </div>}
+          {/* Collapsed row: only the golden dots + subtask count. Everything else (mode, due,
+              life-areas, project, want/need, focus) is noise here — it lives in edit/expand. */}
+          {((alignment != null && !task.isCompleted) || hasSubtasks) && (
+            <div className="flex items-center gap-2 mt-0.5">
+              {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
+              {hasSubtasks && (
+                <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(var(--ink),0.16)", color: "rgba(var(--ink),0.96)" }}>
+                  {completedCount}/{totalCount}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Priority — tap to cycle Low→Medium→High */}
@@ -402,6 +327,32 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               )}
             </div>
           )
+        )}
+
+        {/* Edit — opens the editor (moved off the expanded view) */}
+        {!task.isCompleted && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(task); }}
+            className="flex-shrink-0 p-1"
+            style={{ color: "rgba(var(--ink),0.7)" }}
+            aria-label="Edit task"
+            title="Edit"
+          >
+            <Pencil size={13} />
+          </button>
+        )}
+
+        {/* Delete — quick access with the main icons (also swipe-right) */}
+        {!task.isCompleted && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+            className="flex-shrink-0 p-1"
+            style={{ color: "rgba(var(--ink),0.55)" }}
+            aria-label="Delete task"
+            title="Delete"
+          >
+            <Trash2 size={13} />
+          </button>
         )}
 
         {/* Expand toggle */}
@@ -522,124 +473,16 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             </div>
           )}
 
-          {/* Actions row — two sub-rows: labels left, buttons right */}
-          <div
-            className="px-3 pb-3 flex flex-col gap-2"
-            style={{ borderTop: "1px solid var(--color-border)" }}
-          >
-            {/* Row 1: mode label + priority pill on left, action buttons on right */}
-            <div className="flex items-center gap-2">
-              <span
-                className="text-[12px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide"
-                style={{ background: "rgba(var(--ink),0.20)", color: "rgba(var(--ink),0.96)" }}
-              >
-                {task.mode}
+          {/* Recurrence — the only expanded footer. Mode is the card's color; edit / pin /
+              snooze / delete all live on the collapsed row now. */}
+          {(task as any).recurrence && (task as any).recurrence !== "none" && (
+            <div className="px-3 pb-3 pt-2 flex items-center gap-1.5" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <Repeat size={12} style={{ color: "rgba(var(--ink),0.7)" }} />
+              <span className="text-xs font-medium" style={{ color: "rgba(var(--ink),0.82)" }}>
+                Repeats {(RECURRENCE_SHORT[(task as any).recurrence] ?? "on a schedule").toLowerCase()}
               </span>
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{
-                  background: "rgba(var(--ink),0.20)",
-                  color: "rgba(var(--ink),0.96)",
-                }}
-              >
-                {PRIORITY_EXCLAIM[task.priority as keyof typeof PRIORITY_EXCLAIM] ?? "!"}
-              </span>
-
-              <div className="flex-1" />
-
-              <button
-                onClick={() => onEdit(task)}
-                className="text-xs font-medium px-3 py-1 rounded-full transition-colors"
-                style={{
-                  color: "rgba(var(--ink),0.96)",
-                  background: "rgba(var(--ink),0.18)",
-                  border: "1px solid rgba(var(--ink),0.25)",
-                }}
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => onTogglePin(task.id, task.isPinned)}
-                className="text-xs font-medium px-3 py-1 rounded-full transition-colors flex items-center gap-1"
-                style={{
-                  color: "rgba(var(--ink),0.96)",
-                  background: task.isPinned ? "rgba(var(--ink),0.35)" : "rgba(var(--ink),0.18)",
-                  border: "1px solid rgba(var(--ink),0.25)",
-                }}
-              >
-                <Pin size={10} />
-                {task.isPinned ? "Unpin" : "Pin"}
-              </button>
-            </div>{/* end Row 1 */}
-
-            {/* Row 2: Snooze + Delete */}
-            <div className="flex items-center gap-2">
-              {isSnoozed ? (
-                <button
-                  onClick={() => unsnoozeTask.mutate({ id: task.id })}
-                  className="text-xs font-medium px-3 py-1 rounded-full transition-colors flex items-center gap-1"
-                  style={{
-                    color: "rgba(var(--ink),0.96)",
-                    background: "rgba(var(--ink),0.18)",
-                    border: "1px solid rgba(var(--ink),0.25)",
-                  }}
-                  aria-label="Unsnooze task"
-                >
-                  <AlarmClockOff size={11} />
-                  Unsn.
-                </button>
-              ) : (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowSnoozeOptions(!showSnoozeOptions)}
-                    className="text-xs font-medium px-3 py-1 rounded-full transition-colors flex items-center gap-1"
-                    style={{
-                      color: "rgba(var(--ink),0.96)",
-                      background: "rgba(var(--ink),0.18)",
-                      border: "1px solid rgba(var(--ink),0.25)",
-                    }}
-                    aria-label="Snooze task"
-                  >
-                    <Clock size={11} />
-                    Snooze
-                  </button>
-                  {showSnoozeOptions && (
-                    <div
-                      className="absolute bottom-full left-0 mb-1 rounded-lg shadow-lg border p-1 z-50 min-w-[120px]"
-                      style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}
-                    >
-                      <button
-                        onClick={() => { snoozeTask.mutate({ id: task.id, duration: "1hour" }); setShowSnoozeOptions(false); }}
-                        className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
-                        style={{ color: "var(--color-foreground)" }}
-                      >
-                        1 hour
-                      </button>
-                      <button
-                        onClick={() => { snoozeTask.mutate({ id: task.id, duration: "restOfDay" }); setShowSnoozeOptions(false); }}
-                        className="w-full text-left text-xs px-3 py-1.5 rounded hover:opacity-80 transition-opacity"
-                        style={{ color: "var(--color-foreground)" }}
-                      >
-                        Rest of day
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-              <button
-                onClick={() => onDelete(task.id)}
-                className="p-1.5 rounded-full transition-colors"
-                style={{
-                  color: "rgba(var(--ink),0.93)",
-                  background: "rgba(var(--ink),0.18)",
-                  border: "1px solid rgba(var(--ink),0.25)",
-                }}
-                aria-label="Delete task"
-              >
-                <Trash2 size={13} />
-              </button>
-            </div>{/* end Row 2 */}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,13 +1,15 @@
 import { useRef, useState } from "react";
-import { CheckCircle2, Pin } from "lucide-react";
+import { CheckCircle2, Pin, Trash2 } from "lucide-react";
 
 interface SwipeableTaskRowProps {
   children: React.ReactNode;
   onSwipeLeft: () => void;   // complete / uncomplete
-  onSwipeRight: () => void;  // pin / unpin
+  onSwipeRight: () => void;  // pin/unpin, or delete (see rightMode)
   isCompleted: boolean;
   isPinned: boolean;
   modeColor?: string;
+  /** What the right-swipe does, visually: "pin" (default) or "delete" (red + trash). */
+  rightMode?: "pin" | "delete";
   /** When true, swipe gestures are disabled so subtask controls work freely */
   isExpanded?: boolean;
 }
@@ -22,6 +24,7 @@ export default function SwipeableTaskRow({
   isCompleted,
   isPinned,
   modeColor = "var(--foreground)",
+  rightMode = "pin",
   isExpanded = false,
 }: SwipeableTaskRowProps) {
   const [translateX, setTranslateX] = useState(0);
@@ -99,7 +102,7 @@ export default function SwipeableTaskRow({
   };
 
   const leftColor = isCompleted ? "var(--color-muted-foreground)" : "oklch(0.72 0.16 145)";
-  const rightColor = isPinned ? "var(--color-muted-foreground)" : modeColor;
+  const rightColor = rightMode === "delete" ? "oklch(0.62 0.22 25)" : (isPinned ? "var(--color-muted-foreground)" : modeColor);
 
   return (
     <div className="relative overflow-hidden rounded-xl">
@@ -133,14 +136,11 @@ export default function SwipeableTaskRow({
         }}
         aria-hidden
       >
-        <Pin
-          size={18}
-          style={{
-            color: rightColor,
-            transform: triggered === "right" ? "scale(1.2)" : "scale(1)",
-            transition: "transform 150ms ease-out",
-          }}
-        />
+        {rightMode === "delete" ? (
+          <Trash2 size={18} style={{ color: rightColor, transform: triggered === "right" ? "scale(1.2)" : "scale(1)", transition: "transform 150ms ease-out" }} />
+        ) : (
+          <Pin size={18} style={{ color: rightColor, transform: triggered === "right" ? "scale(1.2)" : "scale(1)", transition: "transform 150ms ease-out" }} />
+        )}
       </div>
 
       {/* Draggable row */}

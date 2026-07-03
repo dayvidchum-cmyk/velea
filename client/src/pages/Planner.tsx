@@ -962,7 +962,7 @@ export default function Planner() {
                             <SwipeableTaskRow
                               key={task.id}
                               onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                              onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                              onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
                               isCompleted={task.isCompleted}
                               isPinned={task.isPinned}
                               modeColor={groupColor}
@@ -1027,7 +1027,7 @@ export default function Planner() {
                 <SwipeableTaskRow
                   key={task.id}
                   onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
                   isCompleted={task.isCompleted}
                   isPinned={task.isPinned}
                   modeColor={todayModeColor}
@@ -1085,7 +1085,7 @@ export default function Planner() {
                 <SwipeableTaskRow
                   key={task.id}
                   onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
                   isCompleted={task.isCompleted}
                   isPinned={task.isPinned}
                   modeColor={todayModeColor}
