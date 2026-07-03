@@ -41,13 +41,18 @@ const phaseLabel = (phase: string) =>
 
 type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string; primary?: boolean };
 
-const SCRIM = "linear-gradient(to top, rgba(5,6,10,0.95) 0%, rgba(5,6,10,0.82) 30%, rgba(5,6,10,0.45) 62%, rgba(5,6,10,0.12) 100%)";
+// The reading sits in a scrim that RIDES WITH THE TEXT — it fades in at the top (below the
+// image's focal point, ~the "yellow line") and ends where the text ends, so the foreground
+// (the sand, the tide-pool objects) stays clear on short cards.
+const TEXT_SCRIM = "linear-gradient(180deg, rgba(5,6,10,0) 0%, rgba(5,6,10,0.74) 16%, rgba(5,6,10,0.84) 62%, rgba(5,6,10,0.5) 100%)";
+const TS = "0 1px 10px rgba(0,0,0,0.85)"; // text shadow so words hold over the art
 
 /**
- * StageSheet — "The Stage": each sky image IS the card. A full-image scrim carries all the
- * reading (phase · meaning · today's call · slow-planet weather) over the illustration; the
- * only thing in the window below is the retrograde chips. Swipe across the moon + any planet
- * mid retrograde-cycle. X (top-right) closes.
+ * StageSheet — "The Stage": each sky image IS the card. On every card the reading starts at an
+ * upper line (over the shell, below the focal point) and flows DOWN in a scrim that ends with
+ * the text, leaving the foreground clear. Moon card carries the phase + Today's call; the
+ * station (e.g. Mercury Rx) card carries its meaning + slow-planet weather. Retrograde chips
+ * are the only thing in the window below. X (top-right) closes.
  */
 export default function StageSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const accent = useDayModeColor();
@@ -77,12 +82,10 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
     }
   }
   const idx = Math.min(activeIdx, Math.max(0, heroes.length - 1));
-
-  const closeBtn = (onTap: () => void) => (
-    <button onClick={onTap} aria-label="Close" style={{ position: "absolute", top: "0.9rem", right: "0.9rem", zIndex: 5, width: 34, height: 34, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.45)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-      <X size={17} />
-    </button>
-  );
+  // Slow-planet weather rides on the first station card (e.g. Mercury Rx); if there are no
+  // station cards, it falls back to the moon card so it's never lost.
+  const firstStation = heroes.findIndex((h) => !h.primary);
+  const weatherIdx = firstStation >= 0 ? firstStation : 0;
 
   return createPortal(
     <>
@@ -90,51 +93,51 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
         <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col"
           style={{ maxHeight: "min(92vh, 840px)", background: "var(--color-card)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1px solid var(--color-border)", position: "relative" }}>
 
-          {closeBtn(onClose)}
+          <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: "0.85rem", right: "0.85rem", zIndex: 6, width: 36, height: 36, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.5)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+            <X size={18} />
+          </button>
 
           <div className="overflow-y-auto">
-            {/* Each image IS the card — full-image scrim carries all the reading */}
             {heroes.length > 0 && (
               <>
                 <div className="no-scrollbar" style={{ position: "relative", display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", alignItems: "stretch" }}
                   onScroll={(e) => setActiveIdx(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
                   {heroes.map((h, i) => (
                     <button key={i} onClick={() => setSkyIdx(i)}
-                      style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "flex-end", textAlign: "left", background: "#05060a" }}>
+                      style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
                       <img src={`/celestial/${h.image}`} alt={h.title}
-                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 22%", transformOrigin: "center", animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
-                      <div style={{ position: "absolute", inset: 0, background: SCRIM }} />
-                      <div style={{ position: "relative", padding: "1.5rem 1.4rem 1.5rem", animation: "velea-rise 0.7s ease both" }}>
-                        <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.82)" }}>{h.kicker}</p>
-                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.65)", lineHeight: 1.05 }}>{h.title}</p>
-                        <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.94)", lineHeight: 1.45, textShadow: "0 1px 10px rgba(0,0,0,0.8)" }}>{h.note}</p>
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
+                      {/* The reading — starts at the upper line, scrim rides with the text, foreground stays clear */}
+                      <div style={{ position: "absolute", top: "15%", left: 0, right: 0, padding: "2.6rem 1.4rem 1.6rem", background: TEXT_SCRIM, animation: "velea-rise 0.7s ease both" }}>
+                        <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: TS }}>{h.kicker}</p>
+                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: TS, lineHeight: 1.05 }}>{h.title}</p>
+                        <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: TS }}>{h.note}</p>
 
-                        {/* Day-level reading rides on the primary (moon) image */}
+                        {/* Moon card carries Today's call */}
                         {h.primary && stage?.verdict && (
-                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.18)" }}>
-                            <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Today's call</p>
-                            <p style={{ margin: "0.1rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: "#fff", textShadow: "0 1px 10px rgba(0,0,0,0.8)", lineHeight: 1.15 }}>{stage.verdict.call}</p>
-                            <p style={{ margin: "0.25rem 0 0", fontSize: "0.86rem", color: "rgba(255,255,255,0.86)", lineHeight: 1.45, textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>{stage.verdict.summary}</p>
+                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+                            <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", textShadow: TS }}>Today's call</p>
+                            <p style={{ margin: "0.1rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: "#fff", textShadow: TS, lineHeight: 1.15 }}>{stage.verdict.call}</p>
+                            <p style={{ margin: "0.25rem 0 0", fontSize: "0.86rem", color: "rgba(255,255,255,0.9)", lineHeight: 1.45, textShadow: TS }}>{stage.verdict.summary}</p>
                             {stage.verdict.forPersonal && stage.verdict.forCollective && (
                               <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginTop: "0.6rem" }}>
                                 {[["High-stakes / personal", stage.verdict.forPersonal], ["Launches / sends", stage.verdict.forCollective]].map(([label, body]) => (
-                                  <div key={label} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 9, padding: "0.45rem 0.6rem" }}>
-                                    <p style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", margin: 0 }}>{label}</p>
-                                    <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.94)", lineHeight: 1.4, margin: "0.1rem 0 0" }}>{body}</p>
+                                  <div key={label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 9, padding: "0.45rem 0.6rem" }}>
+                                    <p style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", margin: 0 }}>{label}</p>
+                                    <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.4, margin: "0.1rem 0 0" }}>{body}</p>
                                   </div>
                                 ))}
                               </div>
                             )}
-                            {!stage.verdict.hasCheckIn && (
-                              <p style={{ fontSize: "0.78rem", color: "#fff", margin: "0.55rem 0 0", fontWeight: 600, textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>Tap "Current State" (top right) to check in for your full call.</p>
-                            )}
                           </div>
                         )}
-                        {h.primary && stage && stage.signals.length > 0 && (
-                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.18)" }}>
-                            <p style={{ margin: "0 0 0.4rem", fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Slow-planet weather</p>
+
+                        {/* Slow-planet weather rides on the station (Mercury Rx) card — separate for clarity */}
+                        {i === weatherIdx && stage && stage.signals.length > 0 && (
+                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+                            <p style={{ margin: "0 0 0.4rem", fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", textShadow: TS }}>Slow-planet weather</p>
                             {stage.signals.map((sig, k) => (
-                              <p key={k} style={{ fontSize: "0.84rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.4, margin: k ? "0.35rem 0 0" : 0, textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>
+                              <p key={k} style={{ fontSize: "0.84rem", color: "rgba(255,255,255,0.94)", lineHeight: 1.4, margin: k ? "0.35rem 0 0" : 0, textShadow: TS }}>
                                 <span style={{ color: sig.direction === "favor" ? "#7ED0A0" : "#E6B96A", fontWeight: 700 }}>·</span> {sig.summary}
                               </p>
                             ))}
@@ -142,9 +145,9 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                         )}
 
                         <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.9rem", alignItems: "center" }}>
-                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.18)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
-                          {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.72)" }}>swipe →</span>}
-                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>tap for full art ↗</span>
+                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.2)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
+                          {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.75)", textShadow: TS }}>swipe →</span>}
+                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.65)", textShadow: TS }}>tap to expand ↗</span>
                         </div>
                       </div>
                     </button>
@@ -177,12 +180,14 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
         </div>
       </div>
 
-      {/* Full-screen immersive art for the tapped hero */}
+      {/* Full-screen immersive art — tap ANYWHERE to close (a corner X is unreachable here) */}
       {skyIdx >= 0 && heroes[skyIdx] && (
-        <div className="app-shell-height" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10000, background: "#05060a" }}>
+        <div className="app-shell-height" onClick={() => setSkyIdx(-1)} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10000, background: "#05060a", cursor: "pointer" }}>
           <img src={`/celestial/${heroes[skyIdx].image}`} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent 44%)" }} />
-          {closeBtn(() => setSkyIdx(-1))}
+          <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 1rem)", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+            <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.82)", background: "rgba(0,0,0,0.45)", padding: "0.3rem 0.8rem", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: "0.35rem" }}><X size={13} /> tap anywhere to close</span>
+          </div>
           <div style={{ position: "absolute", bottom: "calc(env(safe-area-inset-bottom,0px) + 1.6rem)", left: 0, right: 0, padding: "0 1.4rem", pointerEvents: "none" }}>
             <p style={{ margin: 0, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.78)" }}>{heroes[skyIdx].kicker}</p>
             <p style={{ margin: "0.3rem 0 0", fontSize: "1.9rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].title}</p>
