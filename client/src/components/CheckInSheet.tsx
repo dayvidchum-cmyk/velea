@@ -152,10 +152,22 @@ interface CheckInSheetProps {
   onSaved?: () => void;
 }
 
+/** "3h ago" / "yesterday" — a light relative stamp for the last check-in. */
+function timeAgo(date: Date | string): string {
+  const min = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const d = Math.floor(hr / 24);
+  return d === 1 ? "yesterday" : `${d}d ago`;
+}
+
 export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetProps) {
   const utils = trpc.useUtils();
   const modeColor = useDayModeColor();
   const heroGradient = useDayModeGradient();
+  const { data: lastCheckIn } = trpc.checkIn.today.useQuery(undefined, { enabled: open });
 
   const [scores, setScores] = useState<Scores>({
     physicalEnergy: null,
@@ -238,6 +250,9 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
             </SheetTitle>
             <p className="text-xs text-left mt-1" style={{ color: "var(--color-muted-foreground)" }}>
               Rate each from 1 (very low) to 5 (very high). This tunes which tasks surface today.
+            </p>
+            <p className="text-xs text-left mt-2 font-semibold" style={{ color: lastCheckIn ? "var(--color-muted-foreground)" : modeColor }}>
+              {lastCheckIn ? `Last checked in ${timeAgo(lastCheckIn.recordedAt as unknown as string)}` : "No check-in yet today"}
             </p>
           </SheetHeader>
 
