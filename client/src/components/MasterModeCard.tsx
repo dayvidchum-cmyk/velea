@@ -8,8 +8,11 @@ import { trpc } from "@/lib/trpc";
  * timeline expands on tap, so it's a glance by default and depth on demand.
  */
 
+// Aligned with the Day Mode palette (shared/types MODE_SOLID): Succeed→gold (Build, the
+// auspicious peak), Action→green (Action), Relax→teal (Selective), Caution→rose (Restraint,
+// a gentle hold — friction is data, not punishment). Energize→lime bridges gold into green.
 const CAT_COLOR: Record<string, string> = {
-  Succeed: "#2E8B57", Energize: "#5BA35B", Action: "#3C8DAE", Relax: "#C0862E", Caution: "#C0553E",
+  Succeed: "#D4AF37", Energize: "#86C440", Action: "#318a55", Relax: "#178F9E", Caution: "#B15F71",
 };
 const CAT_NOTE: Record<string, string> = {
   Succeed: "Most auspicious — act.",
