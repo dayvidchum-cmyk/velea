@@ -224,10 +224,11 @@ const { user, loading } = useAuth();
   };
 
   return (
-    <div className="min-h-[100dvh] bg-background text-foreground star-bg">
+    <div className="h-[100dvh] overflow-hidden flex flex-col bg-background text-foreground star-bg">
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
-      {/* Normal document flow — the page scrolls, the nav is fixed to the viewport bottom. */}
-      <main className="overflow-x-hidden relative z-10 content-safe-area">
+      {/* Body never scrolls — <main> scrolls internally. A fixed nav can't ride a scroll the body
+          doesn't do. No transform on any ancestor, so the nav still welds to the viewport bottom. */}
+      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
           <Route path="/login" component={Login} />
           <Route path="/astrology" component={Astrology} />
