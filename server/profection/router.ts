@@ -239,14 +239,16 @@ export const profectionRouter = router({
       // Get existing transits
       let transits = await getTimeLordTransitsForYear(profectionYear.id);
 
-      // Heal stale rows: if the segment covering today disagrees with the Time Lord's
-      // actual sidereal sign, the stored rows are stale (e.g. the old ayanamsa bug) —
-      // wipe them so they rebuild below.
+      // Heal stale rows: rebuild if the segment covering today disagrees with the Time
+      // Lord's actual sidereal sign (old ayanamsa bug), OR if it predates the co-present
+      // ("guests") computation (coPresentPlanets column null). Either way, wipe → rebuild.
       if (transits.length > 0 && subject.profileId != null) {
         const todayStr = new Date().toISOString().split("T")[0];
         const cur = transits.find((t) => t.startDate <= todayStr && todayStr <= t.endDate);
         const actualSign = await timeLordCurrentSign(profection.timeLord);
-        if (cur && actualSign && cur.sign !== actualSign) {
+        const signStale = !!(cur && actualSign && cur.sign !== actualSign);
+        const missingGuests = !!(cur && (cur as any).coPresentPlanets == null);
+        if (signStale || missingGuests) {
           const { deleteTimeLordTransitsForProfile } = await import("./transit-db.js");
           await deleteTimeLordTransitsForProfile(subject.profileId);
           transits = [];
