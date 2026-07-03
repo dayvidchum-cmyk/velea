@@ -530,8 +530,9 @@
     z-index: 50;
     background: var(--background) !important;
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    /* NO transform here: on iOS a position:fixed element with its own 3D transform gets
+       composited onto the GPU scroll layer and rides up into the content during momentum
+       scroll (the "nav floats mid-screen" bug). A plain fixed element stays pinned. */
   }
 
   /* App shell = the VISIBLE (dynamic) viewport. Using 100lvh (the full physical screen)
