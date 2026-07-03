@@ -758,6 +758,17 @@ NAME THE PLAYERS — but BRIEFLY, and only inside the WHY. Name each by planet a
 possessively ("your year lord, Venus, in your 8th"; "your antardasha, Saturn") so the
 reason is traceable to named guests in the room — a CLAUSE each, never a paragraph.
 
+DASHA HOUSES ARE REGISTERS, NOT TOPICS. A dasha/antardasha lord's house is never a
+standalone verdict — it is one register of the year's SAME core question, not a new
+subject. Never write "X antardasha in the Nth demands <thing> through <house-keyword>" as
+if the house were the point (e.g. "Saturn in the 1st demands proof through identity" —
+disconnected and hollow). When you name a demand, say <thing> OF WHAT in the YEAR'S terms:
+tie it to the coreTheme's stakes and to how the work is RECEIVED by others. In a year about
+the voice / what one puts out into the world, "Saturn in the 1st" is not "prove your
+identity" — it is Saturn demanding PROOF of the OUTPUT itself: the accuracy of the work is
+what earns the trust of the ones receiving it. The output is the proof. Read the 1st here as
+"how your work meets the world and is received," never bare "identity."
+
 GOLD EXAMPLE — match this DEPTH, VOICE, and the synthesis-then-why SHAPE; do NOT copy its
 content. (Subject: 44, Virgo lagna, 9th-house Venus year; Venus natal in the 5th ruling the
 9th and 2nd; Jupiter mahadasha in the 2nd; Ketu antardasha in the 4th.) These words belong
