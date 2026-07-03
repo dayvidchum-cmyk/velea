@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useDarkChromeWhile } from "@/contexts/ThemeContext";
 
 const GOLD = "#C9A84C";
 
@@ -10,6 +11,7 @@ const GOLD = "#C9A84C";
  */
 export default function BrandSplash({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
+  useDarkChromeWhile(true, "#0a131e"); // dark chrome so no white bar under the night sky
 
   useEffect(() => {
     const fade = setTimeout(() => setLeaving(true), 6000);

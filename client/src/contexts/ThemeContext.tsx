@@ -22,6 +22,22 @@ function resolveTheme(pref: ThemePreference): Theme {
   return pref;
 }
 
+/**
+ * Force the browser-chrome (theme-color) dark while `active` — for full-screen DARK
+ * overlays (splash, Tonight's Sky) so the iOS safe-area/chrome doesn't paint white
+ * underneath them in light mode (the "white bar"). Restores the prior value on exit.
+ */
+export function useDarkChromeWhile(active: boolean, color = "#05060a") {
+  useEffect(() => {
+    if (!active) return;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    const prev = meta.getAttribute("content");
+    meta.setAttribute("content", color);
+    return () => { if (prev != null) meta.setAttribute("content", prev); };
+  }, [active, color]);
+}
+
 interface ThemeProviderProps {
   children: React.ReactNode;
   /** Controlled preference value — when provided, ThemeProvider syncs to this */

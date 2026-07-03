@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useDarkChromeWhile } from "@/contexts/ThemeContext";
 
 /**
  * Tonight's Sky — the CURRENT moon phase (or eclipse) only, with the shell-ocean artwork,
@@ -31,6 +32,7 @@ const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", 
 export default function CelestialCard() {
   const { data } = trpc.celestial.today.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const [open, setOpen] = useState(false);
+  useDarkChromeWhile(open); // keep the iOS chrome dark under the full-screen view
   if (!data) return null;
   const d = data as any;
 
