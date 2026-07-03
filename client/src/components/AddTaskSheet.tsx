@@ -250,7 +250,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
   const [isPinned, setIsPinned] = useState(false);
   const [wealthFlow, setWealthFlow] = useState(false);
   const [projectId, setProjectId] = useState<number | null>(null);
-  const [subtasks, setSubtasks] = useState<string[]>([]);
+  const [subtasks, setSubtasks] = useState<{ id?: number; title: string }[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
   // Task metadata for Current State scoring
   const [cognitiveLoad, setCognitiveLoad] = useState<LoadLevel>("Medium");
@@ -280,6 +280,18 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
   const updateTask = trpc.tasks.update.useMutation({ onSuccess: refreshAllLists });
 
   const createSubtask = trpc.subtasks.create.useMutation();
+  const deleteSubtask = trpc.subtasks.delete.useMutation();
+  // Load the task's existing subtasks when editing so they can be edited (add/remove), not just
+  // created. originalSubtaskIds lets the save know which were removed and delete them.
+  const editTaskId = editTask ? parseInt(editTask.id, 10) : null;
+  const existingSubtasks = trpc.subtasks.list.useQuery({ taskId: editTaskId ?? 0 }, { enabled: open && editTaskId != null });
+  const originalSubtaskIds = useRef<number[]>([]);
+  useEffect(() => {
+    if (open && editTaskId != null && existingSubtasks.data) {
+      setSubtasks(existingSubtasks.data.map((s: any) => ({ id: s.id, title: s.title })));
+      originalSubtaskIds.current = existingSubtasks.data.map((s: any) => s.id);
+    }
+  }, [open, editTaskId, existingSubtasks.data]);
 
   // Initialize form when sheet opens or editTask changes
   useEffect(() => {
@@ -344,7 +356,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
 
   const handleAddSubtask = useCallback(() => {
     if (newSubtaskTitle.trim()) {
-      setSubtasks((prev) => [...prev, newSubtaskTitle]);
+      setSubtasks((prev) => [...prev, { title: newSubtaskTitle.trim() }]);
       setNewSubtaskTitle("");
       // Keep focus on the subtask input and scroll it into view
       setTimeout(() => {
@@ -392,6 +404,18 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           recurrence,
           lifeAreas,
         });
+
+        // Sync subtasks in edit mode: create the newly-added ones, delete the removed ones.
+        for (const s of subtasks) {
+          if (s.id == null && s.title.trim()) {
+            await createSubtask.mutateAsync({ taskId: parseInt(editTask.id, 10), title: s.title.trim() });
+          }
+        }
+        const keptIds = subtasks.filter((s) => s.id != null).map((s) => s.id!);
+        for (const id of originalSubtaskIds.current) {
+          if (!keptIds.includes(id)) await deleteSubtask.mutateAsync({ id });
+        }
+        await utils.subtasks.list.invalidate({ taskId: parseInt(editTask.id, 10) });
       } else {
         const task = await createTask.mutateAsync({
           title,
@@ -413,11 +437,8 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
         });
 
         if (task && subtasks.length > 0) {
-          for (const subtaskTitle of subtasks) {
-            await createSubtask.mutateAsync({
-              taskId: task.id,
-              title: subtaskTitle,
-            });
+          for (const s of subtasks) {
+            if (s.title.trim()) await createSubtask.mutateAsync({ taskId: task.id, title: s.title.trim() });
           }
           await utils.tasks.list.invalidate();
         }
@@ -890,8 +911,8 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
               {subtasks.length > 0 && (
                 <div className="mb-3 space-y-2">
                   {subtasks.map((subtask, index) => (
-                    <div key={index} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary">
-                      <span className="flex-1 text-sm text-foreground">{subtask}</span>
+                    <div key={subtask.id ?? `new-${index}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary">
+                      <span className="flex-1 text-sm text-foreground">{subtask.title}</span>
                       <button
                         onClick={() => handleRemoveSubtask(index)}
                         className="p-1 text-muted-foreground hover:text-foreground transition-colors"
