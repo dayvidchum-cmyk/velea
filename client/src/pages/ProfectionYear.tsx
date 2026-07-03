@@ -646,26 +646,32 @@ export default function ProfectionYear() {
                     })}
                   </div>
 
-                  {/* Axis labels + the gold Velea mark (= today) on the same line, below the strip */}
-                  {(() => {
-                    const total = segs.reduce((sum, s) => sum + Math.max(ms(s.endDate) - ms(s.startDate), 1), 0);
-                    let elapsed = 0;
-                    for (const s of segs) {
-                      const d = Math.max(ms(s.endDate) - ms(s.startDate), 1);
-                      if (s.startDate <= todayStr && todayStr <= s.endDate) { elapsed += Math.max(0, Date.now() - ms(s.startDate)); break; }
-                      elapsed += d;
-                    }
-                    const todayFrac = Math.max(0, Math.min(1, elapsed / Math.max(total, 1)));
-                    return (
-                      <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.45rem", minHeight: 20 }}>
-                        <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
-                        <div style={{ position: "absolute", left: `${todayFrac * 100}%`, transform: "translateX(-50%)", lineHeight: 0, pointerEvents: "none" }} title="Today">
-                          <VeleaMark size={18} color="var(--brand-gold)" />
-                        </div>
-                        <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
-                      </div>
-                    );
-                  })()}
+                  {/* Axis: a flex row that MIRRORS the ribbon above (same flex + minWidth per
+                      segment), so the Velea mark lands INSIDE the true current segment. The old
+                      global time-% ignored the minWidth distortion and pushed the mark onto the
+                      neighboring sign. */}
+                  <div style={{ marginTop: "0.45rem" }}>
+                    <div style={{ display: "flex", width: "100%", height: 18 }}>
+                      {segs.map((s, idx) => {
+                        const dur = Math.max(ms(s.endDate) - ms(s.startDate), 1);
+                        const isCur = s.startDate <= todayStr && todayStr <= s.endDate;
+                        const segFrac = isCur ? Math.max(0, Math.min(1, (Date.now() - ms(s.startDate)) / dur)) : 0;
+                        return (
+                          <div key={idx} style={{ flex: `${dur} 0 0`, minWidth: 30, position: "relative" }}>
+                            {isCur && (
+                              <div style={{ position: "absolute", left: `${segFrac * 100}%`, top: 0, transform: "translateX(-50%)", lineHeight: 0, pointerEvents: "none" }} title="Today">
+                                <VeleaMark size={18} color="var(--brand-gold)" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.1rem" }}>
+                      <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
+                      <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
+                    </div>
+                  </div>
 
                   {/* Selected segment detail */}
                   {sel && (
