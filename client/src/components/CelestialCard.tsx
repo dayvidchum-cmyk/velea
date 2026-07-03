@@ -22,6 +22,8 @@ const SIGNALS = [
   { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", note: "A sudden ending — the tide turns." },
   { name: "Solar Eclipse", image: "solar-eclipse.jpg", note: "A reset. A new door, unseen." },
   { name: "Mercury Retrograde", image: "mercury-rx.jpg", note: "Review, revisit, revise — the past washes back to be read again." },
+  { name: "Mercury Stations Direct", image: "mercury-direct-2.jpg", note: "The turn. Forward motion resumes — but the shadow isn't cleared yet." },
+  { name: "Mercury Clears Shadow", image: "mercury-direct-1.jpg", note: "Retroshade over. The way is fully clear — proceed." },
 ];
 
 function Gallery({ startIdx, onClose }: { startIdx: number; onClose: () => void }) {
