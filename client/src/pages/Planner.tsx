@@ -26,6 +26,7 @@ import { composeNarrative } from "@/lib/narrative-data";
 import GlossaryText from "@/components/GlossaryText";
 import { GlossaryLink } from "@/components/GlossaryPopover";
 import WhyNowSheet from "@/components/WhyNowSheet";
+import { createPortal } from "react-dom";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import MasterModeCard from "@/components/MasterModeCard";
 import MeridianWhisper from "@/components/MeridianWhisper";
@@ -571,23 +572,15 @@ export default function Planner() {
       {isAuthenticated && <MeridianWhisper />}
       {isAuthenticated && <MasterModeCard />}
 
-      {/* ── WHAT ARE DAY MODES? (ExplainerPanel style) — above the hero ── */}
-      {isAuthenticated && (
-        <div className="relative z-10" style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden", marginBottom: "1rem" }}>
-          <button
-            onClick={() => setModesOpen((v) => !v)}
-            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
-          >
-            <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: todayModeColor }}>
-              What are day modes?
-            </span>
-            <ChevronDown
-              size={16}
-              style={{ color: todayModeColor, opacity: 0.7, flexShrink: 0, transform: modesOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-            />
-          </button>
-          {modesOpen && (
-            <div className="space-y-2" style={{ padding: "0 1.25rem 1.25rem" }}>
+      {/* ── WHAT ARE DAY MODES? — a small link that opens a pop-up (was a big card at the top) ── */}
+      {isAuthenticated && modesOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: "var(--dialog-overlay)" }} onClick={() => setModesOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 20, padding: "1.3rem", maxHeight: "82vh", overflowY: "auto" }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: "0.7rem" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: todayModeColor }}>What are day modes?</span>
+              <button onClick={() => setModesOpen(false)} aria-label="Close" style={{ width: 32, height: 32, borderRadius: 999, border: "none", background: "var(--color-secondary)", color: "var(--color-foreground)", fontSize: "1rem", cursor: "pointer" }}>✕</button>
+            </div>
+            <div className="space-y-2">
               <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.35rem" }}>
                 A day mode is Velea's read of what today's sky favors — the kind of work that flows with the day instead of against it. The Moon moving through your chart sets it. Here's what each of the four means and which tasks fit.
               </p>
@@ -639,8 +632,20 @@ export default function Planner() {
                 );
               })}
             </div>
-          )}
-        </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+
+      {/* Small link to open the day-modes pop-up (replaces the big card that used to sit here) */}
+      {isAuthenticated && (
+        <button
+          onClick={() => setModesOpen(true)}
+          className="relative z-10 mb-2 inline-flex items-center gap-1"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", color: todayModeColor, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.82 }}
+        >
+          What are day modes? <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
+        </button>
       )}
 
       {/* ── 3. HERO DAY MODE CARD ── */}
@@ -998,7 +1003,7 @@ export default function Planner() {
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
             >
-              Do Now
+              Do Now · pinned by you
             </h3>
             <ChevronDown
               size={13}
@@ -1011,9 +1016,9 @@ export default function Planner() {
               className="p-4 text-center rounded-lg"
               style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
             >
-              <p className="text-sm">No pinned tasks.</p>
-              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
-                Pin tasks to see them here.
+              <p className="text-sm">Nothing pinned yet.</p>
+              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+                This list is entirely yours — pin any task (tap the 📌) to keep it right here, in focus. Velea suggests; you decide.
               </p>
             </div>
           ) : (
