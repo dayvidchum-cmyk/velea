@@ -22,7 +22,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
   return (
     <div
       onClick={onDone}
-      className="app-cover-height"
+      className="app-shell-height"
       style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, cursor: "pointer",
         background: "#0a131e",
