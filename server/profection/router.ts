@@ -11,7 +11,7 @@ import { calculateProfectionYear, getProfectionYearsInRange } from "./calculator
 import { generateProfectionInterpretation } from "./interpreter.js";
 import { getOrCreateProfectionYear, getProfectionYearForDate, getProfectionYearsInDateRange } from "./db.js";
 import { getTimeLordTransitsForYear, createTimeLordTransits } from "./transit-db.js";
-import { calculateTimeLordTransits, timeLordCurrentSign } from "./transit-calculator.js";
+import { calculateTimeLordTransits, timeLordCurrentSign, timeLordGuestsNow } from "./transit-calculator.js";
 import { getUserById, getNatalBodiesByUser } from "../db.js";
 import type { ProfectionYearResponseContract, ProfectionYearWithTransitsResponseContract, TimeLordTransitRecord } from "./types.js";
 
@@ -281,22 +281,29 @@ export const profectionRouter = router({
         }
       }
 
-      // Map database records to transit contract
-      const transitRecords: TimeLordTransitRecord[] = transits.map(t => ({
-        startDate: t.startDate,
-        endDate: t.endDate,
-        timeLord: t.timeLord,
-        sign: t.sign,
-        house: t.house,
-        retrogradeStatus: t.isRetrograde,
-        secondaryConditions: {
-          coPresentPlanets: t.coPresentPlanets ? JSON.parse(t.coPresentPlanets) : undefined,
-          rahuKetuPresence: t.rahuKetuPresence as "Rahu" | "Ketu" | "Both" | null | undefined,
-          combustionStatus: t.combustionStatus || undefined,
-          closeConjunctions: t.closeConjunctions ? JSON.parse(t.closeConjunctions) : undefined,
-          solitaryStatus: t.solitaryStatus || undefined,
-        },
-      }));
+      // Map database records to transit contract. The CURRENT segment's guests/combustion/
+      // solitary are computed LIVE (right now) instead of its stored midpoint snapshot.
+      const todayStr2 = new Date().toISOString().split("T")[0];
+      const guestsNow = await timeLordGuestsNow(profection.timeLord);
+      const transitRecords: TimeLordTransitRecord[] = transits.map(t => {
+        const isCurrent = t.startDate <= todayStr2 && todayStr2 <= t.endDate;
+        const live = isCurrent && guestsNow ? guestsNow : null;
+        return {
+          startDate: t.startDate,
+          endDate: t.endDate,
+          timeLord: t.timeLord,
+          sign: t.sign,
+          house: t.house,
+          retrogradeStatus: t.isRetrograde,
+          secondaryConditions: {
+            coPresentPlanets: live ? live.coPresentPlanets : (t.coPresentPlanets ? JSON.parse(t.coPresentPlanets) : undefined),
+            rahuKetuPresence: t.rahuKetuPresence as "Rahu" | "Ketu" | "Both" | null | undefined,
+            combustionStatus: live ? live.combustionStatus : (t.combustionStatus || undefined),
+            closeConjunctions: t.closeConjunctions ? JSON.parse(t.closeConjunctions) : undefined,
+            solitaryStatus: live ? live.solitaryStatus : (t.solitaryStatus || undefined),
+          },
+        };
+      });
 
       const response: ProfectionYearWithTransitsResponseContract = {
         transits: transitRecords,

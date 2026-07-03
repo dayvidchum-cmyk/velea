@@ -31,6 +31,17 @@ function getZodiacSign(longitude: number): string {
   return ZODIAC_SIGNS[index] || "Aries";
 }
 
+/** The Time Lord's co-present planets ("guests"), combustion & solitary status RIGHT NOW —
+ *  live, so the current segment reflects the present moment rather than its stored midpoint. */
+export async function timeLordGuestsNow(planet: string): Promise<{ coPresentPlanets: string[]; solitaryStatus: boolean; combustionStatus: boolean } | null> {
+  try {
+    const se = await getSharedSe();
+    return computeCoPresent(se, dateToJD(new Date()), planet);
+  } catch {
+    return null;
+  }
+}
+
 /** The Time Lord planet's actual sidereal sign right now — for detecting stale rows. */
 export async function timeLordCurrentSign(planet: string): Promise<string | null> {
   try {
