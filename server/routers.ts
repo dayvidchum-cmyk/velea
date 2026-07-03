@@ -1273,21 +1273,60 @@ export const appRouter = router({
       const daysToNew = Math.max(0, Math.round((360 - elong) / RATE));
 
       const base = { moonSign, moonHouse, daysToFull, daysToNew };
-      // An eclipse today, or Mercury retrograde, is "what else is happening" alongside the moon.
+
+      // Station-cycle heroes — a planet (with artwork) in a notable retrograde-cycle phase,
+      // co-equal to the moon in The Stage. Approximate phase from days-to/from the nearest
+      // station. Scalable: add a planet's art to STATION_ART and it surfaces automatically.
+      const STATION_ART: Record<string, Record<string, string>> = {
+        Mercury: {
+          "preshadow-1": "mercury-preshadow-1.jpg", "preshadow-2": "mercury-preshadow-2.jpg",
+          "preshadow-3": "mercury-preshadow-3.jpg", "retrograde": "mercury-rx.jpg",
+          "direct-2": "mercury-direct-2.jpg", "direct-1": "mercury-direct-1.jpg",
+        },
+      };
+      const STATION_COPY: Record<string, { title: string; note: string }> = {
+        "preshadow-1": { title: "{P} enters its shadow", note: "The retrograde zone opens — what you begin now you'll likely revisit, so leave room to revise." },
+        "preshadow-2": { title: "{P}'s shadow deepens", note: "The turn is coming. Tie off what you don't want reopened; keep the rest flexible." },
+        "preshadow-3": { title: "{P} in deep shadow", note: "The station is near — back up, double-check, confirm. Loose ends are surfacing on purpose." },
+        "retrograde": { title: "{P} retrograde", note: "Not a curse — a review. Revisit, refine, reconnect, finish; hold big launches while the ground is re-walked." },
+        "direct-2": { title: "{P} stations direct", note: "The turn. Clarity returns, but slowly — let momentum rebuild before you floor it." },
+        "direct-1": { title: "{P} clears its shadow", note: "The review closes — fresh ground again. Now what you start holds." },
+      };
+      const phaseOf = (p: any): string | null => {
+        if (p.isRetrograde) return "retrograde";
+        const st = p.station;
+        if (!st) return null;
+        if (st.type === "turns retrograde" && st.daysAway > 0)
+          return st.daysAway <= 5 ? "preshadow-3" : st.daysAway <= 10 ? "preshadow-2" : st.daysAway <= 16 ? "preshadow-1" : null;
+        if (st.type === "turns direct" && st.daysAway <= 0)
+          return st.daysAway >= -7 ? "direct-2" : "direct-1";
+        return null;
+      };
+
+      // An eclipse today, or a planet mid retrograde-cycle, is "what else is happening" with the moon.
       let mercuryRetro = false;
+      let stations: any[] = [];
       try {
         if (ctx.subject) {
           const { getCurrentSky } = await import("./sky/current-sky.js");
           const sky = await getCurrentSky(ctx.subject);
+          stations = (sky.planets ?? []).map((p: any) => {
+            if (!STATION_ART[p.planet]) return null;
+            const ph = phaseOf(p);
+            const image = ph ? STATION_ART[p.planet][ph] : null;
+            if (!ph || !image) return null;
+            const c = STATION_COPY[ph];
+            return { planet: p.planet, phase: ph, image, title: c.title.replace("{P}", p.planet), note: c.note, sign: p.sign, house: p.house };
+          }).filter(Boolean);
           const ecl = (sky.eclipses ?? []).find((e) => e.daysAway === 0);
-          if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, ...base };
-          if (ecl?.type === "solar") return { name: "Solar Eclipse", image: "solar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, ...base };
+          if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, stations, ...base };
+          if (ecl?.type === "solar") return { name: "Solar Eclipse", image: "solar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, stations, ...base };
           mercuryRetro = (sky.retrogrades ?? []).includes("Mercury");
         }
       } catch { /* degrade gracefully */ }
 
       const isEvent = phase.name === "Full Moon" || phase.name === "New Moon";
-      return { name: phase.name, image: phase.image, isEvent, isEclipse: false, mercuryRetro, ...base };
+      return { name: phase.name, image: phase.image, isEvent, isEclipse: false, mercuryRetro, stations, ...base };
     }),
   }),
 

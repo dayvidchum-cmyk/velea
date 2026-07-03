@@ -37,62 +37,90 @@ const HOUSE_THEME: Record<number, string> = {
 };
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 
+const phaseLabel = (phase: string) =>
+  phase.startsWith("preshadow") ? "pre-shadow" : phase === "retrograde" ? "retrograde ℞" : phase === "direct-2" ? "stations direct" : "clears shadow";
+
+type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string };
+
 /**
  * StageSheet — "The Stage": the whole sky for today in one place, openable from the header.
- * The moon phase (folded in from Tonight's Sky) leads as a hero, then today's verdict
- * (universal × check-in), the slow-planet weather, and retrogrades.
+ * A swipeable hero carousel leads (the moon phase + any planet mid retrograde-cycle), then
+ * today's verdict, the slow-planet weather, and retrogrades.
  */
 export default function StageSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const accent = useDayModeColor();
   const { data: stage } = trpc.sky.stage.useQuery(undefined, { staleTime: 30 * 60 * 1000, enabled: open });
   const { data: sky } = trpc.celestial.today.useQuery(undefined, { staleTime: 30 * 60 * 1000, enabled: open });
-  const [skyOpen, setSkyOpen] = useState(false);
-  useDarkChromeWhile(skyOpen);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [skyIdx, setSkyIdx] = useState(-1); // -1 = closed; else index of the hero shown full-screen
+  useDarkChromeWhile(skyIdx >= 0);
   if (!open) return null;
 
   const d = sky as any;
   const house: number | null = d?.moonHouse ?? null;
   const intent = d ? (PHASE_INTENT[d.name] ?? "") : "";
-  const note = d ? (house ? `${intent} — in your ${ORD[house]} house of ${HOUSE_THEME[house]}.` : `${intent}.`) : "";
+  const moonNote = d ? (house ? `${intent} — in your ${ORD[house]} house of ${HOUSE_THEME[house]}.` : `${intent}.`) : "";
   const moonWhere = d ? `Moon in ${d.moonSign}${house ? ` · your ${ORD[house]} house` : ""}` : "";
   const cycle = d ? (d.isEclipse ? "Eclipse today" : d.daysToNew <= d.daysToFull ? `${d.daysToNew}d to New Moon` : `${d.daysToFull}d to Full Moon`) : "";
 
+  // The hero carousel: the moon leads, then any planet mid retrograde-cycle (co-equal).
+  const heroes: Hero[] = [];
+  if (d) {
+    heroes.push({ image: d.image, kicker: `The Stage · ${moonWhere}`, title: d.name, chips: [cycle], note: moonNote });
+    for (const s of (d.stations ?? [])) {
+      heroes.push({
+        image: s.image,
+        kicker: `The Stage · ${s.planet}${s.house ? ` · your ${ORD[s.house]} house` : s.sign ? ` in ${s.sign}` : ""}`,
+        title: s.title, chips: [phaseLabel(s.phase)], note: s.note,
+      });
+    }
+  }
+  const idx = Math.min(activeIdx, Math.max(0, heroes.length - 1));
+
   return createPortal(
     <>
-      <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-        style={{ background: "var(--dialog-overlay)" }}
-        onClick={onClose}
-      >
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-md flex flex-col"
-          style={{ maxHeight: "min(85vh, 680px)", background: "var(--color-card)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1px solid var(--color-border)" }}
-        >
-          {/* Close — floats over the hero / header */}
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: "var(--dialog-overlay)" }} onClick={onClose}>
+        <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col"
+          style={{ maxHeight: "min(85vh, 680px)", background: "var(--color-card)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1px solid var(--color-border)" }}>
           <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, zIndex: 2, width: 32, height: 32, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.42)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <X size={17} />
           </button>
 
           <div className="overflow-y-auto">
-            {/* Moon-phase hero — the sky leads. Tap to expand into the full-screen art. */}
-            {d && (
-              <button
-                onClick={() => setSkyOpen(true)}
-                style={{ position: "relative", width: "100%", height: 190, display: "block", textAlign: "left", cursor: "pointer", border: "none", padding: 0, overflow: "hidden" }}
-              >
-                <img src={`/celestial/${d.image}`} alt={d.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,6,10,0.92) 4%, rgba(5,6,10,0.35) 45%, rgba(5,6,10,0.15))" }} />
-                <div style={{ position: "absolute", left: 18, right: 18, bottom: 14 }}>
-                  <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)" }}>The Stage · {moonWhere}</p>
-                  <p style={{ margin: "0.15rem 0 0", fontSize: "1.5rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 14px rgba(0,0,0,0.6)" }}>{d.name}</p>
-                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.4rem" }}>
-                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.16)", padding: "0.12rem 0.5rem", borderRadius: 999 }}>{cycle}</span>
-                    {d.mercuryRetro && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(192,85,62,0.5)", padding: "0.12rem 0.5rem", borderRadius: 999 }}>Mercury retrograde ℞</span>}
-                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", padding: "0.12rem 0.2rem" }}>tap to expand ↗</span>
-                  </div>
+            {/* Hero carousel — swipe between the moon and any planet mid retrograde-cycle. Tap to expand. */}
+            {heroes.length > 0 && (
+              <>
+                <div className="no-scrollbar" onScroll={(e) => setActiveIdx(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}
+                  style={{ display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+                  {heroes.map((h, i) => (
+                    <button key={i} onClick={() => setSkyIdx(i)}
+                      style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", height: 200, border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left" }}>
+                      <img src={`/celestial/${h.image}`} alt={h.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,6,10,0.92) 4%, rgba(5,6,10,0.35) 45%, rgba(5,6,10,0.15))" }} />
+                      <div style={{ position: "absolute", left: 18, right: 18, bottom: 14 }}>
+                        <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)" }}>{h.kicker}</p>
+                        <p style={{ margin: "0.15rem 0 0", fontSize: "1.5rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 14px rgba(0,0,0,0.6)" }}>{h.title}</p>
+                        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.4rem", alignItems: "center" }}>
+                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.16)", padding: "0.12rem 0.5rem", borderRadius: 999 }}>{c}</span>)}
+                          {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.72)" }}>swipe →</span>}
+                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>tap ↗</span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              </button>
+                {heroes.length > 1 && (
+                  <div style={{ display: "flex", justifyContent: "center", gap: 6, padding: "8px 0 2px" }}>
+                    {heroes.map((_, i) => <span key={i} style={{ width: i === idx ? 16 : 6, height: 6, borderRadius: 999, background: i === idx ? accent : "var(--color-border)", transition: "width 0.2s" }} />)}
+                  </div>
+                )}
+                {/* The active hero's meaning for you */}
+                {heroes[idx]?.note && (
+                  <div style={{ padding: "0.6rem 1.25rem 0.85rem", borderBottom: "1px solid var(--color-border)" }}>
+                    <p className="text-sm" style={{ color: "var(--foreground)", lineHeight: 1.5, margin: 0 }}>{heroes[idx].note}</p>
+                  </div>
+                )}
+              </>
             )}
 
             {!stage ? (
@@ -119,13 +147,6 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     )}
                   </div>
                 )}
-                {/* The moon phase's meaning for you */}
-                {d && note && (
-                  <div style={{ padding: "0.85rem 1.25rem", borderBottom: "1px solid var(--color-border)" }}>
-                    <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)", margin: "0 0 0.35rem" }}>The moon</p>
-                    <p className="text-sm" style={{ color: "var(--foreground)", lineHeight: 1.5, margin: 0 }}>{note}</p>
-                  </div>
-                )}
                 <div style={{ padding: "0.9rem 1.25rem 1.25rem" }}>
                   <p className="text-xs font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)", margin: "0 0 0.55rem" }}>Slow-planet weather</p>
                   {stage.signals.length === 0 ? (
@@ -148,11 +169,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                       {(stage.retrogradesDetail ?? stage.retrogrades.map((p) => ({ planet: p, house: null as number | null, sign: null }))).map((r) => {
                         const pc = RX_PLANET_COLOR[r.planet] ?? "var(--foreground)";
                         return (
-                        <GlossaryLink
-                          key={r.planet}
-                          term="Retrograde (Vakri)"
-                          underline={false}
-                          className="text-xs font-semibold"
+                        <GlossaryLink key={r.planet} term="Retrograde (Vakri)" underline={false} className="text-xs font-semibold"
                           style={{ display: "inline-block", color: pc, background: `color-mix(in srgb, ${pc} 14%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${pc} 42%, transparent)`, borderRadius: 999, padding: "0.15rem 0.55rem" }}
                           extra={r.house ? <>Right now: <strong>{r.planet}</strong> is retrograde in your <strong>{RX_ORD[r.house]} house</strong>{RX_HOUSE_THEME[r.house] ? ` — ${RX_HOUSE_THEME[r.house]}` : ""}. The review lands here.</> : undefined}
                         >{r.planet} ℞</GlossaryLink>
@@ -167,19 +184,19 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
         </div>
       </div>
 
-      {/* Full-screen immersive moon art (from the hero tap) */}
-      {skyOpen && d && (
+      {/* Full-screen immersive art for the tapped hero */}
+      {skyIdx >= 0 && heroes[skyIdx] && (
         <div className="app-shell-height" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10000, background: "#05060a" }}>
-          <img src={`/celestial/${d.image}`} alt={d.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
+          <img src={`/celestial/${heroes[skyIdx].image}`} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.66), transparent 42%)" }} />
-          <button onClick={() => setSkyOpen(false)} aria-label="Close" style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 0.9rem)", right: "1rem", width: 34, height: 34, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.4)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <button onClick={() => setSkyIdx(-1)} aria-label="Close" style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 0.9rem)", right: "1rem", width: 34, height: 34, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.4)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <X size={18} />
           </button>
           <div style={{ position: "absolute", bottom: "calc(env(safe-area-inset-bottom,0px) + 1.6rem)", left: 0, right: 0, padding: "0 1.4rem", pointerEvents: "none" }}>
-            <p style={{ margin: 0, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.78)" }}>Tonight · {moonWhere}</p>
-            <p style={{ margin: "0.3rem 0 0", fontSize: "1.9rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>{d.name}</p>
-            <p style={{ margin: "0.35rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.9)", fontStyle: "italic", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{note}</p>
-            <p style={{ margin: "0.5rem 0 0", fontSize: "0.8rem", color: "rgba(255,255,255,0.75)" }}>{cycle}{d.mercuryRetro ? " · Mercury retrograde" : ""}</p>
+            <p style={{ margin: 0, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.78)" }}>{heroes[skyIdx].kicker}</p>
+            <p style={{ margin: "0.3rem 0 0", fontSize: "1.9rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].title}</p>
+            <p style={{ margin: "0.35rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.9)", fontStyle: "italic", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].note}</p>
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.8rem", color: "rgba(255,255,255,0.75)" }}>{heroes[skyIdx].chips.join(" · ")}</p>
           </div>
         </div>
       )}
