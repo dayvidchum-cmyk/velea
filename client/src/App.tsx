@@ -12,7 +12,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { SettingsProvider, useSettingsContext } from "./contexts/SettingsContext";
 import { AddTaskProvider, useAddTask } from "./contexts/AddTaskContext";
 import BottomNav from "./components/BottomNav";
-import SafeAreaDebug from "./components/SafeAreaDebug";
 import { APP_VERSION } from "./lib/version";
 import AddTaskSheet from "./components/AddTaskSheet";
 import Onboarding from "./components/Onboarding";
@@ -319,7 +318,6 @@ const { user, loading } = useAuth();
           <BottomNav />
         </div>
       )}
-      <SafeAreaDebug />
 
       {/* First-run onboarding for newcomers (intro cards + guided tour) */}
       <Onboarding
