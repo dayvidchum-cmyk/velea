@@ -44,8 +44,10 @@ type Hero = { image: string; kicker: string; title: string; chips: string[]; not
 // The reading sits in a scrim that RIDES WITH THE TEXT — it fades in at the top (below the
 // image's focal point, ~the "yellow line") and ends where the text ends, so the foreground
 // (the sand, the tide-pool objects) stays clear on short cards.
-const TEXT_SCRIM = "linear-gradient(180deg, rgba(5,6,10,0) 0%, rgba(5,6,10,0.74) 16%, rgba(5,6,10,0.84) 62%, rgba(5,6,10,0.5) 100%)";
-const TS = "0 1px 10px rgba(0,0,0,0.85)"; // text shadow so words hold over the art
+// Light + smooth — dim the art only just enough; a dark halo on the TEXT does the real work,
+// so the illustration is never sacrificed (see the text-over-image opacity rule).
+const TEXT_SCRIM = "linear-gradient(180deg, rgba(5,6,10,0) 0%, rgba(5,6,10,0.12) 10%, rgba(5,6,10,0.3) 32%, rgba(5,6,10,0.3) 72%, rgba(5,6,10,0.1) 92%, rgba(5,6,10,0) 100%)";
+const TS = "0 0 10px rgba(0,0,0,0.95), 0 2px 8px rgba(0,0,0,0.92)"; // halo so white text holds over the art without a heavy scrim
 
 /**
  * StageSheet — "The Stage": each sky image IS the card. On every card the reading starts at an

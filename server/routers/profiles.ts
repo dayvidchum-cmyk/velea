@@ -70,6 +70,7 @@ async function upsertProfileNatalBody(
     nakshatra?: string | null;
     pada?: number | null;
     longitude?: string | null;
+    isRetrograde?: boolean;
   }
 ) {
   const db = await getDb();
@@ -170,6 +171,7 @@ async function ensureOwnerProfileHelper(userId: number) {
         nakshatra: b.nakshatra ?? null,
         pada: b.pada ?? null,
         longitude: b.longitude ?? null,
+        isRetrograde: (b as any).isRetrograde ?? false,
       }).onDuplicateKeyUpdate({ set: { sign: b.sign } });
     }
   }
@@ -446,6 +448,7 @@ export const profilesRouter = router({
             nakshatra: planet.data.nakshatra || null,
             pada: planet.data.pada || null,
             longitude: planet.data.longitude != null ? planet.data.longitude.toFixed(6) : null,
+            isRetrograde: !!planet.data.isRetrograde,
           });
         }
 
