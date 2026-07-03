@@ -519,9 +519,9 @@
     z-index: 50;
     flex-shrink: 0;
     background: var(--background) !important;
-    /* env clears the home indicator; +4px is just enough breathing room without leaving a
-       visible empty strip below the labels. */
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4px);
+    /* Sit the content as low as iOS allows — env() is exactly the home-indicator clearance,
+       nothing extra, so the labels land at the very bottom, not floating above a strip. */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
