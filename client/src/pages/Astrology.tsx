@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { ChevronDown, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
+import GlossaryText from "@/components/GlossaryText";
 import { ModeCard } from "@/components/ModeCard";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
@@ -336,7 +337,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                 In your chart
               </p>
               <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: 0 }}>
-                {composeHouseSynthesis(sel, selSign, selPlanets, natalBodies).join(" ")}
+                <GlossaryText>{composeHouseSynthesis(sel, selSign, selPlanets, natalBodies).join(" ")}</GlossaryText>
               </p>
             </div>
 
@@ -975,7 +976,7 @@ function ProfectionSection() {
             ))}
           </div>
           <p style={{ color: LIGHT_MUTED, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "0.4rem" }}>Yearly Focus</p>
-          <p style={{ color: LIGHT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, fontWeight: 500 }}>{profectionData.interpretation.section5}</p>
+          <p style={{ color: LIGHT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, fontWeight: 500 }}><GlossaryText>{profectionData.interpretation.section5}</GlossaryText></p>
         </>,
         undefined,
         tlGradient,
@@ -983,12 +984,12 @@ function ProfectionSection() {
 
       {/* What Supports Growth — immersive gradient */}
       {gradientCard("What Supports Growth", growthOpen, setGrowthOpen,
-        <p style={{ color: LIGHT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap", fontWeight: 500 }}>{profectionData.interpretation.section6}</p>
+        <p style={{ color: LIGHT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap", fontWeight: 500 }}><GlossaryText>{profectionData.interpretation.section6}</GlossaryText></p>
       )}
 
       {/* What Creates Friction — immersive gradient */}
       {gradientCard("What Creates Friction", frictionOpen, setFrictionOpen,
-        <p style={{ color: LIGHT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap", fontWeight: 500 }}>{profectionData.interpretation.section7}</p>
+        <p style={{ color: LIGHT_PRIMARY, fontSize: "0.875rem", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap", fontWeight: 500 }}><GlossaryText>{profectionData.interpretation.section7}</GlossaryText></p>
       )}
 
       {/* Current Time Lord Movement — immersive gradient */}

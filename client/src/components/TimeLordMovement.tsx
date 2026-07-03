@@ -14,6 +14,7 @@
 
 import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
+import GlossaryText from "@/components/GlossaryText";
 
 // ─── House focus labels ───────────────────────────────────────────────────────
 
@@ -195,7 +196,7 @@ export function TimeLordMovement({ selectedDate, variant = "default", accentColo
           className="text-base leading-relaxed"
           style={{ color: mutedColor }}
         >
-          {focus}
+          <GlossaryText>{focus}</GlossaryText>
         </p>
       </div>
 

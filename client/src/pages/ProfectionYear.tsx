@@ -9,6 +9,7 @@ import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { ProfectionWheel } from "@/components/ProfectionWheel";
 import { WhyNowChain } from "@/components/WhyNowChain";
 import MeridianCard from "@/components/MeridianCard";
+import GlossaryText from "@/components/GlossaryText";
 import { CurrentTriggerBreakdown } from "@/components/CurrentTriggerBreakdown";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "../../../shared/types";
 import { LIFE_AREAS } from "../../../shared/life-areas";
@@ -271,7 +272,7 @@ export default function ProfectionYear() {
   const goldTakeaway = (text: string) => (
     <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", marginTop: "0.95rem" }}>
       <VeleaMark size={17} color="#E7C766" style={{ flexShrink: 0, marginTop: "0.15rem" }} />
-      <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}>{text.charAt(0).toUpperCase() + text.slice(1)}</p>
+      <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0, fontWeight: 600 }}><GlossaryText>{text.charAt(0).toUpperCase() + text.slice(1)}</GlossaryText></p>
     </div>
   );
 
