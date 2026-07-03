@@ -95,8 +95,8 @@ const TASK_STEPS: TourStep[] = [
   {
     route: "/",
     selector: '[data-tour="add-fab"]',
-    title: "Add anything",
-    body: "Tap + to add a task. Give it a mode, a life area, a due date, and — if it repeats — a recurrence. It'll surface on the right day.",
+    title: "Add tasks — this is what turns it on",
+    body: "This is the part that matters: Velea reads the sky, but it only works FOR you once you add your real tasks. Tap + to add one — a mode, a life area, a due date, a recurrence — and Velea times and ranks it onto the days that fit. Without tasks, it's all analysis and no action.",
   },
 ];
 
@@ -122,15 +122,15 @@ const TOUR: TourStep[] = [
   {
     route: "/",
     selector: '[data-tour="current-state"]',
-    title: "Tune your day",
-    body: "Tell Velea where you are and how you're feeling. It folds that into the guidance so it fits your real day.",
+    title: "Set your current location",
+    body: "Tap here to set where you are RIGHT NOW — your current location, which is separate from where you were born and is what makes today's timing accurate. Tell Velea how you're feeling too, and the moment you save, your tasks re-rank to fit your real state.",
   },
   {
     route: "/astrology",
     tab: "natal",
     selector: '[data-tour="natal-chart"]',
     title: "Your birth chart",
-    body: "The sky at the moment you were born, in the Vedic (sidereal) zodiac. Your signs may differ from Western astrology — tap “What is a natal chart?” above the chart to see why.",
+    body: "The sky at the moment you were born, in the Vedic (sidereal) zodiac — built from your birth date, time, and place, so everything Velea tells you rests on it. If any of that's off, fix it in your profile and the whole chart recomputes. Your signs may differ from Western astrology — tap “What is a natal chart?” to see why.",
   },
   {
     route: "/astrology",
