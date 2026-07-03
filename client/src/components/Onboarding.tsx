@@ -2,8 +2,26 @@ import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react
 import { useLocation } from "wouter";
 import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
+import FirstRunWelcome from "./FirstRunWelcome";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
+
+const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+/** "1982-02-03" + "20:39" + "West Islip" → "February 3, 1982 · 8:39 PM · West Islip" */
+function formatBirthLine(p: any): string | null {
+  if (!p?.birthDate) return null;
+  const [y, m, d] = String(p.birthDate).slice(0, 10).split("-").map(Number);
+  const datePart = (m && d && y) ? `${MONTHS_FULL[m - 1]} ${d}, ${y}` : String(p.birthDate);
+  let timePart = "";
+  if (p.birthTime) {
+    const [hh, mm] = String(p.birthTime).split(":").map(Number);
+    const ap = hh >= 12 ? "PM" : "AM"; const h12 = ((hh + 11) % 12) + 1;
+    timePart = ` · ${h12}:${String(mm ?? 0).padStart(2, "0")} ${ap}`;
+  }
+  return `${datePart}${timePart}${p.birthLocationCity ? ` · ${p.birthLocationCity}` : ""}`;
+}
+/** Fire the guided tour from anywhere (welcome card, Settings). */
+export function startTour() { window.dispatchEvent(new Event("velea-start-tour")); }
 
 /**
  * First-run onboarding for newcomers who only know their Western sun sign.
@@ -196,13 +214,18 @@ const PAGE_TOURS: { route: string; key: string; steps: TourStep[] }[] = [
 
 export default function Onboarding({ active, userId }: Props) {
   const accent = useDayModeColor();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
 
   // Server-persisted tour state ({ seen: string[], enabled }). Reliable across
   // devices and iOS PWA localStorage clears — that's why it used to re-fire.
   const tourState = trpc.settings.getTourState.useQuery(undefined, { enabled: userId != null, staleTime: 60_000 });
+  const activeProfile = trpc.profiles.getActive.useQuery(undefined, { enabled: userId != null, staleTime: 60_000 });
+  const locationData = trpc.settings.getLocation.useQuery(undefined, { enabled: userId != null, staleTime: 60_000 });
   const utils = trpc.useUtils();
   const markSeen = trpc.settings.markTourSeen.useMutation({
+    onSuccess: () => { utils.settings.getTourState.invalidate(); },
+  });
+  const setToursEnabled = trpc.settings.setToursEnabled.useMutation({
     onSuccess: () => { utils.settings.getTourState.invalidate(); },
   });
 
@@ -210,6 +233,7 @@ export default function Onboarding({ active, userId }: Props) {
   const [running, setRunning] = useState<{ key: string; steps: TourStep[] } | null>(null);
   const [tourIndex, setTourIndex] = useState(0);
   const [taskGuide, setTaskGuide] = useState(false);
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const taskKey = userId != null ? `${TASK_GUIDE_PREFIX}${userId}` : null;
 
   // Standalone task guide — fired via window event (Settings, zero-task nudge).
@@ -219,11 +243,22 @@ export default function Onboarding({ active, userId }: Props) {
     return () => window.removeEventListener(TASK_GUIDE_EVENT, onFire);
   }, [running]);
 
-  // Run the current page's tour the first time the user lands there — once per page.
+  // Explicit "start the tour" — from the welcome card or Settings. Opt-in only.
+  useEffect(() => {
+    const onStart = () => {
+      const pageTour = PAGE_TOURS.find((p) => p.route === location) ?? PAGE_TOURS.find((p) => p.route === "/");
+      if (pageTour) { setTaskGuide(false); setTourIndex(0); setRunning({ key: pageTour.key, steps: pageTour.steps }); }
+    };
+    window.addEventListener("velea-start-tour", onStart);
+    return () => window.removeEventListener("velea-start-tour", onStart);
+  }, [location]);
+
+  // Run the current page's tour the first time the user lands there — but ONLY after the
+  // welcome has been dismissed AND the user opted into tours (enabled). No forced overlays.
   useEffect(() => {
     if (!active || userId == null || running || taskGuide) return;
     const data = tourState.data;
-    if (!data || !data.enabled) return;
+    if (!data || !data.enabled || !data.seen.includes("welcome")) return;
     const pageTour = PAGE_TOURS.find((p) => p.route === location);
     if (!pageTour || data.seen.includes(pageTour.key)) return;
     const t = setTimeout(() => { setTourIndex(0); setRunning({ key: pageTour.key, steps: pageTour.steps }); }, 700);
@@ -238,6 +273,26 @@ export default function Onboarding({ active, userId }: Props) {
     if (taskKey) { try { localStorage.setItem(taskKey, "1"); } catch { /* ignore */ } }
     setTaskGuide(false);
   }, [taskKey]);
+
+  // First-run welcome — shown once on Today, before any tour. Replaces the auto-forced tour;
+  // drives birth-data confirmation + current-location, then OFFERS the tour.
+  const prof = activeProfile.data as any;
+  const showWelcome = !welcomeDismissed && active && userId != null && !running && !taskGuide
+    && !!tourState.data && !tourState.data.seen.includes("welcome") && location === "/";
+  if (showWelcome) {
+    return (
+      <FirstRunWelcome
+        name={prof?.name ?? ""}
+        birthLine={formatBirthLine(prof)}
+        locationSet={!!(locationData.data as any)?.city}
+        locationLabel={(locationData.data as any)?.city ?? null}
+        onFixBirth={() => navigate("/profiles")}
+        onSetLocation={() => window.dispatchEvent(new Event("velea-open-location"))}
+        onTakeTour={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: true }); startTour(); }}
+        onExplore={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: false }); }}
+      />
+    );
+  }
 
   if (running) {
     return (

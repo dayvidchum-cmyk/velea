@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Star } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -46,6 +46,12 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const isAdmin = user?.role === "admin";
   const modeColor = useDayModeColor();
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
+  // The first-run welcome opens the location picker via this event ("Set my location").
+  useEffect(() => {
+    const open = () => setLocationSheetOpen(true);
+    window.addEventListener("velea-open-location", open);
+    return () => window.removeEventListener("velea-open-location", open);
+  }, []);
   const [checkInSheetOpen, setCheckInSheetOpen] = useState(false);
   const [stageSheetOpen, setStageSheetOpen] = useState(false);
   const [open, setOpen] = useState(false);

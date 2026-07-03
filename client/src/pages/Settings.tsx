@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, Users, RefreshCw, Compass } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { resetOnboarding, fireTaskGuide } from "@/components/Onboarding";
+import { resetOnboarding, fireTaskGuide, startTour } from "@/components/Onboarding";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import type { SettingsState, TodayTaskLimit } from "@/hooks/useSettings";
 import { toast } from "sonner";
@@ -648,6 +648,13 @@ export default function Settings() {
 
         {/* ── Help ──────────────────────────────────────────────────── */}
         <SettingsSection title="Help">
+          <button
+            onClick={() => { navigate("/"); setTimeout(() => startTour(), 450); }}
+            className="w-full rounded-xl font-bold my-2"
+            style={{ background: "var(--color-primary)", color: "var(--color-primary-foreground)", fontSize: "1rem", minHeight: 52 }}
+          >
+            Take a tour of Velea
+          </button>
           <div className="flex items-center justify-between py-4">
             <div className="pr-4">
               <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
