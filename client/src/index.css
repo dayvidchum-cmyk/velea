@@ -227,10 +227,15 @@
   }
 
   html::before {
-    /* Fallback: paint a solid layer behind everything for Safari safe areas */
+    /* Paint a solid background layer behind everything, covering the FULL physical screen
+       (top/right/left:0 + 100vh, not inset:0 which stops at the shorter dynamic viewport) so
+       the strip below the shell never shows a bare/white band. 100lvh via @supports below. */
     content: '';
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
     z-index: -1;
     background: var(--background);
     pointer-events: none;
@@ -526,11 +531,18 @@
     transform: translateZ(0);
   }
 
-  /* Full physical-screen height for the app shell. On notched iPhones the dynamic viewport
-     (100dvh / fixed inset-0) is ~62px short; 100lvh reaches the real bottom. The @supports
-     block below keeps 100vh as a genuine fallback for browsers without large-viewport units
-     (the CSS minifier collapses two `height:` declarations in one rule to just the last). */
+  /* App shell = the VISIBLE (dynamic) viewport. Using 100lvh (the full physical screen)
+     made the shell taller than what's visible, pushing the in-flow nav's labels below the
+     fold (only revealed by overscroll). 100dvh matches the visible area so the nav sits at
+     the true visible bottom. 100vh fallback (see @supports below — minifier drops dupes). */
   .app-shell-height {
+    height: 100vh;
+  }
+
+  /* Full-screen OVERLAYS (splash, Tonight's Sky) want the whole physical screen (100lvh) so
+     no bottom band shows behind their dark art — they have no bottom-anchored content to
+     clip, so being 62px taller than the visible area is fine. */
+  .app-cover-height {
     height: 100vh;
   }
 
@@ -541,11 +553,15 @@
   }
 }
 
-/* Only override to the large-viewport unit where it's supported; browsers without it keep
-   the 100vh fallback above (kept out of the .app-shell-height rule so the minifier can't
-   drop it). */
+/* Override to the modern viewport units where supported; browsers without them keep the
+   100vh fallbacks above (kept out of the base rules so the minifier can't drop them).
+   Shell → dvh (visible area, nav labels stay on-screen); overlays → lvh (full screen). */
+@supports (height: 100dvh) {
+  .app-shell-height { height: 100dvh; }
+}
 @supports (height: 100lvh) {
-  .app-shell-height { height: 100lvh; }
+  .app-cover-height { height: 100lvh; }
+  html::before { height: 100lvh; }
 }
 
 
