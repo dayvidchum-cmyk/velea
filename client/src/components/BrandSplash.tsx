@@ -109,7 +109,9 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
           </p>
           <p style={{ margin: "0.8rem 0 0", fontSize: "clamp(1.05rem, 4.6vw, 1.3rem)", letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
             <span lang="km" style={{ fontFamily: "'Hanuman', serif", textTransform: "none", fontSize: "1.4em" }}>វេលាល្អ</span>{" "}
-            <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.8 }}>velea l'or</span> — the auspicious, golden moment
+            <span style={{ textTransform: "none", fontStyle: "italic", opacity: 0.8 }}>velea l'or</span>
+            <br />
+            the auspicious, golden moment
           </p>
         </div>
       </div>
