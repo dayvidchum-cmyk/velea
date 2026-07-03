@@ -50,14 +50,47 @@ async function getProfileById(profileId: number, userId: number) {
   return rows[0];
 }
 
+// One-time backfill of isRetrograde for profiles saved before the flag was persisted.
+// Sentinel: Rahu is ALWAYS retrograde, so an unflagged stored Rahu means the whole row set
+// predates the fix — recompute the flags once from birth data and persist them.
+async function backfillRetrograde(db: any, profileId: number, bodies: any[]) {
+  const prof = (await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1))[0];
+  if (!prof?.birthDate || !prof?.birthTime) return;
+  const lat = prof.birthLocationLat ? parseFloat(prof.birthLocationLat) : 0;
+  const lon = prof.birthLocationLon ? parseFloat(prof.birthLocationLon) : 0;
+  const tz = (prof.birthLocationLat && prof.birthLocationLon) ? timezoneForCoords(lat, lon) : (prof.birthTimezone || "UTC");
+  const { calculateBirthChart } = await import("../birthchart/calculator.js");
+  const chart: any = await calculateBirthChart(prof.birthDate, prof.birthTime, lat, lon, tz);
+  const map: Record<string, any> = {
+    Sun: chart.sun, Moon: chart.moon, Mercury: chart.mercury, Venus: chart.venus, Mars: chart.mars,
+    Jupiter: chart.jupiter, Saturn: chart.saturn, Rahu: chart.rahu, Ketu: chart.ketu,
+  };
+  for (const b of bodies) {
+    const c = map[b.planet];
+    if (!c) continue;
+    const rx = !!c.isRetrograde;
+    if (b.isRetrograde !== rx) {
+      b.isRetrograde = rx; // patch in-memory so THIS response is already correct
+      await db.update(profileNatalBodies).set({ isRetrograde: rx })
+        .where(and(eq(profileNatalBodies.profileId, profileId), eq(profileNatalBodies.planet, b.planet)));
+    }
+  }
+}
+
 async function getProfileNatalBodies(profileId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db
+  const bodies = await db
     .select()
     .from(profileNatalBodies)
     .where(eq(profileNatalBodies.profileId, profileId))
     .orderBy(profileNatalBodies.planet);
+  const rahu = bodies.find((b: any) => b.planet === "Rahu");
+  if (bodies.length && rahu && !rahu.isRetrograde) {
+    try { await backfillRetrograde(db, profileId, bodies); }
+    catch (e) { console.warn("[retro backfill] failed:", e); }
+  }
+  return bodies;
 }
 
 async function upsertProfileNatalBody(
