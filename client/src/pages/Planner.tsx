@@ -25,6 +25,7 @@ import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { composeNarrative } from "@/lib/narrative-data";
 import GlossaryText from "@/components/GlossaryText";
 import { GlossaryLink } from "@/components/GlossaryPopover";
+import WhyNowSheet from "@/components/WhyNowSheet";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import MasterModeCard from "@/components/MasterModeCard";
 import MeridianWhisper from "@/components/MeridianWhisper";
@@ -143,6 +144,7 @@ export default function Planner() {
   const [planOpen, setPlanOpen] = useState(false);
   const [pinnedOpen, setPinnedOpen] = useState(true);
   const [alignedOpen, setAlignedOpen] = useState(true);
+  const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());
   const [completedOpen, setCompletedOpen] = useState(false);
@@ -1054,7 +1056,7 @@ export default function Planner() {
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
             >
-              Why now? · Aligned for today
+              Aligned for today
             </h3>
             <ChevronDown
               size={13}
@@ -1093,43 +1095,17 @@ export default function Planner() {
                     onEdit={(t: Task) => setEditAlignedTask(t)}
                     dayMode={todayTaskMode}
                     alignment={(task as any).alignment ?? alignmentById.get(task.id)}
+                    compact
                   />
-                  {/* Pressure-layer disclosure bubbles — why this ranked high (positives only, max 3) */}
-                  {((task as any).layerBubbles?.length > 0) && (
-                    <div className="px-4 pb-1.5 flex flex-wrap gap-1">
-                      {((task as any).layerBubbles as string[]).map((b: string) => (
-                        <span
-                          key={b}
-                          className="text-[12px] font-bold px-2 py-0.5 rounded-full"
-                          style={{
-                            letterSpacing: "0.03em",
-                            background: todayModeColor,
-                            color: "#fff",
-                          }}
-                        >
-                          {b}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {/* Transparent ranking reasons */}
-                  {(task as any).reasons?.length > 0 && (
-                    <div className="px-4 pb-2 flex flex-wrap gap-1">
-                      {((task as any).reasons as string[]).map((r: string) => (
-                        <span
-                          key={r}
-                          className="text-[12px] font-semibold px-1.5 py-0.5 rounded-full"
-                          style={{
-                            letterSpacing: "0.02em",
-                            background: `rgba(${MODE_RGBA[todayTaskMode ?? 'Action']}, 0.12)`,
-                            color: todayModeColor,
-                            border: `1px solid rgba(${MODE_RGBA[todayTaskMode ?? 'Action']}, 0.2)`,
-                          }}
-                        >
-                          {r}
-                        </span>
-                      ))}
-                    </div>
+                  {/* The reasoning lives behind an obvious "Why now?" — the card stays clean */}
+                  {(((task as any).reasons?.length > 0) || ((task as any).layerBubbles?.length > 0)) && (
+                    <button
+                      onClick={() => setWhyNowTask(task)}
+                      className="mx-3 mb-2 mt-0.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                      style={{ background: `color-mix(in srgb, ${todayModeColor} 14%, var(--color-card))`, color: todayModeColor, border: `1px solid color-mix(in srgb, ${todayModeColor} 34%, transparent)`, fontSize: "0.8rem", fontWeight: 700 }}
+                    >
+                      Why now? →
+                    </button>
                   )}
                 </SwipeableTaskRow>
               ))}
@@ -1601,6 +1577,9 @@ export default function Planner() {
           editTask={editAlignedTask ? { id: String(editAlignedTask.id), title: editAlignedTask.title, mode: editAlignedTask.mode, priority: editAlignedTask.priority === 'High' ? 3 : editAlignedTask.priority === 'Medium' ? 2 : 1, dueDate: editAlignedTask.dueDate ? new Date(editAlignedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editAlignedTask.isPinned, wealthFlow: (editAlignedTask as any).wealthFlow ?? false, projectId: (editAlignedTask as any).projectId ?? null, cognitiveLoad: (editAlignedTask as any).cognitiveLoad ?? null, physicalLoad: (editAlignedTask as any).physicalLoad ?? null, creativeRequired: (editAlignedTask as any).creativeRequired ?? null, socialRequired: (editAlignedTask as any).socialRequired ?? null, emotionalLoad: (editAlignedTask as any).emotionalLoad ?? null, notes: (editAlignedTask as any).notes ?? null, recurrence: (editAlignedTask as any).recurrence ?? null, lifeAreas: (editAlignedTask as any).lifeAreas ?? null } : undefined}
         />
       )}
+
+      {/* Why-now pop-up for an aligned task */}
+      <WhyNowSheet task={whyNowTask} modeColor={todayModeColor} onClose={() => setWhyNowTask(null)} />
 
       {/* Due Orb Sheet */}
       <DueOrbSheet open={dueSheetOpen} onClose={() => setDueSheetOpen(false)} />

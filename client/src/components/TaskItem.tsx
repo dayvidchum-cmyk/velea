@@ -31,6 +31,8 @@ interface TaskItemProps {
   onCyclePriority?: (id: number, next: "Low" | "Medium" | "High") => void;
   /** Toggle want/need from the collapsed row. */
   onSetIntent?: (id: number, next: "want" | "need") => void;
+  /** Aligned list: hide the in-card badge row — the metadata + reasoning live in the Why-now pop-up. */
+  compact?: boolean;
 }
 
 function formatDueDate(dateStr: string): string {
@@ -61,7 +63,7 @@ function isDueToday(dateStr: string): boolean {
 
 
 
-export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment, onCyclePriority, onSetIntent }: TaskItemProps) {
+export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment, onCyclePriority, onSetIntent, compact }: TaskItemProps) {
   const NEXT_PRIORITY: Record<string, "Low" | "Medium" | "High"> = { Low: "Medium", Medium: "High", High: "Low" };
   const taskIntent = ((task as any).intent as "want" | "need" | undefined) ?? "need";
   const [expanded, setExpanded] = useState(false);
@@ -228,7 +230,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           >
             {task.title}
           </span>
-          <div className="flex items-center gap-2 mt-0.5 flex-nowrap overflow-x-auto no-scrollbar">
+          {!compact && <div className="flex items-center gap-2 mt-0.5 flex-nowrap overflow-x-auto no-scrollbar">
             {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
             {/* Want / Need — tap to toggle */}
             <button
@@ -314,7 +316,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
                 <span className="max-w-[80px] truncate">{task.projectName}</span>
               </span>
             )}
-          </div>
+          </div>}
         </div>
 
         {/* Priority — tap to cycle Low→Medium→High */}
