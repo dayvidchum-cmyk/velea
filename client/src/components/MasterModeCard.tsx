@@ -1,9 +1,11 @@
+import { useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 /**
- * Master Mode — Pancha Pakshi hourly timing (your bird's golden/red windows). PRIVATE:
- * the endpoint returns null for anyone off the allowlist, so this renders nothing for
- * them. Single-track (bird's main activity per yama); the two-bird overlay comes later.
+ * Master Mode — Pancha Pakshi hourly timing. PRIVATE (endpoint returns null off the
+ * allowlist). Collapsible: the header + current window always show; the full ten-period
+ * timeline expands on tap, so it's a glance by default and depth on demand.
  */
 
 const CAT_COLOR: Record<string, string> = {
@@ -18,6 +20,7 @@ const CAT_NOTE: Record<string, string> = {
 };
 
 export default function MasterModeCard() {
+  const [expanded, setExpanded] = useState(false);
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const { data } = trpc.masterMode.today.useQuery({ date: dateStr }, { staleTime: 1000 * 60 * 10 });
@@ -29,12 +32,15 @@ export default function MasterModeCard() {
 
   return (
     <div style={{ borderRadius: 16, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
-        <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: 0 }}>
-          Master Mode · your bird: {data.bird}
-        </p>
-        <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--brand-gold)", opacity: 0.7 }}>private</span>
-      </div>
+      <button onClick={() => setExpanded((e) => !e)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
+        <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+          Master Mode · {data.bird}
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--brand-gold)", opacity: 0.75 }}>private</span>
+          {expanded ? <ChevronDown size={15} style={{ color: "var(--color-muted-foreground)" }} /> : <ChevronRight size={15} style={{ color: "var(--color-muted-foreground)" }} />}
+        </span>
+      </button>
 
       {current && (
         <div style={{ marginTop: "0.85rem", borderRadius: 12, padding: "0.85rem 1rem", background: `color-mix(in srgb, ${CAT_COLOR[current.category]} 16%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${CAT_COLOR[current.category]} 45%, transparent)` }}>
@@ -45,19 +51,21 @@ export default function MasterModeCard() {
         </div>
       )}
 
-      <div style={{ marginTop: "0.9rem", display: "flex", flexDirection: "column", gap: "1px" }}>
-        {data.periods.map((p, i) => {
-          const isNow = current && p.startMs === current.startMs;
-          const past = nowMs >= p.endMs;
-          return (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.35rem 0.4rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${CAT_COLOR[p.category]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
-              <span style={{ width: 8, height: 8, borderRadius: 999, background: CAT_COLOR[p.category], flexShrink: 0 }} />
-              <span style={{ fontSize: "0.75rem", color: "var(--color-muted-foreground)", width: "5.5rem", flexShrink: 0 }}>{fmt(p.startMs)}</span>
-              <span style={{ fontSize: "0.82rem", fontWeight: isNow ? 700 : 500, color: isNow ? CAT_COLOR[p.category] : "var(--foreground)" }}>{p.category}</span>
-            </div>
-          );
-        })}
-      </div>
+      {expanded && (
+        <div style={{ marginTop: "0.9rem", display: "flex", flexDirection: "column", gap: "1px" }}>
+          {data.periods.map((p, i) => {
+            const isNow = current && p.startMs === current.startMs;
+            const past = nowMs >= p.endMs;
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.35rem 0.4rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${CAT_COLOR[p.category]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 999, background: CAT_COLOR[p.category], flexShrink: 0 }} />
+                <span style={{ fontSize: "0.75rem", color: "var(--color-muted-foreground)", width: "5.5rem", flexShrink: 0 }}>{fmt(p.startMs)}</span>
+                <span style={{ fontSize: "0.82rem", fontWeight: isNow ? 700 : 500, color: isNow ? CAT_COLOR[p.category] : "var(--foreground)" }}>{p.category}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
