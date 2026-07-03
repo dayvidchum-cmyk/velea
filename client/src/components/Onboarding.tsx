@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
 import FirstRunWelcome from "./FirstRunWelcome";
+import ManifestoIntro from "./ManifestoIntro";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
@@ -234,6 +235,7 @@ export default function Onboarding({ active, userId }: Props) {
   const [tourIndex, setTourIndex] = useState(0);
   const [taskGuide, setTaskGuide] = useState(false);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
+  const [manifestoDismissed, setManifestoDismissed] = useState(false);
   const taskKey = userId != null ? `${TASK_GUIDE_PREFIX}${userId}` : null;
 
   // Standalone task guide — fired via window event (Settings, zero-task nudge).
@@ -274,11 +276,19 @@ export default function Onboarding({ active, userId }: Props) {
     setTaskGuide(false);
   }, [taskKey]);
 
-  // First-run welcome — shown once on Today, before any tour. Replaces the auto-forced tour;
-  // drives birth-data confirmation + current-location, then OFFERS the tour.
+  // Manifesto intro — the very first thing a new user sees (once), before the welcome:
+  // the Moon thesis, paced as beats, landing on sky ⊗ chart ⊗ inner-state → your task.
+  const showManifesto = !manifestoDismissed && active && userId != null && !running && !taskGuide
+    && !!tourState.data && !tourState.data.seen.includes("manifesto") && location === "/";
+  if (showManifesto) {
+    return <ManifestoIntro onBegin={() => { setManifestoDismissed(true); markSeen.mutate({ key: "manifesto" }); }} />;
+  }
+
+  // First-run welcome — shown once on Today, after the manifesto, before any tour. Replaces the
+  // auto-forced tour; drives birth-data confirmation + current-location, then OFFERS the tour.
   const prof = activeProfile.data as any;
   const showWelcome = !welcomeDismissed && active && userId != null && !running && !taskGuide
-    && !!tourState.data && !tourState.data.seen.includes("welcome") && location === "/";
+    && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto")) && !tourState.data.seen.includes("welcome") && location === "/";
   if (showWelcome) {
     return (
       <FirstRunWelcome
