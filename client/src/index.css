@@ -519,9 +519,9 @@
     z-index: 50;
     flex-shrink: 0;
     background: var(--background) !important;
-    /* env clears the home indicator; +16px lifts the labels off it so they read clearly
-       (measured: with env alone the label bottom sat only 8px above the safe-area line). */
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+    /* env clears the home indicator; +4px is just enough breathing room without leaving a
+       visible empty strip below the labels. */
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4px);
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }

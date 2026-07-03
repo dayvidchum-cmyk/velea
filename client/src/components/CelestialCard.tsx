@@ -65,7 +65,7 @@ export default function CelestialCard() {
       </button>
 
       {open && createPortal(
-        <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "#05060a" }}>
+        <div className="app-shell-height" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, background: "#05060a" }}>
           <img src={`/celestial/${d.image}`} alt={d.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.66), transparent 42%)" }} />
           <button onClick={() => setOpen(false)} aria-label="Close" style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 0.9rem)", right: "1rem", width: 34, height: 34, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.4)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
