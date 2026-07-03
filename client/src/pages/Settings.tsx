@@ -655,6 +655,17 @@ export default function Settings() {
           >
             Take a tour of Velea
           </button>
+          <button
+            onClick={() => navigate("/about")}
+            className="w-full flex items-center justify-between py-4"
+            style={{ borderTop: "1px solid var(--border)", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+          >
+            <div className="pr-4">
+              <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>Why the Moon</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>The full story behind Velea — the manifesto.</p>
+            </div>
+            <span style={{ color: "var(--color-muted-foreground)", fontSize: "1.15rem", flexShrink: 0 }}>→</span>
+          </button>
           <div className="flex items-center justify-between py-4">
             <div className="pr-4">
               <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>

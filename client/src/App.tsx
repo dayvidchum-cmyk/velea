@@ -22,6 +22,7 @@ import ProfectionYear from "./pages/ProfectionYear";
 import Astrology from "./pages/Astrology";
 import Glossary from "./pages/Glossary";
 import Settings from "./pages/Settings";
+import About from "./pages/About";
 import AdminPrompts from "./pages/AdminPrompts";
 import ReflectionHistory from "./pages/ReflectionHistory";
 import Diagnostics from "./pages/Diagnostics";
@@ -236,6 +237,7 @@ const { user, loading } = useAuth();
           <Route path="/dasha" component={DashaTimeline} />
           <Route path="/profection" component={ProfectionYear} />
           <Route path="/settings" component={Settings} />
+          <Route path="/about" component={About} />
           <Route path="/profiles" component={Profiles} />
           <Route path="/glossary" component={Glossary} />
           <Route path="/reflections" component={ReflectionHistory} />
