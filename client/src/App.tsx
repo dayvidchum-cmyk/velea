@@ -223,7 +223,7 @@ const { user, loading } = useAuth();
   };
 
   return (
-    <div className="fixed inset-0 bg-background text-foreground flex flex-col star-bg">
+    <div className="fixed inset-x-0 top-0 app-shell-height bg-background text-foreground flex flex-col star-bg">
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
       {/* Scrollable content area — single scroll container */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 content-safe-area">

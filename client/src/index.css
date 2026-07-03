@@ -511,17 +511,24 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  /* Safari bottom nav safe area */
+  /* Bottom nav — in normal flow at the bottom of the full-height (100lvh) shell, so it
+     reaches the physical screen bottom without fixed-position hacks that don't account for
+     the standalone dvh↔lvh gap. padding-bottom clears the home indicator. */
   .nav-safe-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: 50;
+    flex-shrink: 0;
     background: var(--background) !important;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
+  }
+
+  /* Full physical-screen height for the app shell. On notched iPhones the dynamic viewport
+     (100dvh / fixed inset-0) is ~62px short; 100lvh reaches the real bottom. 100vh fallback. */
+  .app-shell-height {
+    height: 100vh;
+    height: 100lvh;
   }
 
   /* Safari top safe area — ensure content doesn't bleed into status bar */
@@ -531,22 +538,6 @@
   }
 }
 
-/* Standalone PWA on notched iPhones: the app's dynamic viewport (100dvh) falls short of
-   the physical screen (100lvh) — e.g. 812 vs 874 on iPhone 16 Pro — so a plain bottom:0
-   nav floats ~62px above the real bottom, leaving a band (white in light, dark in dark).
-   Drop the bar by exactly that gap (dvh − lvh, a negative value) so it sits flush at the
-   physical bottom and its own background covers the home-indicator strip. Scoped to
-   standalone; in Safari the browser's URL bar legitimately owns that space. */
-@media (display-mode: standalone) {
-  .nav-safe-area {
-    /* Drop the bar so its BACKGROUND reaches the physical bottom (covers the dvh↔lvh gap)... */
-    bottom: calc(100dvh - 100lvh);
-    /* ...and give the content enough bottom padding (home-indicator inset + a small margin)
-       that the icons + LABELS sit compact but clear of the home indicator — not shoved into
-       it (labels cut) nor floated high (footer looks 2× tall). */
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-  }
-}
 
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
