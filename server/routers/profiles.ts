@@ -50,6 +50,16 @@ async function getProfileById(profileId: number, userId: number) {
   return rows[0];
 }
 
+/**
+ * Throw FORBIDDEN unless `userId` owns `profileId`. Gate EVERY endpoint that takes a
+ * client-supplied profileId with this, so one user can never read (or mutate) another
+ * user's chart-derived data by guessing a sequential id.
+ */
+export async function assertOwnsProfile(userId: number, profileId: number): Promise<void> {
+  const owned = await getProfileById(profileId, userId);
+  if (!owned) throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile." });
+}
+
 // One-time backfill of isRetrograde for profiles saved before the flag was persisted.
 // Sentinel: Rahu is ALWAYS retrograde, so an unflagged stored Rahu means the whole row set
 // predates the fix — recompute the flags once from birth data and persist them.

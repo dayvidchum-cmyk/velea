@@ -3,6 +3,7 @@ import { protectedProcedure, router } from "../_core/trpc.js";
 import { getGlanceCached, getDeepReadCached } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
 import { setNarrativeLock, isNarrativeLocked } from "../db.js";
+import { assertOwnsProfile } from "../routers/profiles.js";
 
 const todayUTC = () => new Date().toISOString().split("T")[0];
 
@@ -17,6 +18,7 @@ const inputSchema = z.object({
 export const narrativeRouter = router({
   // One-sentence daily signal for the Today page. Falls back to null on any error.
   glance: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();
     try {
       // Moment read: attach the user's CURRENT location so the hora is "this hour where
@@ -39,7 +41,8 @@ export const narrativeRouter = router({
   }),
 
   // Structured six-section + synthesis read for the Profection page.
-  deepRead: protectedProcedure.input(inputSchema).query(async ({ input }) => {
+  deepRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();
     try {
       return await getDeepReadCached(input.profileId, date, input.refresh ?? false);
@@ -50,7 +53,8 @@ export const narrativeRouter = router({
   }),
 
   // Is today's (or a given date's) read pinned/locked?
-  lockStatus: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional() })).query(async ({ input }) => {
+  lockStatus: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional() })).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();
     try { return { locked: await isNarrativeLocked(input.profileId, date) }; }
     catch { return { locked: false }; }
@@ -58,7 +62,8 @@ export const narrativeRouter = router({
 
   // Pin / unpin the read for a date — a locked read is returned as-is regardless of
   // prompt-version or input changes, so it never regenerates until unpinned.
-  setLock: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional(), locked: z.boolean() })).mutation(async ({ input }) => {
+  setLock: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional(), locked: z.boolean() })).mutation(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();
     // Ensure both surfaces exist before locking, so there's a row to pin.
     if (input.locked) {
@@ -72,7 +77,8 @@ export const narrativeRouter = router({
 
   // Deterministic (ephemeris) current transits for the CURRENT TRIGGER breakdown.
   // No LLM — pure chart math, so it is free and auditable.
-  currentTransits: protectedProcedure.input(inputSchema).query(async ({ input }) => {
+  currentTransits: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();
     try {
       const ni = await buildNarrativeInput(input.profileId, date);
