@@ -300,6 +300,7 @@ export default function Onboarding({ active, userId }: Props) {
         onSetLocation={() => window.dispatchEvent(new Event("velea-open-location"))}
         onTakeTour={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: true }); startTour(); }}
         onExplore={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: false }); }}
+        onDismiss={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: false }); }}
       />
     );
   }

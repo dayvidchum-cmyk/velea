@@ -1,4 +1,4 @@
-import { MapPin, CalendarCheck } from "lucide-react";
+import { MapPin, CalendarCheck, X } from "lucide-react";
 
 /**
  * First-run welcome — replaces the auto-forced tour. Compact + high-contrast: greets, has the
@@ -7,7 +7,7 @@ import { MapPin, CalendarCheck } from "lucide-react";
  * own" is always visible (never hidden below the fold). Built big for magnified screens.
  */
 export default function FirstRunWelcome({
-  name, birthLine, locationSet, locationLabel, onFixBirth, onSetLocation, onTakeTour, onExplore,
+  name, birthLine, locationSet, locationLabel, onFixBirth, onSetLocation, onTakeTour, onExplore, onDismiss,
 }: {
   name: string;
   birthLine: string | null;
@@ -17,14 +17,20 @@ export default function FirstRunWelcome({
   onSetLocation: () => void;
   onTakeTour: () => void;
   onExplore: () => void;
+  onDismiss: () => void;
 }) {
   const btn: React.CSSProperties = {
     width: "100%", minHeight: 52, borderRadius: 14, fontSize: "1.05rem", fontWeight: 700,
     display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", cursor: "pointer",
   };
   return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(3px)" }}>
-      <div className="w-full max-w-md flex flex-col" style={{ maxHeight: "92vh", background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 22, boxShadow: "0 24px 64px rgba(0,0,0,0.4)", overflow: "hidden" }}>
+    <div onClick={onDismiss} className="fixed inset-0 z-[130] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(3px)" }}>
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col" style={{ position: "relative", maxHeight: "92vh", background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 22, boxShadow: "0 24px 64px rgba(0,0,0,0.4)", overflow: "hidden" }}>
+
+        {/* dismiss — close without a tour; marks the welcome seen so it never returns (tap the × or outside) */}
+        <button onClick={onDismiss} aria-label="Dismiss" style={{ position: "absolute", top: 10, right: 10, zIndex: 3, width: 34, height: 34, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-secondary)", color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)", cursor: "pointer" }}>
+          <X size={18} />
+        </button>
 
         {/* scrollable content */}
         <div className="overflow-y-auto" style={{ padding: "1.5rem 1.4rem 0.5rem" }}>
