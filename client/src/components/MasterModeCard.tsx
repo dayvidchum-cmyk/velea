@@ -86,6 +86,12 @@ export default function MasterModeCard() {
               <p style={{ margin: "0.15rem 0 0", fontSize: "0.74rem", color: "var(--color-muted-foreground)" }}>Now transiting your {ORD[g.transitHouse]} — {HOUSE_SHORT[g.transitHouse]}.</p>
             </div>
           )}
+
+          {g && !g.isGolden && (
+            <p style={{ margin: "0.55rem 0 0", fontSize: "0.72rem", fontWeight: 600, color: "#C9A84C" }}>
+              {g.nextGoldenMs ? `✦ Next golden hour · ${fmt(g.nextGoldenMs)}` : "No golden window left today."}
+            </p>
+          )}
         </div>
       )}
 

@@ -57,6 +57,7 @@ export interface GoldenHour {
   rulesHouses: number[];   // natal houses the lord rules from the lagna
   occupiesHouse: number | null; // natal house the lord sits in
   transitHouse: number;    // house the lord is transiting now
+  nextGoldenMs: number | null; // start of the next golden window today (null = none left)
   untilMs: number;         // end of the current hora
 }
 
@@ -77,38 +78,54 @@ export async function computeGoldenHour(opts: {
   }
   const cur = horas.find((h) => nowMs >= h.startMs && nowMs < h.endMs);
   if (!cur) return null;
-  const horaLord = cur.lord;
 
-  // 2. The bird's activity at this moment.
+  // 2. The bird's activity across the day — quality at any instant.
   const master = await computeMasterMode({
     birthNakshatra: opts.birthNakshatra, birthPaksha: opts.birthPaksha,
     lat, lon, year, month, day,
   });
-  const period = master?.periods.find((p) => nowMs >= p.startMs && nowMs < p.endMs);
-  const category = period?.category ?? "";
+  const periods = master?.periods ?? [];
+  const qualityAt = (ms: number) => periods.find((p) => ms >= p.startMs && ms < p.endMs)?.quality ?? "avoid";
+  const birdFavorableAt = (ms: number) => { const q = qualityAt(ms); return q === "golden" || q === "good"; };
 
-  // 3. The hora lord's LIVE condition (transit dignity + combustion; retrograde is flavor).
-  const pos = await getSiderealLongitudesWithSpeed(new Date(nowMs), [horaLord, "Sun"]);
-  const lordLon = norm360(pos[horaLord]?.longitude ?? 0);
+  // 3. Live condition of every classical planet in ONE ephemeris batch (dignity + combustion
+  //    are effectively stable across a single day, so we reuse them when scanning forward).
+  const HORA_PLANETS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+  const pos = await getSiderealLongitudesWithSpeed(new Date(nowMs), HORA_PLANETS);
   const sunLon = norm360(pos.Sun?.longitude ?? 0);
-  const retrograde = (pos[horaLord]?.speed ?? 0) < 0;
-  const transitSign = SIGNS[Math.floor(lordLon / 30)];
-  const tier = dignityTier(horaLord, transitSign, lordLon % 30);
-  const combust = horaLord === "Sun" ? false : !!combustion(horaLord, lordLon, sunLon, retrograde)?.combust;
+  const condOf = (planet: string) => {
+    const lon2 = norm360(pos[planet]?.longitude ?? 0);
+    const retro = (pos[planet]?.speed ?? 0) < 0;
+    const sign = SIGNS[Math.floor(lon2 / 30)];
+    const tier = dignityTier(planet, sign, lon2 % 30);
+    // retrograde is flavor, never a strike; only debilitation or combustion closes the gate.
+    const combust = planet === "Sun" ? false : !!combustion(planet, lon2, sunLon, retro)?.combust;
+    return { lon: lon2, sign, retro, tier, combust, favorable: tier !== "debilitated" && !combust };
+  };
 
-  const gate = gateFromInputs(period?.quality ?? "avoid", tier, combust);
+  const cond = condOf(cur.lord);
+  const gate = gateFromInputs(qualityAt(nowMs), cond.tier, cond.combust);
 
-  // 4. What it points to for THIS chart + where it is now.
+  // 4. The next golden window still to come today (bird favorable ∧ that hora's lord favorable).
+  let nextGoldenMs: number | null = null;
+  for (const h of horas) {
+    if (h.startMs <= nowMs) continue;
+    if (birdFavorableAt(h.startMs) && condOf(h.lord).favorable) { nextGoldenMs = h.startMs; break; }
+  }
+
+  // 5. What it points to for THIS chart + where it is now.
   const lagnaLon = norm360(SIGNS.indexOf(opts.lagnaSign) * 30 + (opts.ascendantDegree ? parseFloat(opts.ascendantDegree) : 0));
   return {
     isGolden: gate.isGolden,
-    horaLord, category,
+    horaLord: cur.lord,
+    category: periods.find((p) => nowMs >= p.startMs && nowMs < p.endMs)?.category ?? "",
     birdFavorable: gate.birdFavorable,
     lordFavorable: gate.lordFavorable,
-    dignity: tier ?? "—", combust, retrograde, transitSign,
-    rulesHouses: housesRuledFromLagna(opts.lagnaSign, horaLord),
-    occupiesHouse: opts.natal[horaLord]?.house ?? null,
-    transitHouse: houseFromLagna(lagnaLon, lordLon),
+    dignity: cond.tier ?? "—", combust: cond.combust, retrograde: cond.retro, transitSign: cond.sign,
+    rulesHouses: housesRuledFromLagna(opts.lagnaSign, cur.lord),
+    occupiesHouse: opts.natal[cur.lord]?.house ?? null,
+    transitHouse: houseFromLagna(lagnaLon, cond.lon),
+    nextGoldenMs,
     untilMs: cur.endMs,
   };
 }
