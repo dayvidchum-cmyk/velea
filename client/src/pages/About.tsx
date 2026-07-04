@@ -112,27 +112,37 @@ export default function About() {
         </p>
       </div>
 
-      {/* ── Closing — a letter to the reader. Signature: swap the styled name below for
-          David's handwritten signature image when the asset is ready. ─────────────────── */}
+      {/* ── Closing — David's letter to the reader, in his words. Signature: swap the
+          styled name below for his handwritten signature image when the asset is ready. ── */}
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1.15rem" }}>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
             However you found your way here — a friend, a link, a restless midnight — thank you for trying Velea. I can't see you from where I sit; I only know the arithmetic of the sky and the care I folded into the words. The living is yours: you're the one on the actual Tuesday.
           </p>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
-            But if now and then a day reads a little more like your own — if the timing ever feels aligned — then this did the one thing I built it to do. That's the whole hope. Thank you for being here.
+            But if now and then a day feels more like your own — the moment may be good or bad — then this did the one thing I built it to do. Velea is the messenger that points, not the one that yells. You're the driver. This is a possible map that lives with you, in real time. Maybe it will be useful. Maybe it will help in some way. That's the whole hope.
+          </p>
+          <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
+            I've spent 44 years, my entire life until now, to gather data, knowledge, and experience and I'm grateful I had tools to be able to take all of that and create this tool for you. If you ever want to share something amazing, hit me up on social media, bitch! Tell your loved ones, your village. I love you. Thank you for being here.
           </p>
         </div>
 
         <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-muted-foreground)", margin: "1.8rem 0 0", fontFamily: serif }}>
           With gratitude,
         </p>
-        {/* TODO(signature): replace this styled name with David's handwritten signature image (e.g. <img src="/signature.png" alt="David" style={{ height: 64 }} />) once he provides the asset. */}
-        <p style={{ fontFamily: serif, fontSize: "2rem", fontWeight: 700, fontStyle: "italic", color: "var(--color-foreground)", margin: "0.3rem 0 0", letterSpacing: "0.01em" }}>
-          David
+        {/* TODO(signature): replace this styled name with David's handwritten signature image
+            (e.g. <img src="/signature.png" alt="David Chum" style={{ height: 68 }} />) once provided. */}
+        <p style={{ fontFamily: serif, fontSize: "2.1rem", fontWeight: 700, fontStyle: "italic", color: "var(--color-foreground)", margin: "0.5rem 0 0", letterSpacing: "0.01em" }}>
+          David Chum
         </p>
-        <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.4rem 0 0" }}>
+        <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0.9rem 0 0" }}>
+          David Chum
+        </p>
+        <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.3rem 0 0" }}>
           Creator of Velea
+        </p>
+        <p style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.06em", color: "var(--color-muted-foreground)", margin: "0.2rem 0 0" }}>
+          Founder of DCPC · David Chum Personal Cosmetics
         </p>
       </div>
     </div>
