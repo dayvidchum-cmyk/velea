@@ -1027,11 +1027,13 @@ export default function Planner() {
             const tintAlpha = isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20);
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#E7C766"; // crown badge + border accent
+            // TODAY renders at the saturated (pressed) tint so the white Velea mark reads;
+            // other days keep the light mode tint.
             const restingBg = hasMode
-              ? withAlpha(accent, tintAlpha)
+              ? (isToday ? darkenOklch(accent, 0.64) : withAlpha(accent, tintAlpha))
               : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
-            const hoverBg = hasMode ? darkenOklch(accent, 0.82) : "var(--color-secondary)";
-            const pressBg = hasMode ? darkenOklch(accent, 0.64) : "var(--color-border)";
+            const hoverBg = hasMode ? (isToday ? darkenOklch(accent, 0.58) : darkenOklch(accent, 0.82)) : "var(--color-secondary)";
+            const pressBg = hasMode ? (isToday ? darkenOklch(accent, 0.5) : darkenOklch(accent, 0.64)) : "var(--color-border)";
 
             return (
               <button
@@ -1092,7 +1094,7 @@ export default function Planner() {
                 {isToday ? (
                   // Today = the Velea mark, centered (no number).
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                    <VeleaMark size={20} color={hasMode ? "rgba(255,255,255,0.92)" : "var(--color-muted-foreground)"} />
+                    <VeleaMark size={20} color={hasMode ? "#ffffff" : "var(--color-muted-foreground)"} />
                   </span>
                 ) : (
                   <span

@@ -12,5 +12,7 @@
 // days removed, Velea mark = today; admin-only force-logout-all + hero "update to the
 // moment" upsell preview; and a cross-user leak in the narrative endpoints closed
 // (owner-scoped). Minor number now tracks the SW cache line (set to 1.86 for the v86/v87 build).
+// v1.88 = 2026-07-04 — birth-data anti-hijack (confirm warning + 24h edit cooldown); today's
+// calendar cell now renders the saturated tint so the Velea mark reads.
 // Bump on each meaningful shipped release.
-export const APP_VERSION = "1.86";
+export const APP_VERSION = "1.88";
