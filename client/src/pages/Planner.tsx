@@ -673,7 +673,7 @@ export default function Planner() {
             <button
               type="button"
               onClick={() => setHeroOpen((v) => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginBottom: '0.25rem' }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginBottom: '0.25rem' }}
             >
               <span
                 style={{
