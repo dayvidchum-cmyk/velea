@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, Crown } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -187,6 +187,16 @@ export default function Planner() {
   const { data: goldenData } = trpc.sky.goldenDays.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
   const goldenConfirmed = useMemo(() => new Set(goldenData?.confirmed ?? []), [goldenData]);
   const goldenPotential = useMemo(() => new Set(goldenData?.potential ?? []), [goldenData]);
+  // Crown days — the PERSONAL apex (your chart's tara+chandra+transits align). Distinct
+  // from golden (universal sky): shown as a gold crown badge + gold border on the cell.
+  const { data: crownData } = trpc.crown.forMonth.useQuery(
+    { year: viewDate.getFullYear(), month: viewDate.getMonth() + 1 },
+    { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
+  );
+  const crownDays = useMemo(
+    () => new Set((crownData?.days ?? []).filter((d: any) => d.rating === "crown").map((d: any) => d.date)),
+    [crownData],
+  );
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
@@ -973,6 +983,7 @@ export default function Planner() {
             const isConfirmedGolden = goldenConfirmed.has(dateStr);
             const isPotentialGolden = goldenPotential.has(dateStr) && !isConfirmedGolden;
             const isGolden = isConfirmedGolden || isPotentialGolden;
+            const isCrown = crownDays.has(dateStr);
             const isSelected = dateStr === selectedDate;
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
             const hasMode = !!modeColor;
@@ -1010,7 +1021,9 @@ export default function Planner() {
                   minHeight: "2.1rem",
                   color: goldText ?? (hasMode ? "var(--color-foreground)" : undefined),
                   background: restingBg,
-                  border: isConfirmedGolden
+                  border: isCrown
+                    ? `2px solid ${GOLD_BRIGHT}`
+                    : isConfirmedGolden
                     ? `1.5px solid ${GOLD_BRIGHT}`
                     : isPotentialGolden
                     ? "1px solid color-mix(in srgb, #C9A84C 60%, transparent)"
@@ -1047,6 +1060,17 @@ export default function Planner() {
                       ? "The sky was auspicious and your check-in aligned."
                       : "The sky is auspicious. Are you aligned? Update your current state to see."}
                   </span>
+                )}
+                {/* Crown badge — the personal apex. Composes over golden (gold tile + crown)
+                    or a mode tile (colored tile + gold border + crown). */}
+                {isCrown && (
+                  <Crown
+                    size={12}
+                    fill={GOLD_BRIGHT}
+                    stroke="rgba(0,0,0,0.45)"
+                    strokeWidth={1.25}
+                    style={{ position: "absolute", top: 1, right: 1, pointerEvents: "none", filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,0.4))" }}
+                  />
                 )}
                 {isGolden ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
