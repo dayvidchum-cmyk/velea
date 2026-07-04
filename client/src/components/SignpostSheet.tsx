@@ -91,12 +91,6 @@ export default function SignpostSheet({ open, onClose, mode }: SignpostSheetProp
     );
   };
 
-  const Fuse = () => (
-    <div className="flex items-center justify-center" style={{ margin: "2px 0" }}>
-      <span style={{ color: "var(--color-muted-foreground)", opacity: 0.6, fontSize: "1.1rem", lineHeight: 1 }}>⊗</span>
-    </div>
-  );
-
   return (
     <>
       {/* Backdrop */}
@@ -135,8 +129,14 @@ export default function SignpostSheet({ open, onClose, mode }: SignpostSheetProp
               The three layers that shaped your day
             </p>
           </div>
-          <button onClick={onClose} style={{ color: "var(--color-muted-foreground)" }} aria-label="Close">
-            <X size={18} />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+            style={{ background: `color-mix(in oklch, ${accent} 20%, transparent)`, color: accentSolid, border: `1px solid color-mix(in oklch, ${accent} 35%, transparent)` }}
+          >
+            <X size={16} strokeWidth={2.5} />
           </button>
         </div>
 
@@ -175,8 +175,6 @@ export default function SignpostSheet({ open, onClose, mode }: SignpostSheetProp
                 </p>
               </div>
 
-              <Fuse />
-
               {/* LAYER 2 — YOUR CHART */}
               <div
                 className="rounded-xl p-3.5"
@@ -203,8 +201,6 @@ export default function SignpostSheet({ open, onClose, mode }: SignpostSheetProp
                   </div>
                 )}
               </div>
-
-              <Fuse />
 
               {/* LAYER 3 — YOU */}
               <div
