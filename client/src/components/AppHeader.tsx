@@ -89,6 +89,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
       await invalidateAll();
       toast.success(`Switched to ${name}`);
       setOpen(false);
+      // The switch invalidates the whole cache; the page collapses to skeletons and
+      // re-expands. Reset scroll to the top so the viewport-fixed nav re-welds cleanly
+      // instead of riding a mid-scroll position (the switch-time "detach"). The nav CSS
+      // itself is confirmed-good and untouched — see .nav-safe-area in index.css.
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to switch profile");
     } finally {

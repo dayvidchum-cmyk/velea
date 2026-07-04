@@ -41,13 +41,12 @@ const phaseLabel = (phase: string) =>
 
 type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string; primary?: boolean };
 
-// The reading sits in a scrim that RIDES WITH THE TEXT — it fades in at the top (below the
-// image's focal point, ~the "yellow line") and ends where the text ends, so the foreground
-// (the sand, the tide-pool objects) stays clear on short cards.
-// Light + smooth — dim the art only just enough; a dark halo on the TEXT does the real work,
-// so the illustration is never sacrificed (see the text-over-image opacity rule).
-const TEXT_SCRIM = "linear-gradient(180deg, rgba(5,6,10,0) 0%, rgba(5,6,10,0.12) 10%, rgba(5,6,10,0.3) 32%, rgba(5,6,10,0.3) 72%, rgba(5,6,10,0.1) 92%, rgba(5,6,10,0) 100%)";
-const TS = "0 0 10px rgba(0,0,0,0.95), 0 2px 8px rgba(0,0,0,0.92)"; // halo so white text holds over the art without a heavy scrim
+// The reading sits in a WHITE ATMOSPHERIC WASH that RIDES WITH THE TEXT — fading in below the
+// image's focal point and ending where the text ends, so the foreground stays clear on short
+// cards. A soft light wash (peak ~50% — TUNE the peak stops to taste) reads luxe and holds
+// legibility far better than the old dark halo; the text is DARK, lifted by a faint light halo.
+const TEXT_SCRIM = "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 10%, rgba(255,255,255,0.5) 32%, rgba(255,255,255,0.5) 72%, rgba(255,255,255,0.18) 92%, rgba(255,255,255,0) 100%)";
+const TS = "0 0 10px rgba(255,255,255,0.85), 0 1px 3px rgba(255,255,255,0.82)"; // faint light halo so dark text holds over the art
 
 /**
  * StageSheet — "The Stage": each sky image IS the card. On every card the reading starts at an
@@ -111,22 +110,22 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
                       {/* The reading — starts at the upper line, scrim rides with the text, foreground stays clear */}
                       <div style={{ position: "absolute", top: "15%", left: 0, right: 0, padding: "2.6rem 1.4rem 1.6rem", background: TEXT_SCRIM, animation: "velea-rise 0.7s ease both" }}>
-                        <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: TS }}>{h.kicker}</p>
-                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: TS, lineHeight: 1.05 }}>{h.title}</p>
-                        <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: TS }}>{h.note}</p>
+                        <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(20,22,28,0.72)", textShadow: TS }}>{h.kicker}</p>
+                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#14161c", fontFamily: "'Playfair Display', Georgia, serif", textShadow: TS, lineHeight: 1.05 }}>{h.title}</p>
+                        <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(20,22,28,0.9)", lineHeight: 1.45, textShadow: TS }}>{h.note}</p>
 
                         {/* Moon card carries Today's call */}
                         {h.primary && stage?.verdict && (
-                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
-                            <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", textShadow: TS }}>Today's call</p>
-                            <p style={{ margin: "0.1rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: "#fff", textShadow: TS, lineHeight: 1.15 }}>{stage.verdict.call}</p>
-                            <p style={{ margin: "0.25rem 0 0", fontSize: "0.86rem", color: "rgba(255,255,255,0.9)", lineHeight: 1.45, textShadow: TS }}>{stage.verdict.summary}</p>
+                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(0,0,0,0.16)" }}>
+                            <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(20,22,28,0.66)", textShadow: TS }}>Today's call</p>
+                            <p style={{ margin: "0.1rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: "#14161c", textShadow: TS, lineHeight: 1.15 }}>{stage.verdict.call}</p>
+                            <p style={{ margin: "0.25rem 0 0", fontSize: "0.86rem", color: "rgba(20,22,28,0.86)", lineHeight: 1.45, textShadow: TS }}>{stage.verdict.summary}</p>
                             {stage.verdict.forPersonal && stage.verdict.forCollective && (
                               <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginTop: "0.6rem" }}>
                                 {[["High-stakes / personal", stage.verdict.forPersonal], ["Launches / sends", stage.verdict.forCollective]].map(([label, body]) => (
-                                  <div key={label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 9, padding: "0.45rem 0.6rem" }}>
-                                    <p style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", margin: 0 }}>{label}</p>
-                                    <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.4, margin: "0.1rem 0 0" }}>{body}</p>
+                                  <div key={label} style={{ background: "rgba(0,0,0,0.06)", borderRadius: 9, padding: "0.45rem 0.6rem" }}>
+                                    <p style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(20,22,28,0.62)", margin: 0 }}>{label}</p>
+                                    <p style={{ fontSize: "0.8rem", color: "rgba(20,22,28,0.9)", lineHeight: 1.4, margin: "0.1rem 0 0" }}>{body}</p>
                                   </div>
                                 ))}
                               </div>
@@ -136,20 +135,20 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
 
                         {/* Slow-planet weather rides on the station (Mercury Rx) card — separate for clarity */}
                         {i === weatherIdx && stage && stage.signals.length > 0 && (
-                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
-                            <p style={{ margin: "0 0 0.4rem", fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", textShadow: TS }}>Slow-planet weather</p>
+                          <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(0,0,0,0.16)" }}>
+                            <p style={{ margin: "0 0 0.4rem", fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(20,22,28,0.66)", textShadow: TS }}>Slow-planet weather</p>
                             {stage.signals.map((sig, k) => (
-                              <p key={k} style={{ fontSize: "0.84rem", color: "rgba(255,255,255,0.94)", lineHeight: 1.4, margin: k ? "0.35rem 0 0" : 0, textShadow: TS }}>
-                                <span style={{ color: sig.direction === "favor" ? "#7ED0A0" : "#E6B96A", fontWeight: 700 }}>·</span> {sig.summary}
+                              <p key={k} style={{ fontSize: "0.84rem", color: "rgba(20,22,28,0.88)", lineHeight: 1.4, margin: k ? "0.35rem 0 0" : 0, textShadow: TS }}>
+                                <span style={{ color: sig.direction === "favor" ? "#1F8A5B" : "#B07A1E", fontWeight: 700 }}>·</span> {sig.summary}
                               </p>
                             ))}
                           </div>
                         )}
 
                         <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.9rem", alignItems: "center" }}>
-                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.2)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
-                          {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.75)", textShadow: TS }}>swipe →</span>}
-                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.65)", textShadow: TS }}>tap to expand ↗</span>
+                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#14161c", background: "rgba(0,0,0,0.1)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
+                          {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(20,22,28,0.6)", textShadow: TS }}>swipe →</span>}
+                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(20,22,28,0.55)", textShadow: TS }}>tap to expand ↗</span>
                         </div>
                       </div>
                     </button>

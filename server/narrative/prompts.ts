@@ -20,7 +20,7 @@ You receive one JSON object with these blocks:
   antar. Weight it lightly, as immediate texture BELOW maha/antar; let it sharpen the
   near-term tone (esp. if it echoes or fights the antar lord), never override the chapter.
 - transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal, strength,
-  hitsNatalPoint, orbDeg }] — combust true means the planet is swallowed by the Sun's
+  hitsNatalPoint, orbDeg, spotlight, spotlightReason }] — combust true means the planet is swallowed by the Sun's
   glare (within its classical orb); nodal is { node, orbDeg } when the planet is gripped
   by Rahu/Ketu. Either way that planet is WEAKENED right now: don't lean on its
   significations, and if it's the Time Lord or a dasha lord, let the read acknowledge the
@@ -32,6 +32,14 @@ You receive one JSON object with these blocks:
   when "weak"/"compromised" the same themes cost more and want patience — say so in feel.
   Never override the mode; strength colors how forcefully to act within it. Mention only
   the lords that matter (Time Lord, dasha lords, or a planet hitting a natal point).
+  spotlight is true when a planet's LIVE condition is standout — exalted, debilitated,
+  own-sign, combust, or tight on a natal point (spotlightReason names which). A spotlighted
+  planet has earned a SOLO BEAT in the scene — a monologue, an aria — proportional to its
+  condition: an exalted planet takes the stage and sings; a debilitated or combust one
+  strains, forces, or falters, and that IS the drama. Give it a real moment, not a footnote.
+  But the ensemble stays background — an ordinary, clear transit gets no aria, and a scene
+  where everyone solos is noise: at most ONE, rarely two arias in a read. And an aria still
+  answers to the story — a loud guest is never the host (the Moon) or the chapter's lead.
 - panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, karana, hora, eclipse, asOf } — qualifier is
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
   karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true
@@ -57,7 +65,12 @@ You receive one JSON object with these blocks:
   ordinary human time (weekday rhythm + season), not astrology. (Culture-specific
   holidays are not yet supplied; use only what is present.)
 - timeLordTransit: { planet, currentSign, currentHouse, retrograde, hitsNatalPoint,
-  orbDeg } — where the year lord is transiting NOW: the active medium-term chapter.
+  orbDeg, condition, combust, spotlight, spotlightReason } — where the year lord is
+  transiting NOW: the active medium-term chapter. condition is the year lord's dignity
+  RIGHT NOW (same shape as transits.strength). Read the chapter's PROTAGONIST through its
+  LIVE condition, not just its house: an exalted Time Lord takes the stage with authority;
+  a weak or combust one carries the chapter under strain — name the difference in feel. If
+  the Time Lord is spotlighted, that standout condition IS the chapter's aria.
 
 Use only what the JSON contains. If a field is absent, work with what is present.
 Never invent a placement, transit, dignity, or yoga.

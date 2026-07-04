@@ -176,7 +176,14 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const nod = nodalAffliction(n, lonp, a["Rahu"], retro);
     // Layer-4 strength: essential dignity of the CURRENT sign, minus live affliction.
     const str = strength(n, sign, lonp % 30, { combust: !!comb?.combust, nodal: !!(nod && nod.afflicted) });
-    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null };
+    // Spotlight: a transiting planet whose LIVE condition earns a solo beat in the scene —
+    // exalted / debilitated / own-sign dignity, combust, or tight (≤2°) on a natal point.
+    // The prompt gives these an "aria"; everything else stays ensemble. Deterministic (DIGN).
+    const dg = DIGN[n];
+    const spotlightReason = dg?.ex === sign ? "exalted" : dg?.de === sign ? "debilitated"
+      : comb?.combust ? "combust" : dg?.own.includes(sign) ? "own sign"
+      : (orb <= 2 && hit) ? `tight on natal ${hit}` : null;
+    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
   }).filter(Boolean);
 
   const astro = await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon));
@@ -241,7 +248,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // name its concrete life-area instead of losing it in the raw transit list.
   const tlt = transits.find((t: any) => t.planet === pf.timeLord) || null;
   const timeLordTransit = tlt
-    ? { planet: pf.timeLord, currentSign: tlt.sign, currentHouse: tlt.houseFromLagna, retrograde: tlt.retrograde, hitsNatalPoint: tlt.hitsNatalPoint, orbDeg: tlt.orbDeg }
+    ? { planet: pf.timeLord, currentSign: tlt.sign, currentHouse: tlt.houseFromLagna, retrograde: tlt.retrograde, hitsNatalPoint: tlt.hitsNatalPoint, orbDeg: tlt.orbDeg,
+        // The Time Lord's LIVE condition, not just its house — its dignity RIGHT NOW decides
+        // how loudly the chapter's protagonist speaks (see the prompt's spotlight rule).
+        condition: tlt.strength, combust: tlt.combust, spotlight: tlt.spotlight, spotlightReason: tlt.spotlightReason }
     : null;
 
   // Name is intentionally omitted so the model writes in second person ("you").
