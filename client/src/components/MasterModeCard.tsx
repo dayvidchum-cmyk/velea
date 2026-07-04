@@ -89,7 +89,7 @@ export default function MasterModeCard() {
 
           {g && !g.isGolden && (
             <p style={{ margin: "0.55rem 0 0", fontSize: "0.72rem", fontWeight: 600, color: "#C9A84C" }}>
-              {g.nextGoldenMs ? `✦ Next golden hour · ${fmt(g.nextGoldenMs)}` : "No golden window left today."}
+              {g.nextGoldenMs ? `✦ Next golden hour · ${fmt(g.nextGoldenMs)} – ${fmt(g.nextGoldenEndMs)}` : "No golden window left today."}
             </p>
           )}
         </div>

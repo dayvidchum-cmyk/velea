@@ -57,7 +57,8 @@ export interface GoldenHour {
   rulesHouses: number[];   // natal houses the lord rules from the lagna
   occupiesHouse: number | null; // natal house the lord sits in
   transitHouse: number;    // house the lord is transiting now
-  nextGoldenMs: number | null; // start of the next golden window today (null = none left)
+  nextGoldenMs: number | null;    // start of the next golden window today (null = none left)
+  nextGoldenEndMs: number | null; // end of that window
   untilMs: number;         // end of the current hora
 }
 
@@ -106,11 +107,27 @@ export async function computeGoldenHour(opts: {
   const cond = condOf(cur.lord);
   const gate = gateFromInputs(qualityAt(nowMs), cond.tier, cond.combust);
 
-  // 4. The next golden window still to come today (bird favorable ∧ that hora's lord favorable).
-  let nextGoldenMs: number | null = null;
-  for (const h of horas) {
-    if (h.startMs <= nowMs) continue;
-    if (birdFavorableAt(h.startMs) && condOf(h.lord).favorable) { nextGoldenMs = h.startMs; break; }
+  // 4. The next golden WINDOW still to come today, as a true interval. Golden = bird favorable
+  //    ∧ the active hora's lord favorable; both are step functions, so the window edges land on
+  //    hora OR yama boundaries. Walk the segments between boundaries and take the first run.
+  const goldenAt = (ms: number) => {
+    const h = horas.find((x) => ms >= x.startMs && ms < x.endMs);
+    return !!h && birdFavorableAt(ms) && condOf(h.lord).favorable;
+  };
+  const bounds = new Set<number>();
+  for (const h of horas) { bounds.add(h.startMs); bounds.add(h.endMs); }
+  for (const p of periods) { bounds.add(p.startMs); bounds.add(p.endMs); }
+  const marks = Array.from(bounds).filter((t) => t > nowMs).sort((a, b) => a - b);
+  let nextGoldenMs: number | null = null, nextGoldenEndMs: number | null = null;
+  let segStart = nowMs;
+  for (const t of marks) {
+    if (goldenAt((segStart + t) / 2)) {
+      if (nextGoldenMs === null) nextGoldenMs = segStart;
+      nextGoldenEndMs = t;
+    } else if (nextGoldenMs !== null) {
+      break; // the first upcoming golden window has closed
+    }
+    segStart = t;
   }
 
   // 5. What it points to for THIS chart + where it is now.
@@ -125,7 +142,7 @@ export async function computeGoldenHour(opts: {
     rulesHouses: housesRuledFromLagna(opts.lagnaSign, cur.lord),
     occupiesHouse: opts.natal[cur.lord]?.house ?? null,
     transitHouse: houseFromLagna(lagnaLon, cond.lon),
-    nextGoldenMs,
+    nextGoldenMs, nextGoldenEndMs,
     untilMs: cur.endMs,
   };
 }
