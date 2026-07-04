@@ -16,17 +16,6 @@ import { CurrentTriggerBreakdown } from "@/components/CurrentTriggerBreakdown";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "../../../shared/types";
 import { LIFE_AREAS } from "../../../shared/life-areas";
 
-// Breakdown prose: keep the astro scaffolding (planet / dasha / house names + any
-// parenthetical) low-contrast so it recedes, and render the plain-language prose in
-// full-contrast foreground — the meaning reads first, the mechanics second. split()
-// with a single capture group puts the matched astro tokens at the odd indices.
-const ASTRO_SPLIT = /(\([^)]*\)|\b(?:Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu|Lagna|Ascendant|nakshatra|mahadasha|antardasha|pratyantardasha|dasha|house|lord|\d{1,2}(?:st|nd|rd|th))\b)/gi;
-function breakdownText(text: string, muted: string) {
-  return text.split(ASTRO_SPLIT).map((part, i) =>
-    i % 2 === 1 ? <span key={i} style={{ color: muted }}>{part}</span> : <span key={i}>{part}</span>
-  );
-}
-
 // House ordinals + plain-language glosses (mirrors HOUSE_GLOSS in WhyNowChain.tsx /
 // CurrentTriggerBreakdown.tsx) so the "Current Time Lord Movement" card can name the
 // chapter the Time Lord is currently transiting — deterministic, no API call.
@@ -583,7 +572,7 @@ export default function ProfectionYear() {
                     <div key={label}>
                       <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>{label}</p>
                       <p style={{ fontSize: "0.95rem", lineHeight: 1.65, color: "var(--color-foreground)", fontWeight: 550, margin: 0 }}>{sec.synthesis}</p>
-                      {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: "0.4rem 0 0" }}>{breakdownText(sec.why, "var(--color-muted-foreground)")}</p>}
+                      {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>{sec.why}</p>}
                     </div>
                   ))}
                   {guestsRead.manifestations?.length > 0 && (
