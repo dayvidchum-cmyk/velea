@@ -158,6 +158,17 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
     setShowBarSnooze(true);
   }
   const isSnoozed = task.snoozedUntil && task.snoozedUntil > Date.now();
+  const snoozedLabel = isSnoozed
+    ? (() => {
+        const d = new Date(task.snoozedUntil!);
+        const now = new Date();
+        const t = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
+        if (d.toDateString() === now.toDateString()) return `Snoozed until ${t}`;
+        if (d.toDateString() === tomorrow.toDateString()) return `Snoozed until tomorrow, ${t}`;
+        return `Snoozed until ${d.toLocaleDateString([], { month: "short", day: "numeric" })}`;
+      })()
+    : null;
 
   useEffect(() => {
     if (addingSubtask) {
@@ -240,6 +251,14 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
                   {completedCount}/{totalCount}
                 </span>
               )}
+            </div>
+          )}
+          {snoozedLabel && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <Clock size={10} style={{ color: "rgba(var(--ink),0.5)" }} />
+              <span className="text-[11px] font-medium" style={{ color: "rgba(var(--ink),0.5)" }}>
+                {snoozedLabel}
+              </span>
             </div>
           )}
         </div>
