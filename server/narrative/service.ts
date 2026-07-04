@@ -16,12 +16,15 @@ function hashInput(input: unknown): string {
 export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };
 export type DeepReadResult = { available: boolean; read: DeepRead | null; generatedAt: Date | null; cached: boolean };
 
-export async function getGlanceCached(profileId: number, date: string, refresh = false): Promise<GlanceResult> {
+export async function getGlanceCached(profileId: number, date: string, refresh = false, moment?: { nowMs: number; lat?: number; lon?: number }): Promise<GlanceResult> {
   if (!hasAnthropicKey()) return { available: false, content: null, generatedAt: null, cached: false };
-  const input = await buildNarrativeInput(profileId, date);
+  // A moment read (moment.nowMs) is hora-flavored and EPHEMERAL: never read from nor
+  // written to the daily cache, so the stable per-day read stays clean and returns on reload.
+  const isMoment = moment != null;
+  const input = await buildNarrativeInput(profileId, date, isMoment ? moment : undefined);
   const hash = hashInput(input);
 
-  if (!refresh) {
+  if (!refresh && !isMoment) {
     const row = await getNarrativeCache(profileId, "glance", date);
     if (row && (row.locked || row.inputHash === hash)) {
       try {
@@ -32,7 +35,7 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
     }
   }
   const content = await generateGlance(input);
-  if (content) await upsertNarrativeCache(profileId, "glance", date, hash, MODEL, JSON.stringify(content));
+  if (content && !isMoment) await upsertNarrativeCache(profileId, "glance", date, hash, MODEL, JSON.stringify(content));
   return { available: true, content, generatedAt: new Date(), cached: false };
 }
 

@@ -46,7 +46,12 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number }) {
+  // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
+  // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
+  // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
+  // location (hora is "this hour where you are"), not the birth place.
+  if (opts?.nowMs != null) return buildNarrativeInputUncached(profileId, dateStr, opts);
   const key = `${profileId}|${dateStr}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
@@ -62,7 +67,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -141,10 +146,28 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string) {
 
   const astro = await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon));
   const field = interpretPanchang(astro, lagna);
+  // Current hora — ONLY on moment reads (nowMs present). Location-approximated by the
+  // profile's birth lat/lon, consistent with the panchang above.
+  let hora: { lord: string; tone: string; phase: string; good: string } | null = null;
+  if (moment?.nowMs != null) {
+    const nowMs = moment.nowMs;
+    const hlat = moment.lat ?? lat, hlon = moment.lon ?? lon; // current location, not birth
+    const { computeHoras, horaAt, HORA_TONE } = await import("../panchang/hora.js");
+    const [hy, hm, hd] = dateStr.split("-").map(Number);
+    let hs = computeHoras(hy, hm, hd, hlat, hlon);
+    if (nowMs < hs[0].startMs) {
+      const pv = new Date(Date.UTC(hy, hm - 1, hd - 1));
+      hs = computeHoras(pv.getUTCFullYear(), pv.getUTCMonth() + 1, pv.getUTCDate(), hlat, hlon);
+    }
+    const cur = horaAt(hs, nowMs);
+    if (cur) hora = { lord: cur.lord, tone: cur.tone, phase: cur.phase, good: HORA_TONE[cur.lord].good };
+  }
+
   const panchang = {
     mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated,
     nakshatra: field.nakshatra, tithi: field.tithi,
     karana: field.karana ? { name: field.karana.name, quality: field.karana.quality, vishti: field.karana.name === "Vishti" } : null,
+    hora,
     asOf: dateStr,
   };
 

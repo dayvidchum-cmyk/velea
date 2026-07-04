@@ -233,8 +233,11 @@ export default function Planner() {
     if (!glanceProfileId) return;
     setRefreshingRead(true);
     try {
-      await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true });
-      await utils.narrative.glance.invalidate({ profileId: glanceProfileId, date: selectedDate });
+      // Moment read: hora-aware and ephemeral (server never writes it to the daily
+      // cache). Push the result straight into the on-screen query so it shows now,
+      // and don't invalidate — the stable daily read returns on the next natural load.
+      const res = await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true, nowMs: Date.now() });
+      utils.narrative.glance.setData({ profileId: glanceProfileId, date: selectedDate }, res);
     } finally {
       setRefreshingRead(false);
     }
