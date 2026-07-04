@@ -450,6 +450,10 @@ export default function Settings() {
     onSuccess: () => toast.success("Signed out of all other devices."),
     onError: (err) => toast.error(err.message || "Failed to sign out other devices"),
   });
+  const forceLogoutAll = trpc.auth.forceLogoutAllUsers.useMutation({
+    onSuccess: (r) => toast.success(`Cleared ${r.count} session${r.count === 1 ? "" : "s"} — everyone re-logs in on next open. You stayed signed in.`),
+    onError: (err) => toast.error(err.message || "Failed to force logout"),
+  });
 
   // Local draft — mirrors the live settings but only persists on Save
   const [draft, setDraft] = useState<SettingsState>(() => ({ ...settings }));
@@ -784,6 +788,32 @@ export default function Settings() {
               {logoutOthersMutation.isPending ? "Working…" : "Sign out"}
             </Button>
           </div>
+          {user?.role === "admin" && (
+            <div className="flex items-center justify-between py-4" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <div className="pr-4">
+                <p className="text-sm font-semibold" style={{ color: "#c0392b" }}>
+                  Force log out all users
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
+                  Admin only. After a big build change, clear every user&rsquo;s session — they re-login on next open. This device stays signed in.
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  if (window.confirm("Force-log out ALL users? Everyone will need to sign in again on their next open. You stay signed in.")) {
+                    forceLogoutAll.mutate();
+                  }
+                }}
+                disabled={forceLogoutAll.isPending}
+                variant="outline"
+                size="sm"
+                className="flex-shrink-0"
+                style={{ borderColor: "#c0392b", color: "#c0392b" }}
+              >
+                {forceLogoutAll.isPending ? "Working…" : "Force logout"}
+              </Button>
+            </div>
+          )}
           <div className="flex items-center justify-between py-4">
             <div>
               <p

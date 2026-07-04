@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { and, asc, desc, eq, gte, isNull, lt, or, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, checkIns, panchang, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, users, natalBodies, narrativeCache, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -122,6 +122,18 @@ export async function deleteAllSessionsForUser(userId: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
   await db.delete(sessions).where(eq(sessions.userId, userId));
+}
+
+/** Force-logout EVERY user (used after a breaking build change). Optionally keep one
+ *  token alive so the admin who triggered it stays signed in. Returns the count cleared. */
+export async function deleteAllSessions(exceptToken?: string): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const rows = await db.select({ token: sessions.token }).from(sessions);
+  const cleared = rows.filter((r) => r.token !== exceptToken).length;
+  if (exceptToken) await db.delete(sessions).where(ne(sessions.token, exceptToken));
+  else await db.delete(sessions);
+  return cleared;
 }
 
 export async function getUserByOpenId(openId: string) {

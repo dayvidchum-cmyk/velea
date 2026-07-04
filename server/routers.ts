@@ -44,6 +44,7 @@ import {
   createSession,
   deleteSession,
   deleteAllSessionsForUser,
+  deleteAllSessions,
   getProjectStats,
   getProjectInsights,
   getRecommendedNextTask,
@@ -279,6 +280,16 @@ export const appRouter = router({
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: SESSION_TTL });
       return { success: true } as const;
+    }),
+
+    // ADMIN ONLY — force-logout EVERY user after a breaking build change. Clears the
+    // whole sessions table except the caller's own token, so everyone else drops to
+    // the login screen on their next request while this device stays signed in.
+    forceLogoutAllUsers: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+      const myToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME];
+      const count = await deleteAllSessions(myToken);
+      return { count } as const;
     }),
   }),
 
