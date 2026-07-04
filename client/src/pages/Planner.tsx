@@ -3,7 +3,6 @@ import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, Crown } from "lucide-react";
-import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
@@ -140,7 +139,6 @@ export default function Planner() {
     window.addEventListener("focus", check);
     return () => { clearInterval(id); window.removeEventListener("visibilitychange", check); window.removeEventListener("focus", check); };
   }, [today]);
-  const [goldenTip, setGoldenTip] = useState<string | null>(null); // tapped golden day showing its tooltip
   const [reflection, setReflection] = useState("");
   const [reflectionSaved, setReflectionSaved] = useState(false);
 
@@ -184,11 +182,8 @@ export default function Planner() {
   const { data: selectedPanchang, isFetching: panchangFetching } = trpc.panchang.byDate.useQuery({ date: selectedDate });
   // Today's panchang is needed to know the current day mode for auto-assigning on pin
   const { data: todayPanchang } = trpc.panchang.today.useQuery();
-  const { data: goldenData } = trpc.sky.goldenDays.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
-  const goldenConfirmed = useMemo(() => new Set(goldenData?.confirmed ?? []), [goldenData]);
-  const goldenPotential = useMemo(() => new Set(goldenData?.potential ?? []), [goldenData]);
-  // Crown days — the PERSONAL apex (your chart's tara+chandra+transits align). Distinct
-  // from golden (universal sky): shown as a gold crown badge + gold border on the cell.
+  // Crown days — the PERSONAL apex (your chart's tara+chandra+transits align), shown as
+  // a gold crown badge + gold border on the calendar. (Golden days were removed.)
   const { data: crownData } = trpc.crown.forMonth.useQuery(
     { year: viewDate.getFullYear(), month: viewDate.getMonth() + 1 },
     { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
@@ -977,12 +972,6 @@ export default function Planner() {
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
             const panchang = panchangByDate[dateStr];
             const isToday = dateStr === toDateStr(today);
-            // Golden moments: confirmed (universal + check-in aligned) shows a SOLID
-            // gold triple-moon; potential (universal favorable, unconfirmed) shows a
-            // LIGHT outline moon.
-            const isConfirmedGolden = goldenConfirmed.has(dateStr);
-            const isPotentialGolden = goldenPotential.has(dateStr) && !isConfirmedGolden;
-            const isGolden = isConfirmedGolden || isPotentialGolden;
             const isCrown = crownDays.has(dateStr);
             const isSelected = dateStr === selectedDate;
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
@@ -993,76 +982,36 @@ export default function Planner() {
             const isDark = theme === "dark";
             const tintAlpha = isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20);
             const accent = modeColor ?? "var(--color-foreground)";
-            // Golden days are full gold TILES — the standout treatment, not a faint icon.
-            const GOLD = "#C9A84C", GOLD_BRIGHT = "#E7C766";
-            const goldGradient = `linear-gradient(155deg, ${GOLD_BRIGHT} 0%, ${GOLD} 100%)`;
-            const goldGradientSoft = `linear-gradient(155deg, ${GOLD} 0%, #A8842F 100%)`;
-            const goldText = isGolden ? "#fff" : null;
-            const restingBg = isConfirmedGolden
-              ? goldGradient
-              : isPotentialGolden
-              ? goldGradientSoft
-              : hasMode
+            const GOLD_BRIGHT = "#E7C766"; // crown badge + border accent
+            const restingBg = hasMode
               ? withAlpha(accent, tintAlpha)
               : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
-            const hoverBg = isConfirmedGolden
-              ? goldGradient
-              : isPotentialGolden
-              ? goldGradientSoft
-              : hasMode ? darkenOklch(accent, 0.82) : "var(--color-secondary)";
-            const pressBg = isGolden ? restingBg : hasMode ? darkenOklch(accent, 0.64) : "var(--color-border)";
+            const hoverBg = hasMode ? darkenOklch(accent, 0.82) : "var(--color-secondary)";
+            const pressBg = hasMode ? darkenOklch(accent, 0.64) : "var(--color-border)";
 
             return (
               <button
                 key={dateStr}
-                onClick={() => { setSelectedDate(dateStr); setGoldenTip(isGolden ? (goldenTip === dateStr ? null : dateStr) : null); }}
+                onClick={() => setSelectedDate(dateStr)}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
                   minHeight: "2.1rem",
-                  color: goldText ?? (hasMode ? "var(--color-foreground)" : undefined),
+                  color: hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
                   border: isCrown
                     ? `2px solid ${GOLD_BRIGHT}`
-                    : isConfirmedGolden
-                    ? `1.5px solid ${GOLD_BRIGHT}`
-                    : isPotentialGolden
-                    ? "1px solid color-mix(in srgb, #C9A84C 60%, transparent)"
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : isToday
                     ? `1.5px solid ${withAlpha(accent, 0.55)}`
                     : "1px solid transparent",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode && !isGolden) e.currentTarget.style.color = "var(--color-foreground)"; }}
-                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
-                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode && !isGolden) e.currentTarget.style.color = "#fff"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}
+                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
-                {isGolden && goldenTip === dateStr && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      // Flip below the cell on the top row so the card's overflow:hidden can't clip it.
-                      ...(Math.floor(idx / 7) === 0 ? { top: "calc(100% + 6px)" } : { bottom: "calc(100% + 6px)" }),
-                      // Anchor the 172px tooltip to the cell edge on the outer columns so it
-                      // stays inside the calendar card instead of being clipped by its border.
-                      ...((idx % 7) <= 1 ? { left: 0 } : (idx % 7) >= 5 ? { right: 0 } : { left: "50%", transform: "translateX(-50%)" }),
-                      width: 172, zIndex: 60, pointerEvents: "none", textAlign: "left",
-                      background: "var(--color-card)", border: "1px solid #C9A84C", borderRadius: "var(--radius-card)",
-                      padding: "0.5rem 0.6rem", fontSize: "0.7rem", lineHeight: 1.4, color: "var(--foreground)",
-                      fontWeight: 400, textTransform: "none", letterSpacing: 0,
-                    }}
-                  >
-                    <span style={{ display: "block", fontWeight: 700, color: "#C9A84C", marginBottom: "0.15rem" }}>
-                      {isConfirmedGolden ? "Golden moment" : "Auspicious day"}
-                    </span>
-                    {isConfirmedGolden
-                      ? "The sky was auspicious and your check-in aligned."
-                      : "The sky is auspicious. Are you aligned? Update your current state to see."}
-                  </span>
-                )}
-                {/* Crown badge — the personal apex. Composes over golden (gold tile + crown)
-                    or a mode tile (colored tile + gold border + crown). */}
+                {/* Crown badge — the personal apex (crown.forMonth). Gold crown + gold border. */}
                 {isCrown && (
                   <Crown
                     size={12}
@@ -1072,12 +1021,8 @@ export default function Planner() {
                     style={{ position: "absolute", top: 1, right: 1, pointerEvents: "none", filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,0.4))" }}
                   />
                 )}
-                {isGolden ? (
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                    <VeleaMark size={22} color="#ffffff" />
-                  </span>
-                ) : isToday ? (
-                  // Today = a light pentagram, centered (no number) — styled like the golden mark.
+                {isToday ? (
+                  // Today = a light pentagram, centered (no number).
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={hasMode ? "rgba(255,255,255,0.85)" : "var(--color-muted-foreground)"} strokeWidth="1.75" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
                       <path d="M12 2 L17.9 20.1 L2.5 8.9 L21.5 8.9 L6.1 20.1 Z" />
