@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -226,22 +226,6 @@ export default function Planner() {
   const glanceContent = glance?.content ?? null;
 
   const utils = trpc.useUtils();
-
-  // The read is stable for the day; this deliberately regenerates it "to the moment".
-  const [refreshingRead, setRefreshingRead] = useState(false);
-  const updateToMoment = async () => {
-    if (!glanceProfileId) return;
-    setRefreshingRead(true);
-    try {
-      // Moment read: hora-aware and ephemeral (server never writes it to the daily
-      // cache). Push the result straight into the on-screen query so it shows now,
-      // and don't invalidate — the stable daily read returns on the next natural load.
-      const res = await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true, nowMs: Date.now() });
-      utils.narrative.glance.setData({ profileId: glanceProfileId, date: selectedDate }, res);
-    } finally {
-      setRefreshingRead(false);
-    }
-  };
 
   const saveReflection = trpc.reflections.upsert.useMutation({
     onSuccess: () => {
@@ -670,19 +654,6 @@ export default function Planner() {
               flexDirection: 'column',
             }}
           >
-            {/* Update to the moment — the read holds for the day; this regenerates it now */}
-            {glanceProfileId && glanceContent && (
-              <button
-                type="button"
-                onClick={updateToMoment}
-                disabled={refreshingRead}
-                title="Update to the moment"
-                aria-label="Update to the moment"
-                style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 5, background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,0.6)' }}
-              >
-                <RefreshCw size={15} className={refreshingRead ? 'animate-spin' : ''} />
-              </button>
-            )}
             {/* DATE label — toggles the day card open/closed */}
             <button
               type="button"
