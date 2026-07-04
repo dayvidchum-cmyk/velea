@@ -339,6 +339,9 @@ export const profiles = mysqlTable("profiles", {
   birthLocationLat: varchar("birthLocationLat", { length: 24 }),
   birthLocationLon: varchar("birthLocationLon", { length: 24 }),
   birthTimezone: varchar("birthTimezone", { length: 64 }),
+  // Last time the BIRTH DATA actually changed (not any edit) — drives the 24h edit
+  // cooldown that stops profile "hijacking" (swapping to a friend's data and back).
+  birthDataUpdatedAt: timestamp("birthDataUpdatedAt"),
   notes: text("notes"),
   isOwner: boolean("isOwner").notNull().default(false), // true = this is the owner's own chart ("My Chart")
   isActive: boolean("isActive").notNull().default(false),

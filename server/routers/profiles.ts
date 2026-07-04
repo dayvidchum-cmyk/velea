@@ -60,6 +60,36 @@ export async function assertOwnsProfile(userId: number, profileId: number): Prom
   if (!owned) throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile." });
 }
 
+// ── Birth-data edit cooldown ────────────────────────────────────────────────────
+// Anti-hijack: once birth data is saved you can't change it again for 24h, so a user
+// can't swap their one profile to a friend's chart and revert. Admins are exempt.
+export const BIRTH_DATA_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+type BirthFields = {
+  birthDate?: any; birthTime?: any; birthLocationCity?: any;
+  birthLocationLat?: any; birthLocationLon?: any; birthTimezone?: any;
+};
+
+/** True if any birth field PRESENT in `incoming` differs from stored. Undefined incoming
+ *  fields are treated as "not being changed" (e.g. a name-only profile update). */
+export function birthDataChanged(stored: BirthFields, incoming: BirthFields): boolean {
+  const norm = (v: any) => (v ?? "").toString().trim();
+  const diff = (k: keyof BirthFields) => incoming[k] !== undefined && norm(stored[k]) !== norm(incoming[k]);
+  return diff("birthDate") || diff("birthTime") || diff("birthLocationCity")
+    || diff("birthLocationLat") || diff("birthLocationLon") || diff("birthTimezone");
+}
+
+/** Enforce the 24h cooldown. No-op for admins, unchanged data, or a first-ever save
+ *  (no prior timestamp). Otherwise throws FORBIDDEN with the hours remaining. */
+export function assertBirthDataCooldown(opts: { isAdmin: boolean; changed: boolean; lastChangedAt: Date | null | undefined }): void {
+  if (!opts.changed || opts.isAdmin || !opts.lastChangedAt) return;
+  const elapsed = Date.now() - new Date(opts.lastChangedAt).getTime();
+  if (elapsed < BIRTH_DATA_COOLDOWN_MS) {
+    const hoursLeft = Math.ceil((BIRTH_DATA_COOLDOWN_MS - elapsed) / 3_600_000);
+    throw new TRPCError({ code: "FORBIDDEN", message: `Birth info is locked — you can change it again in ${hoursLeft} hour${hoursLeft === 1 ? "" : "s"}.` });
+  }
+}
+
 // One-time backfill of isRetrograde for profiles saved before the flag was persisted.
 // Sentinel: Rahu is ALWAYS retrograde, so an unflagged stored Rahu means the whole row set
 // predates the fix — recompute the flags once from birth data and persist them.
@@ -293,6 +323,7 @@ export const profilesRouter = router({
         birthLocationLat: input.birthLocationLat ?? null,
         birthLocationLon: input.birthLocationLon ?? null,
         birthTimezone: input.birthTimezone ?? null,
+        birthDataUpdatedAt: input.birthDate ? new Date() : null, // start the 24h lock on first save
         notes: input.notes ?? null,
         isActive: input.makeActive,
       });
@@ -318,6 +349,10 @@ export const profilesRouter = router({
       if (!existing) throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
 
       const { id, ...fields } = input;
+      // Enforce the 24h birth-data cooldown before writing anything.
+      const changed = birthDataChanged(existing, fields);
+      assertBirthDataCooldown({ isAdmin: ctx.user.role === "admin", changed, lastChangedAt: (existing as any).birthDataUpdatedAt });
+
       const updateData: Record<string, any> = {};
       if (fields.name !== undefined) updateData.name = fields.name;
       if (fields.birthDate !== undefined) updateData.birthDate = fields.birthDate;
@@ -327,6 +362,7 @@ export const profilesRouter = router({
       if (fields.birthLocationLon !== undefined) updateData.birthLocationLon = fields.birthLocationLon;
       if (fields.birthTimezone !== undefined) updateData.birthTimezone = fields.birthTimezone;
       if (fields.notes !== undefined) updateData.notes = fields.notes;
+      if (changed) updateData.birthDataUpdatedAt = new Date(); // start/refresh the lock
 
       await db
         .update(profiles)

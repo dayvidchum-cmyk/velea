@@ -3,6 +3,9 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { X, Calendar, Clock, MapPin, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/_core/hooks/useAuth";
+
+const BIRTH_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 interface BirthChartSheetProps {
   open: boolean;
@@ -83,6 +86,9 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
     enabled: open,
   });
 
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const utils = trpc.useUtils();
   const calculateChart = trpc.settings.calculateBirthChart.useMutation({
     onSuccess: () => {
@@ -114,6 +120,10 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
     }
   });
   const [tzSearch, setTzSearch] = useState<string>("");
+  const [confirming, setConfirming] = useState(false);
+
+  // Reset the confirm step whenever the sheet is closed.
+  useEffect(() => { if (!open) setConfirming(false); }, [open]);
 
   useEffect(() => {
     if (userSettings) {
@@ -129,6 +139,22 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
     }
   }, [userSettings]);
 
+  // 24h edit lock (anti-hijack). Admins are never locked.
+  const lockedUntilMs = (userSettings as any)?.birthDataUpdatedAt
+    ? new Date((userSettings as any).birthDataUpdatedAt).getTime() + BIRTH_COOLDOWN_MS
+    : 0;
+  const isLocked = !isAdmin && lockedUntilMs > Date.now();
+  const hoursLeft = Math.max(1, Math.ceil((lockedUntilMs - Date.now()) / 3_600_000));
+
+  // Did anything in the birth data actually change vs what's saved?
+  const hasChanges =
+    birthDate !== (userSettings?.birthDate ?? "") ||
+    birthTime !== (userSettings?.birthTime ?? "") ||
+    birthLocation !== (userSettings?.birthLocationCity ?? "") ||
+    birthLat !== (userSettings?.birthLocationLat ?? "") ||
+    birthLon !== (userSettings?.birthLocationLon ?? "") ||
+    birthTimezone !== (userSettings?.birthTimezone ?? birthTimezone);
+
   const filteredTimezones = tzSearch.trim()
     ? TIMEZONE_OPTIONS.filter(
         (tz) =>
@@ -136,6 +162,17 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
           tz.value.toLowerCase().includes(tzSearch.toLowerCase())
       )
     : TIMEZONE_OPTIONS;
+
+  function doSave() {
+    calculateChart.mutate({
+      birthDate,
+      birthTime,
+      birthLocationCity: birthLocation,
+      birthLocationLat: birthLat,
+      birthLocationLon: birthLon,
+      birthTimezone,
+    });
+  }
 
   function handleCalculate() {
     if (!birthDate || !birthTime || !birthLocation) {
@@ -146,15 +183,17 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
       toast.error("Please select a birth timezone");
       return;
     }
-
-    calculateChart.mutate({
-      birthDate,
-      birthTime,
-      birthLocationCity: birthLocation,
-      birthLocationLat: birthLat,
-      birthLocationLon: birthLon,
-      birthTimezone,
-    });
+    if (isLocked) {
+      toast.error(`Birth info is locked — you can change it again in ${hoursLeft}h.`);
+      return;
+    }
+    // Changing saved data → make them confirm; the 24h lock is a real commitment.
+    // Skip for admins and for a plain recalculate where nothing actually changed.
+    if (hasChanges && !isAdmin && !confirming) {
+      setConfirming(true);
+      return;
+    }
+    doSave();
   }
 
   if (!open) return null;
@@ -289,13 +328,40 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
 
         {/* Button bar */}
         <div className="flex-shrink-0 px-6 py-4 border-t border-border bg-background">
-          <Button
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-            onClick={handleCalculate}
-            disabled={calculateChart.isPending || !birthDate || !birthTime || !birthLocation || !birthTimezone}
-          >
-            {calculateChart.isPending ? "Calculating..." : "Calculate & Save Birth Chart"}
-          </Button>
+          {isLocked ? (
+            <>
+              <Button className="w-full" disabled>Birth info locked</Button>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Birth info can only change once a day. You can change it again in <strong>{hoursLeft}h</strong>.
+              </p>
+            </>
+          ) : confirming ? (
+            <div className="space-y-2">
+              <p className="text-xs text-center px-1" style={{ color: "var(--color-foreground)" }}>
+                Is this info correct? You won&rsquo;t be able to change it again for <strong>24 hours</strong>.
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setConfirming(false)} disabled={calculateChart.isPending}>
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                  onClick={doSave}
+                  disabled={calculateChart.isPending}
+                >
+                  {calculateChart.isPending ? "Saving..." : "Yes, save"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+              onClick={handleCalculate}
+              disabled={calculateChart.isPending || !birthDate || !birthTime || !birthLocation || !birthTimezone}
+            >
+              {calculateChart.isPending ? "Calculating..." : "Calculate & Save Birth Chart"}
+            </Button>
+          )}
         </div>
       </div>
     </div>

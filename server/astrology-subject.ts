@@ -48,6 +48,8 @@ export interface AstrologySubject {
   birthLocationLat: string | null;
   birthLocationLon: string | null;
   birthTimezone: string | null;
+  /** Last time birth data changed — drives the 24h edit cooldown. */
+  birthDataUpdatedAt: Date | null;
   /** Ascendant sign e.g. "Virgo" */
   lagnaSign: string | null;
   sunHouse: number | null;
@@ -88,6 +90,7 @@ function profileToSubject(
     birthLocationLat: p.birthLocationLat ?? null,
     birthLocationLon: p.birthLocationLon ?? null,
     birthTimezone: p.birthTimezone ?? null,
+    birthDataUpdatedAt: (p as any).birthDataUpdatedAt ?? null,
     // Prefer the lagna implied by the natal bodies (the true chart) over a possibly
     // stale profiles.lagnaSign field, so every consumer stays consistent.
     lagnaSign: lagnaFromBodies(bodies) ?? p.lagnaSign ?? null,

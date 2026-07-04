@@ -660,6 +660,8 @@ export const appRouter = router({
         birthLocationLat: subject.birthLocationLat ?? null,
         birthLocationLon: subject.birthLocationLon ?? null,
         birthTimezone: subject.birthTimezone ?? null,
+        // Drives the client's 24h edit lock + "change again in Xh" copy.
+        birthDataUpdatedAt: subject.birthDataUpdatedAt ? new Date(subject.birthDataUpdatedAt).toISOString() : null,
         lagnaSign: subject.lagnaSign ?? null,
         ascendantDegree: subject.ascendantDegree ?? null,
         sunHouse: subject.sunHouse ?? null,
@@ -729,6 +731,19 @@ export const appRouter = router({
             lon,
             timezone
           );
+
+          // Enforce the 24h birth-data edit cooldown BEFORE any writes (anti-hijack).
+          const { getActiveProfile: getActiveForLock, birthDataChanged, assertBirthDataCooldown } = await import('./routers/profiles.js');
+          const activeForLock = await getActiveForLock(ctx.user.id);
+          const birthChanged = !activeForLock || birthDataChanged(activeForLock, {
+            birthDate: input.birthDate,
+            birthTime: input.birthTime,
+            birthLocationCity: input.birthLocationCity,
+            birthLocationLat: input.birthLocationLat || null,
+            birthLocationLon: input.birthLocationLon || null,
+            birthTimezone: timezone,
+          });
+          assertBirthDataCooldown({ isAdmin: ctx.user.role === "admin", changed: birthChanged, lastChangedAt: (activeForLock as any)?.birthDataUpdatedAt });
 
           // Store all birth data and chart results in a single update
           await updateUserBirthChart(ctx.user.id, {
@@ -806,6 +821,7 @@ export const appRouter = router({
                 birthLocationLat: input.birthLocationLat || null,
                 birthLocationLon: input.birthLocationLon || null,
                 birthTimezone: timezone,
+                ...(birthChanged ? { birthDataUpdatedAt: new Date() } : {}), // start/refresh the 24h lock
                 lagnaSign: chart.lagna.sign,
                 sunHouse: chart.sun.house,
                 moonHouse: chart.moon.house,
