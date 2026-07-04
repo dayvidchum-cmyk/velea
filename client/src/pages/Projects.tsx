@@ -430,7 +430,7 @@ export default function Projects() {
               New Project
             </label>
             <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.5, margin: "-0.45rem 0 0.85rem" }}>
-              Not just work — a project is <strong>any ongoing area of your life</strong>: your health, a relationship, a creative practice, a move, a home. Anything you want to group tasks under.
+              Not just work — a project is <strong>any ongoing area of your life</strong>: health &amp; self care, relationships, a creative practice, your home, money, an upcoming event. Anything you want to organize so you can tend to it properly.
             </p>
             <div className="flex items-center gap-2">
               <input
