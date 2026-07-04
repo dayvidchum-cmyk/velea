@@ -34,10 +34,12 @@ export default function About() {
         <ChevronLeft size={17} /> Settings
       </button>
 
-      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.5rem 0 0" }}>Why the Moon</p>
+      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.5rem 0 0" }}>About</p>
       <h1 style={{ fontFamily: serif, fontSize: "2.4rem", fontWeight: 800, color: "var(--color-foreground)", margin: "0.3rem 0 0", letterSpacing: "0.02em" }}>Velea</h1>
 
-      <div style={{ marginTop: "1.6rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
+      {/* ── Section 1: Why the Moon ─────────────────────────────────────────── */}
+      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "2rem 0 0" }}>Why the Moon</p>
+      <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
         <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
           In astrology, the Sun sign is who you are — the changeless <em>“I am,”</em> there before the universe had a size, too bright to face head-on. But that's eternity, and a person has to live on a Tuesday.
         </p>

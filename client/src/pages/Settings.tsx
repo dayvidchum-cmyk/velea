@@ -688,8 +688,8 @@ export default function Settings() {
             style={{ borderTop: "1px solid var(--border)", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
           >
             <div className="pr-4">
-              <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>Why the Moon</p>
-              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>The full story behind Velea — the manifesto.</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>About Velea</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>The manifesto — why the Moon, and your life as a story.</p>
             </div>
             <span style={{ color: "var(--color-muted-foreground)", fontSize: "1.15rem", flexShrink: 0 }}>→</span>
           </button>
