@@ -9,6 +9,7 @@
  */
 
 import { calcPanchang } from './astronomy.js';
+import { karanaFromLongitudes } from './karana.js';
 import { interpretPanchang, getNakshatraModifier, getTithiPacing, moonSignToHouse, composeInstructionFromParts, calculateFinalMode, type DayField, type DayMode, type FinalMode } from './interpreter.js';
 import { getPanchangByDate, upsertPanchang } from '../db.js';
 
@@ -140,6 +141,9 @@ export async function getDayField(
       let nakshatraAtSunrise = cached.nakshatra;
       let nakshatraTransitionTime: string | null = null;
       let nakshatraAfterTransition: string | null = null;
+      // Karana is derived from the same on-the-fly astro (sun+moon at sunrise),
+      // so no schema/backfill is needed for cached rows.
+      let karana: DayField['karana'] = null;
 
       try {
         const utcOffset = locationOverride?.utcOffset ?? getBostonUtcOffset(dateStr);
@@ -149,6 +153,7 @@ export async function getDayField(
         nakshatraAtSunrise = astro.nakshatraAtSunrise;
         nakshatraTransitionTime = astro.nakshatraTransitionTime;
         nakshatraAfterTransition = astro.nakshatraAfterTransition;
+        karana = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
       } catch {
         // Non-fatal: fall back to null (UI shows just the nakshatra name)
       }
@@ -162,6 +167,7 @@ export async function getDayField(
         nakshatraPada: cached.nakshatraPada ?? 1,
         tithi: cached.tithi,
         tithiPaksha: cachedPaksha,
+        karana,
         sunriseLocal: cached.sunrise,
         mode: finalMode,
         baseMode,

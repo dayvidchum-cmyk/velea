@@ -164,6 +164,11 @@ export default function SignpostSheet({ open, onClose, mode }: SignpostSheetProp
                   <Chip>{why.sky.nakshatra}</Chip>
                   <Chip>{why.sky.tithi}</Chip>
                   <Chip>☽ {why.sky.moonSign}</Chip>
+                  {why.sky.karana && (
+                    <Chip tone={why.sky.karana.vishti ? "bad" : "neutral"}>
+                      {why.sky.karana.name}{why.sky.karana.vishti ? " (avoid starting)" : ""} karana
+                    </Chip>
+                  )}
                 </div>
                 <p className="text-[13px]" style={{ color: "var(--color-foreground)", lineHeight: 1.5, opacity: 0.85 }}>
                   {why.sky.line}

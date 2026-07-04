@@ -17,8 +17,15 @@ You receive one JSON object with these blocks:
   antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} }
 - transits: [{ planet, sign, houseFromLagna, retrograde, combust,
   hitsNatalPoint, orbDeg }]
-- panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, asOf } — qualifier is
+- panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, karana, asOf } — qualifier is
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
+  karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true
+  (Vishti / Bhadra), the day disfavors INITIATING: this is a "finish, don't start"
+  window. Push "begin / launch / open something new" into avoid, and favor
+  completing, repairing, and maintenance in goodFor. Do NOT flip the day's mode over
+  it — it only gates the start-vs-finish guidance within the mode. Weave it plainly
+  (the words are in your throat, not "Vishti karana"); only name the karana if the
+  read is explicitly mechanics-allowed. When karana.vishti is false, ignore it.
 - humanTime: { dayOfWeek, isWeekend, weekFrame, season, nearSeasonalTurn } —
   ordinary human time (weekday rhythm + season), not astrology. (Culture-specific
   holidays are not yet supplied; use only what is present.)

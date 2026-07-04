@@ -141,7 +141,12 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string) {
 
   const astro = await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon));
   const field = interpretPanchang(astro, lagna);
-  const panchang = { mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated, nakshatra: field.nakshatra, tithi: field.tithi, asOf: dateStr };
+  const panchang = {
+    mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated,
+    nakshatra: field.nakshatra, tithi: field.tithi,
+    karana: field.karana ? { name: field.karana.name, quality: field.karana.quality, vishti: field.karana.name === "Vishti" } : null,
+    asOf: dateStr,
+  };
 
   // Ordinary human time — how a person actually frames "today" (Monday, weekend),
   // independent of the sidereal sky. Often resonates with the chart's themes.

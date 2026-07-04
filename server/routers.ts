@@ -1086,6 +1086,9 @@ export const appRouter = router({
             nakshatra: dayField.nakshatra,
             tithi: typeof dayField.tithi === "string" ? dayField.tithi : `${dayField.tithiPaksha} ${dayField.tithi}`,
             moonSign: dayField.moonSign,
+            karana: dayField.karana
+              ? { name: dayField.karana.name, altName: dayField.karana.altName ?? null, quality: dayField.karana.quality, vishti: dayField.karana.name === "Vishti" }
+              : null,
             quality: skyQuality,
             line: skyLine,
           },

@@ -21,6 +21,7 @@
  */
 
 import type { AstronomyData } from './astronomy.js';
+import { karanaFromLongitudes, type Karana } from './karana.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -73,6 +74,8 @@ export interface DayField {
   nakshatraPada: number;
   tithi: string;
   tithiPaksha: 'Shukla' | 'Krishna';
+  /** Karana at sunrise (half-tithi). null if longitudes were unavailable. */
+  karana: Karana | null;
   sunriseLocal: string;
   /** Legacy field — now equals finalMode for backward compatibility */
   mode: FinalMode;
@@ -930,6 +933,9 @@ export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayF
   // Compose instruction based on FINAL mode + nakshatra tone
   const instruction = composeInstruction(finalMode, nakshatraModifier);
 
+  // Karana at sunrise — same elongation as the tithi (half-tithi resolution).
+  const karana = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
+
   return {
     date: astro.date,
     dayOfWeek: getDayOfWeek(astro.date),
@@ -939,6 +945,7 @@ export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayF
     nakshatraPada: astro.nakshatraPada,
     tithi: astro.tithi,
     tithiPaksha: astro.tithiPaksha,
+    karana,
     sunriseLocal: astro.sunriseLocal,
     mode: finalMode, // backward compat: mode = finalMode
     baseMode,
