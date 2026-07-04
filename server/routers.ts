@@ -996,6 +996,110 @@ export const appRouter = router({
           planetaryThemes: profection.planetaryThemes,
         };
       }),
+
+    /**
+     * WHY THIS TODAY — the "why" destination behind the hero. Answers "why is
+     * today shaped this way for ME" by stacking the three deterministic layers:
+     *   1. SKY  — the day's raw quality (nakshatra / tithi), same for everyone.
+     *   2. FILTER — how that sky lands on THIS chart: tārabala (day-star from the
+     *      native's birth-star), chandrabala (transit Moon's house from natal Moon),
+     *      the year's Time Lord + current dasha, and benefic/malefic transit pressure.
+     * (The third layer — your check-in state — is folded in client-side.)
+     * All chart math, free, auditable, never hallucinated.
+     */
+    whyToday: protectedProcedure
+      .input(z.object({ date: z.string().optional() }))
+      .query(async ({ ctx, input }) => {
+        const subject = ctx.subject;
+        if (!subject?.birthDate || !subject?.lagnaSign) return null;
+
+        // Resolve the local date (user's stored location, else the app default).
+        const user = await getUserById(ctx.user.id);
+        const now = new Date();
+        let dateStr = input?.date ?? now.toISOString().split("T")[0];
+        let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
+        if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
+          const utcOffset = getTimezoneOffset(user.locationTimezone, now);
+          if (!input?.date) {
+            const localDate = new Date(now.getTime() + utcOffset * 60 * 60 * 1000);
+            dateStr = localDate.toISOString().split("T")[0];
+          }
+          locationOverride = { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), utcOffset };
+        }
+
+        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign);
+        if (!dayField) return null;
+
+        const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+        const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+        const ORD = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
+
+        const moon = subject.natalBodies.find((b) => b.planet === "Moon");
+        const birthNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(moon?.nakshatra ?? "").toLowerCase());
+        const natalMoonSignIdx = ZOD.indexOf(moon?.sign ?? "");
+        const lagnaSignIdx = ZOD.indexOf(subject.lagnaSign);
+        if (birthNakIdx < 0 || natalMoonSignIdx < 0 || lagnaSignIdx < 0) return null;
+
+        // The day's transit longitudes → sign indices (noon UTC, like Crown Days).
+        const { calculateBirthChart } = await import("./birthchart/calculator.js");
+        const { dayQuality } = await import("./panchang/auspiciousness.js");
+        const { tarabala, chandrabala, transitScore } = await import("./panchang/crown.js");
+        const ch: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
+        const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
+        const T: Record<string, number> = {
+          Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude),
+          Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude),
+          Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude),
+        };
+
+        const dq = dayQuality(ch.sun.longitude, ch.moon.longitude, 2);
+        const dayNakIdx = dq.nakshatra;
+        const dayMoonSignIdx = si(ch.moon.longitude);
+        const tb = tarabala(birthNakIdx, dayNakIdx);
+        const cb = chandrabala(natalMoonSignIdx, dayMoonSignIdx);
+        const ts = transitScore({ transitSignByPlanet: T, natalMoonSignIdx, lagnaSignIdx, dayTithi: dq.tithi });
+
+        // Year's Time Lord (the chapter) + current dasha (the long season).
+        const { calculateProfectionYear } = await import("./profection/calculator.js");
+        const profection = calculateProfectionYear(subject.birthDate, dateStr, subject.lagnaSign);
+        let dasha: { maha: string; antar: string } | null = null;
+        try {
+          const { calculateDashaTimeline } = await import("./dasha-calculator.js");
+          const tl = calculateDashaTimeline(subject.birthDate, moon?.nakshatra ?? "", moon?.sign ?? "", moon?.degree ?? "0", dateStr, moon?.longitude ?? null);
+          const cur = tl.entries.find((e) => e.isCurrent);
+          if (cur) dasha = { maha: cur.mahadasha, antar: cur.antardasha };
+        } catch { /* dasha optional */ }
+
+        const skyQuality: "clean" | "mixed" | "rough" = dq.score >= 1 ? "clean" : dq.score <= -1 ? "rough" : "mixed";
+        const skyLine =
+          skyQuality === "clean"
+            ? `A clean day in the sky — ${dayField.nakshatra} carries it well.`
+            : skyQuality === "rough"
+            ? `A rougher day in the sky — ${dayField.nakshatra} runs against the grain.`
+            : `A middling day in the sky — ${dayField.nakshatra}, neither lift nor drag.`;
+
+        return {
+          date: dateStr,
+          mode: dayField.mode,
+          qualifier: dayField.qualifier ?? null,
+          sky: {
+            nakshatra: dayField.nakshatra,
+            tithi: typeof dayField.tithi === "string" ? dayField.tithi : `${dayField.tithiPaksha} ${dayField.tithi}`,
+            moonSign: dayField.moonSign,
+            quality: skyQuality,
+            line: skyLine,
+          },
+          chart: {
+            house: dayField.houseActivated,          // Moon's house from your lagna today
+            tara: { name: tb.name, favorable: tb.favorable, quality: tb.quality },
+            chandra: { house: cb.house, houseLabel: ORD[cb.house], favorable: cb.favorable, quality: cb.quality },
+            timeLord: { lord: profection.timeLord, house: profection.activatedHouse, houseLabel: ORD[profection.activatedHouse] },
+            dasha,
+            support: ts.support,
+            affliction: ts.affliction,
+          },
+        };
+      }),
   }),
 
   // ── SYSTEM PROMPTS ─────────────────────────────────────────
@@ -1212,6 +1316,49 @@ export const appRouter = router({
       }
       return { ...read, chapters };
     }),
+  }),
+
+  // ── CROWN DAYS — the personal macro layer: which days are YOURS this month ──
+  crown: router({
+    forMonth: protectedProcedure
+      .input(z.object({ year: z.number().int(), month: z.number().int().min(1).max(12) }))
+      .query(async ({ ctx, input }) => {
+        const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+        const profile = await getActiveProfile(ctx.user.id);
+        if (!profile || !(profile as any).lagnaSign) return null;
+        const bodies = await getProfileNatalBodies(profile.id);
+        const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+        const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+        let moonNak: string | null = null, natalMoonSign: string | null = null;
+        for (const b of bodies) if (b.planet === "Moon") { moonNak = b.nakshatra ?? null; natalMoonSign = b.sign ?? null; }
+        const birthNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(moonNak ?? "").toLowerCase());
+        const natalMoonSignIdx = ZOD.indexOf(natalMoonSign ?? "");
+        const lagnaSignIdx = ZOD.indexOf((profile as any).lagnaSign);
+        if (birthNakIdx < 0 || natalMoonSignIdx < 0 || lagnaSignIdx < 0) return null;
+
+        const { calculateBirthChart } = await import("./birthchart/calculator.js");
+        const { crownDay } = await import("./panchang/crown.js");
+        const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
+        const p2 = (n: number) => String(n).padStart(2, "0");
+        const daysInMonth = new Date(Date.UTC(input.year, input.month, 0)).getUTCDate();
+        const ORD = ["", "1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
+        const days: any[] = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+          const date = `${input.year}-${p2(input.month)}-${p2(d)}`;
+          try {
+            const ch: any = await calculateBirthChart(date, "12:00", 0, 0, "UTC");
+            const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
+            const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T });
+            const why = cd.rating === "crown"
+              ? `${cd.tarabala.name} tara · Moon in your ${ORD[cd.chandrabala.house]} house · a clean day — one of your strongest this month.`
+              : cd.rating === "caution"
+              ? `${cd.tarabala.name} tara · Moon in your ${ORD[cd.chandrabala.house]} house — friction; keep the stakes low.`
+              : "";
+            days.push({ date, rating: cd.rating, why });
+          } catch { days.push({ date, rating: "neutral", why: "" }); }
+        }
+        return { days };
+      }),
   }),
 
   // ── MASTER MODE (Pancha Pakshi hourly timing) — GATED to an allowlist (private) ──

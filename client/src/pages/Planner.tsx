@@ -14,6 +14,7 @@ import SwipeableTaskRow from "@/components/SwipeableTaskRow";
 import AddTaskSheet from "@/components/AddTaskSheet";
 import ModeOrb from "@/components/ModeOrb";
 import ModeOrbSheet from "@/components/ModeOrbSheet";
+import SignpostSheet from "@/components/SignpostSheet";
 import DueOrbSheet from "@/components/DueOrbSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 
@@ -134,6 +135,7 @@ export default function Planner() {
   const [editPinnedTask, setEditPinnedTask] = useState<Task | null>(null);
   const [editAlignedTask, setEditAlignedTask] = useState<Task | null>(null);
   const [heroOpen, setHeroOpen] = useState(true);
+  const [signpostOpen, setSignpostOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
@@ -736,6 +738,32 @@ export default function Planner() {
               );
             })()}
 
+            {/* Why this today? — opens the three-layer signpost (sky ⊗ your chart ⊗ you) */}
+            <button
+              type="button"
+              onClick={() => setSignpostOpen(true)}
+              style={{
+                alignSelf: 'flex-start',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: 'rgba(255,255,255,0.16)',
+                border: '1px solid rgba(255,255,255,0.28)',
+                borderRadius: '999px',
+                padding: '0.3rem 0.8rem',
+                marginBottom: '1rem',
+                cursor: 'pointer',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.95)',
+              }}
+            >
+              Why this today?
+              <ChevronDown size={12} style={{ transform: 'rotate(-90deg)', color: 'rgba(255,255,255,0.95)' }} />
+            </button>
+
             {heroOpen && (<>
             {/* Narrative paragraph — the personalized read stands on its own; the
                 templated mode instruction is intentionally omitted (redundant). */}
@@ -860,7 +888,7 @@ export default function Planner() {
         </div>
       )}
 
-      {/* ── PLAN AHEAD (planning tools, collapsed by default) ── */}
+      {/* ── CALENDAR (collapsed by default — low cognitive load) ── */}
       <button
         onClick={() => setPlanOpen((v) => !v)}
         className="flex items-center gap-2 w-full py-2 transition-all relative z-10"
@@ -1585,6 +1613,9 @@ export default function Planner() {
 
       {/* Due Orb Sheet */}
       <DueOrbSheet open={dueSheetOpen} onClose={() => setDueSheetOpen(false)} />
+
+      {/* Why-this-today Signpost Sheet */}
+      <SignpostSheet open={signpostOpen} onClose={() => setSignpostOpen(false)} mode={selectedTaskModeForHero ?? undefined} />
 
       {/* Add/Edit sheet */}
       <AddTaskSheet
