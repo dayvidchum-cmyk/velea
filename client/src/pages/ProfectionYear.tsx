@@ -16,6 +16,16 @@ import { CurrentTriggerBreakdown } from "@/components/CurrentTriggerBreakdown";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "../../../shared/types";
 import { LIFE_AREAS } from "../../../shared/life-areas";
 
+// The `why` breakdown weaves chart mechanics with short "mini-synthesis" lines of plain
+// meaning. Sentence-level split: a sentence carrying chart apparatus (planet / nakshatra /
+// house number / rulership verb) recedes to grey; a plain-language sentence stays black.
+const NAK = "Ashwini|Bharani|Krittika|Rohini|Mrigashira|Ardra|Punarvasu|Pushya|Ashlesha|Magha|Phalguni|Hasta|Chitra|Swati|Vishakha|Anuradha|Jyeshtha|Mula|Ashadha|Shravana|Dhanishta|Shatabhisha|Bhadrapada|Revati";
+const APPARATUS = new RegExp(`\\b(?:Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu|Lagna|Ascendant|rules?|ruled|ruler|lords?|sits?|sitting|occup\\w+|placed|posited|exalt\\w*|debilit\\w*|combust\\w*|retrograde|nakshatra|dasha|mahadasha|antardasha|pratyantardasha|profection|house|\\d{1,2}(?:st|nd|rd|th)|${NAK})\\b`, "i");
+function renderWhy(text: string, muted: string, base: string) {
+  const chunks = text.match(/[^.!?]+[.!?]*\s*/g) ?? [text];
+  return chunks.map((c, i) => <span key={i} style={{ color: APPARATUS.test(c) ? muted : base }}>{c}</span>);
+}
+
 // House ordinals + plain-language glosses (mirrors HOUSE_GLOSS in WhyNowChain.tsx /
 // CurrentTriggerBreakdown.tsx) so the "Current Time Lord Movement" card can name the
 // chapter the Time Lord is currently transiting — deterministic, no API call.
@@ -527,10 +537,10 @@ export default function ProfectionYear() {
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%",
             margin: "0 0 1rem", padding: "0.7rem 1rem", borderRadius: 14, cursor: "pointer",
             background: "color-mix(in srgb, #E7C766 14%, transparent)", border: "1px solid #C9A84C",
-            color: "#C9A84C", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.04em",
+            color: "#C9A84C", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
           }}
         >
-          <Users size={15} /> Deepen with today&rsquo;s guests · preview
+          <Users size={15} /> Your year, right now
         </button>
       )}
 
@@ -556,7 +566,7 @@ export default function ProfectionYear() {
             {/* scrolling body */}
             <div style={{ overflowY: "auto", padding: "1rem 1.3rem 1.3rem" }}>
               <p style={{ fontSize: "0.7rem", color: "var(--color-muted-foreground)", margin: "0 0 1rem", lineHeight: 1.5 }}>
-                Premium preview · admin only. The stage, plus the guests on it right now — pratyantardaśā, transits, combustion, eclipse. Regenerated live each open.
+                Premium preview · admin and select test users only. The stage, plus the guests on it right now — pratyantardaśā, transits, combustion, eclipse. Regenerated live each open.
               </p>
               {guestsLoading || !guestsRead ? (
                 <div style={{ padding: "2rem 0", textAlign: "center", color: "var(--color-muted-foreground)", fontStyle: "italic", fontSize: "0.9rem" }}>
@@ -572,7 +582,7 @@ export default function ProfectionYear() {
                     <div key={label}>
                       <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>{label}</p>
                       <p style={{ fontSize: "0.95rem", lineHeight: 1.65, color: "var(--color-foreground)", fontWeight: 550, margin: 0 }}>{sec.synthesis}</p>
-                      {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>{sec.why}</p>}
+                      {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, margin: "0.4rem 0 0" }}>{renderWhy(sec.why, "var(--color-muted-foreground)", "var(--color-foreground)")}</p>}
                     </div>
                   ))}
                   {guestsRead.manifestations?.length > 0 && (
