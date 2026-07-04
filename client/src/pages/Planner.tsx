@@ -602,8 +602,13 @@ export default function Planner() {
 
       {isAuthenticated && <AddToHomeScreenNote />}
       {isAuthenticated && <MeridianWhisper />}
-      {isAuthenticated && <MasterModeCard />}
-      {isAuthenticated && <HoraCard />}
+      {/* Time Master + Hora as two compact tiles, side by side (private/admin). */}
+      {isAuthenticated && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start", marginBottom: "1.5rem" }}>
+          <MasterModeCard />
+          <HoraCard />
+        </div>
+      )}
 
       {/* ── WHAT ARE DAY MODES? — a small link that opens a pop-up (was a big card at the top) ── */}
       {isAuthenticated && modesOpen && createPortal(

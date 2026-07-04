@@ -115,7 +115,7 @@ function SettingsSection({ title, children, defaultOpen = false }: { title: stri
 
 // ─── Change Password ──────────────────────────────────────────────────────────
 
-function ChangePasswordSection() {
+function ChangePasswordSection({ bare = false }: { bare?: boolean }) {
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -146,8 +146,7 @@ function ChangePasswordSection() {
     color: "var(--color-foreground)",
   };
 
-  return (
-    <SettingsSection title="Password">
+  const inner = (
       <div className="py-4 space-y-3">
         <div className="relative">
           <input
@@ -203,8 +202,8 @@ function ChangePasswordSection() {
           {changePassword.isPending ? "Updating…" : "Change Password"}
         </Button>
       </div>
-    </SettingsSection>
   );
+  return bare ? inner : <SettingsSection title="Password">{inner}</SettingsSection>;
 }
 
 // ─── Astrology Debug Panel (removed) ────────────────────────────────────────
@@ -513,58 +512,6 @@ export default function Settings() {
 
       <div className="space-y-5">
 
-        {/* ── Profile ───────────────────────────────────────────────────── */}
-        <SettingsSection title="Profile">
-          <div className="py-4" style={{ borderBottom: "1px solid var(--border)" }}>
-            <p className="text-base font-bold" style={{ color: "var(--color-foreground)" }}>
-              {subject?.name ?? user?.name ?? "Your profile"}
-            </p>
-            <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
-              {[fmtBirthDate(subject?.birthDate), fmtBirthTime(subject?.birthTime), subject?.birthLocationCity].filter(Boolean).join(" · ") || "No birth details yet"}
-            </p>
-            {subject?.lagnaSign && (
-              <p className="text-xs font-semibold uppercase mt-1.5" style={{ color: modeColor, letterSpacing: "0.06em" }}>
-                {subject.lagnaSign} Lagna
-              </p>
-            )}
-          </div>
-          <div className="py-4">
-            <button
-              onClick={() => navigate("/profiles")}
-              className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
-              style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}
-            >
-              Edit birth details
-            </button>
-          </div>
-
-          {/* Current location — where you are NOW (separate from birth place); drives
-              local sunrise, panchang timing, yamas, and hora. Opens the shared
-              LocationSheet (device GPS or manual city) mounted in AppHeader. */}
-          <div className="py-4" style={{ borderTop: "1px solid var(--border)" }}>
-            <div className="flex items-center gap-2 mb-1">
-              <MapPin size={13} style={{ color: modeColor }} />
-              <p className="text-sm font-bold" style={{ color: "var(--color-foreground)" }}>Current location</p>
-            </div>
-            <p className="text-sm mb-3" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
-              {locationData?.city
-                ? <>Set to <strong style={{ color: "var(--color-foreground)" }}>{locationData.city}</strong> — makes today's sunrise, timing, and transits accurate. Update it when you travel.</>
-                : <>Not set — we can't compute your local sunrise and timing accurately until you tell us where you are.</>}
-            </p>
-            <button
-              onClick={() => window.dispatchEvent(new Event("velea-open-location"))}
-              className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
-              style={{
-                background: locationData?.city ? "var(--color-secondary)" : "var(--color-primary)",
-                color: locationData?.city ? "var(--color-foreground)" : "var(--color-primary-foreground)",
-                border: "1px solid var(--color-border)",
-              }}
-            >
-              {locationData?.city ? "Change current location" : "Set your location"}
-            </button>
-          </div>
-        </SettingsSection>
-
         {/* ── Interface & Focus ─────────────────────────────────────────── */}
         <SettingsSection title="Interface & Focus">
 
@@ -759,11 +706,64 @@ export default function Settings() {
           </div>
         </SettingsSection>
 
-        {/* ── Account ───────────────────────────────────────────────── */}
-        <ChangePasswordSection />
-
+        {/* ── Account — your chart · password · sessions, under one heading at the bottom ── */}
         <SettingsSection title="Account">
-          <div className="flex items-center justify-between py-4" style={{ borderBottom: "1px solid var(--color-border)" }}>
+          {/* Your chart — identity, birth details, current location */}
+          <div className="py-4" style={{ borderBottom: "1px solid var(--border)" }}>
+            <p className="text-base font-bold" style={{ color: "var(--color-foreground)" }}>
+              {subject?.name ?? user?.name ?? "Your profile"}
+            </p>
+            <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+              {[fmtBirthDate(subject?.birthDate), fmtBirthTime(subject?.birthTime), subject?.birthLocationCity].filter(Boolean).join(" · ") || "No birth details yet"}
+            </p>
+            {subject?.lagnaSign && (
+              <p className="text-xs font-semibold uppercase mt-1.5" style={{ color: modeColor, letterSpacing: "0.06em" }}>
+                {subject.lagnaSign} Lagna
+              </p>
+            )}
+          </div>
+          <div className="py-4">
+            <button
+              onClick={() => navigate("/profiles")}
+              className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
+              style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}
+            >
+              Edit birth details
+            </button>
+          </div>
+          {/* Current location — where you are NOW (separate from birth place); drives
+              local sunrise, panchang timing, yamas, and hora. */}
+          <div className="py-4" style={{ borderTop: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin size={13} style={{ color: modeColor }} />
+              <p className="text-sm font-bold" style={{ color: "var(--color-foreground)" }}>Current location</p>
+            </div>
+            <p className="text-sm mb-3" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+              {locationData?.city
+                ? <>Set to <strong style={{ color: "var(--color-foreground)" }}>{locationData.city}</strong> — makes today's sunrise, timing, and transits accurate. Update it when you travel.</>
+                : <>Not set — we can't compute your local sunrise and timing accurately until you tell us where you are.</>}
+            </p>
+            <button
+              onClick={() => window.dispatchEvent(new Event("velea-open-location"))}
+              className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
+              style={{
+                background: locationData?.city ? "var(--color-secondary)" : "var(--color-primary)",
+                color: locationData?.city ? "var(--color-foreground)" : "var(--color-primary-foreground)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              {locationData?.city ? "Change current location" : "Set your location"}
+            </button>
+          </div>
+
+          {/* Password */}
+          <div style={{ borderTop: "1px solid var(--border)" }}>
+            <p className="text-xs font-bold uppercase pt-4" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.08em" }}>Password</p>
+            <ChangePasswordSection bare />
+          </div>
+
+          {/* Sessions */}
+          <div className="flex items-center justify-between py-4" style={{ borderTop: "1px solid var(--color-border)" }}>
             <div className="pr-4">
               <p
                 className="text-sm font-semibold"
@@ -789,7 +789,7 @@ export default function Settings() {
             </Button>
           </div>
           {user?.role === "admin" && (
-            <div className="flex items-center justify-between py-4" style={{ borderBottom: "1px solid var(--color-border)" }}>
+            <div className="flex items-center justify-between py-4" style={{ borderTop: "1px solid var(--color-border)" }}>
               <div className="pr-4">
                 <p className="text-sm font-semibold" style={{ color: "#c0392b" }}>
                   Force log out all users

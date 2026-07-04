@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import VeleaMark from "./VeleaMark";
 
 /**
  * Master Mode — Pancha Pakshi hourly timing. PRIVATE (endpoint returns null off the
@@ -57,57 +58,63 @@ export default function MasterModeCard() {
   const g = (data as any).goldenNow;
 
   return (
-    <div style={{ borderRadius: 16, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
-      <button onClick={() => setExpanded((e) => !e)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
-        <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#000" }}>
-          Time Master · {data.bird}
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--brand-gold)", opacity: 0.75 }}>private</span>
-          {expanded ? <ChevronDown size={15} style={{ color: "var(--color-muted-foreground)" }} /> : <ChevronRight size={15} style={{ color: "var(--color-muted-foreground)" }} />}
+    <div style={{ borderRadius: 16, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "0.85rem 0.9rem", display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* Header line — VeleaMark + name + golden badge (the golden hour keeps its hierarchy
+          right here, at the top, beside the mark and name), then the expand chevron. */}
+      <button onClick={() => setExpanded((e) => !e)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
+        <VeleaMark size={15} />
+        <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--foreground)", whiteSpace: "nowrap" }}>Time Master</span>
+        {g?.isGolden && (
+          <span aria-label="Golden hour" style={{ fontSize: "0.72rem", fontWeight: 800, color: "#D4AF37", filter: "drop-shadow(0 0 4px rgba(212,175,55,0.5))" }}>✦</span>
+        )}
+        <span style={{ marginLeft: "auto", flexShrink: 0 }}>
+          {expanded ? <ChevronDown size={14} style={{ color: "var(--color-muted-foreground)" }} /> : <ChevronRight size={14} style={{ color: "var(--color-muted-foreground)" }} />}
         </span>
       </button>
+      <p style={{ margin: "0.15rem 0 0", fontSize: "0.56rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>{data.bird} · private</p>
 
       {current && (
-        <div style={{ marginTop: "0.85rem", borderRadius: 12, padding: "0.85rem 1rem", background: `color-mix(in srgb, ${CAT_COLOR[current.category]} 16%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${CAT_COLOR[current.category]} 45%, transparent)` }}>
-          <p style={{ margin: 0, fontSize: "0.66rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Now</p>
-          <p style={{ margin: "0.15rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: CAT_COLOR[current.category] }}>{current.category}</p>
-          <p style={{ margin: "0.1rem 0 0", fontSize: "0.82rem", color: "var(--foreground)" }}>{CAT_NOTE[current.category]}</p>
-          <p style={{ margin: "0.3rem 0 0", fontSize: "0.75rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</p>
+        <div style={{ marginTop: "0.6rem" }}>
+          <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Now</p>
+          <p style={{ margin: "0.1rem 0 0", fontSize: "1rem", fontWeight: 800, color: CAT_COLOR[current.category], lineHeight: 1.1 }}>{current.category}</p>
+          <p style={{ margin: "0.1rem 0 0", fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</p>
 
-          {g?.isGolden && (
-            <div style={{ marginTop: "0.7rem", paddingTop: "0.7rem", borderTop: "1px dashed color-mix(in srgb, #D4AF37 55%, transparent)" }}>
-              <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.03em", color: "#D4AF37" }}>✦ Golden hour — {g.horaLord}</p>
-              <p style={{ margin: "0.2rem 0 0", fontSize: "0.8rem", color: "var(--foreground)" }}>Your bird and the hour agree.</p>
-              {favorsHouses(g).length > 0 && (
-                <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--foreground)" }}>Favors {glossHouses(favorsHouses(g))}.</p>
-              )}
-              <p style={{ margin: "0.2rem 0 0", fontSize: "0.74rem", color: "var(--color-muted-foreground)" }}>{g.horaLord} {conditionLine(g)}.</p>
-              <p style={{ margin: "0.15rem 0 0", fontSize: "0.74rem", color: "var(--color-muted-foreground)" }}>Now transiting your {ORD[g.transitHouse]} — {HOUSE_SHORT[g.transitHouse]}.</p>
-            </div>
-          )}
-
-          {g && !g.isGolden && (
-            <p style={{ margin: "0.55rem 0 0", fontSize: "0.72rem", fontWeight: 600, color: "#C9A84C" }}>
-              {g.nextGoldenMs ? `✦ Next golden hour · ${fmt(g.nextGoldenMs)} – ${fmt(g.nextGoldenEndMs)}` : "No golden window left today."}
+          {g?.isGolden ? (
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.72rem", fontWeight: 800, color: "#D4AF37", lineHeight: 1.25 }}>✦ Golden hour — {g.horaLord}</p>
+          ) : g ? (
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.66rem", fontWeight: 600, color: "#C9A84C", lineHeight: 1.25 }}>
+              {g.nextGoldenMs ? `✦ Next · ${fmt(g.nextGoldenMs)}–${fmt(g.nextGoldenEndMs)}` : "No golden window left"}
             </p>
-          )}
+          ) : null}
         </div>
       )}
 
       {expanded && (
-        <div style={{ marginTop: "0.9rem", display: "flex", flexDirection: "column", gap: "1px" }}>
-          {data.periods.map((p, i) => {
-            const isNow = current && p.startMs === current.startMs;
-            const past = nowMs >= p.endMs;
-            return (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.35rem 0.4rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${CAT_COLOR[p.category]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 999, background: CAT_COLOR[p.category], flexShrink: 0 }} />
-                <span style={{ fontSize: "0.75rem", color: "var(--color-muted-foreground)", width: "5.5rem", flexShrink: 0 }}>{fmt(p.startMs)}</span>
-                <span style={{ fontSize: "0.82rem", fontWeight: isNow ? 700 : 500, color: isNow ? CAT_COLOR[p.category] : "var(--foreground)" }}>{p.category}</span>
-              </div>
-            );
-          })}
+        <div style={{ marginTop: "0.7rem" }}>
+          {current && <p style={{ margin: "0 0 0.55rem", fontSize: "0.72rem", color: "var(--foreground)", lineHeight: 1.35 }}>{CAT_NOTE[current.category]}</p>}
+          {g?.isGolden && (
+            <div style={{ marginBottom: "0.6rem", paddingBottom: "0.6rem", borderBottom: "1px dashed color-mix(in srgb, #D4AF37 55%, transparent)" }}>
+              <p style={{ margin: 0, fontSize: "0.74rem", color: "var(--foreground)" }}>Your bird and the hour agree.</p>
+              {favorsHouses(g).length > 0 && (
+                <p style={{ margin: "0.2rem 0 0", fontSize: "0.74rem", color: "var(--foreground)" }}>Favors {glossHouses(favorsHouses(g))}.</p>
+              )}
+              <p style={{ margin: "0.2rem 0 0", fontSize: "0.7rem", color: "var(--color-muted-foreground)" }}>{g.horaLord} {conditionLine(g)}.</p>
+              <p style={{ margin: "0.15rem 0 0", fontSize: "0.7rem", color: "var(--color-muted-foreground)" }}>Now transiting your {ORD[g.transitHouse]} — {HOUSE_SHORT[g.transitHouse]}.</p>
+            </div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+            {data.periods.map((p, i) => {
+              const isNow = current && p.startMs === current.startMs;
+              const past = nowMs >= p.endMs;
+              return (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.2rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${CAT_COLOR[p.category]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: 999, background: CAT_COLOR[p.category], flexShrink: 0 }} />
+                  <span style={{ fontSize: "0.66rem", color: "var(--color-muted-foreground)", width: "3.9rem", flexShrink: 0 }}>{fmt(p.startMs)}</span>
+                  <span style={{ fontSize: "0.72rem", fontWeight: isNow ? 700 : 500, color: isNow ? CAT_COLOR[p.category] : "var(--foreground)" }}>{p.category}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
