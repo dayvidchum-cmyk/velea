@@ -8,5 +8,9 @@
 // hora + moment-feed, combustion/nodal/eclipse, pratyantardasha, planetary strength
 // (dignity/placement) — each deterministic + proof-scripted; plus current-location moved
 // to Settings. (Minor number roughly follows the SW cache version.)
+// v1.86 = 2026-07-04 — Crown Days on the calendar (gold crown + border + popup), golden
+// days removed, Velea mark = today; admin-only force-logout-all + hero "update to the
+// moment" upsell preview; and a cross-user leak in the narrative endpoints closed
+// (owner-scoped). Minor number now tracks the SW cache line (set to 1.86 for the v86/v87 build).
 // Bump on each meaningful shipped release.
-export const APP_VERSION = "1.69";
+export const APP_VERSION = "1.86";
