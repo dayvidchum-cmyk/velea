@@ -220,7 +220,10 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   ) : null;
 
   // ── HERO LAYOUT (all pages) ────────────────────────────────────────────────
-  const cityLabel = locationData?.city || "Location";
+  // When no location is set, ASK rather than passively showing "Location" — and never
+  // let the silent Boston backend default stand in as if it were the user's place.
+  const locationSet = !!locationData?.city;
+  const cityLabel = locationData?.city || "Where are you?";
   const stateLabel = heroMode?.qualifier || null;
 
   return (
@@ -268,14 +271,19 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               data-tour="current-location"
               onClick={() => setLocationSheetOpen(true)}
               className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-              style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
+              style={{
+                color: modeColor,
+                // Unset → persistently highlighted so it reads as a call-to-action, not a label.
+                background: locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 16%, transparent)`,
+                border: `1px solid ${locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 45%, transparent)`}`,
+              }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
                 e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.borderColor = "transparent";
+                e.currentTarget.style.background = locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 16%, transparent)`;
+                e.currentTarget.style.borderColor = locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 45%, transparent)`;
               }}
             >
               <MapPin size={11} />
