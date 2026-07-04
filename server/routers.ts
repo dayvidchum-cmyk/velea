@@ -1394,6 +1394,36 @@ export const appRouter = router({
           year: y, month: m, day: d,
         });
       }),
+
+    /**
+     * HORA — the planetary hour (intraday layer, next to Master Mode). Same gating.
+     * Returns the 24-hora timeline (epoch ms) for the window that CONTAINS now, so
+     * the client can always highlight the current hora. Deterministic; proven by
+     * server/scripts/hora-check.ts.
+     */
+    hora: protectedProcedure
+      .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional(), nowMs: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        const MASTER_MODE_USER_IDS = [1, 2];
+        if (!MASTER_MODE_USER_IDS.includes(ctx.user.id)) return null;
+
+        const { computeHoras, HORA_TONE } = await import("./panchang/hora.js");
+        const lat = input.lat ?? 42.3601, lon = input.lon ?? -71.0589;
+        const now = input.nowMs ?? Date.now();
+        let [y, m, d] = input.date.split("-").map(Number);
+        let horas = computeHoras(y, m, d, lat, lon);
+        // Before today's sunrise → the active window belongs to the previous civil day.
+        if (now < horas[0].startMs) {
+          const prev = new Date(Date.UTC(y, m - 1, d - 1));
+          horas = computeHoras(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate(), lat, lon);
+        }
+        return {
+          horas: horas.map((h) => ({
+            index: h.index, lord: h.lord, phase: h.phase, tone: h.tone,
+            good: HORA_TONE[h.lord].good, startMs: h.startMs, endMs: h.endMs,
+          })),
+        };
+      }),
   }),
 
   // ── CELESTIAL (tonight's moon phase / eclipse → shell-ocean artwork) — GATED ──

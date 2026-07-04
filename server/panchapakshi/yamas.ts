@@ -8,7 +8,7 @@
 
 // NOAA sunrise/sunset as a UT Julian Day. Mirrors server/panchang/astronomy.ts so the
 // two agree; kept local to keep this module self-contained.
-function sunTimesJD(year: number, month: number, day: number, lat: number, lon: number): { rise: number; set: number } {
+export function sunTimesJD(year: number, month: number, day: number, lat: number, lon: number): { rise: number; set: number } {
   const a = Math.floor((14 - month) / 12), y = year + 4800 - a, m = month + 12 * a - 3;
   const jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
   const n = jdn - 2451545.0;

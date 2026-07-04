@@ -30,6 +30,7 @@ import WhyNowSheet from "@/components/WhyNowSheet";
 import { createPortal } from "react-dom";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import MasterModeCard from "@/components/MasterModeCard";
+import HoraCard from "@/components/HoraCard";
 import MeridianWhisper from "@/components/MeridianWhisper";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -573,6 +574,7 @@ export default function Planner() {
       {isAuthenticated && <AddToHomeScreenNote />}
       {isAuthenticated && <MeridianWhisper />}
       {isAuthenticated && <MasterModeCard />}
+      {isAuthenticated && <HoraCard />}
 
       {/* ── WHAT ARE DAY MODES? — a small link that opens a pop-up (was a big card at the top) ── */}
       {isAuthenticated && modesOpen && createPortal(
