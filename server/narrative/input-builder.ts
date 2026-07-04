@@ -50,16 +50,19 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
   // location (hora is "this hour where you are"), not the birth place.
   if (opts?.nowMs != null) return buildNarrativeInputUncached(profileId, dateStr, opts);
-  const key = `${profileId}|${dateStr}`;
+  // slowOnly = the STAGE input (yearly chapter, no fast/daily layers). Memoized under a
+  // separate key so the stage and full inputs never overwrite each other.
+  const slow = !!opts?.slowOnly;
+  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr);
+  const value = await buildNarrativeInputUncached(profileId, dateStr, slow ? { slowOnly: true } : undefined);
   INPUT_CACHE.set(key, { at: Date.now(), value });
   return value;
 }
@@ -71,7 +74,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -128,13 +131,30 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const moon = byPlanet["Moon"];
   const tl = calculateDashaTimeline(p.birthDate, moon.nakshatra || "", moon.sign, moon.degree, dateStr, moon.longitude);
   const cur = tl.entries.find((e: any) => e.isCurrent);
-  const praty = cur ? currentPratyantardasha(cur.antardasha, cur.startDate, cur.endDate, dateStr) : null;
-  const dasha = cur
+  // Slow daśā layers (the chapter): mahā (years) + antar (months). pratyantar (days–weeks)
+  // is a FAST layer, added below only for the deepened read.
+  const dashaBase = cur
     ? {
         mahaDasha: { lord: cur.mahadasha, natal: nat(byPlanet[cur.mahadasha]), rulesHouses: rulesHouses(cur.mahadasha, lagna) },
         antarDasha: { lord: cur.antardasha, natal: nat(byPlanet[cur.antardasha]), rulesHouses: rulesHouses(cur.antardasha, lagna) },
-        pratyantarDasha: praty ? { lord: praty.lord, natal: nat(byPlanet[praty.lord]), rulesHouses: rulesHouses(praty.lord, lagna) } : null,
       }
+    : null;
+
+  const natalRetrogradeCount = (natal.planets as any[]).filter(
+    (pl) => pl && pl.retrograde && pl.name !== "Rahu" && pl.name !== "Ketu",
+  ).length;
+
+  // STAGE read (slow-only): the stable yearly chapter — profection + mahā/antar daśā +
+  // natal. Excludes every fast/daily layer (date, pratyantar, transits, panchang, eclipse,
+  // hora, humanTime, timeLordTransit) so the cache hash — and thus the prose — only turns
+  // when the chapter turns. The deepened ("stage + guests") read passes the full input.
+  if (moment?.slowOnly) {
+    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase } as any;
+  }
+
+  const praty = cur ? currentPratyantardasha(cur.antardasha, cur.startDate, cur.endDate, dateStr) : null;
+  const dasha = cur
+    ? { ...dashaBase, pratyantarDasha: praty ? { lord: praty.lord, natal: nat(byPlanet[praty.lord]), rulesHouses: rulesHouses(praty.lord, lagna) } : null }
     : null;
 
   const noon = new Date(dateStr + "T12:00:00Z");
@@ -227,9 +247,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  const natalRetrogradeCount = (natal.planets as any[]).filter(
-    (pl) => pl && pl.retrograde && pl.name !== "Rahu" && pl.name !== "Ketu",
-  ).length;
-
   return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, humanTime, timeLordTransit };
 }

@@ -519,6 +519,21 @@ export async function getNarrativeCache(profileId: number, surface: string, cach
   return result[0];
 }
 
+/** Most recent cached read for a profile+surface, regardless of date. The STAGE read is
+ *  date-independent, so this lets it reuse identical prose across days (only regenerating
+ *  when the input hash changes — i.e. the yearly chapter actually turns). */
+export async function getLatestNarrativeCache(profileId: number, surface: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(narrativeCache)
+    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, surface)))
+    .orderBy(desc(narrativeCache.id))
+    .limit(1);
+  return result[0];
+}
+
 export async function upsertNarrativeCache(profileId: number, surface: string, cacheDate: string, inputHash: string, model: string, content: string) {
   const db = await getDb();
   if (!db) return;

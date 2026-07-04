@@ -13,6 +13,8 @@ const inputSchema = z.object({
   refresh: z.boolean().optional(),
   // Present only on the "update to the moment" tap → hora-aware, ephemeral read.
   nowMs: z.number().optional(),
+  // Admin-only "stage + guests" deepened read (the current-sky upsell preview).
+  deepened: z.boolean().optional(),
 });
 
 export const narrativeRouter = router({
@@ -44,8 +46,11 @@ export const narrativeRouter = router({
   deepRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();
+    // The deepened "stage + guests" read is an admin-only preview of the paid tier — a
+    // non-admin can never obtain it, so the fast-tier detail stays behind the upsell.
+    const deepened = (input.deepened ?? false) && ctx.user.role === "admin";
     try {
-      return await getDeepReadCached(input.profileId, date, input.refresh ?? false);
+      return await getDeepReadCached(input.profileId, date, input.refresh ?? false, deepened);
     } catch (e) {
       console.error("[narrative.deepRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;

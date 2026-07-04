@@ -1,7 +1,9 @@
 import { trpc } from "../lib/trpc";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Users, X } from "lucide-react";
+import { createPortal } from "react-dom";
+import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
@@ -165,6 +167,27 @@ export default function ProfectionYear() {
     { enabled: !!deepProfileId, staleTime: 1000 * 60 * 60 },
   );
   const deepRead = deepReadResult?.read ?? null;
+
+  // ADMIN-ONLY upsell preview: the "stage + guests" deepened read (current sky folded in),
+  // fetched fresh on tap so David can test it in real time. Non-admins can't obtain it —
+  // the server forces deepened=false off the admin allowlist.
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const utils = trpc.useUtils();
+  const [guestsOpen, setGuestsOpen] = useState(false);
+  const [guestsLoading, setGuestsLoading] = useState(false);
+  const [guestsRead, setGuestsRead] = useState<any | null>(null);
+  const openGuests = async () => {
+    if (!deepProfileId) return;
+    setGuestsOpen(true);
+    setGuestsLoading(true);
+    try {
+      const res = await utils.narrative.deepRead.fetch({ profileId: deepProfileId, date: localToday, deepened: true, refresh: true });
+      setGuestsRead(res?.read ?? null);
+    } finally {
+      setGuestsLoading(false);
+    }
+  };
 
   // Where the Time Lord is transiting right now — used to name the current "chapter".
   const { data: tlTransit } = trpc.timeLordTransit.forDate.useQuery(
@@ -496,6 +519,75 @@ export default function ProfectionYear() {
 
       {/* LLM Deep Read — the full structured read (The Read). Sits ABOVE Current Trigger.
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
+      {/* ADMIN-ONLY upsell preview — "stage + guests" deepened read, tested in real time. */}
+      {isAdmin && deepRead && (
+        <button
+          onClick={openGuests}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%",
+            margin: "0 0 1rem", padding: "0.7rem 1rem", borderRadius: 14, cursor: "pointer",
+            background: "color-mix(in srgb, #E7C766 14%, transparent)", border: "1px solid #C9A84C",
+            color: "#C9A84C", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.04em",
+          }}
+        >
+          <Users size={15} /> Deepen with today&rsquo;s guests · preview
+        </button>
+      )}
+
+      {guestsOpen && createPortal(
+        <div
+          onClick={() => setGuestsOpen(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", background: "var(--color-card)", border: "1px solid #E7C766", borderRadius: 20, padding: "1.3rem" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#C9A84C", fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <Users size={15} /> Your year, deepened
+              </span>
+              <button onClick={() => setGuestsOpen(false)} aria-label="Close" style={{ width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: "color-mix(in srgb, #C9A84C 18%, transparent)", border: "1px solid color-mix(in srgb, #C9A84C 34%, transparent)", color: "#C9A84C", cursor: "pointer" }}>
+                <X size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+            <p style={{ fontSize: "0.7rem", color: "var(--color-muted-foreground)", margin: "0 0 1rem", lineHeight: 1.5 }}>
+              Premium preview · admin only. The stage, plus the guests on it right now — pratyantardaśā, transits, combustion, eclipse. Regenerated live each open.
+            </p>
+            {guestsLoading || !guestsRead ? (
+              <div style={{ padding: "2rem 0", textAlign: "center", color: "var(--color-muted-foreground)", fontStyle: "italic", fontSize: "0.9rem" }}>
+                Reading the current sky…
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+                {[
+                  { label: "Core Theme", sec: guestsRead.coreTheme },
+                  { label: "Why Now", sec: guestsRead.whyNow },
+                  { label: "The Lesson", sec: guestsRead.developmentalTask },
+                ].filter((x) => x.sec?.synthesis).map(({ label, sec }) => (
+                  <div key={label}>
+                    <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>{label}</p>
+                    <p style={{ fontSize: "0.95rem", lineHeight: 1.65, color: "var(--color-foreground)", margin: 0 }}>{sec.synthesis}</p>
+                    {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>{sec.why}</p>}
+                  </div>
+                ))}
+                {guestsRead.manifestations?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>Possible Manifestations</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      {guestsRead.manifestations.map((m: any, i: number) => (
+                        <p key={i} style={{ fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: 0 }}>{m.synthesis}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+
       {deepRead && panel("The Read · your year", readOpen, setReadOpen, (
         <>
           {readAccordion("Core Theme", s1, setS1, (
