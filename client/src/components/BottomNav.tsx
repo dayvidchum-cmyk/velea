@@ -45,7 +45,7 @@ export default function BottomNav() {
           return (
             <button
               key={path}
-              data-tour={path === "/profection" ? "chart-nav" : undefined}
+              data-tour={path === "/profection" ? "chart-nav" : path === "/settings" ? "settings-nav" : undefined}
               onClick={() => navigate(path)}
               className="flex flex-col items-center justify-center gap-0.5 px-2 flex-1 transition-all duration-200 relative"
               style={active ? { color: accent } : { color: "var(--muted-foreground)" }}

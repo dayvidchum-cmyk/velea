@@ -140,9 +140,9 @@ const TOUR: TourStep[] = [
   },
   {
     route: "/",
-    selector: '[data-tour="current-location"]',
+    selector: '[data-tour="settings-nav"]',
     title: "Set your current location",
-    body: "This is where you are RIGHT NOW — separate from where you were born, and it's what makes today's timing and transits accurate. Tap it whenever you travel; if it's wrong, the whole day's read is off.",
+    body: "In Settings, tell Velea where you are RIGHT NOW — separate from where you were born. It's what makes today's sunrise, timing, and transits accurate. Set it here, and update it whenever you travel; if it's wrong, the whole day's read is off.",
   },
   {
     route: "/",

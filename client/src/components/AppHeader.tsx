@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapPin, LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Star } from "lucide-react";
+import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Star } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -60,9 +60,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const utils = trpc.useUtils();
 
   const { data: profileList = [] } = trpc.profiles.list.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
-  const { data: locationData } = trpc.settings.getLocation.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
@@ -220,10 +217,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   ) : null;
 
   // ── HERO LAYOUT (all pages) ────────────────────────────────────────────────
-  // When no location is set, ASK rather than passively showing "Location" — and never
-  // let the silent Boston backend default stand in as if it were the user's place.
-  const locationSet = !!locationData?.city;
-  const cityLabel = locationData?.city || "Where are you?";
   const stateLabel = heroMode?.qualifier || null;
 
   return (
@@ -267,30 +260,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             </span>
             <ChevronDown size={10} />
           </button>
-            <button
-              data-tour="current-location"
-              onClick={() => setLocationSheetOpen(true)}
-              className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-              style={{
-                color: modeColor,
-                // Unset → persistently highlighted so it reads as a call-to-action, not a label.
-                background: locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 16%, transparent)`,
-                border: `1px solid ${locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 45%, transparent)`}`,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
-                e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 16%, transparent)`;
-                e.currentTarget.style.borderColor = locationSet ? "transparent" : `color-mix(in srgb, ${modeColor} 45%, transparent)`;
-              }}
-            >
-              <MapPin size={11} />
-              <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
-                {cityLabel}
-              </span>
-            </button>
+            {/* Current-location control lives in Settings (beside birth details), not here. */}
             <button
                 data-tour="current-state"
                 onClick={() => setCheckInSheetOpen(true)}

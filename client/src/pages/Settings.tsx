@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, Users, RefreshCw, Compass } from "lucide-react";
+import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, Users, RefreshCw, Compass, MapPin } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { resetOnboarding, fireTaskGuide, startTour } from "@/components/Onboarding";
@@ -425,6 +425,7 @@ export default function Settings() {
   const [, navigate] = useLocation();
   const modeColor = useDayModeColor();
   const { data: subject } = trpc.profiles.getSubject.useQuery();
+  const { data: locationData } = trpc.settings.getLocation.useQuery();
   const utils = trpc.useUtils();
 
   // ── Guided tours (server-persisted) ──
@@ -530,6 +531,32 @@ export default function Settings() {
               style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}
             >
               Edit birth details
+            </button>
+          </div>
+
+          {/* Current location — where you are NOW (separate from birth place); drives
+              local sunrise, panchang timing, yamas, and hora. Opens the shared
+              LocationSheet (device GPS or manual city) mounted in AppHeader. */}
+          <div className="py-4" style={{ borderTop: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin size={13} style={{ color: modeColor }} />
+              <p className="text-sm font-bold" style={{ color: "var(--color-foreground)" }}>Current location</p>
+            </div>
+            <p className="text-sm mb-3" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+              {locationData?.city
+                ? <>Set to <strong style={{ color: "var(--color-foreground)" }}>{locationData.city}</strong> — makes today's sunrise, timing, and transits accurate. Update it when you travel.</>
+                : <>Not set — we can't compute your local sunrise and timing accurately until you tell us where you are.</>}
+            </p>
+            <button
+              onClick={() => window.dispatchEvent(new Event("velea-open-location"))}
+              className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
+              style={{
+                background: locationData?.city ? "var(--color-secondary)" : "var(--color-primary)",
+                color: locationData?.city ? "var(--color-foreground)" : "var(--color-primary-foreground)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              {locationData?.city ? "Change current location" : "Set your location"}
             </button>
           </div>
         </SettingsSection>
