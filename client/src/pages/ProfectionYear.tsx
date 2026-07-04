@@ -16,6 +16,17 @@ import { CurrentTriggerBreakdown } from "@/components/CurrentTriggerBreakdown";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "../../../shared/types";
 import { LIFE_AREAS } from "../../../shared/life-areas";
 
+// Breakdown prose: keep the astro scaffolding (planet / dasha / house names + any
+// parenthetical) low-contrast so it recedes, and render the plain-language prose in
+// full-contrast foreground — the meaning reads first, the mechanics second. split()
+// with a single capture group puts the matched astro tokens at the odd indices.
+const ASTRO_SPLIT = /(\([^)]*\)|\b(?:Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu|Lagna|Ascendant|nakshatra|mahadasha|antardasha|pratyantardasha|dasha|house|lord|\d{1,2}(?:st|nd|rd|th))\b)/gi;
+function breakdownText(text: string, muted: string) {
+  return text.split(ASTRO_SPLIT).map((part, i) =>
+    i % 2 === 1 ? <span key={i} style={{ color: muted }}>{part}</span> : <span key={i}>{part}</span>
+  );
+}
+
 // House ordinals + plain-language glosses (mirrors HOUSE_GLOSS in WhyNowChain.tsx /
 // CurrentTriggerBreakdown.tsx) so the "Current Time Lord Movement" card can name the
 // chapter the Time Lord is currently transiting — deterministic, no API call.
@@ -541,48 +552,53 @@ export default function ProfectionYear() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", background: "var(--color-card)", border: "1px solid #E7C766", borderRadius: 20, padding: "1.3rem" }}
+            style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--color-card)", border: "1px solid #E7C766", borderRadius: 20 }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+            {/* pinned header — stays put so the × is always reachable; grounds the read */}
+            <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "1rem 1.3rem", borderBottom: "1px solid color-mix(in srgb, #E7C766 30%, transparent)", background: "var(--color-card)" }}>
               <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#C9A84C", fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                <Users size={15} /> Your year, deepened
+                <Users size={15} /> Your year, right now
               </span>
-              <button onClick={() => setGuestsOpen(false)} aria-label="Close" style={{ width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: "color-mix(in srgb, #C9A84C 18%, transparent)", border: "1px solid color-mix(in srgb, #C9A84C 34%, transparent)", color: "#C9A84C", cursor: "pointer" }}>
+              <button onClick={() => setGuestsOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: "color-mix(in srgb, #C9A84C 18%, transparent)", border: "1px solid color-mix(in srgb, #C9A84C 34%, transparent)", color: "#C9A84C", cursor: "pointer" }}>
                 <X size={16} strokeWidth={2.5} />
               </button>
             </div>
-            <p style={{ fontSize: "0.7rem", color: "var(--color-muted-foreground)", margin: "0 0 1rem", lineHeight: 1.5 }}>
-              Premium preview · admin only. The stage, plus the guests on it right now — pratyantardaśā, transits, combustion, eclipse. Regenerated live each open.
-            </p>
-            {guestsLoading || !guestsRead ? (
-              <div style={{ padding: "2rem 0", textAlign: "center", color: "var(--color-muted-foreground)", fontStyle: "italic", fontSize: "0.9rem" }}>
-                Reading the current sky…
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
-                {[
-                  { label: "Core Theme", sec: guestsRead.coreTheme },
-                  { label: "Why Now", sec: guestsRead.whyNow },
-                  { label: "The Lesson", sec: guestsRead.developmentalTask },
-                ].filter((x) => x.sec?.synthesis).map(({ label, sec }) => (
-                  <div key={label}>
-                    <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>{label}</p>
-                    <p style={{ fontSize: "0.95rem", lineHeight: 1.65, color: "var(--color-foreground)", margin: 0 }}>{sec.synthesis}</p>
-                    {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>{sec.why}</p>}
-                  </div>
-                ))}
-                {guestsRead.manifestations?.length > 0 && (
-                  <div>
-                    <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>Possible Manifestations</p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      {guestsRead.manifestations.map((m: any, i: number) => (
-                        <p key={i} style={{ fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: 0 }}>{m.synthesis}</p>
-                      ))}
+
+            {/* scrolling body */}
+            <div style={{ overflowY: "auto", padding: "1rem 1.3rem 1.3rem" }}>
+              <p style={{ fontSize: "0.7rem", color: "var(--color-muted-foreground)", margin: "0 0 1rem", lineHeight: 1.5 }}>
+                Premium preview · admin only. The stage, plus the guests on it right now — pratyantardaśā, transits, combustion, eclipse. Regenerated live each open.
+              </p>
+              {guestsLoading || !guestsRead ? (
+                <div style={{ padding: "2rem 0", textAlign: "center", color: "var(--color-muted-foreground)", fontStyle: "italic", fontSize: "0.9rem" }}>
+                  Reading the current sky…
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+                  {[
+                    { label: "Core Theme", sec: guestsRead.coreTheme },
+                    { label: "Why Now", sec: guestsRead.whyNow },
+                    { label: "The Lesson", sec: guestsRead.developmentalTask },
+                  ].filter((x) => x.sec?.synthesis).map(({ label, sec }) => (
+                    <div key={label}>
+                      <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>{label}</p>
+                      <p style={{ fontSize: "0.95rem", lineHeight: 1.65, color: "var(--color-foreground)", fontWeight: 550, margin: 0 }}>{sec.synthesis}</p>
+                      {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: "0.4rem 0 0" }}>{breakdownText(sec.why, "var(--color-muted-foreground)")}</p>}
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  ))}
+                  {guestsRead.manifestations?.length > 0 && (
+                    <div>
+                      <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>Possible Manifestations</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        {guestsRead.manifestations.map((m: any, i: number) => (
+                          <p key={i} style={{ fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-foreground)", fontWeight: 550, margin: 0 }}>{m.synthesis}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>,
         document.body
