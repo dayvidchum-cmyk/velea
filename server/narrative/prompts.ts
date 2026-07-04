@@ -14,7 +14,11 @@ You receive one JSON object with these blocks:
   timeLordNatal:{ sign, house, nakshatra, dignity, retrograde },
   timeLordRulesHouses:[int] }
 - dasha: { mahaDasha:{ lord, natal:{…}, rulesHouses:[int] },
-  antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} }
+  antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} } —
+  maha is the life chapter, antar the season within it. pratyantarDasha (when present)
+  is the FINEST active sub-period — the lord coloring the current few weeks inside the
+  antar. Weight it lightly, as immediate texture BELOW maha/antar; let it sharpen the
+  near-term tone (esp. if it echoes or fights the antar lord), never override the chapter.
 - transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal,
   hitsNatalPoint, orbDeg }] — combust true means the planet is swallowed by the Sun's
   glare (within its classical orb); nodal is { node, orbDeg } when the planet is gripped

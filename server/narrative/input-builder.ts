@@ -4,7 +4,7 @@ import { getDb } from "../db.js";
 import { profiles, profileNatalBodies } from "../../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 import { calculateProfectionYear } from "../profection/calculator.js";
-import { calculateDashaTimeline } from "../dasha-calculator.js";
+import { calculateDashaTimeline, currentPratyantardasha } from "../dasha-calculator.js";
 import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
 import { calcPanchang } from "../panchang/astronomy.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
@@ -125,8 +125,13 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const moon = byPlanet["Moon"];
   const tl = calculateDashaTimeline(p.birthDate, moon.nakshatra || "", moon.sign, moon.degree, dateStr, moon.longitude);
   const cur = tl.entries.find((e: any) => e.isCurrent);
+  const praty = cur ? currentPratyantardasha(cur.antardasha, cur.startDate, cur.endDate, dateStr) : null;
   const dasha = cur
-    ? { mahaDasha: { lord: cur.mahadasha, natal: nat(byPlanet[cur.mahadasha]), rulesHouses: rulesHouses(cur.mahadasha, lagna) }, antarDasha: { lord: cur.antardasha, natal: nat(byPlanet[cur.antardasha]), rulesHouses: rulesHouses(cur.antardasha, lagna) } }
+    ? {
+        mahaDasha: { lord: cur.mahadasha, natal: nat(byPlanet[cur.mahadasha]), rulesHouses: rulesHouses(cur.mahadasha, lagna) },
+        antarDasha: { lord: cur.antardasha, natal: nat(byPlanet[cur.antardasha]), rulesHouses: rulesHouses(cur.antardasha, lagna) },
+        pratyantarDasha: praty ? { lord: praty.lord, natal: nat(byPlanet[praty.lord]), rulesHouses: rulesHouses(praty.lord, lagna) } : null,
+      }
     : null;
 
   const noon = new Date(dateStr + "T12:00:00Z");

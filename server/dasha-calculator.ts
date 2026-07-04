@@ -295,3 +295,37 @@ export function calculateDashaTimeline(
     startingDashaLord: startingLord,
   };
 }
+
+/**
+ * The 3rd Vimshottari level: the pratyantardasha running on `targetDate` inside a given
+ * antardasha span. The antar [start, end) is divided among all 9 planets in Vimshottari
+ * order, STARTING FROM THE ANTAR LORD, each getting (years/120) of the span — so the
+ * pratyantars tile the antar exactly. Proportions the actual date span (ms), matching the
+ * antar's own start/end so there is never drift. Returns null if the date is outside the span.
+ */
+export function currentPratyantardasha(
+  antarLord: string,
+  antarStartStr: string,
+  antarEndStr: string,
+  targetDate: string,
+): { lord: string; startDate: string; endDate: string } | null {
+  const start = new Date(antarStartStr + "T00:00:00Z").getTime();
+  const end = new Date(antarEndStr + "T00:00:00Z").getTime();
+  const today = new Date(targetDate + "T00:00:00Z").getTime();
+  if (Number.isNaN(start) || Number.isNaN(end) || today < start || today >= end) return null;
+
+  const span = end - start;
+  const startIdx = DASHA_SEQUENCE.findIndex(d => d.planet === antarLord);
+  if (startIdx < 0) return null;
+
+  let cursor = start;
+  for (let k = 0; k < 9; k++) {
+    const p = DASHA_SEQUENCE[(startIdx + k) % 9];
+    const pEnd = k === 8 ? end : cursor + (p.years / 120) * span; // last one snaps to end
+    if (today >= cursor && today < pEnd) {
+      return { lord: p.planet, startDate: toDateString(new Date(cursor)), endDate: toDateString(new Date(pEnd)) };
+    }
+    cursor = pEnd;
+  }
+  return null;
+}

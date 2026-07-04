@@ -1,4 +1,5 @@
 import SwissEph from 'swisseph-wasm';
+import { combustion as combustionOrb } from "../panchang/affliction.js";
 
 const ZODIAC_SIGNS = [
   "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
@@ -80,7 +81,7 @@ export interface TimeLordTransit {
   recommendedUse: string;
   coPresentPlanets?: string[]; // other planets sharing the sign during this segment (its "guests")
   solitaryStatus?: boolean;    // true when no guests
-  combustionStatus?: boolean;  // Time Lord within 8° of the Sun
+  combustionStatus?: boolean;  // Time Lord combust — within its classical orb of the Sun
 }
 
 // Planets checked for co-presence in the Time Lord's sign (its "guests" this segment).
@@ -90,6 +91,7 @@ const CO_PRESENT_PLANETS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter"
 function computeCoPresent(se: any, jd: number, timeLordPlanet: string) {
   const tl = se.calc(jd, getPlanetNumber(timeLordPlanet), se.SEFLG_SIDEREAL);
   const tlLon = ((tl.longitude % 360) + 360) % 360;
+  const tlRetro = tl.longitudeSpeed < 0;
   const tlSign = getZodiacSign(tlLon);
   const coPresentPlanets: string[] = [];
   let combustion = false;
@@ -99,9 +101,10 @@ function computeCoPresent(se: any, jd: number, timeLordPlanet: string) {
     const lon = ((r.longitude % 360) + 360) % 360;
     if (getZodiacSign(lon) === tlSign) coPresentPlanets.push(name);
     if (name === "Sun" && timeLordPlanet !== "Sun") {
-      let orb = Math.abs(tlLon - lon);
-      if (orb > 180) orb = 360 - orb;
-      if (orb < 8) combustion = true;
+      // Classical per-planet combustion orb (shared with the narrative's Layer-4 module),
+      // not a flat 8° — so Mercury/Venus etc. use their true orbs incl. retrograde.
+      const c = combustionOrb(timeLordPlanet, tlLon, lon, tlRetro);
+      if (c?.combust) combustion = true;
     }
   }
   return { coPresentPlanets, solitaryStatus: coPresentPlanets.length === 0, combustionStatus: combustion };
