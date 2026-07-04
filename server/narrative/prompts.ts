@@ -19,12 +19,19 @@ You receive one JSON object with these blocks:
   is the FINEST active sub-period — the lord coloring the current few weeks inside the
   antar. Weight it lightly, as immediate texture BELOW maha/antar; let it sharpen the
   near-term tone (esp. if it echoes or fights the antar lord), never override the chapter.
-- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal,
+- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal, strength,
   hitsNatalPoint, orbDeg }] — combust true means the planet is swallowed by the Sun's
   glare (within its classical orb); nodal is { node, orbDeg } when the planet is gripped
   by Rahu/Ketu. Either way that planet is WEAKENED right now: don't lean on its
   significations, and if it's the Time Lord or a dasha lord, let the read acknowledge the
   dimming plainly (in feel, not the word "combust"). A clear planet needs no mention.
+  strength is { tier, label, score } — the planet's essential dignity in its CURRENT sign
+  (exalted/moolatrikona/own/friend/neutral/enemy/debilitated) folded with the afflictions
+  above into a label: dignified | steady | weak | compromised. Read it as CONFIDENCE, not
+  mode: when a day/period lord is "dignified" its themes land with ease and you can lean in;
+  when "weak"/"compromised" the same themes cost more and want patience — say so in feel.
+  Never override the mode; strength colors how forcefully to act within it. Mention only
+  the lords that matter (Time Lord, dasha lords, or a planet hitting a natal point).
 - panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, karana, hora, eclipse, asOf } — qualifier is
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
   karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true

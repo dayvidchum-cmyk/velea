@@ -9,12 +9,15 @@ import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
 import { calcPanchang } from "../panchang/astronomy.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
 import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
+import { strength, dignityLabel } from "../panchang/dignity.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const SIGN_RULERS: Record<string,string> = { Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Leo:"Sun",Virgo:"Mercury",Libra:"Venus",Scorpio:"Mars",Sagittarius:"Jupiter",Capricorn:"Saturn",Aquarius:"Saturn",Pisces:"Jupiter" };
 const DIGN: Record<string,{ex:string;de:string;own:string[]}> = { Sun:{ex:"Aries",de:"Libra",own:["Leo"]},Moon:{ex:"Taurus",de:"Scorpio",own:["Cancer"]},Mars:{ex:"Capricorn",de:"Cancer",own:["Aries","Scorpio"]},Mercury:{ex:"Virgo",de:"Pisces",own:["Gemini","Virgo"]},Jupiter:{ex:"Cancer",de:"Capricorn",own:["Sagittarius","Pisces"]},Venus:{ex:"Pisces",de:"Virgo",own:["Taurus","Libra"]},Saturn:{ex:"Libra",de:"Aries",own:["Capricorn","Aquarius"]} };
 
-const dignity = (p: string, s: string) => { const d = DIGN[p]; if (!d) return "—"; if (s === d.ex) return "Exalted"; if (s === d.de) return "Debilitated"; if (d.own.includes(s)) return "Own"; return "Neutral"; };
+// Single source of truth: the full classical tier ladder (adds Moolatrikona/Friend/Enemy
+// to the old Exalted/Debilitated/Own/Neutral). degInSign sharpens moolatrikona.
+const dignity = (p: string, s: string, degInSign?: number) => dignityLabel(p, s, degInSign);
 const signFromLon = (l: number) => ZODIAC[Math.floor(l / 30) % 12];
 const WATER = ["Cancer", "Scorpio", "Pisces"], FIRE = ["Aries", "Leo", "Sagittarius"];
 // Where a placement sits BY DEGREE colors how it expresses. The clean middle of a sign
@@ -98,7 +101,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     }
     return out.sort((a, b) => a.orb - b.orb);
   };
-  const nat = (b: any) => (b ? { sign: b.sign, house: b.house, nakshatra: b.nakshatra, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(b.planet, b.sign), retrograde: !!b.isRetrograde, conjunct: conjunctOf(b.planet) } : null);
+  const nat = (b: any) => (b ? { sign: b.sign, house: b.house, nakshatra: b.nakshatra, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(b.planet, b.sign, degOf(b) ?? undefined), retrograde: !!b.isRetrograde, conjunct: conjunctOf(b.planet) } : null);
 
   const lagnaDeg = p.ascendantDegree != null && !isNaN(parseFloat(p.ascendantDegree)) ? +parseFloat(p.ascendantDegree).toFixed(1) : null;
   const natal = {
@@ -107,7 +110,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     lagnaThreshold: threshold(lagna, lagnaDeg),
     planets: PLANETS.map((n) => {
       const b = byPlanet[n];
-      return b ? { name: n, sign: b.sign, house: b.house, nakshatra: b.nakshatra, pada: b.pada, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(n, b.sign), retrograde: !!b.isRetrograde, rulesHouses: rulesHouses(n, lagna), conjunct: conjunctOf(n) } : null;
+      return b ? { name: n, sign: b.sign, house: b.house, nakshatra: b.nakshatra, pada: b.pada, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(n, b.sign, degOf(b) ?? undefined), retrograde: !!b.isRetrograde, rulesHouses: rulesHouses(n, lagna), conjunct: conjunctOf(n) } : null;
     }).filter(Boolean),
   };
 
@@ -151,7 +154,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // (gripped by Rahu/Ketu) — both weaken the planet's significations. Deterministic.
     const comb = combustion(n, lonp, a["Sun"], retro);
     const nod = nodalAffliction(n, lonp, a["Rahu"], retro);
-    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null };
+    // Layer-4 strength: essential dignity of the CURRENT sign, minus live affliction.
+    const str = strength(n, sign, lonp % 30, { combust: !!comb?.combust, nodal: !!(nod && nod.afflicted) });
+    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null };
   }).filter(Boolean);
 
   const astro = await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon));
