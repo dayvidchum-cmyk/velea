@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit2, Save, X, ChevronDown } from "lucide-react";
+import { Edit2, Save, X, ChevronDown, Plus } from "lucide-react";
 import { useParams, useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
 import SwipeableTaskRow from "@/components/SwipeableTaskRow";
@@ -44,6 +44,7 @@ export default function ProjectDetail() {
   const [noteContent, setNoteContent] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
@@ -198,6 +199,15 @@ export default function ProjectDetail() {
             ))}
           </div>
         </div>
+
+        {/* Add a task straight into this project */}
+        <button
+          onClick={() => setAddOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold"
+          style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", color: "var(--color-foreground)" }}
+        >
+          <Plus className="w-4 h-4" /> Add task to this project
+        </button>
 
         {/* Recommended Next Task — immersive hero gradient, task in a translucent panel */}
         {recommendedTask && (
@@ -429,6 +439,13 @@ export default function ProjectDetail() {
           </div>
         </div>
       </div>
+
+      {/* Add Task Sheet — pre-assigned to this project */}
+      <AddTaskSheet
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        initialProjectId={projectId}
+      />
 
       {/* Edit Task Sheet */}
       {editTask && (

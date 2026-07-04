@@ -17,6 +17,7 @@ interface AddTaskSheetProps {
   open: boolean;
   onClose: () => void;
   initialMode?: TaskMode;
+  initialProjectId?: number | null;
   editTask?: {
     id: string;
     title: string;
@@ -241,7 +242,7 @@ function ProjectSelector({
 
 // ─── Main sheet ──────────────────────────────────────────────────────────────
 
-export default function AddTaskSheet({ open, onClose, initialMode, editTask }: AddTaskSheetProps) {
+export default function AddTaskSheet({ open, onClose, initialMode, initialProjectId, editTask }: AddTaskSheetProps) {
   const [title, setTitle] = useState("");
   const [mode, setMode] = useState<TaskMode>("Build");
   const [priority, setPriority] = useState<TaskPriority>("Medium");
@@ -327,7 +328,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
       setDueDate("");
       setIsPinned(false);
       setWealthFlow(false);
-      setProjectId(null);
+      setProjectId(initialProjectId ?? null);
       setSubtasks([]);
       setNewSubtaskTitle("");
       setCognitiveLoad("Medium");
@@ -345,7 +346,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
     setTimeout(() => {
       titleInputRef.current?.focus();
     }, 150);
-  }, [open, editTask]);
+  }, [open, editTask, initialProjectId]);
 
   // Scroll the active element into view when the subtask input is focused
   const scrollSubtaskIntoView = useCallback(() => {
@@ -482,9 +483,21 @@ export default function AddTaskSheet({ open, onClose, initialMode, editTask }: A
           >
             {editTask ? "EDIT TASK" : "NEW TASK"}
           </h2>
-          <button onClick={onClose} className="p-1">
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {editTask && (
+              <button
+                onClick={handleSave}
+                disabled={!title.trim() || createTask.isPending || updateTask.isPending}
+                className="px-3 py-1.5 rounded-full text-sm font-semibold disabled:opacity-40"
+                style={{ background: "var(--color-primary)", color: "var(--color-primary-foreground)" }}
+              >
+                Save Changes
+              </button>
+            )}
+            <button onClick={onClose} className="p-1" aria-label="Close">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Content — flex-1 + overflow-y-auto ensures it fills remaining space */}
