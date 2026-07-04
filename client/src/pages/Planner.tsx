@@ -194,7 +194,9 @@ export default function Planner() {
     for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
     return m;
   }, [crownData]);
-  const [crownTip, setCrownTip] = useState<string | null>(null); // tapped crown day's popup
+  // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
+  // fixed-to-viewport (never clipped by the calendar card's overflow).
+  const [crownTip, setCrownTip] = useState<{ date: string; why: string; cx: number; top: number; bottom: number } | null>(null);
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
@@ -1038,7 +1040,12 @@ export default function Planner() {
             return (
               <button
                 key={dateStr}
-                onClick={() => { setSelectedDate(dateStr); setCrownTip(isCrown ? (crownTip === dateStr ? null : dateStr) : null); }}
+                onClick={(e) => {
+                  setSelectedDate(dateStr);
+                  if (!isCrown || crownTip?.date === dateStr) { setCrownTip(null); return; }
+                  const r = e.currentTarget.getBoundingClientRect();
+                  setCrownTip({ date: dateStr, why: crownByDate.get(dateStr) ?? "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom });
+                }}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
                   minHeight: "2.1rem",
@@ -1057,30 +1064,6 @@ export default function Planner() {
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
-                {/* Crown-day popup — tap a crown day to see it. */}
-                {isCrown && crownTip === dateStr && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      ...(Math.floor(idx / 7) === 0 ? { top: "calc(100% + 6px)" } : { bottom: "calc(100% + 6px)" }),
-                      ...((idx % 7) <= 1 ? { left: 0 } : (idx % 7) >= 5 ? { right: 0 } : { left: "50%", transform: "translateX(-50%)" }),
-                      width: 194, zIndex: 60, pointerEvents: "none", textAlign: "left",
-                      background: "var(--color-card)", border: `1px solid ${GOLD_BRIGHT}`, borderRadius: "var(--radius-card)",
-                      padding: "0.6rem 0.7rem", fontSize: "0.72rem", lineHeight: 1.45, color: "var(--color-foreground)",
-                      fontWeight: 400, textTransform: "none", letterSpacing: 0, boxShadow: "0 6px 20px rgba(0,0,0,0.18)",
-                    }}
-                  >
-                    <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.2rem" }}>
-                      <Crown size={12} fill={GOLD_BRIGHT} stroke="rgba(0,0,0,0.4)" strokeWidth={1} /> Crown day
-                    </span>
-                    An auspicious day for you, a Velea&rsquo;lor. What will you do today?
-                    {crownByDate.get(dateStr) && (
-                      <span style={{ display: "block", marginTop: "0.35rem", fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>
-                        {crownByDate.get(dateStr)}
-                      </span>
-                    )}
-                  </span>
-                )}
                 {/* Crown badge — the personal apex (crown.forMonth). Gold crown + gold border. */}
                 {isCrown && (
                   <Crown
@@ -1130,6 +1113,41 @@ export default function Planner() {
         )}
       </div>{/* end calendar body */}
       </div>{/* end calendar card */}
+
+      {/* Crown-day popup — rendered OUTSIDE the calendar card and fixed to the viewport
+          (anchored to the tapped cell, clamped to the screen), so the card's overflow
+          can never clip it, on any row / month / screen size. Tap anywhere to dismiss. */}
+      {crownTip && (() => {
+        const W = 220;
+        const left = Math.max(8, Math.min(crownTip.cx - W / 2, window.innerWidth - W - 8));
+        const above = crownTip.top > window.innerHeight * 0.5;
+        const vpos = above
+          ? { bottom: Math.round(window.innerHeight - crownTip.top + 8) }
+          : { top: Math.round(crownTip.bottom + 8) };
+        return (
+          <>
+            <div style={{ position: "fixed", inset: 0, zIndex: 80 }} onClick={() => setCrownTip(null)} />
+            <div
+              style={{
+                position: "fixed", left, width: W, ...vpos, zIndex: 81, textAlign: "left",
+                background: "var(--color-card)", border: "1px solid #E7C766", borderRadius: "var(--radius-card)",
+                padding: "0.7rem 0.8rem", fontSize: "0.74rem", lineHeight: 1.45, color: "var(--color-foreground)",
+                fontWeight: 400, boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
+                <Crown size={13} fill="#E7C766" stroke="rgba(0,0,0,0.4)" strokeWidth={1} /> Crown day
+              </span>
+              An auspicious day for you, a Velea&rsquo;lor. What will you do today?
+              {crownTip.why && (
+                <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
+                  {crownTip.why}
+                </span>
+              )}
+            </div>
+          </>
+        );
+      })()}
 
       {/* Due this day — tied to the calendar's selected date */}
       {isAuthenticated && dueTasks.length > 0 && (
