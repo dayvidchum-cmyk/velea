@@ -18,7 +18,6 @@ import SwipeableTaskRow from "@/components/SwipeableTaskRow";
 // Theme removed — dark-only luxury terminal aesthetic
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import ReasoningChain from "@/components/ReasoningChain";
-import { composeNarrative } from "@/lib/narrative-data";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { ChevronDown as ChevronDownIcon } from "lucide-react";
 
@@ -257,15 +256,6 @@ export default function Home() {
           : taskMode === 'Restraint'
           ? 'var(--velea-restraint-gradient)'
           : `rgba(${modeRgba}, 0.15)`;
-        const questionText = timeLordData?.questionForToday
-          ? timeLordData.questionForToday
-          : taskMode === 'Action'
-          ? 'What is ready to be shared, launched, or made visible today?'
-          : taskMode === 'Build'
-          ? 'What body of work can you advance most significantly through consistent effort today?'
-          : taskMode === 'Selective'
-          ? 'Which opportunity, relationship, or project deserves your full attention today?'
-          : 'What should be stabilized, repaired, protected, or completed before moving forward?';
         return (
           <div
             data-tour="today-mode"
@@ -338,14 +328,8 @@ export default function Home() {
                     The Read
                   </p>
                   {(() => {
-                    const paras = (glanceContent?.narrative ?? composeNarrative({
-                      moonSign: todayPanchang.moonSign ?? '',
-                      houseActivated: todayPanchang.houseActivated ?? 1,
-                      nakshatra: todayPanchang.nakshatra ?? '',
-                      tithi: todayPanchang.tithi ?? '',
-                      tithiPaksha: todayPanchang.tithiPaksha ?? 'Shukla',
-                      timeLord: timeLordData?.timeLord ?? null,
-                    })).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+                    // Only the generated read — never fabricated/hard-coded prose.
+                    const paras = (glanceContent?.narrative ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
                     const shown = readOpen ? paras : paras.slice(-1);
                     return (
                       <>
@@ -423,6 +407,7 @@ export default function Home() {
                     padding: '0 0.5rem',
                   }}
                 >
+                  {glanceContent?.question && (
                   <p
                     style={{
                       fontFamily: "'Inter', ui-sans-serif, sans-serif",
@@ -433,8 +418,9 @@ export default function Home() {
                       color: 'rgba(255,255,255,0.98)',
                     }}
                   >
-                    {glanceContent?.question ?? questionText}
+                    {glanceContent.question}
                   </p>
+                  )}
                 </div>
               </>
             ) : (

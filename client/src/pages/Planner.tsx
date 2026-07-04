@@ -23,7 +23,6 @@ import type { TaskMode, TaskPriority } from "../../../shared/types";
 import type { Task } from "../../../drizzle/schema";
 import AppHeader from "@/components/AppHeader";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
-import { composeNarrative } from "@/lib/narrative-data";
 import GlossaryText from "@/components/GlossaryText";
 import { GlossaryLink } from "@/components/GlossaryPopover";
 import WhyNowSheet from "@/components/WhyNowSheet";
@@ -122,9 +121,25 @@ export default function Planner() {
   const { theme } = useTheme();
   const { settings } = useSettingsContext();
 
-  const today = new Date();
+  // `today` is reactive so midnight rollover (with the app left open) advances the whole
+  // hero — mode AND prose — to the new day, instead of freezing the read at page-load day.
+  const [today, setToday] = useState(() => new Date());
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(toDateStr(today));
+  useEffect(() => {
+    const check = () => {
+      const now = new Date();
+      if (toDateStr(now) === toDateStr(today)) return;
+      // Only carry the user forward if they were sitting on "today"; leave a manually
+      // selected past/future date alone.
+      setSelectedDate((sd) => (sd === toDateStr(today) ? toDateStr(now) : sd));
+      setToday(now);
+    };
+    const id = setInterval(check, 60_000);
+    window.addEventListener("visibilitychange", check);
+    window.addEventListener("focus", check);
+    return () => { clearInterval(id); window.removeEventListener("visibilitychange", check); window.removeEventListener("focus", check); };
+  }, [today]);
   const [goldenTip, setGoldenTip] = useState<string | null>(null); // tapped golden day showing its tooltip
   const [reflection, setReflection] = useState("");
   const [reflectionSaved, setReflectionSaved] = useState(false);
@@ -189,7 +204,7 @@ export default function Planner() {
   }, [isAuthenticated, tasksLoaded, allTasks.length, user?.id]);
 
   // Ranked-for-today suggestions powering the "Aligned for today" list (ported from Home).
-  const todayDateStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const todayDateStr = useMemo(() => today.toISOString().split("T")[0], [today]);
   const { data: rankedTasks } = trpc.tasks.rankedForToday.useQuery(
     {
       todayMode: todayTaskMode ?? "Build",
@@ -744,17 +759,15 @@ export default function Planner() {
             {/* Narrative paragraph — the personalized read stands on its own; the
                 templated mode instruction is intentionally omitted (redundant). */}
             {(() => {
-              if (glanceFetching && !glanceContent) {
-                return <div style={{ marginBottom: '1.25rem' }}><ProseLoading /></div>;
+              // Only the generated read — never fabricated/hard-coded prose. If it isn't
+              // ready, show the loading shimmer; if genuinely absent, show nothing.
+              const narrative = glanceContent?.narrative;
+              if (!narrative) {
+                return glanceFetching
+                  ? <div style={{ marginBottom: '1.25rem' }}><ProseLoading /></div>
+                  : null;
               }
-              const paras = (glanceContent?.narrative ?? composeNarrative({
-                  moonSign: selectedPanchang.moonSign ?? '',
-                  houseActivated: selectedPanchang.houseActivated ?? 1,
-                  nakshatra: selectedPanchang.nakshatra ?? '',
-                  tithi: selectedPanchang.tithi ?? '',
-                  tithiPaksha: selectedPanchang.tithiPaksha ?? 'Shukla',
-                  timeLord: timeLordData?.timeLord ?? null,
-                })).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+              const paras = narrative.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
               const shown = whyOpen ? paras : paras.slice(-1);
               return (
                 <div style={{ marginBottom: '1.25rem' }}>
@@ -825,8 +838,8 @@ export default function Planner() {
               </div>
             </div>
 
-            {/* Italic question — mirrors Today page. Narrowed + balanced wrapping to
-                avoid orphan/widow words on the second line. */}
+            {/* Italic question — ONLY the generated one; no hard-coded per-mode fallback. */}
+            {glanceContent?.question && (
             <p
               style={{
                 marginTop: 'auto',
@@ -843,14 +856,9 @@ export default function Planner() {
                 textWrap: 'balance',
               }}
             >
-              {glanceContent?.question ?? (selectedTaskModeForHero === 'Action'
-                ? 'What is ready to be shared, launched, or made visible today?'
-                : selectedTaskModeForHero === 'Build'
-                ? 'What body of work can you advance most significantly through consistent effort today?'
-                : selectedTaskModeForHero === 'Selective'
-                ? 'Which opportunity, relationship, or project deserves your full attention today?'
-                : 'What should be stabilized, repaired, protected, or completed before moving forward?')}
+              {glanceContent.question}
             </p>
+            )}
             </>)}
           </div>
         </div>
