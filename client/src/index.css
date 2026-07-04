@@ -942,3 +942,10 @@ html.light .card-celestial {
   animation: dasha-glow-pulse 1.5s ease-in-out infinite;
   will-change: transform, text-shadow;
 }
+
+/* About-page signature — a black-ink-on-white scan. Blend the paper away and flip the ink
+   to match the theme: light → keep black ink, multiply drops the white; dark → invert to
+   white ink, screen drops the (now black) paper. No transparent PNG needed. */
+.signature-ink { mix-blend-mode: multiply; }
+.dark .signature-ink { filter: invert(1); mix-blend-mode: screen; }
+html.light .signature-ink { filter: none; mix-blend-mode: multiply; }

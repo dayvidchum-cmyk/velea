@@ -130,11 +130,8 @@ export default function About() {
         <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-muted-foreground)", margin: "1.8rem 0 0", fontFamily: serif }}>
           With gratitude,
         </p>
-        {/* TODO(signature): replace this styled name with David's handwritten signature image
-            (e.g. <img src="/signature.png" alt="David Chum" style={{ height: 68 }} />) once provided. */}
-        <p style={{ fontFamily: serif, fontSize: "2.1rem", fontWeight: 700, fontStyle: "italic", color: "var(--color-foreground)", margin: "0.5rem 0 0", letterSpacing: "0.01em" }}>
-          David Chum
-        </p>
+        {/* Handwritten signature — theme-aware blend flips the ink (.signature-ink in index.css). */}
+        <img src="/signature.jpg" alt="David Chum" className="signature-ink" style={{ height: 74, width: "auto", maxWidth: "100%", display: "block", margin: "0.5rem 0 0" }} />
         <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0.9rem 0 0" }}>
           David Chum
         </p>
