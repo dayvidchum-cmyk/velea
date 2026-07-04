@@ -15,9 +15,13 @@ You receive one JSON object with these blocks:
   timeLordRulesHouses:[int] }
 - dasha: { mahaDasha:{ lord, natal:{…}, rulesHouses:[int] },
   antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} }
-- transits: [{ planet, sign, houseFromLagna, retrograde, combust,
-  hitsNatalPoint, orbDeg }]
-- panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, karana, hora, asOf } — qualifier is
+- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal,
+  hitsNatalPoint, orbDeg }] — combust true means the planet is swallowed by the Sun's
+  glare (within its classical orb); nodal is { node, orbDeg } when the planet is gripped
+  by Rahu/Ketu. Either way that planet is WEAKENED right now: don't lean on its
+  significations, and if it's the Time Lord or a dasha lord, let the read acknowledge the
+  dimming plainly (in feel, not the word "combust"). A clear planet needs no mention.
+- panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, karana, hora, eclipse, asOf } — qualifier is
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
   karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true
   (Vishti / Bhadra), the day disfavors INITIATING: this is a "finish, don't start"
@@ -32,6 +36,12 @@ You receive one JSON object with these blocks:
   ("give it an hour") and what it does suit (its good); if "benefic", you may note the
   hour supports its good. A nudge for THIS HOUR ONLY — never the day's theme, never
   mode-changing. When hora is absent (the normal daily read), say nothing of hours.
+  eclipse — present only when a real solar/lunar eclipse falls near this date — is
+  { type, daysAway, sunNodeOrbDeg }. When present, note the eclipse window as a
+  volatile, unsettled stretch: results are unreliable, avoid launching or sealing big
+  commitments, treat it as a time to rest and observe rather than initiate — strongest
+  right around daysAway ≈ 0. Do NOT flip the day's mode; it colors caution, not focus.
+  When eclipse is null, say nothing of eclipses.
 - humanTime: { dayOfWeek, isWeekend, weekFrame, season, nearSeasonalTurn } —
   ordinary human time (weekday rhythm + season), not astrology. (Culture-specific
   holidays are not yet supplied; use only what is present.)

@@ -8,6 +8,7 @@ import { calculateDashaTimeline } from "../dasha-calculator.js";
 import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
 import { calcPanchang } from "../panchang/astronomy.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
+import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const SIGN_RULERS: Record<string,string> = { Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Leo:"Sun",Virgo:"Mercury",Libra:"Venus",Scorpio:"Mars",Sagittarius:"Jupiter",Capricorn:"Saturn",Aquarius:"Saturn",Pisces:"Jupiter" };
@@ -141,7 +142,11 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const retro = n === "Rahu" || n === "Ketu" ? true : b[n] !== undefined && ((((b[n] - lonp + 540) % 360) - 180) < 0);
     let hit: string | null = null, orb = 99;
     for (const [k, v] of Object.entries(natalLon)) { const o = Math.abs(((lonp - v + 540) % 360) - 180); if (o < orb) { orb = o; hit = k; } }
-    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null };
+    // Layer-4 planetary conditions: combustion (too near the Sun) and nodal affliction
+    // (gripped by Rahu/Ketu) — both weaken the planet's significations. Deterministic.
+    const comb = combustion(n, lonp, a["Sun"], retro);
+    const nod = nodalAffliction(n, lonp, a["Rahu"], retro);
+    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null };
   }).filter(Boolean);
 
   const astro = await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon));
@@ -163,11 +168,16 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     if (cur) hora = { lord: cur.lord, tone: cur.tone, phase: cur.phase, good: HORA_TONE[cur.lord].good };
   }
 
+  // Real solar/lunar eclipse near this date — a volatile whole-sky window (deterministic).
+  const ecl = eclipseNear(a["Sun"], a["Moon"], a["Rahu"]);
+  const eclipse = ecl.type ? { type: ecl.type, daysAway: ecl.daysToSyzygy, sunNodeOrbDeg: ecl.sunNodeOrbDeg } : null;
+
   const panchang = {
     mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated,
     nakshatra: field.nakshatra, tithi: field.tithi,
     karana: field.karana ? { name: field.karana.name, quality: field.karana.quality, vishti: field.karana.name === "Vishti" } : null,
     hora,
+    eclipse,
     asOf: dateStr,
   };
 
