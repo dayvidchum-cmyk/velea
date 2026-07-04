@@ -1296,9 +1296,16 @@ export default function Planner() {
           {allTasksOpen && (
             <div className="mt-4 space-y-2">
               {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => {
-                const groupTasks = allTasks.filter(
-                  (t) => t.mode === m && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= Date.now())
-                );
+                // Snoozed tasks are INCLUDED here (unlike the ranked "today" list) so the
+                // expanded All-Tasks view is the full picture — they sink to the bottom of
+                // their mode group and render dimmed.
+                const groupTasks = allTasks
+                  .filter((t) => t.mode === m && !t.isCompleted)
+                  .sort((a, b) => {
+                    const sa = a.snoozedUntil && a.snoozedUntil > Date.now() ? 1 : 0;
+                    const sb = b.snoozedUntil && b.snoozedUntil > Date.now() ? 1 : 0;
+                    return sa - sb;
+                  });
                 const open = openModeGroups.has(m);
                 const groupColor = PLANNER_MODE_OKLCH[m];
                 return (
@@ -1327,9 +1334,11 @@ export default function Planner() {
                         <p className="text-xs px-3 py-3" style={{ color: "var(--color-muted-foreground)" }}>No {m} tasks.</p>
                       ) : (
                         <div className="p-2 space-y-2">
-                          {groupTasks.map((task) => (
+                          {groupTasks.map((task) => {
+                            const snoozed = !!(task.snoozedUntil && task.snoozedUntil > Date.now());
+                            return (
+                            <div key={task.id} style={snoozed ? { opacity: 0.55 } : undefined}>
                             <SwipeableTaskRow
-                              key={task.id}
                               onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
                               onSwipeRight={() => deleteMutation.mutate({ id: task.id })} rightMode="delete"
                               isCompleted={task.isCompleted}
@@ -1347,7 +1356,9 @@ export default function Planner() {
                                 dayMode={todayTaskMode}
                               />
                             </SwipeableTaskRow>
-                          ))}
+                            </div>
+                            );
+                          })}
                         </div>
                       ))}
                   </div>
