@@ -689,7 +689,7 @@ export default function Settings() {
           >
             <div className="pr-4">
               <p className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>About Velea</p>
-              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>The manifesto — why the Moon, and your life as a story.</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>The method — why the Moon, and your life as a story.</p>
             </div>
             <span style={{ color: "var(--color-muted-foreground)", fontSize: "1.15rem", flexShrink: 0 }}>→</span>
           </button>
@@ -814,32 +814,17 @@ export default function Settings() {
               </Button>
             </div>
           )}
-          <div className="flex items-center justify-between py-4">
-            <div>
-              <p
-                className="text-sm font-semibold"
-                style={{ color: "var(--color-foreground)" }}
-              >
-                Log Out
-              </p>
-              <p
-                className="text-xs mt-0.5"
-                style={{ color: "var(--color-muted-foreground)" }}
-              >
-                Sign out and switch to another account
-              </p>
-            </div>
-            <Button
-              onClick={handleLogout}
-              disabled={logoutMutation.isPending}
-              variant="outline"
-              size="sm"
-              className="ml-4 flex-shrink-0"
-            >
-              {logoutMutation.isPending ? "Logging out..." : "Log Out"}
-            </Button>
-          </div>
         </SettingsSection>
+
+        {/* Log out — its own line, standing apart from all the cards above. */}
+        <button
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+          className="w-full flex items-center justify-center py-3.5 rounded-xl font-semibold transition-colors"
+          style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}
+        >
+          {logoutMutation.isPending ? "Logging out…" : "Log Out"}
+        </button>
 
       </div>
 

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { MapPin, CalendarCheck, X } from "lucide-react";
 
 /**
@@ -7,18 +8,22 @@ import { MapPin, CalendarCheck, X } from "lucide-react";
  * own" is always visible (never hidden below the fold). Built big for magnified screens.
  */
 export default function FirstRunWelcome({
-  name, birthLine, locationSet, locationLabel, onFixBirth, onSetLocation, onTakeTour, onExplore, onDismiss,
+  name, birthLine, locationSet, locationLabel, onShown, onFixBirth, onSetLocation, onTakeTour, onExplore, onDismiss,
 }: {
   name: string;
   birthLine: string | null;
   locationSet: boolean;
   locationLabel: string | null;
+  onShown?: () => void;
   onFixBirth: () => void;
   onSetLocation: () => void;
   onTakeTour: () => void;
   onExplore: () => void;
   onDismiss: () => void;
 }) {
+  // Count this as one lifetime "show" the moment it mounts — independent of how the user
+  // leaves (button, ×, backdrop, or just closing the app). That's what caps it at 2.
+  useEffect(() => { onShown?.(); }, []);
   const btn: React.CSSProperties = {
     width: "100%", minHeight: 52, borderRadius: 14, fontSize: "1.05rem", fontWeight: 700,
     display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", cursor: "pointer",

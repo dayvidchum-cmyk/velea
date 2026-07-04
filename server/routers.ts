@@ -582,7 +582,7 @@ export const appRouter = router({
     // ── Guided-tour state (server-side; survives iOS PWA localStorage clears) ──
     getTourState: protectedProcedure.query(async ({ ctx }) => {
       const user = await getUserById(ctx.user.id);
-      let state = { seen: [] as string[], enabled: true };
+      let state = { seen: [] as string[], enabled: true, welcomeShows: 0 };
       try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
       return state;
     }),
@@ -591,7 +591,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const db = await getDb(); if (!db) return { ok: false };
         const user = await getUserById(ctx.user.id);
-        let state = { seen: [] as string[], enabled: true };
+        let state = { seen: [] as string[], enabled: true, welcomeShows: 0 };
         try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
         if (!state.seen.includes(input.key)) state.seen.push(input.key);
         await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
@@ -602,15 +602,28 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const db = await getDb(); if (!db) return { ok: false };
         const user = await getUserById(ctx.user.id);
-        let state = { seen: [] as string[], enabled: true };
+        let state = { seen: [] as string[], enabled: true, welcomeShows: 0 };
         try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
         state.enabled = input.enabled;
         await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
         return { ok: true };
       }),
+    // The first-run welcome is capped at 2 lifetime SHOWS per user (server-side, so it
+    // survives logout and new devices — localStorage/seen-on-dismiss re-fired forever).
+    // Client calls this once per app-open while the welcome is visible; the gate is
+    // welcomeShows < 2, evaluated at load, so the current session's welcome stays put.
+    bumpWelcomeShows: protectedProcedure.mutation(async ({ ctx }) => {
+      const db = await getDb(); if (!db) return { ok: false, welcomeShows: 0 };
+      const user = await getUserById(ctx.user.id);
+      let state = { seen: [] as string[], enabled: true, welcomeShows: 0 };
+      try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
+      state.welcomeShows = (state.welcomeShows ?? 0) + 1;
+      await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
+      return { ok: true, welcomeShows: state.welcomeShows };
+    }),
     resetTours: protectedProcedure.mutation(async ({ ctx }) => {
       const db = await getDb(); if (!db) return { ok: false };
-      await db.update(users).set({ tourState: JSON.stringify({ seen: [], enabled: true }) }).where(eq(users.id, ctx.user.id));
+      await db.update(users).set({ tourState: JSON.stringify({ seen: [], enabled: true, welcomeShows: 0 }) }).where(eq(users.id, ctx.user.id));
       return { ok: true };
     }),
 

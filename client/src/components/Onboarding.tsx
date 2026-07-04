@@ -213,6 +213,10 @@ const PAGE_TOURS: { route: string; key: string; steps: TourStep[] }[] = [
   },
 ];
 
+// Bump the server-side welcome-show counter at most once per app-open (module state
+// resets on a fresh JS load = a real reopen, so 2 opens → 2 shows → then never again).
+let welcomeBumped = false;
+
 export default function Onboarding({ active, userId }: Props) {
   const accent = useDayModeColor();
   const [location, navigate] = useLocation();
@@ -229,6 +233,9 @@ export default function Onboarding({ active, userId }: Props) {
   const setToursEnabled = trpc.settings.setToursEnabled.useMutation({
     onSuccess: () => { utils.settings.getTourState.invalidate(); },
   });
+  // Fire-and-forget: do NOT invalidate getTourState here, or the running count would
+  // hide the welcome mid-view. The higher count only gates the NEXT app-open.
+  const bumpWelcomeShows = trpc.settings.bumpWelcomeShows.useMutation();
 
   // The active per-page tour, plus the standalone "how to add a task" guide.
   const [running, setRunning] = useState<{ key: string; steps: TourStep[] } | null>(null);
@@ -287,8 +294,12 @@ export default function Onboarding({ active, userId }: Props) {
   // First-run welcome — shown once on Today, after the manifesto, before any tour. Replaces the
   // auto-forced tour; drives birth-data confirmation + current-location, then OFFERS the tour.
   const prof = activeProfile.data as any;
+  // Cap at 2 lifetime shows (welcomeShows < 2), AND an explicit dismiss turns it off for
+  // good (seen "welcome"). Both live server-side, so logout / a new device never re-fire it.
   const showWelcome = !welcomeDismissed && active && userId != null && !running && !taskGuide
-    && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto")) && !tourState.data.seen.includes("welcome") && location === "/";
+    && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto"))
+    && !tourState.data.seen.includes("welcome") && (((tourState.data as any).welcomeShows ?? 0) < 2)
+    && location === "/";
   if (showWelcome) {
     return (
       <FirstRunWelcome
@@ -296,6 +307,7 @@ export default function Onboarding({ active, userId }: Props) {
         birthLine={formatBirthLine(prof)}
         locationSet={!!(locationData.data as any)?.city}
         locationLabel={(locationData.data as any)?.city ?? null}
+        onShown={() => { if (welcomeBumped) return; welcomeBumped = true; bumpWelcomeShows.mutate(); }}
         onFixBirth={() => navigate("/profiles")}
         onSetLocation={() => window.dispatchEvent(new Event("velea-open-location"))}
         onTakeTour={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: true }); startTour(); }}

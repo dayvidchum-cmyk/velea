@@ -111,6 +111,30 @@ export default function About() {
           Read the story first — the chapter, the character, the arc. The guests come second, and a guest, however loud, is never the host.
         </p>
       </div>
+
+      {/* ── Closing — a letter to the reader. Signature: swap the styled name below for
+          David's handwritten signature image when the asset is ready. ─────────────────── */}
+      <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.15rem" }}>
+          <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
+            However you found your way here — a friend, a link, a restless midnight — thank you for trying Velea. I can't see you from where I sit; I only know the arithmetic of the sky and the care I folded into the words. The living is yours: you're the one on the actual Tuesday.
+          </p>
+          <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
+            But if now and then a day reads a little more like your own — if the timing ever feels aligned — then this did the one thing I built it to do. That's the whole hope. Thank you for being here.
+          </p>
+        </div>
+
+        <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-muted-foreground)", margin: "1.8rem 0 0", fontFamily: serif }}>
+          With gratitude,
+        </p>
+        {/* TODO(signature): replace this styled name with David's handwritten signature image (e.g. <img src="/signature.png" alt="David" style={{ height: 64 }} />) once he provides the asset. */}
+        <p style={{ fontFamily: serif, fontSize: "2rem", fontWeight: 700, fontStyle: "italic", color: "var(--color-foreground)", margin: "0.3rem 0 0", letterSpacing: "0.01em" }}>
+          David
+        </p>
+        <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.4rem 0 0" }}>
+          Creator of Velea
+        </p>
+      </div>
     </div>
   );
 }
