@@ -14,9 +14,11 @@ export const ACTIVITY_STRENGTH: Record<Activity, number> = {
   Ruling: 1.0, Eating: 0.8, Walking: 0.6, Sleeping: 0.4, Dying: 0.2,
 };
 
-// App-facing names, matching the reference app the user validates against.
+// App-facing names, matching the reference app the user validates against — except
+// "Restore" (Sleeping), reframed from the reference's clock-literal "Relax" into a
+// behavioral, time-independent recommendation (avoid initiating; conserve, recover).
 export const ACTIVITY_LABEL: Record<Activity, string> = {
-  Ruling: "Succeed", Eating: "Energize", Walking: "Action", Sleeping: "Relax", Dying: "Caution",
+  Ruling: "Succeed", Eating: "Energize", Walking: "Action", Sleeping: "Restore", Dying: "Caution",
 };
 
 export type Quality = "golden" | "good" | "neutral" | "low" | "avoid";

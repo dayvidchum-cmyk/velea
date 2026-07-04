@@ -16,7 +16,7 @@ export type MasterPeriod = {
   endMs: number;
   phase: "day" | "night";
   activity: Activity;
-  category: string;   // Succeed / Energize / Action / Relax / Caution
+  category: string;   // Succeed / Energize / Action / Restore / Caution
   quality: Quality;
 };
 
