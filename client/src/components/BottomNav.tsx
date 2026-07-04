@@ -12,8 +12,8 @@ import VeleaMark from "./VeleaMark";
 
 const BASE_NAV = [
   { path: "/", label: "Today", icon: BookOpen },
-  { path: "/projects", label: "Projects", icon: Folder },
   { path: "/profection", label: "Chart", icon: VeleaMark },
+  { path: "/projects", label: "Projects", icon: Folder },
   { path: "/glossary", label: "Glossary", icon: Library },
 ];
 
