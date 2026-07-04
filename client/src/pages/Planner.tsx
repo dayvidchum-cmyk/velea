@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, Crown } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, Crown, RefreshCw } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -249,6 +249,23 @@ export default function Planner() {
   const glanceContent = glance?.content ?? null;
 
   const utils = trpc.useUtils();
+
+  // "Update to the moment" — the daily read is stable, this regenerates it hora-aware
+  // right now (server never writes it to the daily cache). Each tap is a fresh Sonnet
+  // call, so the button is admin-gated in the UI: a preview of a premium Master Mode /
+  // Time Master upsell. Push the result straight into the on-screen query; don't
+  // invalidate, so the stable daily read returns on the next natural load.
+  const [refreshingRead, setRefreshingRead] = useState(false);
+  const updateToMoment = async () => {
+    if (!glanceProfileId) return;
+    setRefreshingRead(true);
+    try {
+      const res = await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true, nowMs: Date.now() });
+      utils.narrative.glance.setData({ profileId: glanceProfileId, date: selectedDate }, res);
+    } finally {
+      setRefreshingRead(false);
+    }
+  };
 
   const saveReflection = trpc.reflections.upsert.useMutation({
     onSuccess: () => {
@@ -677,28 +694,52 @@ export default function Planner() {
               flexDirection: 'column',
             }}
           >
-            {/* DATE label — toggles the day card open/closed */}
-            <button
-              type="button"
-              onClick={() => setHeroOpen((v) => !v)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginBottom: '0.25rem' }}
-            >
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(0,0,0,0.50)',
-                }}
+            {/* Header row — DATE label (toggles) + admin "update to the moment" + caret */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '0.25rem' }}>
+              <button
+                type="button"
+                onClick={() => setHeroOpen((v) => !v)}
+                style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
               >
-                {selectedDate === toDateStr(today) ? "TODAY'S MODE" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
-              </span>
-              <ChevronDown
-                size={13}
-                style={{ color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
-              />
-            </button>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(0,0,0,0.50)',
+                  }}
+                >
+                  {selectedDate === toDateStr(today) ? "TODAY'S MODE" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
+                </span>
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+                {/* Premium preview (admin only): regenerate the read to this moment. */}
+                {user?.role === "admin" && glanceProfileId && glanceContent && (
+                  <button
+                    type="button"
+                    onClick={updateToMoment}
+                    disabled={refreshingRead}
+                    title="Update to the moment"
+                    aria-label="Update to the moment"
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center' }}
+                  >
+                    <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setHeroOpen((v) => !v)}
+                  aria-label={heroOpen ? 'Collapse' : 'Expand'}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                >
+                  <ChevronDown
+                    size={13}
+                    style={{ color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+                  />
+                </button>
+              </div>
+            </div>
 
             {/* GIANT MODE NAME */}
             <h2
