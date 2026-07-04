@@ -1114,10 +1114,11 @@ export default function Planner() {
       </div>{/* end calendar body */}
       </div>{/* end calendar card */}
 
-      {/* Crown-day popup — rendered OUTSIDE the calendar card and fixed to the viewport
-          (anchored to the tapped cell, clamped to the screen), so the card's overflow
-          can never clip it, on any row / month / screen size. Tap anywhere to dismiss. */}
-      {crownTip && (() => {
+      {/* Crown-day popup — PORTALED to document.body so it is never a descendant of the
+          overflow:hidden calendar card (the ROOT cause of the clipping). Anchored to the
+          tapped cell via a captured viewport rect, clamped to the screen, flipped above/
+          below by viewport half. Cannot be clipped on any row / month / screen. */}
+      {crownTip && createPortal((() => {
         const W = 220;
         const left = Math.max(8, Math.min(crownTip.cx - W / 2, window.innerWidth - W - 8));
         const above = crownTip.top > window.innerHeight * 0.5;
@@ -1147,7 +1148,7 @@ export default function Planner() {
             </div>
           </>
         );
-      })()}
+      })(), document.body)}
 
       {/* Due this day — tied to the calendar's selected date */}
       {isAuthenticated && dueTasks.length > 0 && (
