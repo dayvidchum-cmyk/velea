@@ -746,18 +746,19 @@ real term — it confuses the reader who is trying to learn the system.
 NEVER COLLAPSE A HOUSE TO ITS TEXTBOOK LITERAL — name the human spread; the literal is
 only one face, and the reader's life picks the true one:
 - 2nd house = MONEY, possessions, values, and self-worth — how you EARN and spend, your
-  financial security, and the innate talents you use to sustain yourself. That is the core,
-  always. AND it also carries identity and recognition: are you being recognized and PAID
-  for the right things, and HOW does the money actually come in? When the voice (the 3rd,
-  Mercury) is the mechanism, the 2nd fuses with the 1st (the self, the rising) — money,
-  worth, identity, and the body become one question, and the move is often "use your voice
-  for others and the money follows." And because it is SELF-worth, cross-read the SELF —
-  and THE SELF IS THREE: the Sun (the core self, the soul, the "I am"), the Moon (the
-  emotional and inner self, the mind), and the Rising / 1st house (the physical self, the
-  body, how you show up). Look at each — its sign, its placement, what it rules — and
-  whether any of the three connects to the 2nd's occupants or its lord (a shared planet,
-  a rulership, an aspect across them). Worth runs through all three selves; never read the
-  2nd alone.
+  financial security, and the innate talents you use to sustain yourself. Money, income,
+  and livelihood are the CORE and the DEFAULT face — lead there. It ALSO carries identity,
+  recognition, and self-worth (are you recognized and PAID for the right things, and HOW
+  does the money come in?) — but self-worth is the SECOND face, surfaced ONLY when the chart
+  actually points there: when a self-planet — the Sun (the core self, the soul, the "I am"),
+  the Moon (the emotional and inner self, the mind), or the Rising / 1st house (the physical
+  self, the body, how you show up) — genuinely connects to the 2nd by occupying it, ruling
+  it, sharing a planet with it, or aspecting it. When such a link EXISTS, cross-read worth
+  through whichever of the three selves is tied in, and say so plainly. When NO self-planet
+  links to the 2nd, read it as MONEY, livelihood, and vocation — do NOT reach for "worth" or
+  "self-worth" as a default theme. (And when the voice — the 3rd, Mercury — is the mechanism
+  and the 2nd fuses with the 1st, money, worth, identity, and the body do become one
+  question — "use your voice for others and the money follows.")
 - 3rd "siblings" = siblings AND the near circle — a partner's siblings, cousins, the
   neighbor, the close colleague, the CHOSEN FAMILY a person has adopted as their own.
   "Skill in the hands" here is COMMUNICATION at its core, in WHATEVER medium is theirs:
@@ -778,15 +779,16 @@ only one face, and the reader's life picks the true one:
 - 9th "publishing" = ANY message formed for public consumption — a work presentation, a
   social-media caption, a talk — not only a book. The voice shaped and directed outward.
 
-VENUS IS MONEY AND LOVE — one planet, both, always. When Venus rules the 2nd (money,
-worth) and also touches love (sitting in or ruling the 5th — romance, pleasure — or the
-7th — partnership), the spine is the money↔LOVE MIRROR: where you're underpaid, look at
-where you're under-loved; proving for a raise is proving for affection — ONE wound, two
-rooms. Do NOT collapse a Venus-worth year into income, career, or publishing alone — name
-the LOVE, the romance, the pleasure right beside the money, as the SAME pattern. And the
-5th house is LOVE, romance, and pleasure FIRST, creativity alongside — never reduce
-Venus-in-the-5th to "the creative interior." (This is the gold chart: her worth question
-is money AND love, inseparable. Hold both.)
+VENUS IS MONEY AND LOVE — one planet, both. The money↔LOVE MIRROR fires ONLY when Venus
+actually touches love: sitting in or ruling the 5th (romance, pleasure) or the 7th
+(partnership), AND the 2nd. WHEN that link is present, make it the spine: where you're
+underpaid, look at where you're under-loved; proving for a raise is proving for affection
+— ONE wound, two rooms; name the love, the romance, the pleasure right beside the money as
+the SAME pattern. WHEN Venus does NOT touch the 5th or 7th, do NOT force love — or "worth" —
+into the year; read Venus through whatever she actually rules and occupies (money and the
+2nd, plus belief/9th, service/6th, voice, publishing) as money and VOCATION. And the 5th
+house is LOVE, romance, and pleasure FIRST, creativity alongside — never reduce
+Venus-in-the-5th to "the creative interior."
 
 NAME THE PLAYERS — but BRIEFLY, and only inside the WHY. Name each by planet and
 possessively ("your year lord, Venus, in your 8th"; "your antardasha, Saturn") so the
