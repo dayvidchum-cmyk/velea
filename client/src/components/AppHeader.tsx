@@ -63,6 +63,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     enabled: isAuthenticated,
   });
 
+  // Today's check-in: once recorded, the chip shows its date+time stamp instead of the
+  // generic "CURRENT STATE" label, so you can see at a glance when you last checked in.
+  const { data: todayCheckIn } = trpc.checkIn.today.useQuery(undefined, { enabled: isAuthenticated });
+  const checkInStamp = todayCheckIn?.recordedAt
+    ? new Date(todayCheckIn.recordedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+    : null;
+
   const setActiveMutation = trpc.profiles.setActive.useMutation();
 
   async function invalidateAll() {
@@ -278,7 +285,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               >
                 <RefreshCw size={11} />
                 <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
-                  CURRENT STATE
+                  {checkInStamp ?? "CURRENT STATE"}
                 </span>
               </button>
           </div>
