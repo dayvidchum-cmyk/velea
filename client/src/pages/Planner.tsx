@@ -189,10 +189,12 @@ export default function Planner() {
     { year: viewDate.getFullYear(), month: viewDate.getMonth() + 1 },
     { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
   );
-  const crownDays = useMemo(
-    () => new Set((crownData?.days ?? []).filter((d: any) => d.rating === "crown").map((d: any) => d.date)),
-    [crownData],
-  );
+  const crownByDate = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
+    return m;
+  }, [crownData]);
+  const [crownTip, setCrownTip] = useState<string | null>(null); // tapped crown day's popup
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
@@ -973,7 +975,7 @@ export default function Planner() {
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
             const panchang = panchangByDate[dateStr];
             const isToday = dateStr === toDateStr(today);
-            const isCrown = crownDays.has(dateStr);
+            const isCrown = crownByDate.has(dateStr);
             const isSelected = dateStr === selectedDate;
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
             const hasMode = !!modeColor;
@@ -993,7 +995,7 @@ export default function Planner() {
             return (
               <button
                 key={dateStr}
-                onClick={() => setSelectedDate(dateStr)}
+                onClick={() => { setSelectedDate(dateStr); setCrownTip(isCrown ? (crownTip === dateStr ? null : dateStr) : null); }}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
                   minHeight: "2.1rem",
@@ -1012,6 +1014,30 @@ export default function Planner() {
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
+                {/* Crown-day popup — tap a crown day to see it. */}
+                {isCrown && crownTip === dateStr && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      ...(Math.floor(idx / 7) === 0 ? { top: "calc(100% + 6px)" } : { bottom: "calc(100% + 6px)" }),
+                      ...((idx % 7) <= 1 ? { left: 0 } : (idx % 7) >= 5 ? { right: 0 } : { left: "50%", transform: "translateX(-50%)" }),
+                      width: 194, zIndex: 60, pointerEvents: "none", textAlign: "left",
+                      background: "var(--color-card)", border: `1px solid ${GOLD_BRIGHT}`, borderRadius: "var(--radius-card)",
+                      padding: "0.6rem 0.7rem", fontSize: "0.72rem", lineHeight: 1.45, color: "var(--color-foreground)",
+                      fontWeight: 400, textTransform: "none", letterSpacing: 0, boxShadow: "0 6px 20px rgba(0,0,0,0.18)",
+                    }}
+                  >
+                    <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.2rem" }}>
+                      <Crown size={12} fill={GOLD_BRIGHT} stroke="rgba(0,0,0,0.4)" strokeWidth={1} /> Crown day
+                    </span>
+                    An auspicious day for you, a Velea&rsquo;lor. What will you do today?
+                    {crownByDate.get(dateStr) && (
+                      <span style={{ display: "block", marginTop: "0.35rem", fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>
+                        {crownByDate.get(dateStr)}
+                      </span>
+                    )}
+                  </span>
+                )}
                 {/* Crown badge — the personal apex (crown.forMonth). Gold crown + gold border. */}
                 {isCrown && (
                   <Crown
