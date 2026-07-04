@@ -22,6 +22,28 @@ const CAT_NOTE: Record<string, string> = {
   Caution: "Silence & letting go — not for action.",
 };
 
+// Golden hour: when the hora lord and the bird agree, the lord names WHAT it's good for —
+// the natal houses it rules + occupies — colored by where it's transiting now.
+const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const HOUSE_SHORT: Record<number, string> = {
+  1: "self & body", 2: "worth & money", 3: "skill & siblings", 4: "home & roots",
+  5: "creativity & heart", 6: "work & service", 7: "partnership", 8: "depth & the hidden",
+  9: "belief & travel", 10: "career & standing", 11: "gains & community", 12: "rest & release",
+};
+function favorsHouses(g: any): number[] {
+  const set = new Set<number>(g.rulesHouses ?? []);
+  if (g.occupiesHouse) set.add(g.occupiesHouse);
+  return Array.from(set).sort((a, b) => a - b);
+}
+const glossHouses = (hs: number[]) => hs.map((h) => `${HOUSE_SHORT[h]} (${ORD[h]})`).join(", ");
+function conditionLine(g: any): string {
+  const bits: string[] = [];
+  if (["exalted", "moolatrikona", "own", "friend"].includes(g.dignity)) bits.push(`${g.dignity} — strong`);
+  if (g.retrograde) bits.push("retrograde — good for reworking, not new starts");
+  if (!bits.length) bits.push(`in ${g.transitSign}`);
+  return bits.join(" · ");
+}
+
 export default function MasterModeCard() {
   const [expanded, setExpanded] = useState(false);
   const now = new Date();
@@ -32,6 +54,7 @@ export default function MasterModeCard() {
   const nowMs = Date.now();
   const fmt = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const current = data.periods.find((p) => nowMs >= p.startMs && nowMs < p.endMs);
+  const g = (data as any).goldenNow;
 
   return (
     <div style={{ borderRadius: 16, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
@@ -51,6 +74,18 @@ export default function MasterModeCard() {
           <p style={{ margin: "0.15rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: CAT_COLOR[current.category] }}>{current.category}</p>
           <p style={{ margin: "0.1rem 0 0", fontSize: "0.82rem", color: "var(--foreground)" }}>{CAT_NOTE[current.category]}</p>
           <p style={{ margin: "0.3rem 0 0", fontSize: "0.75rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</p>
+
+          {g?.isGolden && (
+            <div style={{ marginTop: "0.7rem", paddingTop: "0.7rem", borderTop: "1px dashed color-mix(in srgb, #D4AF37 55%, transparent)" }}>
+              <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.03em", color: "#D4AF37" }}>✦ Golden hour — {g.horaLord}</p>
+              <p style={{ margin: "0.2rem 0 0", fontSize: "0.8rem", color: "var(--foreground)" }}>Your bird and the hour agree.</p>
+              {favorsHouses(g).length > 0 && (
+                <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--foreground)" }}>Favors {glossHouses(favorsHouses(g))}.</p>
+              )}
+              <p style={{ margin: "0.2rem 0 0", fontSize: "0.74rem", color: "var(--color-muted-foreground)" }}>{g.horaLord} {conditionLine(g)}.</p>
+              <p style={{ margin: "0.15rem 0 0", fontSize: "0.74rem", color: "var(--color-muted-foreground)" }}>Now transiting your {ORD[g.transitHouse]} — {HOUSE_SHORT[g.transitHouse]}.</p>
+            </div>
+          )}
         </div>
       )}
 

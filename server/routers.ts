@@ -1394,9 +1394,9 @@ export const appRouter = router({
   // ── MASTER MODE (Pancha Pakshi hourly timing) — GATED to an allowlist (private) ──
   masterMode: router({
     today: protectedProcedure
-      .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional() }))
+      .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional(), nowMs: z.number().optional() }))
       .query(async ({ ctx, input }) => {
-        // Private feature flag: only these users see Master Mode (David = user 2).
+        // Private feature flag: only these users see Time Master (David = user 2).
         const MASTER_MODE_USER_IDS = [1, 2];
         if (!MASTER_MODE_USER_IDS.includes(ctx.user.id)) return null;
 
@@ -1405,7 +1405,12 @@ export const appRouter = router({
         if (!profile) return null;
         const bodies = await getProfileNatalBodies(profile.id);
         let moonNak: string | null = null, sunLon: number | null = null, moonLon: number | null = null;
+        const natal: Record<string, { house: number | null; longitude: number | null }> = {};
         for (const b of bodies) {
+          natal[b.planet] = {
+            house: (b as any).house ?? null,
+            longitude: (b as any).longitude != null ? parseFloat((b as any).longitude) : null,
+          };
           if (b.planet === "Moon") { moonNak = b.nakshatra ?? null; moonLon = (b as any).longitude != null ? parseFloat((b as any).longitude) : null; }
           if (b.planet === "Sun") sunLon = (b as any).longitude != null ? parseFloat((b as any).longitude) : null;
         }
@@ -1414,12 +1419,27 @@ export const appRouter = router({
         const { pakshaFromSunMoon } = await import("./panchapakshi/tables.js");
         const birthPaksha = pakshaFromSunMoon(sunLon, moonLon);
         const [y, m, d] = input.date.split("-").map(Number);
+        const lat = input.lat ?? 42.3601, lon = input.lon ?? -71.0589;
         const { computeMasterMode } = await import("./panchapakshi/compute.js");
-        return computeMasterMode({
-          birthNakshatra: moonNak, birthPaksha,
-          lat: input.lat ?? 42.3601, lon: input.lon ?? -71.0589,
-          year: y, month: m, day: d,
-        });
+        const master = await computeMasterMode({ birthNakshatra: moonNak, birthPaksha, lat, lon, year: y, month: m, day: d });
+        if (!master) return null;
+
+        // Golden hour: fuse the current hora with the bird (Hora × Pañcapakṣi). Best-effort —
+        // needs the lagna; if it isn't set the card just shows the plain Now block.
+        let goldenNow = null;
+        try {
+          const lagnaSign = (profile as any).lagnaSign;
+          if (lagnaSign) {
+            const { computeGoldenHour } = await import("./panchapakshi/golden-hour.js");
+            goldenNow = await computeGoldenHour({
+              year: y, month: m, day: d, nowMs: input.nowMs ?? Date.now(), lat, lon,
+              birthNakshatra: moonNak, birthPaksha,
+              lagnaSign, ascendantDegree: (profile as any).ascendantDegree ?? null, natal,
+            });
+          }
+        } catch { goldenNow = null; }
+
+        return { ...master, goldenNow };
       }),
 
     /**

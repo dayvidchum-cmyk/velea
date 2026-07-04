@@ -9,7 +9,7 @@
  * (unprovable), and its output is an opaque number; this is auditable and legible.
  */
 
-const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+export const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 
 const SIGN_LORD: Record<string, string> = {
   Aries:"Mars", Taurus:"Venus", Gemini:"Mercury", Cancer:"Moon", Leo:"Sun", Virgo:"Mercury",
@@ -67,6 +67,12 @@ export function dignityTier(planet: string, sign: string, degInSign?: number): D
   if (FRIEND[planet]?.includes(lord)) return "friend";
   if (ENEMY[planet]?.includes(lord)) return "enemy";
   return "neutral";
+}
+
+/** The signs a planet rules (its own signs) — used to map a planet to the houses it
+ *  rules from a given lagna. Returns [] for Rahu/Ketu (no rulership). */
+export function signsRuledBy(planet: string): string[] {
+  return OWN[planet] ?? [];
 }
 
 // Composite strength weights — the ONE place to tune. Dignity tier → base points; live
