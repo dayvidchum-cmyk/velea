@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useLocation } from "wouter";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
 import VeleaLorMark from "@/components/VeleaLorMark";
 
@@ -29,6 +30,8 @@ const CAST: { label: string; body: string }[] = [
 
 export default function About() {
   const [, navigate] = useLocation();
+  const [openMoon, setOpenMoon] = useState(false);
+  const [openCast, setOpenCast] = useState(false);
   const serif = "'Playfair Display', Georgia, serif";
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "0.5rem 1.4rem 2rem" }}>
@@ -63,8 +66,12 @@ export default function About() {
         </p>
       </div>
 
-      {/* ── Section 1: Why the Moon ─────────────────────────────────────────── */}
-      <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: "2.4rem 0 0", letterSpacing: "0.01em", lineHeight: 1.15 }}>Why the Moon</h2>
+      {/* ── Section 1: Why the Moon (collapsible; ships collapsed) ──────────── */}
+      <button onClick={() => setOpenMoon((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.6rem", background: "none", border: "none", padding: 0, margin: "2.4rem 0 0", cursor: "pointer", textAlign: "left" }}>
+        <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>Why the Moon</h2>
+        {openMoon ? <ChevronDown size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} /> : <ChevronRight size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />}
+      </button>
+      {openMoon && (<>
       <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
         <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
           In astrology, the Sun sign is who you are — the changeless <em>“I am,”</em> there when the universe was still smaller than a grain of sand, too bright to face head-on. But that's eternity, and a person has to live on a Tuesday.
@@ -93,10 +100,15 @@ export default function About() {
       <p style={{ fontSize: "1.15rem", lineHeight: 1.7, color: "var(--color-foreground)", margin: "1.8rem 0 0", fontFamily: serif, fontWeight: 600 }}>
         That's why Vedic follows it. That's why Velea does. I built the whole engine on the one light humble enough to come close.
       </p>
+      </>)}
 
       {/* ── The Story & Its Cast — the layered system, told as a story ───────── */}
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
-        <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>The Story &amp; Its Cast</h2>
+        <button onClick={() => setOpenCast((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.6rem", background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", textAlign: "left" }}>
+          <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>The Story &amp; Its Cast</h2>
+          {openCast ? <ChevronDown size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} /> : <ChevronRight size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />}
+        </button>
+        {openCast && (<>
 
         <div style={{ marginTop: "1.3rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
@@ -136,6 +148,7 @@ export default function About() {
         <p style={{ fontSize: "1.15rem", lineHeight: 1.7, color: "var(--color-foreground)", margin: "1.9rem 0 0", fontFamily: serif, fontWeight: 600 }}>
           Read the story first — the chapter, the character, the arc. The guests come second, and a guest, however loud, is never the host.
         </p>
+        </>)}
       </div>
 
       {/* ── Closing — David's letter to the reader, in his words. Signature: swap the
@@ -156,8 +169,13 @@ export default function About() {
         <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--amber-gold, #c9a84c)", margin: "1.8rem 0 0", fontFamily: serif }}>
           With gratitude,
         </p>
-        {/* Handwritten signature — theme-aware blend flips the ink (.signature-ink in index.css). */}
-        <img src="/signature.jpg" alt="David Chum" className="signature-ink" style={{ height: 74, width: "auto", maxWidth: "100%", display: "block", margin: "0.5rem 0 0" }} />
+        {/* Handwritten signature — the white-bg JPG leans on mix-blend-mode, which needs a painted
+            backdrop to cancel against. Full-spectrum paints its gold on a separate layer, so screen
+            had nothing to blend and the inverted black box showed. Give the signature its own
+            surface-colored plate → the blend always has a backdrop (fixes dark full-spectrum). */}
+        <div style={{ display: "inline-block", background: "var(--background)", borderRadius: 4, margin: "0.5rem 0 0" }}>
+          <img src="/signature.jpg" alt="David Chum" className="signature-ink" style={{ height: 74, width: "auto", maxWidth: "100%", display: "block" }} />
+        </div>
         <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0.9rem 0 0" }}>
           David Chum
         </p>
