@@ -69,6 +69,12 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
   if (!open) return null;
 
   const d = sky as any;
+  // Time-of-day picker: try the <event>-<tod>.jpg variant matching the viewer's current hour;
+  // if that variant isn't made yet, fall back to the base image (onError). So the set fills in
+  // gracefully — the shell breathes with the real sky as David paints each variant.
+  const timeOfDay: string = d?.timeOfDay ?? "day";
+  const todSrc = (image: string) => `/celestial/${image.replace(/\.(jpg|jpeg|png|webp)$/i, `-${timeOfDay}.$1`)}`;
+  const onTodError = (image: string) => (e: any) => { e.currentTarget.onerror = null; e.currentTarget.src = `/celestial/${image}`; };
   const house: number | null = d?.moonHouse ?? null;
   const intent = d ? (PHASE_INTENT[d.name] ?? "") : "";
   const moonNote = d ? (house ? `${intent} — in your ${ORD[house]} house of ${HOUSE_THEME[house]}.` : `${intent}.`) : "";
@@ -114,7 +120,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     return (
                     <button key={i} onClick={() => setSkyIdx(i)}
                       style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
-                      <img src={`/celestial/${h.image}`} alt={h.title}
+                      <img src={todSrc(h.image)} onError={onTodError(h.image)} alt={h.title}
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
                       {/* Station cards (Mercury Rx etc.): flat even veil over the WHOLE image so white
                           text reads anywhere. Moon card (primary) keeps its gradient scrim below. */}
@@ -200,7 +206,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
       {/* Full-screen immersive art — tap ANYWHERE to close (a corner X is unreachable here) */}
       {skyIdx >= 0 && heroes[skyIdx] && (
         <div className="app-shell-height" onClick={() => setSkyIdx(-1)} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10000, background: "#05060a", cursor: "pointer" }}>
-          <img src={`/celestial/${heroes[skyIdx].image}`} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
+          <img src={todSrc(heroes[skyIdx].image)} onError={onTodError(heroes[skyIdx].image)} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent 44%)" }} />
           <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 1rem)", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
             <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.82)", background: "rgba(0,0,0,0.45)", padding: "0.3rem 0.8rem", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: "0.35rem" }}><X size={13} /> tap anywhere to close</span>

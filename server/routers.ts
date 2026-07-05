@@ -1492,6 +1492,15 @@ export const appRouter = router({
       // Public: everyone sees tonight's real moon phase / eclipse artwork. (Master Mode
       // stays gated; this is just the shared sky.)
       const dateStr = new Date().toISOString().slice(0, 10);
+      // Time-of-day for the Stage artwork — the viewer's current hour vs their real sunrise/sunset,
+      // so each celestial image resolves to its dawn/day/dusk/night variant (client picks + falls back).
+      const { timeOfDayAt } = await import("./sky/time-of-day.js");
+      const _loc = ctx.user as any;
+      const timeOfDay = timeOfDayAt(
+        Date.now(),
+        _loc?.locationLat ? parseFloat(_loc.locationLat) : 42.3601,
+        _loc?.locationLon ? parseFloat(_loc.locationLon) : -71.0589,
+      );
       const { calculateBirthChart } = await import("./birthchart/calculator.js");
       const t: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
       const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
@@ -1567,14 +1576,14 @@ export const appRouter = router({
             return { planet: p.planet, phase: ph, image, title: c.title.replace("{P}", p.planet), note: c.note, sign: p.sign, house: p.house };
           }).filter(Boolean);
           const ecl = (sky.eclipses ?? []).find((e) => e.daysAway === 0);
-          if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, stations, ...base };
-          if (ecl?.type === "solar") return { name: "Solar Eclipse", image: "solar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, stations, ...base };
+          if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, timeOfDay, stations, ...base };
+          if (ecl?.type === "solar") return { name: "Solar Eclipse", image: "solar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, timeOfDay, stations, ...base };
           mercuryRetro = (sky.retrogrades ?? []).includes("Mercury");
         }
       } catch { /* degrade gracefully */ }
 
       const isEvent = phase.name === "Full Moon" || phase.name === "New Moon";
-      return { name: phase.name, image: phase.image, isEvent, isEclipse: false, mercuryRetro, stations, ...base };
+      return { name: phase.name, image: phase.image, isEvent, isEclipse: false, mercuryRetro, timeOfDay, stations, ...base };
     }),
   }),
 
