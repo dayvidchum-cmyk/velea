@@ -28,5 +28,9 @@
 // glaring; Full Spectrum Build day warmed onto a warm near-black base so the gold reads golden,
 // not olive (gold font contrast preserved); bottom-nav labels shrunk + cell-clipped so the 6 admin
 // items (Projects/Glossary) stop mushing together.
-// Bump on each meaningful shipped release; keep it in step with the SW cache version.
-export const APP_VERSION = "114";
+// v1.1.115 = 2026-07-04 — version scheme is now YEAR.MONTH.BUILD. "1.1" = Velea's first year,
+// first month; the BUILD segment keeps tracking the SW cache line. Same build as the prior v114
+// (softened dark text, warm Build Full Spectrum, un-mushed nav) — re-labelled under the new scheme.
+// Roll MONTH each calendar month, YEAR each year; bump BUILD on each shipped release and keep it
+// in step with the SW cache version.
+export const APP_VERSION = "1.1.115";
