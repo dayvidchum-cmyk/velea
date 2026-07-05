@@ -35,4 +35,4 @@
 // in step with the SW cache version.
 // v1.1.117 = 2026-07-04 — time-aware, second-voice hero greetings (e.g. "Still up, Lang?"
 // past midnight), 6 hour buckets × rotating variants; seed copy for future push notifications.
-export const APP_VERSION = "1.1.117";
+export const APP_VERSION = "1.1.118";

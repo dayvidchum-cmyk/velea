@@ -19,6 +19,7 @@ const BUCKETS: Bucket[] = [
   ] },
   // Dawn — early riser
   { from: 5, to: 7, lines: [
+    "Early bird today, {name}.",
     "Early one, {name}.",
     "Up before the sun, {name}.",
     "Morning's yours, {name}.",
