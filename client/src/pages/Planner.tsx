@@ -1059,7 +1059,7 @@ export default function Planner() {
             // muddy (teal→dull, rose→brown, gold→olive). Push the fill toward opaque there so each
             // day reads as its true, vibrant mode color instead of a muddied blend with the surface.
             const tintAlpha = fullSpectrum
-              ? (isSelected ? 0.65 : 0.50)
+              ? (isSelected ? 0.65 : 0.45)
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20));
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#E7C766"; // crown badge + border accent
