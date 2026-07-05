@@ -173,7 +173,7 @@ export default function About() {
             backdrop to cancel against. Full-spectrum paints its gold on a separate layer, so screen
             had nothing to blend and the inverted black box showed. Give the signature its own
             surface-colored plate → the blend always has a backdrop (fixes dark full-spectrum). */}
-        <div style={{ display: "inline-block", background: "var(--background)", borderRadius: 4, margin: "0.5rem 0 0" }}>
+        <div style={{ display: "inline-block", background: "var(--background)", overflow: "hidden", fontSize: 0, lineHeight: 0, margin: "0.5rem 0 0" }}>
           <img src="/signature.jpg" alt="David Chum" className="signature-ink" style={{ height: 74, width: "auto", maxWidth: "100%", display: "block" }} />
         </div>
         <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0.9rem 0 0" }}>
