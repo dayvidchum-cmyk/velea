@@ -4,6 +4,7 @@ import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
+import { pickGreeting } from "@/lib/greeting";
 import { useLocation } from "wouter";
 import LocationSheet from "@/components/LocationSheet";
 import CheckInSheet from "@/components/CheckInSheet";
@@ -119,18 +120,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     year: "numeric",
   });
 
-  const hour = today.getHours();
-  const greeting =
-    hour < 12 ? "Good morning" :
-    hour < 17 ? "Good afternoon" :
-    hour < 21 ? "Good evening" :
-    "Good night";
-
   // Derive the currently active profile from the full list (includes owner)
   const currentProfile = profileList.find((p: any) => p.isActive) ?? null;
   // Use active profile name for greeting; fall back to auth user name
   const displayName = currentProfile?.name ?? user?.name;
   const firstName = displayName?.split(" ")[0] ?? null;
+  // Time-aware, second-voice greeting (e.g. "Still up, Lang?" past midnight)
+  const greetingLine = pickGreeting(today, firstName);
 
   // Profile switcher dropdown — shared between both layouts (only show for admins)
   const profileSwitcher = isAuthenticated && isAdmin ? (
@@ -307,9 +303,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             letterSpacing: "-0.01em",
           }}
         >
-          {isAuthenticated && firstName
-            ? `${greeting}, ${firstName}.`
-            : `${greeting}.`}
+          {greetingLine}
         </h1>
 
         {/* Profile switcher below greeting */}

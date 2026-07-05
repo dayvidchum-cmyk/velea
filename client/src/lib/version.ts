@@ -33,4 +33,6 @@
 // (softened dark text, warm Build Full Spectrum, un-mushed nav) — re-labelled under the new scheme.
 // Roll MONTH each calendar month, YEAR each year; bump BUILD on each shipped release and keep it
 // in step with the SW cache version.
-export const APP_VERSION = "1.1.116";
+// v1.1.117 = 2026-07-04 — time-aware, second-voice hero greetings (e.g. "Still up, Lang?"
+// past midnight), 6 hour buckets × rotating variants; seed copy for future push notifications.
+export const APP_VERSION = "1.1.117";
