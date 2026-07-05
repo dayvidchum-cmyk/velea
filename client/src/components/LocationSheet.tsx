@@ -51,6 +51,7 @@ export default function LocationSheet({ open, onClose }: LocationSheetProps) {
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        localStorage.setItem("velea-geo-ok", "1"); // remembers the grant → enables the "you've moved" nudge
         const { latitude, longitude } = pos.coords;
         setStatus("geocoding");
         try {

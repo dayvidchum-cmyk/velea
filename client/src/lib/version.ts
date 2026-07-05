@@ -35,4 +35,7 @@
 // in step with the SW cache version.
 // v1.1.117 = 2026-07-04 — time-aware, second-voice hero greetings (e.g. "Still up, Lang?"
 // past midnight), 6 hour buckets × rotating variants; seed copy for future push notifications.
-export const APP_VERSION = "1.1.118";
+// v1.1.119 = 2026-07-04 — "looks like you've moved" location nudge: when the device drifts
+// >100km from the saved location (only for users who already granted GPS), offer a one-tap
+// update so sunrise/hora/day-timing follow. Throttled, dismiss-aware, never prompts unsolicited.
+export const APP_VERSION = "1.1.119";

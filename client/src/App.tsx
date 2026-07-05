@@ -13,6 +13,7 @@ import { SettingsProvider, useSettingsContext } from "./contexts/SettingsContext
 import { AddTaskProvider, useAddTask } from "./contexts/AddTaskContext";
 import BottomNav from "./components/BottomNav";
 import FullSpectrumController from "./components/FullSpectrumController";
+import LocationNudge from "./components/LocationNudge";
 import { APP_VERSION } from "./lib/version";
 import AddTaskSheet from "./components/AddTaskSheet";
 import Onboarding from "./components/Onboarding";
@@ -329,6 +330,9 @@ const { user, loading } = useAuth();
 
       {/* Full Spectrum — paints every surface today's day-mode color when enabled */}
       {user && <FullSpectrumController />}
+
+      {/* "Looks like you've moved" — offers a location update when the device drifts far */}
+      {user && <LocationNudge />}
     </div>
   );
 }
