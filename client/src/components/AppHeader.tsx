@@ -11,6 +11,7 @@ import LocationSheet from "@/components/LocationSheet";
 import CheckInSheet from "@/components/CheckInSheet";
 import StageSheet from "@/components/StageSheet";
 import VeleaMark from "./VeleaMark";
+import VeleaLorMark from "./VeleaLorMark";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -357,14 +358,14 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         </h1>
 
         {/* Live Velea timestamp — day mode · Time Master activity · hora lord glyph · clock,
-            with a crown on a golden hour. The private bits (activity/hora) render for master
+            with the Veleal'or bullseye on a golden hour. The private bits (activity/hora) render for master
             users only; everyone still sees the day mode + clock. No planet/sign names, per spec. */}
         {(stampModeLabel || stampActivity) && (
           <div style={{ marginTop: "0.55rem", display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem", fontSize: "0.66rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
             {stampModeLabel && <span style={{ color: modeColor }}>{stampModeLabel}</span>}
             {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span>{stampActivity}</span></>)}
             {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.85rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
-            {stampGolden && <img src="/crown.png" alt="golden hour" width={12} height={12} style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
+            {stampGolden && <VeleaLorMark size={13} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
             <span style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.03em" }}>{stampTime}</span>
           </div>
         )}
