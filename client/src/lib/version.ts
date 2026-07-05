@@ -52,4 +52,6 @@
 // v1.1.124 = 2026-07-05 — stale-task check-in nudge (in-app): a task open >3h with no check-in
 // since it was added offers a current-state check-in (8am–10pm, throttled, stands down after
 // check-in). Also ships the approved timezone-first location nudge (DST offset change + 150km).
-export const APP_VERSION = "1.1.124";
+// v1.1.125 = 2026-07-05 — golden hour is now marked with the crown (was ✦) in the Time Master
+// card — current golden hour, the header badge, and the "next" window — unifying it with crown days.
+export const APP_VERSION = "1.1.125";
