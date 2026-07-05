@@ -20,7 +20,8 @@ const STRUCTURE: { label: string; body: string }[] = [
   { label: "The protagonist.", body: "The Time Lord of the chapter — the character whose arc is the chapter. Whatever happens, happens to move them. Know who's leading and you know what the chapter is about." },
 ];
 const CAST: { label: string; body: string }[] = [
-  { label: "The host.", body: "The Moon. Never a guest — the one who opens every night and sets the room: which house, which mood, what light. He's why there's a show at all." },
+  { label: "The host.", body: "The Moon. He opens every night — but always in one of his wives' houses, never his own. Host of the show, guest of the palace. He sets which room the night happens in, and that there's a show at all." },
+  { label: "The palace.", body: "The sign he's visiting — his wife, that night. It's her house, and she sets the room: Cancer's waters, Leo's fire, her mood and her light. The same Moon is a different night in each. Her palace is the day you're actually standing in." },
   { label: "The family.", body: "The planets — a recurring cast with long memories. Old friendships, older grudges, still playing out. Most days, just the family, milling around." },
   { label: "The special guest.", body: "Now and then one of them makes the entrance that turns the plot — a villain, or a romance with the lead. An eclipse. A planet caught too close to the Sun, or turning back on itself. Rare. Never neutral. The whole room feels it arrive." },
   { label: "The weather.", body: "Everything else — the day's texture, the mood with no lines to speak. It doesn't change the plot. It changes how the plot feels." },
