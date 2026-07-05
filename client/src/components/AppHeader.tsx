@@ -21,7 +21,7 @@ import {
 
 // Classical planet glyphs for the live timestamp's hora lord.
 const PLANET_GLYPH: Record<string, string> = {
-  Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
+  Sun: "☀", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
 };
 
 interface AppHeaderProps {

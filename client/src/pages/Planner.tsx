@@ -4,7 +4,6 @@ import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
-import VeleaLorMark from "@/components/VeleaLorMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
@@ -756,7 +755,6 @@ export default function Planner() {
                     aria-label="Update to the moment"
                     style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center' }}
                   >
-                    <VeleaLorMark size={11} color="rgba(0,0,0,0.55)" style={{ marginRight: 4 }} />
                     <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
                   </button>
                 )}
