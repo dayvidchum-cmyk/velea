@@ -1055,7 +1055,12 @@ export default function Planner() {
             // dot, and selected/today get a stronger fill + solid border. Dark mode
             // needs more saturation: the low-alpha tints wash out on the dark bg.
             const isDark = theme === "dark";
-            const tintAlpha = isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20);
+            // Full Spectrum paints the card gold, so the low-alpha tints composite over gold and go
+            // muddy (teal→dull, rose→brown, gold→olive). Push the fill toward opaque there so each
+            // day reads as its true, vibrant mode color instead of a muddied blend with the surface.
+            const tintAlpha = fullSpectrum
+              ? (isSelected ? 0.95 : 0.85)
+              : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20));
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#E7C766"; // crown badge + border accent
             // TODAY renders at the saturated (pressed) tint so the white Velea mark reads;
