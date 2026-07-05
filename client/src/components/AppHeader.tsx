@@ -173,10 +173,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const stampHoraGlyph = horaCurrent?.lord ? PLANET_GLYPH[horaCurrent.lord] ?? null : null;
   const stampHoraLord = horaCurrent?.lord ?? null;
   const stampTime = stampDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  // Avoid "Build Build" when the qualifier already resolves to the same word as the mode.
-  const stampModeLabel = stampQualifier && stampMode
-    ? (stampQualifier.toLowerCase() === stampMode.toLowerCase() ? stampMode : `${stampQualifier} ${stampMode}`)
-    : (stampQualifier ?? stampMode ?? "");
+  // The qualifier is usually the FULL 2-word label ("Restrained Build"); only append the mode
+  // when the qualifier doesn't already contain it — avoids "Restrained Build Build" / "Build Build".
+  const stampModeLabel = stampQualifier
+    ? (stampMode && !stampQualifier.toLowerCase().includes(stampMode.toLowerCase())
+        ? `${stampQualifier} ${stampMode}`
+        : stampQualifier)
+    : (stampMode ?? "");
 
   // Profile switcher dropdown — shared between both layouts (only show for admins)
   const profileSwitcher = isAuthenticated && isAdmin ? (
