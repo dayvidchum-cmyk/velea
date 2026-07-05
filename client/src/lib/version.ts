@@ -46,4 +46,7 @@
 // read gross over the light moon art).
 // v1.1.122 = 2026-07-05 — Stage station cards (Mercury Rx etc.) get a flat #545454 @ 26% veil
 // over the whole image (David's mockup) instead of the gradient scrim; moon card keeps its scrim.
-export const APP_VERSION = "1.1.122";
+// v1.1.123 = 2026-07-05 — Stage station cards: drop the text halo (the flat veil carries it;
+// moon card keeps its halo), and wrap slow-planet-weather signals in the same translucent boxes
+// as "Today's call" for consistency.
+export const APP_VERSION = "1.1.123";
