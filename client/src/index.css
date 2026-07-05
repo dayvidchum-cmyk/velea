@@ -951,9 +951,14 @@ html.light .card-celestial {
 html.light .signature-ink { filter: none; mix-blend-mode: multiply; }
 
 /* Full Spectrum — surfaces (--background/--card/--popover/--secondary) are painted a mid-dark
-   shade of today's day-mode color by FullSpectrumController (inline on :root). Here we only
-   force the text + border tokens LIGHT so it stays legible on those tinted surfaces, whatever
-   light/dark choice sits underneath. Placed last so it wins the specificity tie with html.light. */
+   shade of today's day-mode color by FullSpectrumController (inline on :root). FS is ALWAYS a dark
+   surface, so text is ALWAYS light — decouple it from the light/dark base theme entirely. We must
+   set BOTH the base tokens AND the --color-* aliases Tailwind bakes per-theme (the ones components
+   actually read via var(--color-foreground) etc.) or the light theme leaves dark text behind.
+   Gold accents, colored links and mode colors use their own hex, so they stay colored. And we pin
+   the two surface tokens FullSpectrumController doesn't paint (--input, --muted) to a translucent
+   dark, so cards/inputs built on them never flash white under FS. Placed last to win the
+   specificity tie with html.light. */
 html.full-spectrum {
   --foreground: #EAE7E1;
   --muted-foreground: rgba(234, 231, 225, 0.66);
@@ -961,6 +966,16 @@ html.full-spectrum {
   --card-foreground: #EAE7E1;
   --popover-foreground: #EAE7E1;
   --secondary-foreground: #EAE7E1;
+  --color-foreground: #EAE7E1;
+  --color-muted-foreground: rgba(234, 231, 225, 0.66);
+  --color-border: rgba(234, 231, 225, 0.16);
+  --color-card-foreground: #EAE7E1;
+  --color-popover-foreground: #EAE7E1;
+  --color-secondary-foreground: #EAE7E1;
+  --input: rgba(0, 0, 0, 0.22);
+  --color-input: rgba(0, 0, 0, 0.22);
+  --muted: rgba(0, 0, 0, 0.22);
+  --color-muted: rgba(0, 0, 0, 0.22);
 }
 
 /* Full Spectrum — glass surfaces. glass-card/panel/input backgrounds are hardcoded hex
