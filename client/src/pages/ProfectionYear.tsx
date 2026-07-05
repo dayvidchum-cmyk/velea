@@ -781,32 +781,50 @@ export default function ProfectionYear() {
                     })}
                   </div>
 
-                  {/* Axis: a flex row that MIRRORS the ribbon above (same flex + minWidth per
-                      segment), so the Velea mark lands INSIDE the true current segment. The old
-                      global time-% ignored the minWidth distortion and pushed the mark onto the
-                      neighboring sign. */}
-                  <div style={{ marginTop: "0.45rem" }}>
-                    <div style={{ display: "flex", width: "100%", height: 18 }}>
-                      {segs.map((s, idx) => {
-                        const dur = Math.max(ms(s.endDate) - ms(s.startDate), 1);
-                        const isCur = s.startDate <= todayStr && todayStr <= s.endDate;
-                        const segFrac = isCur ? Math.max(0, Math.min(1, (Date.now() - ms(s.startDate)) / dur)) : 0;
-                        return (
-                          <div key={idx} style={{ flex: `${dur} 0 0`, minWidth: 30, position: "relative" }}>
-                            {isCur && (
-                              <div style={{ position: "absolute", left: `${segFrac * 100}%`, top: 0, transform: "translateX(-50%)", lineHeight: 0, pointerEvents: "none" }} title="Today">
-                                <VeleaMark size={18} color="var(--brand-gold)" />
-                              </div>
-                            )}
+                  {/* Literal timeline — a white rule the width of the ribbon, with notches at start,
+                      middle, and end (middle labelled with its date), and the Velea mark riding the
+                      line at today. The mark still flex-mirrors the ribbon (same flex + minWidth per
+                      segment) so it lands INSIDE the true current segment rather than on a neighbor. */}
+                  {(() => {
+                    const startMs = ms(segs[0].startDate);
+                    const endMs = ms(segs[segs.length - 1].endDate);
+                    const fmtMs = (m: number) => new Date(m).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+                    return (
+                      <div style={{ marginTop: "0.55rem" }}>
+                        <div style={{ position: "relative", width: "100%", height: 30 }}>
+                          {/* the rule */}
+                          <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1.5, background: "#fff", transform: "translateY(-50%)" }} />
+                          {/* notches — start · middle · end */}
+                          {[0, 50, 100].map((pct) => (
+                            <div key={pct} style={{ position: "absolute", left: `${pct}%`, top: "50%", width: 1.5, height: 9, background: "#fff", transform: "translate(-50%, -50%)" }} />
+                          ))}
+                          {/* Velea mark rides the line at today (flex-mirror keeps it in the true segment) */}
+                          <div style={{ position: "absolute", left: 0, right: 0, top: "50%", transform: "translateY(-50%)", display: "flex", height: 0 }}>
+                            {segs.map((s, idx) => {
+                              const dur = Math.max(ms(s.endDate) - ms(s.startDate), 1);
+                              const isCur = s.startDate <= todayStr && todayStr <= s.endDate;
+                              const segFrac = isCur ? Math.max(0, Math.min(1, (Date.now() - ms(s.startDate)) / dur)) : 0;
+                              return (
+                                <div key={idx} style={{ flex: `${dur} 0 0`, minWidth: 30, position: "relative" }}>
+                                  {isCur && (
+                                    <div style={{ position: "absolute", left: `${segFrac * 100}%`, top: 0, transform: "translate(-50%, -50%)", lineHeight: 0, pointerEvents: "none" }} title="Today">
+                                      <VeleaMark size={18} color="var(--brand-gold)" />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.1rem" }}>
-                      <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[0].startDate)}</span>
-                      <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmt(segs[segs.length - 1].endDate)}</span>
-                    </div>
-                  </div>
+                        </div>
+                        {/* date labels under the notches — start · middle · end */}
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.15rem" }}>
+                          <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmtMs(startMs)}</span>
+                          <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmtMs((startMs + endMs) / 2)}</span>
+                          <span style={{ color: TEXT_MUTED, fontSize: "0.75rem" }}>{fmtMs(endMs)}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Selected segment detail */}
                   {sel && (
