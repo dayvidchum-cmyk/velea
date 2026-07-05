@@ -117,7 +117,7 @@ export default function About() {
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1.15rem" }}>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
-            However you found your way here — a friend, a link, a restless midnight — thank you for trying Velea. I can't see you from where I sit; I only know the arithmetic of the sky and the care I folded into the words. The living is yours: you're the one on the actual Tuesday.
+            However you found your way here — a friend, a link, a restless midnight — thank you for trying Velea. I can't see you from where I sit; I only know the geometry of the sky and the care I folded into the words. The living is yours: you're the one on the actual Tuesday.
           </p>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
             But if now and then a day feels more like your own — the moment may be good or bad — then this did the one thing I built it to do. Velea is the messenger that points, not the one that yells. You're the driver. This is a possible map that lives with you, in real time. Maybe it will be useful. Maybe it will help in some way. That's the whole hope.

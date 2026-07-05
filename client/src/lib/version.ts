@@ -33,4 +33,4 @@
 // (softened dark text, warm Build Full Spectrum, un-mushed nav) — re-labelled under the new scheme.
 // Roll MONTH each calendar month, YEAR each year; bump BUILD on each shipped release and keep it
 // in step with the SW cache version.
-export const APP_VERSION = "1.1.115";
+export const APP_VERSION = "1.1.116";
