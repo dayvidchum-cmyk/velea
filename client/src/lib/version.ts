@@ -14,5 +14,11 @@
 // (owner-scoped). Minor number now tracks the SW cache line (set to 1.86 for the v86/v87 build).
 // v1.88 = 2026-07-04 — birth-data anti-hijack (confirm warning + 24h edit cooldown); today's
 // calendar cell now renders the saturated tint so the Velea mark reads.
-// Bump on each meaningful shipped release.
-export const APP_VERSION = "1.88";
+// v111 = 2026-07-04 — the client-facing version now tracks the SW cache line directly (was
+// "1.NN"). This span (v104–v111): narrative voice de-centered from "worth"; nav reorder
+// (Today·Chart·Projects·Glossary); first-run welcome capped at 2 lifetime shows (server-side);
+// spotlight/aria transits + the Time Lord's live condition; Stage cards on a white atmospheric
+// wash; Settings collapsed to one "Account" heading with Log Out standalone; Time Master +
+// Hora as side-by-side tiles; About "the method" + David's closing letter and signature.
+// Bump on each meaningful shipped release; keep it in step with the SW cache version.
+export const APP_VERSION = "111";
