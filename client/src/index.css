@@ -66,15 +66,15 @@
 
 :root {
   --background: #0a131e;
-  --foreground: #FFFFFF;
+  --foreground: #EAE7E1;
   --card: #0a131e;
-  --card-foreground: #FFFFFF;
+  --card-foreground: #EAE7E1;
   --popover: #0a131e;
-  --popover-foreground: #FFFFFF;
+  --popover-foreground: #EAE7E1;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
   --secondary: #111111;
-  --secondary-foreground: #FFFFFF;
+  --secondary-foreground: #EAE7E1;
   --muted: #111111;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
@@ -579,15 +579,15 @@
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
   --background: #0a131e;
-  --foreground: #FFFFFF;
+  --foreground: #EAE7E1;
   --card: #0a131e;
-  --card-foreground: #FFFFFF;
+  --card-foreground: #EAE7E1;
   --popover: #0a131e;
-  --popover-foreground: #FFFFFF;
+  --popover-foreground: #EAE7E1;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
   --secondary: #111111;
-  --secondary-foreground: #FFFFFF;
+  --secondary-foreground: #EAE7E1;
   --muted: #111111;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
@@ -955,10 +955,10 @@ html.light .signature-ink { filter: none; mix-blend-mode: multiply; }
    force the text + border tokens LIGHT so it stays legible on those tinted surfaces, whatever
    light/dark choice sits underneath. Placed last so it wins the specificity tie with html.light. */
 html.full-spectrum {
-  --foreground: #F6F4EF;
-  --muted-foreground: rgba(246, 244, 239, 0.66);
-  --border: rgba(246, 244, 239, 0.16);
-  --card-foreground: #F6F4EF;
-  --popover-foreground: #F6F4EF;
-  --secondary-foreground: #F6F4EF;
+  --foreground: #EAE7E1;
+  --muted-foreground: rgba(234, 231, 225, 0.66);
+  --border: rgba(234, 231, 225, 0.16);
+  --card-foreground: #EAE7E1;
+  --popover-foreground: #EAE7E1;
+  --secondary-foreground: #EAE7E1;
 }
