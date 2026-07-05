@@ -67,9 +67,9 @@
 :root {
   --background: #0a131e;
   --foreground: #FFFFFF;
-  --card: #0A0A0A;
+  --card: #0a131e;
   --card-foreground: #FFFFFF;
-  --popover: #0A0A0A;
+  --popover: #0a131e;
   --popover-foreground: #FFFFFF;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
@@ -580,9 +580,9 @@
 .dark {
   --background: #0a131e;
   --foreground: #FFFFFF;
-  --card: #0A0A0A;
+  --card: #0a131e;
   --card-foreground: #FFFFFF;
-  --popover: #0A0A0A;
+  --popover: #0a131e;
   --popover-foreground: #FFFFFF;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;

@@ -127,7 +127,7 @@ export default function About() {
           </p>
         </div>
 
-        <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-muted-foreground)", margin: "1.8rem 0 0", fontFamily: serif }}>
+        <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--amber-gold, #c9a84c)", margin: "1.8rem 0 0", fontFamily: serif }}>
           With gratitude,
         </p>
         {/* Handwritten signature — theme-aware blend flips the ink (.signature-ink in index.css). */}
