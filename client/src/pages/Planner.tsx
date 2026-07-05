@@ -1062,7 +1062,7 @@ export default function Planner() {
               ? (isSelected ? 0.65 : 0.45)
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20));
             const accent = modeColor ?? "var(--color-foreground)";
-            const GOLD_BRIGHT = "#E7C766"; // crown badge + border accent
+            const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day + crown-day border
             // TODAY renders at the saturated (pressed) tint so the white Velea mark reads;
             // other days keep the light mode tint.
             const restingBg = hasMode
@@ -1089,34 +1089,35 @@ export default function Planner() {
                     ? `2px solid ${GOLD_BRIGHT}`
                     : isSelected
                     ? `1.5px solid ${accent}`
-                    : isToday
-                    ? `1.5px solid ${withAlpha(accent, 0.55)}`
                     : "1px solid transparent",
+                  // Today = an outer WHITE ring. box-shadow sits OUTSIDE the border, so on a golden
+                  // today it wraps around the gold border (gold inner, white outer).
+                  boxShadow: isToday ? "0 0 0 2px #ffffff" : undefined,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
               >
-                {/* Crown badge — the personal apex (crown.forMonth). Gold crown + gold border. */}
-                {isCrown && (
+                {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
+                    other day shows its date number. */}
+                {isCrown ? (
                   <img
                     src="/crown.png"
-                    alt=""
-                    width={11}
-                    height={11}
-                    style={{ position: "absolute", top: "3px", right: "3px", pointerEvents: "none", filter: "drop-shadow(0 0.5px 1px rgba(0,0,0,0.35))" }}
+                    alt="Crown day"
+                    style={{ width: "2rem", height: "2rem", objectFit: "contain", pointerEvents: "none", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}
                   />
+                ) : (
+                  <span
+                    className="text-xs"
+                    style={{
+                      color: hasMode ? "inherit" : "var(--color-muted-foreground)",
+                      fontWeight: isSelected || isToday ? 700 : 600,
+                    }}
+                  >
+                    {day}
+                  </span>
                 )}
-                <span
-                  className="text-xs"
-                  style={{
-                    color: hasMode ? "inherit" : "var(--color-muted-foreground)",
-                    fontWeight: isSelected || isToday ? 700 : 600,
-                  }}
-                >
-                  {day}
-                </span>
               </button>
             );
           })}
