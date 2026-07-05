@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import VeleaMark from "./VeleaMark";
+import VeleaLorMark from "./VeleaLorMark";
 
 /**
  * Master Mode — Pancha Pakshi hourly timing. PRIVATE (endpoint returns null off the
@@ -74,7 +75,7 @@ export default function MasterModeCard() {
         <VeleaMark size={15} />
         <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--foreground)", whiteSpace: "nowrap" }}>Time Master</span>
         {g?.isGolden && (
-          <img src="/crown.png" alt="Golden hour" width={15} height={15} style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.5))" }} />
+          <VeleaLorMark size={15} color="#D4AF37" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.5))" }} />
         )}
         <span style={{ marginLeft: "auto", flexShrink: 0 }}>
           {expanded ? <ChevronDown size={14} style={{ color: "var(--color-muted-foreground)" }} /> : <ChevronRight size={14} style={{ color: "var(--color-muted-foreground)" }} />}
@@ -89,11 +90,11 @@ export default function MasterModeCard() {
           <p style={{ margin: "0.1rem 0 0", fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</p>
 
           {g?.isGolden ? (
-            <p style={{ margin: "0.5rem 0 0", fontSize: "0.72rem", fontWeight: 800, color: "#D4AF37", lineHeight: 1.25, display: "flex", alignItems: "center", gap: "0.3rem" }}><img src="/crown.png" alt="" width={14} height={14} style={{ flexShrink: 0 }} /> Golden hour — {g.horaLord}</p>
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.72rem", fontWeight: 800, color: "#D4AF37", lineHeight: 1.25, display: "flex", alignItems: "center", gap: "0.3rem" }}><VeleaLorMark size={14} color="#D4AF37" style={{ flexShrink: 0 }} /> Golden hour — {g.horaLord}</p>
           ) : g ? (
             <p style={{ margin: "0.5rem 0 0", fontSize: "0.66rem", fontWeight: 600, color: "#C9A84C", lineHeight: 1.25, display: "flex", alignItems: "center", gap: "0.3rem" }}>
               {g.nextGoldenMs ? (
-                <><img src="/crown.png" alt="" width={12} height={12} style={{ flexShrink: 0 }} /> Next · {fmt(g.nextGoldenMs)}–{fmt(g.nextGoldenEndMs)}</>
+                <><VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} /> Next · {fmt(g.nextGoldenMs)}–{fmt(g.nextGoldenEndMs)}</>
               ) : "No golden window left"}
             </p>
           ) : null}
