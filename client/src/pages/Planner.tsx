@@ -1085,14 +1085,17 @@ export default function Planner() {
                   minHeight: "2.1rem",
                   color: hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
-                  border: (isCrown || isGolden)
+                  // Today = a WHITE border. Keeping it in the normal border slot (not an outward
+                  // box-shadow) means it can't bleed into the neighbor cell. If today is also
+                  // golden/crown, the gold moves INSIDE as an inset ring: white outer, gold inner.
+                  border: isToday
+                    ? "2px solid #ffffff"
+                    : (isCrown || isGolden)
                     ? `2px solid ${GOLD_BRIGHT}`
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : "1px solid transparent",
-                  // Today = an outer WHITE ring. box-shadow sits OUTSIDE the border, so on a golden
-                  // today it wraps around the gold border (gold inner, white outer).
-                  boxShadow: isToday ? "0 0 0 2px #ffffff" : undefined,
+                  boxShadow: (isToday && (isCrown || isGolden)) ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : undefined,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}
