@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunr
 import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import ModeTag from "@/components/ModeTag";
@@ -595,22 +596,25 @@ export default function Planner() {
 
   // Calendar card: use today's mode color for strip header + border
   const calModeColor = todayTaskMode ? MODE_SOLID[todayTaskMode] : '#888';
+  const [fullSpectrum] = useFullSpectrum();
 
   return (
     <div className="min-h-screen w-full relative">
-      {/* Soft ombré in TODAY'S day-mode color, blooming from the left — a low, dark-value wash,
-          not a tint. Per-mode (was a fixed rose-ochre that wrongly painted rose on every mode). */}
-      <div
-        aria-hidden
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-          background:
-            `linear-gradient(100deg, color-mix(in srgb, ${calModeColor} 26%, transparent) 0%, color-mix(in srgb, ${calModeColor} 9%, transparent) 34%, transparent 62%)`,
-        }}
-      />
+      {/* Soft ombré in today's day-mode color, from the left — ONLY in Full Spectrum. In normal
+          light/dark mode it read as a light leak, so it's gated off there. Low, dark-value wash. */}
+      {fullSpectrum && (
+        <div
+          aria-hidden
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            background:
+              `linear-gradient(100deg, color-mix(in srgb, ${calModeColor} 26%, transparent) 0%, color-mix(in srgb, ${calModeColor} 9%, transparent) 34%, transparent 62%)`,
+          }}
+        />
+      )}
       {/* Content */}
       <div
         className="container py-6 space-y-5 relative z-10"
