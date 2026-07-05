@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import VeleaMark from "./VeleaMark";
 import VeleaLorMark from "./VeleaLorMark";
 
 /**
@@ -72,7 +71,6 @@ export default function MasterModeCard() {
       {/* Header line — VeleaMark + name + golden badge (the golden hour keeps its hierarchy
           right here, at the top, beside the mark and name), then the expand chevron. */}
       <button onClick={() => setExpanded((e) => !e)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
-        <VeleaMark size={15} />
         <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--foreground)", whiteSpace: "nowrap" }}>Time Master</span>
         {g?.isGolden && (
           <VeleaLorMark size={15} color="#D4AF37" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.5))" }} />
