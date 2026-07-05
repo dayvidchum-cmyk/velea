@@ -1537,7 +1537,8 @@ export const appRouter = router({
       const STATION_ART: Record<string, Record<string, string>> = {
         Mercury: {
           "preshadow-1": "mercury-preshadow-1.jpg", "preshadow-2": "mercury-preshadow-2.jpg",
-          "preshadow-3": "mercury-preshadow-3.jpg", "retrograde": "mercury-rx.jpg",
+          "preshadow-3": "mercury-preshadow-3.jpg",
+          "retrograde-1": "mercury-rx-1.jpg", "retrograde-2": "mercury-rx-2.jpg",
           "direct-2": "mercury-direct-2.jpg", "direct-1": "mercury-direct-1.jpg",
         },
       };
@@ -1545,12 +1546,17 @@ export const appRouter = router({
         "preshadow-1": { title: "{P} enters its shadow", note: "The retrograde zone opens — what you begin now you'll likely revisit, so leave room to revise." },
         "preshadow-2": { title: "{P}'s shadow deepens", note: "The turn is coming. Tie off what you don't want reopened; keep the rest flexible." },
         "preshadow-3": { title: "{P} in deep shadow", note: "The station is near — back up, double-check, confirm. Loose ends are surfacing on purpose." },
-        "retrograde": { title: "{P} retrograde", note: "Not a curse — a review. Revisit, refine, reconnect, finish; hold big launches while the ground is re-walked." },
+        "retrograde-1": { title: "{P} turns retrograde", note: "The light turns inward. Not a curse — a review begins: revisit and refine, don't launch." },
+        "retrograde-2": { title: "{P} retrograde", note: "Deep in the review — the past resurfaces to be reconnected and finished. Hold big launches while the ground is re-walked." },
         "direct-2": { title: "{P} stations direct", note: "The turn. Clarity returns, but slowly — let momentum rebuild before you floor it." },
         "direct-1": { title: "{P} clears its shadow", note: "The review closes — fresh ground again. Now what you start holds." },
       };
       const phaseOf = (p: any): string | null => {
-        if (p.isRetrograde) return "retrograde";
+        if (p.isRetrograde) {
+          const rst = p.station;
+          // "Entering" = the retrograde station just happened (past ~week); deeper in = "stationed".
+          return (rst?.type === "turns retrograde" && rst.daysAway <= 0 && rst.daysAway >= -7) ? "retrograde-1" : "retrograde-2";
+        }
         const st = p.station;
         if (!st) return null;
         if (st.type === "turns retrograde" && st.daysAway > 0)
