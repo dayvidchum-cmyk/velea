@@ -598,6 +598,19 @@ export default function Planner() {
 
   return (
     <div className="min-h-screen w-full relative">
+      {/* Soft rose-ochre ombré, blooming from the left — page atmosphere kept at the
+          background's own dark value (low alpha), so it reads as a gentle wash, not a tint. */}
+      <div
+        aria-hidden
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          background:
+            "linear-gradient(100deg, rgba(156,96,82,0.22) 0%, rgba(156,96,82,0.08) 34%, rgba(156,96,82,0) 62%)",
+        }}
+      />
       {/* Content */}
       <div
         className="container py-6 space-y-5 relative z-10"
