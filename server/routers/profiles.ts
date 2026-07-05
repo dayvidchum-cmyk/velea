@@ -255,6 +255,111 @@ async function ensureOwnerProfileHelper(userId: number) {
 
 // ── Router ────────────────────────────────────────────────────────────────────
 
+/**
+ * Recompute and persist a profile's natal chart from its birth data, then clear every derived
+ * cache (profection/transits + narrative) so nothing typo-derived survives. Shared by
+ * calculateChart (first calc) and update (birth-data edit) — a corrected birthday must never
+ * leave the old chart, or its readings, behind. Requires complete birth data (date, time, coords).
+ */
+async function recomputeProfileChart(
+  userId: number,
+  profileId: number,
+  birth: { birthDate: string; birthTime: string; birthLocationCity: string; birthLocationLat?: string | null; birthLocationLon?: string | null; birthTimezone?: string | null },
+) {
+  const db = await getDb();
+  if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+  const { calculateBirthChart: computeChart } = await import('../birthchart/calculator.js');
+
+  const lat = birth.birthLocationLat ? parseFloat(birth.birthLocationLat) : 0;
+  const lon = birth.birthLocationLon ? parseFloat(birth.birthLocationLon) : 0;
+  // Birthplace coords are the source of truth for the timezone; a stale/manual tz throws the
+  // ascendant off by hours. Derive from lat/lon, fall back to the provided tz, then UTC.
+  const derivedTz = (birth.birthLocationLat && birth.birthLocationLon) ? timezoneForCoords(lat, lon) : null;
+  const timezone = derivedTz || birth.birthTimezone || 'UTC';
+
+  const chart = await computeChart(birth.birthDate, birth.birthTime, lat, lon, timezone);
+
+  await db
+    .update(profiles)
+    .set({
+      birthDate: birth.birthDate,
+      birthTime: birth.birthTime,
+      birthLocationCity: birth.birthLocationCity,
+      birthLocationLat: birth.birthLocationLat ?? null,
+      birthLocationLon: birth.birthLocationLon ?? null,
+      birthTimezone: timezone,
+      lagnaSign: chart.lagna.sign,
+      sunHouse: chart.sun.house,
+      moonHouse: chart.moon.house,
+      marsHouse: chart.mars.house,
+      mercuryHouse: chart.mercury.house,
+      jupiterHouse: chart.jupiter.house,
+      venusHouse: chart.venus.house,
+      saturnHouse: chart.saturn.house,
+      rahuHouse: chart.rahu.house,
+      ketuHouse: chart.ketu.house,
+      ascendantDegree: chart.lagna.degree.toFixed(2),
+    })
+    .where(and(eq(profiles.id, profileId), eq(profiles.userId, userId)));
+
+  // Clear stale profection year + transit cache so they regenerate with the new lagna.
+  try {
+    const { deleteProfectionYearsForProfile } = await import('../profection/db.js');
+    const { deleteTimeLordTransitsForProfile } = await import('../profection/transit-db.js');
+    await deleteTimeLordTransitsForProfile(profileId);
+    await deleteProfectionYearsForProfile(profileId);
+  } catch (cascadeErr) {
+    console.warn('[Profile Chart] Cascade clear failed:', cascadeErr);
+  }
+
+  // Store natal bodies for this profile.
+  const planetData = [
+    { name: 'Sun', data: chart.sun }, { name: 'Moon', data: chart.moon }, { name: 'Mercury', data: chart.mercury },
+    { name: 'Venus', data: chart.venus }, { name: 'Mars', data: chart.mars }, { name: 'Jupiter', data: chart.jupiter },
+    { name: 'Saturn', data: chart.saturn }, { name: 'Rahu', data: chart.rahu }, { name: 'Ketu', data: chart.ketu },
+  ];
+  for (const planet of planetData) {
+    await upsertProfileNatalBody(profileId, planet.name, {
+      sign: planet.data.sign,
+      degree: planet.data.degree.toFixed(6),
+      house: planet.data.house,
+      nakshatra: planet.data.nakshatra || null,
+      pada: planet.data.pada || null,
+      longitude: planet.data.longitude != null ? planet.data.longitude.toFixed(6) : null,
+      isRetrograde: !!planet.data.isRetrograde,
+    });
+  }
+
+  // Precompute the profection year + Time Lord transits (behind the caller's spinner).
+  try {
+    const { calculateProfectionYear } = await import('../profection/calculator.js');
+    const { getOrCreateProfectionYear } = await import('../profection/db.js');
+    const { calculateTimeLordTransits } = await import('../profection/transit-calculator.js');
+    const { createTimeLordTransits } = await import('../profection/transit-db.js');
+    const today = new Date().toISOString().split('T')[0];
+    const prof = calculateProfectionYear(birth.birthDate, today, chart.lagna.sign);
+    const py = await getOrCreateProfectionYear(userId, prof.age, prof.activatedHouse, prof.activatedSign, prof.timeLord, prof.yearStart, prof.yearEnd, profileId);
+    const timeline = await calculateTimeLordTransits(prof.timeLord, prof.yearStart, prof.yearEnd, chart.lagna.degree, timezone, chart.lagna.sign);
+    if (timeline.transits && timeline.transits.length > 0) {
+      await createTimeLordTransits(py.id, userId, timeline.transits, profileId);
+    }
+  } catch (preErr) {
+    console.warn('[Profile Chart] Transit precompute failed (will lazy-generate on view):', preErr);
+  }
+
+  // Bust + warm the narrative caches so no typo-derived read survives the birthday fix.
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { getDeepReadCached, getGlanceCached } = await import('../narrative/service.js');
+    const { invalidateNarrativeInput } = await import('../narrative/input-builder.js');
+    invalidateNarrativeInput(profileId);
+    void getDeepReadCached(profileId, today).catch(() => {});
+    void getGlanceCached(profileId, today).catch(() => {});
+  } catch { /* ignore */ }
+
+  return chart;
+}
+
 export const profilesRouter = router({
   /** List all non-archived profiles for the current user */
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -369,6 +474,29 @@ export const profilesRouter = router({
         .set(updateData)
         .where(and(eq(profiles.id, id), eq(profiles.userId, ctx.user.id)));
 
+      // Birth data changed → recompute the chart so a corrected birthday can never leave the old
+      // typo-derived chart (and its readings) behind. Needs complete birth data to compute; if it's
+      // incomplete (no time/place yet) we just persist the fields and the full Calculate Birth Chart
+      // flow builds the chart later.
+      if (changed) {
+        const merged = {
+          birthDate: fields.birthDate ?? (existing as any).birthDate,
+          birthTime: fields.birthTime ?? (existing as any).birthTime,
+          birthLocationCity: fields.birthLocationCity ?? (existing as any).birthLocationCity,
+          birthLocationLat: fields.birthLocationLat ?? (existing as any).birthLocationLat,
+          birthLocationLon: fields.birthLocationLon ?? (existing as any).birthLocationLon,
+          birthTimezone: fields.birthTimezone ?? (existing as any).birthTimezone,
+        };
+        if (merged.birthDate && merged.birthTime && merged.birthLocationCity && merged.birthLocationLat && merged.birthLocationLon) {
+          try {
+            await recomputeProfileChart(ctx.user.id, id, merged);
+          } catch (recErr) {
+            console.error('[Profile Update] Chart recompute failed after birth-data edit:', recErr);
+            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Saved the edit, but recomputing the chart failed — open Calculate Birth Chart to rebuild it." });
+          }
+        }
+      }
+
       return { success: true };
     }),
 
@@ -456,118 +584,14 @@ export const profilesRouter = router({
       if (!existing) throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
 
       try {
-        const { calculateBirthChart: computeChart } = await import('../birthchart/calculator.js');
-
-        const lat = input.birthLocationLat ? parseFloat(input.birthLocationLat) : 0;
-        const lon = input.birthLocationLon ? parseFloat(input.birthLocationLon) : 0;
-        // The birthplace coordinates are the source of truth for the timezone — a
-        // manually-picked or stale tz (e.g. Pacific for a Boston chart) throws the
-        // ascendant off by hours. Derive it from lat/lon and prefer it; fall back to
-        // the provided tz, then UTC. The derived value is what we store.
-        const derivedTz = (input.birthLocationLat && input.birthLocationLon)
-          ? timezoneForCoords(lat, lon)
-          : null;
-        const timezone = derivedTz || input.birthTimezone || 'UTC';
-
-        const chart = await computeChart(input.birthDate, input.birthTime, lat, lon, timezone);
-
-        // Update profile with birth data + calculated chart
-        await db
-          .update(profiles)
-          .set({
-            birthDate: input.birthDate,
-            birthTime: input.birthTime,
-            birthLocationCity: input.birthLocationCity,
-            birthLocationLat: input.birthLocationLat ?? null,
-            birthLocationLon: input.birthLocationLon ?? null,
-            birthTimezone: timezone,
-            lagnaSign: chart.lagna.sign,
-            sunHouse: chart.sun.house,
-            moonHouse: chart.moon.house,
-            marsHouse: chart.mars.house,
-            mercuryHouse: chart.mercury.house,
-            jupiterHouse: chart.jupiter.house,
-            venusHouse: chart.venus.house,
-            saturnHouse: chart.saturn.house,
-            rahuHouse: chart.rahu.house,
-            ketuHouse: chart.ketu.house,
-            ascendantDegree: chart.lagna.degree.toFixed(2),
-          })
-          .where(and(eq(profiles.id, input.id), eq(profiles.userId, ctx.user.id)));
-
-        // Clear stale profection year and transit cache so they regenerate with
-        // the corrected lagnaSign on next request.
-        try {
-          const { deleteProfectionYearsForProfile } = await import('../profection/db.js');
-          const { deleteTimeLordTransitsForProfile } = await import('../profection/transit-db.js');
-          await deleteTimeLordTransitsForProfile(input.id);
-          await deleteProfectionYearsForProfile(input.id);
-        } catch (cascadeErr) {
-          console.warn('[Profile Chart] Cascade clear failed:', cascadeErr);
-        }
-
-        // Store natal bodies for this profile
-        const planetData = [
-          { name: 'Sun', data: chart.sun },
-          { name: 'Moon', data: chart.moon },
-          { name: 'Mercury', data: chart.mercury },
-          { name: 'Venus', data: chart.venus },
-          { name: 'Mars', data: chart.mars },
-          { name: 'Jupiter', data: chart.jupiter },
-          { name: 'Saturn', data: chart.saturn },
-          { name: 'Rahu', data: chart.rahu },
-          { name: 'Ketu', data: chart.ketu },
-        ];
-
-        for (const planet of planetData) {
-          await upsertProfileNatalBody(input.id, planet.name, {
-            sign: planet.data.sign,
-            degree: planet.data.degree.toFixed(6),
-            house: planet.data.house,
-            nakshatra: planet.data.nakshatra || null,
-            pada: planet.data.pada || null,
-            longitude: planet.data.longitude != null ? planet.data.longitude.toFixed(6) : null,
-            isRetrograde: !!planet.data.isRetrograde,
-          });
-        }
-
-        // Precompute the profection year + Time Lord transits now (during save,
-        // behind its spinner) so the chart page loads from cache instead of running
-        // the year-long ephemeris scan on first view. Best-effort: if it fails the
-        // view path still regenerates lazily.
-        try {
-          const { calculateProfectionYear } = await import('../profection/calculator.js');
-          const { getOrCreateProfectionYear } = await import('../profection/db.js');
-          const { calculateTimeLordTransits } = await import('../profection/transit-calculator.js');
-          const { createTimeLordTransits } = await import('../profection/transit-db.js');
-          const today = new Date().toISOString().split('T')[0];
-          const prof = calculateProfectionYear(input.birthDate, today, chart.lagna.sign);
-          const py = await getOrCreateProfectionYear(
-            ctx.user.id, prof.age, prof.activatedHouse, prof.activatedSign,
-            prof.timeLord, prof.yearStart, prof.yearEnd, input.id,
-          );
-          const timeline = await calculateTimeLordTransits(
-            prof.timeLord, prof.yearStart, prof.yearEnd, chart.lagna.degree, timezone, chart.lagna.sign,
-          );
-          if (timeline.transits && timeline.transits.length > 0) {
-            await createTimeLordTransits(py.id, ctx.user.id, timeline.transits, input.id);
-          }
-        } catch (preErr) {
-          console.warn('[Profile Chart] Transit precompute failed (will lazy-generate on view):', preErr);
-        }
-
-        // Warm the narrative caches in the background so the Core Theme / daily read
-        // is ready by the time the user opens the chart. Fire-and-forget — never
-        // blocks the save, and no-ops when there's no Anthropic key.
-        try {
-          const today = new Date().toISOString().split('T')[0];
-          const { getDeepReadCached, getGlanceCached } = await import('../narrative/service.js');
-          const { invalidateNarrativeInput } = await import('../narrative/input-builder.js');
-          invalidateNarrativeInput(input.id); // chart changed — drop any stale memo
-          void getDeepReadCached(input.id, today).catch(() => {});
-          void getGlanceCached(input.id, today).catch(() => {});
-        } catch { /* ignore */ }
-
+        const chart = await recomputeProfileChart(ctx.user.id, input.id, {
+          birthDate: input.birthDate,
+          birthTime: input.birthTime,
+          birthLocationCity: input.birthLocationCity,
+          birthLocationLat: input.birthLocationLat,
+          birthLocationLon: input.birthLocationLon,
+          birthTimezone: input.birthTimezone,
+        });
         return { success: true, chart };
       } catch (error) {
         console.error('[Profile Chart] Calculation failed:', error);
