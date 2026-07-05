@@ -1111,7 +1111,7 @@ export default function Astrology() {
         {/* Tab bar — active tab tinted with the current day mode color */}
         <div
           className="flex gap-1 p-1 rounded-xl"
-          style={{ background: "var(--color-secondary)" }}
+          style={{ background: `color-mix(in srgb, ${modeColor} 10%, var(--color-card))`, border: "1px solid var(--color-border)" }}
         >
           {TABS.map(({ id, label }) => (
             <button

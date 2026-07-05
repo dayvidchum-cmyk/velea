@@ -56,4 +56,9 @@
 // card — current golden hour, the header badge, and the "next" window — unifying it with crown days.
 // v1.1.126 = 2026-07-05 — Full Spectrum Build background richer: 40% gold (was 30%) on the same
 // dark base, so it reads golden instead of muddy bronze while gold labels stay legible.
-export const APP_VERSION = "1.1.126";
+// v1.1.127 = 2026-07-05 — Chart-page polish: (1) the Time Lord/Natal/Dasha tab bar no longer
+// renders a white pill in light+Full-Spectrum (was var(--color-secondary), Tailwind-baked to the
+// light value; now rides --color-card + the day tint); (2) profection-wheel BIRTH/NOW labels
+// go gold (were #000, invisible on the dark/full-spectrum wheel); (3) nav icons swapped —
+// Today = the Velea mark (the living now), Chart = the book (your story: profection/dasha/natal).
+export const APP_VERSION = "1.1.127";
