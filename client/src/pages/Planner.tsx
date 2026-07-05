@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, Crown, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -194,6 +194,13 @@ export default function Planner() {
     for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
     return m;
   }, [crownData]);
+  // Golden days — the COLLECTIVE potential (panchang day-quality, no chart needed), brought
+  // back as a golden BORDER on the calendar. Crown days = a golden day + the crown badge on top.
+  const { data: goldenData } = trpc.sky.goldenDays.useQuery(
+    { yearMonth: `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, "0")}` },
+    { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
+  );
+  const goldenSet = useMemo(() => new Set<string>((goldenData?.potential ?? []) as string[]), [goldenData]);
   // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
   // fixed-to-viewport (never clipped by the calendar card's overflow).
   const [crownTip, setCrownTip] = useState<{ date: string; why: string; cx: number; top: number; bottom: number } | null>(null);
@@ -1024,6 +1031,7 @@ export default function Planner() {
             const panchang = panchangByDate[dateStr];
             const isToday = dateStr === toDateStr(today);
             const isCrown = crownByDate.has(dateStr);
+            const isGolden = goldenSet.has(dateStr);
             const isSelected = dateStr === selectedDate;
             const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
             const hasMode = !!modeColor;
@@ -1056,7 +1064,7 @@ export default function Planner() {
                   minHeight: "2.1rem",
                   color: hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
-                  border: isCrown
+                  border: (isCrown || isGolden)
                     ? `2px solid ${GOLD_BRIGHT}`
                     : isSelected
                     ? `1.5px solid ${accent}`
@@ -1071,12 +1079,12 @@ export default function Planner() {
               >
                 {/* Crown badge — the personal apex (crown.forMonth). Gold crown + gold border. */}
                 {isCrown && (
-                  <Crown
-                    size={12}
-                    fill={GOLD_BRIGHT}
-                    stroke="rgba(0,0,0,0.45)"
-                    strokeWidth={1.25}
-                    style={{ position: "absolute", top: 1, right: 1, pointerEvents: "none", filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,0.4))" }}
+                  <img
+                    src="/crown.png"
+                    alt=""
+                    width={15}
+                    height={15}
+                    style={{ position: "absolute", top: 0, right: 0, pointerEvents: "none", filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,0.4))" }}
                   />
                 )}
                 {isToday ? (
@@ -1142,7 +1150,7 @@ export default function Planner() {
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
-                <Crown size={13} fill="#E7C766" stroke="rgba(0,0,0,0.4)" strokeWidth={1} /> Crown day
+                <img src="/crown.png" alt="" width={14} height={14} style={{ display: "inline-block", verticalAlign: "-2px" }} /> Crown day
               </span>
               An auspicious day for you, a Velea&rsquo;lor. What will you do today?
               {crownTip.why && (

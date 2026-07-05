@@ -38,4 +38,7 @@
 // v1.1.119 = 2026-07-04 — "looks like you've moved" location nudge: when the device drifts
 // >100km from the saved location (only for users who already granted GPS), offer a one-tap
 // update so sunrise/hora/day-timing follow. Throttled, dismiss-aware, never prompts unsolicited.
-export const APP_VERSION = "1.1.119";
+// v1.1.120 = 2026-07-04 — golden days brought back to the calendar as a GOLDEN BORDER (the
+// backend computeGoldenDays "potential" was still live — only the display was gone). Crown days
+// now use David's new gold-crown PNG badge (a golden day + crown on top).
+export const APP_VERSION = "1.1.120";
