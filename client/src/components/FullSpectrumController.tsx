@@ -15,7 +15,7 @@ export default function FullSpectrumController() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const surfaceVars = ["--background", "--card", "--popover", "--secondary"];
+    const surfaceVars = ["--background", "--card", "--popover", "--secondary", "--color-background", "--color-card", "--color-popover", "--color-secondary"];
     if (!on) return;
 
     root.classList.add("full-spectrum");
@@ -32,10 +32,19 @@ export default function FullSpectrumController() {
     const pct = isBuild ? 40 : 30;
     const secPct = isBuild ? 52 : 42;
     const surface = `color-mix(in srgb, ${color} ${pct}%, ${base})`;
+    const secondary = `color-mix(in srgb, ${color} ${secPct}%, ${base2})`;
+    // Set the base tokens AND their --color-* aliases. Tailwind bakes some --color-* tokens to
+    // literals (e.g. --color-secondary → light #F5F5F5), so overriding only --secondary leaves any
+    // `var(--color-secondary)` surface a glaring white pill in full-spectrum (the tab bar, the
+    // "this year" caption, the sheet chips…). Setting the aliases too kills that whole class.
     root.style.setProperty("--background", surface);
+    root.style.setProperty("--color-background", surface);
     root.style.setProperty("--card", surface);
+    root.style.setProperty("--color-card", surface);
     root.style.setProperty("--popover", surface);
-    root.style.setProperty("--secondary", `color-mix(in srgb, ${color} ${secPct}%, ${base2})`);
+    root.style.setProperty("--color-popover", surface);
+    root.style.setProperty("--secondary", secondary);
+    root.style.setProperty("--color-secondary", secondary);
 
     return () => {
       root.classList.remove("full-spectrum");

@@ -456,17 +456,45 @@ export default function ProfectionYear() {
       {chartTab === "dasha" && <DashaSection />}
 
       {chartTab === "timelord" && (<>
-      {/* What a Time Lord / profection year is — short explainer */}
-      {panel("How profection works", explainerOpen, setExplainerOpen, (
-        <p style={{ color: TEXT_PRIMARY, fontSize: "0.98rem", lineHeight: 1.65, margin: 0 }}>
-          In astrology, <strong>annual profection</strong> is an ancient timing technique that follows the
-          movement of your <strong>Lagna</strong> (Ascendant, Rising Sign), which activates one house of your
-          birth chart each year of your life. At birth you are age 0 and your <strong>1st house</strong> is
-          activated; at age 1, the 2nd house; and after 12 years the cycle repeats. The themes of the
-          activated house become the focus of the year. The ruler of the activated house is your{" "}
-          <strong>Time Lord</strong> — the planet running your year.
-        </p>
-      ))}
+      {/* ── HOW PROFECTION WORKS — a small mode-colored link that opens a pop-up
+          (sibling to "What are day modes?" on the Today page) ── */}
+      {explainerOpen && createPortal(
+        <div
+          onClick={() => setExplainerOpen(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--color-card)", border: "1px solid var(--border)", borderRadius: 20 }}
+          >
+            <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "1rem 1.3rem", borderBottom: "1px solid var(--border)", background: "var(--color-card)" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>How profection works</span>
+              <button onClick={() => setExplainerOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${modeColor} 18%, transparent)`, border: `1px solid color-mix(in srgb, ${modeColor} 34%, transparent)`, color: modeColor, cursor: "pointer" }}>
+                <X size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+            <div style={{ overflowY: "auto", padding: "1rem 1.3rem 1.3rem" }}>
+              <p style={{ color: TEXT_PRIMARY, fontSize: "0.98rem", lineHeight: 1.65, margin: 0 }}>
+                In astrology, <strong>annual profection</strong> is an ancient timing technique that follows the
+                movement of your <strong>Lagna</strong> (Ascendant, Rising Sign), which activates one house of your
+                birth chart each year of your life. At birth you are age 0 and your <strong>1st house</strong> is
+                activated; at age 1, the 2nd house; and after 12 years the cycle repeats. The themes of the
+                activated house become the focus of the year. The ruler of the activated house is your{" "}
+                <strong>Time Lord</strong> — the planet running your year.
+              </p>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+      <button
+        type="button"
+        onClick={() => setExplainerOpen(true)}
+        className="inline-flex items-center gap-1"
+        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", marginBottom: "1.25rem", color: modeColor, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
+      >
+        How profection works <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
+      </button>
 
       {/* Your Time Lords wheel — open by default */}
       <div data-tour="profection-wheel">

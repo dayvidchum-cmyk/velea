@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { ChevronLeft } from "lucide-react";
+import VeleaMark from "@/components/VeleaMark";
 
 /**
  * About / "Why the Moon" — the full manifesto, in David's words. Reachable anytime from
@@ -34,11 +35,33 @@ export default function About() {
         <ChevronLeft size={17} /> Settings
       </button>
 
-      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.5rem 0 0" }}>About</p>
+      <div style={{ margin: "0.75rem 0 0" }}>
+        <VeleaMark size={44} color="var(--brand-gold)" />
+      </div>
+      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.75rem 0 0" }}>About</p>
       <h1 style={{ fontFamily: serif, fontSize: "2.4rem", fontWeight: 800, color: "var(--color-foreground)", margin: "0.3rem 0 0", letterSpacing: "0.02em" }}>Velea</h1>
 
+      {/* Etymology — វេលា time + ល្អ good → the golden moment. A grounding, disarming beat. */}
+      <div style={{ marginTop: "1.1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        {[
+          { km: "វេលា", roman: "ve-lea", gloss: "time" },
+          { km: "ល្អ", roman: "l'or", gloss: "good" },
+        ].map((row) => (
+          <p key={row.roman} style={{ margin: 0, display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: "0.5rem", color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>
+            <span lang="km" style={{ fontFamily: "'Hanuman', serif", fontSize: "1.4rem", color: "var(--amber-gold, #c9a84c)" }}>{row.km}</span>
+            <span style={{ opacity: 0.4 }}>•</span>
+            <span style={{ fontStyle: "italic", opacity: 0.8, fontSize: "1rem" }}>{row.roman}</span>
+            <span style={{ opacity: 0.4 }}>•</span>
+            <span style={{ textTransform: "uppercase", letterSpacing: "0.09em", fontSize: "0.9rem", opacity: 0.8 }}>{row.gloss}</span>
+          </p>
+        ))}
+        <p style={{ margin: "0.5rem 0 0", fontFamily: serif, fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
+          Together, <span lang="km" style={{ fontFamily: "'Hanuman', serif", color: "var(--amber-gold, #c9a84c)" }}>វេលាល្អ</span> — the auspicious, golden moment. The good time.
+        </p>
+      </div>
+
       {/* ── Section 1: Why the Moon ─────────────────────────────────────────── */}
-      <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "2rem 0 0" }}>Why the Moon</p>
+      <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: "2.4rem 0 0", letterSpacing: "0.01em", lineHeight: 1.15 }}>Why the Moon</h2>
       <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
         <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
           In astrology, the Sun sign is who you are — the changeless <em>“I am,”</em> there when the universe was still smaller than a grain of sand, too bright to face head-on. But that's eternity, and a person has to live on a Tuesday.
@@ -70,7 +93,7 @@ export default function About() {
 
       {/* ── The Story & Its Cast — the layered system, told as a story ───────── */}
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
-        <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: 0 }}>The Story &amp; Its Cast</p>
+        <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>The Story &amp; Its Cast</h2>
 
         <div style={{ marginTop: "1.3rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
