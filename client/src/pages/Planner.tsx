@@ -20,6 +20,7 @@ import { useSettingsContext } from "@/contexts/SettingsContext";
 
 import { PANCHANG_TO_TASK_MODE, PRIORITY_EXCLAIM, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_CARD_GRADIENT, MODE_SOLID, MODE_DARK, MODE_RGBA } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
+import { evaluateRestGate } from "../../../shared/rest-gate";
 import type { Task } from "../../../drizzle/schema";
 import AppHeader from "@/components/AppHeader";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
@@ -233,6 +234,13 @@ export default function Planner() {
     },
     { enabled: isAuthenticated && !!todayTaskMode }
   );
+  // Today's check-in → the Rest gate (shared/rest-gate). A floor reading ("empty on every
+  // axis") flips the "Aligned for today" surface from a task list to a rest card + a single
+  // opt-in "one small thing" — rest is the aligned move, above the collective sky.
+  const REST_TEAL = "#178F9E"; // Restore/Selective teal — the rest-gate accent
+  const { data: todayCheckIn } = trpc.checkIn.today.useQuery(undefined, { enabled: isAuthenticated });
+  const restGate = useMemo(() => evaluateRestGate(todayCheckIn as any), [todayCheckIn]);
+  const [restOptIn, setRestOptIn] = useState(false);
   const { data: savedReflection } = trpc.reflections.get.useQuery(
     { date: selectedDate },
     { enabled: isAuthenticated }
@@ -1543,7 +1551,49 @@ export default function Planner() {
             />
           </button>
 
-          {alignedOpen && (alignedForToday.length === 0 ? (
+          {alignedOpen && (restGate.tripped ? (
+            <div
+              className="p-4 rounded-lg"
+              style={{ background: `color-mix(in srgb, ${REST_TEAL} 12%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${REST_TEAL} 34%, transparent)` }}
+            >
+              <p className="text-sm font-bold" style={{ color: REST_TEAL, marginBottom: "0.3rem" }}>Restore today.</p>
+              <p className="text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.55 }}>
+                {restGate.reason} The aligned move today isn't a task — it's rest. Water, air, a little quiet; come back when there's more in the tank.
+              </p>
+              {alignedForToday.length > 0 && (!restOptIn ? (
+                <button
+                  onClick={() => setRestOptIn(true)}
+                  className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                  style={{ background: `color-mix(in srgb, ${REST_TEAL} 16%, transparent)`, color: REST_TEAL, border: `1px solid color-mix(in srgb, ${REST_TEAL} 40%, transparent)`, fontSize: "0.8rem", fontWeight: 700 }}
+                >
+                  Show me one small thing
+                </button>
+              ) : (
+                <div className="mt-3">
+                  <SwipeableTaskRow
+                    onSwipeLeft={() => updateMutation.mutate({ id: alignedForToday[0].id, isCompleted: !alignedForToday[0].isCompleted })}
+                    onSwipeRight={() => deleteMutation.mutate({ id: alignedForToday[0].id })} rightMode="delete"
+                    isCompleted={alignedForToday[0].isCompleted}
+                    isPinned={alignedForToday[0].isPinned}
+                    modeColor={REST_TEAL}
+                  >
+                    <TaskItem
+                      task={alignedForToday[0] as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                      onToggleComplete={() => updateMutation.mutate({ id: alignedForToday[0].id, isCompleted: !alignedForToday[0].isCompleted })}
+                      onTogglePin={() => updateMutation.mutate({ id: alignedForToday[0].id, isPinned: !alignedForToday[0].isPinned })}
+                      onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
+                      onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
+                      onDelete={() => deleteMutation.mutate({ id: alignedForToday[0].id })}
+                      onEdit={(t: Task) => setEditAlignedTask(t)}
+                      dayMode={todayTaskMode}
+                      alignment={(alignedForToday[0] as any).alignment ?? alignmentById.get(alignedForToday[0].id)}
+                      compact
+                    />
+                  </SwipeableTaskRow>
+                </div>
+              ))}
+            </div>
+          ) : alignedForToday.length === 0 ? (
             <div
               className="p-4 text-center rounded-lg"
               style={{ color: "var(--muted-foreground)", background: "var(--input)", border: "1px solid var(--border)" }}
