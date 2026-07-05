@@ -962,3 +962,16 @@ html.full-spectrum {
   --popover-foreground: #EAE7E1;
   --secondary-foreground: #EAE7E1;
 }
+
+/* Full Spectrum — glass surfaces. glass-card/panel/input backgrounds are hardcoded hex
+   (#0A0A0A dark, #FFFFFF light), which full-spectrum can't reach — so in FS light mode they
+   render as glaring white boxes on the tinted page (e.g. the reflection field). Override to a
+   translucent dark that reads consistently on any mode color, light or dark. After html.light
+   so it wins the specificity tie. */
+html.full-spectrum .glass-card,
+html.full-spectrum .glass-panel,
+html.full-spectrum .glass-input {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(234, 231, 225, 0.14);
+  box-shadow: none;
+}

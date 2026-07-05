@@ -91,8 +91,16 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // Today's check-in: once recorded, the chip shows its date+time stamp instead of the
   // generic "CURRENT STATE" label, so you can see at a glance when you last checked in.
   const { data: todayCheckIn } = trpc.checkIn.today.useQuery(undefined, { enabled: isAuthenticated });
+  // Show STALENESS, not an absolute time — how long since your last check-in, ticking live.
+  // A check-in loses value as it ages, so "2h 14m ago" is the useful signal (matches the
+  // stale-task nudge's logic). Falls back to "CURRENT STATE" when you haven't checked in today.
   const checkInStamp = todayCheckIn?.recordedAt
-    ? new Date(todayCheckIn.recordedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+    ? (() => {
+        const mins = Math.max(0, Math.round((nowMs - new Date(todayCheckIn.recordedAt).getTime()) / 60000));
+        if (mins < 1) return "just now";
+        if (mins < 60) return `${mins}m ago`;
+        return `${Math.floor(mins / 60)}h ${mins % 60}m ago`;
+      })()
     : null;
 
   const setActiveMutation = trpc.profiles.setActive.useMutation();
