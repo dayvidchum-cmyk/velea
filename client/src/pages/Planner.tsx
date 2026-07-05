@@ -53,14 +53,14 @@ function toDateStr(d: Date) {
 const MODE_DOT: Record<string, string> = {
   Action:     "oklch(0.70 0.18 150)",  // clearer green
   Build:      "oklch(0.80 0.15 92)",
-  Restraint:  "oklch(0.65 0.12 15)",
-  Selective:  "oklch(0.66 0.13 230)",  // bluer teal, distinct from green
+  Restraint:  "oklch(0.68 0.09 14)",
+  Selective:  "oklch(0.68 0.08 225)",  // bluer teal, distinct from green
   Flex:       "oklch(0.72 0.10 280)",
   Activate:   "oklch(0.70 0.18 150)",
   ACTION:     "oklch(0.70 0.18 150)",
   BUILD:      "oklch(0.80 0.15 92)",
-  RESTRAINT:  "oklch(0.65 0.12 15)",
-  "SELECTIVE ACTION": "oklch(0.66 0.13 230)",
+  RESTRAINT:  "oklch(0.68 0.09 14)",
+  "SELECTIVE ACTION": "oklch(0.68 0.08 225)",
 };
 
 /** Adds an alpha value to an oklch() color string, e.g. "oklch(0.72 0.16 145)" → "oklch(0.72 0.16 145 / 0.15)" */

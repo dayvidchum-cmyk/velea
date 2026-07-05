@@ -79,9 +79,9 @@ export const PRIORITY_EXCLAIM: Record<TaskPriority, string> = {
 
 /** Mode solid oklch color values for inline styles — canonical tokens (match CSS vars) */
 export const MODE_OKLCH: Record<TaskMode, string> = {
-  Restraint: "oklch(0.54 0.14 10)",
+  Restraint: "oklch(0.68 0.09 14)",   // softened dusty rose — was 0.54/0.14, too vibrant on the warm FS surface
   Build: "oklch(0.767 0.139 91.1)",
-  Selective: "oklch(0.50 0.12 200)",
+  Selective: "oklch(0.68 0.08 225)",  // softened dusty blue — was 0.50/0.12, buzzed against the olive tint
   Action: "oklch(0.72 0.10 140)",  // #a3cd8f soft sage
 };
 
