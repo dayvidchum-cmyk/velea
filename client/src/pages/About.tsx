@@ -59,7 +59,7 @@ export default function About() {
         ))}
         <p style={{ margin: "0.5rem 0 0", fontFamily: serif, fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-foreground)", display: "flex", alignItems: "flex-start", gap: "0.55rem" }}>
           <VeleaLorMark size={20} color="var(--amber-gold, #c9a84c)" style={{ flexShrink: 0, marginTop: "0.2rem" }} />
-          <span>Together, <span lang="km" style={{ fontFamily: "'Hanuman', serif", color: "var(--amber-gold, #c9a84c)" }}>វេលាល្អ</span> — the auspicious, golden moment. The good time.</span>
+          <span>Together, <span lang="km" style={{ fontFamily: "'Hanuman', serif", color: "var(--amber-gold, #c9a84c)" }}>វេលាល្អ</span> — good time; the auspicious, golden moment.</span>
         </p>
       </div>
 
