@@ -51,7 +51,13 @@ export async function generateGlance(input: NarrativeInput): Promise<GlanceConte
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 700,
-      system: `${BASE_PROMPT}\n\n${GLANCE_TAIL}`,
+      // Prompt caching: BASE_PROMPT (the big stable system) + tools are cached as the prefix;
+      // the small per-call tail stays uncached. A 5-min ephemeral cache — same-type calls inside
+      // the window read at ~0.1x input cost instead of paying full price each time.
+      system: [
+        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
+        { type: "text" as const, text: GLANCE_TAIL },
+      ],
       tools: [{ name: "glance", description: "Return the colored day-mode narrative and the personalized question.", input_schema: GLANCE_SCHEMA as any }],
       tool_choice: { type: "tool", name: "glance" },
       messages: [{ role: "user", content: JSON.stringify(input) }],
@@ -101,7 +107,10 @@ export async function generateDeepRead(input: NarrativeInput): Promise<DeepRead 
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 3200,
-      system: `${BASE_PROMPT}\n\n${DEEP_READ_TAIL}`,
+      system: [
+        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
+        { type: "text" as const, text: DEEP_READ_TAIL },
+      ],
       tools: [{ name: "deep_read", description: "Return the deep-read sections.", input_schema: DEEP_READ_SCHEMA as any }],
       tool_choice: { type: "tool", name: "deep_read" },
       messages: [{ role: "user", content: JSON.stringify(input) }],
