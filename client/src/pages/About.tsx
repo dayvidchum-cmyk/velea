@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { ChevronLeft } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
+import VeleaLorMark from "@/components/VeleaLorMark";
 
 /**
  * About / "Why the Moon" — the full manifesto, in David's words. Reachable anytime from
@@ -55,8 +56,9 @@ export default function About() {
             <span style={{ textTransform: "uppercase", letterSpacing: "0.09em", fontSize: "0.9rem", opacity: 0.8 }}>{row.gloss}</span>
           </p>
         ))}
-        <p style={{ margin: "0.5rem 0 0", fontFamily: serif, fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
-          Together, <span lang="km" style={{ fontFamily: "'Hanuman', serif", color: "var(--amber-gold, #c9a84c)" }}>វេលាល្អ</span> — the auspicious, golden moment. The good time.
+        <p style={{ margin: "0.5rem 0 0", fontFamily: serif, fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-foreground)", display: "flex", alignItems: "flex-start", gap: "0.55rem" }}>
+          <VeleaLorMark size={20} color="var(--amber-gold, #c9a84c)" style={{ flexShrink: 0, marginTop: "0.2rem" }} />
+          <span>Together, <span lang="km" style={{ fontFamily: "'Hanuman', serif", color: "var(--amber-gold, #c9a84c)" }}>វេលាល្អ</span> — the auspicious, golden moment. The good time.</span>
         </p>
       </div>
 
