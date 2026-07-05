@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Star } from "lucide-react";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -74,6 +74,19 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   useEffect(() => {
     const id = setInterval(() => setNowMs(Date.now()), 20000);
     return () => clearInterval(id);
+  }, []);
+  // Fixed top bar: measure its height so the in-flow spacer reserves exactly that much,
+  // keeping page content from hiding underneath the pinned strip.
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barH, setBarH] = useState(0);
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const measure = () => setBarH(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
   const stampDate = new Date(nowMs);
   const stampDateStr = `${stampDate.getFullYear()}-${String(stampDate.getMonth() + 1).padStart(2, "0")}-${String(stampDate.getDate()).padStart(2, "0")}`;
@@ -283,17 +296,21 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
 
   return (
     <>
-      <div className="relative z-10">
-        {/* Brand mark — the Velea mark + wordmark (Khmer story lives in the login splash) */}
-        <div className="flex items-center gap-2 mb-4">
-          <VeleaMark size={28} color="var(--brand-gold)" />
-          <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>
-            Velea
-          </span>
-        </div>
-        {/* Utility row: date left, THE STAGE centered, current-state right — a 3-col grid
-            (1fr auto 1fr) keeps THE STAGE truly centered regardless of the side widths. */}
-        <div className="mb-5" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", columnGap: "0.5rem" }}>
+      {/* Fixed top bar — brand mark + utility row pinned to the viewport top so they survive
+          page scroll (mirrors the fixed bottom-nav pattern; the body is the scroll container).
+          The spacer below reserves the height it vacates so content isn't hidden underneath. */}
+      <div ref={barRef} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 45, background: "var(--background)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <div className="container" style={{ paddingTop: "0.9rem", paddingBottom: "0.6rem" }}>
+          {/* Brand mark — the Velea mark + wordmark (Khmer story lives in the login splash) */}
+          <div className="flex items-center gap-2 mb-3">
+            <VeleaMark size={28} color="var(--brand-gold)" />
+            <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>
+              Velea
+            </span>
+          </div>
+          {/* Utility row: date left, THE STAGE centered, current-state right — a 3-col grid
+              (1fr auto 1fr) keeps THE STAGE truly centered regardless of the side widths. */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", columnGap: "0.5rem" }}>
           <span
             className="text-[10px] font-bold tracking-wide whitespace-nowrap"
             style={{ color: modeColor, letterSpacing: "0.03em", justifySelf: "start" }}
@@ -341,8 +358,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                   {checkInStamp ?? "CURRENT STATE"}
                 </span>
               </button>
+          </div>
         </div>
+      </div>
+      {/* Spacer — reserves the height the fixed bar vacated so content clears the pinned strip. */}
+      <div aria-hidden style={{ height: barH }} />
 
+      <div className="relative z-10">
         {/* Large editorial greeting — the visual anchor */}
         <h1
           className="leading-tight"
