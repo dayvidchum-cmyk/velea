@@ -243,22 +243,20 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             Velea
           </span>
         </div>
-        {/* Utility row: date left, location + state right */}
-        <div className="flex items-center justify-between mb-5">
+        {/* Utility row: date left, THE STAGE centered, current-state right — a 3-col grid
+            (1fr auto 1fr) keeps THE STAGE truly centered regardless of the side widths. */}
+        <div className="mb-5" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", columnGap: "0.5rem" }}>
           <span
             className="text-[10px] font-bold tracking-wide whitespace-nowrap"
-            style={{ color: modeColor, letterSpacing: "0.03em" }}
+            style={{ color: modeColor, letterSpacing: "0.03em", justifySelf: "start" }}
           >
             {heroDateLabel}
           </span>
-          {/* Actions grouped in their own flex row so their gaps stay even regardless of
-              how wide the date renders (month/day length no longer squeezes the chips). */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-          {/* The Stage — always in the header; opens the Stage pop-up on any page. */}
+          {/* The Stage — centered; opens the Stage pop-up on any page. */}
           <button
             onClick={() => setStageSheetOpen(true)}
             className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-            style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
+            style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "center" }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
               e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
@@ -279,7 +277,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 data-tour="current-state"
                 onClick={() => setCheckInSheetOpen(true)}
                 className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-                style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
+                style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "end" }}
                 title="Update current state"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
@@ -295,7 +293,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                   {checkInStamp ?? "CURRENT STATE"}
                 </span>
               </button>
-          </div>
         </div>
 
         {/* Large editorial greeting — the visual anchor */}

@@ -1095,9 +1095,9 @@ export default function Planner() {
                   <img
                     src="/crown.png"
                     alt=""
-                    width={15}
-                    height={15}
-                    style={{ position: "absolute", top: 0, right: 0, pointerEvents: "none", filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,0.4))" }}
+                    width={11}
+                    height={11}
+                    style={{ position: "absolute", top: "3px", right: "3px", pointerEvents: "none", filter: "drop-shadow(0 0.5px 1px rgba(0,0,0,0.35))" }}
                   />
                 )}
                 {isToday ? (
