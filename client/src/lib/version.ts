@@ -49,4 +49,7 @@
 // v1.1.123 = 2026-07-05 — Stage station cards: drop the text halo (the flat veil carries it;
 // moon card keeps its halo), and wrap slow-planet-weather signals in the same translucent boxes
 // as "Today's call" for consistency.
-export const APP_VERSION = "1.1.123";
+// v1.1.124 = 2026-07-05 — stale-task check-in nudge (in-app): a task open >3h with no check-in
+// since it was added offers a current-state check-in (8am–10pm, throttled, stands down after
+// check-in). Also ships the approved timezone-first location nudge (DST offset change + 150km).
+export const APP_VERSION = "1.1.124";

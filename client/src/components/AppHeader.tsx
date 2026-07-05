@@ -54,6 +54,12 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     return () => window.removeEventListener("velea-open-location", open);
   }, []);
   const [checkInSheetOpen, setCheckInSheetOpen] = useState(false);
+  // The stale-task nudge (CheckInNudge) opens the check-in from anywhere via this event.
+  useEffect(() => {
+    const openCheckIn = () => setCheckInSheetOpen(true);
+    window.addEventListener("velea-open-checkin", openCheckIn);
+    return () => window.removeEventListener("velea-open-checkin", openCheckIn);
+  }, []);
   const [stageSheetOpen, setStageSheetOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [switching, setSwitching] = useState<number | "own" | null>(null);

@@ -14,6 +14,7 @@ import { AddTaskProvider, useAddTask } from "./contexts/AddTaskContext";
 import BottomNav from "./components/BottomNav";
 import FullSpectrumController from "./components/FullSpectrumController";
 import LocationNudge from "./components/LocationNudge";
+import CheckInNudge from "./components/CheckInNudge";
 import { APP_VERSION } from "./lib/version";
 import AddTaskSheet from "./components/AddTaskSheet";
 import Onboarding from "./components/Onboarding";
@@ -333,6 +334,9 @@ const { user, loading } = useAuth();
 
       {/* "Looks like you've moved" — offers a location update when the device drifts far */}
       {user && <LocationNudge />}
+
+      {/* Stale-task check-in nudge — a task open >3h with no check-in since offers a current-state check-in */}
+      {user && <CheckInNudge />}
     </div>
   );
 }

@@ -18,7 +18,7 @@ const CHECK_KEY = "velea-loc-nudge-checked";   // last-run timestamp (throttle)
 const DISMISS_KEY = "velea-loc-nudge-dismissed"; // city the user said "not now" to
 const GEO_OK_KEY = "velea-geo-ok";              // set by LocationSheet after a GPS grant
 const CHECK_INTERVAL_MS = 2 * 60 * 60 * 1000;   // don't re-check more than every 2h
-const DRIFT_KM = 100;                           // how far counts as "moved"
+const DRIFT_KM = 150;                           // same-TZ distance backstop (sunrise/hora shift)
 
 function haversineKm(aLat: number, aLon: number, bLat: number, bLon: number): number {
   const R = 6371;
@@ -28,6 +28,15 @@ function haversineKm(aLat: number, aLon: number, bLat: number, bLon: number): nu
     Math.sin(dLat / 2) ** 2 +
     Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+// UTC offset (minutes) for an IANA timezone right now — DST-aware. The device's own offset is
+// -new Date().getTimezoneOffset(); comparing the two tells us the clock/date has actually shifted.
+function tzOffsetMinutes(tz: string): number {
+  const now = new Date();
+  const loc = new Date(now.toLocaleString("en-US", { timeZone: tz }));
+  const utc = new Date(now.toLocaleString("en-US", { timeZone: "UTC" }));
+  return Math.round((loc.getTime() - utc.getTime()) / 60000);
 }
 
 export default function LocationNudge() {
@@ -61,7 +70,13 @@ export default function LocationNudge() {
           localStorage.setItem(CHECK_KEY, String(Date.now()));
           const { latitude, longitude } = pos.coords;
           const km = haversineKm(latitude, longitude, parseFloat(saved.lat!), parseFloat(saved.lon!));
-          if (km < DRIFT_KM) return; // still near the saved location — nothing to do
+          // Timezone-first: the clock/date changing is what actually breaks the output. Distance
+          // is a backstop for big same-TZ east-west moves (which shift sunrise/hora).
+          let tzChanged = false;
+          try {
+            if (saved.timezone) tzChanged = tzOffsetMinutes(saved.timezone) !== -new Date().getTimezoneOffset();
+          } catch { /* bad tz string — fall back to distance only */ }
+          if (!tzChanged && km < DRIFT_KM) return; // neither trigger met — nothing to do
 
           let city = "your current area";
           try {
