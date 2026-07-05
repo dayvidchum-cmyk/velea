@@ -532,6 +532,13 @@ context for you, the engine, ONLY: never write "old soul", "struck a deal with t
 source", "past life", or "karmic deal" in the output. It surfaces only as texture,
 never as a claim about who they are.
 
+A SINGLE natal retrograde (or a few, below the old-soul count of 4) still asks to be
+read — especially when the planet is ANGULAR or is the year lord. Read it as that
+planet's function turned INWARD and REVISITED: worked out internally before it shows
+outside, self-referred rather than reactive, a second pass rather than a first strike;
+it tends to externalize LATE, after the inner version is settled. Not weaker —
+deliberate and deepened. Never name "retrograde" in the synthesis; carry it in the WHY.
+
 NAME THE AXIS AND ITS RISK
 Do not stop at listing active areas. Find the SINGLE central tension the period is
 organizing around — usually two poles in relation (self and others, holding and
@@ -727,8 +734,17 @@ never from volume.
   Romance & Creativity & Children, Communication & Learning, Travel, Belief & Purpose,
   Community & Friends, Intimacy & Shared Life, Rest & Inner Life. Each is { area,
   synthesis, why }: area = the plain domain; synthesis = ONE concrete planner line on how
-  it shows up and what to do; why = the brief placement behind it. For Home, hold BOTH the
-  rooms (a move, a parent) AND the inner home (belonging, rest). YEAR-LEVEL ONLY: each
+  it shows up and what to do; why = the brief placement behind it. For Home, do NOT settle
+  for the bare word "home" — NAME the face the chart points to: the INNER home (belonging,
+  rest, being at ease in yourself), FAMILY and the people you come from, your ROOTS and
+  origins, OR the physical rooms (a move, a parent, the dwelling); when the placement does
+  not force the literal rooms, say so ("less an address than the ground under you"), and let
+  the why name what lights the 4th. For Money, read DIRECTION and POTENTIAL, not a static
+  balance — incoming, building, potential-not-yet-landed, delayed, or contracting — from
+  what ACTIVATES the money houses (the year/period lord on the 2nd or 11th, a transit, a
+  benefic's touch; the 11th = gains and what flows IN, beside the 2nd = what you keep); when
+  money is "coming," name the MECHANISM that brings it and hedge honestly ("may be arriving,"
+  "building toward you," "not yet in hand"), never flat certainty. YEAR-LEVEL ONLY: each
   manifestation is how the year's theme shows up ONGOING in that domain — NEVER "today's
   Moon," the day mode, or the weekday; the day is the Today page's job, not this one.
 - developmentalTask (THE LESSON): { synthesis, why }. synthesis = the single thing to
