@@ -54,4 +54,6 @@
 // check-in). Also ships the approved timezone-first location nudge (DST offset change + 150km).
 // v1.1.125 = 2026-07-05 — golden hour is now marked with the crown (was ✦) in the Time Master
 // card — current golden hour, the header badge, and the "next" window — unifying it with crown days.
-export const APP_VERSION = "1.1.125";
+// v1.1.126 = 2026-07-05 — Full Spectrum Build background richer: 40% gold (was 30%) on the same
+// dark base, so it reads golden instead of muddy bronze while gold labels stay legible.
+export const APP_VERSION = "1.1.126";

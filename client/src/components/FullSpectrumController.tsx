@@ -27,11 +27,15 @@ export default function FullSpectrumController() {
     const isBuild = color.trim().toUpperCase() === "#D4AF37";
     const base = isBuild ? "#0d0a04" : "#070b12";
     const base2 = isBuild ? "#141005" : "#0b1119";
-    const surface = `color-mix(in srgb, ${color} 30%, ${base})`;
+    // Build gets a richer 40% gold on the SAME dark base — reads golden, not muddy-brown, while
+    // staying dark enough (~23% lightness) that the gold labels keep their contrast. Others: 30%.
+    const pct = isBuild ? 40 : 30;
+    const secPct = isBuild ? 52 : 42;
+    const surface = `color-mix(in srgb, ${color} ${pct}%, ${base})`;
     root.style.setProperty("--background", surface);
     root.style.setProperty("--card", surface);
     root.style.setProperty("--popover", surface);
-    root.style.setProperty("--secondary", `color-mix(in srgb, ${color} 42%, ${base2})`);
+    root.style.setProperty("--secondary", `color-mix(in srgb, ${color} ${secPct}%, ${base2})`);
 
     return () => {
       root.classList.remove("full-spectrum");
