@@ -5,6 +5,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import { pickGreeting } from "@/lib/greeting";
+import { MODE_SOLID } from "../../../shared/types";
 import { useLocation } from "wouter";
 import LocationSheet from "@/components/LocationSheet";
 import CheckInSheet from "@/components/CheckInSheet";
@@ -17,6 +18,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+
+// Classical planet glyphs for the live timestamp's hora lord.
+const PLANET_GLYPH: Record<string, string> = {
+  Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
+};
 
 interface AppHeaderProps {
   /** When provided, renders the Today-page hero layout (date + state utility row + large greeting) */
@@ -62,6 +68,18 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   }, []);
   const [stageSheetOpen, setStageSheetOpen] = useState(false);
   const [open, setOpen] = useState(false);
+  // Live "Velea timestamp": ticks every 20s so the mode · activity · hora · clock line stays current.
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 20000);
+    return () => clearInterval(id);
+  }, []);
+  const stampDate = new Date(nowMs);
+  const stampDateStr = `${stampDate.getFullYear()}-${String(stampDate.getMonth() + 1).padStart(2, "0")}-${String(stampDate.getDate()).padStart(2, "0")}`;
+  // Time Master + Hora are private (admin/master) — only query for those users; the day mode and
+  // clock still show for everyone.
+  const { data: tmToday } = trpc.masterMode.today.useQuery({ date: stampDateStr }, { enabled: isAdmin, staleTime: 600000 });
+  const { data: horaToday } = trpc.masterMode.hora.useQuery({ date: stampDateStr }, { enabled: isAdmin, staleTime: 300000 });
   const [switching, setSwitching] = useState<number | "own" | null>(null);
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
@@ -133,6 +151,21 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const firstName = displayName?.split(" ")[0] ?? null;
   // Time-aware, second-voice greeting (e.g. "Still up, Lang?" past midnight)
   const greetingLine = pickGreeting(today, firstName);
+
+  // Live Velea timestamp pieces: the 2-word day mode + Time Master activity + hora lord glyph +
+  // clock, with a crown when it's a golden hour. The private bits are admin-only (null otherwise).
+  const stampMode = (Object.keys(MODE_SOLID) as (keyof typeof MODE_SOLID)[]).find(
+    (k) => MODE_SOLID[k].toLowerCase() === modeColor.trim().toLowerCase(),
+  ) ?? null;
+  const stampQualifier = heroMode?.qualifier ?? null;
+  const tmCurrent = tmToday?.periods?.find((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
+  const stampActivity = tmCurrent?.category ?? null;
+  const stampGolden = Boolean((tmToday as any)?.goldenNow?.isGolden);
+  const horaCurrent = horaToday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
+  const stampHoraGlyph = horaCurrent?.lord ? PLANET_GLYPH[horaCurrent.lord] ?? null : null;
+  const stampHoraLord = horaCurrent?.lord ?? null;
+  const stampTime = stampDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const stampModeLabel = [stampQualifier, stampMode].filter(Boolean).join(" ");
 
   // Profile switcher dropdown — shared between both layouts (only show for admins)
   const profileSwitcher = isAuthenticated && isAdmin ? (
@@ -308,6 +341,19 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         >
           {greetingLine}
         </h1>
+
+        {/* Live Velea timestamp — day mode · Time Master activity · hora lord glyph · clock,
+            with a crown on a golden hour. The private bits (activity/hora) render for master
+            users only; everyone still sees the day mode + clock. No planet/sign names, per spec. */}
+        {(stampModeLabel || stampActivity) && (
+          <div style={{ marginTop: "0.55rem", display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem", fontSize: "0.66rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+            {stampModeLabel && <span style={{ color: modeColor }}>{stampModeLabel}</span>}
+            {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span>{stampActivity}</span></>)}
+            {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.9rem", color: "#C9A84C", lineHeight: 1 }}>{stampHoraGlyph}</span>}
+            {stampGolden && <img src="/crown.png" alt="golden hour" width={12} height={12} style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
+            <span style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.03em" }}>{stampTime}</span>
+          </div>
+        )}
 
         {/* Profile switcher below greeting */}
         {profileSwitcher}
