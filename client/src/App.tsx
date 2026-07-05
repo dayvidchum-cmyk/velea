@@ -12,6 +12,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { SettingsProvider, useSettingsContext } from "./contexts/SettingsContext";
 import { AddTaskProvider, useAddTask } from "./contexts/AddTaskContext";
 import BottomNav from "./components/BottomNav";
+import FullSpectrumController from "./components/FullSpectrumController";
 import { APP_VERSION } from "./lib/version";
 import AddTaskSheet from "./components/AddTaskSheet";
 import Onboarding from "./components/Onboarding";
@@ -325,6 +326,9 @@ const { user, loading } = useAuth();
         active={!!user && !needsBirthData && !subjectLoading}
         userId={user?.id}
       />
+
+      {/* Full Spectrum — paints every surface today's day-mode color when enabled */}
+      {user && <FullSpectrumController />}
     </div>
   );
 }

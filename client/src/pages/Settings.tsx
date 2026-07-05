@@ -10,6 +10,7 @@ import type { SettingsState, TodayTaskLimit } from "@/hooks/useSettings";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 
 // ─── Reusable setting row ─────────────────────────────────────────────────────
 
@@ -444,6 +445,7 @@ export default function Settings() {
     navigate("/");
   }
 
+  const [fullSpectrum, setFullSpectrum] = useFullSpectrum();
   const logoutMutation = trpc.auth.logout.useMutation();
   const logoutOthersMutation = trpc.auth.logoutOtherSessions.useMutation({
     onSuccess: () => toast.success("Signed out of all other devices."),
@@ -529,6 +531,21 @@ export default function Settings() {
                   {v === "system" ? <Monitor size={11} /> : v === "dark" ? <Moon size={11} /> : <Sun size={11} />}
                   {v === "system" ? "System" : v === "dark" ? "Dark" : "Light"}
                 </span>
+              )}
+            />
+          </SettingRow>
+
+          {/* Full Spectrum — tint every surface with today's day-mode color */}
+          <SettingRow
+            label="Full Spectrum"
+            description="Tints every surface a mid-dark shade of today's day-mode color. Overrides light/dark while it's on."
+          >
+            <TogglePair
+              options={["on", "off"] as const}
+              value={fullSpectrum ? "on" : "off"}
+              onChange={(v) => setFullSpectrum(v === "on")}
+              renderLabel={(v) => (
+                <span className="flex items-center gap-1.5">{v === "on" ? "On" : "Off"}</span>
               )}
             />
           </SettingRow>
