@@ -3,7 +3,6 @@ import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
-import VeleaMark from "@/components/VeleaMark";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
@@ -1104,22 +1103,15 @@ export default function Planner() {
                     style={{ position: "absolute", top: "3px", right: "3px", pointerEvents: "none", filter: "drop-shadow(0 0.5px 1px rgba(0,0,0,0.35))" }}
                   />
                 )}
-                {isToday ? (
-                  // Today = the Velea mark, centered (no number).
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                    <VeleaMark size={20} color={hasMode ? "#ffffff" : "var(--color-muted-foreground)"} />
-                  </span>
-                ) : (
-                  <span
-                    className="text-xs"
-                    style={{
-                      color: hasMode ? "inherit" : "var(--color-muted-foreground)",
-                      fontWeight: isSelected ? 700 : 600,
-                    }}
-                  >
-                    {day}
-                  </span>
-                )}
+                <span
+                  className="text-xs"
+                  style={{
+                    color: hasMode ? "inherit" : "var(--color-muted-foreground)",
+                    fontWeight: isSelected || isToday ? 700 : 600,
+                  }}
+                >
+                  {day}
+                </span>
               </button>
             );
           })}
