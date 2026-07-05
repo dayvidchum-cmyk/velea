@@ -990,3 +990,10 @@ html.full-spectrum .glass-input {
   border: 1px solid rgba(234, 231, 225, 0.14);
   box-shadow: none;
 }
+
+/* FS nav divider: html.light .glass-nav forces a near-white #E5E5E5 top border that glares as a
+   white line on the dark FS surface. FS is always a dark surface, so restore the subtle
+   light-on-dark divider. After html.light so it wins the equal-specificity tie by source order. */
+html.full-spectrum .glass-nav {
+  border-top: 1px solid rgba(234, 231, 225, 0.14);
+}
