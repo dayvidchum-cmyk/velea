@@ -130,7 +130,7 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
         {callouts}
         <circle cx={cx} cy={cy} r={hole} fill="var(--background)" stroke="var(--border)" strokeWidth={0.5} />
       </svg>
-      <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 0.9rem", borderRadius: "999px", background: "var(--muted)", fontSize: "0.95rem", color: "var(--foreground)" }}>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 0.9rem", borderRadius: "999px", background: "transparent", border: "1px solid var(--color-border)", fontSize: "0.95rem", color: "var(--foreground)" }}>
         <span style={{ width: 12, height: 12, borderRadius: "50%", background: currentColor, flexShrink: 0 }} />
         <span>This year — house {currentHouse}, <strong><span style={{ fontFamily: GLYPH_FONT }}>{GLYPH[currentSign]}</span> {currentSign}</strong>, ruled by <strong>{timeLord}</strong></span>
       </div>

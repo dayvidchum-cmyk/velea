@@ -165,7 +165,10 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const stampHoraGlyph = horaCurrent?.lord ? PLANET_GLYPH[horaCurrent.lord] ?? null : null;
   const stampHoraLord = horaCurrent?.lord ?? null;
   const stampTime = stampDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  const stampModeLabel = [stampQualifier, stampMode].filter(Boolean).join(" ");
+  // Avoid "Build Build" when the qualifier already resolves to the same word as the mode.
+  const stampModeLabel = stampQualifier && stampMode
+    ? (stampQualifier.toLowerCase() === stampMode.toLowerCase() ? stampMode : `${stampQualifier} ${stampMode}`)
+    : (stampQualifier ?? stampMode ?? "");
 
   // Profile switcher dropdown — shared between both layouts (only show for admins)
   const profileSwitcher = isAuthenticated && isAdmin ? (

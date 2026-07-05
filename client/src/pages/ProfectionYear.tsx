@@ -428,7 +428,7 @@ export default function ProfectionYear() {
       </div>
 
       {/* Chart tabs — Time Lord · Natal · Dasha (3 clickable views, like before) */}
-      <div data-tour="chart-tabs" style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", borderRadius: "0.75rem", background: "var(--muted)", marginBottom: "1.5rem" }}>
+      <div data-tour="chart-tabs" style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", borderRadius: "0.75rem", background: "transparent", marginBottom: "1.5rem" }}>
         {CHART_TABS.map(({ id, label }) => (
           <button
             key={id}
