@@ -24,5 +24,9 @@
 // takes a mid-dark shade of today's day-mode color, text forced legible. Also: dark card/popover
 // surfaces retinted to the deep-indigo background; About "grain of sand" + gold "With gratitude"
 // + David's handwritten signature.
+// v114 = 2026-07-04 — dark-mode white body text softened (#FFFFFF → warm #EAE7E1) so it stops
+// glaring; Full Spectrum Build day warmed onto a warm near-black base so the gold reads golden,
+// not olive (gold font contrast preserved); bottom-nav labels shrunk + cell-clipped so the 6 admin
+// items (Projects/Glossary) stop mushing together.
 // Bump on each meaningful shipped release; keep it in step with the SW cache version.
-export const APP_VERSION = "112";
+export const APP_VERSION = "114";

@@ -21,11 +21,17 @@ export default function FullSpectrumController() {
     root.classList.add("full-spectrum");
     // Mid-dark tint: the mode hue mixed into a near-black base. Surfaces share one shade
     // (cards read by their borders); --secondary is a touch lighter so inputs still lift.
-    const surface = `color-mix(in srgb, ${color} 30%, #070b12)`;
+    // The Build (gold) day leans on a WARM near-black base so the tint reads golden, not
+    // olive; the cool modes keep the cool base. Lightness stays low either way, so gold
+    // labels / gold font sitting ON the surface keep their contrast.
+    const isBuild = color.trim().toUpperCase() === "#D4AF37";
+    const base = isBuild ? "#0d0a04" : "#070b12";
+    const base2 = isBuild ? "#141005" : "#0b1119";
+    const surface = `color-mix(in srgb, ${color} 30%, ${base})`;
     root.style.setProperty("--background", surface);
     root.style.setProperty("--card", surface);
     root.style.setProperty("--popover", surface);
-    root.style.setProperty("--secondary", `color-mix(in srgb, ${color} 42%, #0b1119)`);
+    root.style.setProperty("--secondary", `color-mix(in srgb, ${color} 42%, ${base2})`);
 
     return () => {
       root.classList.remove("full-spectrum");
