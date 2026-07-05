@@ -44,4 +44,6 @@
 // v1.1.121 = 2026-07-04 — REVERTED the Stage white-wash (#5): the waning-gibbous/moon and the
 // other Stage cards go back to the original dark scrim + white text (the white opacity layer
 // read gross over the light moon art).
-export const APP_VERSION = "1.1.121";
+// v1.1.122 = 2026-07-05 — Stage station cards (Mercury Rx etc.) get a flat #545454 @ 26% veil
+// over the whole image (David's mockup) instead of the gradient scrim; moon card keeps its scrim.
+export const APP_VERSION = "1.1.122";

@@ -48,6 +48,9 @@ type Hero = { image: string; kicker: string; title: string; chips: string[]; not
 // so the illustration is never sacrificed (see the text-over-image opacity rule).
 const TEXT_SCRIM = "linear-gradient(180deg, rgba(5,6,10,0) 0%, rgba(5,6,10,0.12) 10%, rgba(5,6,10,0.3) 32%, rgba(5,6,10,0.3) 72%, rgba(5,6,10,0.1) 92%, rgba(5,6,10,0) 100%)";
 const TS = "0 0 10px rgba(0,0,0,0.95), 0 2px 8px rgba(0,0,0,0.92)"; // halo so white text holds over the art without a heavy scrim
+// Station cards (e.g. Mercury Rx) use a FLAT even veil over the whole image instead of the
+// gradient scrim — David's mockup spec: #545454 at 26%. The moon card keeps its gradient scrim.
+const STATION_VEIL = "rgba(84, 84, 84, 0.26)";
 
 /**
  * StageSheet — "The Stage": each sky image IS the card. On every card the reading starts at an
@@ -109,8 +112,11 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                       style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
                       <img src={`/celestial/${h.image}`} alt={h.title}
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
-                      {/* The reading — starts at the upper line, scrim rides with the text, foreground stays clear */}
-                      <div style={{ position: "absolute", top: "15%", left: 0, right: 0, padding: "2.6rem 1.4rem 1.6rem", background: TEXT_SCRIM, animation: "velea-rise 0.7s ease both" }}>
+                      {/* Station cards (Mercury Rx etc.): flat even veil over the WHOLE image so white
+                          text reads anywhere. Moon card (primary) keeps its gradient scrim below. */}
+                      {!h.primary && <div style={{ position: "absolute", inset: 0, background: STATION_VEIL, pointerEvents: "none" }} />}
+                      {/* The reading — moon card rides a gradient scrim; station cards sit on the flat veil */}
+                      <div style={{ position: "absolute", top: "15%", left: 0, right: 0, padding: "2.6rem 1.4rem 1.6rem", background: h.primary ? TEXT_SCRIM : "transparent", animation: "velea-rise 0.7s ease both" }}>
                         <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: TS }}>{h.kicker}</p>
                         <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: TS, lineHeight: 1.05 }}>{h.title}</p>
                         <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: TS }}>{h.note}</p>
