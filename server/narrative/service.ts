@@ -35,7 +35,10 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
     }
   }
   const content = await generateGlance(input);
-  if (content && !isMoment) await upsertNarrativeCache(profileId, "glance", date, hash, MODEL, JSON.stringify(content));
+  // No content (dry wallet / API error / parse fail) → signal unavailable so the client shows
+  // static copy, exactly like the no-API-key path above. Never a blank day.
+  if (!content) return { available: false, content: null, generatedAt: null, cached: false };
+  if (!isMoment) await upsertNarrativeCache(profileId, "glance", date, hash, MODEL, JSON.stringify(content));
   return { available: true, content, generatedAt: new Date(), cached: false };
 }
 
@@ -70,6 +73,7 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
     }
   }
   const read = await generateDeepRead(input);
-  if (read) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(read));
+  if (!read) return { available: false, read: null, generatedAt: null, cached: false };
+  await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(read));
   return { available: true, read, generatedAt: new Date(), cached: false };
 }

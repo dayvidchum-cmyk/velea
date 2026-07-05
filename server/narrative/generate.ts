@@ -47,16 +47,23 @@ const GLANCE_SCHEMA = {
 export async function generateGlance(input: NarrativeInput): Promise<GlanceContent | null> {
   const c = client();
   if (!c) return null;
-  const msg = await c.messages.create({
-    model: MODEL,
-    max_tokens: 700,
-    system: `${BASE_PROMPT}\n\n${GLANCE_TAIL}`,
-    tools: [{ name: "glance", description: "Return the colored day-mode narrative and the personalized question.", input_schema: GLANCE_SCHEMA as any }],
-    tool_choice: { type: "tool", name: "glance" },
-    messages: [{ role: "user", content: JSON.stringify(input) }],
-  });
-  const block = msg.content.find((b) => b.type === "tool_use");
-  return block && block.type === "tool_use" ? (block.input as GlanceContent) : null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 700,
+      system: `${BASE_PROMPT}\n\n${GLANCE_TAIL}`,
+      tools: [{ name: "glance", description: "Return the colored day-mode narrative and the personalized question.", input_schema: GLANCE_SCHEMA as any }],
+      tool_choice: { type: "tool", name: "glance" },
+      messages: [{ role: "user", content: JSON.stringify(input) }],
+    });
+    const block = msg.content.find((b) => b.type === "tool_use");
+    return block && block.type === "tool_use" ? (block.input as GlanceContent) : null;
+  } catch (err) {
+    // Dry wallet (400 "credit balance too low"), rate limit, timeout, network — ANY API failure
+    // returns null so callers fall back to static copy instead of a blank day.
+    console.error("[narrative] generateGlance failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
 }
 
 const SECTION = { type: "object", additionalProperties: false, required: ["synthesis", "why"], properties: { synthesis: { type: "string" }, why: { type: "string" } } } as const;
@@ -90,17 +97,22 @@ const DEEP_READ_SCHEMA = {
 export async function generateDeepRead(input: NarrativeInput): Promise<DeepRead | null> {
   const c = client();
   if (!c) return null;
-  const msg = await c.messages.create({
-    model: MODEL,
-    max_tokens: 3200,
-    system: `${BASE_PROMPT}\n\n${DEEP_READ_TAIL}`,
-    tools: [{ name: "deep_read", description: "Return the deep-read sections.", input_schema: DEEP_READ_SCHEMA as any }],
-    tool_choice: { type: "tool", name: "deep_read" },
-    messages: [{ role: "user", content: JSON.stringify(input) }],
-  });
-  const block = msg.content.find((b) => b.type === "tool_use");
-  if (!block || block.type !== "tool_use") return null;
-  return isCompleteDeepRead(block.input) ? (block.input as DeepRead) : null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 3200,
+      system: `${BASE_PROMPT}\n\n${DEEP_READ_TAIL}`,
+      tools: [{ name: "deep_read", description: "Return the deep-read sections.", input_schema: DEEP_READ_SCHEMA as any }],
+      tool_choice: { type: "tool", name: "deep_read" },
+      messages: [{ role: "user", content: JSON.stringify(input) }],
+    });
+    const block = msg.content.find((b) => b.type === "tool_use");
+    if (!block || block.type !== "tool_use") return null;
+    return isCompleteDeepRead(block.input) ? (block.input as DeepRead) : null;
+  } catch (err) {
+    console.error("[narrative] generateDeepRead failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
 }
 
 // A truncated tool call yields a partial object — reject it so callers fall back to a
