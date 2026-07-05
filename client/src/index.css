@@ -859,37 +859,37 @@ html.light ::-webkit-scrollbar-thumb:hover {
 }
 
 /* ── LIGHT MODE TAGS ─────────────────────────────────────────────────── */
-html.light .tag-action {
+html.light:not(.full-spectrum) .tag-action {
   background: oklch(0.45 0.12 145 / 0.10);
   color: oklch(0.35 0.12 145);
   border: 1px solid oklch(0.45 0.12 145 / 0.20);
 }
 
-html.light .tag-build {
+html.light:not(.full-spectrum) .tag-build {
   background: oklch(0.767 0.139 91.1 / 0.10);
   color: oklch(0.50 0.139 91.1);
   border: 1px solid oklch(0.767 0.139 91.1 / 0.20);
 }
 
-html.light .tag-restraint {
+html.light:not(.full-spectrum) .tag-restraint {
   background: oklch(0.48 0.14 10 / 0.10);
   color: oklch(0.38 0.14 10);
   border: 1px solid oklch(0.48 0.14 10 / 0.20);
 }
 
-html.light .tag-selective {
+html.light:not(.full-spectrum) .tag-selective {
   background: oklch(0.42 0.12 200 / 0.10);
   color: oklch(0.32 0.12 200);
   border: 1px solid oklch(0.42 0.12 200 / 0.20);
 }
 
-html.light .tag-flex {
+html.light:not(.full-spectrum) .tag-flex {
   background: oklch(0.50 0.10 280 / 0.10);
   color: oklch(0.38 0.10 280);
   border-color: oklch(0.50 0.10 280 / 0.20);
 }
 
-html.light .tag-peak {
+html.light:not(.full-spectrum) .tag-peak {
   background: oklch(0.767 0.139 91.1 / 0.12);
   color: oklch(0.50 0.139 91.1);
   border: 1px solid oklch(0.767 0.139 91.1 / 0.20);
@@ -948,7 +948,9 @@ html.light .card-celestial {
    white ink, screen drops the (now black) paper. No transparent PNG needed. */
 .signature-ink { mix-blend-mode: multiply; }
 .dark .signature-ink { filter: invert(1); mix-blend-mode: screen; }
-html.light .signature-ink { filter: none; mix-blend-mode: multiply; }
+html.light:not(.full-spectrum) .signature-ink { filter: none; mix-blend-mode: multiply; }
+/* FS is always a dark surface — multiply renders the black ink invisible, so treat it like dark mode. */
+html.full-spectrum .signature-ink { filter: invert(1); mix-blend-mode: screen; }
 
 /* Full Spectrum — surfaces (--background/--card/--popover/--secondary) are painted a mid-dark
    shade of today's day-mode color by FullSpectrumController (inline on :root). FS is ALWAYS a dark
