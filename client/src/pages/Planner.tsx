@@ -598,8 +598,8 @@ export default function Planner() {
 
   return (
     <div className="min-h-screen w-full relative">
-      {/* Soft rose-ochre ombré, blooming from the left — page atmosphere kept at the
-          background's own dark value (low alpha), so it reads as a gentle wash, not a tint. */}
+      {/* Soft ombré in TODAY'S day-mode color, blooming from the left — a low, dark-value wash,
+          not a tint. Per-mode (was a fixed rose-ochre that wrongly painted rose on every mode). */}
       <div
         aria-hidden
         style={{
@@ -608,7 +608,7 @@ export default function Planner() {
           zIndex: 0,
           pointerEvents: "none",
           background:
-            "linear-gradient(100deg, rgba(156,96,82,0.22) 0%, rgba(156,96,82,0.08) 34%, rgba(156,96,82,0) 62%)",
+            `linear-gradient(100deg, color-mix(in srgb, ${calModeColor} 26%, transparent) 0%, color-mix(in srgb, ${calModeColor} 9%, transparent) 34%, transparent 62%)`,
         }}
       />
       {/* Content */}
