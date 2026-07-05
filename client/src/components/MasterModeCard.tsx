@@ -49,10 +49,19 @@ export default function MasterModeCard() {
   const [expanded, setExpanded] = useState(false);
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  const { data } = trpc.masterMode.today.useQuery({ date: dateStr }, { staleTime: 1000 * 60 * 10 });
-  if (!data) return null;
+  // Pancha Pakshi yamas run sunrise→sunrise, so before today's sunrise (the small hours) the
+  // LIVE cycle is yesterday's night — today's data doesn't contain "now" yet, and the card would
+  // go blank ("ran out of today's windows"). Fetch both days; use whichever actually brackets now.
+  const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const yestStr = `${yest.getFullYear()}-${String(yest.getMonth() + 1).padStart(2, "0")}-${String(yest.getDate()).padStart(2, "0")}`;
+  const { data: todayData } = trpc.masterMode.today.useQuery({ date: dateStr }, { staleTime: 1000 * 60 * 10 });
+  const { data: yestData } = trpc.masterMode.today.useQuery({ date: yestStr }, { staleTime: 1000 * 60 * 10 });
 
   const nowMs = Date.now();
+  const bracketsNow = (d: any) => d?.periods?.some((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
+  const data = bracketsNow(todayData) ? todayData : bracketsNow(yestData) ? yestData : todayData;
+  if (!data) return null;
+
   const fmt = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const current = data.periods.find((p) => nowMs >= p.startMs && nowMs < p.endMs);
   const g = (data as any).goldenNow;
