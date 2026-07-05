@@ -41,4 +41,7 @@
 // v1.1.120 = 2026-07-04 — golden days brought back to the calendar as a GOLDEN BORDER (the
 // backend computeGoldenDays "potential" was still live — only the display was gone). Crown days
 // now use David's new gold-crown PNG badge (a golden day + crown on top).
-export const APP_VERSION = "1.1.120";
+// v1.1.121 = 2026-07-04 — REVERTED the Stage white-wash (#5): the waning-gibbous/moon and the
+// other Stage cards go back to the original dark scrim + white text (the white opacity layer
+// read gross over the light moon art).
+export const APP_VERSION = "1.1.121";
