@@ -47,7 +47,7 @@ type Hero = { image: string; kicker: string; title: string; chips: string[]; not
 // Light + smooth — dim the art only just enough; a dark halo on the TEXT does the real work,
 // so the illustration is never sacrificed (see the text-over-image opacity rule).
 const TEXT_SCRIM = "linear-gradient(180deg, rgba(5,6,10,0) 0%, rgba(5,6,10,0.12) 10%, rgba(5,6,10,0.3) 32%, rgba(5,6,10,0.3) 72%, rgba(5,6,10,0.1) 92%, rgba(5,6,10,0) 100%)";
-const TS = "0 0 10px rgba(0,0,0,0.95), 0 2px 8px rgba(0,0,0,0.92)"; // halo so white text holds over the art without a heavy scrim
+// (text halo removed — the moon card leans on TEXT_SCRIM, station cards on the veil; no shadow behind words)
 // Station cards (e.g. Mercury Rx) use a FLAT even veil over the whole image instead of the
 // gradient scrim — David's mockup spec: #545454 at 26%. The moon card keeps its gradient scrim.
 const STATION_VEIL = "rgba(84, 84, 84, 0.26)";
@@ -110,7 +110,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                   {heroes.map((h, i) => {
                     // Station cards ride the flat veil → no text halo (matches the mockup).
                     // The moon card keeps its gradient scrim, so it keeps the halo.
-                    const ts = h.primary ? TS : "none";
+                    const ts = "none"; // no shadow behind words on any card; the moon card leans on TEXT_SCRIM
                     return (
                     <button key={i} onClick={() => setSkyIdx(i)}
                       style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
