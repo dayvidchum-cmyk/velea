@@ -7,7 +7,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
-import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { ProfectionWheel } from "@/components/ProfectionWheel";
 import { WhyNowChain } from "@/components/WhyNowChain";
 import MeridianCard from "@/components/MeridianCard";
@@ -132,13 +131,11 @@ export default function ProfectionYear() {
   const [s1, setS1] = useState(true);
   const [s2, setS2] = useState(false);
   const [s3, setS3] = useState(false);
-  const [s4, setS4] = useState(false);
   const [s5, setS5] = useState(false);
   const [s6, setS6] = useState(false);
   const [s7, setS7] = useState(false);
   const [s8, setS8] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
-  const [triggerOpen, setTriggerOpen] = useState(false);
   const [roadOpen, setRoadOpen] = useState(false);
   const [explainerOpen, setExplainerOpen] = useState(false);
   const [wheelOpen, setWheelOpen] = useState(true); // wheel is the tab's ONE primary — stays open
@@ -155,7 +152,7 @@ export default function ProfectionYear() {
 
   const { data: profectionData, error: profectionError } = trpc.profection.current.useQuery();
   const { data: transitsData, error: transitsError, isLoading: transitsLoading } = trpc.profection.timeLordTransits.useQuery(undefined, {
-    enabled: s4,
+    enabled: tlOpen, // the merged Time Lord Movement panel gates the year-ribbon fetch
   });
 
   const { data: todayPanchang } = trpc.panchang.today.useQuery();
@@ -224,10 +221,6 @@ export default function ProfectionYear() {
     : taskMode === 'Selective' ? 'var(--velea-selective-card-gradient)'
     : taskMode === 'Restraint' ? 'var(--velea-restraint-card-gradient)'
     : 'var(--card)';
-
-  const accentColor = taskMode ? MODE_OKLCH[taskMode] : 'var(--color-border)';
-  const darkColor = taskMode ? MODE_DARK[taskMode] : undefined;
-  const todayDateStr = localToday;
 
   const card = (
     title: string,
@@ -701,38 +694,64 @@ export default function ProfectionYear() {
       )}
 
       {/* CURRENT TRIGGER — deterministic transit breakdown (ephemeris math, auditable) */}
-      {triggerData?.available && panel("Current Trigger", triggerOpen, setTriggerOpen, ombre(
-        <CurrentTriggerBreakdown
-          transits={triggerData.transits}
-          activatedHouse={triggerData.activatedHouse}
-          timeLord={triggerData.timeLord}
-          accentColor="rgba(255,255,255,0.85)"
-          onDark
-        />
-      ))}
-
-      {/* Current Time Lord Movement */}
-      {panel("Current Time Lord Movement", tlOpen, setTlOpen, ombre(
-        <>
-          <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.65, marginBottom: "1rem" }}>
-            When the Time Lord moves, life moves. As it passes through each house, that area of your life is activated in turn — and the <strong>friction</strong> you feel there shows you what needs to be resolved.
-          </p>
-          {tlTransit?.house != null && (
-            <div style={{ marginBottom: "1rem" }}>
-              <p style={{ color: "#fff", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
-                Chapter: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
-              </p>
-              <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.6, margin: 0 }}>
-                Your Time Lord {tlTransit.timeLord} is passing through this part of your chart right now — so this is the life-area where the year's growth and friction actually play out.
-              </p>
-            </div>
-          )}
-          <TimeLordMovement selectedDate={todayDateStr} variant="immersive" accentColor={accentColor} darkColor={darkColor} bestUses={deepRead?.chapterGoodFor} avoid={deepRead?.chapterAvoid} />
-        </>
-      ))}
-
-      {panel("Time Lord Movement This Year", s4, setS4, (
+      {/* ── TIME LORD MOVEMENT — merged (was Current Trigger + Current Time Lord Movement + Time
+          Lord Movement This Year). The "right now" immersive summary — the chapter the Time Lord
+          is in, what it's good for, and today's transit trigger — sits over the full-year ribbon,
+          with today marked on the ribbon as the current point. ── */}
+      {panel("Time Lord Movement", tlOpen, setTlOpen, (
         <div>
+          {/* Right now — immersive summary (ombre), then the year ribbon below it. */}
+          <div style={{ marginBottom: "1.1rem" }}>
+          {ombre(
+            <>
+              <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.65, marginBottom: tlTransit?.house != null ? "1rem" : 0 }}>
+                When the Time Lord moves, life moves. As it passes through each house, that area of your life is activated in turn — and the <strong>friction</strong> you feel there shows you what needs to be resolved.
+              </p>
+              {tlTransit?.house != null && (
+                <div style={{ marginBottom: (deepRead?.chapterGoodFor?.length || deepRead?.chapterAvoid?.length || triggerData?.available) ? "1.1rem" : 0 }}>
+                  <p style={{ color: "#fff", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
+                    Right now: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
+                  </p>
+                  <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.6, margin: 0 }}>
+                    Your Time Lord {tlTransit.timeLord} is passing through this part of your chart right now — so this is the life-area where the year's growth and friction actually play out.
+                  </p>
+                </div>
+              )}
+              {(deepRead?.chapterGoodFor?.length || deepRead?.chapterAvoid?.length) ? (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: triggerData?.available ? "1.1rem" : 0 }}>
+                  {deepRead?.chapterGoodFor?.length ? (
+                    <div>
+                      <p style={{ margin: "0 0 0.4rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Best uses</p>
+                      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                        {deepRead.chapterGoodFor.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "#fff", lineHeight: 1.4 }}>{t}</li>)}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {deepRead?.chapterAvoid?.length ? (
+                    <div>
+                      <p style={{ margin: "0 0 0.4rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Ease off</p>
+                      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                        {deepRead.chapterAvoid.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.82)", lineHeight: 1.4 }}>{t}</li>)}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+              {triggerData?.available && (
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.18)", paddingTop: "1.1rem" }}>
+                  <p style={{ margin: "0 0 0.6rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Today's trigger</p>
+                  <CurrentTriggerBreakdown
+                    transits={triggerData.transits}
+                    activatedHouse={triggerData.activatedHouse}
+                    timeLord={triggerData.timeLord}
+                    accentColor="rgba(255,255,255,0.85)"
+                    onDark
+                  />
+                </div>
+              )}
+            </>
+          )}
+          </div>
           {transitsError ? (
             <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Error loading transits.</p>
           ) : transitsLoading ? (
