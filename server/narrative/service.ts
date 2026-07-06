@@ -16,12 +16,13 @@ function hashInput(input: unknown): string {
 export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };
 export type DeepReadResult = { available: boolean; read: DeepRead | null; generatedAt: Date | null; cached: boolean };
 
-export async function getGlanceCached(profileId: number, date: string, refresh = false, moment?: { nowMs: number; lat?: number; lon?: number }): Promise<GlanceResult> {
+export async function getGlanceCached(profileId: number, date: string, refresh = false, moment?: { nowMs: number; lat?: number; lon?: number }, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<GlanceResult> {
   if (!hasAnthropicKey()) return { available: false, content: null, generatedAt: null, cached: false };
   // A moment read (moment.nowMs) is hora-flavored and EPHEMERAL: never read from nor
   // written to the daily cache, so the stable per-day read stays clean and returns on reload.
   const isMoment = moment != null;
-  const input = await buildNarrativeInput(profileId, date, isMoment ? moment : undefined);
+  // dayLoc = the viewer's location basis for the day-mode, so the read matches the hero.
+  const input = await buildNarrativeInput(profileId, date, isMoment ? { ...moment, dayLoc } : { dayLoc });
   const hash = hashInput(input);
 
   if (!refresh && !isMoment) {
@@ -45,10 +46,10 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
 // deepened=false → the STAGE read: slow-only input (yearly chapter), stable across days.
 // deepened=true → the "stage + guests" read: full input incl. the fast/current-sky tier.
 // Cached under separate surfaces ("deep" vs "deep_full") so they never overwrite each other.
-export async function getDeepReadCached(profileId: number, date: string, refresh = false, deepened = false): Promise<DeepReadResult> {
+export async function getDeepReadCached(profileId: number, date: string, refresh = false, deepened = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<DeepReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = deepened ? "deep_full" : "deep";
-  const input = await buildNarrativeInput(profileId, date, deepened ? undefined : { slowOnly: true });
+  const input = await buildNarrativeInput(profileId, date, deepened ? { dayLoc } : { slowOnly: true, dayLoc });
   const hash = hashInput(input);
 
   if (!refresh) {

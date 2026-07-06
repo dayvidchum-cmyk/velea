@@ -55,6 +55,7 @@ import {
   getTaskById,
 } from "./db";
 import { getDayField, dayModeToTaskMode } from "./panchang/service.js";
+import { getTimezoneOffset, getBostonOffset } from "./panchang/tz-offset.js";
 import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG, HOUSE_TO_BASE_MODE } from "./panchang/modifier-config.js";
 import { calculateFinalMode } from "./panchang/interpreter.js";
 import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
@@ -1848,39 +1849,5 @@ export const appRouter = router({
 
 export type AppRouter = typeof appRouter;
 
-// ─── Timezone helpers ────────────────────────────────────────────────────────
-
-/** Derive numeric UTC offset (hours) for an IANA timezone at a given moment. */
-function getTimezoneOffset(timezone: string, date: Date): number {
-  try {
-    // Use Intl to get the offset: format a date in UTC and in the target TZ,
-    // then compare. Reliable across DST transitions.
-    const utcStr = date.toLocaleString('en-US', { timeZone: 'UTC', hour12: false,
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const tzStr = date.toLocaleString('en-US', { timeZone: timezone, hour12: false,
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const utcMs = new Date(utcStr).getTime();
-    const tzMs = new Date(tzStr).getTime();
-    return Math.round((tzMs - utcMs) / 3600000);
-  } catch {
-    return getBostonOffset(date); // safe fallback
-  }
-}
-
-function getBostonOffset(date: Date): number {
-  // EDT: 2nd Sunday in March → 1st Sunday in November = -4
-  // EST otherwise = -5
-  const year = date.getUTCFullYear();
-  const edtStart = nthSundayUTC(year, 3, 2);
-  const edtEnd = nthSundayUTC(year, 11, 1);
-  return date >= edtStart && date < edtEnd ? -4 : -5;
-}
-
-function nthSundayUTC(year: number, month: number, n: number): Date {
-  const d = new Date(Date.UTC(year, month - 1, 1));
-  const dow = d.getUTCDay();
-  const firstSunday = dow === 0 ? 1 : 8 - dow;
-  return new Date(Date.UTC(year, month - 1, firstSunday + (n - 1) * 7));
-}
+// Timezone helpers moved to ./panchang/tz-offset.js (shared with the narrative pipeline so the
+// hero and the day card derive the day-mode from the same location basis).

@@ -9,6 +9,7 @@ import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
 import { computeDashaJourney } from "../sky/arc.js";
 import { calcPanchang } from "../panchang/astronomy.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
+import { getDayField } from "../panchang/service.js";
 import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
 import { strength, dignityLabel } from "../panchang/dignity.js";
 
@@ -51,7 +52,7 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number } }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
@@ -60,10 +61,14 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   // slowOnly = the STAGE input (yearly chapter, no fast/daily layers). Memoized under a
   // separate key so the stage and full inputs never overwrite each other.
   const slow = !!opts?.slowOnly;
-  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}`;
+  const dl = opts?.dayLoc;
+  // dayLoc is part of the memo key: the day-mode depends on the viewer's location, so two
+  // locations must not share a memoized input (mirrors the hero's location-aware panchang).
+  const locKey = dl ? `${dl.lat},${dl.lon},${dl.utcOffset}` : "def";
+  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, slow ? { slowOnly: true } : undefined);
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   return value;
 }
@@ -75,7 +80,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number } }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -207,8 +212,14 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
   }).filter(Boolean);
 
-  const astro = await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon));
-  const field = interpretPanchang(astro, lagna);
+  // Day-mode from the SAME source as the hero (panchang.today / panchang.byDate → getDayField):
+  // the viewer's current/stored location + real tz (moment.dayLoc), else getDayField's built-in
+  // location default. Computing this from the BIRTH chart's lat/lon (as before) let the hero and
+  // the read name different modes on the same day — the root of the "Selective vs Restrained
+  // Build" split. Fall back to the birth-loc panchang only if getDayField yields nothing.
+  const field =
+    (await getDayField(dateStr, false, moment?.dayLoc, lagna)) ??
+    interpretPanchang(await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon)), lagna);
   // Current hora — ONLY on moment reads (nowMs present). Location-approximated by the
   // profile's birth lat/lon, consistent with the panchang above.
   let hora: { lord: string; tone: string; phase: string; good: string } | null = null;
