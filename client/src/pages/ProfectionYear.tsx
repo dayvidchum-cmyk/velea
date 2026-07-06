@@ -807,7 +807,7 @@ export default function ProfectionYear() {
                               return (
                                 <div key={idx} style={{ flex: `${dur} 0 0`, minWidth: 30, position: "relative" }}>
                                   {isCur && (
-                                    <div style={{ position: "absolute", left: `${segFrac * 100}%`, top: 0, transform: "translate(-50%, -50%)", lineHeight: 0, pointerEvents: "none" }} title="Today">
+                                    <div style={{ position: "absolute", left: `${segFrac * 100}%`, top: 0, transform: "translate(-50%, -50%)", lineHeight: 0, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: "50%", background: "var(--card)" }} title="Today">
                                       <VeleaMark size={18} color="var(--brand-gold)" />
                                     </div>
                                   )}
