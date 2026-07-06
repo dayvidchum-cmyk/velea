@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Sun } from "lucide-react";
+import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw } from "lucide-react";
 
 /** The Stage mark — a circle inscribed in a square (David's icon). Inherits color via currentColor. */
 function StageMark({ size = 12 }: { size?: number }) {
@@ -29,11 +29,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-
-// Classical planet glyphs for the live timestamp's hora lord.
-const PLANET_GLYPH: Record<string, string> = {
-  Sun: "☀", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
-};
 
 // Time Master hourly-category colors (mirrors MasterModeCard's CAT_COLOR) so the activity name in the
 // dateline (Restore, Action, …) reads in its own color, matching the Time Master section.
@@ -201,7 +196,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const golden = (tmToday as any)?.goldenNow ?? null;
   const fmtClock = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const horaCurrent = horaToday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
-  const stampHoraGlyph = horaCurrent?.lord ? PLANET_GLYPH[horaCurrent.lord] ?? null : null;
   const stampHoraLord = horaCurrent?.lord ?? null;
   const stampTime = stampDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   // The qualifier is usually the FULL 2-word label ("Restrained Build"); only append the mode
@@ -351,9 +345,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", whiteSpace: "nowrap" }}>
                   <span style={{ opacity: 0.4 }}>•</span>
                   <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
-                  {stampHoraGlyph && (stampHoraLord === "Sun"
-                    ? <Sun size={12} strokeWidth={2} aria-label="Sun hora" style={{ color: "#C9A84C", flexShrink: 0 }} />
-                    : <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1 }}>{stampHoraGlyph}</span>)}
+                  {stampHoraLord && <span style={{ color: "#C9A84C" }}>{stampHoraLord}</span>}
                 </span>
               )}
               {/* The golden bullseye lives up on the brand line as "GOLDEN HOUR" — no duplicate mark
