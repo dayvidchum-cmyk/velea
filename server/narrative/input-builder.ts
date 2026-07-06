@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { calculateProfectionYear } from "../profection/calculator.js";
 import { calculateDashaTimeline, currentPratyantardasha } from "../dasha-calculator.js";
 import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
+import { computeDashaJourney } from "../sky/arc.js";
 import { calcPanchang } from "../panchang/astronomy.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
 import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
@@ -140,6 +141,26 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       }
     : null;
 
+  // The dasha JOURNEY — the road behind (mahādaśās lived) → current mahā+antar → next antar.
+  // A slow layer (turns on dasha timescales), so it rides the stable read too. Trimmed to
+  // lord/age/house/rules (no dates) — the prompt weaves continuity, never a timeline.
+  const natalHouseByPlanet = Object.fromEntries(
+    bodies.filter((b) => b.house != null).map((b) => [b.planet, b.house as number]),
+  ) as Record<string, number>;
+  const journey = computeDashaJourney(
+    { birthDate: p.birthDate, moonNakshatra: moon.nakshatra || "", moonSign: moon.sign, moonDegree: String(moon.degree ?? "0"), moonLongitude: moon.longitude != null ? String(moon.longitude) : null, lagnaSign: lagna, natalHouseByPlanet },
+    dateStr,
+  );
+  const trimP = (x: any) => (x ? { lord: x.lord, ageStart: x.ageStart, ageEnd: x.ageEnd, sits: x.natalHouse, rules: x.rulesHouses } : null);
+  const arc = {
+    journey: {
+      pastMahas: journey.pastMahas.map(trimP),
+      currentMaha: trimP(journey.currentMaha),
+      currentAntar: trimP(journey.currentAntar),
+      nextAntar: trimP(journey.nextAntar),
+    },
+  };
+
   const natalRetrogradeCount = (natal.planets as any[]).filter(
     (pl) => pl && pl.retrograde && pl.name !== "Rahu" && pl.name !== "Ketu",
   ).length;
@@ -149,7 +170,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // hora, humanTime, timeLordTransit) so the cache hash — and thus the prose — only turns
   // when the chapter turns. The deepened ("stage + guests") read passes the full input.
   if (moment?.slowOnly) {
-    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase } as any;
+    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc } as any;
   }
 
   const praty = cur ? currentPratyantardasha(cur.antardasha, cur.startDate, cur.endDate, dateStr) : null;
@@ -257,5 +278,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, humanTime, timeLordTransit };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, humanTime, timeLordTransit, arc };
 }

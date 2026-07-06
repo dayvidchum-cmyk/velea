@@ -79,6 +79,47 @@ export interface ArcSubject {
 }
 
 /**
+ * The dasha journey alone — cheap (one timeline call, no ephemeris scan). The road behind
+ * (mahadashas lived) → the current mahadasha and antardasha → the next antardasha. This is what
+ * the daily narrative weaves for continuity; the full forward scan (computeArc) is for a UI feature.
+ */
+export function computeDashaJourney(subject: ArcSubject, from: string): DashaJourney {
+  const lagnaIdx = ZOD.indexOf(subject.lagnaSign);
+  const journey: DashaJourney = { pastMahas: [], currentMaha: null, currentAntar: null, nextAntar: null };
+  try {
+    const tl = calculateDashaTimeline(subject.birthDate, subject.moonNakshatra, subject.moonSign, subject.moonDegree, from, subject.moonLongitude);
+    const entries = tl.entries as any[];
+    const curIdx = entries.findIndex((e) => e.isCurrent);
+    const cur = entries[curIdx];
+    const birth = new Date(subject.birthDate + "T00:00:00Z");
+    const ageAt = (d: string) => {
+      const t = new Date(d + "T00:00:00Z");
+      let a = t.getUTCFullYear() - birth.getUTCFullYear();
+      if (t.getUTCMonth() < birth.getUTCMonth() || (t.getUTCMonth() === birth.getUTCMonth() && t.getUTCDate() < birth.getUTCDate())) a--;
+      return a;
+    };
+    const period = (lord: string, s: string, e: string): DashaPeriod =>
+      ({ lord, startDate: s, endDate: e, ageStart: ageAt(s), ageEnd: ageAt(e), natalHouse: subject.natalHouseByPlanet?.[lord] ?? null, rulesHouses: rulesHouses(lord, lagnaIdx) });
+    if (cur) {
+      const spans: { lord: string; start: string; end: string }[] = [];
+      for (const e of entries) {
+        const last = spans[spans.length - 1];
+        if (last && last.lord === e.mahadasha) last.end = e.endDate;
+        else spans.push({ lord: e.mahadasha, start: e.startDate, end: e.endDate });
+      }
+      const curSpanIdx = spans.findIndex((s) => s.lord === cur.mahadasha);
+      journey.pastMahas = spans.slice(0, curSpanIdx).map((s) => period(s.lord, s.start, s.end));
+      const cs = spans[curSpanIdx];
+      journey.currentMaha = period(cs.lord, cs.start, cs.end);
+      journey.currentAntar = period(cur.antardasha, cur.startDate, cur.endDate);
+      const next = entries[curIdx + 1];
+      if (next) journey.nextAntar = period(next.antardasha, next.startDate, next.endDate);
+    }
+  } catch { /* journey optional */ }
+  return journey;
+}
+
+/**
  * Compute a person's forward arc. Two horizons on purpose: the daily crown/apex scan runs over the
  * near-term `horizonDays` (default 90 — "when's my next strong day"), while the sparse slow turns
  * (dasha season-change, profection birthday, slow-planet ingresses) scan the longer `slowHorizonDays`
@@ -176,40 +217,9 @@ export async function computeArc(subject: ArcSubject, from: string, horizonDays 
     }
   }
 
-  // ── The dasha journey (looking back AND forward): each mahadasha already lived → the current
-  //    mahadasha → the current antardasha → the next antardasha. The retrospective spine. ──
-  let dashaJourney: DashaJourney = { pastMahas: [], currentMaha: null, currentAntar: null, nextAntar: null };
-  try {
-    const tl = calculateDashaTimeline(subject.birthDate, subject.moonNakshatra, subject.moonSign, subject.moonDegree, from, subject.moonLongitude);
-    const entries = tl.entries as any[];
-    const curIdx = entries.findIndex((e) => e.isCurrent);
-    const cur = entries[curIdx];
-    const birth = new Date(subject.birthDate + "T00:00:00Z");
-    const ageAt = (d: string) => {
-      const t = new Date(d + "T00:00:00Z");
-      let a = t.getUTCFullYear() - birth.getUTCFullYear();
-      if (t.getUTCMonth() < birth.getUTCMonth() || (t.getUTCMonth() === birth.getUTCMonth() && t.getUTCDate() < birth.getUTCDate())) a--;
-      return a;
-    };
-    const period = (lord: string, s: string, e: string): DashaPeriod =>
-      ({ lord, startDate: s, endDate: e, ageStart: ageAt(s), ageEnd: ageAt(e), natalHouse: subject.natalHouseByPlanet?.[lord] ?? null, rulesHouses: rulesHouses(lord, lagnaIdx) });
-    if (cur) {
-      // Collapse the per-antar entries into mahadasha spans (in order).
-      const spans: { lord: string; start: string; end: string }[] = [];
-      for (const e of entries) {
-        const last = spans[spans.length - 1];
-        if (last && last.lord === e.mahadasha) last.end = e.endDate;
-        else spans.push({ lord: e.mahadasha, start: e.startDate, end: e.endDate });
-      }
-      const curSpanIdx = spans.findIndex((s) => s.lord === cur.mahadasha);
-      dashaJourney.pastMahas = spans.slice(0, curSpanIdx).map((s) => period(s.lord, s.start, s.end));
-      const cs = spans[curSpanIdx];
-      dashaJourney.currentMaha = period(cs.lord, cs.start, cs.end);
-      dashaJourney.currentAntar = period(cur.antardasha, cur.startDate, cur.endDate);
-      const next = entries[curIdx + 1];
-      if (next) dashaJourney.nextAntar = period(next.antardasha, next.startDate, next.endDate);
-    }
-  } catch { /* journey optional */ }
+  // The dasha journey (past mahadashas → current maha+antar → next antar) — its own cheap function
+  // (one timeline call, no ephemeris) so the daily narrative can weave continuity without this scan.
+  const dashaJourney = computeDashaJourney(subject, from);
 
   milestones.sort((a, b) => a.daysAway - b.daysAway);
   return { from, horizonDays, apex, crownCount: crownDates.length, crownDates, milestones, dashaJourney };
