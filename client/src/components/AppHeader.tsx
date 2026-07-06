@@ -186,7 +186,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const stampQualifier = heroMode?.qualifier ?? (headerPanchang as any)?.qualifier ?? null;
   const tmCurrent = tmToday?.periods?.find((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
   const stampActivity = tmCurrent?.category ?? null;
-  const stampGolden = Boolean((tmToday as any)?.goldenNow?.isGolden);
   // Golden-hour readout for the brand line (private — only present when Time Master data is: golden
   // now, else a heads-up for the next golden window). Non-entitled users get no Time Master data → null.
   const golden = (tmToday as any)?.goldenNow ?? null;
@@ -338,9 +337,15 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               <span style={{ color: modeColor, whiteSpace: "nowrap" }}>{shortDateLabel}</span>
               <span style={{ color: modeColor, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{stampTime}</span>
               {stampModeLabel && (<><span style={{ opacity: 0.4 }}>•</span><span style={{ color: modeColor, whiteSpace: "nowrap" }}>{stampModeLabel}</span></>)}
-              {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span style={{ color: CAT_COLOR[stampActivity] ?? "inherit", whiteSpace: "nowrap" }}>{stampActivity}</span></>)}
-              {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
-              {stampGolden && <VeleaLorMark size={12} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
+              {stampActivity && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", whiteSpace: "nowrap" }}>
+                  <span style={{ opacity: 0.4 }}>•</span>
+                  <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
+                  {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1 }}>{stampHoraGlyph}</span>}
+                </span>
+              )}
+              {/* The golden bullseye lives up on the brand line as "GOLDEN HOUR" — no duplicate mark
+                  trailing the dateline (it was wrapping onto its own line and reading as a stray dot). */}
             </div>
             {/* The Stage — under the dateline; opens the Stage pop-up. */}
             <button
