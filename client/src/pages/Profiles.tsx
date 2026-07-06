@@ -132,7 +132,110 @@ function fmtBirthDate(d?: string | null): string {
   return `${BIRTH_MONTHS[m - 1]} ${day}, ${y}`;
 }
 
-function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMakeActive }: ProfileFormProps) {
+/**
+ * BirthDetailsSheet — edits the active/owner profile's birth details IN PLACE (a bottom sheet),
+ * so Settings no longer has to navigate you to the Profiles page. Reuses ProfileForm and the same
+ * update → recalc → invalidate flow as the Profiles edit path (kept here so the logic stays in one
+ * domain). Unifies with the location edit, which also opens in place.
+ */
+export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const utils = trpc.useUtils();
+  const { data: profileList = [] } = trpc.profiles.list.useQuery(undefined, { enabled: open });
+  const profile = profileList.find((p: any) => p.isActive) ?? profileList.find((p: any) => p.isOwner) ?? profileList[0];
+  const [saving, setSaving] = useState(false);
+  const updateMutation = trpc.profiles.update.useMutation();
+  const calculateMutation = trpc.profiles.calculateChart.useMutation();
+
+  async function handleSave(data: ProfileFormData, _makeActive: boolean) {
+    if (!profile || !data.name.trim()) return;
+    setSaving(true);
+    try {
+      await updateMutation.mutateAsync({
+        id: profile.id,
+        name: data.name,
+        birthDate: data.birthDate || undefined,
+        birthTime: data.birthTime || undefined,
+        birthLocationCity: data.birthLocationCity || undefined,
+        birthLocationLat: data.birthLocationLat || undefined,
+        birthLocationLon: data.birthLocationLon || undefined,
+        birthTimezone: data.birthTimezone || undefined,
+        notes: data.notes || undefined,
+      });
+      let calcFailed = false;
+      if (data.birthDate && data.birthTime) {
+        try {
+          await calculateMutation.mutateAsync({
+            id: profile.id,
+            birthDate: data.birthDate,
+            birthTime: data.birthTime,
+            birthLocationCity: data.birthLocationCity,
+            birthLocationLat: data.birthLocationLat || undefined,
+            birthLocationLon: data.birthLocationLon || undefined,
+            birthTimezone: data.birthTimezone || undefined,
+          });
+        } catch {
+          calcFailed = true;
+        }
+      }
+      await utils.invalidate();
+      if (calcFailed) toast.error(`Saved, but the chart didn't recalculate — check the birth time and try again.`);
+      else toast.success("Birth details updated");
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to save birth details");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!open) return null;
+
+  return (
+    <>
+      <div className="fixed inset-0 z-50" style={{ background: "oklch(0 0 0 / 0.4)" }} onClick={onClose} />
+      <div
+        className="fixed left-0 right-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-2xl"
+        style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderBottom: "none", boxShadow: "0 -8px 32px oklch(0 0 0 / 0.18)", maxHeight: "88vh", display: "flex", flexDirection: "column" }}
+      >
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full" style={{ background: "var(--color-border)" }} />
+        </div>
+        <div className="flex items-center justify-between px-5 pt-2 pb-3" style={{ borderBottom: "1px solid var(--color-border)" }}>
+          <div className="flex items-center gap-2">
+            <Star size={16} style={{ color: "var(--color-primary)" }} />
+            <span className="text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--color-foreground)", letterSpacing: "0.04em" }}>Edit birth details</span>
+          </div>
+          <button onClick={onClose} style={{ color: "var(--color-muted-foreground)" }} className="p-1" aria-label="Close"><X size={18} /></button>
+        </div>
+        <div style={{ overflowY: "auto", padding: "1rem 1.25rem", paddingBottom: "calc(72px + env(safe-area-inset-bottom, 0px) + 1.5rem)" }}>
+          {profile ? (
+            <ProfileForm
+              initial={{
+                name: profile.name ?? "",
+                birthDate: profile.birthDate ?? "",
+                birthTime: profile.birthTime ?? "",
+                birthLocationCity: profile.birthLocationCity ?? "",
+                birthLocationLat: profile.birthLocationLat ?? "",
+                birthLocationLon: profile.birthLocationLon ?? "",
+                birthTimezone: profile.birthTimezone ?? "",
+                notes: profile.notes ?? "",
+              }}
+              onSave={handleSave}
+              onCancel={onClose}
+              saving={saving}
+              isNew={false}
+              showMakeActive={false}
+            />
+          ) : (
+            <p className="text-sm text-center py-8" style={{ color: "var(--color-muted-foreground)" }}>No profile to edit yet.</p>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMakeActive }: ProfileFormProps) {
   const [form, setForm] = useState<ProfileFormData>({ ...EMPTY_FORM, ...initial });
   const [makeActive, setMakeActive] = useState(isNew ?? false);
   const [geocoding, setGeocoding] = useState(false);

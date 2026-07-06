@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
+import { BirthDetailsSheet } from "./Profiles";
 
 // ─── Reusable setting row ─────────────────────────────────────────────────────
 
@@ -264,6 +265,8 @@ export default function Settings() {
   // Local draft — mirrors the live settings but only persists on Save
   const [draft, setDraft] = useState<SettingsState>(() => ({ ...settings }));
   const [isDirty, setIsDirty] = useState(false);
+  // Birth details now edit in place (a sheet), matching the location edit — no more hop to /profiles.
+  const [birthSheetOpen, setBirthSheetOpen] = useState(false);
 
   function updateDraft<K extends keyof SettingsState>(key: K, value: SettingsState[K]) {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -527,7 +530,7 @@ export default function Settings() {
           </div>
           <div className="py-4">
             <button
-              onClick={() => navigate((subject as any)?.profileId ? `/profiles?edit=${(subject as any).profileId}` : "/profiles")}
+              onClick={() => setBirthSheetOpen(true)}
               className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
               style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}
             >
@@ -661,7 +664,8 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Birth Chart Sheet removed — form is now inline above */}
+      {/* Edit birth details in place — a bottom sheet, so we never leave Settings. */}
+      <BirthDetailsSheet open={birthSheetOpen} onClose={() => setBirthSheetOpen(false)} />
     </div>
   );
 }
