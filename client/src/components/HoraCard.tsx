@@ -31,8 +31,8 @@ export default function HoraCard() {
     return (
       <LockedFeatureCard
         title="Hora"
-        teaser="The planetary hour — which lord rules now, and what it favors."
-        detail="Each hour has a ruling planet. Hora tracks which lord holds the current hour and what it favors, so you can time the small moves. Part of the Time Master layer — not yet unlocked."
+        teaser="The planetary hour — which planet rules now, and what it favors."
+        detail="Each hour is ruled by a planet. Hora tracks which planet holds the current hour and what it favors, so you can time the small moves. Part of the Time Master layer — not yet unlocked."
       />
     );
   }
