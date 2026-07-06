@@ -625,6 +625,19 @@
   color: #FFFFFF;
 }
 
+/* Starry-night backdrop for dark mode — the intro sky, kept as the app background.
+   The fixed html::before layer carries the sky; body goes transparent so it shows through,
+   and opaque cards then float as panels over it (mirrors the BrandSplash finale). A dark
+   gradient over the image keeps text legible. Full Spectrum is excluded (its own theming). */
+html.dark:not(.full-spectrum)::before {
+  background:
+    linear-gradient(rgba(10, 19, 30, 0.58), rgba(10, 19, 30, 0.82)),
+    url(/starry-night.jpg) center top / cover no-repeat;
+}
+html.dark:not(.full-spectrum) body {
+  background: transparent !important;
+}
+
 .dark .glass-card {
   background: #0A0A0A;
   backdrop-filter: none;
