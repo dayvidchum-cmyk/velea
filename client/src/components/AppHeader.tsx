@@ -210,38 +210,40 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
 
   // Profile switcher dropdown — shared between both layouts (only show for admins)
   const profileSwitcher = isAuthenticated && isAdmin ? (
-    <div className="mt-3">
+    <div>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
+          {/* Profile switcher as a bottom-left FAB (Users icon) — clear of the bottom-right "+" FAB. */}
           <button
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95 outline-none"
+            aria-label="Switch profile"
+            title={currentProfile ? currentProfile.name : "Profiles"}
+            className="transition-all active:scale-95 outline-none"
             style={{
-              background: "var(--color-secondary)",
+              position: "fixed",
+              left: "16px",
+              bottom: "calc(72px + env(safe-area-inset-bottom, 0px) + 16px)",
+              zIndex: 40,
+              width: 48,
+              height: 48,
+              borderRadius: 999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "var(--color-card)",
               color: "var(--color-muted-foreground)",
               border: "1px solid var(--color-border)",
+              boxShadow: "0 4px 16px oklch(0 0 0 / 0.22)",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
-            onMouseDown={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
-            onMouseUp={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--color-muted-foreground)";
-              e.currentTarget.style.borderColor = "var(--color-border)";
-            }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-muted-foreground)"; e.currentTarget.style.borderColor = "var(--color-border)"; }}
           >
-            <Users size={13} />
-            <span>{currentProfile ? currentProfile.name : "My Chart"}</span>
-            <ChevronDown
-              size={12}
-              style={{
-                transform: open ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.2s ease",
-              }}
-            />
+            <Users size={20} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          sideOffset={6}
+          side="top"
+          sideOffset={8}
           className="min-w-[210px] p-1 rounded-xl"
           style={{
             background: "var(--color-card)",
