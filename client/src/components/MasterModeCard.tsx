@@ -93,7 +93,9 @@ export default function MasterModeCard() {
           {expanded ? <ChevronDown size={14} style={{ color: "var(--color-muted-foreground)" }} /> : <ChevronRight size={14} style={{ color: "var(--color-muted-foreground)" }} />}
         </span>
       </button>
-      <p style={{ margin: "0.15rem 0 0", fontSize: "0.56rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>{data.bird}</p>
+      {/* Prefix with YOU: the bird is the viewer's own Pañcapakṣi bird (fixed from birth), not a
+          rotating "current" bird — a bare bird name read as ambiguous. */}
+      <p style={{ margin: "0.15rem 0 0", fontSize: "0.56rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>You : {data.bird}</p>
 
       {expanded && current && (
         <div style={{ marginTop: "0.6rem" }}>
