@@ -6,7 +6,6 @@
 // Deliberately conservative: it reports WHAT changes and WHEN, never a life-event claim
 // (that's the guardrail — the sky is many-to-one, the engine must not collapse it blindly).
 
-import { calculateBirthChart } from "../birthchart/calculator.js";
 import { crownDay } from "../panchang/crown.js";
 import { calculateDashaTimeline } from "../dasha-calculator.js";
 import { calculateProfectionYear } from "../profection/calculator.js";
@@ -135,15 +134,17 @@ export async function computeArc(subject: ArcSubject, from: string, horizonDays 
   // ── Daily scan: crown days + the apex (highest-aligned day in the horizon) ──
   const crownDates: string[] = [];
   let apex: Arc["apex"] = null;
+  const ALL_P = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
   for (let i = 0; i <= horizonDays; i++) {
     const day = addDays(from, i);
-    const ch: any = await calculateBirthChart(day, "12:00", 0, 0, "UTC");
+    const pos: any = await getSiderealLongitudesWithSpeed(new Date(day + "T12:00:00Z"), ALL_P);
+    const lon = (p: string) => pos[p].longitude as number;
     const T: Record<string, number> = {
-      Sun: signIdx(ch.sun.longitude), Moon: signIdx(ch.moon.longitude), Mars: signIdx(ch.mars.longitude),
-      Mercury: signIdx(ch.mercury.longitude), Jupiter: signIdx(ch.jupiter.longitude), Venus: signIdx(ch.venus.longitude),
-      Saturn: signIdx(ch.saturn.longitude), Rahu: signIdx(ch.rahu.longitude), Ketu: signIdx(ch.ketu.longitude),
+      Sun: signIdx(lon("Sun")), Moon: signIdx(lon("Moon")), Mars: signIdx(lon("Mars")),
+      Mercury: signIdx(lon("Mercury")), Jupiter: signIdx(lon("Jupiter")), Venus: signIdx(lon("Venus")),
+      Saturn: signIdx(lon("Saturn")), Rahu: signIdx(lon("Rahu")), Ketu: signIdx(lon("Ketu")),
     };
-    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx: lagnaIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T });
+    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx: lagnaIdx, sunLon: lon("Sun"), moonLon: lon("Moon"), transitSignByPlanet: T });
     const isCrown = cd.rating === "crown";
     if (isCrown) crownDates.push(day);
     // Apex = the single highest-scoring day; a crown outranks a non-crown at equal score; earliest wins ties.

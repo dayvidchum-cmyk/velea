@@ -71,6 +71,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { profectionRouter } from "./profection/router.js";
 import { narrativeRouter } from "./narrative/router.js";
 import { dashaRouter } from "./routers/dasha.js";
+import { arcRouter } from "./routers/arc.js";
 import { profilesRouter } from "./routers/profiles.js";
 import { timeLordTransitRouter } from "./profection/transit-router.js";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -1659,6 +1660,7 @@ export const appRouter = router({
 
   // ── DASHA TIMELINE ────────────────────────────────────────
   dasha: dashaRouter,
+  arc: arcRouter,
 
 
   // ── CHECK-IN ──────────────────────────────────────────────

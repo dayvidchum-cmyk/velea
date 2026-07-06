@@ -139,6 +139,7 @@ export default function ProfectionYear() {
   const [s8, setS8] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
   const [triggerOpen, setTriggerOpen] = useState(false);
+  const [roadOpen, setRoadOpen] = useState(false);
   const [explainerOpen, setExplainerOpen] = useState(false);
   const [wheelOpen, setWheelOpen] = useState(true); // wheel stays open unless minimized
   const [whyNowOpen, setWhyNowOpen] = useState(true);
@@ -163,6 +164,7 @@ export default function ProfectionYear() {
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
   const { data: subject } = trpc.profiles.getSubject.useQuery();
   const { data: dashaTimeline } = trpc.dasha.timeline.useQuery(undefined, { retry: false });
+  const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false });
   const localToday = useMemo(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -856,6 +858,68 @@ export default function ProfectionYear() {
             <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>No transit data available.</p>
           )}
         </div>
+      ))}
+
+      {panel("The Road Ahead", roadOpen, setRoadOpen, (
+        arcError ? (
+          <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Add your birth details to map the road ahead.</p>
+        ) : arcLoading ? (
+          <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Mapping your year…</p>
+        ) : arcData ? (() => {
+          const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+          const compact = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n}d` : `${Math.round(n / 30.4)}mo`);
+          const slow = (arcData.milestones as any[]).filter((m) => m.kind !== "apex");
+          const dotColor = (k: string) => (k === "profection" ? "var(--brand-gold)" : k === "dasha" ? modeColor : `color-mix(in srgb, ${modeColor} 68%, #ffffff)`);
+          const apex = arcData.apex;
+          return (
+            <div>
+              <p style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "1rem" }}>
+                Where your year is heading — the near apex, then the slow season-turns as they arrive. The sky's shape, not a promise.
+              </p>
+
+              {/* Apex hero — the strongest-aligned day in the next 90 */}
+              {apex && (
+                <div style={{ display: "flex", gap: "0.85rem", alignItems: "center", padding: "1rem 1.1rem", borderRadius: 14, background: "color-mix(in srgb, var(--brand-gold) 12%, var(--card))", border: "1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)" }}>
+                  <VeleaMark size={30} color="var(--brand-gold)" style={{ flexShrink: 0 }} />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase" as const, color: "var(--brand-gold)" }}>{apex.crown ? "Crown apex" : "Peak alignment"}</div>
+                    <div style={{ fontSize: "1.05rem", fontWeight: 700, color: TEXT_PRIMARY, marginTop: 2 }}>{fmt(apex.date)} · in {compact(apex.daysAway)}</div>
+                    <div style={{ fontSize: "0.82rem", color: TEXT_MUTED, marginTop: 3, lineHeight: 1.45 }}>Your strongest-aligned day in the next 90 — {arcData.crownCount} crown day{arcData.crownCount === 1 ? "" : "s"} in that window.</div>
+                  </div>
+                </div>
+              )}
+
+              {/* The road — a vertical line of the slow turns approaching */}
+              {slow.length > 0 && (
+                <div style={{ marginTop: "1.15rem" }}>
+                  {slow.map((m, i) => {
+                    const isLast = i === slow.length - 1;
+                    return (
+                      <div key={i} style={{ display: "flex", gap: "0.85rem", alignItems: "stretch" }}>
+                        {/* rail: continuous line + a node punched over it */}
+                        <div style={{ position: "relative", width: 12, flexShrink: 0, display: "flex", justifyContent: "center" }}>
+                          {!isLast && <div style={{ position: "absolute", top: 6, bottom: 0, width: 2, background: `color-mix(in srgb, ${modeColor} 34%, transparent)` }} />}
+                          <div style={{ position: "absolute", top: 4, width: 11, height: 11, borderRadius: "50%", background: dotColor(m.kind), boxShadow: "0 0 0 3px var(--card)" }} />
+                        </div>
+                        {/* content */}
+                        <div style={{ flex: 1, minWidth: 0, paddingBottom: isLast ? 0 : "1.15rem" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", gap: "0.6rem", alignItems: "baseline" }}>
+                            <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontSize: "0.95rem" }}>{m.title}</span>
+                            <span style={{ color: modeColor, fontWeight: 700, fontSize: "0.72rem", whiteSpace: "nowrap" as const }}>{compact(m.daysAway)}</span>
+                          </div>
+                          <div style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginTop: 3 }}><GlossaryText>{m.detail}</GlossaryText></div>
+                          <div style={{ color: TEXT_MUTED, fontSize: "0.72rem", marginTop: 3, opacity: 0.8 }}>{fmt(m.date)}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })() : (
+          <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>No road data available.</p>
+        )
       ))}
 
       </>)}
