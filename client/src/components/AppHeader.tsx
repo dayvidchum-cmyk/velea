@@ -308,14 +308,12 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               Velea
             </span>
           </div>
-          {/* Utility row: current-state LEFT, THE STAGE centered, date RIGHT — a 3-col grid
-              (1fr auto 1fr) keeps THE STAGE truly centered regardless of the side widths. The
-              refresh sits opposite THE STAGE's caret (via `order`) so the two tap targets don't
-              crowd — the caret's only neighbor is the passive date label. */}
+          {/* Utility row: date left, THE STAGE centered, current-state right — a 3-col grid
+              (1fr auto 1fr) keeps THE STAGE truly centered regardless of the side widths. */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", columnGap: "0.5rem" }}>
           <span
             className="text-[10px] font-bold tracking-wide whitespace-nowrap"
-            style={{ color: modeColor, letterSpacing: "0.03em", justifySelf: "end", order: 3 }}
+            style={{ color: modeColor, letterSpacing: "0.03em", justifySelf: "start" }}
           >
             {heroDateLabel}
           </span>
@@ -323,7 +321,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           <button
             onClick={() => setStageSheetOpen(true)}
             className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-            style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "center", order: 2 }}
+            style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "center" }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
               e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
@@ -344,7 +342,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 data-tour="current-state"
                 onClick={() => setCheckInSheetOpen(true)}
                 className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-                style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "start", order: 1 }}
+                style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "end" }}
                 title="Update current state"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;

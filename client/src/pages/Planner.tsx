@@ -763,8 +763,23 @@ export default function Planner() {
               flexDirection: 'column',
             }}
           >
-            {/* Header row — DATE label (toggles) + admin "update to the moment" + caret */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '0.25rem' }}>
+            {/* Header row — admin "update to the moment" (LEFT corner) + DATE label (toggles) + caret
+                (RIGHT corner). The refresh lives OPPOSITE the caret with the date between them, so the
+                two tap targets never crowd — reaching for one can't catch the other. */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', width: '100%', marginBottom: '0.25rem' }}>
+              {/* Premium preview (admin only): regenerate the read to this moment. */}
+              {user?.role === "admin" && glanceProfileId && glanceContent && (
+                <button
+                  type="button"
+                  onClick={updateToMoment}
+                  disabled={refreshingRead}
+                  title="Update to the moment"
+                  aria-label="Update to the moment"
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                >
+                  <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setHeroOpen((v) => !v)}
@@ -782,32 +797,17 @@ export default function Planner() {
                   {selectedDate === toDateStr(today) ? "TODAY'S MODE" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
                 </span>
               </button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
-                {/* Premium preview (admin only): regenerate the read to this moment. */}
-                {user?.role === "admin" && glanceProfileId && glanceContent && (
-                  <button
-                    type="button"
-                    onClick={updateToMoment}
-                    disabled={refreshingRead}
-                    title="Update to the moment"
-                    aria-label="Update to the moment"
-                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center' }}
-                  >
-                    <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setHeroOpen((v) => !v)}
-                  aria-label={heroOpen ? 'Collapse' : 'Expand'}
-                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                >
-                  <ChevronDown
-                    size={13}
-                    style={{ color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
-                  />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setHeroOpen((v) => !v)}
+                aria-label={heroOpen ? 'Collapse' : 'Expand'}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+              >
+                <ChevronDown
+                  size={13}
+                  style={{ color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+                />
+              </button>
             </div>
 
             {/* GIANT MODE NAME */}
