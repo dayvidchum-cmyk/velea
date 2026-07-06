@@ -331,9 +331,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             ) : golden.nextGoldenMs ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                 <VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap", lineHeight: 1 }}>Golden · {fmtClock(golden.nextGoldenMs)}</span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap", lineHeight: 1 }}>Next golden hour : {fmtClock(golden.nextGoldenMs)}</span>
               </div>
-            ) : null)}
+            ) : (
+              <div style={{ display: "inline-flex", alignItems: "center", flexShrink: 0 }}>
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", whiteSpace: "nowrap", lineHeight: 1, opacity: 0.75 }}>No golden hours left</span>
+              </div>
+            ))}
           </div>
           {/* Utility row: one combined dateline — date · time · qualifier-mode · activity + hora glyph.
               Date/time/mode read in the current date's mode color; the activity reads in its own Time
@@ -397,23 +401,28 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           {greetingLine}
         </h1>
 
-        {/* Check-in — moved here from the header, right under the greeting. Opens the check-in sheet;
-            shows how long since your last check-in, or "CURRENT STATE" if you haven't today. */}
+        {/* Check-in — right under the greeting, with a soft "How are you?" prompt beside the bubble.
+            Opens the check-in sheet; shows time since last check-in, or "CURRENT STATE" if none today. */}
         {isAuthenticated && (
-          <button
-            data-tour="current-state"
-            onClick={() => setCheckInSheetOpen(true)}
-            className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full transition-all duration-150"
-            style={{ color: modeColor, background: "transparent", border: `1px solid color-mix(in srgb, ${modeColor} 35%, transparent)` }}
-            title="Update current state"
-            onMouseEnter={(e) => { e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 14%, transparent)`; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-          >
-            <RefreshCw size={12} />
-            <span className="text-[11px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
-              {checkInStamp ?? "CURRENT STATE"}
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
+            <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontStyle: "italic", fontSize: "1rem", color: "var(--color-muted-foreground)", lineHeight: 1 }}>
+              How are you?
             </span>
-          </button>
+            <button
+              data-tour="current-state"
+              onClick={() => setCheckInSheetOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-150"
+              style={{ color: modeColor, background: "transparent", border: `1px solid color-mix(in srgb, ${modeColor} 35%, transparent)` }}
+              title="Update current state"
+              onMouseEnter={(e) => { e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 14%, transparent)`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+            >
+              <RefreshCw size={12} />
+              <span className="text-[11px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
+                {checkInStamp ?? "CURRENT STATE"}
+              </span>
+            </button>
+          </div>
         )}
 
         {/* Profile switcher below greeting */}
