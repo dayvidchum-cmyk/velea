@@ -97,7 +97,7 @@ export default function MeridianCard() {
   const [, navigate] = useLocation();
   const { settings, saveSettings } = useSettingsContext();
   const { data } = trpc.meridian.current.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false); // collapsed by default — matches the Chart page's other panels
   if (!data) return null;
   const liftOn = settings.meridianLift;
   const toggleLift = () => saveSettings({ ...settings, meridianLift: !liftOn });

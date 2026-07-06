@@ -88,19 +88,7 @@ export const GLOSSARY: GlossaryTerm[] = [
 
   // ── Chart ─────────────────────────────────────────────────────────────────
   { term: "Lagna", category: "Chart", definition: "The Ascendant — the zodiac sign rising on the eastern horizon at the moment of birth. The Lagna is the most personal point in the chart, representing the body, self, and overall direction of life. In Jyotish, the Lagna determines the house assignments for all other signs." },
-  { term: "Rashi", category: "Chart", definition: "Zodiac sign — one of 12 equal divisions of the ecliptic, each spanning 30°. In Jyotish, the sidereal zodiac is used (Niryana), which differs from the tropical zodiac used in Western astrology by approximately 23–24° (the ayanamsa)." },
-  { term: "Aries", category: "Chart", definition: "Fire sign ruled by Mars — initiative, courage, drive. The pioneer: quick to begin, direct, competitive." },
-  { term: "Taurus", category: "Chart", definition: "Earth sign ruled by Venus — stability, values, the senses. The builder: patient, grounded, hard to rush." },
-  { term: "Gemini", category: "Chart", definition: "Air sign ruled by Mercury — communication, curiosity, versatility. The messenger: quick-minded, social, many-threaded." },
-  { term: "Cancer", category: "Chart", definition: "Water sign ruled by the Moon — nurture, home, emotional memory. The caretaker: protective, feeling, tied to roots." },
-  { term: "Leo", category: "Chart", definition: "Fire sign ruled by the Sun — self-expression, creativity, dignity. The sovereign: warm, generous, needs to shine." },
-  { term: "Virgo", category: "Chart", definition: "Earth sign ruled by Mercury — refinement, service, analysis. The craftsperson: precise, discerning, improvement-minded." },
-  { term: "Libra", category: "Chart", definition: "Air sign ruled by Venus — balance, relationship, harmony. The diplomat: fair, relational, weighing both sides." },
-  { term: "Scorpio", category: "Chart", definition: "Water sign ruled by Mars — depth, intensity, transformation. The alchemist: penetrating, private, all-or-nothing." },
-  { term: "Sagittarius", category: "Chart", definition: "Fire sign ruled by Jupiter — belief, expansion, meaning. The seeker: philosophical, adventurous, truth-hungry." },
-  { term: "Capricorn", category: "Chart", definition: "Earth sign ruled by Saturn — structure, ambition, mastery. The architect: disciplined, patient, playing the long game." },
-  { term: "Aquarius", category: "Chart", definition: "Air sign ruled by Saturn — vision, community, independence. The outsider: original, principled, future-facing." },
-  { term: "Pisces", category: "Chart", definition: "Water sign ruled by Jupiter — surrender, imagination, compassion. The mystic: dreamy, porous, spiritually attuned." },
+  { term: "Rashi", category: "Chart", definition: "Zodiac sign — one of 12 equal divisions of the ecliptic, each spanning 30°. In Jyotish, the sidereal zodiac is used (Niryana), which differs from the tropical zodiac used in Western astrology by approximately 23–24° (the ayanamsa). The twelve signs are defined under Signs (Rashis) below." },
   { term: "Navamsha", category: "Chart", definition: "The 9th harmonic divisional chart (D-9) — considered the most important of the varga (divisional) charts. Each sign is divided into 9 equal parts of 3°20'. The navamsha shows the deeper soul-level condition of planets and is especially important for marriage and spiritual development." },
   { term: "Ayanamsa", category: "Chart", definition: "The difference between the tropical and sidereal zodiacs, currently approximately 23–24°. Jyotish uses the sidereal zodiac, so all planetary positions are adjusted by subtracting the ayanamsa from tropical positions. The most commonly used ayanamsa is Lahiri (Chitrapaksha)." },
   { term: "Midheaven (MC)", category: "Chart", definition: "The Medium Coeli — the highest point of the ecliptic at your birth, the top of the meridian axis. It's the sign of vocation, public standing, and dharma — your outer voice: what you're called to build and be seen doing. Vedic whole-sign charts don't use the MC degree, but Velea reads it in the sidereal zodiac (by the real sign behind it). A planet transiting your MC colors the larger narrative of a life-chapter for as long as it sits there — and how it activates depends on the planet, its dignity in that sign, and the natal house it carries from." },
@@ -257,26 +245,6 @@ export default function Glossary() {
     <div className="container py-6 space-y-5">
       <AppHeader pageTitle="Glossary" />
 
-      {/* Inline-tooltips toggle — lives here, where the feature is explained. */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", padding: "0.75rem 0.9rem", borderRadius: 12, border: "1px solid var(--color-border)", background: "var(--color-card)" }}>
-        <span style={{ fontSize: "0.82rem", color: "var(--foreground)", lineHeight: 1.45 }}>
-          Explain terms inline
-          <span style={{ display: "block", fontSize: "0.72rem", color: "var(--color-muted-foreground)", marginTop: 2 }}>
-            Underline glossary words across the app and define them on tap.
-          </span>
-        </span>
-        <button
-          onClick={() => saveSettings({ ...settings, glossaryTooltips: !tooltipsOn })}
-          aria-pressed={tooltipsOn}
-          style={{ flexShrink: 0, fontSize: "0.75rem", fontWeight: 700, padding: "0.3rem 0.8rem", borderRadius: 999, cursor: "pointer",
-            border: `1px solid ${tooltipsOn ? "var(--brand-gold)" : "var(--color-border)"}`,
-            background: tooltipsOn ? "color-mix(in srgb, var(--brand-gold) 18%, transparent)" : "transparent",
-            color: tooltipsOn ? "var(--brand-gold)" : "var(--color-muted-foreground)" }}
-        >
-          {tooltipsOn ? "On" : "Off"}
-        </button>
-      </div>
-
       {/* Search */}
       <div className="relative">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--color-muted-foreground)" }} />
@@ -332,6 +300,26 @@ export default function Glossary() {
             </button>
           );
         })}
+      </div>
+
+      {/* Inline-tooltips toggle — below the search/filter (the primary controls), not above them. */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", padding: "0.75rem 0.9rem", borderRadius: 12, border: "1px solid var(--color-border)", background: "var(--color-card)" }}>
+        <span style={{ fontSize: "0.82rem", color: "var(--foreground)", lineHeight: 1.45 }}>
+          Explain terms inline
+          <span style={{ display: "block", fontSize: "0.72rem", color: "var(--color-muted-foreground)", marginTop: 2 }}>
+            Underline glossary words across the app and define them on tap.
+          </span>
+        </span>
+        <button
+          onClick={() => saveSettings({ ...settings, glossaryTooltips: !tooltipsOn })}
+          aria-pressed={tooltipsOn}
+          style={{ flexShrink: 0, fontSize: "0.75rem", fontWeight: 700, padding: "0.3rem 0.8rem", borderRadius: 999, cursor: "pointer",
+            border: `1px solid ${tooltipsOn ? "var(--brand-gold)" : "var(--color-border)"}`,
+            background: tooltipsOn ? "color-mix(in srgb, var(--brand-gold) 18%, transparent)" : "transparent",
+            color: tooltipsOn ? "var(--brand-gold)" : "var(--color-muted-foreground)" }}
+        >
+          {tooltipsOn ? "On" : "Off"}
+        </button>
       </div>
 
       {/* Count */}

@@ -133,8 +133,6 @@ export default function ProfectionYear() {
   const [s3, setS3] = useState(false);
   const [s5, setS5] = useState(false);
   const [s6, setS6] = useState(false);
-  const [s7, setS7] = useState(false);
-  const [s8, setS8] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
   const [roadOpen, setRoadOpen] = useState(false);
   const [explainerOpen, setExplainerOpen] = useState(false);
@@ -221,25 +219,6 @@ export default function ProfectionYear() {
     : taskMode === 'Selective' ? 'var(--velea-selective-card-gradient)'
     : taskMode === 'Restraint' ? 'var(--velea-restraint-card-gradient)'
     : 'var(--card)';
-
-  const card = (
-    title: string,
-    open: boolean,
-    setOpen: (v: boolean) => void,
-    content: React.ReactNode
-  ) => (
-    <div style={{ borderRadius: "var(--radius-card)", overflow: "hidden", marginBottom: "1.25rem", background: tlGradient }}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer" }}
-      >
-        <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>{title}</span>
-        <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
-      </button>
-      {open ? content : null}
-    </div>
-  );
 
   // "The Read" accordions: a CLOSED card is a flat solid color; an OPEN card carries a
   // subtle gradient. Synthesis-first means each section opens in near-black (the human
