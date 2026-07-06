@@ -1,5 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Star } from "lucide-react";
+import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw, Sun } from "lucide-react";
+
+/** The Stage mark — a circle inscribed in a square (David's icon). Inherits color via currentColor. */
+function StageMark({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden style={{ flexShrink: 0 }}>
+      <rect x="3" y="3" width="18" height="18" />
+      <circle cx="12" cy="12" r="9" />
+    </svg>
+  );
+}
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -341,7 +351,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", whiteSpace: "nowrap" }}>
                   <span style={{ opacity: 0.4 }}>•</span>
                   <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
-                  {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1 }}>{stampHoraGlyph}</span>}
+                  {stampHoraGlyph && (stampHoraLord === "Sun"
+                    ? <Sun size={12} strokeWidth={2} aria-label="Sun hora" style={{ color: "#C9A84C", flexShrink: 0 }} />
+                    : <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1 }}>{stampHoraGlyph}</span>)}
                 </span>
               )}
               {/* The golden bullseye lives up on the brand line as "GOLDEN HOUR" — no duplicate mark
@@ -361,7 +373,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 e.currentTarget.style.borderColor = "transparent";
               }}
             >
-              <Star size={11} />
+              <StageMark size={12} />
               <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
                 THE STAGE
               </span>
