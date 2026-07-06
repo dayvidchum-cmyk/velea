@@ -8,7 +8,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import ModeTag from "@/components/ModeTag";
 import TaskItem from "@/components/TaskItem";
 import SwipeableTaskRow from "@/components/SwipeableTaskRow";
 import AddTaskSheet from "@/components/AddTaskSheet";
@@ -18,7 +17,7 @@ import SignpostSheet from "@/components/SignpostSheet";
 import DueOrbSheet from "@/components/DueOrbSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 
-import { PANCHANG_TO_TASK_MODE, PRIORITY_EXCLAIM, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_CARD_GRADIENT, MODE_SOLID, MODE_DARK, MODE_RGBA } from "../../../shared/types";
+import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_DARK, MODE_RGBA } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
 import { evaluateRestGate } from "../../../shared/rest-gate";
 import type { Task } from "../../../drizzle/schema";
@@ -116,6 +115,29 @@ const DAY_MODE_DEFS: { mode: TaskMode; essence: string; bestFor: string[]; avoid
   },
 ];
 
+// Task → AddTaskSheet's editTask shape. One mapping for every edit entry point (was duplicated
+// three times — general, pinned, aligned — each a ~15-field literal that could drift apart).
+function toSheetTask(t: any) {
+  return {
+    id: String(t.id),
+    title: t.title,
+    mode: t.mode,
+    priority: t.priority === "High" ? 3 : t.priority === "Medium" ? 2 : 1,
+    dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : undefined,
+    isPinned: t.isPinned,
+    wealthFlow: t.wealthFlow ?? false,
+    projectId: t.projectId ?? null,
+    cognitiveLoad: t.cognitiveLoad ?? null,
+    physicalLoad: t.physicalLoad ?? null,
+    creativeRequired: t.creativeRequired ?? null,
+    socialRequired: t.socialRequired ?? null,
+    emotionalLoad: t.emotionalLoad ?? null,
+    notes: t.notes ?? null,
+    recurrence: t.recurrence ?? null,
+    lifeAreas: t.lifeAreas ?? null,
+  };
+}
+
 export default function Planner() {
   const [, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -148,8 +170,6 @@ export default function Planner() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   // Edit sheets for the curated daily lists (ported from the retired Today page)
-  const [editPinnedTask, setEditPinnedTask] = useState<Task | null>(null);
-  const [editAlignedTask, setEditAlignedTask] = useState<Task | null>(null);
   const [heroOpen, setHeroOpen] = useState(true);
   const [signpostOpen, setSignpostOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
@@ -506,11 +526,6 @@ export default function Planner() {
       })
       .slice(0, 3);
   }, [allTasks, selectedTaskMode, isFlexDay]);
-
-  const dueTasks = useMemo(() => {
-    const now = Date.now();
-    return allTasks.filter((t) => t.dueDate === selectedDate && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= now));
-  }, [allTasks, selectedDate]);
 
   // Orb counts reflect TODAY, derived from the single allTasks source so there is
   // no extra fetch. Mirrors server tasks.modeCounts / tasks.dueList semantics.
@@ -1216,36 +1231,8 @@ export default function Planner() {
         );
       })(), document.body)}
 
-      {/* Due this day — tied to the calendar's selected date */}
-      {isAuthenticated && dueTasks.length > 0 && (
-        <div className="relative z-10">
-          <p
-            className="text-sm font-bold uppercase mb-2"
-            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-          >
-            Due this day
-          </p>
-          <div className="space-y-2">
-            {dueTasks.map((task) => (
-              <button
-                key={task.id}
-                onClick={() => handleEdit(task)}
-                className="flex items-center gap-3 p-3 rounded-xl w-full text-left transition-all active:scale-[0.98]"
-                style={{ background: MODE_CARD_GRADIENT[task.mode as TaskMode] ?? "var(--color-card)", border: "none" }}
-              >
-                <span
-                  className="text-xs font-bold flex-shrink-0"
-                  style={{ color: "rgba(255,255,255,0.95)" }}
-                >
-                  {PRIORITY_EXCLAIM[task.priority as TaskPriority] ?? "!"}
-                </span>
-                <span className="text-sm flex-1" style={{ color: "rgba(255,255,255,0.95)" }}>{task.title}</span>
-                <ModeTag mode={task.mode} />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* (The per-date "Due this day" list was removed — the always-visible Due orb + its sheet are
+          the single due surface now, instead of a second one hidden inside the collapsed Calendar.) */}
 
       {/* ── 2. TIME LORD MOVEMENT ── */}
       {selectedPanchang && (
@@ -1484,7 +1471,7 @@ export default function Planner() {
                     onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
                     onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
                                 onDelete={() => deleteMutation.mutate({ id: task.id })}
-                                onEdit={(t: Task) => setEditPinnedTask(t)}
+                                onEdit={(t: Task) => handleEdit(t)}
                                 dayMode={todayTaskMode}
                               />
                             </SwipeableTaskRow>
@@ -1548,7 +1535,7 @@ export default function Planner() {
                     onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
                     onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
                     onDelete={() => deleteMutation.mutate({ id: task.id })}
-                    onEdit={(t: Task) => setEditPinnedTask(t)}
+                    onEdit={(t: Task) => handleEdit(t)}
                     dayMode={todayTaskMode}
                     alignment={alignmentById.get(task.id) ?? 20}
                   />
@@ -1611,7 +1598,7 @@ export default function Planner() {
                       onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
                       onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
                       onDelete={() => deleteMutation.mutate({ id: alignedForToday[0].id })}
-                      onEdit={(t: Task) => setEditAlignedTask(t)}
+                      onEdit={(t: Task) => handleEdit(t)}
                       dayMode={todayTaskMode}
                       alignment={(alignedForToday[0] as any).alignment ?? alignmentById.get(alignedForToday[0].id)}
                       compact
@@ -1648,7 +1635,7 @@ export default function Planner() {
                     onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
                     onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
                     onDelete={() => deleteMutation.mutate({ id: task.id })}
-                    onEdit={(t: Task) => setEditAlignedTask(t)}
+                    onEdit={(t: Task) => handleEdit(t)}
                     dayMode={todayTaskMode}
                     alignment={(task as any).alignment ?? alignmentById.get(task.id)}
                     compact
@@ -1721,7 +1708,7 @@ export default function Planner() {
                       onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
                       onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned })}
                       onDelete={() => deleteMutation.mutate({ id: task.id })}
-                      onEdit={(t: Task) => setEditPinnedTask(t)}
+                      onEdit={(t: Task) => handleEdit(t)}
                       dayMode={todayTaskMode}
                     />
                   </SwipeableTaskRow>
@@ -1753,23 +1740,7 @@ export default function Planner() {
         />
       )}
 
-      {/* Edit Pinned Task Sheet */}
-      {editPinnedTask && (
-        <AddTaskSheet
-          open={!!editPinnedTask}
-          onClose={() => setEditPinnedTask(null)}
-          editTask={editPinnedTask ? { id: String(editPinnedTask.id), title: editPinnedTask.title, mode: editPinnedTask.mode, priority: editPinnedTask.priority === 'High' ? 3 : editPinnedTask.priority === 'Medium' ? 2 : 1, dueDate: editPinnedTask.dueDate ? new Date(editPinnedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editPinnedTask.isPinned, wealthFlow: (editPinnedTask as any).wealthFlow ?? false, projectId: (editPinnedTask as any).projectId ?? null, cognitiveLoad: (editPinnedTask as any).cognitiveLoad ?? null, physicalLoad: (editPinnedTask as any).physicalLoad ?? null, creativeRequired: (editPinnedTask as any).creativeRequired ?? null, socialRequired: (editPinnedTask as any).socialRequired ?? null, emotionalLoad: (editPinnedTask as any).emotionalLoad ?? null, notes: (editPinnedTask as any).notes ?? null, recurrence: (editPinnedTask as any).recurrence ?? null, lifeAreas: (editPinnedTask as any).lifeAreas ?? null } : undefined}
-        />
-      )}
-
-      {/* Edit Aligned Task Sheet */}
-      {editAlignedTask && (
-        <AddTaskSheet
-          open={!!editAlignedTask}
-          onClose={() => setEditAlignedTask(null)}
-          editTask={editAlignedTask ? { id: String(editAlignedTask.id), title: editAlignedTask.title, mode: editAlignedTask.mode, priority: editAlignedTask.priority === 'High' ? 3 : editAlignedTask.priority === 'Medium' ? 2 : 1, dueDate: editAlignedTask.dueDate ? new Date(editAlignedTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editAlignedTask.isPinned, wealthFlow: (editAlignedTask as any).wealthFlow ?? false, projectId: (editAlignedTask as any).projectId ?? null, cognitiveLoad: (editAlignedTask as any).cognitiveLoad ?? null, physicalLoad: (editAlignedTask as any).physicalLoad ?? null, creativeRequired: (editAlignedTask as any).creativeRequired ?? null, socialRequired: (editAlignedTask as any).socialRequired ?? null, emotionalLoad: (editAlignedTask as any).emotionalLoad ?? null, notes: (editAlignedTask as any).notes ?? null, recurrence: (editAlignedTask as any).recurrence ?? null, lifeAreas: (editAlignedTask as any).lifeAreas ?? null } : undefined}
-        />
-      )}
+      {/* (Pinned + Aligned edits now route through handleEdit → the single Add/Edit sheet below.) */}
 
       {/* Why-now pop-up for an aligned task */}
       <WhyNowSheet task={whyNowTask} modeColor={todayModeColor} onClose={() => setWhyNowTask(null)} />
@@ -1784,7 +1755,7 @@ export default function Planner() {
       <AddTaskSheet
         open={sheetOpen}
         onClose={() => { setSheetOpen(false); setEditTask(null); }}
-         editTask={editTask ? { id: String(editTask.id), title: editTask.title, mode: editTask.mode, priority: editTask.priority === 'High' ? 3 : editTask.priority === 'Medium' ? 2 : 1, dueDate: editTask.dueDate ? new Date(editTask.dueDate).toISOString().split('T')[0] : undefined, isPinned: editTask.isPinned, wealthFlow: editTask.wealthFlow ?? false, projectId: editTask.projectId ?? null, cognitiveLoad: (editTask as any).cognitiveLoad ?? null, physicalLoad: (editTask as any).physicalLoad ?? null, creativeRequired: (editTask as any).creativeRequired ?? null, socialRequired: (editTask as any).socialRequired ?? null, emotionalLoad: (editTask as any).emotionalLoad ?? null, notes: (editTask as any).notes ?? null, recurrence: (editTask as any).recurrence ?? null, lifeAreas: (editTask as any).lifeAreas ?? null } : undefined}
+        editTask={editTask ? toSheetTask(editTask) : undefined}
       />
 
 
