@@ -17,6 +17,12 @@ const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punar
 const ORD = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
 const SLOW = ["Jupiter","Saturn","Rahu"] as const;
 
+// Signs each graha owns (Aries=0), for deriving "houses ruled" from a lagna. Nodes own nothing here.
+const OWNED_SIGNS: Record<string, number[]> = {
+  Sun:[4], Moon:[3], Mars:[0,7], Mercury:[2,5], Jupiter:[8,11], Venus:[1,6], Saturn:[9,10], Rahu:[], Ketu:[],
+};
+const rulesHouses = (lord: string, lagnaIdx: number) => (OWNED_SIGNS[lord] ?? []).map((s) => ((s - lagnaIdx + 12) % 12) + 1);
+
 const norm = (x: number) => ((x % 360) + 360) % 360;
 const signIdx = (lon: number) => Math.floor(norm(lon) / 30);
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -31,6 +37,27 @@ export interface ArcMilestone {
   title: string;   // short label, e.g. "Ketu season → Venus"
   detail: string;  // one grounded line — what shifts, in house terms
 }
+// One dasha period (maha or antar) with the age-span it covers and its lord's chart footprint —
+// the natal house it sits in and the houses it rules. The narrative layer turns this into voice.
+export interface DashaPeriod {
+  lord: string;
+  startDate: string;
+  endDate: string;
+  ageStart: number;
+  ageEnd: number;
+  natalHouse: number | null;  // where the lord sits natally (needs natalHouseByPlanet)
+  rulesHouses: number[];      // houses it rules from the lagna
+}
+
+// The road behind + the road just ahead: each mahadasha already lived, then the current
+// mahadasha, the current antardasha (where she stands), and the next antardasha.
+export interface DashaJourney {
+  pastMahas: DashaPeriod[];
+  currentMaha: DashaPeriod | null;
+  currentAntar: DashaPeriod | null;
+  nextAntar: DashaPeriod | null;
+}
+
 export interface Arc {
   from: string;
   horizonDays: number;
@@ -38,6 +65,7 @@ export interface Arc {
   crownCount: number;
   crownDates: string[];
   milestones: ArcMilestone[]; // ordered by date
+  dashaJourney: DashaJourney;
 }
 
 export interface ArcSubject {
@@ -47,6 +75,7 @@ export interface ArcSubject {
   moonDegree: string;
   moonLongitude: string | null;
   lagnaSign: string;
+  natalHouseByPlanet?: Record<string, number>; // e.g. { Jupiter: 2, Saturn: 1, ... } — enriches the journey
 }
 
 /**
@@ -147,6 +176,41 @@ export async function computeArc(subject: ArcSubject, from: string, horizonDays 
     }
   }
 
+  // ── The dasha journey (looking back AND forward): each mahadasha already lived → the current
+  //    mahadasha → the current antardasha → the next antardasha. The retrospective spine. ──
+  let dashaJourney: DashaJourney = { pastMahas: [], currentMaha: null, currentAntar: null, nextAntar: null };
+  try {
+    const tl = calculateDashaTimeline(subject.birthDate, subject.moonNakshatra, subject.moonSign, subject.moonDegree, from, subject.moonLongitude);
+    const entries = tl.entries as any[];
+    const curIdx = entries.findIndex((e) => e.isCurrent);
+    const cur = entries[curIdx];
+    const birth = new Date(subject.birthDate + "T00:00:00Z");
+    const ageAt = (d: string) => {
+      const t = new Date(d + "T00:00:00Z");
+      let a = t.getUTCFullYear() - birth.getUTCFullYear();
+      if (t.getUTCMonth() < birth.getUTCMonth() || (t.getUTCMonth() === birth.getUTCMonth() && t.getUTCDate() < birth.getUTCDate())) a--;
+      return a;
+    };
+    const period = (lord: string, s: string, e: string): DashaPeriod =>
+      ({ lord, startDate: s, endDate: e, ageStart: ageAt(s), ageEnd: ageAt(e), natalHouse: subject.natalHouseByPlanet?.[lord] ?? null, rulesHouses: rulesHouses(lord, lagnaIdx) });
+    if (cur) {
+      // Collapse the per-antar entries into mahadasha spans (in order).
+      const spans: { lord: string; start: string; end: string }[] = [];
+      for (const e of entries) {
+        const last = spans[spans.length - 1];
+        if (last && last.lord === e.mahadasha) last.end = e.endDate;
+        else spans.push({ lord: e.mahadasha, start: e.startDate, end: e.endDate });
+      }
+      const curSpanIdx = spans.findIndex((s) => s.lord === cur.mahadasha);
+      dashaJourney.pastMahas = spans.slice(0, curSpanIdx).map((s) => period(s.lord, s.start, s.end));
+      const cs = spans[curSpanIdx];
+      dashaJourney.currentMaha = period(cs.lord, cs.start, cs.end);
+      dashaJourney.currentAntar = period(cur.antardasha, cur.startDate, cur.endDate);
+      const next = entries[curIdx + 1];
+      if (next) dashaJourney.nextAntar = period(next.antardasha, next.startDate, next.endDate);
+    }
+  } catch { /* journey optional */ }
+
   milestones.sort((a, b) => a.daysAway - b.daysAway);
-  return { from, horizonDays, apex, crownCount: crownDates.length, crownDates, milestones };
+  return { from, horizonDays, apex, crownCount: crownDates.length, crownDates, milestones, dashaJourney };
 }
