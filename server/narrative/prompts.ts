@@ -657,15 +657,19 @@ Produce two fields:
   them, and keep the WHOLE read UNDER ~110 WORDS. BREVITY IS THE POINT — a wall of text
   fails even when every word is true; an overwhelmed brain reads nothing and bounces. Each
   paragraph is ONE or TWO sentences, never more. The beats: (1) what is at STAKE today and
-  the move the day-mode asks; (2) the year's standing theme, in a single line; (3) the ONE
+  the move the day-mode asks; (2) the year's standing theme as a single line IN MOTION — not a
+  static state but a movement: where the long season now closing has brought them, giving way to
+  what the next one opens (draw it from arc.journey when present — the chapter behind → what opens
+  next — in plain life-language, never a planet or house name; ONE line, not a new paragraph); (3) the ONE
   concrete thing to do or protect. CUT everything not load-bearing. Lead with what is at
   STAKE for this person — the axis and its risk (per NAME THE AXIS AND ITS RISK):
   their self, their agency, their energy, what they stand to lose — not the literal
   contents of a house. Keep the year's SUBJECT (the activated
   house) in front: a 1st-house year is about the SELF even on a day the weather lands
   in the 8th. Example shape (do not copy the content): "A Restraint day — hold your
-  line, don't give past it. Your year ties who you are to the work you do for others,
-  and today the pull is to overextend in service and lose yourself in it; serve less,
+  line, don't give past it. The years that tied who you are to the work you do for others are
+  giving way to living it for yourself instead, and today the pull is to overextend in service
+  and lose yourself in it; serve less,
   guard your own ground, and let the friction show you where you've already given too
   much."
   OVERRIDE the house-naming convention here. The glance names ZERO chart mechanics.
@@ -917,4 +921,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-06-old-soul-internal";
+export const PROMPT_VERSION = "2026-07-06-old-soul-continuity";
