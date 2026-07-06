@@ -141,6 +141,11 @@ export default function MasterModeCard() {
               );
             })}
           </div>
+          {/* Birth-time caveat — the bird is derived from the birth nakshatra, so an approximate
+              birth time can land on a different bird (and shift these windows). */}
+          <p style={{ margin: "0.7rem 0 0", paddingTop: "0.6rem", borderTop: "1px solid var(--color-border)", fontSize: "0.62rem", fontStyle: "italic", color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>
+            Your bird is set from your birth time — if that's approximate, the bird and these windows can shift.
+          </p>
         </div>
       )}
     </div>
