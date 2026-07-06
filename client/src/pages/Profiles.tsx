@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -300,7 +300,7 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMakeActive 
           className="flex-1"
         >
           {saving ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
-          {form.birthDate ? "Save & Calculate Chart" : "Save Profile"}
+          {form.birthDate && form.birthTime ? "Save & Calculate Chart" : "Save Profile"}
         </Button>
         <Button variant="outline" onClick={onCancel} disabled={saving}>
           Cancel
@@ -562,6 +562,22 @@ export default function Profiles() {
   const [editingProfile, setEditingProfile] = useState<any>(null);
   const [saving, setSaving] = useState(false);
 
+  // Deep-link: /profiles?edit=<id> (from Settings' "Edit birth details") jumps straight into the
+  // edit form for that profile — no hunting the card + pencil. Runs once, then clears the param.
+  const deepLinkedRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkedRef.current || isLoading || !profileList.length) return;
+    deepLinkedRef.current = true;
+    const edit = new URLSearchParams(window.location.search).get("edit");
+    if (!edit) return;
+    const id = parseInt(edit, 10);
+    const target = !Number.isNaN(id)
+      ? profileList.find((p: any) => p.id === id)
+      : (profileList.find((p: any) => p.isActive) ?? profileList[0]);
+    if (target) { setEditingProfile(target); setMode("edit"); }
+    window.history.replaceState({}, "", "/profiles");
+  }, [isLoading, profileList]);
+
   const createMutation = trpc.profiles.create.useMutation();
   const updateMutation = trpc.profiles.update.useMutation();
   const calculateMutation = trpc.profiles.calculateChart.useMutation();
@@ -604,26 +620,9 @@ export default function Profiles() {
         toast.success(`${data.name} created`);
       }
 
-      await utils.profiles.list.invalidate();
-      await utils.profiles.getActive.invalidate();
-      await utils.profiles.getSubject.invalidate();
-      if (makeActive) {
-        await Promise.all([
-          utils.settings.getBirthChart.invalidate(),
-          utils.panchang.today.invalidate(),
-          utils.panchang.byDate.invalidate(),
-          utils.panchang.byMonth.invalidate(),
-          utils.panchang.timeLordInfluence.invalidate(),
-          utils.dasha.timeline.invalidate(),
-          utils.profection.current.invalidate(),
-          utils.profection.timeLordTransits.invalidate(),
-          utils.timeLordTransit.forDate.invalidate(),
-          utils.narrative.deepRead.invalidate(),
-          utils.narrative.currentTransits.invalidate(),
-          utils.diagnostics.day.invalidate(),
-          utils.diagnostics.range.invalidate(),
-        ]);
-      }
+      // Blanket invalidate — a new chart touches too many surfaces to hand-maintain a query list
+      // (that list has silently gone stale before). One source of truth, no missing-key bugs.
+      await utils.invalidate();
       setMode("list");
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to create profile");
@@ -649,6 +648,7 @@ export default function Profiles() {
       });
 
       // Recalculate chart if birth data is present
+      let calcFailed = false;
       if (data.birthDate && data.birthTime) {
         try {
           await calculateMutation.mutateAsync({
@@ -661,7 +661,7 @@ export default function Profiles() {
             birthTimezone: data.birthTimezone || undefined,
           });
         } catch {
-          // Chart calc failed — not fatal
+          calcFailed = true; // surface it below — a silent recalc fail looked like success
         }
       }
 
@@ -669,26 +669,12 @@ export default function Profiles() {
         await setActiveMutation.mutateAsync({ id: editingProfile.id });
       }
 
-      await Promise.all([
-        utils.profiles.list.invalidate(),
-        utils.profiles.getActive.invalidate(),
-        utils.profiles.getSubject.invalidate(),   // the natal chart reads this — was missing, so edits looked "stuck"
-        utils.settings.getBirthChart.invalidate(),
-        utils.panchang.today.invalidate(),
-        utils.panchang.byDate.invalidate(),
-        utils.panchang.byMonth.invalidate(),
-        utils.panchang.timeLordInfluence.invalidate(),
-        utils.dasha.timeline.invalidate(),
-        utils.profection.current.invalidate(),
-        utils.profection.timeLordTransits.invalidate(),
-        utils.timeLordTransit.forDate.invalidate(),
-        utils.narrative.deepRead.invalidate(),
-        utils.narrative.currentTransits.invalidate(),
-        utils.diagnostics.day.invalidate(),
-        utils.diagnostics.range.invalidate(),
-      ]);
+      // Blanket invalidate — same reason as create: the chart feeds too many reads (getSubject was
+      // once missing here, so edits "looked stuck"). One call, no hand-maintained list to drift.
+      await utils.invalidate();
 
-      toast.success(`${data.name} updated`);
+      if (calcFailed) toast.error(`${data.name} saved, but the chart didn't recalculate — check the birth time and try again.`);
+      else toast.success(`${data.name} updated`);
       setMode("list");
       setEditingProfile(null);
     } catch (err: any) {

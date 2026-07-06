@@ -741,7 +741,7 @@ export default function Settings() {
           </div>
           <div className="py-4">
             <button
-              onClick={() => navigate("/profiles")}
+              onClick={() => navigate((subject as any)?.profileId ? `/profiles?edit=${(subject as any).profileId}` : "/profiles")}
               className="w-full text-sm font-semibold py-2.5 rounded-lg transition-colors"
               style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}
             >
