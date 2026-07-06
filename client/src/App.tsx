@@ -18,11 +18,8 @@ import CheckInNudge from "./components/CheckInNudge";
 import { APP_VERSION } from "./lib/version";
 import AddTaskSheet from "./components/AddTaskSheet";
 import Onboarding from "./components/Onboarding";
-import Home from "./pages/Home";
 import Planner from "./pages/Planner";
-import DashaTimeline from "./pages/DashaTimeline";
 import ProfectionYear from "./pages/ProfectionYear";
-import Astrology from "./pages/Astrology";
 import Glossary from "./pages/Glossary";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
@@ -234,11 +231,9 @@ const { user, loading } = useAuth();
       <main className="overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
           <Route path="/login" component={Login} />
-          <Route path="/astrology" component={Astrology} />
           <Route path="/" component={Planner} />
           <Route path="/tasks"><Redirect to="/" /></Route>
           <Route path="/planner"><Redirect to="/" /></Route>
-          <Route path="/dasha" component={DashaTimeline} />
           <Route path="/profection" component={ProfectionYear} />
           <Route path="/settings" component={Settings} />
           <Route path="/about" component={About} />
