@@ -82,32 +82,6 @@ const PLANNER_MODE_TINT: Record<TaskMode, string> = {
 
 // Plain-language day-mode reference shown at the bottom of Today (collapsible),
 // to help decide which tasks fit which mode. Mirrors the Glossary "Modes" entries.
-const DAY_MODE_DEFS: { mode: TaskMode; essence: string; bestFor: string[]; avoid: string[] }[] = [
-  {
-    mode: "Action",
-    essence: "Visible movement. The day favors initiating, publishing, reaching out, and making decisions.",
-    bestFor: ["Publishing or launching", "Outreach and first contact", "Making decisions", "Starting something new"],
-    avoid: ["Endless prep", "Waiting for perfect conditions", "Second-guessing"],
-  },
-  {
-    mode: "Build",
-    essence: "Preparation and systems. The day favors strengthening the container — drafting, editing, and setup — over going public.",
-    bestFor: ["Drafting and editing", "Setup and organizing", "Planning and research", "Fixing what's broken"],
-    avoid: ["Launching or big public asks", "Forcing visibility", "Cold outreach"],
-  },
-  {
-    mode: "Selective",
-    essence: "Advance, don't initiate. The day favors moving existing threads forward — warm leads, live conversations, follow-ups — not brand-new fronts.",
-    bestFor: ["Following up on warm leads", "Active conversations", "Advancing work in motion", "Finishing one thing"],
-    avoid: ["Cold starts", "Opening many new fronts", "Broad untargeted outreach"],
-  },
-  {
-    mode: "Restraint",
-    essence: "Contain and stabilize. The day favors repair, rest, and reducing exposure — finish rather than start, and don't force outcomes.",
-    bestFor: ["Repair and cleanup", "Resting and recovering", "Finishing rather than starting", "Quiet behind-the-scenes work"],
-    avoid: ["Launching or going public", "Confrontation or high-stakes asks", "Forcing outcomes"],
-  },
-];
 
 // Task → AddTaskSheet's editTask shape. One mapping for every edit entry point (was duplicated
 // three times — general, pinned, aligned — each a ~15-field literal that could drift apart).
@@ -180,8 +154,6 @@ export default function Planner() {
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());
   const [completedOpen, setCompletedOpen] = useState(false);
-  const [modesOpen, setModesOpen] = useState(false);
-  const [openModeDef, setOpenModeDef] = useState<string | null>(null);
 
   function getHouseSuffix(n: number | undefined): string {
     if (!n) return "th";
@@ -669,71 +641,6 @@ export default function Planner() {
       {isAuthenticated && <AddToHomeScreenNote />}
       {isAuthenticated && <MeridianWhisper />}
 
-      {/* ── WHAT ARE DAY MODES? — a small link that opens a pop-up (was a big card at the top) ── */}
-      {isAuthenticated && modesOpen && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: "var(--dialog-overlay)" }} onClick={() => setModesOpen(false)}>
-          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 20, padding: "1.3rem", maxHeight: "82vh", overflowY: "auto" }}>
-            <div className="flex items-center justify-between" style={{ marginBottom: "0.7rem" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: todayModeColor }}>What are day modes?</span>
-              <button onClick={() => setModesOpen(false)} aria-label="Close" style={{ width: 32, height: 32, borderRadius: 999, border: "none", background: "var(--color-secondary)", color: "var(--color-foreground)", fontSize: "1rem", cursor: "pointer" }}>✕</button>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5, marginBottom: "0.35rem" }}>
-                A day mode is Velea's read of what today's sky favors — the kind of work that flows with the day instead of against it. The Moon moving through your chart sets it. Here's what each of the four means and which tasks fit.
-              </p>
-              {DAY_MODE_DEFS.map(({ mode, essence, bestFor, avoid }) => {
-                const color = PLANNER_MODE_OKLCH[mode];
-                const open = openModeDef === mode;
-                return (
-                  <div key={mode} style={{ borderRadius: "14px", border: "1px solid var(--color-border)", background: "var(--color-card)", overflow: "hidden" }}>
-                    <button
-                      onClick={() => setOpenModeDef(open ? null : mode)}
-                      className="w-full flex items-center justify-between"
-                      style={{ padding: "0.8rem 1rem" }}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <span style={{ width: 9, height: 9, borderRadius: 999, background: color, flexShrink: 0 }} />
-                        <span className="text-sm font-bold" style={{ color: "var(--foreground)" }}>{mode}</span>
-                      </span>
-                      <ChevronDown
-                        size={14}
-                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
-                      />
-                    </button>
-                    {open && (
-                      <div style={{ padding: "0 1rem 1rem" }}>
-                        <p className="text-sm" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.55, marginBottom: "0.85rem" }}>
-                          {essence}
-                        </p>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <p className="font-bold uppercase" style={{ fontSize: "0.75rem", letterSpacing: "0.1em", color, marginBottom: "0.4rem" }}>Best for</p>
-                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                              {bestFor.map((t) => (
-                                <li key={t} className="text-xs" style={{ color: "var(--foreground)", lineHeight: 1.4 }}>{t}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="font-bold uppercase" style={{ fontSize: "0.75rem", letterSpacing: "0.1em", color: "var(--color-muted-foreground)", marginBottom: "0.4rem" }}>Ease off</p>
-                            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                              {avoid.map((t) => (
-                                <li key={t} className="text-xs" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>{t}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>,
-        document.body,
-      )}
-
       {/* ── HERO DAY MODE CARD — the primary read, first thing after the header ── */}
       {selectedPanchang ? (
         <div className="relative z-10">
@@ -985,17 +892,8 @@ export default function Planner() {
         </div>
       )}
 
-      {/* Day-modes explainer + Time Master / Hora — BELOW the hero so the primary read leads. The
-          "?" link explains the hero's mode; the two tiles render LOCKED off the allowlist. */}
-      {isAuthenticated && (
-        <button
-          onClick={() => setModesOpen(true)}
-          className="relative z-10 inline-flex items-center gap-1"
-          style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", color: todayModeColor, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.82 }}
-        >
-          What are day modes? <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
-        </button>
-      )}
+      {/* "What are day modes?" removed — the day card already explains its mode inline with a
+          glossary pop-up, so the separate explainer link was redundant. Time Master / Hora follow. */}
       {isAuthenticated && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start" }}>
           <MasterModeCard />

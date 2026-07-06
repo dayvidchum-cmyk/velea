@@ -347,8 +347,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           </div>
         </div>
       </div>
-      {/* Spacer — reserves the height the fixed bar vacated so content clears the pinned strip. */}
-      <div aria-hidden style={{ height: barH }} />
+      {/* Spacer — reserves the height the fixed bar vacated so content clears the pinned strip.
+          The page's <main class="content-safe-area"> ALREADY offsets content by the top safe-area
+          inset, and the fixed bar's own paddingTop reserves that same inset again inside barH — so
+          subtract it here to avoid double-counting (that gap was the dead space above the greeting). */}
+      <div aria-hidden style={{ height: `calc(${barH}px - env(safe-area-inset-top, 0px))` }} />
 
       <div className="relative z-10">
         {/* Large editorial greeting — the visual anchor */}
