@@ -186,9 +186,9 @@ export default function ProjectDetail() {
           </div>
 
           {/* Task counts */}
-          <div className="grid grid-cols-3 gap-3 pt-5">
+          {/* Done · Remaining — dropped the redundant "Total" (it's just Done + Remaining). */}
+          <div className="grid grid-cols-2 gap-3 pt-5">
             {[
-              { label: "Total", value: stats.total },
               { label: "Done", value: stats.completed },
               { label: "Remaining", value: stats.remaining },
             ].map(({ label, value }) => (
@@ -283,42 +283,54 @@ export default function ProjectDetail() {
         )}
 
         {/* Active Tasks */}
-        {stats.active.length > 0 && (
-          <div className="space-y-3">
-            <span
-              className="text-sm font-bold uppercase"
-              style={{
-                color: "var(--foreground)",
-                letterSpacing: "0.04em",
-              }}
-            >
-              Active Tasks ({stats.active.length})
-            </span>
-            <div className="space-y-2">
-              {stats.active.map((task: any) => (
-                <SwipeableTaskRow
-                  key={task.id}
-                  isCompleted={task.isCompleted}
-                  isPinned={task.isPinned}
-                  isExpanded={expandedTaskId === task.id}
-                  onSwipeLeft={() => handleToggleComplete(task.id, task.isCompleted)}
-                  onSwipeRight={() => handleTogglePin(task.id, task.isPinned)}
-                  modeColor={MODE_OKLCH[task.mode as TaskMode]}
-                >
-                  <TaskItem
-                    task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
-                    onToggleComplete={handleToggleComplete}
-                    onTogglePin={handleTogglePin}
-                    onDelete={handleDelete}
-                    onEdit={handleEdit}
-                    onExpandChange={(exp) => setExpandedTaskId(exp ? task.id : null)}
-                    taskModeColor={MODE_OKLCH[task.mode as TaskMode]}
-                  />
-                </SwipeableTaskRow>
-              ))}
+        {/* Active Tasks — excludes the Recommended Next task (it has its own card above) so the same
+            row never renders twice. A light empty state stands in when there are none. */}
+        {(() => {
+          const activeTasks = stats.active.filter((t: any) => t.id !== recommendedTask?.id);
+          if (activeTasks.length === 0) {
+            return (
+              <p className="text-sm text-center py-6" style={{ color: "var(--color-muted-foreground)" }}>
+                {recommendedTask ? "No other active tasks — add one above." : "No active tasks yet — add your first one above."}
+              </p>
+            );
+          }
+          return (
+            <div className="space-y-3">
+              <span
+                className="text-sm font-bold uppercase"
+                style={{
+                  color: "var(--foreground)",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Active Tasks ({activeTasks.length})
+              </span>
+              <div className="space-y-2">
+                {activeTasks.map((task: any) => (
+                  <SwipeableTaskRow
+                    key={task.id}
+                    isCompleted={task.isCompleted}
+                    isPinned={task.isPinned}
+                    isExpanded={expandedTaskId === task.id}
+                    onSwipeLeft={() => handleToggleComplete(task.id, task.isCompleted)}
+                    onSwipeRight={() => handleTogglePin(task.id, task.isPinned)}
+                    modeColor={MODE_OKLCH[task.mode as TaskMode]}
+                  >
+                    <TaskItem
+                      task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                      onToggleComplete={handleToggleComplete}
+                      onTogglePin={handleTogglePin}
+                      onDelete={handleDelete}
+                      onEdit={handleEdit}
+                      onExpandChange={(exp) => setExpandedTaskId(exp ? task.id : null)}
+                      taskModeColor={MODE_OKLCH[task.mode as TaskMode]}
+                    />
+                  </SwipeableTaskRow>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Completed Tasks — collapsible */}
         {stats.completedTasks.length > 0 && (
@@ -435,20 +447,28 @@ export default function ProjectDetail() {
                 </button>
               </div>
             </div>
-          ) : (
+          ) : noteContent ? (
             <div
               className="p-4 rounded-xl text-sm"
               style={{
                 background: "rgba(255,255,255,0.12)",
                 border: "1px solid rgba(255,255,255,0.2)",
-                color: noteContent ? "#fff" : "rgba(255,255,255,0.6)",
-                minHeight: "80px",
+                color: "#fff",
                 whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
               }}
             >
-              {noteContent || "No notes yet. Tap the edit icon to add notes."}
+              {noteContent}
             </div>
+          ) : (
+            /* No empty 80px box — a slim prompt that opens the editor on tap. */
+            <button
+              onClick={() => setEditingNote(true)}
+              className="w-full text-left text-sm py-1"
+              style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.65)" }}
+            >
+              + Add a note about this project
+            </button>
           )}
           </div>
           )}
