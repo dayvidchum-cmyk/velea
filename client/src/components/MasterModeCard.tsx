@@ -65,8 +65,8 @@ export default function MasterModeCard() {
     return (
       <LockedFeatureCard
         title="Time Master"
-        teaser="Your golden hours — the times the sky most favors your action, hour by hour."
-        detail="Time Master reads the Pañcapakṣi birds against the planetary hour to find your golden windows — the hours the sky most favors what you do, tuned to your own chart. It's a premium layer, not yet unlocked on your account."
+        teaser="Your golden hours — when the sky most favors your move."
+        detail="Reads the Pañcapakṣi birds against the planetary hour to find your golden windows — the hours the sky most favors your move, tuned to your chart. A premium layer, not yet unlocked."
       />
     );
   }
