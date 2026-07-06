@@ -25,6 +25,12 @@ const PLANET_GLYPH: Record<string, string> = {
   Sun: "☀", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
 };
 
+// Time Master hourly-category colors (mirrors MasterModeCard's CAT_COLOR) so the activity name in the
+// dateline (Restore, Action, …) reads in its own color, matching the Time Master section.
+const CAT_COLOR: Record<string, string> = {
+  Succeed: "#D4AF37", Energize: "#86C440", Action: "#318a55", Restore: "#178F9E", Caution: "#B15F71",
+};
+
 interface AppHeaderProps {
   /** When provided, renders the Today-page hero layout (date + state utility row + large greeting) */
   heroMode?: {
@@ -94,6 +100,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // clock still show for everyone.
   const { data: tmToday } = trpc.masterMode.today.useQuery({ date: stampDateStr }, { enabled: isAdmin, staleTime: 600000 });
   const { data: horaToday } = trpc.masterMode.hora.useQuery({ date: stampDateStr }, { enabled: isAdmin, staleTime: 300000 });
+  // The dateline's qualifier used to come ONLY from the Today page (via heroMode), so every other
+  // page's dateline was missing it. Fetch today's panchang here so the header is correct everywhere.
+  const { data: headerPanchang } = trpc.panchang.today.useQuery(undefined, { enabled: isAuthenticated, staleTime: 600000 });
   const [switching, setSwitching] = useState<number | "own" | null>(null);
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
@@ -179,7 +188,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const stampMode = (Object.keys(MODE_SOLID) as (keyof typeof MODE_SOLID)[]).find(
     (k) => MODE_SOLID[k].toLowerCase() === modeColor.trim().toLowerCase(),
   ) ?? null;
-  const stampQualifier = heroMode?.qualifier ?? null;
+  const stampQualifier = heroMode?.qualifier ?? (headerPanchang as any)?.qualifier ?? null;
   const tmCurrent = tmToday?.periods?.find((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
   const stampActivity = tmCurrent?.category ?? null;
   const stampGolden = Boolean((tmToday as any)?.goldenNow?.isGolden);
@@ -308,48 +317,49 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               Velea
             </span>
           </div>
-          {/* Utility row: date (left) + THE STAGE (right, where the check-in used to be). The live
-              dateline sits on its own line right under the date; the check-in moved under the greeting. */}
+          {/* Utility row: date (left) + the live dateline (right). THE STAGE sits on its own line
+              under the date. Each hourly-activity name reads in its Time Master color; the clock
+              matches the current date's mode color. */}
           <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.6rem" }}>
               <span
                 className="text-[10px] font-bold tracking-wide whitespace-nowrap"
-                style={{ color: modeColor, letterSpacing: "0.03em" }}
+                style={{ color: modeColor, letterSpacing: "0.03em", paddingTop: "0.05rem" }}
               >
                 {heroDateLabel}
               </span>
-              {/* The Stage — now on the right; opens the Stage pop-up on any page. */}
-              <button
-                onClick={() => setStageSheetOpen(true)}
-                className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-                style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
-                  e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.borderColor = "transparent";
-                }}
-              >
-                <Star size={11} />
-                <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
-                  THE STAGE
-                </span>
-                <ChevronDown size={10} />
-              </button>
+              {/* Live dateline — day mode · activity · hora lord · clock, on the right (swapped up from
+                  under the date). Private bits (activity/hora) render for master users only. */}
+              {(stampModeLabel || stampActivity) && (
+                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end", gap: "0.35rem", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+                  {stampModeLabel && <span style={{ color: modeColor }}>{stampModeLabel}</span>}
+                  {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span></>)}
+                  {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
+                  {stampGolden && <VeleaLorMark size={12} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
+                  <span style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.03em", color: modeColor }}>{stampTime}</span>
+                </div>
+              )}
             </div>
-            {/* Live dateline — day mode · activity · hora lord · clock, right under the date (moved
-                here from under the greeting). Private bits (activity/hora) render for master users only. */}
-            {(stampModeLabel || stampActivity) && (
-              <div style={{ marginTop: "0.3rem", display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.35rem", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
-                {stampModeLabel && <span style={{ color: modeColor }}>{stampModeLabel}</span>}
-                {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span>{stampActivity}</span></>)}
-                {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
-                {stampGolden && <VeleaLorMark size={12} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
-                <span style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.03em" }}>{stampTime}</span>
-              </div>
-            )}
+            {/* The Stage — now under the date (swapped with the dateline); opens the Stage pop-up. */}
+            <button
+              onClick={() => setStageSheetOpen(true)}
+              className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
+              style={{ marginTop: "0.3rem", color: modeColor, background: "transparent", border: "1px solid transparent" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
+                e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "transparent";
+              }}
+            >
+              <Star size={11} />
+              <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
+                THE STAGE
+              </span>
+              <ChevronDown size={10} />
+            </button>
           </div>
         </div>
       </div>

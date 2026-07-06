@@ -1,4 +1,4 @@
-import { Fragment, useState, type ReactElement } from "react";
+import { Fragment, useState, type ReactElement, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 // Personalized traditional annual-profection wheel. Twelve house sectors carry the
@@ -8,7 +8,6 @@ import { ChevronDown } from "lucide-react";
 
 const ZODIAC = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
 const ABBR: Record<string, string> = { Aries: "Ari", Taurus: "Tau", Gemini: "Gem", Cancer: "Can", Leo: "Leo", Virgo: "Vir", Libra: "Lib", Scorpio: "Sco", Sagittarius: "Sag", Capricorn: "Cap", Aquarius: "Aqu", Pisces: "Pis" };
-const RULER: Record<string, string> = { Aries: "Mars", Taurus: "Venus", Gemini: "Mercury", Cancer: "Moon", Leo: "Sun", Virgo: "Mercury", Libra: "Venus", Scorpio: "Mars", Sagittarius: "Jupiter", Capricorn: "Saturn", Aquarius: "Saturn", Pisces: "Jupiter" };
 const PLANET_COLORS: Record<string, string> = { Sun: "#E8A317", Moon: "#C0C0C0", Mars: "#BD0039", Mercury: "#85CDB5", Jupiter: "#C9A800", Venus: "#F8A4AC", Saturn: "#3F50AF", Ketu: "#9A7B6C", Rahu: "#5691A4" };
 // Each sign gets its own shade WITHIN its ruler's hue family, so the two signs a planet
 // rules read as related-but-distinct (Taurus pastel pink / Libra magenta-rose = Venus;
@@ -40,7 +39,6 @@ const RULERSHIP: { planet: string; signs: string[] }[] = [
   { planet: "Jupiter", signs: ["Sagittarius", "Pisces"] },
   { planet: "Saturn", signs: ["Capricorn", "Aquarius"] },
 ];
-const GLYPH_FONT = "'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols2',serif";
 
 function polar(cx: number, cy: number, r: number, deg: number): [number, number] {
   const a = ((deg - 90) * Math.PI) / 180;
@@ -55,7 +53,7 @@ function annular(cx: number, cy: number, ri: number, ro: number, a0: number, a1:
   return `M ${x1} ${y1} A ${ro} ${ro} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${ri} ${ri} 0 ${large} 0 ${x4} ${y4} Z`;
 }
 
-export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: string; age: number; headingColor?: string }) {
+export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lagnaSign: string; age: number; headingColor?: string; whySlot?: ReactNode }) {
   const [rulersOpen, setRulersOpen] = useState(false);
   const lagIdx = ZODIAC.indexOf(lagnaSign);
   if (lagIdx < 0 || age == null) return null;
@@ -71,7 +69,6 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
   const ringW = (ringOuter - hole) / rings;
 
   const currentSign = ZODIAC[(lagIdx + (age % 12)) % 12];
-  const timeLord = RULER[currentSign];
   const currentColor = SIGN_COLOR[currentSign] ?? "#888";
 
   const cells: ReactElement[] = [];
@@ -130,10 +127,9 @@ export function ProfectionWheel({ lagnaSign, age, headingColor }: { lagnaSign: s
         {callouts}
         <circle cx={cx} cy={cy} r={hole} fill="var(--background)" stroke="var(--border)" strokeWidth={0.5} />
       </svg>
-      <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 0.9rem", borderRadius: "999px", background: "transparent", border: "1px solid var(--color-border)", fontSize: "0.95rem", color: "var(--foreground)" }}>
-        <span style={{ width: 12, height: 12, borderRadius: "50%", background: currentColor, flexShrink: 0 }} />
-        <span>This year — house {currentHouse}, <strong><span style={{ fontFamily: GLYPH_FONT }}>{GLYPH[currentSign]}</span> {currentSign}</strong>, ruled by <strong>{timeLord}</strong></span>
-      </div>
+      {/* "Your year, explained" sits here (passed in) — it states the year's house/sign/ruler in full,
+          so the old "This year — house N, Sign, ruled by X" pill was removed as a duplicate. */}
+      {whySlot && <div style={{ width: "100%" }}>{whySlot}</div>}
       <div style={{ width: "100%", borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
         <button
           type="button"
