@@ -492,29 +492,43 @@ export default function ProfectionYear() {
         How profection works <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
       </button>
 
-      {/* Your Time Lords wheel — open by default */}
+      {/* Your Time Lords wheel — open by default. "Why this year?" (the causal chain + the Time Lord's
+          natal placement) is folded in here as a nested, collapsed toggle: it echoed the wheel's own
+          headline as a standalone panel, so only its unique detail lives on, opt-in, under the wheel. */}
       <div data-tour="profection-wheel">
       {panel("Your Time Lords (from birth to 120 years old)", wheelOpen, setWheelOpen, (
-        <ProfectionWheel lagnaSign={lagnaSign} age={age} headingColor={modeColor} />
+        <>
+          <ProfectionWheel lagnaSign={lagnaSign} age={age} headingColor={modeColor} />
+          <div style={{ marginTop: "1.1rem", paddingTop: "1.1rem", borderTop: "1px solid var(--border)" }}>
+            <button
+              type="button"
+              onClick={() => setWhyNowOpen(!whyNowOpen)}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
+            >
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>Why this year?</span>
+              <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: whyNowOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+            </button>
+            {whyNowOpen && (
+              <div style={{ marginTop: "0.9rem" }}>
+                <WhyNowChain
+                  age={age}
+                  activatedHouse={activatedHouse}
+                  activatedSign={activatedSign}
+                  timeLord={timeLord}
+                  tlNatalHouse={tlBody?.house}
+                  tlNatalSign={tlBody?.sign}
+                  tlNatalNakshatra={tlBody?.nakshatra}
+                  accentColor={modeColor}
+                />
+              </div>
+            )}
+          </div>
+        </>
       ))}
       </div>
 
       {/* The Meridian — MC/IC voice axis + who's activating it now (read-only) */}
       <MeridianCard />
-
-      {/* WHY NOW? — deterministic logic chain (computed from the chart, auditable) */}
-      {panel("Why now?", whyNowOpen, setWhyNowOpen, (
-        <WhyNowChain
-          age={age}
-          activatedHouse={activatedHouse}
-          activatedSign={activatedSign}
-          timeLord={timeLord}
-          tlNatalHouse={tlBody?.house}
-          tlNatalSign={tlBody?.sign}
-          tlNatalNakshatra={tlBody?.nakshatra}
-          accentColor={modeColor}
-        />
-      ))}
 
       {/* This year's life areas — the houses this profection year activates ("the party") */}
       {(() => {
