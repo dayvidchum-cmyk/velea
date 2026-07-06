@@ -28,6 +28,11 @@ export default function Users() {
   }
 
   const createTestUserMutation = trpc.auth.createTestUser.useMutation();
+  const usersList = trpc.auth.listUsers.useQuery(undefined, { enabled: user?.role === "admin" });
+  const setRoleMutation = trpc.auth.setUserRole.useMutation({
+    onSuccess: () => usersList.refetch(),
+    onError: (err: any) => setError(err.message || "Failed to update role"),
+  });
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,6 +142,49 @@ export default function Users() {
               <p>Password: [created password]</p>
             </div>
           </div>
+        </Card>
+
+        {/* All users — mark testers. Testers (and admins) get Time Master + Hora unlocked. */}
+        <Card className="p-6 mt-6">
+          <h2 className="text-lg font-semibold text-foreground mb-1">Users &amp; access</h2>
+          <p className="text-sm text-muted-foreground mb-4">Testers get Time Master + Hora unlocked. New test users are testers by default.</p>
+          {usersList.isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : (usersList.data ?? []).length === 0 ? (
+            <p className="text-sm text-muted-foreground">No users.</p>
+          ) : (
+            <div className="divide-y divide-border">
+              {(usersList.data ?? []).map((u) => (
+                <div key={u.id} className="flex items-center justify-between gap-3 py-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{u.name || "—"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border"
+                      style={{
+                        color: u.role === "admin" ? "#C9A84C" : u.role === "tester" ? "#178F9E" : "var(--color-muted-foreground)",
+                        borderColor: u.role === "admin" ? "#C9A84C" : u.role === "tester" ? "#178F9E" : "var(--color-border)",
+                      }}
+                    >
+                      {u.role}
+                    </span>
+                    {u.role !== "admin" && (
+                      <Button
+                        size="sm"
+                        variant={u.role === "tester" ? "outline" : "default"}
+                        disabled={setRoleMutation.isPending}
+                        onClick={() => setRoleMutation.mutate({ userId: u.id, role: u.role === "tester" ? "user" : "tester" })}
+                      >
+                        {u.role === "tester" ? "Remove tester" : "Make tester"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       </main>
     </div>

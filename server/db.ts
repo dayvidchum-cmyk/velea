@@ -63,7 +63,7 @@ export async function getUserByEmail(email: string) {
   return result[0];
 }
 
-export async function createUserWithPassword(data: { email: string; name?: string; passwordHash: string; role?: "user" | "admin" }) {
+export async function createUserWithPassword(data: { email: string; name?: string; passwordHash: string; role?: "user" | "admin" | "tester" }) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const [result] = await db.insert(users).values({ email: data.email, name: data.name, passwordHash: data.passwordHash, role: data.role || "user", loginMethod: "email", createdAt: new Date(), updatedAt: new Date() }).$returningId();

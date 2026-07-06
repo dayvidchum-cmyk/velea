@@ -83,8 +83,11 @@ import { TRPCError } from "@trpc/server";
 // Time Master (Pancha Pakshi) entitlement — the private feature flag. Today this is an allowlist
 // (David = user 2); later it becomes a per-user backend toggle. One source of truth so the data
 // endpoints AND the `access` check (which drives the locked/unlocked UI) can never disagree.
+// Entitled to Time Master + Hora: admins, testers (Lang, Lisa, and new test users), plus the original
+// bootstrap IDs as a safety net. Role is the scalable path — mark a user "tester" and they're in.
 const MASTER_MODE_USER_IDS = [1, 2];
-const hasMasterMode = (userId: number) => MASTER_MODE_USER_IDS.includes(userId);
+const hasMasterMode = (user: { id: number; role?: string | null }) =>
+  user.role === "admin" || user.role === "tester" || MASTER_MODE_USER_IDS.includes(user.id);
 
 const TaskModeEnum = z.enum(["Restraint", "Build", "Selective", "Action"]);
 const PriorityEnum = z.enum(["High", "Medium", "Low"]);
@@ -179,8 +182,31 @@ export const appRouter = router({
         const existing = await getUserByEmail(input.email);
         if (existing) throw new TRPCError({ code: "BAD_REQUEST", message: "Email already in use" });
         const passwordHash = await hashPassword(input.password);
-        const userId = await createUserWithPassword({ email: input.email, name: input.name, passwordHash, role: "user" });
+        // Test users are testers by default → Time Master + Hora are unlocked for them out of the box.
+        const userId = await createUserWithPassword({ email: input.email, name: input.name, passwordHash, role: "tester" });
         return { id: userId, email: input.email, name: input.name };
+      }),
+    // Admin: list all users (id, name, email, role) for the Users page — so testers can be seen + set.
+    listUsers: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const db = await getDb();
+        if (!db) return [];
+        const rows = await db.select({ id: users.id, name: users.name, email: users.email, role: users.role }).from(users).orderBy(users.id);
+        return rows;
+      }),
+    // Admin: set a user's role — used to mark Lang/Lisa (and future testers) as "tester".
+    setUserRole: protectedProcedure
+      .input(z.object({ userId: z.number().int(), role: z.enum(["user", "admin", "tester"]) }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        if (input.userId === ctx.user.id && input.role !== "admin") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "You can't remove your own admin role." });
+        }
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+        await db.update(users).set({ role: input.role, updatedAt: new Date() }).where(eq(users.id, input.userId));
+        return { id: input.userId, role: input.role };
       }),
     createProfileUser: protectedProcedure
       .input(z.object({ profileId: z.number().int(), email: z.string().email(), password: z.string().min(6) }))
@@ -1416,12 +1442,12 @@ export const appRouter = router({
   masterMode: router({
     // Entitlement check — drives the locked/unlocked UI. Public to every signed-in user (they all
     // SEE the feature), but `entitled` is false unless it's turned on for them, which shows the lock.
-    access: protectedProcedure.query(({ ctx }) => ({ entitled: hasMasterMode(ctx.user.id) })),
+    access: protectedProcedure.query(({ ctx }) => ({ entitled: hasMasterMode(ctx.user) })),
     today: protectedProcedure
       .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional(), nowMs: z.number().optional() }))
       .query(async ({ ctx, input }) => {
         // Private feature flag: only these users see Time Master (David = user 2).
-        if (!hasMasterMode(ctx.user.id)) return null;
+        if (!hasMasterMode(ctx.user)) return null;
 
         const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
         const profile = await getActiveProfile(ctx.user.id);
@@ -1474,7 +1500,7 @@ export const appRouter = router({
     hora: protectedProcedure
       .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional(), nowMs: z.number().optional() }))
       .query(async ({ ctx, input }) => {
-        if (!hasMasterMode(ctx.user.id)) return null;
+        if (!hasMasterMode(ctx.user)) return null;
 
         const { computeHoras, HORA_TONE } = await import("./panchang/hora.js");
         const lat = input.lat ?? 42.3601, lon = input.lon ?? -71.0589;
