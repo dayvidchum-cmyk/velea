@@ -347,7 +347,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", whiteSpace: "nowrap" }}>
                   <span style={{ opacity: 0.4 }}>•</span>
                   <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
-                  {stampHoraLord && <span style={{ color: "#C9A84C" }}>{stampHoraLord}</span>}
+                  {stampHoraLord && (<><span style={{ opacity: 0.4 }}>:</span><span style={{ color: "#C9A84C" }}>{stampHoraLord}</span></>)}
                 </span>
               )}
               {/* The golden bullseye lives up on the brand line as "GOLDEN HOUR" — no duplicate mark
