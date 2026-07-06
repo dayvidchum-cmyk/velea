@@ -12,7 +12,7 @@
     "test": "vitest run",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit push",
-    "db:deploy": "drizzle-kit push --force"
+    "db:deploy": "echo '[deploy] auto schema migration is DISABLED to prevent data loss. Run: npm run db:push (reviewed) for deliberate schema changes.'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.107.0",

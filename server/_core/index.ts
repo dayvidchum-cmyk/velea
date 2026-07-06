@@ -8,26 +8,6 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { getUserByEmail, updateUserPasswordHash } from "../db";
-import { hashPassword } from "./password";
-
-// One-shot password recovery via env vars — phone-friendly (no SQL). Set RESET_LOGIN_EMAIL +
-// RESET_LOGIN_PASSWORD in Railway → the matching user's password is reset on the auto-redeploy,
-// then REMOVE both vars. Safe: only someone with Railway access can set them, and it only ever
-// touches the one named account. A no-op when the vars are absent.
-async function maybeResetLoginPassword() {
-  const email = process.env.RESET_LOGIN_EMAIL?.trim().toLowerCase();
-  const password = process.env.RESET_LOGIN_PASSWORD;
-  if (!email || !password) return;
-  try {
-    const user = await getUserByEmail(email);
-    if (!user) { console.log(`[reset] no user found for ${email} — nothing changed`); return; }
-    await updateUserPasswordHash(user.id, await hashPassword(password));
-    console.log(`[reset] password reset for ${email} (user ${user.id}). Now REMOVE the RESET_LOGIN_* env vars.`);
-  } catch (err) {
-    console.error("[reset] failed:", err);
-  }
-}
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -82,8 +62,6 @@ async function startServer() {
   if (port !== preferredPort) {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
-
-  await maybeResetLoginPassword();
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
