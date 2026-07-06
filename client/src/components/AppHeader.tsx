@@ -187,6 +187,10 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const tmCurrent = tmToday?.periods?.find((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
   const stampActivity = tmCurrent?.category ?? null;
   const stampGolden = Boolean((tmToday as any)?.goldenNow?.isGolden);
+  // Golden-hour readout for the brand line (private — only present when Time Master data is: golden
+  // now, else a heads-up for the next golden window). Non-entitled users get no Time Master data → null.
+  const golden = (tmToday as any)?.goldenNow ?? null;
+  const fmtClock = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const horaCurrent = horaToday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
   const stampHoraGlyph = horaCurrent?.lord ? PLANET_GLYPH[horaCurrent.lord] ?? null : null;
   const stampHoraLord = horaCurrent?.lord ?? null;
@@ -305,12 +309,26 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           The spacer below reserves the height it vacates so content isn't hidden underneath. */}
       <div ref={barRef} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 45, background: "var(--background)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
         <div className="container" style={{ paddingTop: "0.9rem", paddingBottom: "0.6rem" }}>
-          {/* Brand mark — the Velea mark + wordmark (Khmer story lives in the login splash) */}
-          <div className="flex items-center gap-2 mb-3">
-            <VeleaMark size={28} color="var(--brand-gold)" />
-            <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>
-              Velea
-            </span>
+          {/* Brand mark (left) + golden-hour readout (right, for balance). The golden chip is always
+              on the logo line so the current/next golden window is visible from every page. */}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <VeleaMark size={28} color="var(--brand-gold)" />
+              <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>
+                Velea
+              </span>
+            </div>
+            {golden && (golden.isGolden ? (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
+                <VeleaLorMark size={14} color="#D4AF37" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.55))", flexShrink: 0 }} />
+                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#D4AF37", whiteSpace: "nowrap" }}>Golden hour</span>
+              </div>
+            ) : golden.nextGoldenMs ? (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
+                <VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap" }}>Golden · {fmtClock(golden.nextGoldenMs)}</span>
+              </div>
+            ) : null)}
           </div>
           {/* Utility row: one combined dateline — date · time · qualifier-mode · activity + hora glyph.
               Date/time/mode read in the current date's mode color; the activity reads in its own Time
