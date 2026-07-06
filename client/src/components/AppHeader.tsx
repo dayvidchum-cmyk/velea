@@ -159,13 +159,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
 
   const today = new Date();
 
-  // Short uppercase date for hero utility row: "WED, JUNE 24, 2026"
-  const heroDateLabel = today.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  }).toUpperCase();
+  // Compact dateline date: "MON, 07-06-2026" (short weekday + MM-DD-YYYY).
+  const shortDateLabel = `${today.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}, ${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}-${today.getFullYear()}`;
 
   // Long date for standard header
   const dateLabel = today.toLocaleDateString("en-US", {
@@ -317,30 +312,19 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               Velea
             </span>
           </div>
-          {/* Utility row: date (left) + the live dateline (right). THE STAGE sits on its own line
-              under the date. Each hourly-activity name reads in its Time Master color; the clock
-              matches the current date's mode color. */}
+          {/* Utility row: one combined dateline — date · time · qualifier-mode · activity + hora glyph.
+              Date/time/mode read in the current date's mode color; the activity reads in its own Time
+              Master color; the hora glyph is gold. THE STAGE sits on its own line under it. */}
           <div>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.6rem" }}>
-              <span
-                className="text-[10px] font-bold tracking-wide whitespace-nowrap"
-                style={{ color: modeColor, letterSpacing: "0.03em", paddingTop: "0.05rem" }}
-              >
-                {heroDateLabel}
-              </span>
-              {/* Live dateline — day mode · activity · hora lord · clock, on the right (swapped up from
-                  under the date). Private bits (activity/hora) render for master users only. */}
-              {(stampModeLabel || stampActivity) && (
-                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end", gap: "0.35rem", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
-                  {stampModeLabel && <span style={{ color: modeColor }}>{stampModeLabel}</span>}
-                  {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span></>)}
-                  {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
-                  {stampGolden && <VeleaLorMark size={12} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
-                  <span style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.03em", color: modeColor }}>{stampTime}</span>
-                </div>
-              )}
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+              <span style={{ color: modeColor, whiteSpace: "nowrap" }}>{shortDateLabel}</span>
+              <span style={{ color: modeColor, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{stampTime}</span>
+              {stampModeLabel && (<><span style={{ opacity: 0.4 }}>•</span><span style={{ color: modeColor, whiteSpace: "nowrap" }}>{stampModeLabel}</span></>)}
+              {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span style={{ color: CAT_COLOR[stampActivity] ?? "inherit", whiteSpace: "nowrap" }}>{stampActivity}</span></>)}
+              {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
+              {stampGolden && <VeleaLorMark size={12} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
             </div>
-            {/* The Stage — now under the date (swapped with the dateline); opens the Stage pop-up. */}
+            {/* The Stage — under the dateline; opens the Stage pop-up. */}
             <button
               onClick={() => setStageSheetOpen(true)}
               className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
