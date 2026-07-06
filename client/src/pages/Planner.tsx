@@ -664,14 +664,6 @@ export default function Planner() {
 
       {isAuthenticated && <AddToHomeScreenNote />}
       {isAuthenticated && <MeridianWhisper />}
-      {/* Time Master + Hora as two compact tiles, side by side. Public: everyone sees them; if the
-          feature isn't entitled for the user they render LOCKED (lock + tap-to-learn popup). */}
-      {isAuthenticated && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start", marginBottom: "1.5rem" }}>
-          <MasterModeCard />
-          <HoraCard />
-        </div>
-      )}
 
       {/* ── WHAT ARE DAY MODES? — a small link that opens a pop-up (was a big card at the top) ── */}
       {isAuthenticated && modesOpen && createPortal(
@@ -738,18 +730,7 @@ export default function Planner() {
         document.body,
       )}
 
-      {/* Small link to open the day-modes pop-up (replaces the big card that used to sit here) */}
-      {isAuthenticated && (
-        <button
-          onClick={() => setModesOpen(true)}
-          className="relative z-10 mb-2 inline-flex items-center gap-1"
-          style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", color: todayModeColor, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.82 }}
-        >
-          What are day modes? <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
-        </button>
-      )}
-
-      {/* ── 3. HERO DAY MODE CARD ── */}
+      {/* ── HERO DAY MODE CARD — the primary read, first thing after the header ── */}
       {selectedPanchang ? (
         <div className="relative z-10">
           <div
@@ -991,7 +972,27 @@ export default function Planner() {
         </div>
       )}
 
-      {/* ── CALENDAR (collapsed by default — low cognitive load) ── */}
+      {/* Day-modes explainer + Time Master / Hora — BELOW the hero so the primary read leads. The
+          "?" link explains the hero's mode; the two tiles render LOCKED off the allowlist. */}
+      {isAuthenticated && (
+        <button
+          onClick={() => setModesOpen(true)}
+          className="relative z-10 inline-flex items-center gap-1"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", color: todayModeColor, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.82 }}
+        >
+          What are day modes? <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
+        </button>
+      )}
+      {isAuthenticated && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start" }}>
+          <MasterModeCard />
+          <HoraCard />
+        </div>
+      )}
+
+      {/* ── CALENDAR & REFLECTIONS (collapsed by default — low cognitive load). The toggle also
+          gates Time Lord Movement + the reflection journal, so the label names them — "Calendar"
+          alone hid the journal. ── */}
       <button
         onClick={() => setPlanOpen((v) => !v)}
         className="flex items-center gap-2 w-full py-2 transition-all relative z-10"
@@ -1000,7 +1001,7 @@ export default function Planner() {
           className="text-sm font-bold uppercase"
           style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
         >
-          Calendar
+          Calendar &amp; Reflections
         </span>
         <ChevronDown
           size={13}
@@ -1757,11 +1758,13 @@ export default function Planner() {
         />
       )}
 
-      {/* Quick Add Sheet (zero-count orb shortcut) */}
+      {/* Quick Add Sheet (mode-orb shortcut) — preselect the orb's mode you tapped, so adding from
+          the Restraint orb starts the task in Restraint (was silently defaulting to Build). */}
       {quickAddMode && (
         <AddTaskSheet
           open={!!quickAddMode}
           onClose={() => setQuickAddMode(null)}
+          initialMode={quickAddMode}
           editTask={undefined}
         />
       )}
