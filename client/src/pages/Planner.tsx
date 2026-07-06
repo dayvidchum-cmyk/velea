@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
@@ -204,7 +204,38 @@ export default function Planner() {
   const goldenSet = useMemo(() => new Set<string>((goldenData?.potential ?? []) as string[]), [goldenData]);
   // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
   // fixed-to-viewport (never clipped by the calendar card's overflow).
-  const [crownTip, setCrownTip] = useState<{ date: string; why: string; cx: number; top: number; bottom: number } | null>(null);
+  const [crownTip, setCrownTip] = useState<{ date: string; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
+  // Scroll-anchor: selecting a date re-renders the hero card ABOVE the calendar, whose height change
+  // would otherwise shove the calendar and "jump" the screen. We capture the calendar's viewport top
+  // on tap and restore it in a layout effect so the tapped cell stays visually put.
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const scrollAnchorRef = useRef<number | null>(null);
+  const ignoreScrollRef = useRef(false);
+  useLayoutEffect(() => {
+    const anchor = scrollAnchorRef.current;
+    scrollAnchorRef.current = null;
+    if (anchor == null || !calendarRef.current) return;
+    const delta = calendarRef.current.getBoundingClientRect().top - anchor;
+    if (Math.abs(delta) > 0.5) { ignoreScrollRef.current = true; window.scrollBy(0, delta); }
+  }, [selectedDate]);
+  // Crown popup dismissal WITHOUT a scroll-blocking backdrop (that froze the page): close on an
+  // outside pointer-down, on user scroll (the anchor correction's programmatic scroll is ignored
+  // once), and on resize. The popup is anchored to a captured rect, so any real scroll should close it.
+  useEffect(() => {
+    if (!crownTip) return;
+    const onScroll = () => { if (ignoreScrollRef.current) { ignoreScrollRef.current = false; return; } setCrownTip(null); };
+    const onResize = () => setCrownTip(null);
+    const onDown = (e: Event) => { const t = e.target as Element | null; if (!(t && t.closest && t.closest("[data-crowntip]"))) setCrownTip(null); };
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onResize);
+    const id = window.setTimeout(() => document.addEventListener("pointerdown", onDown), 0);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("pointerdown", onDown);
+      window.clearTimeout(id);
+    };
+  }, [crownTip?.date]);
   const todayTaskMode = todayPanchang
     ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
@@ -983,6 +1014,7 @@ export default function Planner() {
         <div className="space-y-5">
       {/* ── 1. CALENDAR ── */}
       <div
+        ref={calendarRef}
         className="relative z-10 overflow-hidden"
         style={{
           borderRadius: "16px",
@@ -1083,10 +1115,12 @@ export default function Planner() {
               <button
                 key={dateStr}
                 onClick={(e) => {
+                  // Anchor the calendar so the hero-card re-render above doesn't jump the screen.
+                  scrollAnchorRef.current = calendarRef.current?.getBoundingClientRect().top ?? null;
                   setSelectedDate(dateStr);
                   if (!isCrown || crownTip?.date === dateStr) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
-                  setCrownTip({ date: dateStr, why: crownByDate.get(dateStr) ?? "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom });
+                  setCrownTip({ date: dateStr, why: crownByDate.get(dateStr) ?? "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent });
                 }}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
@@ -1162,30 +1196,37 @@ export default function Planner() {
         const left = Math.max(8, Math.min(crownTip.cx - W / 2, window.innerWidth - W - 8));
         const above = crownTip.top > window.innerHeight * 0.5;
         const vpos = above
-          ? { bottom: Math.round(window.innerHeight - crownTip.top + 8) }
-          : { top: Math.round(crownTip.bottom + 8) };
+          ? { bottom: Math.round(window.innerHeight - crownTip.top + 10) }
+          : { top: Math.round(crownTip.bottom + 10) };
+        const accent = crownTip.accent;
+        const caretLeft = Math.max(14, Math.min(crownTip.cx - left, W - 14));
         return (
-          <>
-            <div style={{ position: "fixed", inset: 0, zIndex: 80 }} onClick={() => setCrownTip(null)} />
-            <div
-              style={{
-                position: "fixed", left, width: W, ...vpos, zIndex: 81, textAlign: "left",
-                background: "var(--color-card)", border: "1px solid #E7C766", borderRadius: "var(--radius-card)",
-                padding: "0.7rem 0.8rem", fontSize: "0.74rem", lineHeight: 1.45, color: "var(--color-foreground)",
-                fontWeight: 400, boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
-                <img src="/crown.png" alt="" width={14} height={14} style={{ display: "inline-block", verticalAlign: "-2px" }} /> Crown day
+          <div
+            data-crowntip
+            style={{
+              position: "fixed", left, width: W, ...vpos, zIndex: 81, textAlign: "left",
+              background: `color-mix(in srgb, ${accent} 22%, var(--color-card))`,
+              border: `2px solid ${accent}`, borderRadius: "var(--radius-card)",
+              padding: "0.7rem 0.8rem", fontSize: "0.74rem", lineHeight: 1.45, color: "var(--color-foreground)",
+              fontWeight: 400, boxShadow: `0 12px 34px rgba(0,0,0,0.4), 0 0 0 4px color-mix(in srgb, ${accent} 20%, transparent)`,
+            }}
+          >
+            {/* Speech-bubble caret in the day's mode color, pointing back at the tapped day */}
+            <span style={{
+              position: "absolute", left: caretLeft, width: 0, height: 0, transform: "translateX(-50%)",
+              borderLeft: "8px solid transparent", borderRight: "8px solid transparent",
+              ...(above ? { bottom: -8, borderTop: `8px solid ${accent}` } : { top: -8, borderBottom: `8px solid ${accent}` }),
+            }} />
+            <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
+              <img src="/crown.png" alt="" width={14} height={14} style={{ display: "inline-block", verticalAlign: "-2px" }} /> Crown day
+            </span>
+            An auspicious day for you, a Velea&rsquo;lor. What will you do today?
+            {crownTip.why && (
+              <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
+                {crownTip.why}
               </span>
-              An auspicious day for you, a Velea&rsquo;lor. What will you do today?
-              {crownTip.why && (
-                <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
-                  {crownTip.why}
-                </span>
-              )}
-            </div>
-          </>
+            )}
+          </div>
         );
       })(), document.body)}
 
