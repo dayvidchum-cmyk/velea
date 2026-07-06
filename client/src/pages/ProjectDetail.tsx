@@ -43,6 +43,10 @@ export default function ProjectDetail() {
   const [editingNote, setEditingNote] = useState(false);
   const [noteContent, setNoteContent] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
+  // Secondary cards ship collapsed — the Active Tasks list is the page's one primary content.
+  const [recOpen, setRecOpen] = useState(false);
+  const [insightsOpen, setInsightsOpen] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
@@ -212,12 +216,14 @@ export default function ProjectDetail() {
         {/* Recommended Next Task — immersive hero gradient, task in a translucent panel */}
         {recommendedTask && (
           <div className="overflow-hidden" style={{ borderRadius: "var(--radius-hero)", background: heroGradient }}>
-            <div className="px-5 pt-4 pb-1">
+            <button onClick={() => setRecOpen((v) => !v)} className="w-full flex items-center justify-between px-5 pt-4 pb-3" style={{ background: "transparent", border: "none", cursor: "pointer" }}>
               <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
                 Recommended Next
               </span>
-            </div>
-            <div className="p-4 pt-3">
+              <ChevronDown size={15} style={{ color: "rgba(255,255,255,0.8)", transform: recOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+            </button>
+            {recOpen && (
+            <div className="p-4 pt-0">
             <div style={{ borderRadius: "12px", boxShadow: "0 6px 18px rgba(0,0,0,0.30)" }}>
             <SwipeableTaskRow
               isCompleted={false}
@@ -239,18 +245,21 @@ export default function ProjectDetail() {
             </SwipeableTaskRow>
             </div>
             </div>
+            )}
           </div>
         )}
 
         {/* Insights */}
         {insights && (insights.commonMode || insights.upcomingDue.length > 0 || insights.highPriority.length > 0) && (
           <div className="overflow-hidden" style={{ borderRadius: "var(--radius-hero)", background: heroGradient }}>
-            <div className="px-5 pt-4 pb-1">
+            <button onClick={() => setInsightsOpen((v) => !v)} className="w-full flex items-center justify-between px-5 pt-4 pb-3" style={{ background: "transparent", border: "none", cursor: "pointer" }}>
               <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
                 Insights
               </span>
-            </div>
-            <div className="p-5 pt-3 space-y-4">
+              <ChevronDown size={15} style={{ color: "rgba(255,255,255,0.8)", transform: insightsOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+            </button>
+            {insightsOpen && (
+            <div className="p-5 pt-0 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               {[
                 insights.commonMode ? { label: "Common Mode", value: insights.commonMode } : null,
@@ -269,6 +278,7 @@ export default function ProjectDetail() {
               ))}
             </div>
             </div>
+            )}
           </div>
         )}
 
@@ -363,10 +373,13 @@ export default function ProjectDetail() {
         {/* Project Notes \u2014 immersive hero gradient */}
         <div className="overflow-hidden" style={{ borderRadius: "var(--radius-hero)", background: heroGradient }}>
           <div className="px-5 pt-4 pb-2 flex items-center justify-between">
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
-              Project Notes
-            </span>
-            {!editingNote && (
+            <button onClick={() => setNotesOpen((v) => !v)} className="flex items-center gap-1.5" style={{ background: "transparent", border: "none", cursor: "pointer" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
+                Project Notes
+              </span>
+              <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.8)", transform: notesOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+            </button>
+            {!editingNote && notesOpen && (
               <button
                 onClick={() => setEditingNote(true)}
                 className="p-1 rounded transition-colors"
@@ -377,6 +390,7 @@ export default function ProjectDetail() {
               </button>
             )}
           </div>
+          {notesOpen && (
           <div className="px-5 pb-5 pt-1">
 
           {editingNote ? (
@@ -437,6 +451,7 @@ export default function ProjectDetail() {
             </div>
           )}
           </div>
+          )}
         </div>
       </div>
 

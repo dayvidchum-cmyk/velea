@@ -141,10 +141,10 @@ export default function ProfectionYear() {
   const [triggerOpen, setTriggerOpen] = useState(false);
   const [roadOpen, setRoadOpen] = useState(false);
   const [explainerOpen, setExplainerOpen] = useState(false);
-  const [wheelOpen, setWheelOpen] = useState(true); // wheel stays open unless minimized
-  const [whyNowOpen, setWhyNowOpen] = useState(true);
-  const [areasOpen, setAreasOpen] = useState(true);
-  const [readOpen, setReadOpen] = useState(true);
+  const [wheelOpen, setWheelOpen] = useState(true); // wheel is the tab's ONE primary — stays open
+  const [whyNowOpen, setWhyNowOpen] = useState(false);
+  const [areasOpen, setAreasOpen] = useState(false);
+  const [readOpen, setReadOpen] = useState(false);
   const [expandedTransitId, setExpandedTransitId] = useState<number | null>(null);
   const [chartTab, setChartTab] = useState<"timelord" | "natal" | "dasha">("timelord");
   const CHART_TABS: { id: "timelord" | "natal" | "dasha"; label: string }[] = [

@@ -161,8 +161,8 @@ export default function Planner() {
   const [dueSheetOpen, setDueSheetOpen] = useState(false);
   // "Plan ahead" planning tools are collapsed by default — today-first.
   const [planOpen, setPlanOpen] = useState(false);
-  const [pinnedOpen, setPinnedOpen] = useState(true);
-  const [alignedOpen, setAlignedOpen] = useState(true);
+  const [pinnedOpen, setPinnedOpen] = useState(false); // both task lists ship collapsed — the hero is the only open block
+  const [alignedOpen, setAlignedOpen] = useState(false);
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());

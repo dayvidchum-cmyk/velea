@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronDown } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useSettingsContext } from "@/contexts/SettingsContext";
@@ -210,6 +210,11 @@ export default function Glossary() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [highlightedTerm, setHighlightedTerm] = useState<string | null>(null);
+  // Definitions ship COLLAPSED — tap a term to open it. A live search or a ?term= deep-link
+  // auto-expands matches so the answer is never a tap away when you're actually looking for it.
+  const [openTerms, setOpenTerms] = useState<Set<string>>(new Set());
+  const toggleTerm = (term: string) =>
+    setOpenTerms((prev) => { const n = new Set(prev); if (n.has(term)) n.delete(term); else n.add(term); return n; });
   const termRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Read ?term= query param on mount and auto-scroll/highlight
@@ -339,6 +344,8 @@ export default function Glossary() {
         {filtered.map((item) => {
           const catColor = CATEGORY_COLORS[item.category] ?? "oklch(0.65 0.02 80)";
           const isHighlighted = highlightedTerm === item.term;
+          const searching = search.trim().length > 0;
+          const expanded = searching || isHighlighted || openTerms.has(item.term);
           return (
             <div
               key={item.term}
@@ -350,28 +357,41 @@ export default function Glossary() {
                 boxShadow: isHighlighted ? `0 0 0 3px color-mix(in oklch, ${catColor} 15%, transparent)` : "none",
               }}
             >
-              <div className="flex items-start justify-between gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => { if (!searching) toggleTerm(item.term); }}
+                aria-expanded={expanded}
+                className="flex items-start justify-between gap-2 w-full text-left"
+                style={{ background: "transparent", border: "none", padding: 0, cursor: searching ? "default" : "pointer" }}
+              >
                 <h3
                   className="text-sm leading-snug font-semibold"
                   style={{ color: "var(--color-foreground)", fontWeight: 600 }}
                 >
                   {item.term}
                 </h3>
-                <span
-                  className="flex-shrink-0 text-[12px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full"
-                  style={{
-                    background: `color-mix(in oklch, ${catColor} 15%, transparent)`,
-                    color: catColor,
-                    letterSpacing: "0.04em",
-                    border: `1px solid color-mix(in oklch, ${catColor} 30%, transparent)`,
-                  }}
-                >
-                  {item.category}
+                <span className="flex items-center gap-1.5 flex-shrink-0">
+                  <span
+                    className="text-[12px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full"
+                    style={{
+                      background: `color-mix(in oklch, ${catColor} 15%, transparent)`,
+                      color: catColor,
+                      letterSpacing: "0.04em",
+                      border: `1px solid color-mix(in oklch, ${catColor} 30%, transparent)`,
+                    }}
+                  >
+                    {item.category}
+                  </span>
+                  {!searching && (
+                    <ChevronDown size={14} style={{ color: catColor, transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+                  )}
                 </span>
-              </div>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--color-muted-foreground)" }}>
-                {item.definition}
-              </p>
+              </button>
+              {expanded && (
+                <p className="text-xs leading-relaxed" style={{ color: "var(--color-muted-foreground)", marginTop: "0.5rem" }}>
+                  {item.definition}
+                </p>
+              )}
             </div>
           );
         })}
