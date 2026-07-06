@@ -1525,7 +1525,7 @@ export default function Planner() {
             <div className="flex items-center justify-between mb-3">
               <button onClick={() => setCompletedOpen((v) => !v)} className="flex items-center gap-2">
                 <h3 className="text-sm font-bold uppercase" style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}>
-                  Completed ({completed.length})
+                  Completed{settings.showOrbCounts || completed.length > 0 ? ` (${completed.length})` : ""}
                 </h3>
                 <ChevronDown
                   size={13}
