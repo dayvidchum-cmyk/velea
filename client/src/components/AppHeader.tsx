@@ -319,19 +319,19 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2">
               <VeleaMark size={28} color="var(--brand-gold)" />
-              <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)" }}>
+              <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)", lineHeight: 1 }}>
                 Velea
               </span>
             </div>
             {golden && (golden.isGolden ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                 <VeleaLorMark size={14} color="#D4AF37" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.55))", flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#D4AF37", whiteSpace: "nowrap" }}>Golden hour{golden.untilMs ? ` until ${fmtClock(golden.untilMs)}` : ""}</span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#D4AF37", whiteSpace: "nowrap", lineHeight: 1 }}>Golden hour{golden.untilMs ? ` until ${fmtClock(golden.untilMs)}` : ""}</span>
               </div>
             ) : golden.nextGoldenMs ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                 <VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap" }}>Golden · {fmtClock(golden.nextGoldenMs)}</span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap", lineHeight: 1 }}>Golden · {fmtClock(golden.nextGoldenMs)}</span>
               </div>
             ) : null)}
           </div>
