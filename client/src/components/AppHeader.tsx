@@ -308,42 +308,21 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               Velea
             </span>
           </div>
-          {/* Utility row: date left, THE STAGE centered, current-state right — a 3-col grid
-              (1fr auto 1fr) keeps THE STAGE truly centered regardless of the side widths. */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", columnGap: "0.5rem" }}>
-          <span
-            className="text-[10px] font-bold tracking-wide whitespace-nowrap"
-            style={{ color: modeColor, letterSpacing: "0.03em", justifySelf: "start" }}
-          >
-            {heroDateLabel}
-          </span>
-          {/* The Stage — centered; opens the Stage pop-up on any page. */}
-          <button
-            onClick={() => setStageSheetOpen(true)}
-            className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-            style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "center" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
-              e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.borderColor = "transparent";
-            }}
-          >
-            <Star size={11} />
-            <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
-              THE STAGE
-            </span>
-            <ChevronDown size={10} />
-          </button>
-            {/* Current-location control lives in Settings (beside birth details), not here. */}
-            <button
-                data-tour="current-state"
-                onClick={() => setCheckInSheetOpen(true)}
+          {/* Utility row: date (left) + THE STAGE (right, where the check-in used to be). The live
+              dateline sits on its own line right under the date; the check-in moved under the greeting. */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
+              <span
+                className="text-[10px] font-bold tracking-wide whitespace-nowrap"
+                style={{ color: modeColor, letterSpacing: "0.03em" }}
+              >
+                {heroDateLabel}
+              </span>
+              {/* The Stage — now on the right; opens the Stage pop-up on any page. */}
+              <button
+                onClick={() => setStageSheetOpen(true)}
                 className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-                style={{ color: modeColor, background: "transparent", border: "1px solid transparent", justifySelf: "end" }}
-                title="Update current state"
+                style={{ color: modeColor, background: "transparent", border: "1px solid transparent" }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
                   e.currentTarget.style.borderColor = `color-mix(in srgb, ${modeColor} 45%, transparent)`;
@@ -353,11 +332,24 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                   e.currentTarget.style.borderColor = "transparent";
                 }}
               >
-                <RefreshCw size={11} />
+                <Star size={11} />
                 <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
-                  {checkInStamp ?? "CURRENT STATE"}
+                  THE STAGE
                 </span>
+                <ChevronDown size={10} />
               </button>
+            </div>
+            {/* Live dateline — day mode · activity · hora lord · clock, right under the date (moved
+                here from under the greeting). Private bits (activity/hora) render for master users only. */}
+            {(stampModeLabel || stampActivity) && (
+              <div style={{ marginTop: "0.3rem", display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.35rem", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+                {stampModeLabel && <span style={{ color: modeColor }}>{stampModeLabel}</span>}
+                {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span>{stampActivity}</span></>)}
+                {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.8rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
+                {stampGolden && <VeleaLorMark size={12} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
+                <span style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.03em" }}>{stampTime}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -379,17 +371,23 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           {greetingLine}
         </h1>
 
-        {/* Live Velea timestamp — day mode · Time Master activity · hora lord glyph · clock,
-            with the Veleal'or bullseye on a golden hour. The private bits (activity/hora) render for master
-            users only; everyone still sees the day mode + clock. No planet/sign names, per spec. */}
-        {(stampModeLabel || stampActivity) && (
-          <div style={{ marginTop: "0.55rem", display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem", fontSize: "0.66rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
-            {stampModeLabel && <span style={{ color: modeColor }}>{stampModeLabel}</span>}
-            {stampActivity && (<><span style={{ opacity: 0.4 }}>•</span><span>{stampActivity}</span></>)}
-            {stampHoraGlyph && <span title={stampHoraLord ?? undefined} style={{ fontSize: "0.85rem", color: "#C9A84C", lineHeight: 1, display: "inline-block", transform: "translateY(0.1em)" }}>{stampHoraGlyph}</span>}
-            {stampGolden && <VeleaLorMark size={13} color="#D4AF37" style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.55))" }} />}
-            <span style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.03em" }}>{stampTime}</span>
-          </div>
+        {/* Check-in — moved here from the header, right under the greeting. Opens the check-in sheet;
+            shows how long since your last check-in, or "CURRENT STATE" if you haven't today. */}
+        {isAuthenticated && (
+          <button
+            data-tour="current-state"
+            onClick={() => setCheckInSheetOpen(true)}
+            className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full transition-all duration-150"
+            style={{ color: modeColor, background: "transparent", border: `1px solid color-mix(in srgb, ${modeColor} 35%, transparent)` }}
+            title="Update current state"
+            onMouseEnter={(e) => { e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 14%, transparent)`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+          >
+            <RefreshCw size={12} />
+            <span className="text-[11px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
+              {checkInStamp ?? "CURRENT STATE"}
+            </span>
+          </button>
         )}
 
         {/* Profile switcher below greeting */}

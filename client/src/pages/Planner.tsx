@@ -17,12 +17,11 @@ import SignpostSheet from "@/components/SignpostSheet";
 import DueOrbSheet from "@/components/DueOrbSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 
-import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_DARK, MODE_RGBA } from "../../../shared/types";
+import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_RGBA } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
 import { evaluateRestGate } from "../../../shared/rest-gate";
 import type { Task } from "../../../drizzle/schema";
 import AppHeader from "@/components/AppHeader";
-import { TimeLordMovement } from "@/components/TimeLordMovement";
 import GlossaryText from "@/components/GlossaryText";
 import { GlossaryLink } from "@/components/GlossaryPopover";
 import WhyNowSheet from "@/components/WhyNowSheet";
@@ -36,11 +35,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 // Planetary glyphs for the Time Lord (Sun's is the circle-dot, its alchemical symbol).
-const PLANET_GLYPH: Record<string, string> = {
-  Sun: "☉", Moon: "☽", Mercury: "☿", Venus: "♀", Mars: "♂",
-  Jupiter: "♃", Saturn: "♄", Rahu: "☊", Ketu: "☋",
-};
-const GLYPH_FONT = "'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols2',serif";
 
 function toDateStr(d: Date) {
   const y = d.getFullYear();
@@ -165,6 +159,7 @@ export default function Planner() {
   }, [today]);
   const [reflection, setReflection] = useState("");
   const [reflectionSaved, setReflectionSaved] = useState(false);
+  const [reflectionOpen, setReflectionOpen] = useState(false); // recorder collapsed — no big empty box by default
 
   // Task list state
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -173,7 +168,6 @@ export default function Planner() {
   const [heroOpen, setHeroOpen] = useState(true);
   const [signpostOpen, setSignpostOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
-  const [tlOpen, setTlOpen] = useState(false);
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
@@ -295,11 +289,6 @@ export default function Planner() {
     { date: selectedDate },
     { enabled: isAuthenticated }
   );
-  const { data: timeLordData } = trpc.panchang.timeLordInfluence.useQuery(
-    { date: selectedDate },
-    { enabled: isAuthenticated }
-  );
-
   // LLM daily signal (Glance) — the SAME cached source the Today/Home hero uses.
   // Only fetched when the selected date is today, so the Planner hero mirrors
   // Home's cached content exactly (same profileId + local date string = same
@@ -643,8 +632,9 @@ export default function Planner() {
     : selectedTaskModeForHero === 'Restraint'
     ? 'var(--velea-restraint-card-gradient)'
     : heroGradient;
-  const selectedModeColor = selectedTaskModeForHero ? MODE_OKLCH[selectedTaskModeForHero] : 'var(--color-border)';
   const selectedModeRgba = selectedTaskModeForHero ? MODE_RGBA[selectedTaskModeForHero] : modeRgba;
+  // The day card is (re)loading for the selected date — used to visibly mark the whole box as pending.
+  const dayCardLoading = panchangFetching || glanceFetching;
 
   // Calendar card: use today's mode color for strip header + border
   const calModeColor = todayTaskMode ? MODE_SOLID[todayTaskMode] : '#888';
@@ -759,6 +749,15 @@ export default function Planner() {
               flexDirection: 'column',
             }}
           >
+            {/* Loading: a pulsing ring around the whole box so it's obvious the read for this date is
+                on its way (not an empty/finished card). */}
+            {dayCardLoading && (
+              <div
+                className="animate-pulse"
+                aria-hidden
+                style={{ position: 'absolute', inset: 0, borderRadius: '28px', border: '2px solid rgba(255,255,255,0.65)', pointerEvents: 'none', zIndex: 3 }}
+              />
+            )}
             {/* Header row — admin "update to the moment" (LEFT corner) + DATE label (toggles) + caret
                 (RIGHT corner). The refresh lives OPPOSITE the caret with the date between them, so the
                 two tap targets never crowd — reaching for one can't catch the other. */}
@@ -1119,10 +1118,12 @@ export default function Planner() {
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20));
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day + crown-day border
-            // TODAY renders at the saturated (pressed) tint so the white Velea mark reads;
-            // other days keep the light mode tint.
+            // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
+            // plus its white border + bold number — no longer force-darkened. The old dark fill existed
+            // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
+            // dark fill made the date number always-white regardless of light/dark appearance.
             const restingBg = hasMode
-              ? (isToday ? darkenOklch(accent, 0.64) : withAlpha(accent, tintAlpha))
+              ? withAlpha(accent, tintAlpha)
               : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
             const hoverBg = hasMode ? (isToday ? darkenOklch(accent, 0.58) : darkenOklch(accent, 0.82)) : "var(--color-secondary)";
             const pressBg = hasMode ? (isToday ? darkenOklch(accent, 0.5) : darkenOklch(accent, 0.64)) : "var(--color-border)";
@@ -1234,58 +1235,16 @@ export default function Planner() {
       {/* (The per-date "Due this day" list was removed — the always-visible Due orb + its sheet are
           the single due surface now, instead of a second one hidden inside the collapsed Calendar.) */}
 
-      {/* ── 2. TIME LORD MOVEMENT ── */}
-      {selectedPanchang && (
-        <div
-          className="relative z-10 overflow-hidden"
-          style={{
-            borderRadius: "var(--radius-card)",
-            background: heroCardGradient,
-          }}
-        >
-          <button
-            className="w-full flex items-center justify-between px-4 py-3"
-            onClick={() => setTlOpen((v) => !v)}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              {(timeLordData as any)?.timeLord && PLANET_GLYPH[(timeLordData as any).timeLord] && (
-                <span style={{ fontFamily: GLYPH_FONT, fontSize: '1rem', lineHeight: 1, color: 'rgba(255,255,255,0.96)' }}>
-                  {PLANET_GLYPH[(timeLordData as any).timeLord]}
-                </span>
-              )}
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.96)',
-                }}
-              >
-                Current Time Lord Movement
-              </span>
-            </span>
-            <ChevronDown
-              size={14}
-              style={{
-                color: 'rgba(255,255,255,0.6)',
-                transform: tlOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 200ms ease',
-              }}
-            />
-          </button>
-          {tlOpen && (
-            <div className="px-5 pb-5">
-              <TimeLordMovement selectedDate={selectedDate} variant="immersive" accentColor={selectedModeColor} darkColor={selectedTaskModeForHero ? MODE_DARK[selectedTaskModeForHero] : undefined} />
-            </div>
-          )}
-        </div>
-      )}
+      {/* (Current Time Lord Movement removed from Today — it lives on the Chart page.) */}
 
-      {/* Reflections */}
+      {/* Reflections — recorder collapsed by default (no big empty box until you choose to write). */}
       {isAuthenticated && (
         <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2">
+          <button
+            onClick={() => setReflectionOpen((v) => !v)}
+            className="flex items-center gap-2 mb-2 w-full"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}
+          >
             <BookOpen size={12} style={{ color: "var(--color-muted-foreground)" }} />
             <p
               className="text-sm font-bold uppercase"
@@ -1293,7 +1252,9 @@ export default function Planner() {
             >
               What happened on {new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}?
             </p>
-          </div>
+            <ChevronDown size={13} style={{ marginLeft: "auto", flexShrink: 0, color: "var(--color-muted-foreground)", transform: reflectionOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+          </button>
+          {reflectionOpen && (
           <div className="glass-card p-3">
             <textarea
               className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed"
@@ -1326,6 +1287,7 @@ export default function Planner() {
               </div>
             </div>
           </div>
+          )}
         </div>
       )}
 
@@ -1359,7 +1321,7 @@ export default function Planner() {
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
             >
-              All Tasks ({allTasks.filter((t) => !t.isCompleted).length})
+              All Tasks{settings.showOrbCounts ? ` (${allTasks.filter((t) => !t.isCompleted).length})` : ""}
             </h3>
             <ChevronDown
               size={13}
@@ -1441,7 +1403,7 @@ export default function Planner() {
                       style={{ background: "var(--color-secondary)" }}
                     >
                       <span className="text-xs font-bold uppercase" style={{ color: groupColor, letterSpacing: "0.04em" }}>
-                        {m} <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>
+                        {m} {settings.showOrbCounts && <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>}
                       </span>
                       <ChevronDown
                         size={13}

@@ -336,10 +336,10 @@ export default function Settings() {
             />
           </SettingRow>
 
-          {/* 2. Task Orb Counts */}
+          {/* 2. Task Counts (everywhere — orbs, project lists, section headers) */}
           <SettingRow
-            label="Show Task Counts On Orbs"
-            description="When off, orbs show a dot instead of a number."
+            label="Show Task Counts"
+            description="When off, task counts are hidden everywhere — orbs show a dot instead of a number, and list/section headers drop their counts."
           >
             <TogglePair
               options={["on", "off"] as const}

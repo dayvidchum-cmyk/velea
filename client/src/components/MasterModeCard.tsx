@@ -93,9 +93,9 @@ export default function MasterModeCard() {
           {expanded ? <ChevronDown size={14} style={{ color: "var(--color-muted-foreground)" }} /> : <ChevronRight size={14} style={{ color: "var(--color-muted-foreground)" }} />}
         </span>
       </button>
-      <p style={{ margin: "0.15rem 0 0", fontSize: "0.56rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>{data.bird} · private</p>
+      <p style={{ margin: "0.15rem 0 0", fontSize: "0.56rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>{data.bird}</p>
 
-      {current && (
+      {expanded && current && (
         <div style={{ marginTop: "0.6rem" }}>
           <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Now</p>
           <p style={{ margin: "0.1rem 0 0", fontSize: "1rem", fontWeight: 800, color: CAT_COLOR[current.category], lineHeight: 1.1 }}>{current.category}</p>

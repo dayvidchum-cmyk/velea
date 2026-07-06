@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { MODE_OKLCH, type TaskMode } from "../../../shared/types";
 import type { Task } from "../../../drizzle/schema";
 import { useDayModeColor, useDayModeGradient } from "@/hooks/useDayModeColor";
+import { useSettingsContext } from "@/contexts/SettingsContext";
 
 type ProjectStats = {
   projectId: number;
@@ -39,6 +40,7 @@ export default function ProjectDetail() {
   const projectId = projectIdStr ? parseInt(projectIdStr, 10) : 0;
   const dayLabelColor = useDayModeColor();
   const heroGradient = useDayModeGradient();
+  const { settings } = useSettingsContext();
 
   const [editingNote, setEditingNote] = useState(false);
   const [noteContent, setNoteContent] = useState("");
@@ -303,7 +305,7 @@ export default function ProjectDetail() {
                   letterSpacing: "0.04em",
                 }}
               >
-                Active Tasks ({activeTasks.length})
+                Active Tasks{settings.showOrbCounts ? ` (${activeTasks.length})` : ""}
               </span>
               <div className="space-y-2">
                 {activeTasks.map((task: any) => (
@@ -343,7 +345,7 @@ export default function ProjectDetail() {
                 className="text-sm font-bold uppercase"
                 style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
               >
-                Completed ({stats.completedTasks.length})
+                Completed{settings.showOrbCounts ? ` (${stats.completedTasks.length})` : ""}
               </span>
               <ChevronDown
                 size={15}
