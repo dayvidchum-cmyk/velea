@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import VeleaLorMark from "./VeleaLorMark";
+import LockedFeatureCard from "./LockedFeatureCard";
 
 /**
  * Master Mode — Pancha Pakshi hourly timing. PRIVATE (endpoint returns null off the
@@ -47,6 +48,8 @@ function conditionLine(g: any): string {
 
 export default function MasterModeCard() {
   const [expanded, setExpanded] = useState(false);
+  const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
+  const entitled = access?.entitled === true;
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   // Pancha Pakshi yamas run sunrise→sunrise, so before today's sunrise (the small hours) the
@@ -54,8 +57,19 @@ export default function MasterModeCard() {
   // go blank ("ran out of today's windows"). Fetch both days; use whichever actually brackets now.
   const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   const yestStr = `${yest.getFullYear()}-${String(yest.getMonth() + 1).padStart(2, "0")}-${String(yest.getDate()).padStart(2, "0")}`;
-  const { data: todayData } = trpc.masterMode.today.useQuery({ date: dateStr }, { staleTime: 1000 * 60 * 10 });
-  const { data: yestData } = trpc.masterMode.today.useQuery({ date: yestStr }, { staleTime: 1000 * 60 * 10 });
+  const { data: todayData } = trpc.masterMode.today.useQuery({ date: dateStr }, { staleTime: 1000 * 60 * 10, enabled: entitled });
+  const { data: yestData } = trpc.masterMode.today.useQuery({ date: yestStr }, { staleTime: 1000 * 60 * 10, enabled: entitled });
+
+  // Public but locked: everyone sees the tile; non-entitled users get the lock + explainer popup.
+  if (access && !entitled) {
+    return (
+      <LockedFeatureCard
+        title="Time Master"
+        teaser="Your golden hours — the times the sky most favors your action, hour by hour."
+        detail="Time Master reads the Pañcapakṣi birds against the planetary hour to find your golden windows — the hours the sky most favors what you do, tuned to your own chart. It's a premium layer, not yet unlocked on your account."
+      />
+    );
+  }
 
   const nowMs = Date.now();
   const bracketsNow = (d: any) => d?.periods?.some((p: any) => nowMs >= p.startMs && nowMs < p.endMs);

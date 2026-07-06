@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import LockedFeatureCard from "./LockedFeatureCard";
 
 /**
  * Hora — the planetary hour, the intraday layer next to Master Mode. PRIVATE
@@ -19,9 +20,22 @@ const TONE_COLOR: Record<string, string> = {
 
 export default function HoraCard() {
   const [expanded, setExpanded] = useState(false);
+  const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
+  const entitled = access?.entitled === true;
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  const { data } = trpc.masterMode.hora.useQuery({ date: dateStr }, { staleTime: 1000 * 60 * 5 });
+  const { data } = trpc.masterMode.hora.useQuery({ date: dateStr }, { staleTime: 1000 * 60 * 5, enabled: entitled });
+
+  // Public but locked: non-entitled users see the tile with a lock + explainer popup.
+  if (access && !entitled) {
+    return (
+      <LockedFeatureCard
+        title="Hora"
+        teaser="The planetary hour — which lord holds this hour, and what it favors."
+        detail="Every hour of the day is ruled by a planet; Hora tracks which lord holds the current hour and what it's good for, so you can time the small moves. Part of the Time Master layer — not yet unlocked on your account."
+      />
+    );
+  }
   if (!data) return null;
 
   const nowMs = Date.now();

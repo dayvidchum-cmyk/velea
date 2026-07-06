@@ -664,7 +664,8 @@ export default function Planner() {
 
       {isAuthenticated && <AddToHomeScreenNote />}
       {isAuthenticated && <MeridianWhisper />}
-      {/* Time Master + Hora as two compact tiles, side by side (private/admin). */}
+      {/* Time Master + Hora as two compact tiles, side by side. Public: everyone sees them; if the
+          feature isn't entitled for the user they render LOCKED (lock + tap-to-learn popup). */}
       {isAuthenticated && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start", marginBottom: "1.5rem" }}>
           <MasterModeCard />

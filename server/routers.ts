@@ -80,6 +80,12 @@ import { users, profiles } from "../drizzle/schema";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { TRPCError } from "@trpc/server";
 
+// Time Master (Pancha Pakshi) entitlement — the private feature flag. Today this is an allowlist
+// (David = user 2); later it becomes a per-user backend toggle. One source of truth so the data
+// endpoints AND the `access` check (which drives the locked/unlocked UI) can never disagree.
+const MASTER_MODE_USER_IDS = [1, 2];
+const hasMasterMode = (userId: number) => MASTER_MODE_USER_IDS.includes(userId);
+
 const TaskModeEnum = z.enum(["Restraint", "Build", "Selective", "Action"]);
 const PriorityEnum = z.enum(["High", "Medium", "Low"]);
 const RecurrenceEnum = z.enum(["none", "daily", "weekly", "biweekly", "monthly", "yearly"]);
@@ -1408,12 +1414,14 @@ export const appRouter = router({
 
   // ── MASTER MODE (Pancha Pakshi hourly timing) — GATED to an allowlist (private) ──
   masterMode: router({
+    // Entitlement check — drives the locked/unlocked UI. Public to every signed-in user (they all
+    // SEE the feature), but `entitled` is false unless it's turned on for them, which shows the lock.
+    access: protectedProcedure.query(({ ctx }) => ({ entitled: hasMasterMode(ctx.user.id) })),
     today: protectedProcedure
       .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional(), nowMs: z.number().optional() }))
       .query(async ({ ctx, input }) => {
         // Private feature flag: only these users see Time Master (David = user 2).
-        const MASTER_MODE_USER_IDS = [1, 2];
-        if (!MASTER_MODE_USER_IDS.includes(ctx.user.id)) return null;
+        if (!hasMasterMode(ctx.user.id)) return null;
 
         const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
         const profile = await getActiveProfile(ctx.user.id);
@@ -1466,8 +1474,7 @@ export const appRouter = router({
     hora: protectedProcedure
       .input(z.object({ date: z.string(), lat: z.number().optional(), lon: z.number().optional(), nowMs: z.number().optional() }))
       .query(async ({ ctx, input }) => {
-        const MASTER_MODE_USER_IDS = [1, 2];
-        if (!MASTER_MODE_USER_IDS.includes(ctx.user.id)) return null;
+        if (!hasMasterMode(ctx.user.id)) return null;
 
         const { computeHoras, HORA_TONE } = await import("./panchang/hora.js");
         const lat = input.lat ?? 42.3601, lon = input.lon ?? -71.0589;
