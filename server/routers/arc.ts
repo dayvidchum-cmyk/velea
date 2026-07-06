@@ -12,6 +12,10 @@ import { computeArc } from "../sky/arc.js";
 
 export const arcRouter = router({
   forward: protectedProcedure.query(async ({ ctx }) => {
+    // The Road Ahead is admin-only (David) for now — gated here too, not just in the UI.
+    if (ctx.user.role !== "admin") {
+      throw new TRPCError({ code: "FORBIDDEN", message: "The Road Ahead isn't available yet." });
+    }
     const subject = ctx.subject;
     if (!subject) {
       throw new TRPCError({ code: "BAD_REQUEST", message: "Birth date not configured. Add birth details in Settings or a Profile." });

@@ -164,7 +164,6 @@ export default function ProfectionYear() {
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
   const { data: subject } = trpc.profiles.getSubject.useQuery();
   const { data: dashaTimeline } = trpc.dasha.timeline.useQuery(undefined, { retry: false });
-  const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false });
   const localToday = useMemo(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -185,6 +184,8 @@ export default function ProfectionYear() {
   // the server forces deepened=false off the admin allowlist.
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+  // The Road Ahead is admin-only (David) for now — only query it for admins.
+  const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false, enabled: isAdmin });
   const utils = trpc.useUtils();
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [guestsLoading, setGuestsLoading] = useState(false);
@@ -860,7 +861,7 @@ export default function ProfectionYear() {
         </div>
       ))}
 
-      {panel("The Road Ahead", roadOpen, setRoadOpen, (
+      {isAdmin && panel("The Road Ahead", roadOpen, setRoadOpen, (
         arcError ? (
           <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Add your birth details to map the road ahead.</p>
         ) : arcLoading ? (
