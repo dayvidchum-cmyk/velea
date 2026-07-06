@@ -637,6 +637,11 @@ html.dark:not(.full-spectrum)::before {
 html.dark:not(.full-spectrum) body {
   background: transparent !important;
 }
+/* The app shell (App.tsx) paints an opaque `bg-background` via `.star-bg` over the html::before
+   sky — clear it in dark mode so the starfield shows through. */
+html.dark:not(.full-spectrum) .star-bg {
+  background-color: transparent !important;
+}
 
 .dark .glass-card {
   background: #0A0A0A;
