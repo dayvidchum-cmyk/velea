@@ -317,6 +317,7 @@ export default function Projects() {
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
   const [archiveTarget, setArchiveTarget] = useState<Project | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [addFormOpen, setAddFormOpen] = useState(false); // collapsed once you have projects (open in empty state)
   const newNameRef = useRef<HTMLInputElement>(null);
 
   const utils = trpc.useUtils();
@@ -355,6 +356,7 @@ export default function Projects() {
       utils.projects.list.invalidate();
       utils.projects.listAll.invalidate();
       setNewName("");
+      setAddFormOpen(false); // collapse back to the "+ New Project" affordance after creating
       toast.success("Project created");
     },
     onError: () => toast.error("Failed to create project"),
@@ -417,8 +419,9 @@ export default function Projects() {
       >
         <AppHeader pageTitle="Projects" />
 
-        {/* Always-open add project form */}
-        {isAuthenticated && (
+        {/* Add project — full form in the empty state or when opened; collapses to "+ New Project"
+            once you have projects so the list leads. */}
+        {isAuthenticated && (activeProjects.length === 0 || addFormOpen) ? (
           <div
             className="overflow-hidden relative z-10"
             style={{ borderRadius: "var(--radius-hero)", background: heroGradient, padding: "1.25rem" }}
@@ -429,9 +432,12 @@ export default function Projects() {
             >
               New Project
             </label>
-            <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.5, margin: "-0.45rem 0 0.85rem" }}>
-              Not just work — a project is <strong>any ongoing area of your life</strong>: health &amp; self care, relationships, a creative practice, your home, money, an upcoming event. Anything you want to organize so you can tend to it properly.
-            </p>
+            {/* Explainer only the first time (empty state) — not on every return visit. */}
+            {activeProjects.length === 0 && (
+              <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.5, margin: "-0.45rem 0 0.85rem" }}>
+                Not just work — a project is <strong>any ongoing area of your life</strong>: health &amp; self care, relationships, a creative practice, your home, money, an upcoming event. Anything you want to organize so you can tend to it properly.
+              </p>
+            )}
             <div className="flex items-center gap-2">
               <input
                 ref={newNameRef}
@@ -439,7 +445,7 @@ export default function Projects() {
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleCreate();
-                  if (e.key === "Escape") setNewName("");
+                  if (e.key === "Escape") { setNewName(""); if (activeProjects.length > 0) setAddFormOpen(false); }
                 }}
                 placeholder="e.g. Health · My novel · Move to Austin"
                 className="flex-1 px-3 py-2.5 rounded-xl text-sm focus:outline-none placeholder:text-white/55"
@@ -450,6 +456,15 @@ export default function Projects() {
                   caretColor: "#fff",
                 }}
               />
+              {addFormOpen && activeProjects.length > 0 && (
+                <button
+                  onClick={() => { setNewName(""); setAddFormOpen(false); }}
+                  className="px-3 py-2.5 rounded-xl text-xs font-bold uppercase transition-all"
+                  style={{ background: "rgba(255,255,255,0.15)", color: "#fff", letterSpacing: "0.06em" }}
+                >
+                  Cancel
+                </button>
+              )}
               <button
                 onClick={handleCreate}
                 disabled={!newName.trim() || createMutation.isPending}
@@ -464,7 +479,15 @@ export default function Projects() {
               </button>
             </div>
           </div>
-        )}
+        ) : isAuthenticated ? (
+          <button
+            onClick={() => { setAddFormOpen(true); setTimeout(() => newNameRef.current?.focus(), 0); }}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors relative z-10"
+            style={{ color: dayLabelColor, border: `1px dashed color-mix(in srgb, ${dayLabelColor} 45%, transparent)`, background: "var(--color-card)" }}
+          >
+            + New Project
+          </button>
+        ) : null}
 
         {/* Active projects list */}
         <div
@@ -524,26 +547,6 @@ export default function Projects() {
                       <FolderOpen size={16} />
                     </div>
                     <ProjectNameEditor project={project} onRename={handleRename} />
-                    <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => setArchiveTarget(project)}
-                        className="p-1.5 rounded-lg transition-all opacity-70 hover:opacity-100"
-                        style={{ color: "var(--color-muted-foreground)" }}
-                        title="Archive project"
-                        aria-label="Archive project"
-                      >
-                        <Archive size={14} />
-                      </button>
-                      <button
-                        onClick={() => setDeleteTarget(project)}
-                        className="p-1.5 rounded-lg transition-all opacity-70 hover:opacity-100"
-                        style={{ color: "oklch(0.52 0.12 15)" }}
-                        title="Delete project"
-                        aria-label="Delete project"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleExpanded(project.id); }}
                       className="flex-shrink-0 p-1 rounded-lg transition-transform"
@@ -555,8 +558,26 @@ export default function Projects() {
                     </button>
                   </div>
                   {isExpanded && (
-                    <div className="pl-[3rem]">
+                    <div className="pl-[3rem] space-y-3">
                       <LifeAreasPicker project={project} dayLabelColor={projColor} />
+                      {/* Destructive actions live behind the expand now (were one tap away in the row,
+                          a mis-tap hazard next to navigate/rename). */}
+                      <div className="flex items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => setArchiveTarget(project)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                          style={{ color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)", background: "var(--color-secondary)" }}
+                        >
+                          <Archive size={13} /> Archive
+                        </button>
+                        <button
+                          onClick={() => setDeleteTarget(project)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                          style={{ color: "oklch(0.52 0.12 15)", border: "1px solid color-mix(in srgb, oklch(0.52 0.12 15) 35%, transparent)", background: "transparent" }}
+                        >
+                          <Trash2 size={13} /> Delete
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

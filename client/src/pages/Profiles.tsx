@@ -17,6 +17,7 @@ import {
   X,
   KeyRound,
   ShieldCheck,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppHeader from "@/components/AppHeader";
@@ -122,10 +123,20 @@ interface ProfileFormProps {
   showMakeActive?: boolean; // only meaningful when another profile exists to switch away from
 }
 
+const BIRTH_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+// "1990-03-14" → "March 14, 1990" (matches how Settings renders birth dates).
+function fmtBirthDate(d?: string | null): string {
+  if (!d) return "";
+  const [y, m, day] = d.split("-").map(Number);
+  if (!y || !m || !day) return d;
+  return `${BIRTH_MONTHS[m - 1]} ${day}, ${y}`;
+}
+
 function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMakeActive }: ProfileFormProps) {
   const [form, setForm] = useState<ProfileFormData>({ ...EMPTY_FORM, ...initial });
   const [makeActive, setMakeActive] = useState(isNew ?? false);
   const [geocoding, setGeocoding] = useState(false);
+  const [showCoords, setShowCoords] = useState(false); // Lat/Lon tucked behind "Advanced" — the geocoder fills them
   const utils = trpc.useUtils();
 
   const set = (field: keyof ProfileFormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
@@ -231,16 +242,32 @@ function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMakeActive 
         </div>
       </div>
 
-      {/* Lat / Lon */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="pf-lat">Latitude</Label>
-          <Input id="pf-lat" value={form.birthLocationLat} onChange={set("birthLocationLat")} placeholder="Latitude" />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="pf-lon">Longitude</Label>
-          <Input id="pf-lon" value={form.birthLocationLon} onChange={set("birthLocationLon")} placeholder="Longitude" />
-        </div>
+      {/* Lat / Lon — auto-filled by "Find"; behind an Advanced disclosure so they don't add load. */}
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowCoords((v) => !v)}
+          className="flex items-center gap-1.5 text-xs"
+          style={{ color: "var(--color-muted-foreground)", background: "none", border: "none", cursor: "pointer", padding: "0.15rem 0" }}
+        >
+          <ChevronDown size={13} style={{ transform: showCoords ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+          Advanced · adjust coordinates
+          {!showCoords && (form.birthLocationLat || form.birthLocationLon) && (
+            <span style={{ opacity: 0.75 }}>({form.birthLocationLat || "—"}, {form.birthLocationLon || "—"})</span>
+          )}
+        </button>
+        {showCoords && (
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="pf-lat">Latitude</Label>
+              <Input id="pf-lat" value={form.birthLocationLat} onChange={set("birthLocationLat")} placeholder="Latitude" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pf-lon">Longitude</Label>
+              <Input id="pf-lon" value={form.birthLocationLon} onChange={set("birthLocationLon")} placeholder="Longitude" />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Timezone */}
@@ -442,7 +469,7 @@ function ProfileCard({ profile, onSelect, onEdit, onDelete, onLoginCreated }: Pr
           </div>
           {profile.birthDate && (
             <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
-              {profile.birthDate}
+              {fmtBirthDate(profile.birthDate)}
               {profile.birthLocationCity ? ` · ${profile.birthLocationCity}` : ""}
             </p>
           )}
@@ -733,14 +760,8 @@ export default function Profiles() {
           </div>
         )}
 
-        {mode === "list" && isAdmin && (
-          <div className="flex justify-end -mt-2 mb-2">
-            <Button size="sm" className="h-8 px-3 text-xs" onClick={() => setMode("create")}>
-              <Plus size={14} className="mr-1" />
-              New
-            </Button>
-          </div>
-        )}
+        {/* Single create affordance — the full-width "Add Profile" at the end of the list (below).
+            The old top-right "New" button was a duplicate. */}
         <div>
         {/* Create form */}
         {mode === "create" && (

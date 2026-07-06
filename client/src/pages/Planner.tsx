@@ -154,7 +154,6 @@ export default function Planner() {
   const [signpostOpen, setSignpostOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
-  const [breakdownOpen, setBreakdownOpen] = useState(false);
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
@@ -1170,22 +1169,7 @@ export default function Planner() {
           })}
         </div>
 
-        {/* Annual reminder — merged inside calendar card */}
-        {timeLordData && (
-          <>
-            <div
-              className="mt-4"
-              style={{ borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}
-            >
-              <p
-                className="text-xs leading-relaxed italic"
-                style={{ color: "var(--color-muted-foreground)" }}
-              >
-                {(timeLordData as any).timeLord} year · House {(timeLordData as any).activatedHouse} · {(timeLordData as any).activatedSign} · {(timeLordData as any).houseThemes}
-              </p>
-            </div>
-          </>
-        )}
+        {/* (Annual reminder line removed — the Time Lord Movement section below renders it in full.) */}
       </div>{/* end calendar body */}
       </div>{/* end calendar card */}
 

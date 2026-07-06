@@ -293,51 +293,32 @@ export default function Settings() {
   return (
     <div className="container py-6 pb-28 max-w-lg mx-auto">
       <AppHeader pageTitle="Settings" />
-      <div className="flex justify-end mt-2 mb-2">
-        <Button
-          onClick={handleSave}
-          size="sm"
-          style={{
-            background: "var(--color-foreground)",
-            color: "var(--color-background)",
-            fontSize: "0.75rem",
-            padding: "0.25rem 0.75rem",
-          }}
-        >
-          Save
-        </Button>
-      </div>
 
-      {isDirty && (
-        <p
-          className="text-xs mb-4"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          You have unsaved changes
-        </p>
-      )}
-
-      <div className="space-y-5">
+      {/* Save lives only in the sticky bar at the bottom (appears when dirty) — the old top Save
+          button + inline "unsaved changes" line were a redundant third and second copy. */}
+      <div className="space-y-5 mt-2">
 
         {/* ── Interface & Focus ─────────────────────────────────────────── */}
         <SettingsSection title="Interface & Focus">
 
-          {/* 1. Appearance */}
+          {/* 1. Appearance — dimmed & inert while Full Spectrum is on (it overrides light/dark). */}
           <SettingRow
             label="Appearance"
-            description="System follows your device settings."
+            description={fullSpectrum ? "Controlled by Full Spectrum while it's on — turn that off to choose light/dark." : "System follows your device settings."}
           >
-            <TogglePair
-              options={["system", "dark", "light"] as const}
-              value={draft.appearance}
-              onChange={(v) => updateDraft("appearance", v as "system" | "dark" | "light")}
-              renderLabel={(v) => (
-                <span className="flex items-center gap-1.5">
-                  {v === "system" ? <Monitor size={11} /> : v === "dark" ? <Moon size={11} /> : <Sun size={11} />}
-                  {v === "system" ? "System" : v === "dark" ? "Dark" : "Light"}
-                </span>
-              )}
-            />
+            <div style={{ opacity: fullSpectrum ? 0.4 : 1, pointerEvents: fullSpectrum ? "none" : "auto" }} aria-disabled={fullSpectrum}>
+              <TogglePair
+                options={["system", "dark", "light"] as const}
+                value={draft.appearance}
+                onChange={(v) => updateDraft("appearance", v as "system" | "dark" | "light")}
+                renderLabel={(v) => (
+                  <span className="flex items-center gap-1.5">
+                    {v === "system" ? <Monitor size={11} /> : v === "dark" ? <Moon size={11} /> : <Sun size={11} />}
+                    {v === "system" ? "System" : v === "dark" ? "Dark" : "Light"}
+                  </span>
+                )}
+              />
+            </div>
           </SettingRow>
 
           {/* Full Spectrum — tint every surface with today's day-mode color */}
