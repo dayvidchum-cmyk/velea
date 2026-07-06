@@ -19,20 +19,18 @@ export default function FullSpectrumController() {
     if (!on) return;
 
     root.classList.add("full-spectrum");
-    // Mid-dark tint: the mode hue mixed into a near-black base. Surfaces share one shade
-    // (cards read by their borders); --secondary is a touch lighter so inputs still lift.
-    // The Build (gold) day leans on a WARM near-black base so the tint reads golden, not
-    // olive; the cool modes keep the cool base. Lightness stays low either way, so gold
-    // labels / gold font sitting ON the surface keep their contrast.
+    // Surfaces share one shade (cards read by their borders); --secondary is a touch lighter so
+    // inputs still lift. Build's FS background is a FIXED exact hue David chose (#6F5B1D); the cool
+    // modes keep the computed mid-dark tint of their own mode color on a cool near-black base.
     const isBuild = color.trim().toUpperCase() === "#D4AF37";
-    const base = isBuild ? "#0d0a04" : "#070b12";
-    const base2 = isBuild ? "#141005" : "#0b1119";
-    // Build gets a richer 40% gold on the SAME dark base — reads golden, not muddy-brown, while
-    // staying dark enough (~23% lightness) that the gold labels keep their contrast. Others: 30%.
-    const pct = isBuild ? 40 : 30;
-    const secPct = isBuild ? 52 : 42;
-    const surface = `color-mix(in srgb, ${color} ${pct}%, ${base})`;
-    const secondary = `color-mix(in srgb, ${color} ${secPct}%, ${base2})`;
+    let surface: string, secondary: string;
+    if (isBuild) {
+      surface = "#6F5B1D";
+      secondary = "color-mix(in srgb, #6F5B1D 90%, #ffffff)"; // a hair lighter so inputs still lift
+    } else {
+      surface = `color-mix(in srgb, ${color} 30%, #070b12)`;
+      secondary = `color-mix(in srgb, ${color} 42%, #0b1119)`;
+    }
     // Set the base tokens AND their --color-* aliases. Tailwind bakes some --color-* tokens to
     // literals (e.g. --color-secondary → light #F5F5F5), so overriding only --secondary leaves any
     // `var(--color-secondary)` surface a glaring white pill in full-spectrum (the tab bar, the
