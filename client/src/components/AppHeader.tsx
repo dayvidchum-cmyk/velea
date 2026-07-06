@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw } from "lucide-react";
 
-/** The Stage mark — a circle inscribed in a square (David's icon). Inherits color via currentColor. */
-function StageMark({ size = 12 }: { size?: number }) {
+/** The Stage mark — a circle with a center dot, framed in a square (David's icon: the ☉ sun-point,
+    boxed). Inherits color via currentColor. */
+function StageMark({ size = 13 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden style={{ flexShrink: 0 }}>
-      <rect x="3" y="3" width="18" height="18" />
-      <circle cx="12" cy="12" r="9" />
+      <rect x="2" y="2" width="20" height="20" />
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -365,7 +367,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 e.currentTarget.style.borderColor = "transparent";
               }}
             >
-              <StageMark size={12} />
+              <StageMark size={13} />
               <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap" style={{ letterSpacing: "0.03em" }}>
                 THE STAGE
               </span>
