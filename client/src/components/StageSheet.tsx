@@ -39,7 +39,7 @@ const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", 
 const phaseLabel = (phase: string) =>
   phase.startsWith("preshadow") ? "pre-shadow" : phase.startsWith("retrograde") ? "retrograde ℞" : phase === "direct-2" ? "stations direct" : "clears shadow";
 
-type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string; primary?: boolean };
+type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string; primary?: boolean; phase?: string };
 
 // The reading sits in a scrim that RIDES WITH THE TEXT — it fades in at the top (below the
 // image's focal point, ~the "yellow line") and ends where the text ends, so the foreground
@@ -88,7 +88,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
       heroes.push({
         image: s.image,
         kicker: `The Stage · ${s.planet}${s.house ? ` · your ${ORD[s.house]} house` : s.sign ? ` in ${s.sign}` : ""}`,
-        title: s.title, chips: [phaseLabel(s.phase)], note: s.note,
+        title: s.title, chips: [phaseLabel(s.phase)], note: s.note, phase: s.phase,
       });
     }
   }
@@ -117,14 +117,18 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     // Station cards ride the flat veil → no text halo (matches the mockup).
                     // The moon card keeps its gradient scrim, so it keeps the halo.
                     const ts = "none"; // no shadow behind words on any card; the moon card leans on TEXT_SCRIM
+                    // Retrograde art is dim by design (the light turns inward), so as a text-bearing Stage
+                    // card it reads murky. Lift its exposure and lighten its veil so David's art shows.
+                    const dimRx = !!h.phase?.startsWith("retrograde");
                     return (
                     <button key={i} onClick={() => setSkyIdx(i)}
                       style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
                       <img src={todSrc(h.image)} onError={onTodError(h.image)} alt={h.title}
-                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", filter: dimRx ? "brightness(1.42) contrast(1.05)" : undefined, animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
                       {/* Station cards (Mercury Rx etc.): flat even veil over the WHOLE image so white
-                          text reads anywhere. Moon card (primary) keeps its gradient scrim below. */}
-                      {!h.primary && <div style={{ position: "absolute", inset: 0, background: STATION_VEIL, pointerEvents: "none" }} />}
+                          text reads anywhere. Moon card (primary) keeps its gradient scrim below.
+                          Retrograde cards use a lighter veil (their art is dim + now exposure-lifted). */}
+                      {!h.primary && <div style={{ position: "absolute", inset: 0, background: dimRx ? "rgba(84,84,84,0.14)" : STATION_VEIL, pointerEvents: "none" }} />}
                       {/* The reading — moon card rides a gradient scrim; station cards sit on the flat veil */}
                       <div style={{ position: "absolute", top: "15%", left: 0, right: 0, padding: "2.6rem 1.4rem 1.6rem", background: h.primary ? TEXT_SCRIM : "transparent", animation: "velea-rise 0.7s ease both" }}>
                         <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: ts }}>{h.kicker}</p>
@@ -206,7 +210,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
       {/* Full-screen immersive art — tap ANYWHERE to close (a corner X is unreachable here) */}
       {skyIdx >= 0 && heroes[skyIdx] && (
         <div className="app-shell-height" onClick={() => setSkyIdx(-1)} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10000, background: "#05060a", cursor: "pointer" }}>
-          <img src={todSrc(heroes[skyIdx].image)} onError={onTodError(heroes[skyIdx].image)} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animation: "velea-signal-in 0.9s ease both" }} />
+          <img src={todSrc(heroes[skyIdx].image)} onError={onTodError(heroes[skyIdx].image)} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: heroes[skyIdx].phase?.startsWith("retrograde") ? "brightness(1.42) contrast(1.05)" : undefined, animation: "velea-signal-in 0.9s ease both" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent 44%)" }} />
           <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 1rem)", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
             <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.82)", background: "rgba(0,0,0,0.45)", padding: "0.3rem 0.8rem", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: "0.35rem" }}><X size={13} /> tap anywhere to close</span>
