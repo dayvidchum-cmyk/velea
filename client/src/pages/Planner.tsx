@@ -280,17 +280,15 @@ export default function Planner() {
 
   const utils = trpc.useUtils();
 
-  // "Update to the moment" — the daily read is stable, this regenerates it hora-aware
-  // right now (server never writes it to the daily cache). Each tap is a fresh Sonnet
-  // call, so the button is admin-gated in the UI: a preview of a premium Master Mode /
-  // Time Master upsell. Push the result straight into the on-screen query; don't
-  // invalidate, so the stable daily read returns on the next natural load.
+  // Refresh today's reading — regenerates the daily read and CACHES it (no nowMs = not a
+  // moment/ephemeral read), so the new one persists and returns on reload (David's expectation).
+  // Each tap is a fresh Sonnet call, so the button is admin-gated in the UI.
   const [refreshingRead, setRefreshingRead] = useState(false);
   const updateToMoment = async () => {
     if (!glanceProfileId) return;
     setRefreshingRead(true);
     try {
-      const res = await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true, nowMs: Date.now() });
+      const res = await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true });
       utils.narrative.glance.setData({ profileId: glanceProfileId, date: selectedDate }, res);
     } finally {
       setRefreshingRead(false);
@@ -677,8 +675,8 @@ export default function Planner() {
                   type="button"
                   onClick={updateToMoment}
                   disabled={refreshingRead}
-                  title="Update to the moment"
-                  aria-label="Update to the moment"
+                  title="Refresh today's reading"
+                  aria-label="Refresh today's reading"
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
                 >
                   <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />

@@ -836,6 +836,10 @@ into the year; read Venus through whatever she actually rules and occupies (mone
 house is LOVE, romance, and pleasure FIRST, creativity alongside — never reduce
 Venus-in-the-5th to "the creative interior."
 
+NEVER use "romantic" or "romance" as a loose synonym for exciting, alluring, or idealistic.
+Reserve those words for an ACTUAL love reading — the 5th/7th gate above. For Jupiter, belief,
+expansion, or "what pulls you," say idealistic, expansive, alluring, or exciting instead.
+
 NAME THE PLAYERS — but BRIEFLY, and only inside the WHY. Name each by planet and
 possessively ("your year lord, Venus, in your 8th"; "your antardasha, Saturn") so the
 reason is traceable to named guests in the room — a CLAUSE each, never a paragraph.
@@ -921,4 +925,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-06-old-soul-continuity";
+export const PROMPT_VERSION = "2026-07-07-romance-guardrail";
