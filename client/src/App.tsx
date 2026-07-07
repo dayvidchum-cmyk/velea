@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
 import { Plus, RefreshCw } from "lucide-react";
 import BrandSplash from "@/components/BrandSplash";
+import WelcomeScreen from "@/components/WelcomeScreen";
 import { PANCHANG_TO_TASK_MODE, type TaskMode } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 
@@ -40,17 +41,24 @@ function AppLayoutContent() {
   const [location] = useLocation();
 const { user, loading } = useAuth();
   const { quickAddMode, setQuickAddMode } = useAddTask();
-  // Post-login brand splash — shown once when the "velea_splash" flag is set by login.
+  // Post-login brand splash — the grand etymology, shown once when "velea_splash" is set by login.
   const [showSplash, setShowSplash] = useState(false);
+  // Welcome moment on EVERY app open (any time of day): the sunset shell image + the viewer's own
+  // personalized greeting. Fresh login gets the etymology splash instead; every other open gets this.
+  const [showWelcome, setShowWelcome] = useState(false);
+  const welcomeChecked = useRef(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || welcomeChecked.current) return;
+    welcomeChecked.current = true; // decide once per app load, not on every user-ref change
     try {
       if (sessionStorage.getItem("velea_splash") === "1") {
         sessionStorage.removeItem("velea_splash");
-        setShowSplash(true);
+        setShowSplash(true);  // fresh login → the etymology splash
+      } else {
+        setShowWelcome(true); // returning open → sunset shell + greeting
       }
-    } catch { /* ignore */ }
+    } catch { setShowWelcome(true); }
   }, [user]);
   const showNav = !location.startsWith("/404") && !location.startsWith("/login");
 
@@ -228,6 +236,7 @@ const { user, loading } = useAuth();
   return (
     <div className="min-h-[100dvh] bg-background text-foreground star-bg">
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
+      {showWelcome && <WelcomeScreen firstName={user?.name?.split(" ")[0] ?? null} onDone={() => setShowWelcome(false)} />}
       {/* Normal document flow — the page scrolls, the nav is fixed to the viewport bottom. */}
       <main className="overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
