@@ -192,7 +192,13 @@ type PlanetData = { sign: string; degree: number; longitude: number; house: numb
 export interface BirthChartResult {
   utcBirthIso: string;
   julianDay: number;
-  lagna: { sign: string; degree: number; longitude: number };
+  // `basis` records how house 1 was framed:
+  //   "ascendant" — exact birth time → houses count from the rising sign (real ascendant).
+  //   "chandra"   — no exact birth time → houses count from the Moon's whole sign (Chandra lagna).
+  lagna: { sign: string; degree: number; longitude: number; basis: "ascendant" | "chandra" };
+  // The real rising sign at the given time — ALWAYS computed. For a Chandra chart this is only a
+  // HINT (a candidate ascendant), never the frame the chart is read from.
+  candidateAscendant: { sign: string; degree: number; longitude: number };
   mc: { sign: string; degree: number; longitude: number };
   ic: { sign: string; degree: number; longitude: number };
   sun: PlanetData;
@@ -210,18 +216,23 @@ export interface BirthChartResult {
  * Calculate Vedic birth chart from birth data using Swiss Ephemeris.
  *
  * @param birthDate  "YYYY-MM-DD"
- * @param birthTime  "HH:mm"
+ * @param birthTime  "HH:mm" (a representative time when the exact time is unknown)
  * @param latitude   decimal degrees (positive = North)
  * @param longitude  decimal degrees (positive = East)
  * @param timezone   IANA timezone string, e.g. "Asia/Manila"
+ * @param opts       lagnaBasis: "ascendant" (default, exact time) frames house 1 on the rising
+ *                   sign; "chandra" (no exact time) frames house 1 on the Moon's whole sign so the
+ *                   Moon occupies house 1 and every planet counts its house from the Moon.
  */
 export async function calculateBirthChart(
   birthDate: string,
   birthTime: string,
   latitude: number,
   longitude: number,
-  timezone: string
+  timezone: string,
+  opts?: { lagnaBasis?: "ascendant" | "chandra" }
 ): Promise<BirthChartResult> {
+  const lagnaBasis: "ascendant" | "chandra" = opts?.lagnaBasis ?? "ascendant";
   // Initialize Swiss Ephemeris
   const se = await initSwissEph();
 
@@ -249,14 +260,30 @@ export async function calculateBirthChart(
   // We only use ascmc[0] (the Ascendant degree) — house assignments are
   // computed via Whole Sign (getHouseFromLagna), which is standard for Vedic.
   const houseResult = se.houses_ex(jd, flags, latitude, longitude, 'P');
-  const lagnaLongitude = houseResult.ascmc[0]; // sidereal ascendant
-  const lagnaData = getLongitudeSign(lagnaLongitude);
+  const ascendantLongitude = houseResult.ascmc[0]; // sidereal ascendant — ALWAYS computed
+  const ascendantData = getLongitudeSign(ascendantLongitude);
   // Sidereal Midheaven (MC) — ascmc[1]. The IC is the opposite point (mc + 180).
   // Vedic whole-sign ignores this degree, but it's the Western meridian axis we read.
   const mcLongitude = houseResult.ascmc[1];
   const mcData = getLongitudeSign(mcLongitude);
   const icLongitude = (mcLongitude + 180) % 360;
   const icData = getLongitudeSign(icLongitude);
+
+  // Choose the lagna reference used for whole-sign house counting (getHouseFromLagna floors to sign).
+  //   "ascendant" → count houses from the rising sign (real ascendant); house-for-house identical
+  //                 to the exact-time behaviour that predates this option.
+  //   "chandra"   → count houses from the Moon's whole sign, so the Moon lands in house 1. We must
+  //                 resolve the Moon's sidereal longitude up front to use it as the reference.
+  let lagnaLongitude: number;
+  let lagnaData: { sign: string; degree: number };
+  if (lagnaBasis === "chandra") {
+    const moonCalc = se.calc_ut(jd, se.SE_MOON, flags);
+    lagnaLongitude = moonCalc[0];
+    lagnaData = getLongitudeSign(lagnaLongitude);
+  } else {
+    lagnaLongitude = ascendantLongitude;
+    lagnaData = ascendantData;
+  }
 
   // Calculate planetary positions
   const planetCodes = [
@@ -276,6 +303,11 @@ export async function calculateBirthChart(
     lagna: {
       ...lagnaData,
       longitude: lagnaLongitude,
+      basis: lagnaBasis,
+    },
+    candidateAscendant: {
+      ...ascendantData,
+      longitude: ascendantLongitude,
     },
     mc: { ...mcData, longitude: mcLongitude },
     ic: { ...icData, longitude: icLongitude },
