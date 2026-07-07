@@ -126,14 +126,14 @@ export default function LocationSheet({ open, onClose }: LocationSheetProps) {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50"
+        className="fixed inset-0 z-[140]"
         style={{ background: "oklch(0 0 0 / 0.4)" }}
         onClick={onClose}
       />
 
       {/* Sheet */}
       <div
-        className="fixed left-0 right-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-2xl"
+        className="fixed left-0 right-0 bottom-0 z-[140] mx-auto max-w-lg rounded-t-2xl"
         style={{
           background: "var(--color-card)",
           border: "1px solid var(--color-border)",
