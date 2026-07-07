@@ -322,9 +322,14 @@ risk. Draw every house meaning from here.
   self-direction; the individual within the group. SHADOW: losing yourself in
   others, agency surrendered, identity overextended or borrowed; self-neglect.
 - 2nd — What you hold and what holds you: earned money and possessions, the body's
-  sustenance; speech as words, what you say; values and self-worth; family,
-  dependents. SHADOW: worth collapsed into net worth, hoarding or squandering,
-  clinging to security, speech that wounds.
+  sustenance; speech as words, what you say; family, dependents; and beneath these,
+  worth — but worth read THROUGH them, never as a bare label. Self-worth here is not
+  a feeling to announce ("your sense of self-worth"); it is the concrete question of
+  what you build security on, what you'll charge for, what you refuse to sell, whose
+  mouths you feed, whether your word holds. Reach worth only by way of the money, the
+  speech, the possessions, the people you carry — if you can't ground it in one of
+  those, don't name it. SHADOW: worth collapsed into net worth, hoarding or
+  squandering, clinging to security, speech that wounds.
 - 3rd — Your own effort and reach: communication, writing, the hands and skill,
   courage and initiative; siblings, peers, neighbors; short travel and near
   connections; self-made ability. SHADOW: scattered communication, restlessness,
@@ -358,7 +363,11 @@ risk. Draw every house meaning from here.
   joint resources (a partner's wealth, inheritance) live here too, but the 8th is
   rarely about money alone — it is about what happens to the SELF when it merges
   with another. Read merger and the loss of separateness first; reach for "debt"
-  or "what is owed" only if the chart specifically forces it. SHADOW: boundary-loss,
+  or "what is owed" only if the chart specifically forces it. As a moksha house the
+  8th liberates by FORCE — the crisis or the merger strips away a boundary the self
+  was defending, and what survives is freer than what went in; but name the concrete
+  loss first (the specific merger, exposure, upheaval), the release is what it is FOR,
+  never a gloss laid over it. SHADOW: boundary-loss,
   entanglement, obsession, fear of exposure, being consumed by what is shared,
   control used to avoid surrender.
 - 9th — What you live by: meaning, belief, dharma, philosophy; teachers and
@@ -378,7 +387,11 @@ risk. Draw every house meaning from here.
   ties, gain without meaning.
 - 12th — What dissolves and what lies beyond: loss, release, endings, surrender;
   solitude, retreat, foreign lands; sleep, dreams, the unconscious; expenditure,
-  sacrifice, liberation; what is hidden from the self. SHADOW: escapism,
+  sacrifice; what is hidden from the self. Of the three water houses this is the
+  FURTHEST release — where the separate self is finally set down: not torn away as in
+  the 8th but let go, the moksha the whole trikona points at. Read the loss as what it
+  clears room for, but keep it grounded — the actual thing ended, spent, or
+  surrendered — never liberation floating free of what was given up. SHADOW: escapism,
   self-undoing, isolation, martyrdom, hidden self-sabotage, draining away unseen.
 
 HOUSE CONNECTIONS (the houses are a web, not a list — read the links when they sharpen the point)
@@ -390,6 +403,26 @@ Purusharthas (the four aims, by element) — read a house partly through the dri
 - Artha (earth) — 2nd, 6th, 10th: what sustains you (2nd), the daily work and what you overcome (6th), your standing in the world (10th).
 - Kama (air) — 3rd, 7th, 11th: personal drive and reach (3rd), one-to-one bonds (7th), the wider network and what it returns (11th).
 - Moksha (water) — 4th, 8th, 12th: emotional roots (4th), transformation through crisis (8th), release and what lies beyond (12th).
+
+House strength by position (how forcefully a house manifests) — the tradition ranks
+houses by angle from the lagna:
+- Kendra (angular) — 1st, 4th, 7th, 10th: the pillars; what sits here acts DIRECTLY
+  and visibly — the strongest stage.
+- Panapara (succedent) — 2nd, 5th, 8th, 11th: the holdings; what sits here sustains
+  and accrues — a quieter, resource-building strength.
+- Apoklima (cadent) — 3rd, 6th, 9th, 12th: the transitions; what sits here is in
+  motion, seeking or dispersing — mental, preparatory, less fixed.
+Read the same planet louder in a kendra, slower-burning in a panapara, more restless
+in an apoklima.
+
+Difficulty vs effort (two overlapping sets — and the house they share):
+- Dusthana (houses of difficulty) — 6th, 8th, 12th: loss, crisis, dissolution;
+  worked out through hardship, not ease.
+- Upachaya (houses that GROW with effort) — 3rd, 6th, 10th, 11th: they begin hard or
+  small and IMPROVE over time; struggle here compounds into strength.
+The 6th sits in BOTH — which is exactly why it reads as burnout AND as the grind that
+pays off: the same daily friction is a wound if it depletes and an investment if it
+compounds. Let the rest of the chart decide which, and say which.
 
 Bhavat Bhavam (derived houses) — any house describes its OWN matters seen from another:
 count that many houses FORWARD from a significator's house. Name the derived house only
@@ -460,6 +493,12 @@ person can occupy, never a list of separate goals. NEVER split the meaning from 
 money — do not write that the meaningful work lives in one house while the paycheck
 and the daily grind live in another. They are one thing: the work that means
 something IS the work that pays, lived through the same days.
+When a single ruler instead binds the water houses (Moksha — 4th, 8th, 12th: roots,
+crisis, release), read them as ONE arc, not three separate troubles: what you came
+from (4th) is what gets dissolved (8th) and finally set down (12th) — a single
+movement of letting the inherited self go. Ground each step in its literal matter
+(the actual home, the actual crisis, the actual ending); the release is the arc's
+direction, not a spiritual gloss.
 
 A planet also carries its own KARAKAS — what it naturally signifies — into every
 house it rules or sits in, and those must show up in the reading. Venus is love,
@@ -925,4 +964,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-07-romance-guardrail";
+export const PROMPT_VERSION = "2026-07-07-house-deepening";
