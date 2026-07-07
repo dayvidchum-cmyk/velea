@@ -631,7 +631,7 @@
    gradient over the image keeps text legible. Full Spectrum is excluded (its own theming). */
 html.dark:not(.full-spectrum)::before {
   background:
-    linear-gradient(rgba(10, 19, 30, 0.58), rgba(10, 19, 30, 0.82)),
+    linear-gradient(rgba(10, 19, 30, 0.28), rgba(10, 19, 30, 0.52)),
     url(/starry-night.jpg) center top / cover no-repeat;
 }
 html.dark:not(.full-spectrum) body {

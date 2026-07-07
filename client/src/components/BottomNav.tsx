@@ -1,12 +1,10 @@
 import { useLocation } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import {
   BookOpen,
   Library,
   Settings,
   Folder,
-  Users,
 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
 
@@ -19,17 +17,14 @@ const BASE_NAV = [
 
 export default function BottomNav() {
   const [location, navigate] = useLocation();
-  const { user } = useAuth();
   // Active + hover accent follows today's day mode, so the nav reinforces
   // "today is a Build/Action/Restraint day" on every page.
   const accent = useDayModeColor();
-  const isAdmin = user?.role === "admin";
 
-  // Everything lives directly in the bar now. Users is admin-only, so a normal
-  // user sees a clean single row of icons — no "More" sheet needed.
+  // Profiles/Users lives on the profile FAB now (its menu has "Manage profiles"),
+  // so the nav stays a clean single row: Today · Chart · Projects · Glossary · Settings.
   const navItems = [
     ...BASE_NAV,
-    ...(isAdmin ? [{ path: "/profiles", label: "Users", icon: Users }] : []),
     { path: "/settings", label: "Settings", icon: Settings },
   ];
 
