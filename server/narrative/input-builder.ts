@@ -220,22 +220,11 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const field =
     (await getDayField(dateStr, false, moment?.dayLoc, lagna)) ??
     interpretPanchang(await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon)), lagna);
-  // Current hora — ONLY on moment reads (nowMs present). Location-approximated by the
-  // profile's birth lat/lon, consistent with the panchang above.
-  let hora: { lord: string; tone: string; phase: string; good: string } | null = null;
-  if (moment?.nowMs != null) {
-    const nowMs = moment.nowMs;
-    const hlat = moment.lat ?? lat, hlon = moment.lon ?? lon; // current location, not birth
-    const { computeHoras, horaAt, HORA_TONE } = await import("../panchang/hora.js");
-    const [hy, hm, hd] = dateStr.split("-").map(Number);
-    let hs = computeHoras(hy, hm, hd, hlat, hlon);
-    if (nowMs < hs[0].startMs) {
-      const pv = new Date(Date.UTC(hy, hm - 1, hd - 1));
-      hs = computeHoras(pv.getUTCFullYear(), pv.getUTCMonth() + 1, pv.getUTCDate(), hlat, hlon);
-    }
-    const cur = horaAt(hs, nowMs);
-    if (cur) hora = { lord: cur.lord, tone: cur.tone, phase: cur.phase, good: HORA_TONE[cur.lord].good };
-  }
+  // Hora (planetary hour) is deliberately NOT fed to the day reading. Per David: the day-card prose
+  // must NEVER synthesize all the way to the current hour ("this Jupiter hour is good…"). The hora
+  // belongs to the Time Master / Hora cards, not the day narrative. Kept null so the prompt's own
+  // rule ("when hora is absent, say nothing of hours") holds for every read, moment or daily.
+  const hora: { lord: string; tone: string; phase: string; good: string } | null = null;
 
   // Real solar/lunar eclipse near this date — a volatile whole-sky window (deterministic).
   const ecl = eclipseNear(a["Sun"], a["Moon"], a["Rahu"]);
