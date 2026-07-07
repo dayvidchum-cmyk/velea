@@ -631,11 +631,19 @@
    gradient over the image keeps text legible. Full Spectrum is excluded (its own theming). */
 html.dark:not(.full-spectrum)::before {
   background:
-    linear-gradient(rgba(10, 19, 30, 0.28), rgba(10, 19, 30, 0.52)),
+    linear-gradient(rgba(10, 19, 30, 0.12), rgba(10, 19, 30, 0.42)),
     url(/starry-night.jpg) center top / cover no-repeat;
 }
 html.dark:not(.full-spectrum) body {
   background: transparent !important;
+}
+/* App top bar: solid in light, glass over the Milky Way in dark so the top of the screen is
+   the sky, not a solid strip. Blur keeps the brand + dateline legible over scrolling content. */
+.app-topbar { background: var(--background); }
+html.dark:not(.full-spectrum) .app-topbar {
+  background: rgba(10, 19, 30, 0.42);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
 }
 /* The app shell (App.tsx) paints an opaque `bg-background` via `.star-bg` over the html::before
    sky — clear it in dark mode so the starfield shows through. */

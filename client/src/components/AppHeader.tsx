@@ -314,7 +314,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
       {/* Fixed top bar — brand mark + utility row pinned to the viewport top so they survive
           page scroll (mirrors the fixed bottom-nav pattern; the body is the scroll container).
           The spacer below reserves the height it vacates so content isn't hidden underneath. */}
-      <div ref={barRef} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 45, background: "var(--background)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+      <div ref={barRef} className="app-topbar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 45, paddingTop: "env(safe-area-inset-top, 0px)" }}>
         <div className="container" style={{ paddingTop: "0.9rem", paddingBottom: "0.6rem" }}>
           {/* Brand mark (left) + golden-hour readout (right, for balance). The golden chip is always
               on the logo line so the current/next golden window is visible from every page. */}
