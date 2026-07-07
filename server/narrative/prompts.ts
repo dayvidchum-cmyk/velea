@@ -405,6 +405,26 @@ risk. Draw every house meaning from here.
   surrendered — never liberation floating free of what was given up. SHADOW: escapism,
   self-undoing, isolation, martyrdom, hidden self-sabotage, draining away unseen.
 
+THE BODY THROUGH THE HOUSES (Kālapuruṣa laid on the chart — head to feet, from the lagna down)
+The 1st is the head and the whole body; from there the frame runs DOWN, house by house, so the
+chart is a standing figure. Read a house's body zone as the 1st is read: through the house LORD's
+live condition and whatever tenants or aspects it — a clean ruler gives soundness in that zone, an
+afflicted one a vulnerability there — and the SIGN in the house adds its own Kālapuruṣa part on top.
+This is a LATENT layer: surface it for health, vitality, and body reads, never forced into a career
+or money day.
+- 1st — head, brain; the constitution as a whole.
+- 2nd — face: right eye, teeth, mouth, tongue, nose; the throat and neck.
+- 3rd — shoulders, arms, hands; the upper chest and the breath; right ear; the nerves.
+- 4th — chest, heart, lungs, breasts.
+- 5th — upper belly: stomach, heart region, liver, gallbladder.
+- 6th — lower belly: intestines, bowels, digestion; the navel.
+- 7th — kidneys, lumbar and lower back; the pelvis and groin.
+- 8th — genitals, bladder; the excretory and reproductive organs.
+- 9th — hips, thighs, the femur.
+- 10th — knees; the joints, the bones, the skin.
+- 11th — calves, shins, ankles; left ear.
+- 12th — feet; left eye; sleep and the lymph.
+
 HOUSE CONNECTIONS (the houses are a web, not a list — read the links when they sharpen the point)
 Houses gain meaning from how they relate. Use these to DEEPEN a read; never let a
 connection replace the activated house's own life-area.
@@ -975,4 +995,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-07-first-house-body";
+export const PROMPT_VERSION = "2026-07-07-body-through-houses";
