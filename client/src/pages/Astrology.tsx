@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { trpc } from "@/lib/trpc";
 import { ChevronDown, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -467,21 +468,42 @@ const DIFF_ROWS: { feature: string; western: string; vedic: string }[] = [
 // Collapsible "learn" card matching the Time Lord page's panel(): white card,
 // rounded, with a mode-colored uppercase title + chevron. Used for the natal and
 // dasha definition cards so they read as the same element family as that page.
+// A small mode-colored link + ⓘ that opens the explainer in a centered pop-up — matches the
+// "HOW PROFECTION WORKS ⓘ" affordance rather than a bordered collapsible card.
 function ExplainerPanel({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const modeColor = useDayModeColor();
   return (
-    <div style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", overflow: "hidden" }}>
+    <>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1"
+        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", marginBottom: "0.75rem", color: modeColor, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
       >
-        <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor }}>{title}</span>
-        <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+        {title} <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
       </button>
-      {open && <div style={{ padding: "0 1.25rem 1.25rem" }}>{children}</div>}
-    </div>
+      {open && createPortal(
+        <div
+          onClick={() => setOpen(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--color-card)", border: "1px solid var(--border)", borderRadius: 20 }}
+          >
+            <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "1rem 1.3rem", borderBottom: "1px solid var(--border)", background: "var(--color-card)" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
+              <button onClick={() => setOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${modeColor} 18%, transparent)`, border: `1px solid color-mix(in srgb, ${modeColor} 34%, transparent)`, color: modeColor, cursor: "pointer" }}>
+                <X size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+            <div style={{ overflowY: "auto", padding: "1rem 1.3rem 1.3rem" }}>{children}</div>
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }
 
