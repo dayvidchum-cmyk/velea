@@ -176,6 +176,15 @@ export default function ProfectionYear() {
   );
   const deepRead = deepReadResult?.read ?? null;
 
+  // Chapter good-for/avoid bullets — a SMALL, cheap, auto-firing LLM call (split out of the
+  // big tap-gated deep read) so the "Best uses / Ease off" lists show WITHOUT tapping The Read.
+  const { data: chapterResult } = trpc.narrative.chapter.useQuery(
+    { profileId: deepProfileId as number, date: localToday },
+    { enabled: !!deepProfileId, staleTime: 1000 * 60 * 60 },
+  );
+  const chapterGoodFor = chapterResult?.chapter?.chapterGoodFor ?? [];
+  const chapterAvoid = chapterResult?.chapter?.chapterAvoid ?? [];
+
   // ADMIN-ONLY upsell preview: the "stage + guests" deepened read (current sky folded in),
   // fetched fresh on tap so David can test it in real time. Non-admins can't obtain it —
   // the server forces deepened=false off the admin allowlist.
@@ -710,7 +719,7 @@ export default function ProfectionYear() {
                 When the Time Lord moves, life moves. As it passes through each house, that area of your life is activated in turn — and the <strong>friction</strong> you feel there shows you what needs to be resolved.
               </p>
               {tlTransit?.house != null && (
-                <div style={{ marginBottom: (deepRead?.chapterGoodFor?.length || deepRead?.chapterAvoid?.length || triggerData?.available) ? "1.1rem" : 0 }}>
+                <div style={{ marginBottom: (chapterGoodFor.length || chapterAvoid.length || triggerData?.available) ? "1.1rem" : 0 }}>
                   <p style={{ color: "#fff", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
                     Right now: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
                   </p>
@@ -719,21 +728,21 @@ export default function ProfectionYear() {
                   </p>
                 </div>
               )}
-              {(deepRead?.chapterGoodFor?.length || deepRead?.chapterAvoid?.length) ? (
+              {(chapterGoodFor.length || chapterAvoid.length) ? (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: triggerData?.available ? "1.1rem" : 0 }}>
-                  {deepRead?.chapterGoodFor?.length ? (
+                  {chapterGoodFor.length ? (
                     <div>
                       <p style={{ margin: "0 0 0.4rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Best uses</p>
                       <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                        {deepRead.chapterGoodFor.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "#fff", lineHeight: 1.4 }}>{t}</li>)}
+                        {chapterGoodFor.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "#fff", lineHeight: 1.4 }}>{t}</li>)}
                       </ul>
                     </div>
                   ) : null}
-                  {deepRead?.chapterAvoid?.length ? (
+                  {chapterAvoid.length ? (
                     <div>
                       <p style={{ margin: "0 0 0.4rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Ease off</p>
                       <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                        {deepRead.chapterAvoid.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.82)", lineHeight: 1.4 }}>{t}</li>)}
+                        {chapterAvoid.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.82)", lineHeight: 1.4 }}>{t}</li>)}
                       </ul>
                     </div>
                   ) : null}

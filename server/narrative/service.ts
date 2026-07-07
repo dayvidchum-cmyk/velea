@@ -2,7 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, isCompleteDeepRead, hasAnthropicKey, type DeepRead, type GlanceContent } from "./generate.js";
+import { generateGlance, generateDeepRead, generateChapter, isCompleteDeepRead, isCompleteChapter, hasAnthropicKey, type DeepRead, type Chapter, type GlanceContent } from "./generate.js";
 import { MODEL, PROMPT_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
 
@@ -15,6 +15,7 @@ function hashInput(input: unknown): string {
 
 export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };
 export type DeepReadResult = { available: boolean; read: DeepRead | null; generatedAt: Date | null; cached: boolean };
+export type ChapterResult = { available: boolean; chapter: Chapter | null; generatedAt: Date | null; cached: boolean };
 
 // Single-flight: an LLM generation takes ~1–2 min. Without this, a second request for the SAME
 // (profile, surface, date, input) while the first is still generating would fire a DUPLICATE
@@ -98,4 +99,41 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
   });
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read, generatedAt: new Date(), cached: false };
+}
+
+// The chapter good-for/avoid bullets — a small, cheap, AUTO-FIRING read (split out of the
+// big deep read). slowOnly input means it only regenerates when the chapter turns (the year
+// lord's transit house changes), not daily; cached under its own "chapter" surface.
+export async function getChapterCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<ChapterResult> {
+  if (!hasAnthropicKey()) return { available: false, chapter: null, generatedAt: null, cached: false };
+  const surface = "chapter";
+  const input = await buildNarrativeInput(profileId, date, { slowOnly: true, dayLoc });
+  const hash = hashInput(input);
+
+  if (!refresh) {
+    let row = await getNarrativeCache(profileId, surface, date);
+    // Chapter is date-independent: if today has no matching row, reuse the most recent row
+    // whose input hash still matches (the chapter hasn't turned) instead of regenerating.
+    if (!row || (!row.locked && row.inputHash !== hash)) {
+      const latest = await getLatestNarrativeCache(profileId, surface);
+      if (latest && (latest.locked || latest.inputHash === hash)) row = latest;
+    }
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const chapter = JSON.parse(row.content);
+        if (isCompleteChapter(chapter)) {
+          return { available: true, chapter, generatedAt: row.generatedAt, cached: true };
+        }
+      } catch {
+        /* fall through to regenerate on corrupt cache */
+      }
+    }
+  }
+  const chapter = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+    const r = await generateChapter(input);
+    if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!chapter) return { available: false, chapter: null, generatedAt: null, cached: false };
+  return { available: true, chapter, generatedAt: new Date(), cached: false };
 }
