@@ -294,11 +294,11 @@ export default function Onboarding({ active, userId }: Props) {
   // First-run welcome — shown once on Today, after the manifesto, before any tour. Replaces the
   // auto-forced tour; drives birth-data confirmation + current-location, then OFFERS the tour.
   const prof = activeProfile.data as any;
-  // Cap at 2 lifetime shows (welcomeShows < 2), AND an explicit dismiss turns it off for
-  // good (seen "welcome"). Both live server-side, so logout / a new device never re-fire it.
+  // Show ONCE (welcomeShows < 1), AND an explicit dismiss turns it off for good (seen "welcome").
+  // Both live server-side, so logout / a new device / a mid-flow re-render never re-fire it.
   const showWelcome = !welcomeDismissed && active && userId != null && !running && !taskGuide
     && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto"))
-    && !tourState.data.seen.includes("welcome") && (((tourState.data as any).welcomeShows ?? 0) < 2)
+    && !tourState.data.seen.includes("welcome") && (((tourState.data as any).welcomeShows ?? 0) < 1)
     && location === "/";
   if (showWelcome) {
     return (
