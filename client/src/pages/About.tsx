@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { ChevronLeft, ChevronDown, ChevronRight } from "lucide-react";
 import VeleaMark from "@/components/VeleaMark";
 import VeleaLorMark from "@/components/VeleaLorMark";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 /**
  * About / "Why the Moon" — the full manifesto, in David's words. Reachable anytime from
@@ -33,6 +35,9 @@ export default function About() {
   const [openMoon, setOpenMoon] = useState(false);
   const [openCast, setOpenCast] = useState(false);
   const serif = "'Playfair Display', Georgia, serif";
+  const { user } = useAuth();
+  const { data: activeProfile } = trpc.profiles.getActive.useQuery();
+  const firstName = (activeProfile?.name ?? user?.name)?.split(" ")[0] ?? null;
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "0.5rem 1.4rem 2rem" }}>
       <button onClick={() => navigate("/settings")}
@@ -155,6 +160,9 @@ export default function About() {
           styled name below for his handwritten signature image when the asset is ready. ── */}
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1.15rem" }}>
+          <p style={{ fontSize: "1.2rem", lineHeight: 1.5, color: "var(--color-foreground)", margin: 0, fontFamily: serif }}>
+            Dear {firstName ?? "friend"},
+          </p>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
             However you found your way here — a friend, a link, a restless midnight — thank you for trying Velea. I can't see you from where I sit; I only know the geometry of the sky and the care I folded into the words. The living is yours: you're the one on the actual Tuesday.
           </p>
