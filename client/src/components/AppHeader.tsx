@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw } from "lucide-react";
 
 /** The Stage mark — a circle with a center dot, framed in a square (David's icon: the ☉ sun-point,
@@ -92,6 +92,49 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // keeping page content from hiding underneath the pinned strip.
   const barRef = useRef<HTMLDivElement>(null);
   const [barH, setBarH] = useState(0);
+
+  // ── Draggable profile FAB (mirrors the "+" FAB in App.tsx) ────────────────
+  const [profFabPos, setProfFabPos] = useState<{ x: number; y: number } | null>(null);
+  const [profDragging, setProfDragging] = useState(false);
+  const profDragRef = useRef<{ startX: number; startY: number; offsetX: number; offsetY: number; moved: boolean } | null>(null);
+  const suppressProfClickRef = useRef(false);
+  const clampProfPos = (x: number, y: number) => {
+    const SIZE = 48, MARGIN = 8, NAV = 80;
+    const maxX = Math.max(MARGIN, window.innerWidth - SIZE - MARGIN);
+    const maxY = Math.max(MARGIN, window.innerHeight - SIZE - NAV);
+    return { x: Math.min(Math.max(x, MARGIN), maxX), y: Math.min(Math.max(y, MARGIN), maxY) };
+  };
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("velea_profile_fab_pos");
+      if (raw) { const p = JSON.parse(raw); if (typeof p?.x === "number" && typeof p?.y === "number") setProfFabPos(clampProfPos(p.x, p.y)); }
+    } catch { /* ignore malformed storage */ }
+  }, []);
+  useEffect(() => {
+    const onResize = () => setProfFabPos((prev) => (prev ? clampProfPos(prev.x, prev.y) : prev));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const onProfDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    profDragRef.current = { startX: e.clientX, startY: e.clientY, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top, moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onProfMove = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const d = profDragRef.current; if (!d) return;
+    const dx = e.clientX - d.startX, dy = e.clientY - d.startY;
+    if (!d.moved && Math.hypot(dx, dy) > 6) { d.moved = true; setProfDragging(true); }
+    if (d.moved) setProfFabPos(clampProfPos(e.clientX - d.offsetX, e.clientY - d.offsetY));
+  };
+  const onProfUp = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const d = profDragRef.current; profDragRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    if (d?.moved) {
+      setProfDragging(false);
+      suppressProfClickRef.current = true; // swallow the click so the menu doesn't open right after a drag
+      setProfFabPos((prev) => { if (prev) { try { localStorage.setItem("velea_profile_fab_pos", JSON.stringify(prev)); } catch { /* ignore */ } } return prev; });
+    }
+  };
   useEffect(() => {
     const el = barRef.current;
     if (!el) return;
@@ -213,15 +256,21 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     <div>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          {/* Profile switcher as a bottom-left FAB (Users icon) — clear of the bottom-right "+" FAB. */}
+          {/* Profile switcher as a draggable FAB (Users icon) — default bottom-left, clear of the
+              bottom-right "+" FAB. Drag to reposition (persisted); tap to open the switcher. */}
           <button
             aria-label="Switch profile"
             title={currentProfile ? currentProfile.name : "Profiles"}
-            className="transition-all active:scale-95 outline-none"
+            onPointerDown={onProfDown}
+            onPointerMove={onProfMove}
+            onPointerUp={onProfUp}
+            onClickCapture={(e) => { if (suppressProfClickRef.current) { e.preventDefault(); e.stopPropagation(); suppressProfClickRef.current = false; } }}
+            className={`active:scale-95 outline-none ${profDragging ? "" : "transition-all"}`}
             style={{
               position: "fixed",
-              left: "16px",
-              bottom: "calc(72px + env(safe-area-inset-bottom, 0px) + 16px)",
+              ...(profFabPos
+                ? { left: `${profFabPos.x}px`, top: `${profFabPos.y}px` }
+                : { left: "16px", bottom: "calc(72px + env(safe-area-inset-bottom, 0px) + 16px)" }),
               zIndex: 40,
               width: 48,
               height: 48,
@@ -233,6 +282,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               color: "var(--color-muted-foreground)",
               border: "1px solid var(--color-border)",
               boxShadow: "0 4px 16px oklch(0 0 0 / 0.22)",
+              touchAction: "none",
+              cursor: profDragging ? "grabbing" : "pointer",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-muted-foreground)"; e.currentTarget.style.borderColor = "var(--color-border)"; }}
