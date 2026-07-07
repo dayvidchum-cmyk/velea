@@ -827,11 +827,6 @@ export default function Planner() {
               );
             })()}
 
-            {/* Kept Readings — pin this reading + link to the timestamped archive (gated teaser). */}
-            {glanceProfileId && glanceContent?.narrative && (
-              <KeptReadings profileId={glanceProfileId} date={selectedDate} />
-            )}
-
             {/* Panchang mini row */}
             <div data-tour="panchang-terms" className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
               <div className="flex items-center gap-1.5">
@@ -883,6 +878,12 @@ export default function Planner() {
             >
               {glanceContent.question}
             </p>
+            )}
+
+            {/* Kept Readings — at the very bottom, under the day's final question: pin this reading
+                + link to the timestamped archive (gated teaser). */}
+            {glanceProfileId && glanceContent?.narrative && (
+              <KeptReadings profileId={glanceProfileId} date={selectedDate} />
             )}
             </>)}
           </div>
