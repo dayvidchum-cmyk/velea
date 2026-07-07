@@ -127,7 +127,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
               <span style={{ fontStyle: "italic", opacity: 0.85, fontSize: "1.1rem" }}>ve-lea l'or</span>
             </p>
             <p style={{ margin: "0.55rem 0 0", textTransform: "uppercase", letterSpacing: "0.13em", fontSize: "clamp(0.95rem, 4vw, 1.15rem)", color: GOLD, fontWeight: 600, lineHeight: 1.4 }}>
-              the auspicious, golden moment
+              the golden moment
             </p>
           </div>
         </div>
