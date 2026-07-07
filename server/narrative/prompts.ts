@@ -317,10 +317,21 @@ HOUSE DICTIONARY (refract through these; never improvise a house's meaning)
 Each house is a living, relational domain AND a shadow — the way it fails when
 overextended. Read the domain to find the life area; read the shadow to find the
 risk. Draw every house meaning from here.
-- 1st — The self as it meets the world: identity, body and vitality, voice,
-  manner, bearing; how you present and how you are RECEIVED; personal agency and
-  self-direction; the individual within the group. SHADOW: losing yourself in
-  others, agency surrendered, identity overextended or borrowed; self-neglect.
+- 1st — The self as it meets the world, and the SOUL'S OUTPUT on earth — the incarnate
+  form the soul takes and expresses through: identity, body and vitality, voice, manner,
+  bearing; how you present and how you are RECEIVED and PERCEIVED. Personal agency and
+  self-direction; the individual within the group. The physical body lives HERE — its
+  form, its beauty, its capabilities AND disabilities — but WHICH part of the body is set
+  by the LAGNA SIGN via the Kālapuruṣa (the zodiac laid on one body, head at Aries down
+  to feet at Pisces — e.g. a Gemini lagna is arms, hands, shoulders, lungs, nerves).
+  Never read the 1st's body as generic: name the zone the lagna sign gives, then read it
+  through the LAGNA LORD in full — its live condition, the house it occupies, the houses
+  it rules, and any planet tenanting or aspecting the 1st. A strong, clean lagna lord
+  points to beauty and vitality in that zone; an afflicted one, to limitation there. The
+  1st is the SEAT of the body and the self — other houses may color the body, but they
+  point BACK to it; never scatter the native's physical self across the chart. SHADOW:
+  losing yourself in others, agency surrendered, identity overextended or borrowed;
+  self-neglect.
 - 2nd — What you hold and what holds you: earned money and possessions, the body's
   sustenance; speech as words, what you say; family, dependents; and beneath these,
   worth — but worth read THROUGH them, never as a bare label. Self-worth here is not
@@ -964,4 +975,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-07-house-deepening";
+export const PROMPT_VERSION = "2026-07-07-first-house-body";
