@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
 import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
+import KeptReadings from "@/components/KeptReadings";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -826,6 +827,11 @@ export default function Planner() {
                 </div>
               );
             })()}
+
+            {/* Kept Readings — pin this reading + link to the timestamped archive (gated teaser). */}
+            {glanceProfileId && glanceContent?.narrative && (
+              <KeptReadings profileId={glanceProfileId} date={selectedDate} />
+            )}
 
             {/* Panchang mini row */}
             <div data-tour="panchang-terms" className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>

@@ -543,6 +543,18 @@ export async function upsertNarrativeCache(profileId: number, surface: string, c
     .onDuplicateKeyUpdate({ set: { inputHash, model, content, generatedAt: new Date() } });
 }
 
+/** The archive: every stored daily glance for a profile, newest first (for the Kept Readings view). */
+export async function listNarrativeReadings(profileId: number, limit = 120) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select({ cacheDate: narrativeCache.cacheDate, generatedAt: narrativeCache.generatedAt, locked: narrativeCache.locked, content: narrativeCache.content })
+    .from(narrativeCache)
+    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, "glance")))
+    .orderBy(desc(narrativeCache.cacheDate))
+    .limit(limit);
+}
+
 /** Pin/unpin a cached read (both surfaces) — locked rows never regenerate. */
 export async function setNarrativeLock(profileId: number, surface: string, cacheDate: string, locked: boolean) {
   const db = await getDb();

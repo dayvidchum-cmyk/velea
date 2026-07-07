@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
 import { getGlanceCached, getDeepReadCached } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
-import { setNarrativeLock, isNarrativeLocked, getUserById } from "../db.js";
+import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
 import { assertOwnsProfile } from "../routers/profiles.js";
 import { getTimezoneOffset } from "../panchang/tz-offset.js";
 
@@ -69,6 +69,23 @@ export const narrativeRouter = router({
       console.error("[narrative.deepRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
     }
+  }),
+
+  // Kept Readings archive — every stored daily reading, newest first, with a snippet + pin state.
+  list: protectedProcedure.input(z.object({ profileId: z.number(), limit: z.number().int().min(1).max(180).default(120) })).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
+    const rows = await listNarrativeReadings(input.profileId, input.limit);
+    return rows.map((r) => {
+      let snippet = "";
+      try {
+        const c = JSON.parse(r.content);
+        const n = typeof c?.narrative === "string" ? c.narrative : String(r.content);
+        snippet = n.replace(/\s+/g, " ").trim().slice(0, 180);
+      } catch {
+        snippet = String(r.content).replace(/\s+/g, " ").trim().slice(0, 180);
+      }
+      return { date: r.cacheDate, generatedAt: r.generatedAt, locked: r.locked, snippet };
+    });
   }),
 
   // Is today's (or a given date's) read pinned/locked?
