@@ -12,6 +12,7 @@ import { trpc } from "@/lib/trpc";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { BirthDetailsSheet } from "./Profiles";
+import ProfilePicker from "@/components/ProfilePicker";
 
 // ─── Reusable setting row ─────────────────────────────────────────────────────
 
@@ -511,6 +512,13 @@ export default function Settings() {
             </Button>
           </div>
         </SettingsSection>
+
+        {/* ── Profiles — pick which stored chart loads as the displayed Velea (admin/multi-profile) ── */}
+        {user?.role === "admin" && (
+          <SettingsSection title="Profiles">
+            <ProfilePicker />
+          </SettingsSection>
+        )}
 
         {/* ── Account — your chart · password · sessions, under one heading at the bottom ── */}
         <SettingsSection title="Account">

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
-import { LogIn, Users, ChevronDown, ChevronLeft, Check, Plus, Loader2, RefreshCw } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { LogIn, ChevronDown, ChevronLeft, RefreshCw } from "lucide-react";
 
 /** The Stage mark — a circle with a center dot, framed in a square (David's icon: the ☉ sun-point,
     boxed). Inherits color via currentColor. */
@@ -18,19 +18,11 @@ import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import { pickGreeting } from "@/lib/greeting";
 import { MODE_SOLID } from "../../../shared/types";
-import { useLocation } from "wouter";
 import LocationSheet from "@/components/LocationSheet";
 import CheckInSheet from "@/components/CheckInSheet";
 import StageSheet from "@/components/StageSheet";
 import VeleaMark from "./VeleaMark";
 import VeleaLorMark from "./VeleaLorMark";
-import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 
 // Time Master hourly-category colors (mirrors MasterModeCard's CAT_COLOR) so the activity name in the
 // dateline (Restore, Action, …) reads in its own color, matching the Time Master section.
@@ -81,7 +73,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     return () => window.removeEventListener("velea-open-checkin", openCheckIn);
   }, []);
   const [stageSheetOpen, setStageSheetOpen] = useState(false);
-  const [open, setOpen] = useState(false);
   // Live "Velea timestamp": ticks every 20s so the mode · activity · hora · clock line stays current.
   const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {
@@ -93,48 +84,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const barRef = useRef<HTMLDivElement>(null);
   const [barH, setBarH] = useState(0);
 
-  // ── Draggable profile FAB (mirrors the "+" FAB in App.tsx) ────────────────
-  const [profFabPos, setProfFabPos] = useState<{ x: number; y: number } | null>(null);
-  const [profDragging, setProfDragging] = useState(false);
-  const profDragRef = useRef<{ startX: number; startY: number; offsetX: number; offsetY: number; moved: boolean } | null>(null);
-  const suppressProfClickRef = useRef(false);
-  const clampProfPos = (x: number, y: number) => {
-    const SIZE = 48, MARGIN = 8, NAV = 80;
-    const maxX = Math.max(MARGIN, window.innerWidth - SIZE - MARGIN);
-    const maxY = Math.max(MARGIN, window.innerHeight - SIZE - NAV);
-    return { x: Math.min(Math.max(x, MARGIN), maxX), y: Math.min(Math.max(y, MARGIN), maxY) };
-  };
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("velea_profile_fab_pos");
-      if (raw) { const p = JSON.parse(raw); if (typeof p?.x === "number" && typeof p?.y === "number") setProfFabPos(clampProfPos(p.x, p.y)); }
-    } catch { /* ignore malformed storage */ }
-  }, []);
-  useEffect(() => {
-    const onResize = () => setProfFabPos((prev) => (prev ? clampProfPos(prev.x, prev.y) : prev));
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-  const onProfDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    profDragRef.current = { startX: e.clientX, startY: e.clientY, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top, moved: false };
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const onProfMove = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    const d = profDragRef.current; if (!d) return;
-    const dx = e.clientX - d.startX, dy = e.clientY - d.startY;
-    if (!d.moved && Math.hypot(dx, dy) > 6) { d.moved = true; setProfDragging(true); }
-    if (d.moved) setProfFabPos(clampProfPos(e.clientX - d.offsetX, e.clientY - d.offsetY));
-  };
-  const onProfUp = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    const d = profDragRef.current; profDragRef.current = null;
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
-    if (d?.moved) {
-      setProfDragging(false);
-      suppressProfClickRef.current = true; // swallow the click so the menu doesn't open right after a drag
-      setProfFabPos((prev) => { if (prev) { try { localStorage.setItem("velea_profile_fab_pos", JSON.stringify(prev)); } catch { /* ignore */ } } return prev; });
-    }
-  };
   useEffect(() => {
     const el = barRef.current;
     if (!el) return;
@@ -153,9 +102,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // The dateline's qualifier used to come ONLY from the Today page (via heroMode), so every other
   // page's dateline was missing it. Fetch today's panchang here so the header is correct everywhere.
   const { data: headerPanchang } = trpc.panchang.today.useQuery(undefined, { enabled: isAuthenticated, staleTime: 600000 });
-  const [switching, setSwitching] = useState<number | "own" | null>(null);
-  const [, navigate] = useLocation();
-  const utils = trpc.useUtils();
 
   const { data: profileList = [] } = trpc.profiles.list.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -175,37 +121,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         return `${Math.floor(mins / 60)}h ${mins % 60}m ago`;
       })()
     : null;
-
-  const setActiveMutation = trpc.profiles.setActive.useMutation();
-
-  async function invalidateAll() {
-    // Almost every query derives its subject from the server-side ACTIVE profile, so its
-    // React Query key carries no profile id — switching profiles doesn't change the key and
-    // stale data (e.g. the Meridian, celestial, narrative reads) leaks across profiles. An
-    // explicit allowlist always misses one (it missed meridian.current), so on a profile
-    // switch we invalidate the ENTIRE cache — the only leak-proof option.
-    await utils.invalidate();
-  }
-
-  async function handleSwitchProfile(profileId: number, name: string) {
-    if (switching !== null) return;
-    setSwitching(profileId);
-    try {
-      await setActiveMutation.mutateAsync({ id: profileId });
-      await invalidateAll();
-      toast.success(`Switched to ${name}`);
-      setOpen(false);
-      // The switch invalidates the whole cache; the page collapses to skeletons and
-      // re-expands. Reset scroll to the top so the viewport-fixed nav re-welds cleanly
-      // instead of riding a mid-scroll position (the switch-time "detach"). The nav CSS
-      // itself is confirmed-good and untouched — see .nav-safe-area in index.css.
-      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
-    } catch (err: any) {
-      toast.error(err?.message ?? "Failed to switch profile");
-    } finally {
-      setSwitching(null);
-    }
-  }
 
   const today = new Date();
 
@@ -251,111 +166,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         : stampQualifier)
     : (stampMode ?? "");
 
-  // Profile switcher dropdown — shared between both layouts (only show for admins)
-  const profileSwitcher = isAuthenticated && isAdmin ? (
-    <div>
-      <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild>
-          {/* Profile switcher as a draggable FAB (Users icon) — default bottom-left, clear of the
-              bottom-right "+" FAB. Drag to reposition (persisted); tap to open the switcher. */}
-          <button
-            aria-label="Switch profile"
-            title={currentProfile ? currentProfile.name : "Profiles"}
-            onPointerDown={onProfDown}
-            onPointerMove={onProfMove}
-            onPointerUp={onProfUp}
-            onClickCapture={(e) => { if (suppressProfClickRef.current) { e.preventDefault(); e.stopPropagation(); suppressProfClickRef.current = false; } }}
-            className={`active:scale-95 outline-none ${profDragging ? "" : "transition-all"}`}
-            style={{
-              position: "fixed",
-              ...(profFabPos
-                ? { left: `${profFabPos.x}px`, top: `${profFabPos.y}px` }
-                : { left: "16px", bottom: "calc(72px + env(safe-area-inset-bottom, 0px) + 16px)" }),
-              zIndex: 40,
-              width: 48,
-              height: 48,
-              borderRadius: 999,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "var(--color-card)",
-              color: "var(--color-muted-foreground)",
-              border: "1px solid var(--color-border)",
-              boxShadow: "0 4px 16px oklch(0 0 0 / 0.22)",
-              touchAction: "none",
-              cursor: profDragging ? "grabbing" : "pointer",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.borderColor = "#C9A84C"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-muted-foreground)"; e.currentTarget.style.borderColor = "var(--color-border)"; }}
-          >
-            <Users size={20} />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="start"
-          side="top"
-          sideOffset={8}
-          className="min-w-[210px] p-1 rounded-xl"
-          style={{
-            background: "var(--color-card)",
-            border: "1px solid var(--color-border)",
-            boxShadow: "0 8px 32px oklch(0 0 0 / 0.25)",
-          }}
-        >
-          {[...profileList]
-            .sort((a: any, b: any) => (b.isOwner ? 1 : 0) - (a.isOwner ? 1 : 0))
-            .map((profile: any) => {
-              const isActive = profile.isActive;
-              const isLoading = switching === profile.id;
-              return (
-                <button
-                  key={profile.id}
-                  onClick={() => !isActive && handleSwitchProfile(profile.id, profile.name)}
-                  disabled={isActive || isLoading}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left rounded-lg transition-colors hover:bg-white/5 disabled:cursor-default"
-                  style={{ color: isActive ? "var(--color-primary)" : "var(--color-foreground)" }}
-                >
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[12px] font-bold"
-                    style={{
-                      background: isActive ? "var(--color-primary)" : "var(--color-secondary)",
-                      color: isActive ? "var(--color-primary-foreground)" : "var(--color-muted-foreground)",
-                    }}
-                  >
-                    {isLoading
-                      ? <Loader2 size={10} className="animate-spin" />
-                      : profile.name[0]?.toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">
-                      {profile.name}
-                      {profile.isOwner && (
-                        <span className="ml-1.5 text-[12px]" style={{ color: "var(--amber-gold)" }}>★ My Chart</span>
-                      )}
-                    </p>
-                    {profile.lagnaSign && (
-                      <p className="text-[13px] truncate" style={{ color: "var(--color-muted-foreground)" }}>
-                        {profile.lagnaSign} lagna
-                      </p>
-                    )}
-                  </div>
-                  {isActive && <Check size={14} style={{ color: "var(--color-primary)" }} />}
-                </button>
-              );
-            })}
-          <DropdownMenuSeparator className="my-1" />
-          <button
-            onClick={() => { setOpen(false); navigate("/profiles"); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left rounded-lg transition-colors hover:bg-white/5"
-            style={{ color: "var(--color-muted-foreground)" }}
-          >
-            <Plus size={14} />
-            <span>Manage profiles</span>
-          </button>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  ) : null;
 
   // ── HERO LAYOUT (all pages) ────────────────────────────────────────────────
   const stateLabel = heroMode?.qualifier || null;
@@ -486,7 +296,6 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         )}
 
         {/* Profile switcher below greeting */}
-        {profileSwitcher}
 
         {/* Optional back link — sits directly above the page title */}
         {pageTitle && onBack && (
