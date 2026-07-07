@@ -189,16 +189,16 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             {golden && (golden.isGolden ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                 <VeleaLorMark size={14} color="#D4AF37" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.55))", flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#D4AF37", whiteSpace: "nowrap", lineHeight: 1 }}>Golden hour{golden.untilMs ? ` until ${fmtClock(golden.untilMs)}` : ""}</span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#D4AF37", whiteSpace: "nowrap", lineHeight: 1 }}>Veleal'or{golden.untilMs ? ` until ${fmtClock(golden.untilMs)}` : ""}</span>
               </div>
             ) : golden.nextGoldenMs ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                 <VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap", lineHeight: 1 }}>Next golden hour : {fmtClock(golden.nextGoldenMs)}</span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap", lineHeight: 1 }}>Next veleal'or : {fmtClock(golden.nextGoldenMs)}</span>
               </div>
             ) : (
               <div style={{ display: "inline-flex", alignItems: "center", flexShrink: 0 }}>
-                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", whiteSpace: "nowrap", lineHeight: 1, opacity: 0.75 }}>No golden hours left</span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", whiteSpace: "nowrap", lineHeight: 1, opacity: 0.75 }}>No veleal'or left</span>
               </div>
             ))}
           </div>
