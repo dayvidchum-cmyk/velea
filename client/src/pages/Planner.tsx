@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
 import KeptReadings from "@/components/KeptReadings";
+import VeleaLorMark from "@/components/VeleaLorMark";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -190,7 +191,7 @@ export default function Planner() {
   const goldenSet = useMemo(() => new Set<string>((goldenData?.potential ?? []) as string[]), [goldenData]);
   // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
   // fixed-to-viewport (never clipped by the calendar card's overflow).
-  const [crownTip, setCrownTip] = useState<{ date: string; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
+  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
   // Scroll-anchor: selecting a date re-renders the hero card ABOVE the calendar, whose height change
   // would otherwise shove the calendar and "jump" the screen. We capture the calendar's viewport top
   // on tap and restore it in a layout effect so the tapped cell stays visually put.
@@ -1039,9 +1040,10 @@ export default function Planner() {
                   // Anchor the calendar so the hero-card re-render above doesn't jump the screen.
                   scrollAnchorRef.current = calendarRef.current?.getBoundingClientRect().top ?? null;
                   setSelectedDate(dateStr);
-                  if (!isCrown || crownTip?.date === dateStr) { setCrownTip(null); return; }
+                  // Crown days AND golden days pop a bubble; tapping the open day (or a plain day) closes it.
+                  if (crownTip?.date === dateStr || (!isCrown && !isGolden)) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
-                  setCrownTip({ date: dateStr, why: crownByDate.get(dateStr) ?? "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent });
+                  setCrownTip({ date: dateStr, kind: isCrown ? "crown" : "golden", why: isCrown ? (crownByDate.get(dateStr) ?? "") : "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent });
                 }}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
@@ -1123,14 +1125,25 @@ export default function Planner() {
               borderLeft: "8px solid transparent", borderRight: "8px solid transparent",
               ...(above ? { bottom: -8, borderTop: `8px solid ${accent}` } : { top: -8, borderBottom: `8px solid ${accent}` }),
             }} />
-            <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
-              <img src="/crown.png" alt="" width={14} height={14} style={{ display: "inline-block", verticalAlign: "-2px" }} /> Crown day
-            </span>
-            An auspicious day for you, a Velea&rsquo;lor. What will you do today?
-            {crownTip.why && (
-              <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
-                {crownTip.why}
-              </span>
+            {crownTip.kind === "crown" ? (
+              <>
+                <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
+                  <img src="/crown.png" alt="" width={14} height={14} style={{ display: "inline-block", verticalAlign: "-2px" }} /> Crown day
+                </span>
+                An auspicious day for you, a Velea&rsquo;lor. What will you do today?
+                {crownTip.why && (
+                  <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
+                    {crownTip.why}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
+                  <VeleaLorMark size={14} color="#C9A84C" /> Golden day
+                </span>
+                A bright day in the shared sky &mdash; collectively auspicious for everyone. Crown days are your own personal apex within it.
+              </>
             )}
           </div>
         );
