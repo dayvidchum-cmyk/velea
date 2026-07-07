@@ -396,20 +396,20 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               Date/time/mode read in the current date's mode color; the activity reads in its own Time
               Master color; the hora glyph is gold. THE STAGE sits on its own line under it. */}
           <div>
+            {/* Line 1 — the day context: date · time · qualifier-mode. */}
             <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
               <span style={{ color: modeColor, whiteSpace: "nowrap" }}>{shortDateLabel}</span>
               <span style={{ color: modeColor, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{stampTime}</span>
               {stampModeLabel && (<><span style={{ opacity: 0.4 }}>•</span><span style={{ color: modeColor, whiteSpace: "nowrap" }}>{stampModeLabel}</span></>)}
-              {stampActivity && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", whiteSpace: "nowrap" }}>
-                  <span style={{ opacity: 0.4 }}>•</span>
-                  <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
-                  {stampHoraLord && (<><span style={{ opacity: 0.4 }}>:</span><span style={{ color: "#C9A84C" }}>{stampHoraLord}</span></>)}
-                </span>
-              )}
-              {/* The golden bullseye lives up on the brand line as "GOLDEN HOUR" — no duplicate mark
-                  trailing the dateline (it was wrapping onto its own line and reading as a stray dot). */}
             </div>
+            {/* Line 2 — the live Time Master read: activity : planet. Its own line (no orphan bullet)
+                so it never wraps mid-group and reads as intentional. */}
+            {stampActivity && (
+              <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", marginTop: "0.2rem", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
+                {stampHoraLord && (<><span style={{ opacity: 0.4 }}>:</span><span style={{ color: "#C9A84C" }}>{stampHoraLord}</span></>)}
+              </div>
+            )}
             {/* The Stage — under the dateline; opens the Stage pop-up. */}
             <button
               onClick={() => setStageSheetOpen(true)}
