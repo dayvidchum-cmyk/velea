@@ -334,7 +334,13 @@ export const profiles = mysqlTable("profiles", {
   userId: int("userId").notNull(),
   name: varchar("name", { length: 128 }).notNull(), // e.g. "David", "Mom"
   birthDate: varchar("birthDate", { length: 10 }), // YYYY-MM-DD
-  birthTime: varchar("birthTime", { length: 8 }), // HH:mm
+  birthTime: varchar("birthTime", { length: 8 }), // HH:mm — null when the exact time is unknown
+  // Approximate time-of-day bucket when the exact birthTime is unknown ("morning"|"afternoon"|
+  // "evening"|"night"). Only picks a representative time so the Moon's SIGN resolves; a no-time
+  // profile is always read as Chandra lagna, never reframed to an ascendant chart.
+  birthTimeOfDay: varchar("birthTimeOfDay", { length: 16 }),
+  // How house 1 is framed: "ascendant" (exact birth time) or "chandra" (Moon's sign = 1st house).
+  lagnaBasis: varchar("lagnaBasis", { length: 16 }).default("ascendant"),
   birthLocationCity: varchar("birthLocationCity", { length: 128 }),
   birthLocationLat: varchar("birthLocationLat", { length: 24 }),
   birthLocationLon: varchar("birthLocationLon", { length: 24 }),
