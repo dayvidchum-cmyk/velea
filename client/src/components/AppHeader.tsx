@@ -406,7 +406,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               {stampActivity && (<>
                 <span style={{ opacity: 0.4, flexShrink: 0 }}>•</span>
                 <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit", flexShrink: 0 }}>{stampActivity}</span>
-                {stampHoraLord && (<><span style={{ opacity: 0.4, flexShrink: 0 }}>:</span><span style={{ color: "#C9A84C", flexShrink: 0 }}>{stampHoraLord}</span></>)}
+                {stampHoraLord && (<><span style={{ opacity: 0.4, flexShrink: 0 }}>:</span><span style={{ color: modeColor, flexShrink: 0 }}>{stampHoraLord}</span></>)}
               </>)}
             </div>
             {/* The Stage — under the dateline; opens the Stage pop-up. */}
