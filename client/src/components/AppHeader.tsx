@@ -396,18 +396,26 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               Date/time/mode read in the current date's mode color; the activity reads in its own Time
               Master color; the hora glyph is gold. THE STAGE sits on its own line under it. */}
           <div>
-            {/* ONE line, always. Never wraps: nowrap + a small tracked size so the whole stamp —
-                date · time · mode · activity : planet — stays on a single row. If a screen is too
-                narrow to fit it all, it scrolls horizontally rather than breaking to a second line. */}
-            <div className="no-scrollbar" style={{ display: "flex", alignItems: "center", flexWrap: "nowrap", whiteSpace: "nowrap", overflowX: "auto", overflowY: "hidden", gap: "0.3rem", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+            {/* ONE line, JUSTIFIED edge-to-edge (space-between) so the date sits flush-left under
+                "Velea" and the last segment sits flush-right under the golden-hour readout — the
+                dateline spans the same width as the brand line above it. Each segment is grouped so
+                its bullet stays attached to its word. Scrolls if a screen is too narrow to fit. */}
+            <div className="no-scrollbar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "nowrap", whiteSpace: "nowrap", overflowX: "auto", overflowY: "hidden", gap: "0.3rem", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
               <span style={{ color: modeColor, flexShrink: 0 }}>{shortDateLabel}</span>
               <span style={{ color: modeColor, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{stampTime}</span>
-              {stampModeLabel && (<><span style={{ opacity: 0.4, flexShrink: 0 }}>•</span><span style={{ color: modeColor, flexShrink: 0 }}>{stampModeLabel}</span></>)}
-              {stampActivity && (<>
-                <span style={{ opacity: 0.4, flexShrink: 0 }}>•</span>
-                <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit", flexShrink: 0 }}>{stampActivity}</span>
-                {stampHoraLord && (<><span style={{ opacity: 0.4, flexShrink: 0 }}>:</span><span style={{ color: modeColor, flexShrink: 0 }}>{stampHoraLord}</span></>)}
-              </>)}
+              {stampModeLabel && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
+                  <span style={{ opacity: 0.4 }}>•</span>
+                  <span style={{ color: modeColor }}>{stampModeLabel}</span>
+                </span>
+              )}
+              {stampActivity && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
+                  <span style={{ opacity: 0.4 }}>•</span>
+                  <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
+                  {stampHoraLord && (<><span style={{ opacity: 0.4 }}>:</span><span style={{ color: modeColor }}>{stampHoraLord}</span></>)}
+                </span>
+              )}
             </div>
             {/* The Stage — under the dateline; opens the Stage pop-up. */}
             <button
