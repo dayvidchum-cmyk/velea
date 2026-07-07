@@ -16,6 +16,19 @@ function hashInput(input: unknown): string {
 export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };
 export type DeepReadResult = { available: boolean; read: DeepRead | null; generatedAt: Date | null; cached: boolean };
 
+// Single-flight: an LLM generation takes ~1–2 min. Without this, a second request for the SAME
+// (profile, surface, date, input) while the first is still generating would fire a DUPLICATE
+// (expensive) LLM call — e.g. the user navigates away and back, or React Query refetches. Instead,
+// overlapping callers share the one in-flight promise and all resolve when it completes.
+const inFlight = new Map<string, Promise<unknown>>();
+function singleFlight<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const existing = inFlight.get(key) as Promise<T> | undefined;
+  if (existing) return existing;
+  const p = fn().finally(() => inFlight.delete(key));
+  inFlight.set(key, p);
+  return p;
+}
+
 export async function getGlanceCached(profileId: number, date: string, refresh = false, moment?: { nowMs: number; lat?: number; lon?: number }, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<GlanceResult> {
   if (!hasAnthropicKey()) return { available: false, content: null, generatedAt: null, cached: false };
   // A moment read (moment.nowMs) is hora-flavored and EPHEMERAL: never read from nor
@@ -35,11 +48,16 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
       }
     }
   }
-  const content = await generateGlance(input);
+  const content = await singleFlight(`glance:${profileId}:${date}:${hash}`, async () => {
+    const c = await generateGlance(input);
+    // Persist inside the single-flight so the one generation writes the cache once; coalesced
+    // callers then share it (and every later request hits the cache, fast).
+    if (c && !isMoment) await upsertNarrativeCache(profileId, "glance", date, hash, MODEL, JSON.stringify(c));
+    return c;
+  });
   // No content (dry wallet / API error / parse fail) → signal unavailable so the client shows
   // static copy, exactly like the no-API-key path above. Never a blank day.
   if (!content) return { available: false, content: null, generatedAt: null, cached: false };
-  if (!isMoment) await upsertNarrativeCache(profileId, "glance", date, hash, MODEL, JSON.stringify(content));
   return { available: true, content, generatedAt: new Date(), cached: false };
 }
 
@@ -73,8 +91,11 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
       }
     }
   }
-  const read = await generateDeepRead(input);
+  const read = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+    const r = await generateDeepRead(input);
+    if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
-  await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(read));
   return { available: true, read, generatedAt: new Date(), cached: false };
 }

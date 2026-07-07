@@ -784,7 +784,7 @@ export default function Planner() {
               const narrative = glanceContent?.narrative;
               if (!narrative) {
                 return glanceFetching
-                  ? <div style={{ marginBottom: '1.25rem' }}><ProseLoading /></div>
+                  ? <div style={{ marginBottom: '1.25rem' }}><ProseLoading label="Crafting today's reading — this can take up to a minute the first time…" /></div>
                   : null;
               }
               const paras = narrative.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
