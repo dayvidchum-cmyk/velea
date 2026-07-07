@@ -36,9 +36,9 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
-          backgroundImage: "url(/starry-night.jpg)",
+          backgroundImage: "url(/welcome-sunset.jpg)",
           backgroundSize: "cover",
-          backgroundPosition: "center bottom",
+          backgroundPosition: "center center",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />
@@ -47,7 +47,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
-          background: "radial-gradient(ellipse at center 42%, rgba(10,19,30,0.35) 0%, rgba(10,19,30,0.72) 100%)",
+          background: "radial-gradient(ellipse at center 42%, rgba(10,19,30,0.5) 0%, rgba(10,19,30,0.8) 100%)",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />

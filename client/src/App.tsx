@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
 import { Plus, RefreshCw } from "lucide-react";
-import WelcomeScreen from "@/components/WelcomeScreen";
+import BrandSplash from "@/components/BrandSplash";
 import { PANCHANG_TO_TASK_MODE, type TaskMode } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 
@@ -227,7 +227,7 @@ const { user, loading } = useAuth();
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground star-bg">
-      {showSplash && <WelcomeScreen firstName={user?.name?.split(" ")[0] ?? null} onDone={() => setShowSplash(false)} />}
+      {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
       {/* Normal document flow — the page scrolls, the nav is fixed to the viewport bottom. */}
       <main className="overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
