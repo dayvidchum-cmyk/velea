@@ -2,7 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
-import { generateGlance, generateDeepRead } from "../narrative/generate.js";
+import { generateGlance, generateDeepRead, generateChapter } from "../narrative/generate.js";
 
 const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
 
@@ -25,7 +25,7 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
     if (tlt) console.log(`Chapter: ${tlt.planet} transiting H${tlt.currentHouse} (${tlt.currentSign})`);
     console.log("━".repeat(80));
 
-    const [g, d] = await Promise.all([generateGlance(input), generateDeepRead(input)]);
+    const [g, d, ch] = await Promise.all([generateGlance(input), generateDeepRead(input), generateChapter(input)]);
 
     console.log(`\n  THE SIGNAL`);
     console.log("  " + (g?.narrative ?? "(none)"));
@@ -40,8 +40,8 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
       console.log(`  Why now:    ${d.whyNow}`);
       console.log("  Manifestations: " + (d.manifestations ?? []).map((m: any) => m.area + ": " + m.note).join(" | "));
       console.log(`  The Lesson: ${d.developmentalTask}`);
-      console.log(`  Chapter good for: ` + (d.chapterGoodFor ?? []).map((x) => "· " + x).join("  "));
-      console.log(`  Chapter avoid:    ` + (d.chapterAvoid ?? []).map((x) => "· " + x).join("  "));
+      console.log(`  Chapter good for: ` + (ch?.chapterGoodFor ?? []).map((x: string) => "· " + x).join("  "));
+      console.log(`  Chapter avoid:    ` + (ch?.chapterAvoid ?? []).map((x: string) => "· " + x).join("  "));
       console.log(`  Confidence: ${d.confidence.level} — ` + (d.confidence.factors ?? []).join("; "));
     }
   }

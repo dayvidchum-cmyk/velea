@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
-import { getGlanceCached, getDeepReadCached } from "./service.js";
+import { getGlanceCached, getDeepReadCached, getChapterCached } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
 import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
 import { assertOwnsProfile } from "../routers/profiles.js";
@@ -68,6 +68,21 @@ export const narrativeRouter = router({
     } catch (e) {
       console.error("[narrative.deepRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
+    }
+  }),
+
+  // Chapter good-for/avoid bullets — a small, cheap, AUTO-FIRING read (the year lord's
+  // transit-house room), split out of the big deep read so it shows on the Chart page
+  // without tapping "The Read". Falls back to unavailable on any error.
+  chapter: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
+    const date = input.date ?? todayUTC();
+    try {
+      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id));
+      return await getChapterCached(input.profileId, date, input.refresh ?? false, dayLoc);
+    } catch (e) {
+      console.error("[narrative.chapter]", e);
+      return { available: false, chapter: null, generatedAt: null, cached: false } as const;
     }
   }),
 

@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -15,10 +15,13 @@ export type DeepRead = {
   whyNow: Section;
   manifestations: { area: string; synthesis: string; why: string }[];
   developmentalTask: Section;
-  chapterGoodFor: string[];
-  chapterAvoid: string[];
   confidence: { level: "Low" | "Moderate" | "High"; factors: { plain: string; astro: string }[] };
 };
+
+// The chapter's good-for/avoid bullets — split OUT of the big deep read into a small,
+// cheap, auto-firing call so they show on the Chart page without tapping the deep read.
+// They turn only when the chapter turns (the year lord's transit house changes).
+export type Chapter = { chapterGoodFor: string[]; chapterAvoid: string[] };
 
 export function hasAnthropicKey(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
@@ -77,7 +80,7 @@ const SECTION = { type: "object", additionalProperties: false, required: ["synth
 const DEEP_READ_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["coreTheme", "whyNow", "manifestations", "developmentalTask", "chapterGoodFor", "chapterAvoid", "confidence"],
+  required: ["coreTheme", "whyNow", "manifestations", "developmentalTask", "confidence"],
   properties: {
     coreTheme: SECTION,
     whyNow: SECTION,
@@ -86,8 +89,6 @@ const DEEP_READ_SCHEMA = {
       items: { type: "object", additionalProperties: false, required: ["area", "synthesis", "why"], properties: { area: { type: "string" }, synthesis: { type: "string" }, why: { type: "string" } } },
     },
     developmentalTask: SECTION,
-    chapterGoodFor: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
-    chapterAvoid: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
     confidence: {
       type: "object",
       additionalProperties: false,
@@ -133,9 +134,51 @@ function isCompleteDeepRead(r: any): r is DeepRead {
     && sec(r.whyNow)
     && Array.isArray(r.manifestations) && r.manifestations.every((m: any) => m && typeof m.area === "string" && typeof m.synthesis === "string" && typeof m.why === "string")
     && sec(r.developmentalTask)
-    && Array.isArray(r.chapterGoodFor)
-    && Array.isArray(r.chapterAvoid)
     && !!r.confidence && typeof r.confidence.level === "string"
     && Array.isArray(r.confidence.factors) && r.confidence.factors.every((f: any) => f && typeof f.plain === "string" && typeof f.astro === "string");
 }
 export { isCompleteDeepRead };
+
+const CHAPTER_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["chapterGoodFor", "chapterAvoid"],
+  properties: {
+    chapterGoodFor: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
+    chapterAvoid: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
+  },
+} as const;
+
+export async function generateChapter(input: NarrativeInput): Promise<Chapter | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 500,
+      // BASE_PROMPT stays the cached prefix (shared with the glance/deep reads); only the
+      // small CHAPTER_TAIL is uncached, so this cheap call rides the same ephemeral cache.
+      system: [
+        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
+        { type: "text" as const, text: CHAPTER_TAIL },
+      ],
+      tools: [{ name: "chapter", description: "Return the chapter's good-for / avoid bullets.", input_schema: CHAPTER_SCHEMA as any }],
+      tool_choice: { type: "tool", name: "chapter" },
+      messages: [{ role: "user", content: JSON.stringify(input) }],
+    });
+    const block = msg.content.find((b) => b.type === "tool_use");
+    if (!block || block.type !== "tool_use") return null;
+    return isCompleteChapter(block.input) ? (block.input as Chapter) : null;
+  } catch (err) {
+    console.error("[narrative] generateChapter failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
+// Reject a truncated tool call so callers fall back instead of rendering half a list.
+function isCompleteChapter(r: any): r is Chapter {
+  return !!r
+    && Array.isArray(r.chapterGoodFor) && r.chapterGoodFor.every((s: any) => typeof s === "string")
+    && Array.isArray(r.chapterAvoid) && r.chapterAvoid.every((s: any) => typeof s === "string");
+}
+export { isCompleteChapter };

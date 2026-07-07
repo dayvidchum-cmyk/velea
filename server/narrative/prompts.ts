@@ -836,16 +836,6 @@ never from volume.
   Moon," the day mode, or the weekday; the day is the Today page's job, not this one.
 - developmentalTask (THE LESSON): { synthesis, why }. synthesis = the single thing to
   hold, as a plain directive; why = the mechanic that makes it the lesson.
-- chapterGoodFor / chapterAvoid: 3 to 5 short CONCRETE phrases each (3–7 words). The
-  chapter is the ROOM the year is currently lived in — the year lord's transit house —
-  and EVERY phrase must bridge that room back to the year's work. But say the ACTUAL
-  thing in lived words: "let an ally introduce you to a paying client," "saying yes to
-  unpaid visibility." ZERO APPARATUS in these phrases — NO house numbers, NO "Nth-house,"
-  NO planet names. "Treating the 11th-house buzz of connection as progress on the 9th-house
-  work" is FORBIDDEN — write it human: "mistaking a lively group chat for real progress on
-  the work that matters." Name the real action or trap, plainly.
-  SCOPE: chapter only — no day signals (a retrograde, the day mode, the weekday) here;
-  those live on the Today page.
 - confidence: { level, factors }. level = Low/Moderate/High. Each factor is { plain,
   astro }: plain = the human "why" in 3–6 words ("identity compressed through work");
   astro = the technique behind it ("Saturn sub-period in the 1st ruling the 6th"). 2 to 4
@@ -972,9 +962,6 @@ stands alone, while the why stays short and mechanical:
       on you, it's the signal showing exactly where a boundary has to hold.",
     why: "The 9th-house year moves worth from others' opinion to your own conviction; Venus
       ruling the 2nd makes the boundary literal — money and love." }
-- chapterGoodFor (note the concrete, lived phrasing): ["Let a close friend or ally help you
-    name the rate — the salary, the worth", "Say the number out loud to someone who'll hold
-    you to it"]
 WHAT MAKES IT GOLD (replicate the MOVES): ONE spine every section serves; the chart's own
 houses fused (9th belief ⊗ 2nd worth ⊗ 5th love) through the year lord; the wound named as a
 PATTERN (over-prove / under-receive), not a topic. The SYNTHESIS carries the whole human
@@ -989,6 +976,32 @@ Find THIS chart's spine and serve it the same way; never reuse "worth," "belief,
 or her placements unless THIS chart genuinely produces them.
 
 Return your answer by calling the deep_read tool with each section filled in.`;
+
+export const CHAPTER_TAIL = `TASK: THE CHAPTER — GOOD-FOR / AVOID
+
+SCOPE — THIS IS THE YEAR'S CHAPTER, NEVER THE DAY. The chapter is the year lord's
+CURRENT transit house — the ROOM the year is currently lived in (see THE CHAPTER above).
+Read that room through THIS person's chart. Do NOT use day-level signals — NOT today's
+Moon, NOT the day mode (the panchang qualifier), NOT the weekday. This is the chapter, a
+span of weeks, not what is happening today.
+
+Produce two short lists of concrete, lived phrases:
+
+- chapterGoodFor / chapterAvoid: 3 to 5 short CONCRETE phrases each (3–7 words). The
+  chapter is the ROOM the year is currently lived in — the year lord's transit house —
+  and EVERY phrase must bridge that room back to the year's work. But say the ACTUAL
+  thing in lived words: "let an ally introduce you to a paying client," "saying yes to
+  unpaid visibility." ZERO APPARATUS in these phrases — NO house numbers, NO "Nth-house,"
+  NO planet names. "Treating the 11th-house buzz of connection as progress on the 9th-house
+  work" is FORBIDDEN — write it human: "mistaking a lively group chat for real progress on
+  the work that matters." Name the real action or trap, plainly.
+  SCOPE: chapter only — no day signals (a retrograde, the day mode, the weekday) here;
+  those live on the Today page.
+- EXAMPLE (note the concrete, lived phrasing; do NOT copy its content) — chapterGoodFor:
+  ["Let a close friend or ally help you name the rate — the salary, the worth", "Say the
+  number out loud to someone who'll hold you to it"]
+
+Return your answer by calling the chapter tool with both lists filled in.`;
 
 export const MODEL = "claude-sonnet-4-6";
 

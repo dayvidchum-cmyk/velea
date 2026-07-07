@@ -2,7 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
-import { generateDeepRead } from "../narrative/generate.js";
+import { generateDeepRead, generateChapter } from "../narrative/generate.js";
 
 const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
 
@@ -29,8 +29,9 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
     console.log(`\nMANIFESTATIONS`);
     for (const m of d.manifestations ?? []) console.log(`  • ${m.area} — ${m.synthesis}\n     ↳ ${m.why}`);
     console.log(`\nTHE LESSON\n  ${sec(d.developmentalTask)}`);
-    console.log(`\nCHAPTER good for: ` + (d.chapterGoodFor ?? []).map((x: string) => "· " + x).join("  "));
-    console.log(`CHAPTER avoid:    ` + (d.chapterAvoid ?? []).map((x: string) => "· " + x).join("  "));
+    const ch = await generateChapter(input);
+    console.log(`\nCHAPTER good for: ` + (ch?.chapterGoodFor ?? []).map((x: string) => "· " + x).join("  "));
+    console.log(`CHAPTER avoid:    ` + (ch?.chapterAvoid ?? []).map((x: string) => "· " + x).join("  "));
     console.log(`\nCONFIDENCE: ${d.confidence.level}\n  ` + (d.confidence.factors ?? []).map((f: any) => `· ${f.plain}  —  ${f.astro}`).join("\n  "));
   }
   process.exit(0);
