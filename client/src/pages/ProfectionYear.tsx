@@ -170,7 +170,9 @@ export default function ProfectionYear() {
   const deepProfileId = activeProfile?.id;
   const { data: deepReadResult, isLoading: deepReadLoading } = trpc.narrative.deepRead.useQuery(
     { profileId: deepProfileId as number, date: localToday },
-    { enabled: !!deepProfileId, staleTime: 1000 * 60 * 60 },
+    // TAP TO GENERATE: the deep read is an LLM call, so it fires ONLY when the reader opens
+    // "The Read · your year" (readOpen) — never automatically on page load. No surprise cost.
+    { enabled: !!deepProfileId && readOpen, staleTime: 1000 * 60 * 60 },
   );
   const deepRead = deepReadResult?.read ?? null;
 
@@ -624,7 +626,8 @@ export default function ProfectionYear() {
         document.body
       )}
 
-      {deepRead && panel("The Read · your year", readOpen, setReadOpen, (
+      {panel("The Read · your year", readOpen, setReadOpen, (
+        deepRead ? (
         <>
           {readAccordion("Core Theme", s1, setS1, (
             <>
@@ -683,12 +686,14 @@ export default function ProfectionYear() {
             </>
           ))}
         </>
+        ) : (
+          <div style={{ padding: "0.5rem 0", color: "rgba(255,255,255,0.72)", fontSize: "0.9rem", lineHeight: 1.6 }}>
+            {deepReadLoading
+              ? "Generating your reading… this can take up to a minute the first time."
+              : "Tap to generate your full year reading."}
+          </div>
+        )
       ))}
-      {!deepRead && deepReadLoading && (
-        <div style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "1.25rem", color: TEXT_MUTED, fontSize: "0.85rem" }}>
-          Generating your reading…
-        </div>
-      )}
 
       {/* CURRENT TRIGGER — deterministic transit breakdown (ephemeris math, auditable) */}
       {/* ── TIME LORD MOVEMENT — merged (was Current Trigger + Current Time Lord Movement + Time
