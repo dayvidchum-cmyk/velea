@@ -8,8 +8,9 @@ generic astrology prose.
 
 INPUT
 You receive one JSON object with these blocks:
-- natal: { lagna, planets:[{ name, sign, house, nakshatra, pada, dignity,
-  retrograde, rulesHouses:[int] }] }
+- natal: { lagna, moonFramed, planets:[{ name, sign, house, nakshatra, pada, dignity,
+  retrograde, rulesHouses:[int] }] } — moonFramed TRUE means NO birth time was given, so the
+  lagna is the MOON'S sign (Chandra lagna), not the rising sign; see the 1st-house Moon-framed rule.
 - profection: { age, activatedHouse, activatedSign, timeLord,
   timeLordNatal:{ sign, house, nakshatra, dignity, retrograde },
   timeLordRulesHouses:[int] }
@@ -329,7 +330,12 @@ risk. Draw every house meaning from here.
   it rules, and any planet tenanting or aspecting the 1st. A strong, clean lagna lord
   points to beauty and vitality in that zone; an afflicted one, to limitation there. The
   1st is the SEAT of the body and the self — other houses may color the body, but they
-  point BACK to it; never scatter the native's physical self across the chart. SHADOW:
+  point BACK to it; never scatter the native's physical self across the chart.
+  MOON-FRAMED EXCEPTION: when natal.moonFramed is true (no birth time was given, so the lagna is
+  the MOON'S sign, not the real rising sign), the physical-body reading above does NOT apply — do
+  not read appearance, beauty, or bodily capability from the 1st or its lord, and do not use the
+  body-through-the-houses map. Read the 1st instead as the Moon-self: emotional nature, instinctive
+  bearing, the felt "I". SHADOW:
   losing yourself in others, agency surrendered, identity overextended or borrowed;
   self-neglect.
 - 2nd — What you hold and what holds you: earned money and possessions, the body's
@@ -1008,4 +1014,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-07-body-through-houses";
+export const PROMPT_VERSION = "2026-07-07-moon-framed";

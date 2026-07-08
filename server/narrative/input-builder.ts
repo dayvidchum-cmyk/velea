@@ -115,6 +115,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const lagnaDeg = p.ascendantDegree != null && !isNaN(parseFloat(p.ascendantDegree)) ? +parseFloat(p.ascendantDegree).toFixed(1) : null;
   const natal = {
     lagna,
+    // TRUE when the person gave no birth time: the lagna is the Moon's sign (Chandra lagna), not
+    // the physical rising sign — the prompt must not read body/appearance from the 1st (see prompt).
+    moonFramed: p.lagnaBasis === "chandra",
     lagnaDegree: lagnaDeg,
     lagnaThreshold: threshold(lagna, lagnaDeg),
     planets: PLANETS.map((n) => {
