@@ -176,7 +176,7 @@ export default function About() {
             But if now and then a day feels more like your own — the moment may be good or bad — then this did the one thing I built it to do. Velea is the messenger that points, not the one that yells. You're the driver. This is a possible map that lives with you, in real time. Maybe it will be useful. Maybe it will help in some way. That's the whole hope.
           </p>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
-            I've spent my whole life gathering data, knowledge, and experience — and I'm grateful I finally had what I needed to turn all of it into this, for you. If you ever want to share something amazing, hit me up on social media, bitch! Tell your loved ones, your village. I love you. Thank you for being here.
+            I've spent my whole life gathering data, knowledge, and experience — and I'm grateful I finally had what I needed to turn all of it into this, for you. If you ever want to share something amazing, hit me up on social media. Tell your loved ones, your village. Thank you for being here.
           </p>
         </div>
 
