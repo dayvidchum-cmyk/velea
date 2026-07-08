@@ -625,31 +625,9 @@
   color: #FFFFFF;
 }
 
-/* Starry-night backdrop for dark mode — the intro sky, kept as the app background.
-   The fixed html::before layer carries the sky; body goes transparent so it shows through,
-   and opaque cards then float as panels over it (mirrors the BrandSplash finale). A dark
-   gradient over the image keeps text legible. Full Spectrum is excluded (its own theming). */
-html.dark:not(.full-spectrum)::before {
-  background:
-    linear-gradient(rgba(10, 19, 30, 0.12), rgba(10, 19, 30, 0.42)),
-    url(/starry-night.jpg) center top / cover no-repeat;
-}
-html.dark:not(.full-spectrum) body {
-  background: transparent !important;
-}
-/* App top bar: solid in light, glass over the Milky Way in dark so the top of the screen is
-   the sky, not a solid strip. Blur keeps the brand + dateline legible over scrolling content. */
+/* App top bar — solid background matching the app surface (dark mode is a plain solid
+   dark; the starry-night backdrop was removed). */
 .app-topbar { background: var(--background); }
-html.dark:not(.full-spectrum) .app-topbar {
-  background: rgba(10, 19, 30, 0.42);
-  backdrop-filter: blur(16px) saturate(1.15);
-  -webkit-backdrop-filter: blur(16px) saturate(1.15);
-}
-/* The app shell (App.tsx) paints an opaque `bg-background` via `.star-bg` over the html::before
-   sky — clear it in dark mode so the starfield shows through. */
-html.dark:not(.full-spectrum) .star-bg {
-  background-color: transparent !important;
-}
 
 .dark .glass-card {
   background: #0A0A0A;
