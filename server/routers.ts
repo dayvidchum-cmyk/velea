@@ -281,6 +281,32 @@ export const appRouter = router({
         const { probeLLM } = await import("./narrative/generate.js");
         return probeLLM();
       }),
+    // Admin: run a specific user's ACTUAL day reading end-to-end (build input → generate) and report
+    // the exact failure point. Diagnoses a per-user blank when the global LLM probe is green.
+    testReadingForUser: protectedProcedure
+      .input(z.object({ userId: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+        const rows = await db.select().from(profiles).where(and(eq(profiles.userId, input.userId), eq(profiles.isOwner, true))).limit(1);
+        const owner = rows[0];
+        if (!owner) return { ok: false, stage: "no owner profile", error: "This user has no owner profile." };
+        const today = new Date().toISOString().split("T")[0];
+        try {
+          const { buildNarrativeInput } = await import("./narrative/input-builder.js");
+          const built = await buildNarrativeInput(owner.id, today);
+          try {
+            const { generateGlance } = await import("./narrative/generate.js");
+            const glance = await generateGlance(built as any);
+            return { ok: !!glance, stage: glance ? "generated OK" : "input built fine, but generateGlance returned null (model refused/incomplete for this input)", error: null };
+          } catch (genErr: any) {
+            return { ok: false, stage: "generateGlance threw", error: genErr?.message ?? String(genErr) };
+          }
+        } catch (inErr: any) {
+          return { ok: false, stage: "buildNarrativeInput threw", error: inErr?.message ?? String(inErr) };
+        }
+      }),
     createProfileUser: protectedProcedure
       .input(z.object({ profileId: z.number().int(), email: z.string().email(), password: z.string().min(6) }))
       .mutation(async ({ ctx, input }) => {

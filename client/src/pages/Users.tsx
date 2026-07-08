@@ -50,6 +50,10 @@ export default function Users() {
     onSuccess: (r: any) => setLlmResult(r.ok ? `✅ LLM live — key set, ${r.model} responded.` : `❌ ${r.hasKey ? "Key is set but the call failed" : "No API key in prod"} — ${r.error}`),
     onError: (err: any) => setLlmResult(`❌ ${err.message || "probe failed"}`),
   });
+  const testReadingMutation = trpc.auth.testReadingForUser.useMutation({
+    onSuccess: (r: any) => setLlmResult(r.ok ? `✅ Reading generated OK for this user.` : `❌ Failed at "${r.stage}"${r.error ? ` — ${r.error}` : ""}`),
+    onError: (err: any) => setLlmResult(`❌ ${err.message || "test failed"}`),
+  });
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,6 +234,15 @@ export default function Users() {
                         title="Recompute this user's chart — fixes a blank/never-loading reading"
                       >
                         {recomputeMutation.isPending && recomputeMutation.variables?.userId === u.id ? "Repairing…" : "Repair chart"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={testReadingMutation.isPending && testReadingMutation.variables?.userId === u.id}
+                        onClick={() => { setLlmResult(""); testReadingMutation.mutate({ userId: u.id }); }}
+                        title="Run this user's actual day reading and report the exact failure point"
+                      >
+                        {testReadingMutation.isPending && testReadingMutation.variables?.userId === u.id ? "Testing…" : "Test read"}
                       </Button>
                       <Button
                         size="sm"
