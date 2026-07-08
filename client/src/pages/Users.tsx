@@ -33,6 +33,14 @@ export default function Users() {
     onSuccess: () => usersList.refetch(),
     onError: (err: any) => setError(err.message || "Failed to update role"),
   });
+  const recomputeMutation = trpc.auth.recomputeUserChart.useMutation({
+    onSuccess: () => { setSuccess("Chart recomputed — their reading will load now."); setTimeout(() => setSuccess(""), 3500); },
+    onError: (err: any) => setError(err.message || "Failed to recompute chart"),
+  });
+  const deleteUserMutation = trpc.auth.deleteUser.useMutation({
+    onSuccess: () => { setSuccess("User deleted (with all their data)."); usersList.refetch(); setTimeout(() => setSuccess(""), 3500); },
+    onError: (err: any) => setError(err.message || "Failed to delete user"),
+  });
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,14 +179,34 @@ export default function Users() {
                       {u.role}
                     </span>
                     {u.role !== "admin" && (
-                      <Button
-                        size="sm"
-                        variant={u.role === "tester" ? "outline" : "default"}
-                        disabled={setRoleMutation.isPending}
-                        onClick={() => setRoleMutation.mutate({ userId: u.id, role: u.role === "tester" ? "user" : "tester" })}
-                      >
-                        {u.role === "tester" ? "Remove tester" : "Make tester"}
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant={u.role === "tester" ? "outline" : "default"}
+                          disabled={setRoleMutation.isPending}
+                          onClick={() => setRoleMutation.mutate({ userId: u.id, role: u.role === "tester" ? "user" : "tester" })}
+                        >
+                          {u.role === "tester" ? "Remove tester" : "Make tester"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={recomputeMutation.isPending && recomputeMutation.variables?.userId === u.id}
+                          onClick={() => recomputeMutation.mutate({ userId: u.id })}
+                          title="Recompute this user's chart — fixes a blank/never-loading reading"
+                        >
+                          {recomputeMutation.isPending && recomputeMutation.variables?.userId === u.id ? "Repairing…" : "Repair chart"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={deleteUserMutation.isPending}
+                          onClick={() => { if (window.confirm(`Delete ${u.name || u.email} and ALL their data? This cannot be undone.`)) deleteUserMutation.mutate({ userId: u.id }); }}
+                          title="Delete this user and all their data"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>

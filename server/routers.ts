@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { parse as parseCookie } from "cookie";
 import { COOKIE_NAME } from "@shared/const";
 import {
@@ -44,6 +44,7 @@ import {
   createSession,
   deleteSession,
   deleteAllSessionsForUser,
+  deleteUserCascade,
   deleteAllSessions,
   getProjectStats,
   getProjectInsights,
@@ -208,6 +209,41 @@ export const appRouter = router({
         await db.update(users).set({ role: input.role, updatedAt: new Date() }).where(eq(users.id, input.userId));
         return { id: input.userId, role: input.role };
       }),
+    // Admin: delete a user AND all their data cleanly (profiles, sessions, check-ins, etc.).
+    // Use this instead of a bare row-delete in the DB UI, which orphans everything (no FK cascade).
+    deleteUser: protectedProcedure
+      .input(z.object({ userId: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        if (input.userId === ctx.user.id) throw new TRPCError({ code: "BAD_REQUEST", message: "You can't delete your own account here." });
+        await deleteUserCascade(input.userId);
+        return { deleted: input.userId };
+      }),
+    // Admin: recompute a user's owner chart from its stored birth data — populates the per-planet
+    // natal bodies + profection/transits. Repairs profiles created before createProfileUser computed
+    // the full chart (e.g. Lisa's blank reading).
+    recomputeUserChart: protectedProcedure
+      .input(z.object({ userId: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+        const rows = await db.select().from(profiles).where(and(eq(profiles.userId, input.userId), eq(profiles.isOwner, true))).limit(1);
+        const owner = rows[0];
+        if (!owner) throw new TRPCError({ code: "NOT_FOUND", message: "User has no owner profile" });
+        if (!owner.birthDate) throw new TRPCError({ code: "BAD_REQUEST", message: "Owner profile has no birth date to compute from" });
+        const { recomputeProfileChart } = await import('./routers/profiles.js');
+        await recomputeProfileChart(input.userId, owner.id, {
+          birthDate: owner.birthDate,
+          birthTime: owner.birthTime,
+          birthTimeApprox: (owner as any).lagnaBasis === "ascendant_approx",
+          birthLocationCity: owner.birthLocationCity ?? "",
+          birthLocationLat: owner.birthLocationLat,
+          birthLocationLon: owner.birthLocationLon,
+          birthTimezone: owner.birthTimezone,
+        });
+        return { recomputed: input.userId, profileId: owner.id };
+      }),
     createProfileUser: protectedProcedure
       .input(z.object({ profileId: z.number().int(), email: z.string().email(), password: z.string().min(6) }))
       .mutation(async ({ ctx, input }) => {
@@ -225,6 +261,11 @@ export const appRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
         if (refProfile.isOwner)
           throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot create login for your own chart" });
+        // A reference profile can back only ONE login. Refusing an already-linked profile
+        // prevents making a second account for the same person (the root of the Lisa/Simone
+        // mix-up). Delete the existing user (which unlinks it) before re-issuing a login.
+        if (refProfile.linkedUserId)
+          throw new TRPCError({ code: "BAD_REQUEST", message: `This profile already has a login (user #${refProfile.linkedUserId}). Delete that user first, then re-create.` });
 
         // Create the user account
         const passwordHash = await hashPassword(input.password);
@@ -236,8 +277,8 @@ export const appRouter = router({
         });
         const newUserId = (newUserResult as any).id ?? (newUserResult as any);
 
-        // Create their owner "My Chart" profile, copying birth data from the reference
-        await db.insert(profiles).values({
+        // Create their owner "My Chart" profile with the reference's birth data.
+        const [ins] = await db.insert(profiles).values({
           userId: newUserId,
           name: refProfile.name,
           birthDate: refProfile.birthDate ?? null,
@@ -246,20 +287,28 @@ export const appRouter = router({
           birthLocationLat: refProfile.birthLocationLat ?? null,
           birthLocationLon: refProfile.birthLocationLon ?? null,
           birthTimezone: refProfile.birthTimezone ?? null,
+          lagnaBasis: (refProfile as any).lagnaBasis ?? "ascendant",
           isOwner: true,
           isActive: false,
-          lagnaSign: refProfile.lagnaSign ?? null,
-          sunHouse: refProfile.sunHouse ?? null,
-          moonHouse: refProfile.moonHouse ?? null,
-          marsHouse: refProfile.marsHouse ?? null,
-          mercuryHouse: refProfile.mercuryHouse ?? null,
-          jupiterHouse: refProfile.jupiterHouse ?? null,
-          venusHouse: refProfile.venusHouse ?? null,
-          saturnHouse: refProfile.saturnHouse ?? null,
-          rahuHouse: refProfile.rahuHouse ?? null,
-          ketuHouse: refProfile.ketuHouse ?? null,
-          ascendantDegree: refProfile.ascendantDegree ?? null,
-        });
+        }).$returningId();
+        const newProfileId = (ins as any).id;
+
+        // Compute the FULL chart — houses AND the per-planet natal bodies, plus profection/transit
+        // precompute and warmed reads. Copying only the house columns (as before) left the profile
+        // with NO natal bodies, and the narrative engine throws "no natal bodies" → the day card and
+        // year read never load. This is the exact bug that left Lisa's reading blank.
+        if (refProfile.birthDate) {
+          const { recomputeProfileChart } = await import('./routers/profiles.js');
+          await recomputeProfileChart(newUserId, newProfileId, {
+            birthDate: refProfile.birthDate,
+            birthTime: refProfile.birthTime,
+            birthTimeApprox: (refProfile as any).lagnaBasis === "ascendant_approx",
+            birthLocationCity: refProfile.birthLocationCity ?? "",
+            birthLocationLat: refProfile.birthLocationLat,
+            birthLocationLon: refProfile.birthLocationLon,
+            birthTimezone: refProfile.birthTimezone,
+          });
+        }
 
         // Mark the reference profile as linked
         await db.update(profiles).set({ linkedUserId: newUserId }).where(eq(profiles.id, input.profileId));

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, checkIns, panchang, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, users, natalBodies, narrativeCache, type User } from "../drizzle/schema";
+import { InsertUser, checkIns, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -122,6 +122,45 @@ export async function deleteAllSessionsForUser(userId: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
   await db.delete(sessions).where(eq(sessions.userId, userId));
+}
+
+/**
+ * Delete a user and EVERYTHING keyed to them, in one place — because the userId columns
+ * have no DB-level foreign keys / cascade, so a bare row-delete (e.g. in the Railway UI)
+ * orphans their profiles, sessions, check-ins, etc. Order matters: profile-scoped children
+ * (keyed by profileId) go first, then every userId-keyed table, then any OTHER user's
+ * reference profile that was linked to this user is unlinked, then the user row itself.
+ */
+export async function deleteUserCascade(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
+
+  // 1. Children keyed by profileId (not userId): collect this user's profile ids first.
+  const userProfiles = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, userId));
+  const profileIds = userProfiles.map((p) => p.id);
+  if (profileIds.length) {
+    await db.delete(profileNatalBodies).where(inArray(profileNatalBodies.profileId, profileIds));
+    await db.delete(narrativeCache).where(inArray(narrativeCache.profileId, profileIds));
+  }
+
+  // 2. Every table keyed by userId.
+  await db.delete(profiles).where(eq(profiles.userId, userId));
+  await db.delete(sessions).where(eq(sessions.userId, userId));
+  await db.delete(tasks).where(eq(tasks.userId, userId));
+  await db.delete(subtasks).where(eq(subtasks.userId, userId));
+  await db.delete(reflections).where(eq(reflections.userId, userId));
+  await db.delete(natalBodies).where(eq(natalBodies.userId, userId));
+  await db.delete(profectionYears).where(eq(profectionYears.userId, userId));
+  await db.delete(timeLordTransits).where(eq(timeLordTransits.userId, userId));
+  await db.delete(projects).where(eq(projects.userId, userId));
+  await db.delete(projectNotes).where(eq(projectNotes.userId, userId));
+  await db.delete(checkIns).where(eq(checkIns.userId, userId));
+
+  // 3. Clear links on OTHER users' (e.g. the admin's) reference profiles that pointed here.
+  await db.update(profiles).set({ linkedUserId: null }).where(eq(profiles.linkedUserId, userId));
+
+  // 4. Finally the user row.
+  await db.delete(users).where(eq(users.id, userId));
 }
 
 /** Force-logout EVERY user (used after a breaking build change). Optionally keep one
