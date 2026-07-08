@@ -45,6 +45,11 @@ export default function Users() {
     onSuccess: (r: any) => { setSuccess(`Repaired ${r.repaired} chart${r.repaired === 1 ? "" : "s"} (${r.skipped} already fine${r.failed ? `, ${r.failed} failed` : ""}).`); setTimeout(() => setSuccess(""), 5000); },
     onError: (err: any) => setError(err.message || "Failed to repair charts"),
   });
+  const [llmResult, setLlmResult] = useState<string>("");
+  const llmStatusMutation = trpc.auth.llmStatus.useMutation({
+    onSuccess: (r: any) => setLlmResult(r.ok ? `✅ LLM live — key set, ${r.model} responded.` : `❌ ${r.hasKey ? "Key is set but the call failed" : "No API key in prod"} — ${r.error}`),
+    onError: (err: any) => setLlmResult(`❌ ${err.message || "probe failed"}`),
+  });
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,6 +176,19 @@ export default function Users() {
             </Button>
           </div>
           <p className="text-sm text-muted-foreground mb-4">Testers get Time Master + Hora unlocked. New test users are testers by default. Charts also self-heal on first read.</p>
+          <div className="mb-4 flex flex-col gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="self-start"
+              disabled={llmStatusMutation.isPending}
+              onClick={() => { setLlmResult(""); llmStatusMutation.mutate(); }}
+              title="Live-test the Anthropic key — diagnoses blank readings"
+            >
+              {llmStatusMutation.isPending ? "Testing LLM…" : "Test LLM"}
+            </Button>
+            {llmResult && <p className="text-xs" style={{ color: "var(--color-muted-foreground)", wordBreak: "break-word" }}>{llmResult}</p>}
+          </div>
           {usersList.isLoading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (usersList.data ?? []).length === 0 ? (

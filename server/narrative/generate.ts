@@ -33,6 +33,23 @@ function client(): Anthropic | null {
   return new Anthropic({ apiKey });
 }
 
+/**
+ * Admin diagnostic: makes a tiny live Anthropic call and reports the exact outcome, so a blank
+ * reading can be diagnosed (missing key vs bad key vs billing/cap vs works) instead of guessed.
+ * Returns the raw API error message on failure — e.g. "invalid x-api-key" or "credit balance too low".
+ */
+export async function probeLLM(): Promise<{ hasKey: boolean; ok: boolean; model: string; error: string | null }> {
+  if (!hasAnthropicKey()) return { hasKey: false, ok: false, model: MODEL, error: "ANTHROPIC_API_KEY is not set in this environment (Railway)." };
+  const c = client();
+  if (!c) return { hasKey: false, ok: false, model: MODEL, error: "Could not create the Anthropic client." };
+  try {
+    await c.messages.create({ model: MODEL, max_tokens: 8, messages: [{ role: "user", content: "Reply with the single word OK." }] });
+    return { hasKey: true, ok: true, model: MODEL, error: null };
+  } catch (err: any) {
+    return { hasKey: true, ok: false, model: MODEL, error: err?.message ?? String(err) };
+  }
+}
+
 export type GlanceContent = { narrative: string; question: string; goodFor: string[]; avoid: string[] };
 
 const GLANCE_SCHEMA = {

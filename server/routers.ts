@@ -273,6 +273,14 @@ export const appRouter = router({
         }
         return { repaired, skipped, failed, total: owners.length };
       }),
+    // Admin: probe the LLM with a tiny live call → reports whether the Anthropic key is set and
+    // working, or the exact API error (bad key / billing cap / etc.). Diagnoses blank readings.
+    llmStatus: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const { probeLLM } = await import("./narrative/generate.js");
+        return probeLLM();
+      }),
     createProfileUser: protectedProcedure
       .input(z.object({ profileId: z.number().int(), email: z.string().email(), password: z.string().min(6) }))
       .mutation(async ({ ctx, input }) => {
