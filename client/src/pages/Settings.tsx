@@ -520,6 +520,23 @@ export default function Settings() {
           </SettingsSection>
         )}
 
+        {/* ── Users (admin) — create tester logins, set roles, repair blank charts, delete cleanly ── */}
+        {user?.role === "admin" && (
+          <SettingsSection title="Users">
+            <button
+              onClick={() => navigate("/admin/users")}
+              className="w-full flex items-center justify-between gap-2 py-2 text-left"
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-foreground)", fontSize: "0.95rem", fontWeight: 600 }}
+            >
+              Manage users &amp; charts
+              <span aria-hidden style={{ color: "var(--color-muted-foreground)" }}>→</span>
+            </button>
+            <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", margin: "0.15rem 0 0" }}>
+              Create tester logins, set roles, and <strong>Repair all charts</strong> before sending logins.
+            </p>
+          </SettingsSection>
+        )}
+
         {/* ── Account — your chart · password · sessions, under one heading at the bottom ── */}
         <SettingsSection title="Account">
           {/* Your chart — identity, birth details, current location */}
