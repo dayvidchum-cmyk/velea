@@ -800,7 +800,7 @@ export default function ProfectionYear() {
                           onClick={() => setExpandedTransitId(selected ? null : idx)}
                           style={{
                             position: "relative",
-                            flex: `${dur} 0 0`, minWidth: 30, height: "100%", background: color,
+                            flex: `${dur} 0 0`, minWidth: 2, height: "100%", background: color,
                             opacity: selected ? 1 : isCurrent ? 0.96 : 0.8,
                             border: "none", borderRight: idx < segs.length - 1 ? "1px solid rgba(0,0,0,0.28)" : "none",
                             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
@@ -838,7 +838,7 @@ export default function ProfectionYear() {
                               const isCur = s.startDate <= todayStr && todayStr <= s.endDate;
                               const segFrac = isCur ? Math.max(0, Math.min(1, (Date.now() - ms(s.startDate)) / dur)) : 0;
                               return (
-                                <div key={idx} style={{ flex: `${dur} 0 0`, minWidth: 30, position: "relative" }}>
+                                <div key={idx} style={{ flex: `${dur} 0 0`, minWidth: 2, position: "relative" }}>
                                   {isCur && (
                                     <div style={{ position: "absolute", left: `${segFrac * 100}%`, top: 0, transform: "translate(-50%, -50%)", lineHeight: 0, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: "50%", background: "var(--card)" }} title="Today">
                                       <VeleaMark size={18} color="var(--brand-gold)" />
