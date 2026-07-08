@@ -104,7 +104,7 @@ export default function MasterModeCard() {
           <p style={{ margin: "0.1rem 0 0", fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</p>
 
           {g?.isGolden ? (
-            <p style={{ margin: "0.5rem 0 0", fontSize: "0.72rem", fontWeight: 800, color: "#D4AF37", lineHeight: 1.25, display: "flex", alignItems: "center", gap: "0.3rem" }}><VeleaLorMark size={14} color="#D4AF37" style={{ flexShrink: 0 }} /> Golden hour — {g.horaLord}</p>
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.72rem", fontWeight: 800, color: "#D4AF37", lineHeight: 1.25, display: "flex", alignItems: "center", gap: "0.3rem" }}><VeleaLorMark size={14} color="#D4AF37" style={{ flexShrink: 0 }} /> Veleal'or • golden moment — {g.horaLord}</p>
           ) : g ? (
             <p style={{ margin: "0.5rem 0 0", fontSize: "0.66rem", fontWeight: 600, color: "#C9A84C", lineHeight: 1.25, display: "flex", alignItems: "center", gap: "0.3rem" }}>
               {g.nextGoldenMs ? (
