@@ -352,7 +352,7 @@ export const appRouter = router({
           birthTimezone: refProfile.birthTimezone ?? null,
           lagnaBasis: (refProfile as any).lagnaBasis ?? "ascendant",
           isOwner: true,
-          isActive: false,
+          isActive: true, // a new user's own chart is their active profile — else the client fires no reading (blank)
         }).$returningId();
         const newProfileId = (ins as any).id;
 

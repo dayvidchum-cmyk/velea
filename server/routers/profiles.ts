@@ -36,7 +36,16 @@ async function getActiveProfile(userId: number) {
     .from(profiles)
     .where(and(eq(profiles.userId, userId), eq(profiles.isActive, true)))
     .limit(1);
-  return rows[0];
+  if (rows[0]) return rows[0];
+  // Fallback: a user must ALWAYS resolve some chart. If nothing is flagged active — e.g. an owner
+  // profile created inactive during friend-onboarding — return their owner chart so the client keys
+  // the day reading off it instead of firing nothing (the blank-reading bug). Mirrors resolveAstrologySubject.
+  const owner = await db
+    .select()
+    .from(profiles)
+    .where(and(eq(profiles.userId, userId), eq(profiles.isOwner, true)))
+    .limit(1);
+  return owner[0];
 }
 
 async function getProfileById(profileId: number, userId: number) {
