@@ -41,6 +41,10 @@ export default function Users() {
     onSuccess: () => { setSuccess("User deleted (with all their data)."); usersList.refetch(); setTimeout(() => setSuccess(""), 3500); },
     onError: (err: any) => setError(err.message || "Failed to delete user"),
   });
+  const repairAllMutation = trpc.auth.repairAllCharts.useMutation({
+    onSuccess: (r: any) => { setSuccess(`Repaired ${r.repaired} chart${r.repaired === 1 ? "" : "s"} (${r.skipped} already fine${r.failed ? `, ${r.failed} failed` : ""}).`); setTimeout(() => setSuccess(""), 5000); },
+    onError: (err: any) => setError(err.message || "Failed to repair charts"),
+  });
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,8 +158,19 @@ export default function Users() {
 
         {/* All users — mark testers. Testers (and admins) get Time Master + Hora unlocked. */}
         <Card className="p-6 mt-6">
-          <h2 className="text-lg font-semibold text-foreground mb-1">Users &amp; access</h2>
-          <p className="text-sm text-muted-foreground mb-4">Testers get Time Master + Hora unlocked. New test users are testers by default.</p>
+          <div className="flex items-center justify-between gap-3 mb-1">
+            <h2 className="text-lg font-semibold text-foreground">Users &amp; access</h2>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={repairAllMutation.isPending}
+              onClick={() => repairAllMutation.mutate()}
+              title="Recompute every chart that's missing its natal bodies — run before sending tester logins"
+            >
+              {repairAllMutation.isPending ? "Repairing all…" : "Repair all charts"}
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">Testers get Time Master + Hora unlocked. New test users are testers by default. Charts also self-heal on first read.</p>
           {usersList.isLoading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (usersList.data ?? []).length === 0 ? (

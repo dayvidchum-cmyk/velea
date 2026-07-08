@@ -89,7 +89,28 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const p = prows[0];
   if (!p) throw new Error(`profile ${profileId} not found`);
   if (!p.lagnaSign || !p.birthDate) throw new Error(`profile ${profileId} has no birth chart`);
-  const bodies = await db.select().from(profileNatalBodies).where(eq(profileNatalBodies.profileId, p.id));
+  let bodies = await db.select().from(profileNatalBodies).where(eq(profileNatalBodies.profileId, p.id));
+  if (!bodies.length && p.birthDate) {
+    // SELF-HEAL: a profile with birth data but no per-planet natal bodies (e.g. a friend login
+    // created before createProfileUser computed the full chart). Recompute once from the stored
+    // birth data, then re-fetch — so a blank chart repairs itself on first read, no admin step.
+    // recomputeProfileChart writes the bodies BEFORE it warms any read, so this can't recurse.
+    try {
+      const { recomputeProfileChart } = await import("../routers/profiles.js");
+      await recomputeProfileChart(p.userId, p.id, {
+        birthDate: p.birthDate,
+        birthTime: p.birthTime,
+        birthTimeApprox: (p as any).lagnaBasis === "ascendant_approx",
+        birthLocationCity: p.birthLocationCity ?? "",
+        birthLocationLat: p.birthLocationLat,
+        birthLocationLon: p.birthLocationLon,
+        birthTimezone: p.birthTimezone,
+      });
+      bodies = await db.select().from(profileNatalBodies).where(eq(profileNatalBodies.profileId, p.id));
+    } catch (healErr) {
+      console.warn(`[narrative] self-heal recompute failed for profile ${p.id}:`, healErr);
+    }
+  }
   if (!bodies.length) throw new Error(`profile ${profileId} has no natal bodies`);
 
   const lagna = p.lagnaSign;

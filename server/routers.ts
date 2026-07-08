@@ -77,7 +77,7 @@ import { arcRouter } from "./routers/arc.js";
 import { profilesRouter } from "./routers/profiles.js";
 import { timeLordTransitRouter } from "./profection/transit-router.js";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { users, profiles } from "../drizzle/schema";
+import { users, profiles, profileNatalBodies } from "../drizzle/schema";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { TRPCError } from "@trpc/server";
 
@@ -243,6 +243,35 @@ export const appRouter = router({
           birthTimezone: owner.birthTimezone,
         });
         return { recomputed: input.userId, profileId: owner.id };
+      }),
+    // Admin: repair EVERY owner profile that has birth data but no natal bodies (the blank-reading
+    // state). One click before sending tester logins. Idempotent — skips profiles already computed.
+    repairAllCharts: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+        const owners = await db.select().from(profiles).where(eq(profiles.isOwner, true));
+        const { recomputeProfileChart } = await import('./routers/profiles.js');
+        let repaired = 0, skipped = 0, failed = 0;
+        for (const owner of owners) {
+          if (!owner.birthDate) { skipped++; continue; }
+          const has = await db.select({ id: profileNatalBodies.id }).from(profileNatalBodies).where(eq(profileNatalBodies.profileId, owner.id)).limit(1);
+          if (has.length) { skipped++; continue; } // already computed
+          try {
+            await recomputeProfileChart(owner.userId, owner.id, {
+              birthDate: owner.birthDate,
+              birthTime: owner.birthTime,
+              birthTimeApprox: (owner as any).lagnaBasis === "ascendant_approx",
+              birthLocationCity: owner.birthLocationCity ?? "",
+              birthLocationLat: owner.birthLocationLat,
+              birthLocationLon: owner.birthLocationLon,
+              birthTimezone: owner.birthTimezone,
+            });
+            repaired++;
+          } catch { failed++; }
+        }
+        return { repaired, skipped, failed, total: owners.length };
       }),
     createProfileUser: protectedProcedure
       .input(z.object({ profileId: z.number().int(), email: z.string().email(), password: z.string().min(6) }))
