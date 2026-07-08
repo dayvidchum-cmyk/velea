@@ -50,8 +50,10 @@ export interface AstrologySubject {
   birthTimezone: string | null;
   /** Last time birth data changed — drives the 24h edit cooldown. */
   birthDataUpdatedAt: Date | null;
-  /** Ascendant sign e.g. "Virgo" */
+  /** Ascendant sign e.g. "Virgo" (for a Moon-framed chart this is the Moon's sign) */
   lagnaSign: string | null;
+  /** True when no birth time was given: the chart is Moon-framed (Chandra lagna, house 1 = Moon). */
+  moonFramed: boolean;
   sunHouse: number | null;
   moonHouse: number | null;
   marsHouse: number | null;
@@ -94,6 +96,7 @@ function profileToSubject(
     // Prefer the lagna implied by the natal bodies (the true chart) over a possibly
     // stale profiles.lagnaSign field, so every consumer stays consistent.
     lagnaSign: lagnaFromBodies(bodies) ?? p.lagnaSign ?? null,
+    moonFramed: p.lagnaBasis === "chandra",
     sunHouse: p.sunHouse ?? null,
     moonHouse: p.moonHouse ?? null,
     marsHouse: p.marsHouse ?? null,
