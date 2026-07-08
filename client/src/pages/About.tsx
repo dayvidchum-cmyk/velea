@@ -34,6 +34,7 @@ export default function About() {
   const [, navigate] = useLocation();
   const [openMoon, setOpenMoon] = useState(false);
   const [openCast, setOpenCast] = useState(false);
+  const [openLetter, setOpenLetter] = useState(false);
   const serif = "'Playfair Display', Georgia, serif";
   const { user } = useAuth();
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
@@ -159,7 +160,12 @@ export default function About() {
       {/* ── Closing — David's letter to the reader, in his words. Signature: swap the
           styled name below for his handwritten signature image when the asset is ready. ── */}
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.15rem" }}>
+        <button onClick={() => setOpenLetter((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.6rem", background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", textAlign: "left" }}>
+          <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>A note from David</h2>
+          {openLetter ? <ChevronDown size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} /> : <ChevronRight size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />}
+        </button>
+        {openLetter && (<>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.15rem", marginTop: "1.3rem" }}>
           <p style={{ fontSize: "1.2rem", lineHeight: 1.5, color: "var(--color-foreground)", margin: 0, fontFamily: serif }}>
             Dear {firstName ?? "friend"},
           </p>
@@ -193,6 +199,7 @@ export default function About() {
         <p style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.06em", color: "var(--color-muted-foreground)", margin: "0.2rem 0 0" }}>
           Founder of DCPC · David Chum Personal Cosmetics
         </p>
+        </>)}
       </div>
     </div>
   );
