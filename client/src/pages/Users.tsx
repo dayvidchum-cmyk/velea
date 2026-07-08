@@ -178,14 +178,14 @@ export default function Users() {
           ) : (
             <div className="divide-y divide-border">
               {(usersList.data ?? []).map((u) => (
-                <div key={u.id} className="flex items-center justify-between gap-3 py-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{u.name || "—"}</p>
-                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                <div key={u.id} className="py-3">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{u.name || "—"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                    </div>
                     <span
-                      className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border"
+                      className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border shrink-0"
                       style={{
                         color: u.role === "admin" ? "#C9A84C" : u.role === "tester" ? "#178F9E" : "var(--color-muted-foreground)",
                         borderColor: u.role === "admin" ? "#C9A84C" : u.role === "tester" ? "#178F9E" : "var(--color-border)",
@@ -193,37 +193,37 @@ export default function Users() {
                     >
                       {u.role}
                     </span>
-                    {u.role !== "admin" && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant={u.role === "tester" ? "outline" : "default"}
-                          disabled={setRoleMutation.isPending}
-                          onClick={() => setRoleMutation.mutate({ userId: u.id, role: u.role === "tester" ? "user" : "tester" })}
-                        >
-                          {u.role === "tester" ? "Remove tester" : "Make tester"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={recomputeMutation.isPending && recomputeMutation.variables?.userId === u.id}
-                          onClick={() => recomputeMutation.mutate({ userId: u.id })}
-                          title="Recompute this user's chart — fixes a blank/never-loading reading"
-                        >
-                          {recomputeMutation.isPending && recomputeMutation.variables?.userId === u.id ? "Repairing…" : "Repair chart"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          disabled={deleteUserMutation.isPending}
-                          onClick={() => { if (window.confirm(`Delete ${u.name || u.email} and ALL their data? This cannot be undone.`)) deleteUserMutation.mutate({ userId: u.id }); }}
-                          title="Delete this user and all their data"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </>
-                    )}
                   </div>
+                  {u.role !== "admin" && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant={u.role === "tester" ? "outline" : "default"}
+                        disabled={setRoleMutation.isPending}
+                        onClick={() => setRoleMutation.mutate({ userId: u.id, role: u.role === "tester" ? "user" : "tester" })}
+                      >
+                        {u.role === "tester" ? "Remove tester" : "Make tester"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={recomputeMutation.isPending && recomputeMutation.variables?.userId === u.id}
+                        onClick={() => recomputeMutation.mutate({ userId: u.id })}
+                        title="Recompute this user's chart — fixes a blank/never-loading reading"
+                      >
+                        {recomputeMutation.isPending && recomputeMutation.variables?.userId === u.id ? "Repairing…" : "Repair chart"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={deleteUserMutation.isPending}
+                        onClick={() => { if (window.confirm(`Delete ${u.name || u.email} and ALL their data? This cannot be undone.`)) deleteUserMutation.mutate({ userId: u.id }); }}
+                        title="Delete this user and all their data"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
