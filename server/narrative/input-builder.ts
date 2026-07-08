@@ -12,8 +12,10 @@ import { interpretPanchang } from "../panchang/interpreter.js";
 import { getDayField } from "../panchang/service.js";
 import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
 import { strength, dignityLabel } from "../panchang/dignity.js";
+import { crownDay } from "../panchang/crown.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
 const SIGN_RULERS: Record<string,string> = { Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Leo:"Sun",Virgo:"Mercury",Libra:"Venus",Scorpio:"Mars",Sagittarius:"Jupiter",Capricorn:"Saturn",Aquarius:"Saturn",Pisces:"Jupiter" };
 const DIGN: Record<string,{ex:string;de:string;own:string[]}> = { Sun:{ex:"Aries",de:"Libra",own:["Leo"]},Moon:{ex:"Taurus",de:"Scorpio",own:["Cancer"]},Mars:{ex:"Capricorn",de:"Cancer",own:["Aries","Scorpio"]},Mercury:{ex:"Virgo",de:"Pisces",own:["Gemini","Virgo"]},Jupiter:{ex:"Cancer",de:"Capricorn",own:["Sagittarius","Pisces"]},Venus:{ex:"Pisces",de:"Virgo",own:["Taurus","Libra"]},Saturn:{ex:"Libra",de:"Aries",own:["Capricorn","Aquarius"]} };
 
@@ -214,6 +216,28 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       : (orb <= 2 && hit) ? `tight on natal ${hit}` : null;
     return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
   }).filter(Boolean);
+
+  // PERSONAL APEX — the crown day. The only fully-personal day signal: computed from the SAME
+  // crownDay() the calendar uses (birth star + natal Moon), so the reading's crown always agrees
+  // with the calendar's crown badge. Moon-based, so it works for no-birth-time (Chandra) profiles.
+  const moonBody: any = byPlanet["Moon"];
+  const birthNakIdx = NAK27.findIndex((n) => n.toLowerCase() === String(moonBody?.nakshatra ?? "").toLowerCase());
+  const natalMoonSignIdx = ZODIAC.indexOf(moonBody?.sign ?? "");
+  const lagnaSignIdx = ZODIAC.indexOf(lagna);
+  let personalApex: { isCrown: boolean; tara: string; taraFavorable: boolean; chandraHouse: number; chandraFavorable: boolean } | null = null;
+  if (birthNakIdx >= 0 && natalMoonSignIdx >= 0 && lagnaSignIdx >= 0 && a["Sun"] != null && a["Moon"] != null) {
+    const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
+    const T: Record<string, number> = Object.fromEntries(PLANETS.filter((n) => a[n] != null).map((n) => [n, si(a[n]!)]));
+    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T });
+    personalApex = {
+      isCrown: cd.rating === "crown",
+      tara: cd.tarabala.name,
+      taraFavorable: cd.tarabala.favorable,
+      chandraHouse: cd.chandrabala.house,
+      chandraFavorable: cd.chandrabala.favorable,
+    };
+  }
+  (natal as any).personalApex = personalApex;
 
   // Day-mode from the SAME source as the hero (panchang.today / panchang.byDate → getDayField):
   // the viewer's current/stored location + real tz (moment.dayLoc), else getDayField's built-in

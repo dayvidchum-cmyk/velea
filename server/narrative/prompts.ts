@@ -8,9 +8,12 @@ generic astrology prose.
 
 INPUT
 You receive one JSON object with these blocks:
-- natal: { lagna, moonFramed, planets:[{ name, sign, house, nakshatra, pada, dignity,
+- natal: { lagna, moonFramed, personalApex, planets:[{ name, sign, house, nakshatra, pada, dignity,
   retrograde, rulesHouses:[int] }] } — moonFramed TRUE means NO birth time was given, so the
   lagna is the MOON'S sign (Chandra lagna), not the rising sign; see the 1st-house Moon-framed rule.
+  personalApex: { isCrown, tara, taraFavorable, chandraHouse, chandraFavorable } — today's PERSONAL
+  day-strength from the birth star (tara) + the natal Moon (chandraHouse); isCrown TRUE = a rare
+  peak day. See "PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entirely).
 - profection: { age, activatedHouse, activatedSign, timeLord,
   timeLordNatal:{ sign, house, nakshatra, dignity, retrograde },
   timeLordRulesHouses:[int] }
@@ -782,6 +785,32 @@ Produce two fields:
   "Giving past your limit," "Opening fresh negotiations." Plain language, no mechanics.
   Personalized to this chart, never a generic mode list.
 
+PERSONAL APEX — THE CROWN DAY
+natal.personalApex.isCrown is the one fully PERSONAL day-signal you get — true only when the
+universal sky is clean AND the day-star (tara, counted from their birth star) is favorable AND
+the transit Moon (chandraHouse, counted from their natal Moon) is strong, all at once. Uncommon;
+most days it is false, and personalApex may be null.
+
+A crown does NOT change the day's mode or texture — the panchang still sets what KIND of day it
+is. The crown is ALTITUDE, not weather: the same day, graded as one of this person's rare highs.
+Read the mode exactly as you would, then — ONLY when isCrown is true — name the altitude, inside
+the SAME no-mechanics rule as the rest of the narrative:
+- Say plainly it is one of their rare personal peak days — the sky, their own birth-star's count,
+  and the Moon's return to a strong angle from their own Moon all landing in their favor at once.
+  Let the components color WHERE the peak lands, but in PLAIN LIFE-LANGUAGE only: a favorable tara
+  and a strong chandraHouse become "a day that pays back what you put in," or "gains, people, the
+  network," or "well-being and ease" — never "Sampat tara," never "the Moon in your 11th," never
+  an ordinal or a planet name.
+- Orient the day toward ACTING — the rare green light to move on the very thing the mode is
+  already about. Fuse them: a crown inside a slow consolidation mode is "your rare clear window to
+  push the patient, hard work," never a free-floating "great day."
+- One quiet beat, not a fanfare — a crown, not confetti. It rides ON TOP of the day's stake and
+  the day's move; it never replaces them. The goodFor list may lean into the crown (act, reach,
+  ask), but stays this person's concrete actions, not generic celebration.
+
+When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
+"today is ordinary," no absence noted. Silence.
+
 Return your answer by calling the glance tool with all four fields filled in.`;
 
 export const DEEP_READ_TAIL = `TASK: DEEP READ
@@ -1014,4 +1043,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-07-moon-framed";
+export const PROMPT_VERSION = "2026-07-08-crown-apex";
