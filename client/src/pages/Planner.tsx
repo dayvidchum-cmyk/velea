@@ -538,6 +538,15 @@ export default function Planner() {
     // rankedForToday to refetch from the (slow) server.
     const liveById = new Map(allTasks.map((t) => [t.id, t]));
     const limit = settings.todayTaskLimit;
+    // Motivation is the master gate: when drive is on the floor (1–2), a demanding task
+    // (anything above pure-low load) doesn't just rank lower — it shouldn't be *shown* as
+    // aligned at all (seeing it creates friction). Only gentle, low-friction tasks survive.
+    const lowMotivation = ((todayCheckIn as any)?.motivation ?? 5) <= 2;
+    const isDemanding = (t: any) =>
+      (t.cognitiveLoad && t.cognitiveLoad !== "Low") ||
+      (t.physicalLoad && t.physicalLoad !== "Low") ||
+      (t.emotionalLoad && t.emotionalLoad !== "Low") ||
+      t.creativeRequired || t.socialRequired;
     const filtered = rankedTasks.filter((t) => {
       if (pinnedIds.has(t.id)) return false;
       // Only trust the live list once it has loaded, so a cold/slow list load
@@ -545,11 +554,14 @@ export default function Planner() {
       if (tasksLoaded) {
         const live = liveById.get(t.id);
         if (!live || live.isCompleted) return false; // deleted or just-completed
+        if (lowMotivation && isDemanding(live)) return false; // motivation master-gate
+      } else if (lowMotivation && isDemanding(t)) {
+        return false;
       }
       return true;
     });
     return limit === "unlimited" ? filtered : filtered.slice(0, Number(limit));
-  }, [rankedTasks, pinnedForNow, allTasks, tasksLoaded, settings.todayTaskLimit]);
+  }, [rankedTasks, pinnedForNow, allTasks, tasksLoaded, settings.todayTaskLimit, todayCheckIn]);
 
   // Alignment-with-today per task (from the scored list), so Do Now / pinned tasks
   // can show their fit even though the floor forces them to the top. Off-mode tasks

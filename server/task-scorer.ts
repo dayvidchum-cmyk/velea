@@ -119,9 +119,12 @@ export interface ScoredTask extends Task {
 export function currentStateScore(
   task: Task,
   state: CurrentState
-): { delta: number; reasons: string[] } {
+): { delta: number; reasons: string[]; hardMismatch: boolean } {
   let delta = 0;
   const reasons: string[] = [];
+  // A hard mismatch collapses the alignment meter to a single gold dot and sinks the task
+  // in "Aligned for today" — set by the master motivation gate and the mental/emotional rules.
+  let hardMismatch = false;
 
   const cogLoad = task.cognitiveLoad ?? "Medium";
   const physLoad = task.physicalLoad ?? "Low";
@@ -129,15 +132,43 @@ export function currentStateScore(
   const social = task.socialRequired ?? false;
   const emoLoad = task.emotionalLoad ?? "Low";
 
-  // ── Mental Clarity ──────────────────────────────────────────
-  if (state.mentalClarity <= 2) {
-    if (cogLoad === "Low") {
-      delta += 20;
-      reasons.push("Fits current state: low mental clarity / low decision load");
-    } else if (cogLoad === "High") {
-      delta -= 20;
-      reasons.push("Deprioritised: requires high cognitive load (low mental clarity)");
+  // "Demanding" = anything above pure-low load in any dimension. Used by the motivation gate.
+  const demanding =
+    cogLoad !== "Low" || physLoad !== "Low" || emoLoad !== "Low" || creative || social;
+
+  // ── Motivation — THE master gate, ranked above every other axis ─────────────
+  // Low drive can't carry a demanding task: anything above pure-low load sinks hard
+  // and is flagged a hard mismatch (one gold dot; the aligned list drops it entirely).
+  // Only genuinely gentle, low-friction tasks survive low motivation.
+  if (state.motivation <= 2) {
+    if (!demanding) {
+      delta += 18;
+      reasons.push("Fits current state: gentle, low-friction task (low motivation)");
+    } else {
+      delta -= 45;
+      hardMismatch = true;
+      reasons.push("Low motivation — this asks for more drive than you've got right now");
     }
+  }
+
+  // ── Mental Clarity — mental load OUTWEIGHS physical (bigger swing, wider 1–3 trigger) ──
+  if (state.mentalClarity <= 3 && cogLoad === "High") {
+    delta -= state.mentalClarity <= 2 ? 32 : 24; // beats physical's ±20
+    hardMismatch = true;
+    reasons.push("Asks for sharp focus you don't have right now (low mental clarity)");
+  } else if (state.mentalClarity <= 2 && cogLoad === "Low") {
+    delta += 20;
+    reasons.push("Fits current state: low mental clarity / low decision load");
+  }
+
+  // ── Emotional Stability — emotional load OUTWEIGHS physical (bigger swing, wider 1–3 trigger) ──
+  if (state.emotionalStability >= 4 && emoLoad === "High") {
+    delta += 15;
+    reasons.push("Fits current state: high emotional stability");
+  } else if (state.emotionalStability <= 3 && emoLoad === "High") {
+    delta -= state.emotionalStability <= 2 ? 32 : 24; // beats physical's ±20
+    hardMismatch = true;
+    reasons.push("Emotionally heavy for where you are right now (low emotional stability)");
   }
 
   // ── Creative Flow ───────────────────────────────────────────
@@ -146,7 +177,7 @@ export function currentStateScore(
     reasons.push("Fits current state: high creative flow");
   }
 
-  // ── Physical Energy ─────────────────────────────────────────
+  // ── Physical Energy — the lightest of the three loads ───────
   if (state.physicalEnergy <= 2) {
     if (physLoad === "High") {
       delta -= 20;
@@ -162,40 +193,15 @@ export function currentStateScore(
     }
   }
 
-  // ── Motivation ──────────────────────────────────────────────
-  if (state.motivation <= 2) {
-    if (cogLoad === "Low" && physLoad === "Low") {
-      delta += 15;
-      reasons.push("Fits current state: low-friction task (low motivation)");
-    } else if (cogLoad === "High" || physLoad === "High") {
-      delta -= 15;
-      reasons.push("Deprioritised: high-effort task (low motivation)");
-    }
-  }
-
-  // ── Emotional Stability ─────────────────────────────────────
-  if (state.emotionalStability >= 4) {
-    if (emoLoad === "High") {
-      delta += 15;
-      reasons.push("Fits current state: high emotional stability");
-    }
-  } else if (state.emotionalStability <= 2) {
-    if (emoLoad === "High") {
-      delta -= 20;
-      reasons.push("Deprioritised: emotionally loaded task (low emotional stability)");
-    }
-  }
-
-  // ── Social capacity (using emotionalStability as proxy) ─────
-  // Social tasks are deprioritised when emotional stability is low
-  if (state.emotionalStability <= 2 && social) {
+  // ── Social capacity (emotional stability as proxy) ──────────
+  if (state.emotionalStability <= 3 && social) {
     delta -= 15;
     reasons.push("Deprioritised: social task (low social capacity)");
   }
 
   // Clamp to [-60, +60]
   delta = Math.max(-60, Math.min(60, delta));
-  return { delta, reasons };
+  return { delta, reasons, hardMismatch };
 }
 
 export function scoreTasks(
@@ -377,6 +383,10 @@ export function scoreTasks(
       alignment += (gm.multiplier - 1) * 30;
       alignment += (multiplier - 1) * 30;
       alignment = Math.round(Math.max(5, Math.min(100, alignment)));
+      // A hard state mismatch (high mental/emotional load vs a low 1–3 state, or a demanding
+      // task while motivation is on the floor) collapses the meter to a single gold dot — the
+      // friction must read at a glance no matter what other lifts (domain/golden/layer) applied.
+      if (cs?.hardMismatch) alignment = Math.min(alignment, 15);
 
       return { ...task, score, alignment, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _cs: csBand, _base: base };
     })

@@ -146,7 +146,7 @@ describe("currentStateScore", () => {
     const state = { ...NEUTRAL_STATE, mentalClarity: 2 };
     const { delta, reasons } = currentStateScore(task, state);
     expect(delta).toBeLessThan(0);
-    expect(reasons.some((r) => r.includes("high cognitive load"))).toBe(true);
+    expect(reasons.some((r) => r.includes("low mental clarity"))).toBe(true);
   });
 
   it("boosts creative task when creative flow is high (4-5)", () => {
@@ -194,7 +194,7 @@ describe("currentStateScore", () => {
     const state = { ...NEUTRAL_STATE, motivation: 2 };
     const { delta, reasons } = currentStateScore(task, state);
     expect(delta).toBeLessThan(0);
-    expect(reasons.some((r) => r.includes("high-effort"))).toBe(true);
+    expect(reasons.some((r) => r.includes("Low motivation"))).toBe(true);
   });
 
   it("allows high-emotional-load task when emotional stability is high (4-5)", () => {
@@ -210,7 +210,55 @@ describe("currentStateScore", () => {
     const state = { ...NEUTRAL_STATE, emotionalStability: 1 };
     const { delta, reasons } = currentStateScore(task, state);
     expect(delta).toBeLessThan(0);
-    expect(reasons.some((r) => r.includes("emotionally loaded"))).toBe(true);
+    expect(reasons.some((r) => r.includes("Emotionally heavy"))).toBe(true);
+  });
+
+  // ── New rules: motivation master-gate + mental/emotional outweigh physical ──
+
+  it("motivation gate: a demanding task at motivation 1-2 is a hard mismatch", () => {
+    const task = makeTask({ cognitiveLoad: "Medium" }); // above pure-low = demanding
+    const state = { ...NEUTRAL_STATE, motivation: 1 };
+    const { delta, hardMismatch } = currentStateScore(task, state);
+    expect(hardMismatch).toBe(true);
+    expect(delta).toBeLessThan(0);
+  });
+
+  it("motivation gate: a genuinely gentle task survives low motivation", () => {
+    const task = makeTask({ cognitiveLoad: "Low", physicalLoad: "Low", emotionalLoad: "Low" });
+    const state = { ...NEUTRAL_STATE, motivation: 1 };
+    const { delta, hardMismatch } = currentStateScore(task, state);
+    expect(hardMismatch).toBe(false);
+    expect(delta).toBeGreaterThan(0);
+  });
+
+  it("mental clarity 3 (not just 1-2) penalises a high-cognitive task, and it's a hard mismatch", () => {
+    const task = makeTask({ cognitiveLoad: "High" });
+    const state = { ...NEUTRAL_STATE, mentalClarity: 3 };
+    const { delta, hardMismatch } = currentStateScore(task, state);
+    expect(delta).toBeLessThan(0);
+    expect(hardMismatch).toBe(true);
+  });
+
+  it("emotional stability 3 penalises a high-emotional task, and it's a hard mismatch", () => {
+    const task = makeTask({ emotionalLoad: "High" });
+    const state = { ...NEUTRAL_STATE, emotionalStability: 3 };
+    const { delta, hardMismatch } = currentStateScore(task, state);
+    expect(delta).toBeLessThan(0);
+    expect(hardMismatch).toBe(true);
+  });
+
+  it("mental/emotional load outweighs physical (bigger penalty)", () => {
+    const highCog = currentStateScore(makeTask({ cognitiveLoad: "High" }), { ...NEUTRAL_STATE, mentalClarity: 2 }).delta;
+    const highEmo = currentStateScore(makeTask({ emotionalLoad: "High" }), { ...NEUTRAL_STATE, emotionalStability: 2 }).delta;
+    const highPhys = currentStateScore(makeTask({ physicalLoad: "High" }), { ...NEUTRAL_STATE, physicalEnergy: 2 }).delta;
+    expect(highCog).toBeLessThan(highPhys); // -32 < -20
+    expect(highEmo).toBeLessThan(highPhys);
+  });
+
+  it("neutral state produces no hard mismatch", () => {
+    const task = makeTask({ cognitiveLoad: "High", emotionalLoad: "High" });
+    const { hardMismatch } = currentStateScore(task, { ...NEUTRAL_STATE, mentalClarity: 4, emotionalStability: 4, motivation: 4 });
+    expect(hardMismatch).toBe(false);
   });
 
   it("penalises social task when emotional stability is low (proxy for social capacity)", () => {
@@ -271,17 +319,23 @@ describe("scoreTasks with currentState", () => {
     expect(withState[1].id).toBe(withoutState[1].id);
   });
 
-  it("pinned task stays first even when current state strongly penalises it", () => {
+  it("pinned floor breaks the tie when two tasks fit the state equally", () => {
+    // Equal state-fit (both low-load, neutral state → csBand 0) → the pinned floor decides.
+    const pinned = makeTask({ id: 1, isPinned: true, cognitiveLoad: "Low" });
+    const other = makeTask({ id: 2, isPinned: false, cognitiveLoad: "Low" });
+    const state = { physicalEnergy: 3, mentalClarity: 3, emotionalStability: 3, creativeFlow: 3, motivation: 3 };
+    const result = scoreTasks([other, pinned], { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium", currentState: state });
+    expect(result[0].id).toBe(1); // equal fit → pinned floor wins
+  });
+
+  it("current state overrides the pinned floor: a badly-fitting pinned task sinks below a well-fitting one", () => {
+    // Matches the engine's design ("Current State is the PRIMARY sort key — it overrides
+    // everything, including the floors"). Pinned tasks render in their own section anyway.
     const pinned = makeTask({ id: 1, isPinned: true, cognitiveLoad: "High", emotionalLoad: "High", socialRequired: true });
     const easy = makeTask({ id: 2, isPinned: false, cognitiveLoad: "Low" });
     const state = { physicalEnergy: 1, mentalClarity: 1, emotionalStability: 1, creativeFlow: 1, motivation: 1 };
-    const result = scoreTasks([easy, pinned], {
-      todayMode: "Build",
-      todayDate: TODAY,
-      personalEnergy: "Medium",
-      currentState: state,
-    });
-    expect(result[0].id).toBe(1); // pinned always wins
+    const result = scoreTasks([easy, pinned], { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium", currentState: state });
+    expect(result[0].id).toBe(2); // state fit dominates
   });
 
   it("includes Current State reason strings in scored task reasons", () => {

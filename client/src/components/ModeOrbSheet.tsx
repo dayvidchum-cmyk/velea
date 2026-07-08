@@ -75,7 +75,9 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
       toast.error("Failed to add task");
     },
     onSettled: async () => {
-      await utils.tasks.list.invalidate({ mode });
+      // Unscoped: refresh every tasks.list variant (incl. the input-less list that feeds
+      // Planner's "Pinned for Now"), so a new/pinned task surfaces without a manual reload.
+      await utils.tasks.list.invalidate();
       await utils.tasks.modeCounts.invalidate();
       await utils.tasks.pinnedForToday.invalidate();
     },
@@ -94,13 +96,10 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
       if (ctx?.prev) utils.tasks.list.setData({ mode }, ctx.prev);
       toast.error("Failed to update task");
     },
-    onSettled: async (_data, _error, input) => {
-      // Invalidate the current mode cache
-      await utils.tasks.list.invalidate({ mode });
-      // If mode changed, also invalidate the new mode cache
-      if (input.mode && input.mode !== mode) {
-        await utils.tasks.list.invalidate({ mode: input.mode });
-      }
+    onSettled: async () => {
+      // Unscoped: refresh every tasks.list variant (incl. the input-less list that feeds
+      // Planner's "Pinned for Now"), so a pin or mode-change surfaces without a manual reload.
+      await utils.tasks.list.invalidate();
       await utils.tasks.modeCounts.invalidate();
       await utils.tasks.pinnedForToday.invalidate();
     },
@@ -118,7 +117,8 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
       toast.error("Failed to delete task");
     },
     onSettled: async () => {
-      await utils.tasks.list.invalidate({ mode });
+      // Unscoped: refresh every tasks.list variant so a delete surfaces everywhere at once.
+      await utils.tasks.list.invalidate();
       await utils.tasks.modeCounts.invalidate();
       await utils.tasks.pinnedForToday.invalidate();
     },
