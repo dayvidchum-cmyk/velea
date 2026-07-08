@@ -66,17 +66,17 @@ export async function assertOwnsProfile(userId: number, profileId: number): Prom
 export const BIRTH_DATA_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 type BirthFields = {
-  birthDate?: any; birthTime?: any; birthTimeOfDay?: any; birthLocationCity?: any;
+  birthDate?: any; birthTime?: any; birthTimeApprox?: any; birthLocationCity?: any;
   birthLocationLat?: any; birthLocationLon?: any; birthTimezone?: any;
 };
 
 /** True if any birth field PRESENT in `incoming` differs from stored. Undefined incoming
- *  fields are treated as "not being changed" (e.g. a name-only profile update). The time-of-day
- *  bucket counts as birth data — swapping it re-frames the Chandra chart, so it must recompute. */
+ *  fields are treated as "not being changed" (e.g. a name-only profile update). The approximate
+ *  flag counts as birth data — flipping it re-labels the chart, so it must recompute. */
 export function birthDataChanged(stored: BirthFields, incoming: BirthFields): boolean {
   const norm = (v: any) => (v ?? "").toString().trim();
   const diff = (k: keyof BirthFields) => incoming[k] !== undefined && norm(stored[k]) !== norm(incoming[k]);
-  return diff("birthDate") || diff("birthTime") || diff("birthTimeOfDay") || diff("birthLocationCity")
+  return diff("birthDate") || diff("birthTime") || diff("birthTimeApprox") || diff("birthLocationCity")
     || diff("birthLocationLat") || diff("birthLocationLon") || diff("birthTimezone");
 }
 
@@ -172,22 +172,11 @@ async function clearProfileNatalBodies(profileId: number) {
 
 // ── Birth chart input schema (shared between create and calculateChart) ───────
 
-// Approximate time-of-day buckets used when the exact birth time is unknown. Each maps to a
-// representative hour (below) that resolves the Moon's SIGN; the chart is then framed as Chandra
-// lagna — the bucket never turns a no-time profile into an ascendant chart.
-export const TIME_OF_DAY_BUCKETS = ["morning", "afternoon", "evening", "night"] as const;
-export type TimeOfDayBucket = (typeof TIME_OF_DAY_BUCKETS)[number];
-const BUCKET_REPRESENTATIVE_TIME: Record<TimeOfDayBucket, string> = {
-  morning: "09:00",
-  afternoon: "15:00",
-  evening: "20:00",
-  night: "01:00",
-};
-
 const BirthInputSchema = z.object({
   birthDate: z.string().optional(),
   birthTime: z.string().optional(),
-  birthTimeOfDay: z.enum(TIME_OF_DAY_BUCKETS).optional(),
+  // The entered time is a rough guess of the hour (still a real ascendant, just flagged approximate).
+  birthTimeApprox: z.boolean().optional(),
   birthLocationCity: z.string().optional(),
   birthLocationLat: z.string().optional(),
   birthLocationLon: z.string().optional(),
@@ -278,7 +267,7 @@ async function ensureOwnerProfileHelper(userId: number) {
 async function recomputeProfileChart(
   userId: number,
   profileId: number,
-  birth: { birthDate: string; birthTime?: string | null; birthTimeOfDay?: TimeOfDayBucket | null; birthLocationCity: string; birthLocationLat?: string | null; birthLocationLon?: string | null; birthTimezone?: string | null },
+  birth: { birthDate: string; birthTime?: string | null; birthTimeApprox?: boolean | null; birthLocationCity: string; birthLocationLat?: string | null; birthLocationLon?: string | null; birthTimezone?: string | null },
 ) {
   const db = await getDb();
   if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
@@ -292,25 +281,26 @@ async function recomputeProfileChart(
   const timezone = derivedTz || birth.birthTimezone || 'UTC';
 
   // Decide the representative time + how house 1 is framed:
-  //  - exact birthTime → use it verbatim, framed on the rising ascendant.
-  //  - only a time-of-day bucket → a representative hour so the Moon resolves to the right SIGN,
-  //    framed as Chandra lagna (Moon = house 1). The bucket never becomes an ascendant chart.
-  //  - neither → noon, Chandra lagna.
-  const exactTime = birth.birthTime && birth.birthTime.trim() ? birth.birthTime.trim() : null;
-  const bucket = (birth.birthTimeOfDay && BUCKET_REPRESENTATIVE_TIME[birth.birthTimeOfDay]) ? birth.birthTimeOfDay : null;
-  const representativeTime = exactTime ?? (bucket ? BUCKET_REPRESENTATIVE_TIME[bucket] : "12:00");
-  const lagnaBasis: "ascendant" | "chandra" = exactTime ? "ascendant" : "chandra";
+  //  - a time was entered (exact OR approximate) → a real rising ascendant; approximate only changes
+  //    the honest label, not the math. computeBasis stays "ascendant".
+  //  - no time at all → noon, framed as Chandra lagna (Moon = house 1). This is the only Chandra path.
+  const enteredTime = birth.birthTime && birth.birthTime.trim() ? birth.birthTime.trim() : null;
+  const isApprox = !!birth.birthTimeApprox;
+  const representativeTime = enteredTime ?? "12:00";
+  const profileLagnaBasis: "ascendant" | "ascendant_approx" | "chandra" =
+    enteredTime ? (isApprox ? "ascendant_approx" : "ascendant") : "chandra";
+  const computeBasis: "ascendant" | "chandra" = enteredTime ? "ascendant" : "chandra";
 
-  const chart = await computeChart(birth.birthDate, representativeTime, lat, lon, timezone, { lagnaBasis });
+  const chart = await computeChart(birth.birthDate, representativeTime, lat, lon, timezone, { lagnaBasis: computeBasis });
 
   await db
     .update(profiles)
     .set({
       birthDate: birth.birthDate,
-      birthTime: exactTime,
-      // A bucket is only meaningful when there's no exact time; clear it once an exact time exists.
-      birthTimeOfDay: exactTime ? null : bucket,
-      lagnaBasis,
+      birthTime: enteredTime,
+      // Deprecated column — always null now; the framing lives entirely in lagnaBasis.
+      birthTimeOfDay: null,
+      lagnaBasis: profileLagnaBasis,
       birthLocationCity: birth.birthLocationCity,
       birthLocationLat: birth.birthLocationLat ?? null,
       birthLocationLon: birth.birthLocationLon ?? null,
@@ -451,7 +441,7 @@ export const profilesRouter = router({
         name: input.name,
         birthDate: input.birthDate ?? null,
         birthTime: input.birthTime ?? null,
-        birthTimeOfDay: input.birthTimeOfDay ?? null,
+        birthTimeOfDay: null, // deprecated — framing lives in lagnaBasis (set on chart compute)
         birthLocationCity: input.birthLocationCity ?? null,
         birthLocationLat: input.birthLocationLat ?? null,
         birthLocationLon: input.birthLocationLon ?? null,
@@ -490,7 +480,9 @@ export const profilesRouter = router({
       if (fields.name !== undefined) updateData.name = fields.name;
       if (fields.birthDate !== undefined) updateData.birthDate = fields.birthDate;
       if (fields.birthTime !== undefined) updateData.birthTime = fields.birthTime;
-      if (fields.birthTimeOfDay !== undefined) updateData.birthTimeOfDay = fields.birthTimeOfDay;
+      // birthTimeApprox is not persisted directly — it feeds lagnaBasis on recompute. Keep the
+      // deprecated birthTimeOfDay column null on any birth-data touch.
+      if (fields.birthTimeApprox !== undefined) updateData.birthTimeOfDay = null;
       if (fields.birthLocationCity !== undefined) updateData.birthLocationCity = fields.birthLocationCity;
       if (fields.birthLocationLat !== undefined) updateData.birthLocationLat = fields.birthLocationLat;
       if (fields.birthLocationLon !== undefined) updateData.birthLocationLon = fields.birthLocationLon;
@@ -511,7 +503,8 @@ export const profilesRouter = router({
         const merged = {
           birthDate: fields.birthDate ?? (existing as any).birthDate,
           birthTime: fields.birthTime ?? (existing as any).birthTime,
-          birthTimeOfDay: (fields.birthTimeOfDay ?? (existing as any).birthTimeOfDay) as TimeOfDayBucket | null | undefined,
+          // Not sent → fall back to the stored framing (lagnaBasis is the source of truth).
+          birthTimeApprox: fields.birthTimeApprox ?? ((existing as any).lagnaBasis === "ascendant_approx"),
           birthLocationCity: fields.birthLocationCity ?? (existing as any).birthLocationCity,
           birthLocationLat: fields.birthLocationLat ?? (existing as any).birthLocationLat,
           birthLocationLon: fields.birthLocationLon ?? (existing as any).birthLocationLon,
@@ -601,10 +594,10 @@ export const profilesRouter = router({
       z.object({
         id: z.number().int(),
         birthDate: z.string(),
-        // Birth time is optional — a no-time profile is computed as a Chandra chart. Callers may
-        // instead pass a coarse time-of-day bucket to sharpen the Moon's sign + hint an ascendant.
+        // Birth time is optional — a no-time profile is computed as a Chandra chart. A time (exact or
+        // approximate) yields a real ascendant chart; birthTimeApprox only flags it for an honest label.
         birthTime: z.string().optional(),
-        birthTimeOfDay: z.enum(TIME_OF_DAY_BUCKETS).optional(),
+        birthTimeApprox: z.boolean().optional(),
         birthLocationCity: z.string(),
         birthLocationLat: z.string().optional(),
         birthLocationLon: z.string().optional(),
@@ -622,7 +615,7 @@ export const profilesRouter = router({
         const chart = await recomputeProfileChart(ctx.user.id, input.id, {
           birthDate: input.birthDate,
           birthTime: input.birthTime,
-          birthTimeOfDay: input.birthTimeOfDay,
+          birthTimeApprox: input.birthTimeApprox,
           birthLocationCity: input.birthLocationCity,
           birthLocationLat: input.birthLocationLat,
           birthLocationLon: input.birthLocationLon,

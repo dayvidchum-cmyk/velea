@@ -618,9 +618,11 @@ export function NatalSection() {
         {subject.lagnaSign && (
           <p className="text-xs font-semibold uppercase tracking-wider mt-1.5" style={{ color: dayLabelColor }}>
             {subject.lagnaSign} {subject.moonFramed ? "Chandra Lagna" : "Lagna"}
-            {subject.moonFramed && (
+            {subject.moonFramed ? (
               <span style={{ opacity: 0.7, fontWeight: 600 }}> · Moon-framed · no birth time</span>
-            )}
+            ) : (subject as any).approxTime ? (
+              <span style={{ opacity: 0.7, fontWeight: 600 }}> · approx</span>
+            ) : null}
           </p>
         )}
       </div>

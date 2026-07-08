@@ -91,20 +91,11 @@ const COMMON_TIMEZONES = [
 
 // ── Profile form ──────────────────────────────────────────────────────────────
 
-// Coarse time-of-day buckets for users who don't know their exact birth time. Picking one only
-// sharpens the Moon's SIGN (and hints an ascendant); the chart is still read as Chandra lagna.
-const TIME_OF_DAY_OPTIONS = [
-  { value: "morning", label: "Morning", hint: "~6am–12pm" },
-  { value: "afternoon", label: "Afternoon", hint: "~12–5pm" },
-  { value: "evening", label: "Evening", hint: "~5–10pm" },
-  { value: "night", label: "Night", hint: "~10pm–6am" },
-] as const;
-
 interface ProfileFormData {
   name: string;
   birthDate: string;
   birthTime: string;
-  birthTimeOfDay: string; // "" | "morning" | "afternoon" | "evening" | "night"
+  birthTimeApprox: boolean; // the entered time is a rough guess of the hour (still a real ascendant)
   birthLocationCity: string;
   birthLocationLat: string;
   birthLocationLon: string;
@@ -116,7 +107,7 @@ const EMPTY_FORM: ProfileFormData = {
   name: "",
   birthDate: "",
   birthTime: "",
-  birthTimeOfDay: "",
+  birthTimeApprox: false,
   birthLocationCity: "",
   birthLocationLat: "",
   birthLocationLon:"",
@@ -166,14 +157,14 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
         name: data.name,
         birthDate: data.birthDate || undefined,
         birthTime: data.birthTime || undefined,
-        birthTimeOfDay: (data.birthTimeOfDay || undefined) as any,
+        birthTimeApprox: data.birthTimeApprox,
         birthLocationCity: data.birthLocationCity || undefined,
         birthLocationLat: data.birthLocationLat || undefined,
         birthLocationLon: data.birthLocationLon || undefined,
         birthTimezone: data.birthTimezone || undefined,
         notes: data.notes || undefined,
       });
-      // Compute once date + place are present; time is optional (no exact time → Chandra chart).
+      // Compute once date + place are present; time is optional (no time → Chandra chart).
       let calcFailed = false;
       if (data.birthDate && data.birthLocationCity) {
         try {
@@ -181,7 +172,7 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
             id: profile.id,
             birthDate: data.birthDate,
             birthTime: data.birthTime || undefined,
-            birthTimeOfDay: (data.birthTimeOfDay || undefined) as any,
+            birthTimeApprox: data.birthTimeApprox,
             birthLocationCity: data.birthLocationCity,
             birthLocationLat: data.birthLocationLat || undefined,
             birthLocationLon: data.birthLocationLon || undefined,
@@ -228,7 +219,7 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
                 name: profile.name ?? "",
                 birthDate: profile.birthDate ?? "",
                 birthTime: profile.birthTime ?? "",
-                birthTimeOfDay: (profile as any).birthTimeOfDay ?? "",
+                birthTimeApprox: (profile as any).lagnaBasis === "ascendant_approx",
                 birthLocationCity: profile.birthLocationCity ?? "",
                 birthLocationLat: profile.birthLocationLat ?? "",
                 birthLocationLon: profile.birthLocationLon ?? "",
@@ -255,14 +246,15 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
   const [makeActive, setMakeActive] = useState(isNew ?? false);
   const [geocoding, setGeocoding] = useState(false);
   const [showCoords, setShowCoords] = useState(false); // Lat/Lon tucked behind "Advanced" — the geocoder fills them
-  // "I don't know my exact time" mode: start on if the loaded profile has no exact time but a bucket.
-  const [timeUnknown, setTimeUnknown] = useState<boolean>(!initial?.birthTime && !!initial?.birthTimeOfDay);
+  // "No time at all" mode → Moon-framed. Start on only for a saved chart that has a date but no time
+  // (a fresh, empty form defaults to entering a time).
+  const [timeUnknown, setTimeUnknown] = useState<boolean>(!!initial?.birthDate && !initial?.birthTime);
   const utils = trpc.useUtils();
 
-  // Toggle between exact-time and bucket entry, clearing the other so we never send both.
+  // Toggle the "no time at all" mode. Turning it on clears the time entirely (→ Chandra chart).
   function setTimeMode(unknown: boolean) {
     setTimeUnknown(unknown);
-    setForm((f) => (unknown ? { ...f, birthTime: "" } : { ...f, birthTimeOfDay: "" }));
+    setForm((f) => (unknown ? { ...f, birthTime: "", birthTimeApprox: false } : f));
   }
 
   const set = (field: keyof ProfileFormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
@@ -331,8 +323,9 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
         <Input id="pf-name" value={form.name} onChange={set("name")} placeholder="e.g. Mom, Client A, David" />
       </div>
 
-      {/* Birth date + time. Time is optional: enter an exact time, OR pick a rough time of day, OR
-          skip it — no exact time reads the chart as Chandra lagna (Moon's sign = 1st house). */}
+      {/* Birth date + time. A time — exact OR approximate — builds a real rising-sign (ascendant)
+          chart; the Exact/Approximate choice only sets an honest label. Skipping the time entirely
+          reads the chart as Chandra lagna (Moon's sign = 1st house). */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="pf-date">Birth Date</Label>
@@ -353,8 +346,43 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
         </div>
       </div>
 
-      {/* "I don't know it" toggle + time-of-day picker */}
-      <div className="-mt-1.5">
+      {/* Exact / Approximate — a real ascendant either way; approximate just flags the label.
+          Hidden when there's no time at all (Moon-framed). */}
+      {!timeUnknown && (
+        <div className="-mt-1.5 space-y-1.5">
+          <div className="inline-flex rounded-md border overflow-hidden" style={{ borderColor: "var(--color-border)" }}>
+            {[
+              { approx: false, label: "Exact" },
+              { approx: true, label: "Approximate" },
+            ].map((opt, i) => {
+              const selected = !!form.birthTimeApprox === opt.approx;
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, birthTimeApprox: opt.approx }))}
+                  className="px-3.5 py-1.5 text-xs font-medium transition-colors"
+                  style={{
+                    background: selected ? "var(--color-primary)" : "transparent",
+                    color: selected ? "var(--color-primary-foreground)" : "var(--color-foreground)",
+                    borderLeft: i > 0 ? "1px solid var(--color-border)" : "none",
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+          {form.birthTimeApprox && (
+            <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
+              Best guess of the hour — still a real rising-sign chart, just labeled approximate.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Lower-emphasis: no time at all → Moon-framed (Chandra lagna) */}
+      <div className="-mt-1">
         <button
           type="button"
           onClick={() => setTimeMode(!timeUnknown)}
@@ -362,36 +390,12 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
           style={{ color: "var(--color-muted-foreground)", background: "none", border: "none", cursor: "pointer", padding: "0.15rem 0" }}
         >
           <ChevronDown size={13} style={{ transform: timeUnknown ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
-          {timeUnknown ? "I know my exact birth time" : "I don't know my exact birth time"}
+          {timeUnknown ? "I have a birth time to enter" : "I don't know the time at all"}
         </button>
         {timeUnknown && (
-          <div className="mt-2 space-y-2">
-            <div className="grid grid-cols-4 gap-2">
-              {TIME_OF_DAY_OPTIONS.map((opt) => {
-                const selected = form.birthTimeOfDay === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setForm((f) => ({ ...f, birthTimeOfDay: selected ? "" : opt.value }))}
-                    className="flex flex-col items-center gap-0.5 rounded-md border px-1.5 py-2 text-xs transition-colors"
-                    style={{
-                      borderColor: selected ? "var(--color-primary)" : "var(--color-border)",
-                      background: selected ? "var(--color-primary)" : "transparent",
-                      color: selected ? "var(--color-primary-foreground)" : "var(--color-foreground)",
-                    }}
-                  >
-                    <span className="font-medium">{opt.label}</span>
-                    <span style={{ opacity: 0.7, fontSize: "0.65rem" }}>{opt.hint}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-              Optional — a rough time sharpens the Moon's sign. Either way the chart is read as
-              Chandra lagna (Moon-framed), not from a rising sign.
-            </p>
-          </div>
+          <p className="text-xs mt-1" style={{ color: "var(--color-muted-foreground)" }}>
+            No birth time — the chart is read as Chandra lagna (Moon-framed), not from a rising sign.
+          </p>
         )}
       </div>
 
@@ -657,9 +661,11 @@ function ProfileCard({ profile, onSelect, onEdit, onDelete, onLoginCreated }: Pr
                 <Orbit size={11} />
                 {(profile as any).lagnaBasis === "chandra" ? "Chandra lagna" : "Lagna"}:{" "}
                 <span className="font-medium" style={{ color: "var(--color-foreground)" }}>{profile.lagnaSign}</span>
-                {(profile as any).lagnaBasis === "chandra" && (
+                {(profile as any).lagnaBasis === "chandra" ? (
                   <span style={{ opacity: 0.75 }}>· Moon-framed (no birth time)</span>
-                )}
+                ) : (profile as any).lagnaBasis === "ascendant_approx" ? (
+                  <span style={{ opacity: 0.75 }}>· approx</span>
+                ) : null}
               </span>
             </div>
           )}
@@ -801,7 +807,7 @@ export default function Profiles() {
         name: data.name,
         birthDate: data.birthDate || undefined,
         birthTime: data.birthTime || undefined,
-        birthTimeOfDay: (data.birthTimeOfDay || undefined) as any,
+        birthTimeApprox: data.birthTimeApprox,
         birthLocationCity: data.birthLocationCity || undefined,
         birthLocationLat: data.birthLocationLat || undefined,
         birthLocationLon: data.birthLocationLon || undefined,
@@ -810,14 +816,14 @@ export default function Profiles() {
         makeActive,
       });
 
-      // Compute once date + place are present; time is optional (no exact time → Chandra chart).
+      // Compute once date + place are present; time is optional (no time → Chandra chart).
       if (data.birthDate && data.birthLocationCity && result.id) {
         try {
           await calculateMutation.mutateAsync({
             id: result.id,
             birthDate: data.birthDate,
             birthTime: data.birthTime || undefined,
-            birthTimeOfDay: (data.birthTimeOfDay || undefined) as any,
+            birthTimeApprox: data.birthTimeApprox,
             birthLocationCity: data.birthLocationCity,
             birthLocationLat: data.birthLocationLat || undefined,
             birthLocationLon: data.birthLocationLon || undefined,
@@ -851,7 +857,7 @@ export default function Profiles() {
         name: data.name,
         birthDate: data.birthDate || undefined,
         birthTime: data.birthTime || undefined,
-        birthTimeOfDay: (data.birthTimeOfDay || undefined) as any,
+        birthTimeApprox: data.birthTimeApprox,
         birthLocationCity: data.birthLocationCity || undefined,
         birthLocationLat: data.birthLocationLat || undefined,
         birthLocationLon: data.birthLocationLon || undefined,
@@ -859,7 +865,7 @@ export default function Profiles() {
         notes: data.notes || undefined,
       });
 
-      // Recalculate once date + place are present; time is optional (no exact time → Chandra chart).
+      // Recalculate once date + place are present; time is optional (no time → Chandra chart).
       let calcFailed = false;
       if (data.birthDate && data.birthLocationCity) {
         try {
@@ -867,7 +873,7 @@ export default function Profiles() {
             id: editingProfile.id,
             birthDate: data.birthDate,
             birthTime: data.birthTime || undefined,
-            birthTimeOfDay: (data.birthTimeOfDay || undefined) as any,
+            birthTimeApprox: data.birthTimeApprox,
             birthLocationCity: data.birthLocationCity,
             birthLocationLat: data.birthLocationLat || undefined,
             birthLocationLon: data.birthLocationLon || undefined,
@@ -967,7 +973,7 @@ export default function Profiles() {
               name: editingProfile.name ?? "",
               birthDate: editingProfile.birthDate ?? "",
               birthTime: editingProfile.birthTime ?? "",
-              birthTimeOfDay: (editingProfile as any).birthTimeOfDay ?? "",
+              birthTimeApprox: (editingProfile as any).lagnaBasis === "ascendant_approx",
               birthLocationCity: editingProfile.birthLocationCity ?? "",
               birthLocationLat: editingProfile.birthLocationLat ?? "",
               birthLocationLon: editingProfile.birthLocationLon ?? "",

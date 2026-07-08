@@ -54,6 +54,8 @@ export interface AstrologySubject {
   lagnaSign: string | null;
   /** True when no birth time was given: the chart is Moon-framed (Chandra lagna, house 1 = Moon). */
   moonFramed: boolean;
+  /** True when the birth time was an approximate guess: a real ascendant chart, just labeled approximate. */
+  approxTime: boolean;
   sunHouse: number | null;
   moonHouse: number | null;
   marsHouse: number | null;
@@ -97,6 +99,7 @@ function profileToSubject(
     // stale profiles.lagnaSign field, so every consumer stays consistent.
     lagnaSign: lagnaFromBodies(bodies) ?? p.lagnaSign ?? null,
     moonFramed: p.lagnaBasis === "chandra",
+    approxTime: p.lagnaBasis === "ascendant_approx",
     sunHouse: p.sunHouse ?? null,
     moonHouse: p.moonHouse ?? null,
     marsHouse: p.marsHouse ?? null,
