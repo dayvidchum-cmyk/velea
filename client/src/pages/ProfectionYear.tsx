@@ -696,7 +696,7 @@ export default function ProfectionYear() {
           ))}
         </>
         ) : (
-          <div style={{ padding: "0.5rem 0", color: "rgba(255,255,255,0.72)", fontSize: "0.9rem", lineHeight: 1.6 }}>
+          <div style={{ padding: "0.5rem 0", color: TEXT_MUTED, fontSize: "0.9rem", lineHeight: 1.6 }}>
             {deepReadLoading
               ? "Generating your reading… this can take up to a minute the first time."
               : "Tap to generate your full year reading."}
