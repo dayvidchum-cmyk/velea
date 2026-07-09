@@ -80,12 +80,23 @@ export async function computeGoldenHour(opts: {
   const cur = horas.find((h) => nowMs >= h.startMs && nowMs < h.endMs);
   if (!cur) return null;
 
-  // 2. The bird's activity across the day — quality at any instant.
-  const master = await computeMasterMode({
+  // 2. The bird's activity across the day — quality at any instant. Same pre-sunrise rule as
+  //    the horas above: before today's sunrise we are still inside YESTERDAY's bird day, so
+  //    fall back to yesterday's table (otherwise qualityAt(now) finds nothing → "avoid" and
+  //    the header wrongly reports no golden window during a live pre-dawn Veleal'or).
+  let master = await computeMasterMode({
     birthNakshatra: opts.birthNakshatra, birthPaksha: opts.birthPaksha,
     lat, lon, year, month, day,
   });
-  const periods = master?.periods ?? [];
+  let periods = master?.periods ?? [];
+  if (periods.length && nowMs < periods[0].startMs) {
+    const prev = new Date(Date.UTC(year, month - 1, day - 1));
+    master = await computeMasterMode({
+      birthNakshatra: opts.birthNakshatra, birthPaksha: opts.birthPaksha,
+      lat, lon, year: prev.getUTCFullYear(), month: prev.getUTCMonth() + 1, day: prev.getUTCDate(),
+    });
+    periods = master?.periods ?? [];
+  }
   const qualityAt = (ms: number) => periods.find((p) => ms >= p.startMs && ms < p.endMs)?.quality ?? "avoid";
   const birdFavorableAt = (ms: number) => { const q = qualityAt(ms); return q === "golden" || q === "good"; };
 
