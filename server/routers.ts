@@ -1668,24 +1668,30 @@ export const appRouter = router({
         _loc?.locationLat ? parseFloat(_loc.locationLat) : 42.3601,
         _loc?.locationLon ? parseFloat(_loc.locationLon) : -71.0589,
       );
-      const { calculateBirthChart } = await import("./birthchart/calculator.js");
-      const t: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
+      // THIS MOMENT's sky — not noon-of-date. The Stage is live; anchor it to now.
+      const { getSiderealLongitudesWithSpeed } = await import("./vedic/natal-chart-engine.js");
+      const posNow = await getSiderealLongitudesWithSpeed(new Date(), ["Sun", "Moon"]);
       const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-      const elong = ((t.moon.longitude - t.sun.longitude) % 360 + 360) % 360;
-      const PHASES = [
-        { name: "New Moon", image: "new-moon.jpg" },
-        { name: "Waxing Crescent", image: "waxing-crescent.jpg" },
-        { name: "First Quarter", image: "first-quarter.jpg" },
-        { name: "Waxing Gibbous", image: "waxing-gibbous.jpg" },
-        { name: "Full Moon", image: "full-moon.jpg" },
-        { name: "Waning Gibbous", image: "waning-gibbous.jpg" },
-        { name: "Last Quarter", image: "last-quarter.jpg" },
-        { name: "Waning Crescent", image: "waning-crescent.jpg" },
-      ];
-      const phase = PHASES[Math.round(elong / 45) % 8];
+      const moonLonNow = ((posNow.Moon?.longitude ?? 0) % 360 + 360) % 360;
+      const sunLonNow = ((posNow.Sun?.longitude ?? 0) % 360 + 360) % 360;
+      const elong = ((moonLonNow - sunLonNow) % 360 + 360) % 360;
+      // The four cardinal phases are INSTANTS — they own only a narrow window (~±1 day)
+      // around their exact moment. The long spans between belong to crescent/gibbous.
+      // (Rounding to the nearest instant kept "Last Quarter" on the Stage for ±1.8 days.)
+      const nearPhase = (center: number, halfWidth: number) =>
+        Math.abs(((elong - center + 540) % 360) - 180) <= halfWidth;
+      const phase =
+        nearPhase(0, 12)   ? { name: "New Moon", image: "new-moon.jpg" } :
+        nearPhase(90, 9)   ? { name: "First Quarter", image: "first-quarter.jpg" } :
+        nearPhase(180, 12) ? { name: "Full Moon", image: "full-moon.jpg" } :
+        nearPhase(270, 9)  ? { name: "Last Quarter", image: "last-quarter.jpg" } :
+        elong < 90  ? { name: "Waxing Crescent", image: "waxing-crescent.jpg" } :
+        elong < 180 ? { name: "Waxing Gibbous", image: "waxing-gibbous.jpg" } :
+        elong < 270 ? { name: "Waning Gibbous", image: "waning-gibbous.jpg" } :
+                      { name: "Waning Crescent", image: "waning-crescent.jpg" };
 
       // Moon's current sign + the house it's transiting for THIS chart (personalized).
-      const moonSign: string = t.moon.sign;
+      const moonSign: string = ZODIAC[Math.floor(moonLonNow / 30)];
       let moonHouse: number | null = null;
       if (ctx.subject?.lagnaSign) {
         const li = ZODIAC.indexOf(ctx.subject.lagnaSign), mi = ZODIAC.indexOf(moonSign);
