@@ -30,15 +30,22 @@ const TARAS: { name: string; quality: "good" | "bad" | "mixed" }[] = [
 const CHANDRA_FAV = new Set([1, 3, 6, 7, 10, 11]);
 const CHANDRA_BAD = new Set([4, 8, 12]);
 
-export interface Tarabala { taraNum: number; name: string; quality: "good" | "bad" | "mixed"; favorable: boolean }
+export interface Tarabala { taraNum: number; cycle: 1 | 2 | 3; name: string; quality: "good" | "bad" | "mixed"; favorable: boolean }
 export interface Chandrabala { house: number; quality: "good" | "bad" | "neutral"; favorable: boolean }
 
-/** Day-star from birth-star → tara (1–9). Both indices 0-based (Ashwini = 0). */
+/** Day-star from birth-star → tara (1–9). Both indices 0-based (Ashwini = 0).
+ *  Cycle-weighting (parihara): the 27 counts fall in three rounds of 9. Classical muhurta
+ *  holds that the malefic taras (Vipat/Pratyak/Naidhana) strike with full force only in the
+ *  FIRST round; in the 2nd and 3rd rounds their dosha is attenuated → treated as "mixed"
+ *  (no longer a scoring malus, still never counts as favorable). Good taras are good in
+ *  every round. (David adopted this school 2026-07-09 after the align27 divergence.) */
 export function tarabala(birthNakIdx: number, dayNakIdx: number): Tarabala {
   const count = ((((dayNakIdx - birthNakIdx) % 27) + 27) % 27) + 1; // 1..27 (inclusive count)
   const taraNum = ((count - 1) % 9) + 1; // 1..9
+  const cycle = (Math.ceil(count / 9) as 1 | 2 | 3);
   const t = TARAS[taraNum - 1];
-  return { taraNum, name: t.name, quality: t.quality, favorable: t.quality === "good" };
+  const quality = t.quality === "bad" && cycle > 1 ? "mixed" : t.quality;
+  return { taraNum, cycle, name: t.name, quality, favorable: quality === "good" };
 }
 
 /** Transit Moon sign from natal Moon sign → house 1–12. Both indices 0-based (Aries = 0). */
