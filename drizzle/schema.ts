@@ -416,3 +416,15 @@ export const narrativeCache = mysqlTable("narrative_cache", {
 }));
 
 export type NarrativeCacheRow = typeof narrativeCache.$inferSelect;
+
+// ── WAITLIST (velealor.com landing) ──────────────────────────
+// Public email capture from the marketing page. No FK to users — signups
+// predate accounts. Unique email so repeat submits dedupe server-side.
+export const waitlist = mysqlTable("waitlist", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).unique().notNull(),
+  source: varchar("source", { length: 64 }).default("landing").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WaitlistRow = typeof waitlist.$inferSelect;

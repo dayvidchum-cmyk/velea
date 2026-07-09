@@ -2,12 +2,15 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { rateLimit } from "./rateLimit";
+import { addWaitlistSignup } from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,6 +42,40 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // Lightweight health check for the host (no DB, no auth).
   app.get("/healthz", (_req, res) => res.status(200).json({ ok: true }));
+
+  // ── velealor.com marketing landing ─────────────────────────────
+  // The bare/marketing domain serves the static landing page; the app
+  // stays on app.velealor.com. landing.html ships via client/public/.
+  const landingHosts = new Set(["velealor.com", "www.velealor.com"]);
+  app.get("/", (req, res, next) => {
+    if (!landingHosts.has(req.hostname)) return next();
+    const file =
+      process.env.NODE_ENV === "development"
+        ? path.resolve(import.meta.dirname, "../..", "client", "public", "landing.html")
+        : path.resolve(import.meta.dirname, "public", "landing.html");
+    res.sendFile(file);
+  });
+
+  // Public waitlist capture from the landing page (no auth; rate-limited).
+  app.post("/api/waitlist", async (req, res) => {
+    try {
+      rateLimit(req, "waitlist", { max: 6, windowMs: 60_000 });
+    } catch {
+      return res.status(429).json({ ok: false, error: "rate_limited" });
+    }
+    const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+    const source = typeof req.body?.source === "string" ? req.body.source.slice(0, 64) : "landing";
+    if (!email || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      return res.status(400).json({ ok: false, error: "invalid_email" });
+    }
+    try {
+      const result = await addWaitlistSignup(email, source);
+      return res.status(result === "exists" ? 409 : 200).json({ ok: true, result });
+    } catch (err) {
+      console.error("[waitlist] insert failed:", err);
+      return res.status(503).json({ ok: false, error: "unavailable" });
+    }
+  });
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   // tRPC API

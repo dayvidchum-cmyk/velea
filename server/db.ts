@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, checkIns, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, type User } from "../drizzle/schema";
+import { InsertUser, checkIns, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -1037,4 +1037,20 @@ export async function getRecommendedNextTask(projectId: number, userId: number, 
 
   // Return first unpinned task, or first task if all pinned
   return projectTasks.find((t) => !t.isPinned) ?? projectTasks[0] ?? null;
+}
+
+// ── WAITLIST (velealor.com landing) ──────────────────────────
+
+/** Store a landing-page signup. Duplicate emails resolve as success (idempotent). */
+export async function addWaitlistSignup(email: string, source: string): Promise<"added" | "exists"> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  try {
+    await db.insert(waitlist).values({ email, source });
+    return "added";
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("Duplicate entry") || msg.includes("ER_DUP_ENTRY")) return "exists";
+    throw err;
+  }
 }
