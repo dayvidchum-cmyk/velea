@@ -511,7 +511,13 @@ export default function Planner() {
 
   const orbDueCount = useMemo(() => {
     const now = Date.now();
-    return allTasks.filter((t) => t.dueDate && !t.isCompleted && (!t.snoozedUntil || t.snoozedUntil <= now)).length;
+    // Due = overdue or due TODAY (matches DueOrbSheet's range) — future dues wait their turn.
+    const localToday = toDateStr(new Date());
+    return allTasks.filter((t) => {
+      if (!t.dueDate || t.isCompleted || (t.snoozedUntil && t.snoozedUntil > now)) return false;
+      const due = typeof t.dueDate === "string" ? t.dueDate.slice(0, 10) : toDateStr(new Date(t.dueDate));
+      return due <= localToday;
+    }).length;
   }, [allTasks]);
 
   // Priority sort order (title-case to match DB enum)

@@ -18,7 +18,9 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
   const [addOpen, setAddOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
 
-  const { data: dueTasks = [], isLoading } = trpc.tasks.dueList.useQuery(undefined, { enabled: open });
+  // Due = overdue or due TODAY — future-dated tasks stay out of the orb until their day.
+  const localToday = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`; })();
+  const { data: dueTasks = [], isLoading } = trpc.tasks.dueList.useQuery({ startDate: "1970-01-01", endDate: localToday }, { enabled: open });
   // Need today's mode to auto-assign when pinning
   const { data: todayPanchang } = trpc.panchang.today.useQuery(undefined, { enabled: open });
   const todayMode = todayPanchang?.mode as TaskMode | undefined;
@@ -48,13 +50,14 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
 
   const deleteMutation = trpc.tasks.delete.useMutation({
     onMutate: async ({ id }) => {
+      const key = { startDate: "1970-01-01", endDate: localToday };
       await utils.tasks.dueList.cancel();
-      const prev = utils.tasks.dueList.getData();
-      utils.tasks.dueList.setData(undefined, (old) => old?.filter((t) => t.id !== id));
+      const prev = utils.tasks.dueList.getData(key);
+      utils.tasks.dueList.setData(key, (old) => old?.filter((t) => t.id !== id));
       return { prev };
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.prev) utils.tasks.dueList.setData(undefined, ctx.prev);
+      if (ctx?.prev) utils.tasks.dueList.setData({ startDate: "1970-01-01", endDate: localToday }, ctx.prev);
     },
     onSettled: async () => {
       await utils.tasks.dueList.invalidate();
