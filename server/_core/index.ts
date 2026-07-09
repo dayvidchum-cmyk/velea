@@ -69,11 +69,15 @@ async function startServer() {
     }
     const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
     const source = typeof req.body?.source === "string" ? req.body.source.slice(0, 64) : "landing";
+    const referralCode =
+      typeof req.body?.referralCode === "string" && req.body.referralCode.trim()
+        ? req.body.referralCode.trim().slice(0, 64)
+        : undefined;
     if (!email || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       return res.status(400).json({ ok: false, error: "invalid_email" });
     }
     try {
-      const result = await addWaitlistSignup(email, source);
+      const result = await addWaitlistSignup(email, source, referralCode);
       return res.status(result === "exists" ? 409 : 200).json({ ok: true, result });
     } catch (err) {
       console.error("[waitlist] insert failed:", err);

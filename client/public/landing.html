@@ -173,6 +173,27 @@
   .btn:active { transform: translateY(0); }
   .btn:focus-visible, .field input:focus-visible { outline: 2px solid var(--gold-lum); outline-offset: 3px; }
   .form-note { font-size: 0.9rem; color: var(--ink-dim); margin: 0.85rem 0 0; letter-spacing: 0.01em; }
+  /* Referral code — collapsed by default; a quiet text link unfolds a slim input. */
+  .ref-toggle {
+    display: inline-block; margin: 0.9rem auto 0; padding: 0; border: none; background: none; cursor: pointer;
+    font-family: var(--sans); font-size: 0.86rem; letter-spacing: 0.02em; color: var(--ink-soft);
+    text-decoration: underline; text-decoration-color: rgba(233,201,120,0.45); text-underline-offset: 3px;
+    transition: color .25s ease;
+  }
+  .ref-toggle:hover { color: var(--gold-lum); }
+  .ref-toggle:focus-visible { outline: 2px solid var(--gold-lum); outline-offset: 3px; border-radius: 4px; }
+  .ref-input {
+    display: block; margin: 0.7rem auto 0; width: min(16rem, 100%);
+    padding: 0.6rem 1rem; border-radius: 999px; text-align: center;
+    background: rgba(18, 11, 26, 0.26); border: 1px solid rgba(233,201,120,0.32); color: var(--ink);
+    font-family: var(--sans); font-size: 0.95rem; letter-spacing: 0.06em;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: border-color .3s ease, box-shadow .3s ease;
+  }
+  .ref-input[hidden] { display: none; }   /* author display would otherwise defeat the hidden attr */
+  .ref-input::placeholder { color: var(--ink-soft); letter-spacing: 0.02em; }
+  .ref-input:focus { outline: none; border-color: rgba(243,217,143,0.6); box-shadow: 0 0 0 4px rgba(243,217,143,0.10); }
+  .close-stage .ref-toggle { color: #fff; opacity: 0.85; }
   .success {
     display: none; align-items: center; gap: 0.7rem; justify-content: center;
     font-family: var(--serif); font-size: 1.3rem; color: var(--gold-lum); padding: 0.9rem 0;
@@ -367,6 +388,8 @@
               <input type="email" name="email" inputmode="email" autocomplete="email" placeholder="you@email.com" aria-label="Your email address" required />
               <button class="btn" type="submit">Request access</button>
             </div>
+            <button type="button" class="ref-toggle">Have a referral code?</button>
+            <input type="text" class="ref-input" name="referral" placeholder="Referral code" aria-label="Referral code" autocomplete="off" hidden />
             <p class="form-note">iPhone and web. One email when it opens.</p>
             <p class="success" role="status" aria-live="polite">
               <svg class="tick" viewBox="0 0 26 26" fill="none" aria-hidden="true"><circle cx="13" cy="13" r="12" stroke="currentColor" stroke-width="1.4" opacity="0.5"/><path d="M7.5 13.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -445,6 +468,8 @@
               <input type="email" name="email" inputmode="email" autocomplete="email" placeholder="you@email.com" aria-label="Your email address" required />
               <button class="btn" type="submit">Request access</button>
             </div>
+            <button type="button" class="ref-toggle">Have a referral code?</button>
+            <input type="text" class="ref-input" name="referral" placeholder="Referral code" aria-label="Referral code" autocomplete="off" hidden />
             <p class="form-note">iPhone and web. One email. No noise.</p>
             <p class="success" role="status" aria-live="polite">
               <svg class="tick" viewBox="0 0 26 26" fill="none" aria-hidden="true"><circle cx="13" cy="13" r="12" stroke="currentColor" stroke-width="1.4" opacity="0.5"/><path d="M7.5 13.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -473,17 +498,25 @@
         var note = form.querySelector(".form-note");
         var success = form.querySelector(".success");
         var btn = form.querySelector(".btn");
+        var refInput = form.querySelector(".ref-input");
+        var refToggle = form.querySelector(".ref-toggle");
         if (!input.value || !input.checkValidity()) { field.style.borderColor = "var(--ember)"; input.focus(); return; }
         var showSuccess = function () {
           field.style.display = "none";
           if (note) note.style.display = "none";
+          if (refInput) refInput.hidden = true;
+          if (refToggle) refToggle.hidden = true;
           success.classList.add("show");
         };
         btn.disabled = true; btn.style.opacity = "0.7";
         fetch("/api/waitlist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: input.value.trim(), source: "landing" }),
+          body: JSON.stringify({
+            email: input.value.trim(),
+            source: "landing",
+            referralCode: refInput && refInput.value.trim() ? refInput.value.trim() : undefined,
+          }),
         })
           .then(function (res) {
             if (res.ok || res.status === 409) { showSuccess(); return; }
@@ -494,6 +527,14 @@
             // Preview environments block network calls — show the success state anyway.
             showSuccess();
           });
+      });
+    });
+    document.querySelectorAll(".ref-toggle").forEach(function (t) {
+      t.addEventListener("click", function () {
+        var inp = t.parentElement.querySelector(".ref-input");
+        t.hidden = true;
+        inp.hidden = false;
+        inp.focus();
       });
     });
     var els = document.querySelectorAll(".reveal");

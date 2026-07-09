@@ -424,6 +424,7 @@ export const waitlist = mysqlTable("waitlist", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).unique().notNull(),
   source: varchar("source", { length: 64 }).default("landing").notNull(),
+  referralCode: varchar("referralCode", { length: 64 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
