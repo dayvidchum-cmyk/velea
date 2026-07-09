@@ -254,6 +254,12 @@
   /* ============================ PHILOSOPHY ============================ */
   .philo { padding-block: clamp(6rem, 14vw, 10rem); text-align: center; }
   .philo .scrollcue { margin: 0 0 2.4rem; }
+  /* Over the bright cloud sky the champagne washes out — brighten the core and add a faint
+     warm shadow so it glows the way it did on the dark plum. */
+  .philo .scrollcue .line {
+    background: linear-gradient(#f6e2a4, rgba(240,214,140,0));
+    box-shadow: 0 0 10px rgba(246,226,164,0.8), 0 0 3px rgba(122,62,30,0.5);
+  }
   .philo blockquote {
     margin: 0 auto; max-width: 18ch; font-family: var(--serif); font-weight: 400;
     font-size: clamp(2.1rem, 6.6vw, 3.9rem); line-height: 1.12; text-wrap: balance;
