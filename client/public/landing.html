@@ -346,17 +346,17 @@
   footer {
     display: flex; flex-wrap: nowrap; align-items: baseline; justify-content: center; gap: 0.7rem;
     white-space: nowrap; text-align: center;
-    padding: 1rem var(--pad) calc(env(safe-area-inset-bottom,0px) + 1.1rem);
+    padding: 0.3rem var(--pad) calc(env(safe-area-inset-bottom,0px) + 0.35rem);
     position: relative; z-index: 2; color: rgba(48,26,15,0.62); background: #D4AF37;
   }
-  footer .fmark { font-family: var(--serif); font-size: 1.05rem; color: rgba(52,32,15,0.78); }
-  footer .fline { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
-  footer .fline .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; font-size: 0.78rem; }
+  footer .fmark { font-family: var(--serif); font-size: 0.92rem; color: rgba(52,32,15,0.78); }
+  footer .fline { font-size: 0.62rem; letter-spacing: 0.09em; text-transform: uppercase; }
+  footer .fline .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; font-size: 0.7rem; }
   @media (max-width: 480px) {
-    footer { gap: 0.55rem; }
-    footer .fmark { font-size: 0.95rem; }
-    footer .fline { font-size: 0.62rem; letter-spacing: 0.06em; }
-    footer .fline .km { font-size: 0.72rem; }
+    footer { gap: 0.5rem; }
+    footer .fmark { font-size: 0.85rem; }
+    footer .fline { font-size: 0.56rem; letter-spacing: 0.05em; }
+    footer .fline .km { font-size: 0.65rem; }
   }
 
   @media (max-width: 540px) {
