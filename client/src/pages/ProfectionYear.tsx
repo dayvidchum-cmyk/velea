@@ -569,8 +569,8 @@ export default function ProfectionYear() {
         <div style={{ margin: "0 0 1rem" }}>
           <LockedFeatureCard
             title="Your year, right now"
-            teaser="Your stage, plus the guests on it right now."
-            detail="Deepens your year's reading with the current sky — pratyantardaśā, live transits, combustion, eclipse — regenerated the moment you open it. A premium layer, not yet unlocked."
+            teaser="Your year, read at this exact moment — not today's sky, this minute's."
+            detail="A live reading generated the instant you open it: your stage, plus the guests on it right now — pratyantardaśā, the transits as they stand this very moment, combustion, eclipse. Open it an hour later and it reads a different sky. A premium layer, not yet unlocked."
           />
         </div>
       ) : deepRead ? (
