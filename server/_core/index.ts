@@ -44,11 +44,15 @@ async function startServer() {
   app.get("/healthz", (_req, res) => res.status(200).json({ ok: true }));
 
   // ── velealor.com marketing landing ─────────────────────────────
-  // The bare/marketing domain serves the static landing page; the app
-  // stays on app.velealor.com. landing.html ships via client/public/.
+  // The marketing domain's root serves the landing page for VISITORS ONLY;
+  // anyone with a session cookie gets the app (so the installed PWA and
+  // logged-in users open straight into Velea). Every other path — /login,
+  // app routes, /api — falls through to the SPA, and the landing links to
+  // none of them, so the app stays invisible from the marketing page.
   const landingHosts = new Set(["velealor.com", "www.velealor.com"]);
   app.get("/", (req, res, next) => {
     if (!landingHosts.has(req.hostname)) return next();
+    if ((req.headers.cookie ?? "").includes("app_session_id=")) return next();
     const file =
       process.env.NODE_ENV === "development"
         ? path.resolve(import.meta.dirname, "../..", "client", "public", "landing.html")

@@ -1,7 +1,7 @@
 /* Velea service worker — enables desktop/mobile install and light offline.
    Deliberately conservative: never touches API/tRPC traffic, always prefers
    fresh HTML, and only cache-firsts Vite's content-hashed static assets. */
-const CACHE = "velea-cache-v267";
+const CACHE = "velea-cache-v268";
 const ASSET_RE = /\.(?:js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico|webmanifest)$/;
 
 self.addEventListener("install", () => {
@@ -41,13 +41,17 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Navigations / HTML → network-first so the app shell is always fresh,
-  // falling back to the cached shell when offline.
+  // falling back to the cached shell when offline. Never store the ROOT
+  // response as the shell: on velealor.com "/" can be the marketing landing
+  // (logged-out), and caching it would replace the offline app shell.
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put("/", copy));
+          if (url.pathname !== "/") {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put("/", copy));
+          }
           return res;
         })
         .catch(() => caches.match("/").then((r) => r || caches.match(req)))
