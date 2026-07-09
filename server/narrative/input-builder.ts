@@ -250,7 +250,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   if (birthNakIdx >= 0 && natalMoonSignIdx >= 0 && lagnaSignIdx >= 0 && a["Sun"] != null && a["Moon"] != null) {
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = Object.fromEntries(PLANETS.filter((n) => a[n] != null).map((n) => [n, si(a[n]!)]));
-    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T });
+    const { majorityDayStarIdx } = await import("../panchang/crown.js");
+    const majIdx = await majorityDayStarIdx(dateStr);
+    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined });
     personalRating = cd.rating;
     personalApex = {
       isCrown: cd.rating === "crown",

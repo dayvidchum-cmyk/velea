@@ -1072,14 +1072,17 @@ export default function Planner() {
                   // Today = a WHITE border. Keeping it in the normal border slot (not an outward
                   // box-shadow) means it can't bleed into the neighbor cell. If today is also
                   // golden/crown, the gold moves INSIDE as an inset ring: white outer, gold inner.
+                  // David's law (2026-07-09): the gold border belongs to GOLDEN (collective) days
+                  // only. A crown wears just the badge; crown + border = a true double-crown day
+                  // (personal and collective sky aligned).
                   border: isToday
                     ? "2px solid #ffffff"
-                    : (isCrown || isGolden)
+                    : isGolden
                     ? `2px solid ${GOLD_BRIGHT}`
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : "1px solid transparent",
-                  boxShadow: (isToday && (isCrown || isGolden)) ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : undefined,
+                  boxShadow: (isToday && isGolden) ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : undefined,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}

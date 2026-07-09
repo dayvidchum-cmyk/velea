@@ -28,7 +28,7 @@ const PLANNER_LON = -71.0589;
  *   EST (Nov–Mar) = -5
  * Determined dynamically from the date.
  */
-function getBostonUtcOffset(dateStr: string): number {
+export function getBostonUtcOffset(dateStr: string): number {
   const [y, m, d] = dateStr.split('-').map(Number);
   const date = new Date(y, m - 1, d);
   // EDT: 2nd Sunday in March → 1st Sunday in November

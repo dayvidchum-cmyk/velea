@@ -120,9 +120,13 @@ export function crownDay(opts: {
   moonLon: number;
   transitSignByPlanet?: Record<string, number>; // that day's planet signs, for the transit layer
   universalThreshold?: number;
+  /** Majority-of-day star (David's ruling 2026-07-09): when provided, the tara is counted from
+   *  the nakshatra that RULES most of the vedic day, not the noon-UTC instant. The universal
+   *  (collective/golden) scoring keeps the noon convention — it is a different, shared layer. */
+  dayNakIdxOverride?: number;
 }): CrownDay {
   const dq = dayQuality(opts.sunLon, opts.moonLon, opts.universalThreshold ?? 2);
-  const dayNakIdx = dq.nakshatra;                        // 0..26
+  const dayNakIdx = opts.dayNakIdxOverride ?? dq.nakshatra; // 0..26 (majority star when provided)
   const dayMoonSignIdx = Math.floor(norm(opts.moonLon) / 30); // 0..11
   const tb = tarabala(opts.birthNakIdx, dayNakIdx);
   const cb = chandrabala(opts.natalMoonSignIdx, dayMoonSignIdx);
@@ -172,7 +176,39 @@ export async function personalRatingForDate(anchors: CrownAnchors, dateStr: stri
     const ch: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
-    return crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T }).rating;
+    const majIdx = await majorityDayStarIdx(dateStr);
+    return crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined }).rating;
+  } catch {
+    return null;
+  }
+}
+
+/** Parse "5:15 AM" → minutes since midnight. null on anything unparseable. */
+function parse12h(s: string | null | undefined): number | null {
+  const m = /(\d{1,2}):(\d{2})\s*(AM|PM)/i.exec(String(s ?? ""));
+  if (!m) return null;
+  let h = parseInt(m[1], 10) % 12;
+  if (/pm/i.test(m[3])) h += 12;
+  return h * 60 + parseInt(m[2], 10);
+}
+
+/** The nakshatra that rules the MAJORITY of the vedic day (sunrise → next sunrise).
+ *  With at most one transition a day, that is: the sunrise star if the transition falls
+ *  in the second half of the day, else the post-transition star. Location defaults to the
+ *  planner's anchor (Boston) — the same anchor the panchang layer uses. */
+export async function majorityDayStarIdx(dateStr: string, lat = 42.3601, lon = -71.0589, utcOffset?: number): Promise<number | null> {
+  try {
+    const { calcPanchang } = await import("./astronomy.js");
+    const { getBostonUtcOffset } = await import("./service.js");
+    const astro: any = await calcPanchang(dateStr, lat, lon, utcOffset ?? getBostonUtcOffset(dateStr));
+    const idxOf = (n: string) => NAK27.findIndex((x) => x.toLowerCase() === String(n).toLowerCase());
+    const sunriseIdx = idxOf(astro.nakshatraAtSunrise ?? "");
+    const afterIdx = idxOf(astro.nakshatraAfterTransition ?? "");
+    const sr = parse12h(astro.sunriseLocal);
+    const tt = parse12h(astro.nakshatraTransitionTime);
+    if (afterIdx < 0 || tt == null || sr == null) return sunriseIdx >= 0 ? sunriseIdx : null;
+    const minsUntilTransition = ((tt - sr) + 1440) % 1440; // sunrise → transition, wrapping midnight
+    return minsUntilTransition > 720 ? (sunriseIdx >= 0 ? sunriseIdx : afterIdx) : afterIdx;
   } catch {
     return null;
   }

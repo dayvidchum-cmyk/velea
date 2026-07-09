@@ -1256,7 +1256,8 @@ export const appRouter = router({
         };
 
         const dq = dayQuality(ch.sun.longitude, ch.moon.longitude, 2);
-        const dayNakIdx = dq.nakshatra;
+        const { majorityDayStarIdx } = await import("./panchang/crown.js");
+        const dayNakIdx = (await majorityDayStarIdx(dateStr)) ?? dq.nakshatra; // majority-of-day star (David 2026-07-09)
         const dayMoonSignIdx = si(ch.moon.longitude);
         const tb = tarabala(birthNakIdx, dayNakIdx);
         const cb = chandrabala(natalMoonSignIdx, dayMoonSignIdx);
@@ -1554,7 +1555,9 @@ export const appRouter = router({
           try {
             const ch: any = await calculateBirthChart(date, "12:00", 0, 0, "UTC");
             const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
-            const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T });
+            const { majorityDayStarIdx } = await import("./panchang/crown.js");
+            const majIdx = await majorityDayStarIdx(date);
+            const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined });
             const why = cd.rating === "crown"
               ? `${cd.tarabala.name} tara · Moon in your ${ORD[cd.chandrabala.house]} house · a clean day — one of your strongest this month.`
               : cd.rating === "caution"

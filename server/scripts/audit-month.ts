@@ -1,6 +1,6 @@
 // FULL-MONTH AUDIT — day modes (gated), crown layer, golden days, and cross-layer tensions.
 // Run: npx tsx server/scripts/audit-month.ts [YYYY-MM]
-import { anchorsFromBodies, personalRatingForDate, crownDay } from "../panchang/crown.js";
+import { anchorsFromBodies, personalRatingForDate, crownDay, majorityDayStarIdx } from "../panchang/crown.js";
 import { gateDayField } from "../panchang/service.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
 import { calcPanchang } from "../panchang/astronomy.js";
@@ -20,7 +20,8 @@ const daysIn = new Date(Y, M, 0).getDate();
     const date = `${ym}-${String(d).padStart(2, "0")}`;
     const ch: any = await calculateBirthChart(date, "12:00", 0, 0, "UTC");
     const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
-    const cd = crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T });
+    const majIdx = await majorityDayStarIdx(date);
+    const cd = crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined });
     const golden = dayQuality(ch.sun.longitude, ch.moon.longitude).auspicious;
     const astro = await calcPanchang(date, 42.3601, -71.0589, -4);
     const raw = interpretPanchang(astro, "Virgo");

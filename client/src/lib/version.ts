@@ -61,4 +61,4 @@
 // light value; now rides --color-card + the day tint); (2) profection-wheel BIRTH/NOW labels
 // go gold (were #000, invisible on the dark/full-spectrum wheel); (3) nav icons swapped —
 // Today = the Velea mark (the living now), Chart = the book (your story: profection/dasha/natal).
-export const APP_VERSION = "1.1.270";
+export const APP_VERSION = "1.1.271";
