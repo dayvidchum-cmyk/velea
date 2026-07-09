@@ -98,6 +98,9 @@ export interface DayField {
   nakshatraTransitionTime: string | null;
   /** Nakshatra name after the transition. null if no transition. */
   nakshatraAfterTransition: string | null;
+  /** PERSONAL WEATHER GATE — true when a personal caution day contained the mode to Restraint. */
+  weatherGated?: boolean;
+  weatherGateReason?: string | null;
   /** Ascendant (Lagna) sign used for this calculation, e.g. 'Virgo'. null when user has no birth chart. */
   lagnaSign?: string | null;
 }
@@ -960,4 +963,23 @@ export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayF
     nakshatraAfterTransition: astro.nakshatraAfterTransition,
     lagnaSign,
   };
+}
+
+// ── PERSONAL WEATHER GATE ────────────────────────────────────────────────────
+// David's rule (2026-07-09): on a personal CAUTION day (crown layer: bad tara /
+// 8th-house Moon / harsh collective sky / malefic pressure summing ≤ −3) the day's
+// posture is containment regardless of which house the Moon lights up. "Nothing
+// forward. Nothing new. Contain." One rule, applied wherever a mode is served.
+export function applyWeatherGate(
+  mode: FinalMode,
+  personalRating?: string | null
+): { finalMode: FinalMode; gated: boolean; gateReason: string | null } {
+  if (personalRating === "caution" && mode !== "Restraint") {
+    return {
+      finalMode: "Restraint",
+      gated: true,
+      gateReason: "A personal caution day — contained. Nothing forward, nothing new.",
+    };
+  }
+  return { finalMode: mode, gated: false, gateReason: null };
 }

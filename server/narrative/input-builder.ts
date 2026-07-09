@@ -9,7 +9,7 @@ import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
 import { computeDashaJourney } from "../sky/arc.js";
 import { calcPanchang } from "../panchang/astronomy.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
-import { getDayField } from "../panchang/service.js";
+import { getDayField, gateDayField } from "../panchang/service.js";
 import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
 import { strength, dignityLabel } from "../panchang/dignity.js";
 import { crownDay } from "../panchang/crown.js";
@@ -246,10 +246,12 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const natalMoonSignIdx = ZODIAC.indexOf(moonBody?.sign ?? "");
   const lagnaSignIdx = ZODIAC.indexOf(lagna);
   let personalApex: { isCrown: boolean; tara: string; taraFavorable: boolean; chandraHouse: number; chandraFavorable: boolean } | null = null;
+  let personalRating: string | null = null;
   if (birthNakIdx >= 0 && natalMoonSignIdx >= 0 && lagnaSignIdx >= 0 && a["Sun"] != null && a["Moon"] != null) {
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = Object.fromEntries(PLANETS.filter((n) => a[n] != null).map((n) => [n, si(a[n]!)]));
     const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T });
+    personalRating = cd.rating;
     personalApex = {
       isCrown: cd.rating === "crown",
       tara: cd.tarabala.name,
@@ -265,9 +267,11 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // location default. Computing this from the BIRTH chart's lat/lon (as before) let the hero and
   // the read name different modes on the same day — the root of the "Selective vs Restrained
   // Build" split. Fall back to the birth-loc panchang only if getDayField yields nothing.
-  const field =
-    (await getDayField(dateStr, false, moment?.dayLoc, lagna)) ??
-    interpretPanchang(await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon)), lagna);
+  const field = gateDayField(
+    (await getDayField(dateStr, false, moment?.dayLoc, lagna, personalRating)) ??
+      interpretPanchang(await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon)), lagna),
+    personalRating
+  );
   // Hora (planetary hour) is deliberately NOT fed to the day reading. Per David: the day-card prose
   // must NEVER synthesize all the way to the current hour ("this Jupiter hour is good…"). The hora
   // belongs to the Time Master / Hora cards, not the day narrative. Kept null so the prompt's own

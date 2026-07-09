@@ -14,7 +14,7 @@ const lagnaSignIdx = ZOD.indexOf("Virgo");
 const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
 
 (async () => {
-  const date = "2026-07-09";
+  const date = process.argv[2] || "2026-07-09";
   const ch: any = await calculateBirthChart(date, "12:00", 0, 0, "UTC");
   const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
   const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T });

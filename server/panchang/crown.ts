@@ -145,3 +145,35 @@ export function crownDay(opts: {
   const rating: CrownRating = crown ? "crown" : score >= 2 ? "favorable" : score <= -3 ? "caution" : "neutral";
   return { rating, score, universal: dq, tarabala: tb, chandrabala: cb, transit: ts };
 }
+
+// ── Helpers for the personal-weather gate ────────────────────────────────────
+const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+const ZODIAC12 = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+
+export interface CrownAnchors { birthNakIdx: number; natalMoonSignIdx: number; lagnaSignIdx: number }
+
+/** Extract the three personal anchors from a profile's natal bodies + lagna. null if incomplete. */
+export function anchorsFromBodies(
+  bodies: Array<{ planet: string; nakshatra?: string | null; sign?: string | null }>,
+  lagnaSign: string | null | undefined
+): CrownAnchors | null {
+  const moon = bodies.find((b) => b.planet === "Moon");
+  const birthNakIdx = NAK27.findIndex((n) => n.toLowerCase() === String(moon?.nakshatra ?? "").toLowerCase());
+  const natalMoonSignIdx = ZODIAC12.indexOf(moon?.sign ?? "");
+  const lagnaSignIdx = ZODIAC12.indexOf(lagnaSign ?? "");
+  if (birthNakIdx < 0 || natalMoonSignIdx < 0 || lagnaSignIdx < 0) return null;
+  return { birthNakIdx, natalMoonSignIdx, lagnaSignIdx };
+}
+
+/** The native's crown-layer rating for a calendar date (noon UTC, same as the calendar). */
+export async function personalRatingForDate(anchors: CrownAnchors, dateStr: string): Promise<CrownRating | null> {
+  try {
+    const { calculateBirthChart } = await import("../birthchart/calculator.js");
+    const ch: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
+    const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
+    const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
+    return crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T }).rating;
+  } catch {
+    return null;
+  }
+}

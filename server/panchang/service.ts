@@ -10,7 +10,7 @@
 
 import { calcPanchang } from './astronomy.js';
 import { karanaFromLongitudes } from './karana.js';
-import { interpretPanchang, getNakshatraModifier, getTithiPacing, moonSignToHouse, composeInstructionFromParts, calculateFinalMode, type DayField, type DayMode, type FinalMode } from './interpreter.js';
+import { interpretPanchang, getNakshatraModifier, getTithiPacing, moonSignToHouse, composeInstructionFromParts, calculateFinalMode, applyWeatherGate, type DayField, type DayMode, type FinalMode } from './interpreter.js';
 import { getPanchangByDate, upsertPanchang } from '../db.js';
 
 // Sign name → index (must match SIGN_INDEX in interpreter.ts)
@@ -105,7 +105,8 @@ export async function getDayField(
   dateStr: string,
   forceRecalc = false,
   locationOverride?: { lat: number; lon: number; utcOffset: number },
-  lagnaOverride?: string
+  lagnaOverride?: string,
+  personalRating?: string | null
 ): Promise<DayField | null> {
   // Check cache first
   if (!forceRecalc) {
@@ -158,7 +159,7 @@ export async function getDayField(
         // Non-fatal: fall back to null (UI shows just the nakshatra name)
       }
 
-      return {
+      return gateDayField({
         date: cached.date,
         dayOfWeek: getDayOfWeek(dateStr),
         moonSign: cached.moonSign,
@@ -181,7 +182,7 @@ export async function getDayField(
         nakshatraTransitionTime,
         nakshatraAfterTransition,
         lagnaSign: lagnaOverride ?? null,
-      };
+      }, personalRating);
     }
   }
 
@@ -214,11 +215,27 @@ export async function getDayField(
       instruction: field.instruction,
     });
 
-    return field;
+    return gateDayField(field, personalRating);
   } catch (err) {
     console.error('[Panchang] Calculation failed for', dateStr, err);
     return null;
   }
+}
+
+/** Apply the personal-weather gate to a computed DayField (see interpreter.applyWeatherGate).
+ *  The qualifier keeps the original mode visible ("Contained Action") so the ledger stays honest. */
+export function gateDayField(field: DayField, personalRating?: string | null): DayField {
+  const gate = applyWeatherGate(field.finalMode, personalRating);
+  if (!gate.gated) return { ...field, weatherGated: false, weatherGateReason: null };
+  return {
+    ...field,
+    mode: gate.finalMode,
+    finalMode: gate.finalMode,
+    qualifier: `Contained ${field.finalMode}`,
+    instruction: composeInstructionFromParts(gate.finalMode, field.nakshatraModifier),
+    weatherGated: true,
+    weatherGateReason: gate.gateReason,
+  };
 }
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

@@ -182,6 +182,14 @@ export default function Planner() {
     for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
     return m;
   }, [crownData]);
+  // Personal-weather gate, calendar edition: a personal CAUTION day is contained to Restraint
+  // (mirrors server applyWeatherGate — the day sheet/hero get the same clamp server-side, so
+  // tile color and prose always agree). See server/panchang/interpreter.ts.
+  const cautionSet = useMemo(() => {
+    const set = new Set<string>();
+    for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "caution") set.add(d.date);
+    return set;
+  }, [crownData]);
   // Golden days — the COLLECTIVE potential (panchang day-quality, no chart needed), brought
   // back as a golden BORDER on the calendar. Crown days = a golden day + the crown badge on top.
   const { data: goldenData } = trpc.sky.goldenDays.useQuery(
@@ -1020,7 +1028,7 @@ export default function Planner() {
             const isCrown = crownByDate.has(dateStr);
             const isGolden = goldenSet.has(dateStr);
             const isSelected = dateStr === selectedDate;
-            const modeColor = panchang ? MODE_DOT[panchang.mode] : undefined;
+            const modeColor = panchang ? MODE_DOT[cautionSet.has(dateStr) ? "Restraint" : panchang.mode] : undefined;
             const hasMode = !!modeColor;
             // Whole cell is tinted by the day's mode — far more legible than a tiny
             // dot, and selected/today get a stronger fill + solid border. Dark mode

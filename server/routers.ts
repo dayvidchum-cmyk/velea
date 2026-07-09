@@ -59,6 +59,21 @@ import { getDayField, dayModeToTaskMode } from "./panchang/service.js";
 import { getTimezoneOffset, getBostonOffset } from "./panchang/tz-offset.js";
 import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG, HOUSE_TO_BASE_MODE } from "./panchang/modifier-config.js";
 import { calculateFinalMode } from "./panchang/interpreter.js";
+
+/** Personal-weather rating (crown layer) for a subject on a date — null when anchors are missing.
+ *  Feeds the weather gate in getDayField so a personal caution day contains the mode. */
+async function subjectPersonalRating(subject: { profileId: number; lagnaSign: string | null } | null | undefined, dateStr: string): Promise<string | null> {
+  try {
+    if (!subject?.lagnaSign) return null;
+    const { getProfileNatalBodies } = await import("./routers/profiles.js");
+    const { anchorsFromBodies, personalRatingForDate } = await import("./panchang/crown.js");
+    const bodies = await getProfileNatalBodies(subject.profileId);
+    const anchors = anchorsFromBodies(bodies as any, subject.lagnaSign);
+    if (!anchors) return null;
+    return await personalRatingForDate(anchors, dateStr);
+  } catch { return null; }
+}
+
 import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
 import { scoreTasks } from "./task-scorer.js";
 import { parseLifeAreas } from "@shared/life-areas";
@@ -1059,7 +1074,8 @@ export const appRouter = router({
       }
       // Use active profile (or owner profile) lagna — single source of truth
       const lagnaSign = opts.ctx.subject?.lagnaSign ?? undefined;
-      return getDayField(dateStr, false, { lat, lon, utcOffset }, lagnaSign);
+      const pr = await subjectPersonalRating(opts.ctx.subject, dateStr);
+      return getDayField(dateStr, false, { lat, lon, utcOffset }, lagnaSign, pr);
     }),
 
     byDate: publicProcedure
@@ -1077,7 +1093,8 @@ export const appRouter = router({
         }
         // Use active profile (or owner profile) lagna — single source of truth
         const lagnaOverride = opts.ctx.subject?.lagnaSign ?? undefined;
-        return getDayField(opts.input.date, false, locationOverride, lagnaOverride);
+        const pr = await subjectPersonalRating(opts.ctx.subject, opts.input.date);
+        return getDayField(opts.input.date, false, locationOverride, lagnaOverride, pr);
       }),
 
     byMonth: publicProcedure
@@ -1139,7 +1156,7 @@ export const appRouter = router({
           }
           locationOverride = { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), utcOffset };
         }
-        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign);
+        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, await subjectPersonalRating(subject, dateStr));
         if (!dayField) return null;
         // Get current profection year Time Lord data from active profile
         const { calculateProfectionYear } = await import('./profection/calculator.js');
@@ -1213,7 +1230,7 @@ export const appRouter = router({
           locationOverride = { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), utcOffset };
         }
 
-        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign);
+        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, await subjectPersonalRating(subject, dateStr));
         if (!dayField) return null;
 
         const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
@@ -1858,7 +1875,7 @@ export const appRouter = router({
           const subject = opts.ctx.subject;
           if (subject?.lagnaSign) lagnaOverride = subject.lagnaSign;
         }
-        const field = await getDayField(opts.input.date, false, locationOverride, lagnaOverride);
+        const field = await getDayField(opts.input.date, false, locationOverride, lagnaOverride, await subjectPersonalRating(opts.ctx.subject, opts.input.date));
         if (!field) return null;
 
         // Calculate confidence
