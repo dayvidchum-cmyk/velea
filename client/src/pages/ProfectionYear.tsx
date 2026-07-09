@@ -3,6 +3,7 @@ import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
 import { ChevronDown, Users, X } from "lucide-react";
 import { createPortal } from "react-dom";
+import LockedFeatureCard from "@/components/LockedFeatureCard";
 import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
@@ -561,8 +562,18 @@ export default function ProfectionYear() {
 
       {/* LLM Deep Read — the full structured read (The Read). Sits ABOVE Current Trigger.
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
-      {/* ADMIN-ONLY upsell preview — "stage + guests" deepened read, tested in real time. */}
-      {isAdmin && deepRead && (
+      {/* "Your year, right now" — PUBLIC BUT LOCKED (same pattern as Time Master): everyone
+          sees the tile; only the entitled (admin, for now) get the live deepened read. The
+          server independently forces deepened=false off the allowlist, so nothing can leak. */}
+      {!isAdmin ? (
+        <div style={{ margin: "0 0 1rem" }}>
+          <LockedFeatureCard
+            title="Your year, right now"
+            teaser="Your stage, plus the guests on it right now."
+            detail="Deepens your year's reading with the current sky — pratyantardaśā, live transits, combustion, eclipse — regenerated the moment you open it. A premium layer, not yet unlocked."
+          />
+        </div>
+      ) : deepRead ? (
         <button
           onClick={openGuests}
           style={{
@@ -574,7 +585,7 @@ export default function ProfectionYear() {
         >
           <Users size={15} /> Your year, right now
         </button>
-      )}
+      ) : null}
 
       {guestsOpen && createPortal(
         <div
