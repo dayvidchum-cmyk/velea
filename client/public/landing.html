@@ -539,6 +539,12 @@
           });
       });
     });
+    // Installed-PWA guard: inside a standalone app window there is no URL bar and the
+    // landing has no links by design — a logged-out session would strand the tester on
+    // the marketing page. Send the app shell's own visitors to the door.
+    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) {
+      window.location.replace("/login");
+    }
     document.querySelectorAll(".ref-toggle").forEach(function (t) {
       t.addEventListener("click", function () {
         var inp = t.parentElement.querySelector(".ref-input");
