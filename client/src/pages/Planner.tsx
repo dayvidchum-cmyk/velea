@@ -852,6 +852,19 @@ export default function Planner() {
                       <GlossaryText>{para}</GlossaryText>
                     </p>
                   ))}
+                  {/* THE LEDGER — the audit trail under the poem: each load-bearing placement,
+                      one terse line, apparatus allowed (signs-are-houses law). Shown with the
+                      full read only, so the collapsed glance stays a single clean paragraph. */}
+                  {whyOpen && Array.isArray((glanceContent as any)?.ledger) && (glanceContent as any).ledger.length > 0 && (
+                    <div style={{ margin: '0.35rem 0 0.75rem', paddingLeft: '0.15rem' }}>
+                      {(glanceContent as any).ledger.map((line: string, i: number) => (
+                        <p key={i} style={{ fontFamily: "'Inter', ui-sans-serif, sans-serif", fontSize: 'clamp(0.68rem, 2.8vw, 0.75rem)', lineHeight: 1.55, color: 'rgba(255,255,255,0.62)', margin: '0 0 0.3rem', display: 'flex', gap: '0.4rem' }}>
+                          <span style={{ color: '#E2C069', flexShrink: 0 }}>·</span>
+                          <GlossaryText>{line}</GlossaryText>
+                        </p>
+                      ))}
+                    </div>
+                  )}
                   {paras.length > 1 && (
                     <button
                       onClick={() => setWhyOpen((v) => !v)}

@@ -50,17 +50,18 @@ export async function probeLLM(): Promise<{ hasKey: boolean; ok: boolean; model:
   }
 }
 
-export type GlanceContent = { narrative: string; question: string; goodFor: string[]; avoid: string[] };
+export type GlanceContent = { narrative: string; question: string; goodFor: string[]; avoid: string[]; ledger?: string[] };
 
 const GLANCE_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["narrative", "question", "goodFor", "avoid"],
+  required: ["narrative", "question", "goodFor", "avoid", "ledger"],
   properties: {
     narrative: { type: "string" },
     question: { type: "string" },
     goodFor: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
     avoid: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
+    ledger: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 4 },
   },
 } as const;
 

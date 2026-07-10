@@ -817,6 +817,20 @@ Produce two fields:
   "Giving past your limit," "Opening fresh negotiations." Plain language, no mechanics.
   Personalized to this chart, never a generic mode list.
 
+SIGNS ARE HOUSES OF THE SKY
+The zodiac is a literal ring of houses in the sky, and every sign is some planet's HOME.
+A planet entering a sign is a guest under that lord's roof, living on that lord's terms —
+exalted honors the guest, debilitation humbles it, a friend's house eases it, an enemy's
+strains it. TWO readings follow from one placement, and both are load-bearing:
+(1) the sign IS one of this person's houses — the territory the guest lights up;
+(2) the sign's RULER hosts the guest — follow the ruler ONE step to its own seat, because
+the host's condition and address set the terms of the stay (Venus in Leo = the year lord
+lodging in the Sun's house; the Sun seated in the 7th sends the cost of that stay toward
+the one across the table). A condition is never generic: the sign's element, its modality
+(fixed = a standing pattern, loyal for months; cardinal = spikes; mutable = scatters), and
+its lord's seat give it a FACE. "Proud, steady, offstage spending that runs toward the
+other" is a read; "withdraws and drains" is a shrug.
+
 PERSONAL APEX — THE CROWN DAY
 natal.personalApex.isCrown is the one fully PERSONAL day-signal you get — true only when the
 universal sky is clean AND the day-star (tara, counted from their birth star) is favorable AND
@@ -843,7 +857,17 @@ the SAME no-mechanics rule as the rest of the narrative:
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
 
-Return your answer by calling the glance tool with all four fields filled in.`;
+- ledger: 2 to 4 terse audit lines — the day's load-bearing placements, apparatus PERMITTED
+  here (this is the gray data under the poem; the narrative stays apparatus-free). Each line
+  is ONE placement read by the SIGNS-ARE-HOUSES law: the planet, its dignity, the sign, WHOSE
+  house of this chart it lights, and — when it changes the story — the host's terms in a
+  final clause. HARD CAPS: max 18 words per line, max 4 lines, no sentence padding. Shape
+  (do not copy): "Moon exalted in Taurus — your 9th, the year's own house: generous there
+  today." / "Venus, year lord, in Leo — your 12th: proud, steady, unseen spending; her host
+  the Sun sits in your 7th." Only placements that EARN a line — the day's trigger, the year
+  lord, an exaltation/debilitation, a dasha lord moving. Never filler.
+
+Return your answer by calling the glance tool with all five fields filled in.`;
 
 export const DEEP_READ_TAIL = `TASK: DEEP READ
 
@@ -877,6 +901,20 @@ so you can see what has already been said — and refuse to say it again.
 - When recentReads is empty, none of this constrains you — tell the whole story.
 
 
+
+SIGNS ARE HOUSES OF THE SKY
+The zodiac is a literal ring of houses in the sky, and every sign is some planet's HOME.
+A planet entering a sign is a guest under that lord's roof, living on that lord's terms —
+exalted honors the guest, debilitation humbles it, a friend's house eases it, an enemy's
+strains it. TWO readings follow from one placement, and both are load-bearing:
+(1) the sign IS one of this person's houses — the territory the guest lights up;
+(2) the sign's RULER hosts the guest — follow the ruler ONE step to its own seat, because
+the host's condition and address set the terms of the stay (Venus in Leo = the year lord
+lodging in the Sun's house; the Sun seated in the 7th sends the cost of that stay toward
+the one across the table). A condition is never generic: the sign's element, its modality
+(fixed = a standing pattern, loyal for months; cardinal = spikes; mutable = scatters), and
+its lord's seat give it a FACE. "Proud, steady, offstage spending that runs toward the
+other" is a read; "withdraws and drains" is a shrug.
 
 SCOPE — THIS IS THE YEAR, NEVER THE DAY. This read covers the YEAR and its karmic period:
 the profection year lord, the activated house, the dasha lords, and the chapter-level
@@ -1106,4 +1144,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-10-no-wallpaper-3";
+export const PROMPT_VERSION = "2026-07-10-signs-are-houses";
