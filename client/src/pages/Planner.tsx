@@ -852,8 +852,6 @@ export default function Planner() {
                       <GlossaryText>{para}</GlossaryText>
                     </p>
                   ))}
-                    </div>
-                  )}
                   {paras.length > 1 && (
                     <button
                       onClick={() => setWhyOpen((v) => !v)}
