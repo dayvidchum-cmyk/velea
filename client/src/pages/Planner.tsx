@@ -211,8 +211,20 @@ export default function Planner() {
     const anchor = scrollAnchorRef.current;
     scrollAnchorRef.current = null;
     if (anchor == null || !calendarRef.current) return;
-    const delta = calendarRef.current.getBoundingClientRect().top - anchor;
-    if (Math.abs(delta) > 0.5) { ignoreScrollRef.current = true; window.scrollBy(0, delta); }
+    const pin = () => {
+      if (!calendarRef.current) return;
+      const delta = calendarRef.current.getBoundingClientRect().top - anchor;
+      if (Math.abs(delta) > 0.5) { ignoreScrollRef.current = true; window.scrollBy(0, delta); }
+    };
+    pin();
+    // The day card above loads ASYNC after the tap — it collapses then re-grows, yanking the
+    // page up and back. Keep the tapped cell pinned through that churn: re-correct on every
+    // body resize for ~1.2s, then stand down.
+    const until = performance.now() + 1200;
+    const ro = new ResizeObserver(() => { if (performance.now() > until) { ro.disconnect(); return; } pin(); });
+    ro.observe(document.body);
+    const stop = window.setTimeout(() => ro.disconnect(), 1300);
+    return () => { ro.disconnect(); window.clearTimeout(stop); };
   }, [selectedDate]);
   // Crown popup dismissal WITHOUT a scroll-blocking backdrop (that froze the page): close on an
   // outside pointer-down, on user scroll (the anchor correction's programmatic scroll is ignored
@@ -1163,6 +1175,11 @@ export default function Planner() {
                   <span style={{ width: 8, height: 8, borderRadius: 999, background: "#D4AF37", boxShadow: "0 0 5px rgba(212,175,55,0.7)", display: "inline-block" }} /> Knot Day
                 </span>
                 These are days when the universal sky and your chart line up with unusual force. What arrives may look like a gift or a rupture &mdash; but it carries weight, and it moves you where you&rsquo;re meant to go.
+                {goldenSet.has(crownTip.date) && (
+                  <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
+                    Also a golden day &mdash; your knot is the apex of a bright shared sky.
+                  </span>
+                )}
                 {crownTip.why && (
                   <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
                     {crownTip.why}
@@ -1174,7 +1191,7 @@ export default function Planner() {
                 <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
                   <VeleaLorMark size={14} color="#C9A84C" /> Golden day
                 </span>
-                A bright day in the shared sky &mdash; favorable for everyone. A Knot Day is your own personal apex within it.
+                A bright day in the shared sky &mdash; favorable for everyone.
               </>
             ) : (
               <>
