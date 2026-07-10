@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 /**
@@ -18,6 +19,7 @@ export default function ProfilePicker() {
   const [switching, setSwitching] = useState<number | null>(null);
   const { data: profileList = [] } = trpc.profiles.list.useQuery(undefined, { enabled: isAdmin });
   const setActive = trpc.profiles.setActive.useMutation();
+  const queryClient = useQueryClient();
 
   if (!isAdmin || profileList.length === 0) return null;
 
@@ -29,6 +31,7 @@ export default function ProfilePicker() {
       // Every query derives its subject from the server-side ACTIVE profile, so switching
       // profiles doesn't change any query key — invalidate the ENTIRE cache to avoid leaks.
       await utils.invalidate();
+      await queryClient.resetQueries();
       toast.success(`Now showing ${name}`);
       requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
     } catch (err: any) {

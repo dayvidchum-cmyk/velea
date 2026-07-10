@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -797,6 +798,7 @@ export default function Profiles() {
   const updateMutation = trpc.profiles.update.useMutation();
   const calculateMutation = trpc.profiles.calculateChart.useMutation();
   const setActiveMutation = trpc.profiles.setActive.useMutation();
+  const queryClient = useQueryClient();
   const deleteMutation = trpc.profiles.delete.useMutation();
 
   async function handleCreate(data: ProfileFormData, makeActive: boolean) {
@@ -910,6 +912,8 @@ export default function Profiles() {
       // (Meridian MC+IC, Master Mode, Celestial, panchang, dasha, tasks…) so nothing
       // keeps showing the previous profile's chart.
       await utils.invalidate();
+      // Belt + suspenders: some surfaces held stale subject data past invalidate — reset wipes it.
+      await queryClient.resetQueries();
       toast.success(`Switched to ${name}`);
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to switch profile");

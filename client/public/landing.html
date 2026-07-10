@@ -46,8 +46,8 @@
     --rose:   #7f4459;
     --ember:  #c1653f;
     --amber:  #e79b45;
-    --gold:   #D4AF37;   /* rich metallic gold (not pale yellow) */
-    --gold-lum: #D4AF37;  /* David: one true gold everywhere */
+    --gold:   #C9A84C;   /* rich metallic gold (not pale yellow) */
+    --gold-lum: #C9A84C;  /* one language: the app's brand gold, everywhere */
     --gold-deep: #8a641a; /* antique bronze shadow */
     --ink:    #f9efe4;
     --ink-dim:  rgba(249, 239, 228, 0.86);
@@ -122,15 +122,15 @@
     padding: calc(env(safe-area-inset-top, 0px) + 0.85rem) var(--pad) 0.7rem;
   }
   .sitenav .brand { display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; }
-  .sitenav .vmark { display: inline-block; width: 20px; height: 20px; background: #D4AF37;
+  .sitenav .vmark { display: inline-block; width: 20px; height: 20px; background: #C9A84C;
     -webkit-mask: url("/velea-mark.svg") center / 142% no-repeat; mask: url("/velea-mark.svg") center / 142% no-repeat; }
-  .sitenav .bname { font-family: var(--serif); font-size: 1.15rem; color: #D4AF37; }
+  .sitenav .bname { font-family: var(--serif); font-size: 1.15rem; color: #C9A84C; }
   .sitenav .links { display: flex; align-items: baseline; gap: 1.3rem; }
   .sitenav .links a { font-family: var(--sans); font-size: 0.64rem; letter-spacing: 0.15em; text-transform: uppercase;
     color: rgba(249,239,228,0.7); text-decoration: none; white-space: nowrap; transition: color .25s ease; }
-  .sitenav .links a:hover { color: #D4AF37; }
+  .sitenav .links a:hover { color: #C9A84C; }
   .sitenav .burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
-  .sitenav .burger span { display: block; width: 20px; height: 2px; background: #D4AF37; margin: 4px 0; border-radius: 2px; }
+  .sitenav .burger span { display: block; width: 20px; height: 2px; background: #C9A84C; margin: 4px 0; border-radius: 2px; }
   @media (max-width: 760px) {
     .sitenav .burger { display: block; }
     .sitenav .links { display: none; position: absolute; top: 100%; left: 0; right: 0;
@@ -157,7 +157,7 @@
   .wordmark {
     font-family: var(--serif); font-weight: 400; margin: 0;
     font-size: clamp(3rem, 11vw, 5.4rem); line-height: 0.95; letter-spacing: 0.015em;
-    color: #D4AF37; text-wrap: balance;               /* solid rich gold */
+    color: #C9A84C; text-wrap: balance;               /* solid rich gold */
     text-shadow: 0 2px 20px rgba(18,10,4,0.45);
   }
 
@@ -192,7 +192,7 @@
     flex-shrink: 0; border: none; cursor: pointer; font-family: var(--sans);
     font-size: 0.76rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #2a180f;
     padding: 0.72rem 1.3rem; border-radius: 999px;
-    background: #D4AF37;                                /* solid rich gold */
+    background: #C9A84C;                                /* solid rich gold */
     box-shadow: 0 8px 24px -10px rgba(193,146,48,0.55);
     transition: transform .2s ease, box-shadow .3s ease, filter .2s ease;
   }
@@ -379,7 +379,7 @@
     display: flex; flex-wrap: nowrap; align-items: baseline; justify-content: center; gap: 0.7rem;
     white-space: nowrap; text-align: center;
     padding: 0.3rem var(--pad) calc(env(safe-area-inset-bottom,0px) + 0.35rem);
-    position: relative; z-index: 2; color: rgba(48,26,15,0.62); background: #D4AF37;
+    position: relative; z-index: 2; color: rgba(48,26,15,0.62); background: #C9A84C;
   }
   footer .fmark { font-family: var(--serif); font-size: 0.92rem; color: rgba(52,32,15,0.78); }
   footer .fline { font-size: 0.62rem; letter-spacing: 0.09em; text-transform: uppercase; }

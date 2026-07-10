@@ -221,7 +221,13 @@ export default function Planner() {
     // page up and back. Keep the tapped cell pinned through that churn: re-correct on every
     // body resize for ~1.2s, then stand down.
     const until = performance.now() + 1200;
-    const ro = new ResizeObserver(() => { if (performance.now() > until) { ro.disconnect(); return; } pin(); });
+    let corrections = 0; // damp: iOS floats the fixed nav during scrollBy storms — few, meaningful corrections only
+    const ro = new ResizeObserver(() => {
+      if (performance.now() > until || corrections >= 3) { ro.disconnect(); return; }
+      if (!calendarRef.current) return;
+      const delta = calendarRef.current.getBoundingClientRect().top - anchor;
+      if (Math.abs(delta) > 2) { corrections++; ignoreScrollRef.current = true; window.scrollBy(0, delta); }
+    });
     ro.observe(document.body);
     const stop = window.setTimeout(() => ro.disconnect(), 1300);
     return () => { ro.disconnect(); window.clearTimeout(stop); };
