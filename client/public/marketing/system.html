@@ -65,6 +65,9 @@
   .cta:hover { filter: brightness(1.06); transform: translateY(-1px); }
   .ctaRow { text-align: left; margin-top: clamp(2.5rem, 7vw, 4rem); }
   figure { margin: clamp(2.4rem, 7vw, 3.6rem) 0; }
+  figure.bleed { width: 100vw; margin-left: calc(50% - 50vw); }
+  figure.bleed img { width: 100%; display: block; }
+  @media (min-width: 900px) { figure.bleed { margin-left: calc(-1 * clamp(3rem, 9vw, 9rem) - var(--pad)); width: 100vw; } }
   figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
   .p1hero { position: relative; min-height: 88svh; display: flex; align-items: flex-end;
     background: url("/marketing/img/shell.jpg") center bottom / cover no-repeat; }
@@ -109,18 +112,9 @@
   <p>Not prediction. Not spiritual performance. Not a generalized horoscope with no hierarchy.</p>
   <p>A practical system for deciding what deserves your time now.</p>
   
-  <figure>
-    <div class="moons" aria-label="The eight phases of the moon">
-      <span class="moon" style="background: radial-gradient(circle, #1d0e24 60%, rgba(212,175,55,0.5) 62%);"></span>
-      <span class="moon" style="background: linear-gradient(90deg, #1d0e24 65%, #D4AF37 65%);"></span>
-      <span class="moon" style="background: linear-gradient(90deg, #1d0e24 50%, #D4AF37 50%);"></span>
-      <span class="moon" style="background: linear-gradient(90deg, #1d0e24 32%, #D4AF37 32%);"></span>
-      <span class="moon" style="background: #D4AF37;"></span>
-      <span class="moon" style="background: linear-gradient(90deg, #D4AF37 68%, #1d0e24 68%);"></span>
-      <span class="moon" style="background: linear-gradient(90deg, #D4AF37 50%, #1d0e24 50%);"></span>
-      <span class="moon" style="background: linear-gradient(90deg, #D4AF37 35%, #1d0e24 35%);"></span>
-    </div>
-    <figcaption>The sky moves; the read moves with it. (Shell-and-moon artwork arriving here.)</figcaption>
+  <figure class="bleed">
+    <img src="/marketing/img/moons.jpg" alt="A glowing shell on a night beach beneath the eight phases of the moon, arced across the Milky Way." loading="lazy" />
+    <figcaption>The sky moves; the read moves with it.</figcaption>
   </figure>
   <hr class="rule" />
   <div class="label">A Note on the Foundation</div>

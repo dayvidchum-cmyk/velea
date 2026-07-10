@@ -65,6 +65,9 @@
   .cta:hover { filter: brightness(1.06); transform: translateY(-1px); }
   .ctaRow { text-align: left; margin-top: clamp(2.5rem, 7vw, 4rem); }
   figure { margin: clamp(2.4rem, 7vw, 3.6rem) 0; }
+  figure.bleed { width: 100vw; margin-left: calc(50% - 50vw); }
+  figure.bleed img { width: 100%; display: block; }
+  @media (min-width: 900px) { figure.bleed { margin-left: calc(-1 * clamp(3rem, 9vw, 9rem) - var(--pad)); width: 100vw; } }
   figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
   .p1hero { position: relative; min-height: 88svh; display: flex; align-items: flex-end;
     background: url("/marketing/img/shell.jpg") center bottom / cover no-repeat; }
