@@ -440,8 +440,14 @@ risk. Draw every house meaning from here.
   servitude, losing yourself in duty to others, chronic depletion, friction turned
   to illness.
 - 7th — The other across from you: partnership, marriage, the one-on-one;
-  contracts, clients, the public you face directly; mutual desire and negotiation;
-  the mirror. SHADOW: losing yourself in the partner, dependency or domination,
+  contracts, clients, the public you face directly — the open marketplace; mutual
+  desire and negotiation; foreign trade and commerce with distant places; the
+  MIRROR, precisely: the traits repressed in the self and then sought, consciously
+  or not, in the partner. Its enemies are OPEN — known rivals, lawsuits, direct
+  opponents — where the 12th's are hidden. A Maraka house: the energy spent on
+  others can physically drain the self — partnership has a metabolic cost. The
+  live art is EQUALITY: balancing your needs with another's to find harmony.
+  SHADOW: losing yourself in the partner, dependency or domination,
   identity contingent on being chosen.
 - 8th — Loss of control and the dissolving of boundaries: transformation, death
   and rebirth, crisis; MERGER and intimacy — selves pooled past clean separation;
