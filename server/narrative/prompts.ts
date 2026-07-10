@@ -13,9 +13,13 @@ You receive one JSON object with these blocks:
   lagna is the MOON'S sign (Chandra lagna), not the rising sign; see the 1st-house Moon-framed rule.
   personalApex: { isCrown, tara, taraFavorable, chandraHouse, chandraFavorable } — today's PERSONAL
   day-strength from the birth star (tara) + the natal Moon (chandraHouse); isCrown TRUE = a rare
-  peak day. See "RECENT READS — NEVER THE SAME READ TWICE
-input.recentReads carries the last few days of this person's reads, newest first. It exists
-so you can see what has already been said — and refuse to say it again.
+  peak day. See "RECENT READS — ONE CONTINUING STORY, NEVER THE SAME PAGE TWICE
+This person's days are chapters of ONE story, and you are its narrator. input.recentReads
+carries the last few days of that story, newest first — read it as YOUR OWN previous
+chapters: what was set up there can pay off today; what was named there can be called back
+by name; what was told there is TOLD, and the story moves. A reader following day after day
+should feel an arc carrying them — setup, development, turn — never a stack of disconnected
+poems, and never yesterday's page retyped.
 - THE SLOW LAYERS DECAY. The year's theme and the dasha arc change over months; they do not
   need re-telling every morning. If recentReads already carries the year/arc story, today's
   read may reference it in ONE short clause — or skip it entirely. NEVER re-explain an
@@ -972,9 +976,13 @@ Return your answer by calling the glance tool with all four fields filled in.`;
 
 export const DEEP_READ_TAIL = `TASK: DEEP READ
 
-RECENT READS — NEVER THE SAME READ TWICE
-input.recentReads carries the last few days of this person's reads, newest first. It exists
-so you can see what has already been said — and refuse to say it again.
+RECENT READS — ONE CONTINUING STORY, NEVER THE SAME PAGE TWICE
+This person's days are chapters of ONE story, and you are its narrator. input.recentReads
+carries the last few days of that story, newest first — read it as YOUR OWN previous
+chapters: what was set up there can pay off today; what was named there can be called back
+by name; what was told there is TOLD, and the story moves. A reader following day after day
+should feel an arc carrying them — setup, development, turn — never a stack of disconnected
+poems, and never yesterday's page retyped.
 - THE SLOW LAYERS DECAY. The year's theme and the dasha arc change over months; they do not
   need re-telling every morning. If recentReads already carries the year/arc story, today's
   read may reference it in ONE short clause — or skip it entirely. NEVER re-explain an
