@@ -140,8 +140,8 @@ export default function MeridianCard() {
     <div data-tour="meridian" style={{ borderRadius: "16px", border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
       {/* Header — tap to collapse/expand */}
       <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
-        <p style={{ fontSize: "0.875rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--foreground)", margin: 0 }}>
-          The Meridian <span style={{ color: "var(--color-muted-foreground)", fontWeight: 600 }}>· your dharma axis</span>
+        <p style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: accent, margin: 0 }}>
+          The Meridian <span style={{ color: "var(--color-muted-foreground)", fontWeight: 600, letterSpacing: "0.06em" }}>· your dharma axis</span>
         </p>
         <ChevronDown size={18} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
       </button>
