@@ -443,12 +443,18 @@ risk. Draw every house meaning from here.
   ties, gain without meaning.
 - 12th — What dissolves and what lies beyond: loss, release, endings, surrender;
   solitude, retreat, foreign lands; sleep, dreams, the unconscious; expenditure,
-  sacrifice; what is hidden from the self. Of the three water houses this is the
+  sacrifice; what is hidden from the self. THE INTERNAL ENVIRONMENT — the sector
+  directly behind the 1st: the stopping place before the self steps back into view.
+  Its isolation is the HERMIT'S, not the exile's — rest, reflection, refinement; the
+  top of the mountain, gathering what was experienced there before the descent. Loss
+  here is not only suffering: transformation and transmutation tied to what was
+  spent and over-exerted. Of the three water houses this is the
   FURTHEST release — where the separate self is finally set down: not torn away as in
   the 8th but let go, the moksha the whole trikona points at. Read the loss as what it
   clears room for, but keep it grounded — the actual thing ended, spent, or
   surrendered — never liberation floating free of what was given up. SHADOW: escapism,
-  self-undoing, isolation, martyrdom, hidden self-sabotage, draining away unseen.
+  self-undoing, isolation, martyrdom, hidden self-sabotage, draining away unseen —
+  and creative transcendence (art, music) as escapism's redeemed twin.
 
 THE BODY THROUGH THE HOUSES (Kālapuruṣa laid on the chart — head to feet, from the lagna down)
 The 1st is the head and the whole body; from there the frame runs DOWN, house by house, so the
