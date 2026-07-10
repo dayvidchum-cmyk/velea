@@ -10,7 +10,7 @@
 
 import { calcPanchang } from './astronomy.js';
 import { karanaFromLongitudes } from './karana.js';
-import { interpretPanchang, getNakshatraModifier, getTithiPacing, moonSignToHouse, composeInstructionFromParts, calculateFinalMode, applyWeatherGate, type DayField, type DayMode, type FinalMode } from './interpreter.js';
+import { interpretPanchang, getNakshatraModifier, getTithiPacing, moonSignToHouse, composeInstructionFromParts, calculateFinalMode, applyWeatherGate, applyFieldKarana, generateQualifier, type DayField, type DayMode, type FinalMode } from './interpreter.js';
 import { getPanchangByDate, upsertPanchang } from '../db.js';
 
 // Sign name → index (must match SIGN_INDEX in interpreter.ts)
@@ -101,6 +101,59 @@ const HOUSE_MODE: Record<number, DayMode> = {
  * @param locationOverride  User's location (lat, lon, utcOffset) — overrides Boston default
  * @param lagnaOverride  User's birth chart lagna sign — overrides CLIENT_LAGNA default
  */
+
+/** Parse "5:15 AM" → minutes since midnight (null if unparseable). */
+function parse12hLocal(t: string | null | undefined): number | null {
+  const m = /(\d{1,2}):(\d{2})\s*(AM|PM)/i.exec(String(t ?? ""));
+  if (!m) return null;
+  let h = parseInt(m[1], 10) % 12;
+  if (/pm/i.test(m[3])) h += 12;
+  return h * 60 + parseInt(m[2], 10);
+}
+
+/** LITERAL STAR SWITCH + ACTIVE FIELD/KARANA (David's rulings 2026-07-09).
+ *  Chooses the star that actually rules the read — for TODAY, the star ruling right now
+ *  (before the transition = sunrise star, after = the new star); for any other date, the
+ *  star ruling the MAJORITY of the day (same school as the knot layer). Recomputes the
+ *  mode for that star, applies the field-condition / Vishti-karana steps, and — when the
+ *  mid-day star change flips the MODE itself — emits the turn note. */
+function finishDayMode(opts: {
+  baseMode: import("./interpreter.js").DayMode;
+  tithi: string; paksha: "Shukla" | "Krishna";
+  karanaName: string | null;
+  sunriseNak: string; transitionTime: string | null; afterNak: string | null; sunriseLocal: string | null;
+  dateStr: string; utcOffset: number;
+}) {
+  const readFor = (nak: string) => {
+    const mr = calculateFinalMode(opts.baseMode, nak, opts.tithi, opts.paksha);
+    const adj = applyFieldKarana(mr.finalMode, mr.fieldCondition, opts.karanaName);
+    return { modeReason: mr, mode: adj.mode, stepReasons: adj.reasons };
+  };
+  const a = readFor(opts.sunriseNak);
+  if (!opts.afterNak || !opts.transitionTime) return { ...a, activeNakshatra: opts.sunriseNak, turnsAtNote: null };
+  const b = readFor(opts.afterNak);
+
+  // Which star rules this read?
+  const nowUtcMs = Date.now();
+  const local = new Date(nowUtcMs + opts.utcOffset * 3600_000);
+  const localDate = `${local.getUTCFullYear()}-${String(local.getUTCMonth() + 1).padStart(2, "0")}-${String(local.getUTCDate()).padStart(2, "0")}`;
+  const tt = parse12hLocal(opts.transitionTime);
+  const sr = parse12hLocal(opts.sunriseLocal);
+  let useAfter: boolean;
+  if (localDate === opts.dateStr && tt != null) {
+    const nowMin = local.getUTCHours() * 60 + local.getUTCMinutes();
+    useAfter = nowMin >= tt; // TODAY: the star ruling right now
+  } else {
+    const minsUntil = tt != null && sr != null ? ((tt - sr) + 1440) % 1440 : 1440;
+    useAfter = minsUntil <= 720; // other dates: majority-of-day star
+  }
+  const active = useAfter ? b : a;
+  const turnsAtNote = a.mode !== b.mode
+    ? `The day turns at ${opts.transitionTime} — ${a.mode} gives way to ${b.mode}.`
+    : null;
+  return { ...active, activeNakshatra: useAfter ? opts.afterNak : opts.sunriseNak, turnsAtNote };
+}
+
 export async function getDayField(
   dateStr: string,
   forceRecalc = false,
@@ -131,33 +184,36 @@ export async function getDayField(
       }
       const baseMode = HOUSE_MODE[house] ?? 'Selective';
 
-      // Calculate final mode with all modifiers
-      const modeReason = calculateFinalMode(baseMode, cached.nakshatra, cached.tithi, cachedPaksha);
-      const finalMode = modeReason.finalMode;
-
-      // Compose instruction based on final mode
-      const instruction = composeInstructionFromParts(finalMode, nakshatraModifier);
-
-      // Compute nakshatra transition data on-the-fly.
+      // Astronomy first (transitions + karana feed the mode now, not just the display).
+      const utcOffset = locationOverride?.utcOffset ?? getBostonUtcOffset(dateStr);
       let nakshatraAtSunrise = cached.nakshatra;
       let nakshatraTransitionTime: string | null = null;
       let nakshatraAfterTransition: string | null = null;
-      // Karana is derived from the same on-the-fly astro (sun+moon at sunrise),
-      // so no schema/backfill is needed for cached rows.
+      let sunriseLocal: string | null = cached.sunrise ?? null;
       let karana: DayField['karana'] = null;
-
       try {
-        const utcOffset = locationOverride?.utcOffset ?? getBostonUtcOffset(dateStr);
         const lat = locationOverride?.lat ?? PLANNER_LAT;
         const lon = locationOverride?.lon ?? PLANNER_LON;
         const astro = await calcPanchang(dateStr, lat, lon, utcOffset);
         nakshatraAtSunrise = astro.nakshatraAtSunrise;
         nakshatraTransitionTime = astro.nakshatraTransitionTime;
         nakshatraAfterTransition = astro.nakshatraAfterTransition;
+        sunriseLocal = astro.sunriseLocal ?? sunriseLocal;
         karana = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
       } catch {
-        // Non-fatal: fall back to null (UI shows just the nakshatra name)
+        // Non-fatal: fall back to the cached sunrise star; no switch, no karana step.
       }
+
+      // Literal star switch + field/karana steps — the mode the day is ACTUALLY in.
+      const fin = finishDayMode({
+        baseMode, tithi: cached.tithi, paksha: cachedPaksha, karanaName: karana?.name ?? null,
+        sunriseNak: nakshatraAtSunrise, transitionTime: nakshatraTransitionTime,
+        afterNak: nakshatraAfterTransition, sunriseLocal, dateStr, utcOffset,
+      });
+      const modeReason = fin.modeReason;
+      const finalMode = fin.mode;
+      const activeNakModifier = getNakshatraModifier(fin.activeNakshatra);
+      const instruction = composeInstructionFromParts(finalMode, activeNakModifier);
 
       return gateDayField({
         date: cached.date,
@@ -173,10 +229,13 @@ export async function getDayField(
         mode: finalMode,
         baseMode,
         finalMode,
-        qualifier: modeReason.qualifier,
+        qualifier: fin.stepReasons.length ? generateQualifier(finalMode, fin.activeNakshatra, cached.tithi, cachedPaksha) : modeReason.qualifier,
         instruction,
         modeReason,
-        nakshatraModifier,
+        activeNakshatra: fin.activeNakshatra,
+        turnsAtNote: fin.turnsAtNote,
+        modeStepReasons: fin.stepReasons,
+        nakshatraModifier: activeNakModifier,
         tithiPacing,
         nakshatraAtSunrise,
         nakshatraTransitionTime,
@@ -198,6 +257,24 @@ export async function getDayField(
     const field = interpretPanchang(astro, lagna);
     // Preserve null lagnaSign in the returned field when no user lagna is set
     if (!lagnaOverride) (field as any).lagnaSign = null;
+    // Literal star switch + field/karana steps (same finisher as the cached path).
+    {
+      const fin = finishDayMode({
+        baseMode: field.baseMode, tithi: field.tithi, paksha: field.tithiPaksha, karanaName: field.karana?.name ?? null,
+        sunriseNak: astro.nakshatraAtSunrise, transitionTime: astro.nakshatraTransitionTime,
+        afterNak: astro.nakshatraAfterTransition, sunriseLocal: astro.sunriseLocal ?? field.sunriseLocal ?? null,
+        dateStr, utcOffset,
+      });
+      field.mode = fin.mode;
+      field.finalMode = fin.mode;
+      field.modeReason = fin.modeReason;
+      if (fin.stepReasons.length) field.qualifier = generateQualifier(fin.mode, fin.activeNakshatra, field.tithi, field.tithiPaksha);
+      field.nakshatraModifier = getNakshatraModifier(fin.activeNakshatra);
+      field.instruction = composeInstructionFromParts(fin.mode, field.nakshatraModifier);
+      field.activeNakshatra = fin.activeNakshatra;
+      field.turnsAtNote = fin.turnsAtNote;
+      field.modeStepReasons = fin.stepReasons;
+    }
 
     // Cache to DB (store the finalMode as mode for backward compat)
     await upsertPanchang({

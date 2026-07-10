@@ -788,6 +788,13 @@ export default function Planner() {
               );
             })()}
 
+            {/* The day turns — literal star switch flipped (or will flip) the mode mid-day */}
+            {(selectedPanchang as any).turnsAtNote && (
+              <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.85rem)', fontStyle: 'italic', color: 'rgba(255,255,255,0.85)', marginTop: '-0.3rem', marginBottom: '0.85rem' }}>
+                {(selectedPanchang as any).turnsAtNote}
+              </p>
+            )}
+
             {/* Why this today? — opens the three-layer signpost (sky ⊗ your chart ⊗ you) */}
             <button
               type="button"

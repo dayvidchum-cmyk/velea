@@ -101,6 +101,12 @@ export interface DayField {
   /** PERSONAL WEATHER GATE — true when a personal caution day contained the mode to Restraint. */
   weatherGated?: boolean;
   weatherGateReason?: string | null;
+  /** LITERAL STAR SWITCH — the nakshatra actually ruling the read (today: right now; other dates: majority). */
+  activeNakshatra?: string;
+  /** Set when the mid-day star change flips the MODE: "The day turns at 2:41 PM — Build gives way to Selective." */
+  turnsAtNote?: string | null;
+  /** Field-condition / karana step reasons applied to the mode (empty when none). */
+  modeStepReasons?: string[];
   /** Ascendant (Lagna) sign used for this calculation, e.g. 'Virgo'. null when user has no birth chart. */
   lagnaSign?: string | null;
 }
@@ -766,7 +772,7 @@ const QUALIFIER_MAP: Record<string, Record<string, Record<string, string>>> = {
  * Generate the qualifier string for a given mode + nakshatra + tithi.
  * The qualifier describes HOW the mode expresses, not a different mode.
  */
-function generateQualifier(
+export function generateQualifier(
   mode: FinalMode,
   nakshatra: string,
   tithi: string,
@@ -982,4 +988,25 @@ export function applyWeatherGate(
     };
   }
   return { finalMode: mode, gated: false, gateReason: null };
+}
+
+// ── ACTIVE FIELD + KARANA (David's ruling 2026-07-09) ────────────────────────
+// Field condition and karana graduate from diagnostics to bounded, legible STEPS
+// on the outwardness scale (Restraint 0 → Selective 1 → Build 2 → Action 3):
+//   Field Restricted −1 · Field Open +1 · Vishti (Bhadra) karana −1.
+// The Personal Weather Gate still vetoes from above (caution → Restraint, always).
+const OUTWARDNESS: FinalMode[] = ['Restraint', 'Selective', 'Build', 'Action'];
+export function applyFieldKarana(
+  mode: FinalMode,
+  fieldCondition: FieldCondition,
+  karanaName?: string | null
+): { mode: FinalMode; steps: number; reasons: string[] } {
+  let steps = 0;
+  const reasons: string[] = [];
+  if (fieldCondition === 'Restricted') { steps -= 1; reasons.push('Field Restricted — one step inward'); }
+  if (fieldCondition === 'Open') { steps += 1; reasons.push('Field Open — one step outward'); }
+  if (karanaName === 'Vishti') { steps -= 1; reasons.push('Vishti karana — no new beginnings; one step inward'); }
+  if (!steps) return { mode, steps: 0, reasons };
+  const idx = Math.max(0, Math.min(3, OUTWARDNESS.indexOf(mode) + steps));
+  return { mode: OUTWARDNESS[idx], steps, reasons };
 }
