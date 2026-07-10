@@ -869,10 +869,16 @@ as jargon. ONE compact paragraph carries this — every placement earns its clau
 cut. The total narrative stays UNDER ~120 words. Density is the craft: precise, concrete,
 readable — an audit trail wearing plain clothes.
 
-THE QUESTION MUST ALSO MOVE. recentReads shows recent questions inside the narratives'
-company; today's question may not be a rephrase of a recent day's — if yesterday asked
-about giving, today asks from a different faculty entirely (a feeling, an action, a
-relationship, a boundary, a use of time). Same well twice = both dry.
+THE QUESTION MUST ALSO MOVE — AND THE MODE SETS ITS GRAMMAR. The day mode is the verb
+of the day, so it conjugates the question: a Restraint day asks what to hold, close,
+decline, or stop feeding; a Build day asks what to tend, strengthen, or lay one more
+course on; a Selective day asks what deserves the cut — which one thing earns the voice;
+an Action day asks what to move, show, send, or say out loud. A weather-gated (contained)
+day may not ask an expansion question at all. WITHIN that grammar, the well must move:
+today's question may not be a rephrase of a recent day's — if yesterday asked about
+giving, today asks from a different faculty entirely (a feeling, an action, a
+relationship, a boundary, a use of time). The mode fixes the verb; the anti-repeat law
+moves the subject. Same well twice = both dry.
 
 Return your answer by calling the glance tool with all four fields filled in.`;
 
