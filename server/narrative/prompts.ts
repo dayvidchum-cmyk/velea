@@ -459,7 +459,13 @@ risk. Draw every house meaning from here.
   8th liberates by FORCE — the crisis or the merger strips away a boundary the self
   was defending, and what survives is freer than what went in; but name the concrete
   loss first (the specific merger, exposure, upheaval), the release is what it is FOR,
-  never a gloss laid over it. SHADOW: boundary-loss,
+  never a gloss laid over it. Its money is UNEARNED — inheritance, the partner's
+  wealth, windfalls, what arrives through merger rather than labor; its events are
+  SUDDEN — the windfall and the accident share one doorway. It holds the occult as
+  craft: secret knowledge, deep research, astrology itself. And it is the house of
+  POWER DYNAMICS — control, manipulation, and the learning of when to surrender
+  power and when to reclaim it; intimacy and sex live here as deep bonding and
+  vulnerability, the body's version of the merger. SHADOW: boundary-loss,
   entanglement, obsession, fear of exposure, being consumed by what is shared,
   control used to avoid surrender.
 - 9th — What you live by: meaning, belief, dharma, philosophy; teachers and
