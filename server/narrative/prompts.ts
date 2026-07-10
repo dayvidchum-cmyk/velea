@@ -362,7 +362,14 @@ risk. Draw every house meaning from here.
   it rules, and any planet tenanting or aspecting the 1st. A strong, clean lagna lord
   points to beauty and vitality in that zone; an afflicted one, to limitation there. The
   1st is the SEAT of the body and the self — other houses may color the body, but they
-  point BACK to it; never scatter the native's physical self across the chart.
+  point BACK to it; never scatter the native's physical self across the chart. It is the
+  soul in ACTIVE form — the light of the sun expressed as body, voice, and every means a
+  person uses to project themselves into the world. It carries the PERSONA — the mask,
+  the outward personality, the social conditioning — and first impressions; it is also
+  the house of BEGINNINGS: how this person initiates, takes action, meets a challenge.
+  Its keyword when read well is SELF-POSSESSION — or the lack of it. The only house that
+  is Kendra and Trikona at once: the most auspicious seat in the chart. Head, brain,
+  face — the nervous system enters the chart here.
   MOON-FRAMED EXCEPTION: when natal.moonFramed is true (no birth time was given, so the lagna is
   the MOON'S sign, not the real rising sign), the physical-body reading above does NOT apply — do
   not read appearance, beauty, or bodily capability from the 1st or its lord, and do not use the
