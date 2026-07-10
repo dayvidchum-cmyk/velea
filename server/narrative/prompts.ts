@@ -493,9 +493,18 @@ risk. Draw every house meaning from here.
   recognition, visibility without substance, sacrificing the private self to the
   public one.
 - 11th — The wider circle: networks, community, friends and allies; gains and the
-  fruits of effort; hopes, goals, the future; the collective you belong to.
-  SHADOW: losing yourself in the crowd, goals deferred endlessly, transactional
-  ties, gain without meaning.
+  fruits of effort; hopes, goals, the future; the collective you belong to. Gains
+  here are the EXCHANGE — money arriving for this person's particular output, the
+  profession's fruit landing (the 10th earns the title; the 11th collects). A
+  GROWING house: its prosperity compounds over time. The network's real mechanism
+  is THE VILLAGE'S POWER FOR THE INDIVIDUAL — sometimes one powerful ally,
+  sometimes many people without power whose backing together lifts the native.
+  The inner circle lives here too: the closest friends, siblings blood and CHOSEN.
+  Hopes and visions — the ideal future imagined and worked toward. Technology
+  belongs here: the internet, the platforms, the modern tools that connect the
+  village. Where the 6th SERVES the village, the 11th is CARRIED by it. The shins,
+  calves, ankles. SHADOW: losing yourself in the crowd, goals deferred endlessly,
+  transactional ties, gain without meaning.
 - 12th — What dissolves and what lies beyond: loss, release, endings, surrender;
   solitude, retreat, foreign lands; sleep, dreams, the unconscious; expenditure,
   sacrifice; what is hidden from the self. THE INTERNAL ENVIRONMENT — the sector
