@@ -546,8 +546,9 @@ export default function ProfectionYear() {
                     fontWeight: 500,
                     padding: "0.3rem 0.6rem",
                     borderRadius: "0.4rem",
-                    background: `color-mix(in srgb, ${modeColor} 8%, transparent)`,
-                    color: TEXT_MUTED,
+                    background: `color-mix(in srgb, ${modeColor} 22%, transparent)`,
+                    border: `1px solid color-mix(in srgb, ${modeColor} 45%, transparent)`,
+                    color: "var(--foreground)",
                     cursor: "default",
                   }}
                 >

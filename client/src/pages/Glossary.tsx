@@ -160,6 +160,28 @@ export const GLOSSARY: GlossaryTerm[] = [
   { term: "Neecha Bhanga", category: "System", definition: "Cancellation of debilitation — specific conditions that cancel or mitigate a planet's debilitation, often turning weakness into a form of strength. A debilitated planet can produce powerful results when neecha bhanga applies, sometimes even more powerfully than an exalted planet." },
 ];
 
+
+// ── Rulership table (moved here from the Time Lord page — reference, not reading) ──
+const RULERSHIP: { planet: string; glyph: string; signs: string[] }[] = [
+  { planet: "Sun", glyph: "\u2609", signs: ["Leo"] },
+  { planet: "Moon", glyph: "\u263D", signs: ["Cancer"] },
+  { planet: "Mercury", glyph: "\u263F", signs: ["Gemini", "Virgo"] },
+  { planet: "Venus", glyph: "\u2640", signs: ["Taurus", "Libra"] },
+  { planet: "Mars", glyph: "\u2642", signs: ["Aries", "Scorpio"] },
+  { planet: "Jupiter", glyph: "\u2643", signs: ["Sagittarius", "Pisces"] },
+  { planet: "Saturn", glyph: "\u2644", signs: ["Capricorn", "Aquarius"] },
+];
+const RULE_SIGN_COLOR: Record<string, string> = {
+  Aries: "#E23B4E", Scorpio: "#8E1E3A", Taurus: "#F4A9C2", Libra: "#B23A78",
+  Gemini: "#7FD4B8", Virgo: "#2E9C7C", Cancer: "#A9B4C2", Leo: "#EE9A2E",
+  Sagittarius: "#E6C24A", Pisces: "#B0851F", Capricorn: "#6E7BD4", Aquarius: "#313E8C",
+};
+const RULE_SIGN_GLYPH: Record<string, string> = {
+  Aries: "\u2648\uFE0E", Taurus: "\u2649\uFE0E", Gemini: "\u264A\uFE0E", Cancer: "\u264B\uFE0E",
+  Leo: "\u264C\uFE0E", Virgo: "\u264D\uFE0E", Libra: "\u264E\uFE0E", Scorpio: "\u264F\uFE0E",
+  Sagittarius: "\u2650\uFE0E", Capricorn: "\u2651\uFE0E", Aquarius: "\u2652\uFE0E", Pisces: "\u2653\uFE0E",
+};
+
 const CATEGORIES = ["All", "Modes", "Panchang", "Nakshatra", "Timing", "Chart", "Planets", "Signs", "Houses", "System"];
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -321,6 +343,28 @@ export default function Glossary() {
           {tooltipsOn ? "On" : "Off"}
         </button>
       </div>
+
+
+      {/* Planets & the signs they rule — reference card (lives here, not on the Time Lord page) */}
+      {(activeCategory === "All" || activeCategory === "Planets" || activeCategory === "Signs") && !search.trim() && (
+        <div className="rounded-2xl p-4" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)" }}>
+          <p className="text-xs font-bold uppercase mb-3" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)" }}>
+            Planets &amp; the signs they rule
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: "0.55rem", columnGap: "1.25rem", fontSize: "0.9rem", alignItems: "baseline" }}>
+            {RULERSHIP.map(({ planet, glyph, signs }) => (
+              <div key={planet} style={{ display: "contents" }}>
+                <span style={{ color: "var(--foreground)", fontWeight: 600, whiteSpace: "nowrap" }}>{glyph} {planet}</span>
+                <span style={{ display: "flex", gap: "1.1rem", flexWrap: "wrap" }}>
+                  {signs.map((s) => (
+                    <span key={s} style={{ color: RULE_SIGN_COLOR[s], fontWeight: 600, whiteSpace: "nowrap" }}>{RULE_SIGN_GLYPH[s]} {s}</span>
+                  ))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Count */}
       <p className="text-sm font-bold uppercase" style={{ color: "var(--color-muted-foreground)" }}>

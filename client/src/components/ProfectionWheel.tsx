@@ -1,5 +1,4 @@
 import { Fragment, useState, type ReactElement, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
 
 // Personalized traditional annual-profection wheel. Twelve house sectors carry the
 // user's whole-sign signs (labels colored by each sign's ruling planet); ages spiral
@@ -27,18 +26,6 @@ const GLYPH: Record<string, string> = {
   Aries: "♈︎", Taurus: "♉︎", Gemini: "♊︎", Cancer: "♋︎", Leo: "♌︎", Virgo: "♍︎",
   Libra: "♎︎", Scorpio: "♏︎", Sagittarius: "♐︎", Capricorn: "♑︎", Aquarius: "♒︎", Pisces: "♓︎",
 };
-const PLANET_GLYPH: Record<string, string> = {
-  Sun: "☉︎", Moon: "☽︎", Mercury: "☿︎", Venus: "♀︎", Mars: "♂︎", Jupiter: "♃︎", Saturn: "♄︎", Rahu: "☊︎", Ketu: "☋︎",
-};
-const RULERSHIP: { planet: string; signs: string[] }[] = [
-  { planet: "Sun", signs: ["Leo"] },
-  { planet: "Moon", signs: ["Cancer"] },
-  { planet: "Mercury", signs: ["Gemini", "Virgo"] },
-  { planet: "Venus", signs: ["Taurus", "Libra"] },
-  { planet: "Mars", signs: ["Aries", "Scorpio"] },
-  { planet: "Jupiter", signs: ["Sagittarius", "Pisces"] },
-  { planet: "Saturn", signs: ["Capricorn", "Aquarius"] },
-];
 
 function polar(cx: number, cy: number, r: number, deg: number): [number, number] {
   const a = ((deg - 90) * Math.PI) / 180;
@@ -54,7 +41,6 @@ function annular(cx: number, cy: number, ri: number, ro: number, a0: number, a1:
 }
 
 export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lagnaSign: string; age: number; headingColor?: string; whySlot?: ReactNode }) {
-  const [rulersOpen, setRulersOpen] = useState(false);
   const lagIdx = ZODIAC.indexOf(lagnaSign);
   if (lagIdx < 0 || age == null) return null;
 
@@ -130,30 +116,6 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
       {/* "Your year, explained" sits here (passed in) — it states the year's house/sign/ruler in full,
           so the old "This year — house N, Sign, ruled by X" pill was removed as a duplicate. */}
       {whySlot && <div style={{ width: "100%" }}>{whySlot}</div>}
-      <div style={{ width: "100%", borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
-        <button
-          type="button"
-          onClick={() => setRulersOpen((v) => !v)}
-          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "transparent", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
-        >
-          <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: headingColor ?? "var(--muted-foreground)" }}>Planets &amp; the signs they rule</span>
-          <ChevronDown size={15} style={{ color: headingColor ?? "var(--muted-foreground)", opacity: 0.75, flexShrink: 0, transform: rulersOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
-        </button>
-        {rulersOpen && (
-          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: "0.55rem", columnGap: "1.25rem", fontSize: "0.9rem", alignItems: "baseline", marginTop: "0.85rem" }}>
-            {RULERSHIP.map(({ planet, signs }) => (
-              <Fragment key={planet}>
-                <span style={{ color: "var(--foreground)", fontWeight: 600, whiteSpace: "nowrap" }}>{PLANET_GLYPH[planet]} {planet}</span>
-                <span style={{ display: "flex", gap: "1.1rem", flexWrap: "wrap" }}>
-                  {signs.map((s) => (
-                    <span key={s} style={{ color: SIGN_COLOR[s] ?? "var(--foreground)", fontWeight: 600, whiteSpace: "nowrap" }}>{GLYPH[s]} {s}</span>
-                  ))}
-                </span>
-              </Fragment>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }

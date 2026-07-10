@@ -1076,7 +1076,7 @@ export default function Planner() {
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
             // dark fill made the date number always-white regardless of light/dark appearance.
             const restingBg = hasMode
-              ? (isToday && !isDark ? darkenOklch(accent, 0.66) : withAlpha(accent, tintAlpha))
+              ? (isToday ? darkenOklch(accent, 0.66) : withAlpha(accent, tintAlpha))
               : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
             const hoverBg = hasMode ? (isToday ? darkenOklch(accent, 0.58) : darkenOklch(accent, 0.82)) : "var(--color-secondary)";
             const pressBg = hasMode ? (isToday ? darkenOklch(accent, 0.5) : darkenOklch(accent, 0.64)) : "var(--color-border)";
