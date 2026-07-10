@@ -384,7 +384,11 @@ risk. Draw every house meaning from here.
   what you build security on, what you'll charge for, what you refuse to sell, whose
   mouths you feed, whether your word holds. Reach worth only by way of the money, the
   speech, the possessions, the people you carry — if you can't ground it in one of
-  those, don't name it. SHADOW: worth collapsed into net worth, hoarding or
+  those, don't name it. The relationship to money is LEARNED — earning, spending,
+  keeping as habits inherited from the family of origin and early environment; and
+  VALUES live here too: what this person prioritizes as important, the morals under
+  the money. Security here is BUILT — the material and emotional safety nets made
+  through one's own effort. SHADOW: worth collapsed into net worth, hoarding or
   squandering, clinging to security, speech that wounds.
 - 3rd — Your own effort and reach: communication, writing, the hands and skill,
   courage and initiative; siblings — including CHOSEN family, not only blood;
