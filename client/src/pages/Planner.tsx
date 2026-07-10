@@ -1092,9 +1092,14 @@ export default function Planner() {
                   const r = e.currentTarget.getBoundingClientRect();
                   setCrownTip({ date: dateStr, kind: isCrown ? "crown" : isGolden ? "golden" : "caution", why: isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution && !isGolden ? (cautionByDate.get(dateStr) ?? "") : "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: isCaution && !isGolden && !isCrown ? CAUTION_RED : accent });
                 }}
-                className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
+                className="flex items-center justify-center transition-all duration-150 relative"
                 style={{
-                  minHeight: "2.1rem",
+                  // Circles — the day as a coin/bindu, not a chip.
+                  aspectRatio: "1 / 1",
+                  width: "100%",
+                  maxWidth: "3.1rem",
+                  margin: "0 auto",
+                  borderRadius: 999,
                   color: hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
                   // Today = a WHITE border. Keeping it in the normal border slot (not an outward
