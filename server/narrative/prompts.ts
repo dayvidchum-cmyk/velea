@@ -413,9 +413,17 @@ risk. Draw every house meaning from here.
   4th opens the life's account of home and closes its book. SHADOW: rootlessness or
   being trapped by home, smothering, refusing to rest, recreating the wound you came
   from.
-- 5th — What comes out of you: creativity, children, discerning intelligence,
-  romance, play, speculation; the heart's spontaneous expression; merit. SHADOW:
-  pride, gambling, performance over substance, living through one's creations.
+- 5th — What comes out of you: creativity in EVERY medium, children, discerning
+  intelligence, romance, play, speculation; the heart's spontaneous expression;
+  merit as PURVA PUNYA — fortune and talent carried in from before, luck that
+  behaves like inheritance. Children here are both kinds: the biological and the
+  MADE — the projects, the art, the offspring of the hands and heart; a child is a
+  pure expression of the soul until the world touches it. Romance here is the
+  COURTSHIP — flirting, dating, the thrill — distinct from the 7th's marriage.
+  Play is not trivial: entertainment, games, the inner child healing by playing.
+  Risk belongs here as the creative or emotional LEAP, taken for joy. The stomach
+  and upper digestion. SHADOW: pride, gambling, performance over substance, living
+  through one's creations.
 - 6th — The daily effort against resistance: work, SERVICE, those you serve and
   answer to; health and illness — above all the native's own BODY, its upkeep and
   depletion; daily duty as a form of identity — how serving earns the individual a
