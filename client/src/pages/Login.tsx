@@ -40,7 +40,10 @@ export default function Login() {
       } else {
         await loginMutation.mutateAsync({ email, password });
       }
-      await utils.auth.me.invalidate();
+      // Invalidate EVERYTHING, not just auth.me — queries that fired while logged out
+      // (subject, natal, profection, charts) have cached empty answers; leaving them
+      // stale is the "you haven't filled in birth data until you refresh" bug.
+      await utils.invalidate();
       try { sessionStorage.setItem("velea_splash", "1"); } catch { /* ignore */ }
       setLocation("/");
     } catch (err: any) {
