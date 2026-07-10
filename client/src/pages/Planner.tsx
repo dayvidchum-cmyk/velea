@@ -1105,11 +1105,8 @@ export default function Planner() {
                 {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
                     other day shows its date number. */}
                 {isCrown ? (
-                  <VeleaLorMark
-                    size={24}
-                    color="#D4AF37"
-                    style={{ pointerEvents: "none", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.45))" }}
-                  />
+                  // The bindu — a single gold point. The day itself is the mark.
+                  <span style={{ width: 11, height: 11, borderRadius: 999, background: "#D4AF37", boxShadow: "0 0 7px rgba(212,175,55,0.75)", pointerEvents: "none", display: "inline-block" }} />
                 ) : (
                   <span
                     className="text-xs"
@@ -1162,10 +1159,10 @@ export default function Planner() {
             }} />
             {crownTip.kind === "crown" ? (
               <>
-                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
-                  <VeleaLorMark size={14} color="#C9A84C" /> Veleal&rsquo;or day
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 999, background: "#D4AF37", boxShadow: "0 0 5px rgba(212,175,55,0.7)", display: "inline-block" }} /> Veleal&rsquo;or day
                 </span>
-                Your sky is aligned today &mdash; a Veleal&rsquo;or. What will you do with it?
+                These are days when the universal sky and your chart line up with unusual force. What arrives may look like a gift or a rupture &mdash; but it carries weight, and it moves you where you&rsquo;re meant to go.
                 {crownTip.why && (
                   <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
                     {crownTip.why}
