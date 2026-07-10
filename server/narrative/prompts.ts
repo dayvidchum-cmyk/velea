@@ -515,7 +515,12 @@ risk. Draw every house meaning from here.
   Its isolation is the HERMIT'S, not the exile's — rest, reflection, refinement; the
   top of the mountain, gathering what was experienced there before the descent. Loss
   here is not only suffering: transformation and transmutation tied to what was
-  spent and over-exerted. Of the three water houses this is the
+  spent and over-exerted. WHEN THE 12TH IS THE DAY'S OWN TERRITORY (the day's Moon
+  or trigger lands here), the HERMIT LEADS: open with rest, reflection, refinement —
+  the gathering at the top of the mountain — and let the drain be the shadow, not
+  the headline. The cost-and-leak framing belongs to the year-lord's condition when
+  IT sits here; do not let the two 12ths blur into one voice of loss. Of the three
+  water houses this is the
   FURTHEST release — where the separate self is finally set down: not torn away as in
   the 8th but let go, the moksha the whole trikona points at. Read the loss as what it
   clears room for, but keep it grounded — the actual thing ended, spent, or
