@@ -1049,7 +1049,7 @@ export default function Planner() {
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20));
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
-            const CAUTION_RED = "#B15F71"; // matches Time Master's Caution — deeply-unaligned day ring
+            const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
             // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
@@ -1181,7 +1181,7 @@ export default function Planner() {
               </>
             ) : (
               <>
-                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#B15F71", marginBottom: "0.25rem" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#FF1F1F", marginBottom: "0.25rem" }}>
                   Unaligned day
                 </span>
                 The sky pulls against your chart today &mdash; contain, don&rsquo;t begin. Nothing forward, nothing new.
