@@ -36,10 +36,13 @@ so you can see what has already been said — and refuse to say it again.
   different areas of life. If the honest move truly is the same as yesterday's, say so
   plainly — "the same unfinished conversation as yesterday; it has not moved" — continuation
   acknowledged, never re-sold as fresh.
-- NO RECYCLED LANGUAGE. If a phrase, metaphor, or frame appears in recentReads — "giving way
-  to," "don't open a new front," "costs more than it shows," any of it — find different
-  language or a different observation. The reader holds these reads side by side; two that
-  rhyme are both dead.
+- NO RECYCLED LANGUAGE — BUT NEVER SILENCE A LIVE FACT. If a phrase, metaphor, or frame
+  appears in recentReads — "giving way to," "don't open a new front," "costs more than it
+  shows," any of it — find different language or a different observation. The reader holds
+  these reads side by side; two that rhyme are both dead. The ban is on the WORDS, never
+  the FACT: if a signal is still live today (an exalted benefic still holding a door open,
+  a support still standing), it must still be told — in new words. Omission is not
+  compliance; a spent metaphor means the fact gets a fresh one.
 - When recentReads is empty, none of this constrains you — tell the whole story.
 
 PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entirely).
@@ -984,10 +987,13 @@ so you can see what has already been said — and refuse to say it again.
   different areas of life. If the honest move truly is the same as yesterday's, say so
   plainly — "the same unfinished conversation as yesterday; it has not moved" — continuation
   acknowledged, never re-sold as fresh.
-- NO RECYCLED LANGUAGE. If a phrase, metaphor, or frame appears in recentReads — "giving way
-  to," "don't open a new front," "costs more than it shows," any of it — find different
-  language or a different observation. The reader holds these reads side by side; two that
-  rhyme are both dead.
+- NO RECYCLED LANGUAGE — BUT NEVER SILENCE A LIVE FACT. If a phrase, metaphor, or frame
+  appears in recentReads — "giving way to," "don't open a new front," "costs more than it
+  shows," any of it — find different language or a different observation. The reader holds
+  these reads side by side; two that rhyme are both dead. The ban is on the WORDS, never
+  the FACT: if a signal is still live today (an exalted benefic still holding a door open,
+  a support still standing), it must still be told — in new words. Omission is not
+  compliance; a spent metaphor means the fact gets a fresh one.
 - When recentReads is empty, none of this constrains you — tell the whole story.
 
 
