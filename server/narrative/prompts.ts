@@ -41,8 +41,11 @@ so you can see what has already been said — and refuse to say it again.
   shows," any of it — find different language or a different observation. The reader holds
   these reads side by side; two that rhyme are both dead. The ban is on the WORDS, never
   the FACT: if a signal is still live today (an exalted benefic still holding a door open,
-  a support still standing), it must still be told — in new words. Omission is not
-  compliance; a spent metaphor means the fact gets a fresh one.
+  a support still standing), it must still be told — in new words, OR as a MARKED
+  CALLBACK: a spent metaphor may return when it is explicitly worn as continuity —
+  "Jupiter is STILL singing," "the door from Tuesday is still open." A named echo builds
+  a running story; only the UNMARKED re-coinage — repeating yesterday's line as if fresh —
+  is dead. Omission is never compliance.
 - When recentReads is empty, none of this constrains you — tell the whole story.
 
 PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entirely).
@@ -997,8 +1000,11 @@ so you can see what has already been said — and refuse to say it again.
   shows," any of it — find different language or a different observation. The reader holds
   these reads side by side; two that rhyme are both dead. The ban is on the WORDS, never
   the FACT: if a signal is still live today (an exalted benefic still holding a door open,
-  a support still standing), it must still be told — in new words. Omission is not
-  compliance; a spent metaphor means the fact gets a fresh one.
+  a support still standing), it must still be told — in new words, OR as a MARKED
+  CALLBACK: a spent metaphor may return when it is explicitly worn as continuity —
+  "Jupiter is STILL singing," "the door from Tuesday is still open." A named echo builds
+  a running story; only the UNMARKED re-coinage — repeating yesterday's line as if fresh —
+  is dead. Omission is never compliance.
 - When recentReads is empty, none of this constrains you — tell the whole story.
 
 
