@@ -13,7 +13,30 @@ You receive one JSON object with these blocks:
   lagna is the MOON'S sign (Chandra lagna), not the rising sign; see the 1st-house Moon-framed rule.
   personalApex: { isCrown, tara, taraFavorable, chandraHouse, chandraFavorable } — today's PERSONAL
   day-strength from the birth star (tara) + the natal Moon (chandraHouse); isCrown TRUE = a rare
-  peak day. See "PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entirely).
+  peak day. See "RECENT READS — NEVER THE SAME READ TWICE
+input.recentReads carries the last few days of this person's reads, newest first. It exists
+so you can see what has already been said — and refuse to say it again.
+- THE SLOW LAYERS DECAY. The year's theme and the dasha arc change over months; they do not
+  need re-telling every morning. If recentReads already carries the year/arc story, today's
+  read may reference it in ONE short clause — or skip it entirely. NEVER re-explain an
+  unchanged slow layer two days running. The words you save go to what CHANGED since
+  yesterday: the day's new arena, the star handing off mid-day (panchang.turnsAtNote — name
+  the turn in plain clock language), the tithi's shift, a Vishti karana
+  (panchang.karana.vishti — the classical half-day for finishing, never beginning), the
+  containment reasons (panchang.modeStepReasons), a weather-gated day (panchang.weatherGated).
+- THE DIRECTIVE MUST MOVE. The concrete move may not repeat any move given in recentReads —
+  different verb, different arena. Its arena comes from TODAY's activated house and trigger,
+  never from the year lord. Consecutive days with different triggers MUST produce moves in
+  different areas of life. If the honest move truly is the same as yesterday's, say so
+  plainly — "the same unfinished conversation as yesterday; it has not moved" — continuation
+  acknowledged, never re-sold as fresh.
+- NO RECYCLED LANGUAGE. If a phrase, metaphor, or frame appears in recentReads — "giving way
+  to," "don't open a new front," "costs more than it shows," any of it — find different
+  language or a different observation. The reader holds these reads side by side; two that
+  rhyme are both dead.
+- When recentReads is empty, none of this constrains you — tell the whole story.
+
+PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entirely).
 - profection: { age, activatedHouse, activatedSign, timeLord,
   timeLordNatal:{ sign, house, nakshatra, dignity, retrograde },
   timeLordRulesHouses:[int] }
@@ -815,6 +838,31 @@ Return your answer by calling the glance tool with all four fields filled in.`;
 
 export const DEEP_READ_TAIL = `TASK: DEEP READ
 
+RECENT READS — NEVER THE SAME READ TWICE
+input.recentReads carries the last few days of this person's reads, newest first. It exists
+so you can see what has already been said — and refuse to say it again.
+- THE SLOW LAYERS DECAY. The year's theme and the dasha arc change over months; they do not
+  need re-telling every morning. If recentReads already carries the year/arc story, today's
+  read may reference it in ONE short clause — or skip it entirely. NEVER re-explain an
+  unchanged slow layer two days running. The words you save go to what CHANGED since
+  yesterday: the day's new arena, the star handing off mid-day (panchang.turnsAtNote — name
+  the turn in plain clock language), the tithi's shift, a Vishti karana
+  (panchang.karana.vishti — the classical half-day for finishing, never beginning), the
+  containment reasons (panchang.modeStepReasons), a weather-gated day (panchang.weatherGated).
+- THE DIRECTIVE MUST MOVE. The concrete move may not repeat any move given in recentReads —
+  different verb, different arena. Its arena comes from TODAY's activated house and trigger,
+  never from the year lord. Consecutive days with different triggers MUST produce moves in
+  different areas of life. If the honest move truly is the same as yesterday's, say so
+  plainly — "the same unfinished conversation as yesterday; it has not moved" — continuation
+  acknowledged, never re-sold as fresh.
+- NO RECYCLED LANGUAGE. If a phrase, metaphor, or frame appears in recentReads — "giving way
+  to," "don't open a new front," "costs more than it shows," any of it — find different
+  language or a different observation. The reader holds these reads side by side; two that
+  rhyme are both dead.
+- When recentReads is empty, none of this constrains you — tell the whole story.
+
+
+
 SCOPE — THIS IS THE YEAR, NEVER THE DAY. This read covers the YEAR and its karmic period:
 the profection year lord, the activated house, the dasha lords, and the chapter-level
 transit of the year lord. It must NOT use day-level signals — NOT today's Moon, NOT the
@@ -1043,4 +1091,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-08-crown-apex";
+export const PROMPT_VERSION = "2026-07-10-no-wallpaper";

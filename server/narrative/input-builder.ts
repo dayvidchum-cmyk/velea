@@ -286,12 +286,37 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
 
   const panchang = {
     mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated,
-    nakshatra: field.nakshatra, tithi: field.tithi,
+    nakshatra: (field as any).activeNakshatra ?? field.nakshatra, tithi: field.tithi,
     karana: field.karana ? { name: field.karana.name, quality: field.karana.quality, vishti: field.karana.name === "Vishti" } : null,
+    // The literal mid-day turn and the field/karana containment reasons — the DAY-scale
+    // particulars the read must spend its words on.
+    turnsAtNote: (field as any).turnsAtNote ?? null,
+    modeStepReasons: (field as any).modeStepReasons ?? [],
+    weatherGated: (field as any).weatherGated ?? false,
     hora,
     eclipse,
     asOf: dateStr,
   };
+
+  // RECENT READS — the last 3 days of glance prose, so the model can see what it already
+  // said and is FORBIDDEN from re-saying. Root cause of the wallpaper era (2026-07-10):
+  // no memory of yesterday → the same year-lord essay and the same "finish, don't open a
+  // new front" directive, four days running.
+  const recentReads: Array<{ date: string; narrative: string }> = [];
+  try {
+    const { getNarrativeCache } = await import("../db.js");
+    for (let i = 1; i <= 3; i++) {
+      const d = new Date(dateStr + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() - i);
+      const ds = d.toISOString().slice(0, 10);
+      const row = await getNarrativeCache(p.id, "glance", ds);
+      if (row?.content) {
+        try {
+          const c = JSON.parse(row.content);
+          if (c?.narrative) recentReads.push({ date: ds, narrative: String(c.narrative).slice(0, 700) });
+        } catch { recentReads.push({ date: ds, narrative: String(row.content).slice(0, 700) }); }
+      }
+    }
+  } catch { /* no cache access — model simply gets no history */ }
 
   // Ordinary human time — how a person actually frames "today" (Monday, weekend),
   // independent of the sidereal sky. Often resonates with the chart's themes.
@@ -332,5 +357,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, humanTime, timeLordTransit, arc };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc };
 }
