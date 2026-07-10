@@ -188,7 +188,7 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-5">
             <button
               onClick={() => { setEditTask(null); setAddSheetOpen(true); }}
               className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
@@ -197,7 +197,7 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
             >
               <Plus size={15} strokeWidth={2.5} />
             </button>
-            <button onClick={onClose} style={{ color: "var(--color-muted-foreground)" }}>
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center" style={{ color: "var(--color-muted-foreground)" }} aria-label="Close">
               <X size={18} />
             </button>
           </div>
