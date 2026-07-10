@@ -1,7 +1,7 @@
 /* Velea service worker — enables desktop/mobile install and light offline.
    Deliberately conservative: never touches API/tRPC traffic, always prefers
    fresh HTML, and only cache-firsts Vite's content-hashed static assets. */
-const CACHE = "velea-cache-v283";
+const CACHE = "velea-cache-v284";
 const ASSET_RE = /\.(?:js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico|webmanifest)$/;
 
 self.addEventListener("install", () => {
@@ -23,6 +23,10 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // skip fonts CDN, geocoder, etc.
   if (url.pathname.startsWith("/trpc") || url.pathname.startsWith("/api")) return; // never cache data
+
+  // Marketing assets are NOT content-hashed and change under the same URL — never
+  // SW-cache them (cache-first would pin the first version forever; see moons.jpg).
+  if (url.pathname.startsWith("/marketing/")) return;
 
   // Content-hashed static assets → cache-first (safe; filenames change per build).
   if (ASSET_RE.test(url.pathname)) {
