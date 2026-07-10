@@ -185,11 +185,12 @@ export default function Planner() {
   // Personal-weather gate, calendar edition: a personal CAUTION day is contained to Restraint
   // (mirrors server applyWeatherGate — the day sheet/hero get the same clamp server-side, so
   // tile color and prose always agree). See server/panchang/interpreter.ts.
-  const cautionSet = useMemo(() => {
-    const set = new Set<string>();
-    for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "caution") set.add(d.date);
-    return set;
+  const cautionByDate = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "caution") m.set(d.date, d.why ?? "");
+    return m;
   }, [crownData]);
+  const cautionSet = useMemo(() => new Set(cautionByDate.keys()), [cautionByDate]);
   // Golden days — the COLLECTIVE potential (panchang day-quality, no chart needed), brought
   // back as a golden BORDER on the calendar. Crown days = a golden day + the crown badge on top.
   const { data: goldenData } = trpc.sky.goldenDays.useQuery(
@@ -199,7 +200,7 @@ export default function Planner() {
   const goldenSet = useMemo(() => new Set<string>((goldenData?.potential ?? []) as string[]), [goldenData]);
   // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
   // fixed-to-viewport (never clipped by the calendar card's overflow).
-  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
+  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden" | "caution"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
   // Scroll-anchor: selecting a date re-renders the hero card ABOVE the calendar, whose height change
   // would otherwise shove the calendar and "jump" the screen. We capture the calendar's viewport top
   // on tap and restore it in a layout effect so the tapped cell stays visually put.
@@ -1047,7 +1048,8 @@ export default function Planner() {
               ? (isSelected ? 0.65 : 0.45)
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20));
             const accent = modeColor ?? "var(--color-foreground)";
-            const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day + crown-day border
+            const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
+            const CAUTION_RED = "#B15F71"; // matches Time Master's Caution — deeply-unaligned day ring
             // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
@@ -1066,9 +1068,10 @@ export default function Planner() {
                   scrollAnchorRef.current = calendarRef.current?.getBoundingClientRect().top ?? null;
                   setSelectedDate(dateStr);
                   // Crown days AND golden days pop a bubble; tapping the open day (or a plain day) closes it.
-                  if (crownTip?.date === dateStr || (!isCrown && !isGolden)) { setCrownTip(null); return; }
+                  const isCaution = cautionSet.has(dateStr);
+                  if (crownTip?.date === dateStr || (!isCrown && !isGolden && !isCaution)) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
-                  setCrownTip({ date: dateStr, kind: isCrown ? "crown" : "golden", why: isCrown ? (crownByDate.get(dateStr) ?? "") : "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent });
+                  setCrownTip({ date: dateStr, kind: isCrown ? "crown" : isGolden ? "golden" : "caution", why: isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution && !isGolden ? (cautionByDate.get(dateStr) ?? "") : "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: isCaution && !isGolden && !isCrown ? CAUTION_RED : accent });
                 }}
                 className="flex items-center justify-center rounded-lg transition-all duration-150 relative"
                 style={{
@@ -1085,10 +1088,14 @@ export default function Planner() {
                     ? "2px solid #ffffff"
                     : isGolden
                     ? `2px solid ${GOLD_BRIGHT}`
+                    : cautionSet.has(dateStr)
+                    ? `2px solid ${CAUTION_RED}`
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : "1px solid transparent",
-                  boxShadow: (isToday && isGolden) ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : undefined,
+                  boxShadow: isToday
+                    ? (isGolden ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : cautionSet.has(dateStr) ? `inset 0 0 0 2px ${CAUTION_RED}` : undefined)
+                    : undefined,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}
@@ -1165,12 +1172,24 @@ export default function Planner() {
                   </span>
                 )}
               </>
-            ) : (
+            ) : crownTip.kind === "golden" ? (
               <>
                 <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
                   <VeleaLorMark size={14} color="#C9A84C" /> Golden day
                 </span>
                 A bright day in the shared sky &mdash; collectively auspicious for everyone. Crown days are your own personal apex within it.
+              </>
+            ) : (
+              <>
+                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#B15F71", marginBottom: "0.25rem" }}>
+                  Unaligned day
+                </span>
+                The sky pulls against your chart today &mdash; contain, don&rsquo;t begin. Nothing forward, nothing new.
+                {crownTip.why && (
+                  <span style={{ display: "block", marginTop: "0.4rem", fontSize: "0.68rem", color: "var(--color-muted-foreground)" }}>
+                    {crownTip.why}
+                  </span>
+                )}
               </>
             )}
           </div>
