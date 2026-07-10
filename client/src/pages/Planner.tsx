@@ -1065,7 +1065,7 @@ export default function Planner() {
             // day reads as its true, vibrant mode color instead of a muddied blend with the surface.
             const tintAlpha = fullSpectrum
               ? (isSelected ? 0.65 : 0.45)
-              : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.5 : 0.34) : (isDark ? 0.34 : 0.20));
+              : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.6 : 0.62) : (isDark ? 0.34 : 0.20));
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
             const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
@@ -1130,7 +1130,8 @@ export default function Planner() {
                   <span
                     className="text-xs"
                     style={{
-                      color: hasMode ? "inherit" : "var(--color-muted-foreground)",
+                      // Today reads white on its saturated tint, every appearance setting.
+                      color: isToday ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)",
                       fontWeight: isSelected || isToday ? 700 : 600,
                     }}
                   >
