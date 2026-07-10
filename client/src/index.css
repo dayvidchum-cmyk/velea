@@ -327,8 +327,9 @@
   .glass-nav {
     background: var(--background);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    /* NO transform here — same rule as .nav-safe-area above: any 3D transform inside the
+       fixed nav promotes it onto the GPU scroll layer on iOS and it rides during scroll
+       instead of staying welded to the bottom (regression fixed twice now: ee1d5f6, v279). */
   }
 
   .glass-input {
