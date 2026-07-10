@@ -780,11 +780,14 @@ Produce two fields:
   and lose yourself in it; serve less,
   guard your own ground, and let the friction show you where you've already given too
   much."
-  OVERRIDE the house-naming convention here. The glance names ZERO chart mechanics.
-  Banned in this field, in any form: the words "transit"/"transiting"; planet or
-  node names used as causes (Venus, Saturn, Mars, Ketu, Rahu, and the rest);
+  OVERRIDE the house-naming convention here. The glance names ZERO chart apparatus.
+  Banned in this field, in any form: the words "transit"/"transiting";
   "conjunct"/"conjunction"/"closing in on"/"lands on"/"activates"; any orb or degree;
-  and ordinal house numbers ("the 3rd house," "your 8th"). Do NOT reduce the 8th to
+  and ordinal house numbers ("the 3rd house," "your 8th"). Planet and node NAMES are
+  permitted — as TEXTURE, never as apparatus (David, 2026-07-10): "Jupiter is singing
+  in the background — gains, networks, an ally" reads; "Jupiter aspects your Moon"
+  does not. A named planet must arrive with its plain life-meaning in the same
+  breath, and never with mechanics attached. Do NOT reduce the 8th to
   money, debt, or "what is owed." But DO name the literal particulars of today's
   active life-area as plain nouns (per NAME THE LITERAL PARTICULARS) — a sibling, a
   short trip, the errands and messages of moving around; your mother and the rooms
@@ -1103,4 +1106,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-10-no-wallpaper-2";
+export const PROMPT_VERSION = "2026-07-10-no-wallpaper-3";
