@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Request Access — Velea</title>
+<meta name="description" content="Velea is released in limited builds. Join the waitlist." />
+<link rel="canonical" href="https://velealor.com/access" />
+<meta property="og:title" content="Request Access — Velea" />
+<meta property="og:description" content="Velea is released in limited builds. Join the waitlist." />
+<meta property="og:image" content="https://velealor.com/og.jpg" />
+<meta name="theme-color" content="#1d0e24" />
+<link rel="icon" type="image/png" href="/velea-logo.png" />
+<style>
+  @font-face { font-family: "Playfair Display"; src: url("/marketing/fonts/playfair-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Playfair Display"; src: url("/marketing/fonts/playfair-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Hanuman"; src: url("/marketing/fonts/Hanuman.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  :root {
+    --plum: #2b1533; --plum-deep: #1d0e24; --gold: #D4AF37; --gold-line: rgba(212,175,55,0.38);
+    --ink: #f9efe4; --ink-dim: rgba(249,239,228,0.86); --ink-soft: rgba(249,239,228,0.62);
+    --serif: "Playfair Display", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    --khmer: "Hanuman", "Khmer Sangam MN", serif;
+    --maxw: 44rem; --pad: clamp(1.4rem, 6vw, 4rem);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: linear-gradient(180deg, var(--plum-deep) 0%, var(--plum) 22%, var(--plum) 100%); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: var(--gold); text-decoration: none; }
+  .nav { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 1.4rem; padding: 1.1rem var(--pad); border-bottom: 1px solid var(--gold-line); }
+  .nav .mark { font-family: var(--serif); font-size: 1.15rem; color: var(--gold); margin-right: 0.4rem; }
+  .nav a.item { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+  .nav a.item:hover { color: var(--gold); }
+  .nav a.item.on { color: var(--gold); border-bottom: 1px solid var(--gold-line); padding-bottom: 2px; }
+  main { max-width: var(--maxw); margin: 0 auto; padding: clamp(3rem, 8vw, 5.5rem) var(--pad) 4rem; }
+  .kicker { font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  .kicker .km { font-family: var(--khmer); letter-spacing: normal; text-transform: none; font-size: 1rem; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.6rem, 9vw, 4rem); line-height: 1.06; margin: 0.9rem 0 0; text-wrap: balance; }
+  h2.sub { font-family: var(--serif); font-weight: 400; font-size: clamp(1.3rem, 4.4vw, 1.7rem); line-height: 1.35; color: var(--ink-dim); margin: 1.4rem 0 0; text-wrap: balance; }
+  .lede { font-size: clamp(1.05rem, 2.6vw, 1.2rem); line-height: 1.7; color: var(--ink-dim); margin: 1.6rem 0 0; }
+  .label { font-size: 0.74rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin: 0 0 1.1rem; }
+  .rule { border: none; height: 1px; background: var(--gold-line); margin: clamp(2.6rem, 7vw, 4rem) 0; }
+  p { font-size: 1.04rem; line-height: 1.75; color: var(--ink-dim); margin: 0 0 1.1rem; }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.15rem; margin: 0 0 1.1rem; }
+  li { font-size: 1.02rem; line-height: 1.7; color: var(--ink-dim); margin-bottom: 0.45rem; }
+  .big { font-family: var(--serif); font-weight: 400; font-size: clamp(1.35rem, 4.6vw, 1.8rem); line-height: 1.4; color: var(--ink); margin: 0 0 1.1rem; text-wrap: balance; }
+  .cta { display: inline-block; margin-top: 1.4rem; padding: 0.85rem 1.7rem; border-radius: 999px; background: var(--gold); color: #2a180f; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .cta:hover { filter: brightness(1.06); }
+  .ctaRow { text-align: center; margin-top: clamp(2.5rem, 7vw, 4rem); }
+  figure { margin: clamp(2.4rem, 7vw, 3.6rem) 0; }
+  figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
+  .hero-img { width: 100vw; margin-left: calc(50% - 50vw); display: block; }
+  .hero-img img { width: 100%; max-height: 62vh; object-fit: cover; display: block; }
+  .slot { border: 1px dashed var(--gold-line); border-radius: 18px; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; background: rgba(0,0,0,0.14); }
+  .moons { display: flex; justify-content: space-between; gap: 0.4rem; padding: 0.6rem 0.2rem; }
+  .moon { width: clamp(26px, 8vw, 44px); height: clamp(26px, 8vw, 44px); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 10px rgba(212,175,55,0.25); }
+  dl dt { font-family: var(--serif); font-size: 1.15rem; color: var(--ink); margin-top: 1.3rem; }
+  dl dd { margin: 0.3rem 0 0; font-size: 1rem; line-height: 1.7; color: var(--ink-dim); }
+  .field { display: flex; gap: 0.5rem; margin: 1.8rem 0 0.8rem; max-width: 30rem; }
+  .field input { flex: 1; min-width: 0; padding: 0.85rem 1.15rem; border-radius: 999px; border: 1px solid var(--gold-line); background: rgba(0,0,0,0.22); color: var(--ink); font-size: 1rem; }
+  .field input:focus { outline: none; border-color: var(--gold); }
+  .field button { flex-shrink: 0; border: none; cursor: pointer; padding: 0.85rem 1.4rem; border-radius: 999px; background: var(--gold); color: #2a180f; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .note { font-size: 0.85rem; color: var(--ink-soft); }
+  footer { border-top: 1px solid var(--gold-line); padding: 0.85rem var(--pad); display: flex; justify-content: center; gap: 0.7rem; align-items: baseline; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+  footer .fm { font-family: var(--serif); font-size: 0.95rem; color: var(--gold); text-transform: none; letter-spacing: 0.02em; }
+  footer .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; }
+  @media (max-width: 560px) { .nav { gap: 0.35rem 0.9rem; } .nav a.item { font-size: 0.6rem; letter-spacing: 0.08em; } }
+</style>
+
+</head>
+<body>
+<nav class="nav"><a class="mark" href="/">Velea</a><a class="item" href="/velea">Velea</a><a class="item" href="/why">Why This Exists</a><a class="item" href="/system">The System</a><a class="item" href="/receive">What You Receive</a><a class="item on" href="/access">Request Access</a></nav>
+
+<main>
+  <h1>Request Access</h1>
+  <hr class="rule" />
+  <div class="label">Who It&rsquo;s For</div>
+  <p>This is for people who already notice patterns &mdash; in themselves, in their environment, in the way certain windows of time feel different &mdash; but still stall when everything feels equally urgent.</p>
+  <p>Most useful for people who:</p>
+  <ul>
+    <li>Feel decision fatigue during ordinary tasks</li>
+    <li>Move between over-activation and shutdown with no clear reason</li>
+    <li>Work better with structure than open-ended planning</li>
+    <li>Want to know when to act and when to wait &mdash; not just what to do</li>
+    <li>Are carrying high cognitive or emotional load</li>
+    <li>Already engage with astrology or timing systems but need something more usable</li>
+  </ul>
+  <p>You are not looking for another reading. You are looking for clarity, structure, and a stronger sense of self-possession.</p>
+  <hr class="rule" />
+  <div class="label">Access</div>
+  <p>Velea is released in limited builds while the system is refined through real use. Each version improves on actual behavior, not static theory. Built, used, and tested from the inside out.</p>
+  <p>When access opens, you&rsquo;ll be asked for accurate birth information &mdash; date, time, and place &mdash; to build your chart. If the time is unknown, Velea reads the chart Moon-framed rather than guessing. The waitlist itself does not require any of it.</p>
+  <form class="waitlist" novalidate>
+    <div class="field">
+      <input type="email" name="email" inputmode="email" autocomplete="email" placeholder="you@email.com" aria-label="Your email address" required />
+      <button type="submit">Request access</button>
+    </div>
+    <p class="note" data-note>One email when the next round opens. No noise.</p>
+  </form>
+  <hr class="rule" />
+  <p class="big">You are not missing motivation. You are navigating too many competing signals without a way to read them. This is how you make them readable.</p>
+</main>
+<script>
+  document.querySelector(".waitlist").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = this.querySelector("input");
+    var note = this.querySelector("[data-note]");
+    if (!input.value || !input.checkValidity()) { input.style.borderColor = "#c1653f"; input.focus(); return; }
+    fetch("/api/waitlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: input.value.trim(), source: "access-page" }) })
+      .then(function (res) {
+        if (res.ok || res.status === 409) { window.location.href = "/confirmed"; return; }
+        note.textContent = res.status === 429 ? "A moment — try again shortly." : "Something hiccuped. Try once more.";
+        note.style.color = "#D4AF37";
+      })
+      .catch(function () { window.location.href = "/confirmed"; });
+  });
+</script>
+<footer><span class="fm">Velea</span><span class="km">វេលាល្អ</span> · The Golden Moment · © 2026</footer>
+</body>
+</html>

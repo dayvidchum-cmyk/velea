@@ -115,8 +115,20 @@
     padding: calc(env(safe-area-inset-top, 0px) + 3.2rem) var(--pad) calc(env(safe-area-inset-bottom, 0px) + 2.6rem);
   }
 
+  /* ---- Site nav (marketing suite) ---- */
+  .sitenav {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 0.35rem 1.3rem;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.9rem) var(--pad) 0.8rem;
+  }
+  .sitenav a { font-family: var(--sans); font-size: 0.64rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(249,239,228,0.66); text-decoration: none; white-space: nowrap; transition: color .25s ease; }
+  .sitenav a:hover { color: #D4AF37; }
+  @media (max-width: 560px) { .sitenav { gap: 0.3rem 0.8rem; } .sitenav a { font-size: 0.56rem; letter-spacing: 0.09em; } }
+
   /* HERO — David's Milky Way night sky, fading down into the dusk. Golden-moment glow rides above. */
   .hero { background: transparent; }
+  .hero > .inner { padding-top: calc(env(safe-area-inset-top, 0px) + 5.4rem); } /* clear the site nav */
   .hero::before {
     content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
     background-image:
@@ -384,6 +396,14 @@
 
     <!-- ============================ HERO (night shell) ============================ -->
     <section class="stage hero">
+      <nav class="sitenav" aria-label="Site">
+        <a href="/velea">Velea</a>
+        <a href="/why">Why This Exists</a>
+        <a href="/system">The System</a>
+        <a href="/receive">What You Receive</a>
+        <a href="/access">Request Access</a>
+      </nav>
+
       <div class="inner">
         <div class="hero-top">
           <div class="eyebrow"><span class="rule"></span><span class="km">វេលាល្អ</span> · Velea l'or<span class="rule"></span></div>

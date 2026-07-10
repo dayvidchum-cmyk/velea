@@ -60,6 +60,21 @@ async function startServer() {
     res.sendFile(file);
   });
 
+  // Marketing sub-pages (velealor.com only): static editorial pages generated into
+  // client/public/marketing/. Paths chosen to never collide with SPA routes.
+  const marketingPages: Record<string, string> = {
+    "/velea": "velea.html", "/why": "why.html", "/system": "system.html",
+    "/receive": "receive.html", "/access": "access.html", "/confirmed": "confirmed.html",
+  };
+  app.get(Object.keys(marketingPages), (req, res, next) => {
+    if (!landingHosts.has(req.hostname)) return next();
+    const base =
+      process.env.NODE_ENV === "development"
+        ? path.resolve(import.meta.dirname, "../..", "client", "public", "marketing")
+        : path.resolve(import.meta.dirname, "public", "marketing");
+    res.sendFile(path.resolve(base, marketingPages[req.path]));
+  });
+
   // Public waitlist capture from the landing page (no auth; rate-limited).
   app.post("/api/waitlist", async (req, res) => {
     try {
