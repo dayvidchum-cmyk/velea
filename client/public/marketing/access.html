@@ -16,7 +16,7 @@
   @font-face { font-family: "Playfair Display"; src: url("/marketing/fonts/playfair-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
   @font-face { font-family: "Hanuman"; src: url("/marketing/fonts/Hanuman.ttf") format("truetype"); font-weight: 400; font-display: swap; }
   :root {
-    --plum: #2b1533; --plum-deep: #1d0e24; --gold: #D4AF37; --gold-line: rgba(212,175,55,0.38);
+    --plum: #2b1533; --plum-deep: #1d0e24; --gold: #D4AF37; --champ: #E2C069; --gold-line: rgba(212,175,55,0.38);
     --ink: #f9efe4; --ink-dim: rgba(249,239,228,0.86); --ink-soft: rgba(249,239,228,0.62);
     --serif: "Playfair Display", Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Avenir Next", "Segoe UI", system-ui, sans-serif;
@@ -25,16 +25,16 @@
   }
   * { box-sizing: border-box; margin: 0; }
   body { background: linear-gradient(180deg, var(--plum-deep) 0%, var(--plum) 22%, var(--plum) 100%); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
-  a { color: var(--gold); text-decoration: none; }
+  a { color: var(--champ); text-decoration: none; }
   .nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem var(--pad); border-bottom: 1px solid var(--gold-line); position: relative; }
   .brand { display: inline-flex; align-items: center; gap: 0.5rem; }
   .vmark { display: inline-block; width: 22px; height: 22px; background: var(--gold);
     -webkit-mask: url("/velea-mark.svg") center / 142% no-repeat; mask: url("/velea-mark.svg") center / 142% no-repeat; }
-  .bname { font-family: var(--serif); font-size: 1.2rem; color: var(--gold); }
+  .bname { font-family: var(--serif); font-size: 1.2rem; color: var(--champ); }
   .links { display: flex; align-items: baseline; gap: 1.4rem; }
   .links a.item { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
-  .links a.item:hover { color: var(--gold); }
-  .links a.item.on { color: var(--gold); border-bottom: 1px solid var(--gold-line); padding-bottom: 2px; }
+  .links a.item:hover { color: var(--champ); }
+  .links a.item.on { color: var(--champ); border-bottom: 1px solid var(--gold-line); padding-bottom: 2px; }
   .burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
   .burger span { display: block; width: 20px; height: 2px; background: var(--gold); margin: 4px 0; border-radius: 2px; }
   @media (max-width: 760px) {
@@ -48,12 +48,12 @@
   }
   main { max-width: 42rem; margin: 0; padding: clamp(3rem, 8vw, 5rem) var(--pad) 4rem; }
   @media (min-width: 900px) { main { margin-left: clamp(3rem, 9vw, 9rem); } }
-  .kicker { font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  .kicker { font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--champ); font-weight: 600; }
   .kicker .km { font-family: var(--khmer); letter-spacing: normal; text-transform: none; font-size: 1rem; }
   h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.6rem, 9vw, 4rem); line-height: 1.06; margin: 0.9rem 0 0; text-wrap: balance; }
   h2.sub { font-family: var(--serif); font-weight: 400; font-size: clamp(1.3rem, 4.4vw, 1.7rem); line-height: 1.35; color: var(--ink-dim); margin: 1.4rem 0 0; text-wrap: balance; }
   .lede { font-size: clamp(1.05rem, 2.6vw, 1.2rem); line-height: 1.7; color: var(--ink-dim); margin: 1.6rem 0 0; }
-  .label { font-size: 0.74rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin: 0 0 1.1rem; }
+  .label { font-size: 0.74rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--champ); font-weight: 600; margin: 0 0 1.1rem; }
   .rule { border: none; height: 1px; background: var(--gold-line); margin: clamp(2.6rem, 7vw, 4rem) 0; }
   p { font-size: 1.04rem; line-height: 1.75; color: var(--ink-dim); margin: 0 0 1.1rem; }
   strong { color: var(--ink); font-weight: 600; }
@@ -91,7 +91,7 @@
   .field button { flex-shrink: 0; border: none; cursor: pointer; box-shadow: 0 8px 24px -10px rgba(193,146,48,0.55); padding: 0.85rem 1.4rem; border-radius: 999px; background: var(--gold); color: #2a180f; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
   .note { font-size: 0.85rem; color: var(--ink-soft); }
   footer { border-top: 1px solid var(--gold-line); padding: 0.85rem var(--pad); display: flex; justify-content: center; gap: 0.7rem; align-items: baseline; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
-  footer .fm { font-family: var(--serif); font-size: 0.95rem; color: var(--gold); text-transform: none; letter-spacing: 0.02em; }
+  footer .fm { font-family: var(--serif); font-size: 0.95rem; color: var(--champ); text-transform: none; letter-spacing: 0.02em; }
   footer .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; }
   @media (max-width: 560px) { .nav { gap: 0.35rem 0.9rem; } .nav a.item { font-size: 0.6rem; letter-spacing: 0.08em; } }
 </style>
