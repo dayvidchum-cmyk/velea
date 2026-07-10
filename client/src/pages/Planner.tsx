@@ -1059,7 +1059,9 @@ export default function Planner() {
             // Whole cell is tinted by the day's mode — far more legible than a tiny
             // dot, and selected/today get a stronger fill + solid border. Dark mode
             // needs more saturation: the low-alpha tints wash out on the dark bg.
-            const isDark = theme === "dark";
+            // Full Spectrum is ALWAYS a dark surface — appearance may never leak into it
+            // (standing FS law). Every dark-vs-light branch below uses this, not raw theme.
+            const isDark = theme === "dark" || fullSpectrum;
             // Full Spectrum paints the card gold, so the low-alpha tints composite over gold and go
             // muddy (teal→dull, rose→brown, gold→olive). Push the fill toward opaque there so each
             // day reads as its true, vibrant mode color instead of a muddied blend with the surface.
