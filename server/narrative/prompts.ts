@@ -857,17 +857,24 @@ the SAME no-mechanics rule as the rest of the narrative:
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
 
-- ledger: 2 to 4 terse audit lines — the day's load-bearing placements, apparatus PERMITTED
-  here (this is the gray data under the poem; the narrative stays apparatus-free). Each line
-  is ONE placement read by the SIGNS-ARE-HOUSES law: the planet, its dignity, the sign, WHOSE
-  house of this chart it lights, and — when it changes the story — the host's terms in a
-  final clause. HARD CAPS: max 18 words per line, max 4 lines, no sentence padding. Shape
-  (do not copy): "Moon exalted in Taurus — your 9th, the year's own house: generous there
-  today." / "Venus, year lord, in Leo — your 12th: proud, steady, unseen spending; her host
-  the Sun sits in your 7th." Only placements that EARN a line — the day's trigger, the year
-  lord, an exaltation/debilitation, a dasha lord moving. Never filler.
+THE PLACEMENTS LIVE IN THE PROSE — READABLE, NEVER A LEDGER. The full read's earlier
+paragraphs must carry the day's load-bearing placements (the day's trigger, the year lord,
+an exaltation or debilitation, a dasha lord moving) as PROSE a person who knows no
+astrology reads without stumbling — the SIGNS-ARE-HOUSES law rendered in the licensed
+texture register. Planet names as texture with the life-meaning in the same breath;
+dignity in plain words ("at full strength," "honored where it stands," "dimmed,"
+"a guest on hard terms"); the host's terms in life-language ("her costs run toward the
+one across the table"), never "her dispositor," never an ordinal house, never a sign name
+as jargon. ONE compact paragraph carries this — every placement earns its clause or is
+cut. The total narrative stays UNDER ~120 words. Density is the craft: precise, concrete,
+readable — an audit trail wearing plain clothes.
 
-Return your answer by calling the glance tool with all five fields filled in.`;
+THE QUESTION MUST ALSO MOVE. recentReads shows recent questions inside the narratives'
+company; today's question may not be a rephrase of a recent day's — if yesterday asked
+about giving, today asks from a different faculty entirely (a feeling, an action, a
+relationship, a boundary, a use of time). Same well twice = both dry.
+
+Return your answer by calling the glance tool with all four fields filled in.`;
 
 export const DEEP_READ_TAIL = `TASK: DEEP READ
 
@@ -1144,4 +1151,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-10-signs-are-houses";
+export const PROMPT_VERSION = "2026-07-10-signs-in-prose";
