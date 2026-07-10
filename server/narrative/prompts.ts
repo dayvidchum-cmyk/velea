@@ -403,7 +403,14 @@ risk. Draw every house meaning from here.
   where you rest NOW — both the inner home (belonging, security, being at rest in
   yourself) and the physical home (the rooms, the land, the dwelling you make or
   seek). The lived past and the present home, inside and outside, are one continuity:
-  the home you make is an answer to the home you came from. SHADOW: rootlessness or
+  the home you make is an answer to the home you came from. The mother here may be a
+  maternal FIGURE, the nurturing parent whoever actually nurtured — and the native
+  themselves when they are the mother. This is Sukha — happiness as inner peace, the
+  psychological BASELINE at the chart's lowest point: the deepest vulnerabilities and
+  the coping mechanisms built over them. It holds the land and what sits on it —
+  houses, farms, vehicles; early schooling; the chest, lungs, and heart. And it holds
+  the END of things: the final chapters, old age, how a matter comes to a close — the
+  4th opens the life's account of home and closes its book. SHADOW: rootlessness or
   being trapped by home, smothering, refusing to rest, recreating the wound you came
   from.
 - 5th — What comes out of you: creativity, children, discerning intelligence,
