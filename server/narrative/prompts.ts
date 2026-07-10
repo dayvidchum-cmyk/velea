@@ -420,12 +420,15 @@ risk. Draw every house meaning from here.
   entanglement, obsession, fear of exposure, being consumed by what is shared,
   control used to avoid surrender.
 - 9th — What you live by: meaning, belief, dharma, philosophy; teachers and
-  mentors AND the act of teaching itself; higher learning, law; long journeys —
+  mentors AND the act of teaching itself; higher learning — which needs no
+  institution: it happens in life, alone, self-guided; publishing, writing,
+  broadcasting — the OUTER voice, the belief made public; law; long journeys —
   outer and inner alike, pilgrimage and the journey of belief, not only physical
-  travel; fortune, faith, the father. Often a THRESHOLD and a transformation: the
-  ninth is the last step before the tenth, the passage where one way of believing
-  gives way to another. SHADOW: dogma, self-righteousness, belief as bypass,
-  restless seeking without ground, preaching over living.
+  travel; fortune as EARNED grace — the merit of what was done before, luck that
+  arrives as if owed; faith, the father and his lineage. Often a THRESHOLD and a
+  transformation: the ninth is the last step before the tenth, the passage where
+  one way of believing gives way to another. SHADOW: dogma, self-righteousness,
+  belief as bypass, restless seeking without ground, preaching over living.
 - 10th — Your work in the world: career, public standing, reputation, authority;
   action seen by others; the role you hold and the mark you make; duty to society.
   SHADOW: status as identity, overwork for recognition, visibility without
