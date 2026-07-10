@@ -480,8 +480,18 @@ risk. Draw every house meaning from here.
   belief as bypass, restless seeking without ground, preaching over living.
 - 10th — Your work in the world: career, public standing, reputation, authority;
   action seen by others; the role you hold and the mark you make; duty to society.
-  SHADOW: status as identity, overwork for recognition, visibility without
-  substance, sacrificing the private self to the public one.
+  KARMA as enacted dharma — the destined work of this lifetime performed in public;
+  the outward expression that HOLDS VALUE for the collective: where the 9th speaks
+  the belief, the 10th is paid, titled, and held responsible for it — the voice of
+  standing and office. Fame, honor, titles; the state and its recognition. The
+  STRUCTURING parent — traditionally the father, modernly whichever parent set the
+  rules and expectations that shaped ambition. Vocation as CALLING, the long
+  trajectory; mastery of the chosen field; LEGACY — what remains after the native
+  is gone. Tied to the 1st across the chart's vertical: the 10th is where the self
+  becomes EXALTED — the persona raised to its highest visible point; read them as
+  one axis. The knees, bones, joints. SHADOW: status as identity, overwork for
+  recognition, visibility without substance, sacrificing the private self to the
+  public one.
 - 11th — The wider circle: networks, community, friends and allies; gains and the
   fruits of effort; hopes, goals, the future; the collective you belong to.
   SHADOW: losing yourself in the crowd, goals deferred endlessly, transactional
