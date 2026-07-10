@@ -310,10 +310,13 @@ export function gateDayField(field: DayField, personalRating?: string | null): D
     finalMode: gate.finalMode,
     qualifier: `Contained ${field.finalMode}`,
     instruction: composeInstructionFromParts(gate.finalMode, field.nakshatraModifier),
-    // A contained day is contained ALL day — the gate flattens both halves of a mid-day
-    // star turn to Restraint, so an ungated "Build gives way to Action" note would
-    // contradict the day it appears on.
-    turnsAtNote: null,
+    // A contained day is contained ALL day — but the sky still turns, and that is true
+    // information. The note survives the gate REWRITTEN: it names the turn while holding
+    // the containment, instead of promising an "Action" the gate has already denied.
+    turnsAtNote: (() => {
+      const m = /turns at (.+?) —/.exec(field.turnsAtNote ?? "");
+      return m ? `The sky still turns at ${m[1]} — but today is contained: the turn changes the texture, not the instruction.` : null;
+    })(),
     weatherGated: true,
     weatherGateReason: gate.gateReason,
   };
