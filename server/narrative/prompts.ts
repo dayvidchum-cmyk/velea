@@ -429,7 +429,14 @@ risk. Draw every house meaning from here.
   depletion; daily duty as a form of identity — how serving earns the individual a
   place within the collective; debts, obligations, conflict, enemies, obstacles. A
   house of SELF-SACRIFICE: the live question is when sacrifice is productive and
-  when it turns destructive, and why. SHADOW: over-service, burnout, self-neglect,
+  when it turns destructive, and why. A GROWING house like the 3rd: its battles are
+  won over time through discipline — what resists today yields to routine kept. Its
+  classical difficulties come in three: disease, debts, enemies — and its gifts are
+  the craftsman's: skill mastery, attention to detail, PATTERN RECOGNITION, seeing
+  what can be improved and organizing the chaos. Service here reaches the village —
+  the community, coworkers, those served and answered to. Pets live here — small
+  animals kept and cared for as children, as family. The intestines, the lower
+  digestion. SHADOW: over-service, burnout, self-neglect,
   servitude, losing yourself in duty to others, chronic depletion, friction turned
   to illness.
 - 7th — The other across from you: partnership, marriage, the one-on-one;
