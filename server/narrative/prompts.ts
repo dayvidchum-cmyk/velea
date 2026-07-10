@@ -380,8 +380,12 @@ risk. Draw every house meaning from here.
   those, don't name it. SHADOW: worth collapsed into net worth, hoarding or
   squandering, clinging to security, speech that wounds.
 - 3rd — Your own effort and reach: communication, writing, the hands and skill,
-  courage and initiative; siblings, peers, neighbors; short travel and near
-  connections; self-made ability. SHADOW: scattered communication, restlessness,
+  courage and initiative; siblings — including CHOSEN family, not only blood;
+  peers, neighbors, the immediate circle; short travel and near connections —
+  and the short journey may be internal; the everyday voice, messages, social
+  media — the NEAR voice (the 9th holds the outer one); self-made ability. A
+  growing house: its results improve over time through effort — what is
+  practiced here compounds. SHADOW: scattered communication, restlessness,
   information without depth, rivalry, timidity or recklessness.
 - 4th — The ground under you, across time: where you CAME FROM (your origins, your
   mother, the lived experience of the home you grew up in) is the source that colors

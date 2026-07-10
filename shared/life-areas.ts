@@ -5,7 +5,7 @@
 
 export type LifeAreaKey =
   | "self_care" | "home" | "money" | "work" | "relationships" | "creativity"
-  | "learning" | "community" | "health" | "intimacy" | "rest";
+  | "learning" | "voice" | "community" | "health" | "intimacy" | "rest";
 
 export const LIFE_AREAS: { key: LifeAreaKey; label: string; houses: number[] }[] = [
   { key: "self_care",     label: "Self care",            houses: [1, 4] },  // body + identity + home
@@ -14,7 +14,8 @@ export const LIFE_AREAS: { key: LifeAreaKey; label: string; houses: number[] }[]
   { key: "work",          label: "Work & Career",        houses: [6, 10] },
   { key: "relationships", label: "Relationships",        houses: [7] },
   { key: "creativity",    label: "Creativity & Romance", houses: [5] },
-  { key: "learning",      label: "Learning & Belief",    houses: [3, 9] },
+  { key: "voice",         label: "Voice & Craft",        houses: [3] },  // the near voice: skill, messages, self-effort
+  { key: "learning",      label: "Belief & Meaning",     houses: [9] },  // the outer voice: belief, teaching, the far horizon
   { key: "community",     label: "Community & Friends",  houses: [11] },
   { key: "health",        label: "Health & Body",        houses: [1, 6] },
   { key: "intimacy",      label: "Intimacy & Shared",    houses: [8] },
