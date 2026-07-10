@@ -310,6 +310,10 @@ export function gateDayField(field: DayField, personalRating?: string | null): D
     finalMode: gate.finalMode,
     qualifier: `Contained ${field.finalMode}`,
     instruction: composeInstructionFromParts(gate.finalMode, field.nakshatraModifier),
+    // A contained day is contained ALL day — the gate flattens both halves of a mid-day
+    // star turn to Restraint, so an ungated "Build gives way to Action" note would
+    // contradict the day it appears on.
+    turnsAtNote: null,
     weatherGated: true,
     weatherGateReason: gate.gateReason,
   };

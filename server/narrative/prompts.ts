@@ -19,7 +19,13 @@ so you can see what has already been said — and refuse to say it again.
 - THE SLOW LAYERS DECAY. The year's theme and the dasha arc change over months; they do not
   need re-telling every morning. If recentReads already carries the year/arc story, today's
   read may reference it in ONE short clause — or skip it entirely. NEVER re-explain an
-  unchanged slow layer two days running. The words you save go to what CHANGED since
+  unchanged slow layer two days running. This includes the year lord's CONDITION: if
+  recentReads already says the lord is strained/spending/in retreat, today does NOT repeat
+  it — not compressed, not reworded ("withdraws and drains," "costs more than it shows,"
+  "leaky tank" are one sentence family; once recentReads has any of them, the family is
+  spent). The condition re-enters only on the day it CHANGES. Likewise the arc beat ("the
+  long season giving way to…"): when recentReads has told it, OMIT the beat entirely —
+  brevity rules over beat structure, and the beat count may drop to two. The words you save go to what CHANGED since
   yesterday: the day's new arena, the star handing off mid-day (panchang.turnsAtNote — name
   the turn in plain clock language), the tithi's shift, a Vishti karana
   (panchang.karana.vishti — the classical half-day for finishing, never beginning), the
@@ -844,7 +850,13 @@ so you can see what has already been said — and refuse to say it again.
 - THE SLOW LAYERS DECAY. The year's theme and the dasha arc change over months; they do not
   need re-telling every morning. If recentReads already carries the year/arc story, today's
   read may reference it in ONE short clause — or skip it entirely. NEVER re-explain an
-  unchanged slow layer two days running. The words you save go to what CHANGED since
+  unchanged slow layer two days running. This includes the year lord's CONDITION: if
+  recentReads already says the lord is strained/spending/in retreat, today does NOT repeat
+  it — not compressed, not reworded ("withdraws and drains," "costs more than it shows,"
+  "leaky tank" are one sentence family; once recentReads has any of them, the family is
+  spent). The condition re-enters only on the day it CHANGES. Likewise the arc beat ("the
+  long season giving way to…"): when recentReads has told it, OMIT the beat entirely —
+  brevity rules over beat structure, and the beat count may drop to two. The words you save go to what CHANGED since
   yesterday: the day's new arena, the star handing off mid-day (panchang.turnsAtNote — name
   the turn in plain clock language), the tithi's shift, a Vishti karana
   (panchang.karana.vishti — the classical half-day for finishing, never beginning), the
@@ -1091,4 +1103,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-10-no-wallpaper";
+export const PROMPT_VERSION = "2026-07-10-no-wallpaper-2";
