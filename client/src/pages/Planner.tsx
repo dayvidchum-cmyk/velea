@@ -184,6 +184,9 @@ export default function Planner() {
   const { data: skyMarks } = trpc.sky.monthMarks.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
   const rxSet = useMemo(() => new Set(skyMarks?.mercury?.retroDays ?? []), [skyMarks]);
   const windowSet = useMemo(() => new Set(skyMarks?.mercury?.windowDays ?? []), [skyMarks]);
+  const preShadowSet = useMemo(() => new Set(skyMarks?.mercury?.preShadowDays ?? []), [skyMarks]);
+  const postShadowSet = useMemo(() => new Set(skyMarks?.mercury?.postShadowDays ?? []), [skyMarks]);
+  const shadowSet = useMemo(() => new Set([...(skyMarks?.mercury?.preShadowDays ?? []), ...(skyMarks?.mercury?.postShadowDays ?? [])]), [skyMarks]);
   const stationByDate = useMemo(() => {
     const m = new Map<string, string>();
     for (const st of skyMarks?.mercury?.stations ?? []) m.set(st.date, st.type);
@@ -1086,6 +1089,25 @@ export default function Planner() {
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
             const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
+            // Mercury's planet color (green), mode-tuned so the ring + glyph read on every surface:
+            // FS paints the card gold, so a bright opaque mint is needed there; light mode needs a
+            // deeper green for contrast on the pale ground; dark uses the app's stock Mercury green.
+            const MERC = fullSpectrum ? "#8FE3C4" : isDark ? "#85CDB5" : "#2E8B6E";
+            // The retrograde influence as a green ring (date stays intact). Intensity = tier:
+            // window (±3, roughest) thick solid → rx-span thin solid → shadow ramp thin dashed.
+            // Station days carry the centered ☿ glyph instead, so they take no ring here.
+            const mercBorder = !stationByDate.has(dateStr)
+              ? (windowSet.has(dateStr) ? `2px solid ${MERC}`
+                : rxSet.has(dateStr) ? `1.5px solid ${MERC}`
+                : shadowSet.has(dateStr) ? `1.5px dashed ${MERC}`
+                : null)
+              : null;
+            // On FS + dark the greens run light and green-on-green (Action) goes soft, so the
+            // ring gets a hairline dark stroke to lift off any tile. Light mode's deep green
+            // already has the contrast — plain ring there (variant A).
+            const mercHairline = mercBorder && (fullSpectrum || isDark)
+              ? "0 0 0 0.9px rgba(0,0,0,0.55), inset 0 0 0 0.9px rgba(0,0,0,0.3)"
+              : null;
             // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
@@ -1110,7 +1132,7 @@ export default function Planner() {
                   // Crown days AND golden days pop a bubble; tapping the open day (or a plain day) closes it.
                   const isCaution = cautionSet.has(dateStr);
                   const isEclipseDay = eclipseByDate.has(dateStr);
-                  const isMercuryDay = stationByDate.has(dateStr) || windowSet.has(dateStr) || rxSet.has(dateStr);
+                  const isMercuryDay = stationByDate.has(dateStr) || windowSet.has(dateStr) || rxSet.has(dateStr) || shadowSet.has(dateStr);
                   if (crownTip?.date === dateStr || (!isCrown && !isGolden && !isCaution && !isEclipseDay && !isMercuryDay)) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
                   const kind = isCrown ? "crown" : isGolden ? "golden" : isCaution ? "caution" : isEclipseDay ? "eclipse" : "mercury";
@@ -1119,7 +1141,11 @@ export default function Planner() {
                   if (kind === "mercury") {
                     const st = stationByDate.get(dateStr);
                     const near = nearestStationTo(dateStr);
-                    why = st ? `station:${st}` : windowSet.has(dateStr) ? `window:${near?.type ?? ""}:${near?.date ?? ""}` : `rx:${near?.type === "turns direct" ? near.date : ""}`;
+                    why = st ? `station:${st}`
+                      : windowSet.has(dateStr) ? `window:${near?.type ?? ""}:${near?.date ?? ""}`
+                      : preShadowSet.has(dateStr) ? `preshadow:${near?.date ?? ""}`
+                      : postShadowSet.has(dateStr) ? `postshadow:${near?.date ?? ""}`
+                      : `rx:${near?.type === "turns direct" ? near.date : ""}`;
                   }
                   setCrownTip({ date: dateStr, kind: kind as any, why, cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: kind === "caution" ? CAUTION_RED : accent });
                 }}
@@ -1145,34 +1171,36 @@ export default function Planner() {
                     ? `2px solid ${GOLD_BRIGHT}`
                     : cautionSet.has(dateStr)
                     ? `2px solid ${CAUTION_RED}`
+                    : mercBorder
+                    ? mercBorder
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : "1px solid transparent",
                   boxShadow: isToday
                     ? (isGolden ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : cautionSet.has(dateStr) ? `inset 0 0 0 2px ${CAUTION_RED}` : undefined)
-                    : undefined,
+                    : mercHairline ?? undefined,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : ""; }}
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
               >
-                {/* Sky labels: ☿ in three intensities (rx span → station window → station day)
-                    + the dark disc for an eclipse. Bottom-anchored; the number stays the identity. */}
+                {/* Eclipse keeps its dark disc. Mercury's retrograde influence (shadow → rx →
+                    window) now reads as the planet-green RING on the cell (date stays intact);
+                    the station day alone carries the centered ☿ glyph below. */}
                 {eclipseByDate.has(dateStr) ? (
                   <span style={{ position: "absolute", bottom: 1, left: "50%", transform: "translateX(-50%)", width: 9, height: 9, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", pointerEvents: "none" }} />
-                ) : stationByDate.has(dateStr) ? (
-                  <span style={{ position: "absolute", bottom: -2, left: "50%", transform: "translateX(-50%)", fontSize: "1rem", lineHeight: 1, color: "#FFB020", textShadow: "0 0 8px rgba(255,176,32,0.95), 0 0 3px rgba(255,176,32,0.9)", fontWeight: 800, pointerEvents: "none" }}>☿</span>
-                ) : windowSet.has(dateStr) ? (
-                  <span style={{ position: "absolute", bottom: -1, left: "50%", transform: "translateX(-50%)", fontSize: "0.85rem", lineHeight: 1, color: "#F2A93B", fontWeight: 700, opacity: 1, pointerEvents: "none" }}>☿</span>
-                ) : rxSet.has(dateStr) ? (
-                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.72rem", lineHeight: 1, color: "#F2A93B", opacity: 0.55, pointerEvents: "none" }}>☿</span>
                 ) : null}
                 {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
                     other day shows its date number. */}
                 {isCrown ? (
                   // The bindu — a single gold point. The day itself is the mark.
                   <span style={{ width: 11, height: 11, borderRadius: 999, background: GOLD_BRIGHT, boxShadow: "0 0 7px rgba(242,194,28,0.8)", pointerEvents: "none", display: "inline-block" }} />
+                ) : stationByDate.has(dateStr) ? (
+                  // Station day: ☿ IN PLACE of the number — the turn is the whole meaning of the day.
+                  // Mercury green, mode-tuned. FS/dark add a dark halo so the glyph lifts off
+                  // green/gold tiles; light keeps the clean same-hue green glow (variant A).
+                  <span style={{ fontSize: "1.15rem", lineHeight: 1, color: MERC, textShadow: (fullSpectrum || isDark) ? `0 0 2px rgba(0,0,0,0.72), 0 0 9px ${MERC}` : `0 0 8px ${MERC}, 0 0 3px ${MERC}`, fontWeight: 800, pointerEvents: "none" }}>☿</span>
                 ) : (
                   <span
                     className="text-xs"
@@ -1257,8 +1285,8 @@ export default function Planner() {
               </>
             ) : crownTip.kind === "mercury" ? (
               <>
-                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#F2A93B", marginBottom: "0.25rem" }}>
-                  ☿ {crownTip.why.startsWith("station:turns retrograde") ? "Mercury stations retrograde" : crownTip.why.startsWith("station:turns direct") ? "Mercury stations direct" : crownTip.why.startsWith("window:") ? "Station window" : "Mercury retrograde"}
+                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#4FB08E", marginBottom: "0.25rem" }}>
+                  ☿ {crownTip.why.startsWith("station:turns retrograde") ? "Mercury stations retrograde" : crownTip.why.startsWith("station:turns direct") ? "Mercury stations direct" : crownTip.why.startsWith("window:") ? "Station window" : crownTip.why.startsWith("preshadow:") ? "Mercury enters its shadow" : crownTip.why.startsWith("postshadow:") ? "Mercury clears its shadow" : "Mercury retrograde"}
                 </span>
                 {crownTip.why.startsWith("station:turns retrograde")
                   ? "The turn itself. The days either side of a station are the roughest of the cycle — back up, double-check, say it twice."
@@ -1266,6 +1294,10 @@ export default function Planner() {
                   ? "The turn back. Clarity returns slowly — let momentum rebuild before you floor it."
                   : crownTip.why.startsWith("window:")
                   ? `Mercury ${crownTip.why.split(":")[1] === "turns direct" ? "stations direct" : "stations retrograde"} ${crownTip.why.split(":")[2]?.slice(5) ?? "soon"} — the days around a station are the roughest of the cycle.`
+                  : crownTip.why.startsWith("preshadow:")
+                  ? "The shadow opens — Mercury is now re-treading the exact degrees it will soon retrograde back over. What you begin here you'll likely revisit, so leave room to revise."
+                  : crownTip.why.startsWith("postshadow:")
+                  ? "The shadow closes — Mercury is re-crossing the ground it lost. The review is finishing; let what you restart now settle before it fully holds."
                   : "Deep in the review — revisit, refine, reconnect. Hold big launches while the ground is re-walked."}
               </>
             ) : (

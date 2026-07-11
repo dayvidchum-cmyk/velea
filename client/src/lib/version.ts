@@ -61,4 +61,9 @@
 // light value; now rides --color-card + the day tint); (2) profection-wheel BIRTH/NOW labels
 // go gold (were #000, invisible on the dark/full-spectrum wheel); (3) nav icons swapped —
 // Today = the Velea mark (the living now), Chart = the book (your story: profection/dasha/natal).
-export const APP_VERSION = "1.1.324";
+// v1.1.325 = 2026-07-11 — Calendar Mercury Rx redrawn in the planet's own green: degree-exact
+// pre/post-shadow zones added (Mercury re-treading the exact station degrees), the whole
+// retrograde influence now reads as a green RING (shadow dashed → rx solid → window thick) so
+// the date number stays intact, and the station day carries a centered green ☿. Ring gets a
+// hairline dark stroke on FS + dark (green-on-green Action was soft); light keeps the plain ring.
+export const APP_VERSION = "1.1.325";

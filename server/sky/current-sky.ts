@@ -267,6 +267,12 @@ export interface MonthSkyMarks {
     retroDays: string[];                                  // every date Mercury is retrograde
     stations: { date: string; type: "turns retrograde" | "turns direct" }[];
     windowDays: string[];                                 // ±3 days around each station (the roughest stretch)
+    // Degree-exact shadow (retroshade) zones — Mercury re-treading the exact degrees it
+    // will retrograde over. Pre-shadow: direct, from crossing the future DIRECT-station
+    // degree up to the retrograde station. Post-shadow: direct, from the direct station
+    // up to re-crossing the RETROGRADE-station degree. Both lie OUTSIDE the retro span.
+    preShadowDays: string[];
+    postShadowDays: string[];
   };
   eclipses: { date: string; type: "solar" | "lunar" }[];
 }
@@ -280,32 +286,64 @@ export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
   const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
   const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
-  // Daily Mercury speed, padded ±4 days so edge stations and their windows resolve.
-  const speeds: { ms: number; speed: number }[] = [];
-  for (let off = -4; off < daysInMonth + 4; off++) {
+  // Daily Mercury speed + longitude. Padded ±50 days: a shadow day is defined by BOTH of
+  // its cycle's stations, and a post-shadow day can sit ~45 days after its retrograde
+  // station (retro span ~24d + post-shadow ~14d + margin). The pad must reach back far
+  // enough from either month edge to detect both stations and their turning longitudes.
+  const SHADOW_PAD = 50;
+  const speeds: { ms: number; speed: number; lon: number }[] = [];
+  for (let off = -SHADOW_PAD; off < daysInMonth + SHADOW_PAD; off++) {
     const d = new Date(first + off * DAY_MS);
     const pos = await getSiderealLongitudesWithSpeed(d, ["Mercury"]);
-    speeds.push({ ms: d.getTime(), speed: pos.Mercury?.speed ?? 0 });
+    speeds.push({ ms: d.getTime(), speed: pos.Mercury?.speed ?? 0, lon: pos.Mercury?.longitude ?? 0 });
   }
   const retroDays: string[] = [];
   for (const s of speeds) {
     const date = iso(s.ms);
     if (s.speed < 0 && date.startsWith(yearMonth)) retroDays.push(date);
   }
-  const stations: { date: string; type: "turns retrograde" | "turns direct" }[] = [];
+  // Stations with their exact turning longitude — the longitude defines the shadow zone.
+  const stationsFull: { date: string; ms: number; lon: number; type: "turns retrograde" | "turns direct" }[] = [];
   for (let i = 1; i < speeds.length; i++) {
     const a = speeds[i - 1], b = speeds[i];
     if (a.speed !== 0 && b.speed !== 0 && Math.sign(a.speed) !== Math.sign(b.speed)) {
       const exact = await bisectStation("Mercury", new Date(a.ms), new Date(b.ms));
-      stations.push({ date: exact.toISOString().slice(0, 10), type: b.speed < 0 ? "turns retrograde" : "turns direct" });
+      const lonPos = await getSiderealLongitudesWithSpeed(exact, ["Mercury"]);
+      stationsFull.push({ date: exact.toISOString().slice(0, 10), ms: exact.getTime(), lon: lonPos.Mercury?.longitude ?? 0, type: b.speed < 0 ? "turns retrograde" : "turns direct" });
     }
   }
+  const stations: { date: string; type: "turns retrograde" | "turns direct" }[] = stationsFull.map((s) => ({ date: s.date, type: s.type }));
   const windowSet = new Set<string>();
   for (const st of stations) {
     const stMs = Date.parse(st.date + "T12:00:00Z");
     for (let off = -3; off <= 3; off++) {
       const d = iso(stMs + off * DAY_MS);
       if (d.startsWith(yearMonth)) windowSet.add(d);
+    }
+  }
+
+  // Degree-exact shadow zones. Signed angular delta, normalized to (-180, 180].
+  const angDiff = (a: number, b: number) => ((a - b + 540) % 360) - 180;
+  const preShadowSet = new Set<string>();
+  const postShadowSet = new Set<string>();
+  const sortedStations = stationsFull.slice().sort((a, b) => a.ms - b.ms);
+  for (let i = 0; i < sortedStations.length; i++) {
+    const stR = sortedStations[i];
+    if (stR.type !== "turns retrograde") continue;
+    const stD = sortedStations.slice(i + 1).find((s) => s.type === "turns direct");
+    if (!stD) continue;
+    const lonDirect = stD.lon;             // far-back point — pre-shadow OPENS when direct Mercury reaches it
+    const width = angDiff(stR.lon, lonDirect); // retro-station degree sits ~+width ahead of the direct-station degree
+    if (width <= 0) continue;              // guard: unexpected geometry
+    for (const s of speeds) {
+      if (s.speed <= 0) continue;          // shadows are DIRECT motion only (retro is its own span)
+      const off = angDiff(s.lon, lonDirect);
+      if (off < -0.05 || off > width + 0.05) continue; // outside the [direct°, retro°] zone
+      const date = iso(s.ms);
+      if (!date.startsWith(yearMonth)) continue;
+      // Cap at ±35d so a day can't be mis-assigned to a neighboring cycle's zone.
+      if (s.ms < stR.ms && s.ms >= stR.ms - 35 * DAY_MS) preShadowSet.add(date);
+      else if (s.ms > stD.ms && s.ms <= stD.ms + 35 * DAY_MS) postShadowSet.add(date);
     }
   }
 
@@ -335,7 +373,13 @@ export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
   const value: MonthSkyMarks = {
     // Keep stations from the ±4d pad too — a window can reach into this month from a
     // station that lives in the next/previous one, and the popup names the date.
-    mercury: { retroDays, stations, windowDays: Array.from(windowSet).sort() },
+    mercury: {
+      retroDays,
+      stations,
+      windowDays: Array.from(windowSet).sort(),
+      preShadowDays: Array.from(preShadowSet).sort(),
+      postShadowDays: Array.from(postShadowSet).sort(),
+    },
     eclipses,
   };
   MONTH_MARKS_CACHE.set(yearMonth, { at: Date.now(), value });
