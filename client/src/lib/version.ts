@@ -132,4 +132,8 @@
 // words (TODAY) had big side-gaps and long words (HOROSCOPE) had tiny ones — airy left, crowded
 // right. Items now size to their word and justify-between distributes the gaps evenly (px-4 insets
 // so the first/last don't hug the screen edge).
-export const APP_VERSION = "1.1.342";
+// v1.1.343 = 2026-07-11 — Mercury Rx Stage card is now a FIXED single card: it no longer swaps
+// with the viewer's time of day (dawn/day/dusk/night). todSrc skips the time-of-day suffix for any
+// mercury-rx image; the 4 unused Mercury Rx time-of-day variant files were removed. All other Stage
+// cards still breathe with the real sky. (Also today: new moon art swapped into the Stage cards.)
+export const APP_VERSION = "1.1.343";

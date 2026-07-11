@@ -73,7 +73,12 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
   // if that variant isn't made yet, fall back to the base image (onError). So the set fills in
   // gracefully — the shell breathes with the real sky as David paints each variant.
   const timeOfDay: string = d?.timeOfDay ?? "day";
-  const todSrc = (image: string) => `/celestial/${image.replace(/\.(jpg|jpeg|png|webp)$/i, `-${timeOfDay}.$1`)}`;
+  // Mercury Rx is a FIXED single card — no dawn/day/dusk/night variants (David removed the
+  // time-of-day set for it). Every other Stage card still breathes with the viewer's real sky.
+  const todSrc = (image: string) =>
+    /mercury-rx/i.test(image)
+      ? `/celestial/${image}`
+      : `/celestial/${image.replace(/\.(jpg|jpeg|png|webp)$/i, `-${timeOfDay}.$1`)}`;
   const onTodError = (image: string) => (e: any) => { e.currentTarget.onerror = null; e.currentTarget.src = `/celestial/${image}`; };
   const house: number | null = d?.moonHouse ?? null;
   const intent = d ? (PHASE_INTENT[d.name] ?? "") : "";
