@@ -62,7 +62,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         }}
       >
         <img
-          src="/velea-logo.png"
+          src="/velea-mark-gold.png"
           alt=""
           width={132}
           height={132}

@@ -167,7 +167,13 @@ function finishDayMode(opts: {
   const localDate = `${local.getUTCFullYear()}-${String(local.getUTCMonth() + 1).padStart(2, "0")}-${String(local.getUTCDate()).padStart(2, "0")}`;
   let readMinute: number;
   if (localDate === opts.dateStr) {
-    readMinute = ((local.getUTCHours() * 60 + local.getUTCMinutes()) - sr + 1440) % 1440; // now
+    // NOW — but pre-sunrise minutes belong to YESTERDAY's vedic day. The old wraparound
+    // modulo mapped 1:33 AM to minute ~1216 of TODAY's table, asserting tonight's
+    // boundaries ~21h early (David caught it live: "Build moves to Selective at 10:59 PM
+    // — so why is Selective showing?"). Before sunrise, read the day's OPENING config;
+    // the turn notes still announce what's ahead.
+    const nowMin = local.getUTCHours() * 60 + local.getUTCMinutes();
+    readMinute = nowMin < sr ? 0 : nowMin - sr;
   } else {
     // Majority configuration: the sign/star ruling more than half the vedic day.
     const majNak = starAt != null && starAt <= 720 && opts.afterNak ? 1441 : 0;
