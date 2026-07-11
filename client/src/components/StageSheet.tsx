@@ -88,7 +88,9 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
       heroes.push({
         image: s.image,
         kicker: `The Stage · ${s.planet}${s.house ? ` · your ${ORD[s.house]} house` : s.sign ? ` in ${s.sign}` : ""}`,
-        title: s.title, chips: [phaseLabel(s.phase)], note: s.note, phase: s.phase,
+        // The course line is the CLOCK — it moves every day, so a weeks-long rx can't
+        // wallpaper: doctrine (note) + where-we-are (courseLine).
+        title: s.title, chips: [phaseLabel(s.phase)], note: s.courseLine ? `${s.note} ${s.courseLine}` : s.note, phase: s.phase,
       });
     }
   }

@@ -177,6 +177,30 @@ export default function Planner() {
     { year: viewDate.getFullYear(), month: viewDate.getMonth() + 1 },
     { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
   );
+  // Collective sky labels — Mercury's course (David follows the WHOLE course; the ±3
+  // days around each station are the worst) + eclipse days. One glyph, three
+  // intensities: faint ☿ across the retrograde, stronger in station windows, full on
+  // station day. Eclipses get the dark disc.
+  const { data: skyMarks } = trpc.sky.monthMarks.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
+  const rxSet = useMemo(() => new Set(skyMarks?.mercury?.retroDays ?? []), [skyMarks]);
+  const windowSet = useMemo(() => new Set(skyMarks?.mercury?.windowDays ?? []), [skyMarks]);
+  const stationByDate = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const st of skyMarks?.mercury?.stations ?? []) m.set(st.date, st.type);
+    return m;
+  }, [skyMarks]);
+  const eclipseByDate = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const e of skyMarks?.eclipses ?? []) m.set(e.date, e.type);
+    return m;
+  }, [skyMarks]);
+  const nearestStationTo = (dateStr: string): { date: string; type: string } | null => {
+    let best: { date: string; type: string } | null = null;
+    for (const st of skyMarks?.mercury?.stations ?? []) {
+      if (!best || Math.abs(Date.parse(st.date) - Date.parse(dateStr)) < Math.abs(Date.parse(best.date) - Date.parse(dateStr))) best = st;
+    }
+    return best;
+  };
   const crownByDate = useMemo(() => {
     const m = new Map<string, string>();
     for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
@@ -200,7 +224,7 @@ export default function Planner() {
   const goldenSet = useMemo(() => new Set<string>((goldenData?.potential ?? []) as string[]), [goldenData]);
   // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
   // fixed-to-viewport (never clipped by the calendar card's overflow).
-  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden" | "caution"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
+  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden" | "caution" | "mercury" | "eclipse"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
   // Scroll-anchor: selecting a date re-renders the hero card ABOVE the calendar, whose height change
   // would otherwise shove the calendar and "jump" the screen. We capture the calendar's viewport top
   // on tap and restore it in a layout effect so the tapped cell stays visually put.
@@ -1085,9 +1109,19 @@ export default function Planner() {
                   setSelectedDate(dateStr);
                   // Crown days AND golden days pop a bubble; tapping the open day (or a plain day) closes it.
                   const isCaution = cautionSet.has(dateStr);
-                  if (crownTip?.date === dateStr || (!isCrown && !isGolden && !isCaution)) { setCrownTip(null); return; }
+                  const isEclipseDay = eclipseByDate.has(dateStr);
+                  const isMercuryDay = stationByDate.has(dateStr) || windowSet.has(dateStr) || rxSet.has(dateStr);
+                  if (crownTip?.date === dateStr || (!isCrown && !isGolden && !isCaution && !isEclipseDay && !isMercuryDay)) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
-                  setCrownTip({ date: dateStr, kind: isCrown ? "crown" : isGolden ? "golden" : "caution", why: isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution && !isGolden ? (cautionByDate.get(dateStr) ?? "") : "", cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: isCaution && !isGolden && !isCrown ? CAUTION_RED : accent });
+                  const kind = isCrown ? "crown" : isGolden ? "golden" : isCaution ? "caution" : isEclipseDay ? "eclipse" : "mercury";
+                  let why = isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution && !isGolden ? (cautionByDate.get(dateStr) ?? "") : "";
+                  if (kind === "eclipse") why = eclipseByDate.get(dateStr) ?? "";
+                  if (kind === "mercury") {
+                    const st = stationByDate.get(dateStr);
+                    const near = nearestStationTo(dateStr);
+                    why = st ? `station:${st}` : windowSet.has(dateStr) ? `window:${near?.type ?? ""}:${near?.date ?? ""}` : `rx:${near?.type === "turns direct" ? near.date : ""}`;
+                  }
+                  setCrownTip({ date: dateStr, kind: kind as any, why, cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: kind === "caution" ? CAUTION_RED : accent });
                 }}
                 className="flex items-center justify-center transition-all duration-150 relative"
                 style={{
@@ -1123,6 +1157,17 @@ export default function Planner() {
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
               >
+                {/* Sky labels: ☿ in three intensities (rx span → station window → station day)
+                    + the dark disc for an eclipse. Bottom-anchored; the number stays the identity. */}
+                {eclipseByDate.has(dateStr) ? (
+                  <span style={{ position: "absolute", bottom: 1, left: "50%", transform: "translateX(-50%)", width: 9, height: 9, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", pointerEvents: "none" }} />
+                ) : stationByDate.has(dateStr) ? (
+                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.62rem", lineHeight: 1, color: "#F2A93B", textShadow: "0 0 5px rgba(242,169,59,0.8)", fontWeight: 700, pointerEvents: "none" }}>☿</span>
+                ) : windowSet.has(dateStr) ? (
+                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.58rem", lineHeight: 1, color: "#F2A93B", opacity: 0.85, pointerEvents: "none" }}>☿</span>
+                ) : rxSet.has(dateStr) ? (
+                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.55rem", lineHeight: 1, color: "#F2A93B", opacity: 0.45, pointerEvents: "none" }}>☿</span>
+                ) : null}
                 {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
                     other day shows its date number. */}
                 {isCrown ? (
@@ -1202,6 +1247,26 @@ export default function Planner() {
                   <VeleaLorMark size={14} color="#C9A84C" /> Golden day
                 </span>
                 A bright day in the shared sky &mdash; favorable for everyone.
+              </>
+            ) : crownTip.kind === "eclipse" ? (
+              <>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
+                  <span style={{ width: 9, height: 9, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", display: "inline-block" }} /> {crownTip.why === "solar" ? "Solar" : "Lunar"} eclipse
+                </span>
+                The light breaks its own rules today &mdash; a volatile sky. Watch, don&rsquo;t launch; what surfaces is information.
+              </>
+            ) : crownTip.kind === "mercury" ? (
+              <>
+                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#F2A93B", marginBottom: "0.25rem" }}>
+                  ☿ {crownTip.why.startsWith("station:turns retrograde") ? "Mercury stations retrograde" : crownTip.why.startsWith("station:turns direct") ? "Mercury stations direct" : crownTip.why.startsWith("window:") ? "Station window" : "Mercury retrograde"}
+                </span>
+                {crownTip.why.startsWith("station:turns retrograde")
+                  ? "The turn itself. The days either side of a station are the roughest of the cycle — back up, double-check, say it twice."
+                  : crownTip.why.startsWith("station:turns direct")
+                  ? "The turn back. Clarity returns slowly — let momentum rebuild before you floor it."
+                  : crownTip.why.startsWith("window:")
+                  ? `Mercury ${crownTip.why.split(":")[1] === "turns direct" ? "stations direct" : "stations retrograde"} ${crownTip.why.split(":")[2]?.slice(5) ?? "soon"} — the days around a station are the roughest of the cycle.`
+                  : "Deep in the review — revisit, refine, reconnect. Hold big launches while the ground is re-walked."}
               </>
             ) : (
               <>

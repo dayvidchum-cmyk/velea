@@ -255,6 +255,93 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
   return value;
 }
 
+// ── Month sky marks: Mercury's course + eclipse days (calendar labels) ────────
+// David (2026-07-11): Mercury rx "really fucks with modern human life" — he follows the
+// ENTIRE course, and the ±3 days around each station are the worst. Deterministic scan:
+// retro span, exact station dates, station windows, eclipse days for a visible month.
+const MONTH_MARKS_CACHE = new Map<string, { at: number; value: MonthSkyMarks }>();
+const MONTH_MARKS_TTL_MS = 12 * 60 * 60 * 1000;
+
+export interface MonthSkyMarks {
+  mercury: {
+    retroDays: string[];                                  // every date Mercury is retrograde
+    stations: { date: string; type: "turns retrograde" | "turns direct" }[];
+    windowDays: string[];                                 // ±3 days around each station (the roughest stretch)
+  };
+  eclipses: { date: string; type: "solar" | "lunar" }[];
+}
+
+export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
+  const hit = MONTH_MARKS_CACHE.get(yearMonth);
+  if (hit && Date.now() - hit.at < MONTH_MARKS_TTL_MS) return hit.value;
+
+  const [y, m] = yearMonth.split("-").map(Number);
+  const first = Date.UTC(y, m - 1, 1, 12, 0, 0);
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+  // Daily Mercury speed, padded ±4 days so edge stations and their windows resolve.
+  const speeds: { ms: number; speed: number }[] = [];
+  for (let off = -4; off < daysInMonth + 4; off++) {
+    const d = new Date(first + off * DAY_MS);
+    const pos = await getSiderealLongitudesWithSpeed(d, ["Mercury"]);
+    speeds.push({ ms: d.getTime(), speed: pos.Mercury?.speed ?? 0 });
+  }
+  const retroDays: string[] = [];
+  for (const s of speeds) {
+    const date = iso(s.ms);
+    if (s.speed < 0 && date.startsWith(yearMonth)) retroDays.push(date);
+  }
+  const stations: { date: string; type: "turns retrograde" | "turns direct" }[] = [];
+  for (let i = 1; i < speeds.length; i++) {
+    const a = speeds[i - 1], b = speeds[i];
+    if (a.speed !== 0 && b.speed !== 0 && Math.sign(a.speed) !== Math.sign(b.speed)) {
+      const exact = await bisectStation("Mercury", new Date(a.ms), new Date(b.ms));
+      stations.push({ date: exact.toISOString().slice(0, 10), type: b.speed < 0 ? "turns retrograde" : "turns direct" });
+    }
+  }
+  const windowSet = new Set<string>();
+  for (const st of stations) {
+    const stMs = Date.parse(st.date + "T12:00:00Z");
+    for (let off = -3; off <= 3; off++) {
+      const d = iso(stMs + off * DAY_MS);
+      if (d.startsWith(yearMonth)) windowSet.add(d);
+    }
+  }
+
+  // Eclipse days: scan the month's syzygies (elongation crossing 0/180) and check
+  // node proximity — same geometry as findEclipses, swept across the whole month.
+  const eclipses: { date: string; type: "solar" | "lunar" }[] = [];
+  let prevElong: number | null = null;
+  for (let off = 0; off < daysInMonth; off++) {
+    const d = new Date(first + off * DAY_MS);
+    const pos = await getSiderealLongitudesWithSpeed(d, ["Sun", "Moon", "Rahu"]);
+    const sun = ((pos.Sun?.longitude ?? 0) % 360 + 360) % 360;
+    const moon = ((pos.Moon?.longitude ?? 0) % 360 + 360) % 360;
+    const rahu = ((pos.Rahu?.longitude ?? 0) % 360 + 360) % 360;
+    const elong = ((moon - sun) % 360 + 360) % 360;
+    if (prevElong != null) {
+      const crossedNew = prevElong > 300 && elong < 60;
+      const crossedFull = prevElong < 180 && elong >= 180;
+      if (crossedNew || crossedFull) {
+        const nodeDist = Math.min(Math.abs(diffTo(sun, rahu)), Math.abs(diffTo(sun, (rahu + 180) % 360)));
+        const limit = crossedNew ? 18.5 : 12.2;
+        if (nodeDist <= limit) eclipses.push({ date: iso(d.getTime()), type: crossedNew ? "solar" : "lunar" });
+      }
+    }
+    prevElong = elong;
+  }
+
+  const value: MonthSkyMarks = {
+    // Keep stations from the ±4d pad too — a window can reach into this month from a
+    // station that lives in the next/previous one, and the popup names the date.
+    mercury: { retroDays, stations, windowDays: Array.from(windowSet).sort() },
+    eclipses,
+  };
+  MONTH_MARKS_CACHE.set(yearMonth, { at: Date.now(), value });
+  return value;
+}
+
 // ── Golden days across a month ───────────────────────────────────────────────
 // The UNIVERSAL side of a golden moment = panchang day-quality (auspicious tithi +
 // nakshatra + yoga), which is COLLECTIVE (same for everyone) and derivable from the

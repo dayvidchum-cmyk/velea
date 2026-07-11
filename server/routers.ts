@@ -1789,7 +1789,20 @@ export const appRouter = router({
             const image = ph ? STATION_ART[p.planet][ph] : null;
             if (!ph || !image) return null;
             const c = STATION_COPY[ph];
-            return { planet: p.planet, phase: ph, image, title: c.title.replace("{P}", p.planet), note: c.note, sign: p.sign, house: p.house };
+            // The course line — David: the rx card "has become wallpaper." The note is the
+            // doctrine; this line is the CLOCK, and it changes every day. His law: the ±3
+            // days around each station are the worst of the cycle — say so when we're in one.
+            const st = p.station;
+            let courseLine: string | null = null;
+            if (st) {
+              const d = st.daysAway;
+              if (ph === "retrograde-1") courseLine = d >= -3 ? `Day ${Math.max(1, -d + 1)} of the review — still inside the station window, the roughest stretch of the cycle.` : `Day ${-d + 1} of the review.`;
+              else if (ph === "retrograde-2" && st.type === "turns direct") courseLine = d <= 3 ? (d <= 0 ? `The turn is here.` : `${d} day${d === 1 ? "" : "s"} to the turn — station window, the roughest stretch of the cycle.`) : `${d} days to the turn.`;
+              else if (ph === "preshadow-3" && st.type === "turns retrograde") courseLine = d <= 3 ? `Station in ${d} day${d === 1 ? "" : "s"} — the rough window is open.` : `Station in ${d} days.`;
+              else if (ph === "preshadow-2" && st.type === "turns retrograde") courseLine = `Station in ${d} days.`;
+              else if (ph === "direct-2" && st.type === "turns direct") courseLine = -d <= 3 ? `Turned ${-d === 0 ? "today" : `${-d} day${-d === 1 ? "" : "s"} ago`} — still in the station window; let it settle.` : `Turned ${-d} days ago — momentum rebuilding.`;
+            }
+            return { planet: p.planet, phase: ph, image, title: c.title.replace("{P}", p.planet), note: c.note, courseLine, sign: p.sign, house: p.house };
           }).filter(Boolean);
           const ecl = (sky.eclipses ?? []).find((e) => e.daysAway === 0);
           if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, timeOfDay, stations, ...base };
@@ -1805,6 +1818,14 @@ export const appRouter = router({
 
   // ── CURRENT SKY (all planets now: positions, retro, stations, eclipses) ──
   sky: router({
+    /** Calendar labels for a month: Mercury's course (retro span, stations, ±3-day
+     *  station windows) + eclipse days. Collective sky — same for every chart. */
+    monthMarks: protectedProcedure
+      .input(z.object({ yearMonth: z.string().regex(/^\d{4}-\d{2}$/) }))
+      .query(async ({ input }) => {
+        const { monthSkyMarks } = await import("./sky/current-sky.js");
+        return monthSkyMarks(input.yearMonth);
+      }),
     /** Live sky for the active profile: every planet's position/motion, the houses
      *  it transits from this Lagna, hits to natal points, stations, eclipses. */
     current: protectedProcedure.query(async ({ ctx }) => {
