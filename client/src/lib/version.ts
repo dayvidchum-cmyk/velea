@@ -81,4 +81,7 @@
 // absolutely-placed inside the circle, which made mixed sizes misalign). Cell = coin on top +
 // fixed-height glyph lane below; all glyphs one size on a shared baseline (station = heavy + glow,
 // window = bold, rx = normal, shadow = faint). Lane sits on the neutral card, so colors read clean.
-export const APP_VERSION = "1.1.329";
+// v1.1.330 = 2026-07-11 — Fix retrograde glyph alignment: ♀/♂ were rendering as color EMOJI on
+// iOS (a different font + baseline, and it ignored our color), so ☿♀♂♃♄ never shared a line. Force
+// TEXT presentation (U+FE0E) + pin one symbol font (Apple Symbols…) so all five align on the strip.
+export const APP_VERSION = "1.1.330";

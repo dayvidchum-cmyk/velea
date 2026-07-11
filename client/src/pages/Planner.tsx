@@ -47,7 +47,11 @@ function toDateStr(d: Date) {
 
 // Retrograde planets → their glyph + color for the calendar strip. Two tunings so the
 // small glyphs read on the mode-tinted tiles: BRIGHT on dark + Full Spectrum, DEEP on light.
-const PLANET_GLYPH: Record<string, string> = { Mercury: "☿", Venus: "♀", Mars: "♂", Jupiter: "♃", Saturn: "♄" };
+// ︎ forces TEXT presentation — without it iOS renders ♀/♂ as color emoji (a different
+// font with its own baseline + it ignores our color), which threw the strip's alignment off.
+const PLANET_GLYPH: Record<string, string> = { Mercury: "☿︎", Venus: "♀︎", Mars: "♂︎", Jupiter: "♃︎", Saturn: "♄︎" };
+// One symbol font for all five so they share metrics and sit on the same line.
+const PLANET_GLYPH_FONT = '"Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols2", sans-serif';
 const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string, string> } = {
   bright: { Mercury: "#85CDB5", Venus: "#F7A8B4", Mars: "#E8556B", Jupiter: "#E6C33A", Saturn: "#7C8CEA" },
   deep:   { Mercury: "#2E8B6E", Venus: "#C65A72", Mars: "#BD0039", Jupiter: "#9A7E00", Saturn: "#3F50AF" },
@@ -1198,6 +1202,7 @@ export default function Planner() {
                     return (
                       <span key={e.planet} style={{
                         color: col,
+                        fontFamily: PLANET_GLYPH_FONT,
                         fontSize: "0.82rem",
                         lineHeight: 1,
                         display: "inline-block",
@@ -1288,7 +1293,7 @@ export default function Planner() {
                     const col = (theme === "dark" || fullSpectrum) ? PLANET_RETRO_COLOR.bright[e.planet] : PLANET_RETRO_COLOR.deep[e.planet];
                     return (
                       <span key={e.planet} style={{ display: "flex", gap: 6, alignItems: "baseline" }}>
-                        <span style={{ color: col, fontWeight: 800, fontSize: "0.95rem", lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
+                        <span style={{ color: col, fontFamily: PLANET_GLYPH_FONT, fontWeight: 800, fontSize: "0.95rem", lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                         <span><b style={{ color: col }}>{e.planet}</b> {e.detail}.</span>
                       </span>
                     );
