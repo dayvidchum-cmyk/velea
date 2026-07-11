@@ -1185,17 +1185,17 @@ export default function Planner() {
                 onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
                 onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
               >
-                {/* Eclipse keeps its dark disc. Mercury's retrograde influence (shadow → rx →
-                    window) now reads as the planet-green RING on the cell (date stays intact);
-                    the station day alone carries the centered ☿ glyph below. */}
-                {eclipseByDate.has(dateStr) ? (
-                  <span style={{ position: "absolute", bottom: 1, left: "50%", transform: "translateX(-50%)", width: 9, height: 9, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", pointerEvents: "none" }} />
-                ) : null}
+                {/* Eclipse + Mercury station days replace the number with their mark (rendered
+                    centered below). Mercury's shadow → rx → window influence reads as the
+                    planet-green RING on the cell, so those days keep their date number. */}
                 {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
                     other day shows its date number. */}
                 {isCrown ? (
                   // The bindu — a single gold point. The day itself is the mark.
                   <span style={{ width: 11, height: 11, borderRadius: 999, background: GOLD_BRIGHT, boxShadow: "0 0 7px rgba(242,194,28,0.8)", pointerEvents: "none", display: "inline-block" }} />
+                ) : eclipseByDate.has(dateStr) ? (
+                  // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
+                  <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                 ) : stationByDate.has(dateStr) ? (
                   // Station day: ☿ IN PLACE of the number — the turn is the whole meaning of the day.
                   // Mercury green, mode-tuned. FS/dark add a dark halo so the glyph lifts off

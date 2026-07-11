@@ -66,4 +66,6 @@
 // retrograde influence now reads as a green RING (shadow dashed → rx solid → window thick) so
 // the date number stays intact, and the station day carries a centered green ☿. Ring gets a
 // hairline dark stroke on FS + dark (green-on-green Action was soft); light keeps the plain ring.
-export const APP_VERSION = "1.1.325";
+// v1.1.326 = 2026-07-11 — Eclipse days now show ONLY the dark gold-rimmed disc, centered in
+// place of the date number (was disc + number), matching the Mercury station-day treatment.
+export const APP_VERSION = "1.1.326";
