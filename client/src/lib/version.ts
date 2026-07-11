@@ -96,4 +96,6 @@
 // number. Ongoing spans become one thin continuous colored TRACK per planet under the coin (fixed
 // slots so each reads as a single line across days) — opacity by state (window/station full, rx
 // dimmer, shadow faintest). Tap still opens the "Retrograde sky" list.
-export const APP_VERSION = "1.1.333";
+// v1.1.334 = 2026-07-11 — Bigger station glyph on the coin (1.75rem), and shadow-phase tracks are
+// now DASHED lines (opacity alone was too subtle) — solid = retrograde run, dashed = shadow.
+export const APP_VERSION = "1.1.334";

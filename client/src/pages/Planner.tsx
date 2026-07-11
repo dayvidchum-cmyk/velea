@@ -1200,7 +1200,7 @@ export default function Planner() {
                       {stationsToday.map((e) => (
                         <span key={e.planet} style={{
                           fontFamily: PLANET_GLYPH_FONT,
-                          fontSize: stationsToday.length > 1 ? "1.05rem" : "1.42rem",
+                          fontSize: stationsToday.length > 1 ? "1.3rem" : "1.75rem",
                           fontWeight: 800,
                           lineHeight: 1,
                           color: retroColor[e.planet] ?? "currentColor",
@@ -1223,12 +1223,16 @@ export default function Planner() {
                   <div style={{ width: "100%", maxWidth: "3.1rem", display: "flex", flexDirection: "column", gap: 2, pointerEvents: "none" }}>
                     {monthRetroPlanets.map((planet) => {
                       const st = retroToday?.find((e) => e.planet === planet)?.state;
-                      const op = st === "window" || st === "station-retro" || st === "station-direct" ? 1
-                        : st === "rx" ? 0.8
-                        : st === "shadow" ? 0.35
-                        : 0;
+                      const col = retroColor[planet];
+                      const solid = st === "window" || st === "station-retro" || st === "station-direct";
+                      // Shadow = a DASHED line (unmistakably different from the solid retrograde run);
+                      // window/station = full solid, rx = solid but a touch quieter, inactive = blank.
+                      const bg = st === "shadow"
+                        ? `repeating-linear-gradient(90deg, ${col} 0 3px, transparent 3px 6px)`
+                        : (solid || st === "rx") ? col : "transparent";
+                      const op = solid ? 1 : st === "rx" ? 0.75 : st === "shadow" ? 0.9 : 0;
                       return (
-                        <div key={planet} style={{ height: 2.5, borderRadius: 2, background: op ? retroColor[planet] : "transparent", opacity: op }} />
+                        <div key={planet} style={{ height: 3, borderRadius: solid || st === "rx" ? 2 : 0, background: bg, opacity: op }} />
                       );
                     })}
                   </div>
