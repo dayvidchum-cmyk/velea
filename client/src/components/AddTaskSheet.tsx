@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown, Repeat, Layers } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { TASK_MODES, MODE_OKLCH } from "../../../shared/types";
+import { suggestTaskMode } from "../../../shared/suggest-mode";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
 import { LIFE_AREAS, parseLifeAreas } from "../../../shared/life-areas";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -245,6 +246,8 @@ function ProjectSelector({
 export default function AddTaskSheet({ open, onClose, initialMode, initialProjectId, editTask }: AddTaskSheetProps) {
   const [title, setTitle] = useState("");
   const [mode, setMode] = useState<TaskMode>("Build");
+  const [modeTouched, setModeTouched] = useState(false); // manual pick wins over suggestion
+  const [suggestion, setSuggestion] = useState<{ mode: TaskMode; reason: string } | null>(null);
   const [priority, setPriority] = useState<TaskPriority>("Medium");
   const [intent, setIntent] = useState<"want" | "need">("need");
   const [dueDate, setDueDate] = useState("");
@@ -261,6 +264,18 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
   const [emotionalLoad, setEmotionalLoad] = useState<LoadLevel>("Low");
   const [notes, setNotes] = useState("");
   const [recurrence, setRecurrence] = useState<Recurrence>("none");
+
+  // Suggest the mode from the task's own fingerprint (David's law: Action owns the
+  // NEW; Build/Selective/Restraint tend the existing). Deterministic, no API. The
+  // suggestion only steers while the user hasn't picked by hand.
+  useEffect(() => {
+    if (!open) return;
+    const sug = suggestTaskMode({ title, cognitiveLoad, physicalLoad, emotionalLoad, creativeRequired, socialRequired, recurrence, projectId });
+    setSuggestion(sug);
+    if (!modeTouched && title.trim().length >= 3) setMode(sug.mode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, title, cognitiveLoad, physicalLoad, emotionalLoad, creativeRequired, socialRequired, recurrence, projectId, modeTouched]);
+
   const [lifeAreas, setLifeAreas] = useState<string[]>([]);
   // The native date input always renders a date-shaped placeholder, which reads
   // as "due today." Hide it behind an explicit affordance until the user opts in.
@@ -301,6 +316,8 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
     if (editTask) {
       setTitle(editTask.title);
       setMode(editTask.mode as TaskMode);
+      setModeTouched(true); // editing: respect the stored choice
+      setSuggestion(null);
       setPriority(editTask.priority === 3 ? "High" : editTask.priority === 2 ? "Medium" : "Low");
       setIntent(((editTask as any).intent as "want" | "need") ?? "need");
       setDueDate(editTask.dueDate || "");
@@ -323,6 +340,8 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
     } else {
       setTitle("");
       setMode(initialMode ?? "Build");
+      setModeTouched(!!initialMode); // an orb-launched sheet already implies the mode
+      setSuggestion(null);
       setPriority("Medium");
       setIntent("need");
       setDueDate("");
@@ -539,7 +558,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
                 return (
                   <button
                     key={m}
-                    onClick={() => setMode(m)}
+                    onClick={() => { setMode(m); setModeTouched(true); }}
                     className="px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-150"
                     style={{
                       letterSpacing: "0.02em",
@@ -549,10 +568,18 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
                     }}
                   >
                     {m}
+                    {!modeTouched && suggestion?.mode === m && mode === m && title.trim().length >= 3 && (
+                      <span style={{ marginLeft: 5, fontSize: "0.6rem", fontWeight: 600, opacity: 0.75, letterSpacing: "0.04em" }}>suggested</span>
+                    )}
                   </button>
                 );
               })}
             </div>
+            {!modeTouched && suggestion && mode === suggestion.mode && title.trim().length >= 3 && (
+              <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--color-muted-foreground)" }}>
+                Suggested — {suggestion.reason}. Tap another to override.
+              </p>
+            )}
           </div>
 
           {/* Priority selector */}
