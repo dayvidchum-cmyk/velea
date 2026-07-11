@@ -25,8 +25,11 @@ export default function FullSpectrumController() {
     const isBuild = color.trim().toUpperCase() === "#D4AF37";
     let surface: string, secondary: string;
     if (isBuild) {
-      surface = "#6F5B1D";
-      secondary = "color-mix(in srgb, #6F5B1D 90%, #ffffff)"; // a hair lighter so inputs still lift
+      // Build's FS ground — David's gold hue, but DEEP (was a mid-lightness #6F5B1D that sat at the
+      // same brightness as the text + wheel, reading as a washed-out veil). Same hue, darker, so
+      // gold accents and the mode-colored wheel lift off it like the cool modes do.
+      surface = "#3F340F";
+      secondary = "color-mix(in srgb, #3F340F 86%, #ffffff)"; // a hair lighter so inputs still lift
     } else {
       surface = `color-mix(in srgb, ${color} 30%, #070b12)`;
       secondary = `color-mix(in srgb, ${color} 42%, #0b1119)`;

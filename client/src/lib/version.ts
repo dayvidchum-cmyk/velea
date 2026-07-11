@@ -98,4 +98,7 @@
 // dimmer, shadow faintest). Tap still opens the "Retrograde sky" list.
 // v1.1.334 = 2026-07-11 — Bigger station glyph on the coin (1.75rem), and shadow-phase tracks are
 // now DASHED lines (opacity alone was too subtle) — solid = retrograde run, dashed = shadow.
-export const APP_VERSION = "1.1.334";
+// v1.1.335 = 2026-07-11 — Build Full Spectrum ground deepened #6F5B1D → #3F340F. The old mid-
+// lightness gold sat at the same brightness as text + wheel and read as a washed-out veil; same
+// hue, darker, so accents and content lift off it (matching how the cool FS modes behave).
+export const APP_VERSION = "1.1.335";
