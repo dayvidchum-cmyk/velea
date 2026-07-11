@@ -19,7 +19,7 @@ import SignpostSheet from "@/components/SignpostSheet";
 import DueOrbSheet from "@/components/DueOrbSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 
-import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_RGBA } from "../../../shared/types";
+import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_RGBA, autoTextColors } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
 import { evaluateRestGate } from "../../../shared/rest-gate";
 import type { Task } from "../../../drizzle/schema";
@@ -1066,11 +1066,15 @@ export default function Planner() {
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
             // dark fill made the date number always-white regardless of light/dark appearance.
+            // TODAY = the mode color at FULL strength (darkening gold made it read brown);
+            // the number color is contrast-picked, so gold days carry a dark number and
+            // teal/green/wine days keep white.
+            const todayText = hasMode ? autoTextColors(accent).primary : undefined;
             const restingBg = hasMode
-              ? (isToday ? darkenOklch(accent, 0.66) : withAlpha(accent, tintAlpha))
+              ? (isToday ? accent : withAlpha(accent, tintAlpha))
               : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
-            const hoverBg = hasMode ? (isToday ? darkenOklch(accent, 0.58) : darkenOklch(accent, 0.82)) : "var(--color-secondary)";
-            const pressBg = hasMode ? (isToday ? darkenOklch(accent, 0.5) : darkenOklch(accent, 0.64)) : "var(--color-border)";
+            const hoverBg = hasMode ? (isToday ? darkenOklch(accent, 0.9) : darkenOklch(accent, 0.82)) : "var(--color-secondary)";
+            const pressBg = hasMode ? (isToday ? darkenOklch(accent, 0.8) : darkenOklch(accent, 0.64)) : "var(--color-border)";
 
             return (
               <button
@@ -1093,7 +1097,7 @@ export default function Planner() {
                   maxWidth: "3.1rem",
                   margin: "0 auto",
                   borderRadius: 999,
-                  color: hasMode ? "var(--color-foreground)" : undefined,
+                  color: isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
                   // Today = a WHITE border. Keeping it in the normal border slot (not an outward
                   // box-shadow) means it can't bleed into the neighbor cell. If today is also
@@ -1114,16 +1118,16 @@ export default function Planner() {
                     ? (isGolden ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : cautionSet.has(dateStr) ? `inset 0 0 0 2px ${CAUTION_RED}` : undefined)
                     : undefined,
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; if (hasMode) e.currentTarget.style.color = "var(--color-foreground)"; }}
-                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
-                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : ""; }}
+                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
+                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
               >
                 {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
                     other day shows its date number. */}
                 {isCrown ? (
                   // The bindu — a single gold point. The day itself is the mark.
-                  <span style={{ width: 11, height: 11, borderRadius: 999, background: "#D4AF37", boxShadow: "0 0 7px rgba(212,175,55,0.75)", pointerEvents: "none", display: "inline-block" }} />
+                  <span style={{ width: 11, height: 11, borderRadius: 999, background: GOLD_BRIGHT, boxShadow: "0 0 7px rgba(242,194,28,0.8)", pointerEvents: "none", display: "inline-block" }} />
                 ) : (
                   <span
                     className="text-xs"
@@ -1178,7 +1182,7 @@ export default function Planner() {
             {crownTip.kind === "crown" ? (
               <>
                 <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 999, background: "#D4AF37", boxShadow: "0 0 5px rgba(212,175,55,0.7)", display: "inline-block" }} /> Knot Day
+                  <span style={{ width: 8, height: 8, borderRadius: 999, background: "#F2C21C", boxShadow: "0 0 5px rgba(242,194,28,0.75)", display: "inline-block" }} /> Knot Day
                 </span>
                 These are days when the universal sky and your chart line up with unusual force. What arrives may look like a gift or a rupture &mdash; but it carries weight, and it moves you where you&rsquo;re meant to go.
                 {goldenSet.has(crownTip.date) && (
