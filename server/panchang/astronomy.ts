@@ -47,6 +47,10 @@ export interface AstronomyData {
   nakshatraTransitionTime: string | null;
   /** Nakshatra name that begins after the transition. null if no transition. */
   nakshatraAfterTransition: string | null;
+  /** Local time the Moon crosses into the next SIGN this vedic day. null if it doesn't. */
+  signTransitionTime: string | null;
+  /** Sign name after that crossing. null if no crossing. */
+  moonSignAfterTransition: string | null;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -290,6 +294,27 @@ async function getDominantByMajority(
  * Returns the JD of the transition, or null if no transition occurs.
  * Accuracy: within ~30 seconds (tolerance = 1/2880 day).
  */
+async function findSignTransition(
+  startJD: number,
+  endJD: number,
+  startSignIndex: number
+): Promise<number | null> {
+  const swe = await getSwe();
+  const flags = SEFLG_SWIEPH | SEFLG_SIDEREAL;
+  const endMoonResult = swe.calc_ut(endJD, SE_MOON, flags);
+  const endSign = Math.floor((((endMoonResult[0] % 360) + 360) % 360) / 30);
+  if (endSign === startSignIndex) return null;
+  let lo = startJD, hi = endJD;
+  const TOLERANCE = 1 / 2880;
+  while (hi - lo > TOLERANCE) {
+    const mid = (lo + hi) / 2;
+    const midMoonResult = swe.calc_ut(mid, SE_MOON, flags);
+    const midSign = Math.floor((((midMoonResult[0] % 360) + 360) % 360) / 30);
+    if (midSign === startSignIndex) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
 async function findNakshatraTransition(
   startJD: number,
   endJD: number,
@@ -392,11 +417,26 @@ export async function calcPanchang(
     nakshatraAfterTransition = transitionMoon.nakshatra;
   }
 
+  // Sign crossing within the same vedic day (sunrise → next sunrise) — the Moon changes
+  // sign every ~2¼ days, so many days carry one. The sign sets the HOUSE sets the MODE,
+  // so this is the day's biggest possible turn (David's literal-switch school, extended).
+  let signTransitionTime: string | null = null;
+  let moonSignAfterTransition: string | null = null;
+  const signTransJD = await findSignTransition(sunriseJD, nextSunriseJD, moonSignIndex);
+  if (signTransJD !== null) {
+    signTransitionTime = jdToLocalTime(signTransJD, utcOffset);
+    const afterResult = swe.calc_ut(signTransJD + 1 / 1440, SE_MOON, flags);
+    const afterIdx = Math.floor((((afterResult[0] % 360) + 360) % 360) / 30);
+    moonSignAfterTransition = SIGNS[afterIdx];
+  }
+
   return {
     date: dateStr,
     sunriseLocal: jdToLocalTime(sunriseJD, utcOffset),
     sunriseJD,
     moonLongitude: moonLonAtSunrise,
+    signTransitionTime,
+    moonSignAfterTransition,
     moonSignIndex,
     moonSign: SIGNS[moonSignIndex],
     nakshatraIndex: dominantMoon.nakshatraIndex,

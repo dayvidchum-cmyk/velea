@@ -119,39 +119,76 @@ function parse12hLocal(t: string | null | undefined): number | null {
  *  mid-day star change flips the MODE itself — emits the turn note. */
 function finishDayMode(opts: {
   baseMode: import("./interpreter.js").DayMode;
+  baseModeAfterSign?: import("./interpreter.js").DayMode | null; // when the Moon crosses SIGNS mid-day
+  signTransitionTime?: string | null;
   tithi: string; paksha: "Shukla" | "Krishna";
   karanaName: string | null;
   sunriseNak: string; transitionTime: string | null; afterNak: string | null; sunriseLocal: string | null;
   dateStr: string; utcOffset: number;
 }) {
-  const readFor = (nak: string) => {
-    const mr = calculateFinalMode(opts.baseMode, nak, opts.tithi, opts.paksha);
+  const readFor = (baseMode: import("./interpreter.js").DayMode, nak: string) => {
+    const mr = calculateFinalMode(baseMode, nak, opts.tithi, opts.paksha);
     const adj = applyFieldKarana(mr.finalMode, mr.fieldCondition, opts.karanaName);
     return { modeReason: mr, mode: adj.mode, stepReasons: adj.reasons };
   };
-  const a = readFor(opts.sunriseNak);
-  if (!opts.afterNak || !opts.transitionTime) return { ...a, activeNakshatra: opts.sunriseNak, turnsAtNote: null };
-  const b = readFor(opts.afterNak);
 
-  // Which star rules this read?
+  // The day as a TIMELINE (David's literal-switch school, extended to signs): the star
+  // and the sign are step functions; each boundary starts a new segment. Today reads
+  // the segment we are IN; other dates read the majority configuration; and EVERY
+  // boundary that flips the MODE is told to the user — communication is the contract.
+  const sr = parse12hLocal(opts.sunriseLocal) ?? 0;
+  const minsFromSunrise = (t: string | null | undefined) => {
+    const m = parse12hLocal(t);
+    return m == null ? null : ((m - sr) + 1440) % 1440;
+  };
+  type Boundary = { at: number; label: string; kind: "star" | "sign" };
+  const boundaries: Boundary[] = [];
+  const starAt = minsFromSunrise(opts.transitionTime);
+  if (starAt != null && opts.afterNak) boundaries.push({ at: starAt, label: opts.transitionTime!, kind: "star" });
+  const signAt = minsFromSunrise(opts.signTransitionTime);
+  if (signAt != null && opts.baseModeAfterSign) boundaries.push({ at: signAt, label: opts.signTransitionTime!, kind: "sign" });
+  boundaries.sort((x, y) => x.at - y.at);
+
+  // Config at a given minutes-from-sunrise
+  const configAt = (m: number) => {
+    let nak = opts.sunriseNak, base = opts.baseMode;
+    for (const b of boundaries) {
+      if (m >= b.at) {
+        if (b.kind === "star" && opts.afterNak) nak = opts.afterNak;
+        if (b.kind === "sign" && opts.baseModeAfterSign) base = opts.baseModeAfterSign;
+      }
+    }
+    return { nak, base };
+  };
+
+  // Which moment rules this read?
   const nowUtcMs = Date.now();
   const local = new Date(nowUtcMs + opts.utcOffset * 3600_000);
   const localDate = `${local.getUTCFullYear()}-${String(local.getUTCMonth() + 1).padStart(2, "0")}-${String(local.getUTCDate()).padStart(2, "0")}`;
-  const tt = parse12hLocal(opts.transitionTime);
-  const sr = parse12hLocal(opts.sunriseLocal);
-  let useAfter: boolean;
-  if (localDate === opts.dateStr && tt != null) {
-    const nowMin = local.getUTCHours() * 60 + local.getUTCMinutes();
-    useAfter = nowMin >= tt; // TODAY: the star ruling right now
+  let readMinute: number;
+  if (localDate === opts.dateStr) {
+    readMinute = ((local.getUTCHours() * 60 + local.getUTCMinutes()) - sr + 1440) % 1440; // now
   } else {
-    const minsUntil = tt != null && sr != null ? ((tt - sr) + 1440) % 1440 : 1440;
-    useAfter = minsUntil <= 720; // other dates: majority-of-day star
+    // Majority configuration: the sign/star ruling more than half the vedic day.
+    const majNak = starAt != null && starAt <= 720 && opts.afterNak ? 1441 : 0;
+    const majSign = signAt != null && signAt <= 720 && opts.baseModeAfterSign ? 1441 : 0;
+    readMinute = Math.max(majNak, majSign, 0) > 0 ? 1441 : 0;
+    // (1441 = after all boundaries when the after-half rules; 0 = sunrise config.
+    //  If only one of the two flips majority, evaluating at 1441 still applies both
+    //  boundaries — acceptable: past mid-day both new configs rule the working day.)
   }
-  const active = useAfter ? b : a;
-  const turnsAtNote = a.mode !== b.mode
-    ? `The day turns at ${opts.transitionTime} — ${a.mode} gives way to ${b.mode}.`
-    : null;
-  return { ...active, activeNakshatra: useAfter ? opts.afterNak : opts.sunriseNak, turnsAtNote };
+  const cfg = configAt(readMinute);
+  const active = readFor(cfg.base, cfg.nak);
+
+  // The notes: every boundary whose crossing CHANGES the mode gets a sentence.
+  const sentences: string[] = [];
+  for (const b of boundaries) {
+    const before = readFor(configAt(b.at - 1).base, configAt(b.at - 1).nak).mode;
+    const after = readFor(configAt(b.at).base, configAt(b.at).nak).mode;
+    if (before !== after) sentences.push(`The day turns at ${b.label} — ${before} gives way to ${after}.`);
+  }
+  const turnsAtNote = sentences.length ? sentences.join(" ") : null;
+  return { ...active, activeNakshatra: cfg.nak, turnsAtNote };
 }
 
 export async function getDayField(
@@ -190,6 +227,8 @@ export async function getDayField(
       let nakshatraTransitionTime: string | null = null;
       let nakshatraAfterTransition: string | null = null;
       let sunriseLocal: string | null = cached.sunrise ?? null;
+      let signTransitionTime: string | null = null;
+      let moonSignAfterTransition: string | null = null;
       let karana: DayField['karana'] = null;
       try {
         const lat = locationOverride?.lat ?? PLANNER_LAT;
@@ -198,15 +237,27 @@ export async function getDayField(
         nakshatraAtSunrise = astro.nakshatraAtSunrise;
         nakshatraTransitionTime = astro.nakshatraTransitionTime;
         nakshatraAfterTransition = astro.nakshatraAfterTransition;
+        signTransitionTime = (astro as any).signTransitionTime ?? null;
+        moonSignAfterTransition = (astro as any).moonSignAfterTransition ?? null;
         sunriseLocal = astro.sunriseLocal ?? sunriseLocal;
         karana = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
       } catch {
         // Non-fatal: fall back to the cached sunrise star; no switch, no karana step.
       }
 
-      // Literal star switch + field/karana steps — the mode the day is ACTUALLY in.
+      // If the Moon crosses SIGNS this vedic day, the house — and so the base mode — flips too.
+      let baseModeAfterSign: import("./interpreter.js").DayMode | null = null;
+      if (moonSignAfterTransition && lagnaOverride) {
+        const idx = SIGN_ORDER.indexOf(moonSignAfterTransition);
+        if (idx !== -1) {
+          try { baseModeAfterSign = HOUSE_MODE[moonSignToHouse(idx, lagnaOverride)] ?? null; } catch { /* keep null */ }
+        }
+      }
+
+      // Literal star+sign switch + field/karana steps — the mode the day is ACTUALLY in.
       const fin = finishDayMode({
-        baseMode, tithi: cached.tithi, paksha: cachedPaksha, karanaName: karana?.name ?? null,
+        baseMode, baseModeAfterSign, signTransitionTime,
+        tithi: cached.tithi, paksha: cachedPaksha, karanaName: karana?.name ?? null,
         sunriseNak: nakshatraAtSunrise, transitionTime: nakshatraTransitionTime,
         afterNak: nakshatraAfterTransition, sunriseLocal, dateStr, utcOffset,
       });
@@ -259,8 +310,17 @@ export async function getDayField(
     if (!lagnaOverride) (field as any).lagnaSign = null;
     // Literal star switch + field/karana steps (same finisher as the cached path).
     {
+      let baseModeAfterSign: import("./interpreter.js").DayMode | null = null;
+      const afterSign = (astro as any).moonSignAfterTransition as string | null;
+      if (afterSign && lagnaOverride) {
+        const idx = SIGN_ORDER.indexOf(afterSign);
+        if (idx !== -1) {
+          try { baseModeAfterSign = HOUSE_MODE[moonSignToHouse(idx, lagnaOverride)] ?? null; } catch { /* keep null */ }
+        }
+      }
       const fin = finishDayMode({
-        baseMode: field.baseMode, tithi: field.tithi, paksha: field.tithiPaksha, karanaName: field.karana?.name ?? null,
+        baseMode: field.baseMode, baseModeAfterSign, signTransitionTime: (astro as any).signTransitionTime ?? null,
+        tithi: field.tithi, paksha: field.tithiPaksha, karanaName: field.karana?.name ?? null,
         sunriseNak: astro.nakshatraAtSunrise, transitionTime: astro.nakshatraTransitionTime,
         afterNak: astro.nakshatraAfterTransition, sunriseLocal: astro.sunriseLocal ?? field.sunriseLocal ?? null,
         dateStr, utcOffset,
