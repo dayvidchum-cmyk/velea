@@ -37,7 +37,7 @@ const HOUSE_THEME: Record<number, string> = {
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 
 const phaseLabel = (phase: string) =>
-  phase.startsWith("preshadow") ? "pre-shadow" : phase.startsWith("retrograde") ? "retrograde ℞" : phase === "direct-2" ? "stations direct" : "clears shadow";
+  phase.startsWith("preshadow") ? "pre-shadow" : phase.startsWith("retrograde") ? "retrograde ℞" : "stations direct";
 
 type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string; primary?: boolean; phase?: string };
 

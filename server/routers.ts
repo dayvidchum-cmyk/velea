@@ -1866,7 +1866,7 @@ export const appRouter = router({
           "preshadow-1": "mercury-preshadow-1.jpg", "preshadow-2": "mercury-preshadow-2.jpg",
           "preshadow-3": "mercury-preshadow-3.jpg",
           "retrograde-1": "mercury-rx-1.jpg", "retrograde-2": "mercury-rx-2.jpg",
-          "direct-2": "mercury-direct-2.jpg", "direct-1": "mercury-direct-1.jpg",
+          "direct-1": "mercury-direct-1.jpg",
         },
       };
       const STATION_COPY: Record<string, { title: string; note: string }> = {
@@ -1875,21 +1875,23 @@ export const appRouter = router({
         "preshadow-3": { title: "{P} in deep shadow", note: "The station is near — back up, double-check, confirm. Loose ends are surfacing on purpose." },
         "retrograde-1": { title: "{P} turns retrograde", note: "The light turns inward. Not a curse — a review begins: revisit and refine, don't launch." },
         "retrograde-2": { title: "{P} retrograde", note: "Deep in the review — the past resurfaces to be reconnected and finished. Hold big launches while the ground is re-walked." },
-        "direct-2": { title: "{P} stations direct", note: "The turn. Clarity returns, but slowly — let momentum rebuild before you floor it." },
-        "direct-1": { title: "{P} clears its shadow", note: "The review closes — fresh ground again. Now what you start holds." },
+        "direct-1": { title: "{P} stations direct", note: "The turn. Clarity returns, but slowly — let momentum rebuild before you floor it." },
       };
       const phaseOf = (p: any): string | null => {
         if (p.isRetrograde) {
-          const rst = p.station;
-          // "Entering" = the retrograde station just happened (past ~week); deeper in = "stationed".
-          return (rst?.type === "turns retrograde" && rst.daysAway <= 0 && rst.daysAway >= -7) ? "retrograde-1" : "retrograde-2";
+          // rx-1 bookends the review: the first week after it turns retrograde, and the final
+          // week before it turns direct. rx-2 owns the MIDDLE of the retrograde.
+          const st = p.station;
+          if (st?.type === "turns retrograde") return st.daysAway >= -7 ? "retrograde-1" : "retrograde-2";
+          if (st?.type === "turns direct") return st.daysAway <= 7 ? "retrograde-1" : "retrograde-2";
+          return "retrograde-2";
         }
         const st = p.station;
         if (!st) return null;
         if (st.type === "turns retrograde" && st.daysAway > 0)
           return st.daysAway <= 5 ? "preshadow-3" : st.daysAway <= 10 ? "preshadow-2" : st.daysAway <= 16 ? "preshadow-1" : null;
         if (st.type === "turns direct" && st.daysAway <= 0)
-          return st.daysAway >= -7 ? "direct-2" : "direct-1";
+          return "direct-1"; // single post-turn card (direct-2 "stations direct" art retired)
         return null;
       };
 
@@ -1913,11 +1915,14 @@ export const appRouter = router({
             let courseLine: string | null = null;
             if (st) {
               const d = st.daysAway;
-              if (ph === "retrograde-1") courseLine = d >= -3 ? `Day ${Math.max(1, -d + 1)} of the review — still inside the station window, the roughest stretch of the cycle.` : `Day ${-d + 1} of the review.`;
-              else if (ph === "retrograde-2" && st.type === "turns direct") courseLine = d <= 3 ? (d <= 0 ? `The turn is here.` : `${d} day${d === 1 ? "" : "s"} to the turn — station window, the roughest stretch of the cycle.`) : `${d} days to the turn.`;
+              // rx-1 entering (just turned retrograde) counts days INTO the review; rx-1 closing
+              // (turn approaching) counts DOWN to the turn.
+              if (ph === "retrograde-1" && st.type === "turns retrograde") courseLine = d >= -3 ? `Day ${Math.max(1, -d + 1)} of the review — still inside the station window, the roughest stretch of the cycle.` : `Day ${-d + 1} of the review.`;
+              else if (ph === "retrograde-1" && st.type === "turns direct") courseLine = d <= 3 ? (d <= 0 ? `The turn is here.` : `${d} day${d === 1 ? "" : "s"} to the turn — station window, the roughest stretch of the cycle.`) : `${d} days to the turn.`;
+              else if (ph === "retrograde-2") courseLine = st.type === "turns direct" ? `${d} days to the turn.` : `Day ${-d + 1} of the review.`;
               else if (ph === "preshadow-3" && st.type === "turns retrograde") courseLine = d <= 3 ? `Station in ${d} day${d === 1 ? "" : "s"} — the rough window is open.` : `Station in ${d} days.`;
               else if (ph === "preshadow-2" && st.type === "turns retrograde") courseLine = `Station in ${d} days.`;
-              else if (ph === "direct-2" && st.type === "turns direct") courseLine = -d <= 3 ? `Turned ${-d === 0 ? "today" : `${-d} day${-d === 1 ? "" : "s"} ago`} — still in the station window; let it settle.` : `Turned ${-d} days ago — momentum rebuilding.`;
+              else if (ph === "direct-1" && st.type === "turns direct") courseLine = -d <= 3 ? `Turned ${-d === 0 ? "today" : `${-d} day${-d === 1 ? "" : "s"} ago`} — still in the station window; let it settle.` : `Turned ${-d} days ago — momentum rebuilding.`;
             }
             return { planet: p.planet, phase: ph, image, title: c.title.replace("{P}", p.planet), note: c.note, courseLine, sign: p.sign, house: p.house };
           }).filter(Boolean);

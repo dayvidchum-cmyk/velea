@@ -136,4 +136,4 @@
 // with the viewer's time of day (dawn/day/dusk/night). todSrc skips the time-of-day suffix for any
 // mercury-rx image; the 4 unused Mercury Rx time-of-day variant files were removed. All other Stage
 // cards still breathe with the real sky. (Also today: new moon art swapped into the Stage cards.)
-export const APP_VERSION = "1.1.343";
+export const APP_VERSION = "1.1.344";
