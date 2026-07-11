@@ -133,7 +133,7 @@ export const MODE_CARD_GRADIENT: Record<TaskMode, string> = {
 export const MODE_DARK: Record<TaskMode, string> = {
   Build: "#BC886F",      // --velea-build-shadow (ochre-rose)
   Action: "#5a8f4a",     // --velea-action-shadow (medium sage-green)
-  Selective: "#1A2B4A",  // --velea-selective-shadow (deep slate-indigo)
+  Selective: "#123F46",  // --velea-selective-shadow (deep teal — was slate-indigo, read blue)
   Restraint: "#4A1A2E",  // --velea-restraint-shadow (deep plum-burgundy)
 };
 

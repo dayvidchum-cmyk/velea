@@ -65,11 +65,11 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --background: #0a131e;
+  --background: #121212;
   --foreground: #EAE7E1;
-  --card: #0a131e;
+  --card: #121212;
   --card-foreground: #EAE7E1;
-  --popover: #0a131e;
+  --popover: #121212;
   --popover-foreground: #EAE7E1;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
@@ -146,7 +146,7 @@
   --velea-selective-primary: #357E85;
   --velea-selective-highlight: #8AC8D0;
   --velea-selective-shadow: #1A2B4A;
-  --velea-selective-gradient: linear-gradient(180deg, #8AC8D0 0%, #4A9099 30%, #357E85 60%, #1A2B4A 100%);
+  --velea-selective-gradient: linear-gradient(180deg, #8AC8D0 0%, #4A9099 30%, #357E85 60%, #123F46 100%);
   /* RESTRAINT — blush rose brightening to petal pink, deepening to deep plum-burgundy */
   --velea-restraint-primary: #B15F71;
   --velea-restraint-highlight: #F0A8B8;
@@ -579,11 +579,11 @@
 
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
-  --background: #0a131e;
+  --background: #121212;
   --foreground: #EAE7E1;
-  --card: #0a131e;
+  --card: #121212;
   --card-foreground: #EAE7E1;
-  --popover: #0a131e;
+  --popover: #121212;
   --popover-foreground: #EAE7E1;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;

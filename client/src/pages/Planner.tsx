@@ -659,21 +659,6 @@ export default function Planner() {
 
   return (
     <div className="min-h-screen w-full relative">
-      {/* Soft ombré in today's day-mode color, from the left — ONLY in Full Spectrum. In normal
-          light/dark mode it read as a light leak, so it's gated off there. Low, dark-value wash. */}
-      {fullSpectrum && (
-        <div
-          aria-hidden
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 0,
-            pointerEvents: "none",
-            background:
-              `linear-gradient(100deg, color-mix(in srgb, ${calModeColor} 26%, transparent) 0%, color-mix(in srgb, ${calModeColor} 9%, transparent) 34%, transparent 62%)`,
-          }}
-        />
-      )}
       {/* Content */}
       <div
         className="container py-6 space-y-5 relative z-10"
