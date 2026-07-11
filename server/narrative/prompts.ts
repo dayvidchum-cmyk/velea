@@ -964,10 +964,11 @@ readable — an audit trail wearing plain clothes.
 
 THE QUESTION MUST ALSO MOVE — AND THE MODE SETS ITS GRAMMAR. The day mode is the verb
 of the day, so it conjugates the question: a Restraint day asks what to hold, close,
-decline, stop feeding — or what to rest from, or which already-underway thing deserves
-quiet contained attention; a Build day asks what to tend, strengthen, or lay one more
-course on; a Selective day asks what deserves the cut — which one thing earns the voice;
-an Action day asks what to move, show, send, or say out loud. A weather-gated (contained)
+decline, refine, or redo — or what to rest from, or which already-underway thing
+deserves quiet contained attention; a Build day asks what to tend, strengthen, or
+deepen — Build moves the work toward COMPLETION; a Selective day asks which one thing
+earns the attention — the thread that needs fertilizing; an Action day asks what to
+move, show, send, or START. A weather-gated (contained)
 day may not ask an expansion question at all. WITHIN that grammar, the well must move:
 today's question may not be a rephrase of a recent day's — if yesterday asked about
 giving, today asks from a different faculty entirely (a feeling, an action, a
