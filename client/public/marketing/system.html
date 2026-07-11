@@ -73,7 +73,9 @@
   .phaseStrip { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; }
   /* One uniform window per painting — moons share the top band, shells share a line,
      the ragged foreground is trimmed. Order comes from the crop, not the art. */
-  .phaseStrip img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; display: block; }
+  /* Moon Images 2.0 — one shared template across all eight, so a single top-anchored
+     window fits every panel: moons whole, shells on one line, no per-panel calibration. */
+  .phaseStrip img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 0%; display: block; }
   @media (max-width: 759px) { .phaseStrip { grid-template-columns: repeat(4, 1fr); } }
   @media (min-width: 900px) { figure.bleed { margin-left: calc(-1 * clamp(2.5rem, 5.5vw, 5.5rem) - var(--pad)); width: 100vw; } }
   figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
