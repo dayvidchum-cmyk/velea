@@ -68,6 +68,11 @@
   figure { margin: clamp(2.4rem, 7vw, 3.6rem) 0; }
   figure.bleed { width: 100vw; margin-left: calc(50% - 50vw); }
   figure.bleed img { width: 100%; display: block; }
+  /* The lunar cycle as one gapless band — David's stage art, edge to edge. 8-across on
+     desktop; folds to a 4x2 mosaic on phones. */
+  .phaseStrip { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; }
+  .phaseStrip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  @media (max-width: 759px) { .phaseStrip { grid-template-columns: repeat(4, 1fr); } }
   @media (min-width: 900px) { figure.bleed { margin-left: calc(-1 * clamp(2.5rem, 5.5vw, 5.5rem) - var(--pad)); width: 100vw; } }
   figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
   .p1hero { position: relative; min-height: 88svh; display: flex; align-items: flex-end;
@@ -113,7 +118,16 @@
   <p>A practical system for deciding what deserves your time now.</p>
   
   <figure class="bleed">
-    <img src="/marketing/img/moons.jpg" alt="A glowing shell on a night beach beneath the eight phases of the moon, arced across the Milky Way." loading="lazy" />
+    <div class="phaseStrip" role="img" aria-label="The eight phases of the moon, painted for Velea, side by side.">
+      <img src="/marketing/img/phases/new-moon.jpg" alt="New Moon" loading="lazy" />
+      <img src="/marketing/img/phases/waxing-crescent.jpg" alt="Waxing Crescent" loading="lazy" />
+      <img src="/marketing/img/phases/first-quarter.jpg" alt="First Quarter" loading="lazy" />
+      <img src="/marketing/img/phases/waxing-gibbous.jpg" alt="Waxing Gibbous" loading="lazy" />
+      <img src="/marketing/img/phases/full-moon.jpg" alt="Full Moon" loading="lazy" />
+      <img src="/marketing/img/phases/waning-gibbous.jpg" alt="Waning Gibbous" loading="lazy" />
+      <img src="/marketing/img/phases/last-quarter.jpg" alt="Last Quarter" loading="lazy" />
+      <img src="/marketing/img/phases/waning-crescent.jpg" alt="Waning Crescent" loading="lazy" />
+    </div>
     <figcaption>The sky moves; the read moves with it.</figcaption>
   </figure>
   <hr class="rule" />
