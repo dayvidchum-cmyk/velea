@@ -93,6 +93,7 @@ export const tasks = mysqlTable("tasks", {
   completedAt: timestamp("completedAt"),
   dueDate: varchar("dueDate", { length: 10 }), // YYYY-MM-DD, optional
   wealthFlow: boolean("wealthFlow").notNull().default(false), // Does this task directly improve revenue/cash flow?
+  isNewVenture: boolean("isNewVenture"), // David's law: Action owns the NEW. true = initiating something new to the story; false = already in motion; null = undeclared (title heuristics apply)
   projectId: int("projectId"), // FK → projects.id (optional)
   // Current State metadata — lightweight optional tags for task selection scoring.
   // All default to Neutral/No so existing tasks continue working without change.

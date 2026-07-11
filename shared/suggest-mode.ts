@@ -18,10 +18,16 @@ export function suggestTaskMode(input: {
   socialRequired?: boolean | null;
   recurrence?: string | null;      // none | daily | ...
   projectId?: number | null;
+  /** Declared by the user: true = initiating something NEW to their story; false = already in motion. Outranks title heuristics. */
+  isNewVenture?: boolean | null;
 }): { mode: TaskMode; reason: string } {
   const t = input.title ?? "";
   const recurring = !!input.recurrence && input.recurrence !== "none";
-  const isNew = NEW_WORDS.test(t) && !TEND_WORDS.test(t) && !recurring;
+  const isNew = input.isNewVenture === true
+    ? true
+    : input.isNewVenture === false
+    ? false
+    : NEW_WORDS.test(t) && !TEND_WORDS.test(t) && !recurring;
 
   // The NEW belongs to Action — regardless of loads.
   if (isNew) return { mode: "Action", reason: "starts something new" };

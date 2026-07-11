@@ -264,17 +264,18 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
   const [emotionalLoad, setEmotionalLoad] = useState<LoadLevel>("Low");
   const [notes, setNotes] = useState("");
   const [recurrence, setRecurrence] = useState<Recurrence>("none");
+  const [isNewVenture, setIsNewVenture] = useState<boolean | null>(null); // David's law: Action owns the NEW
 
   // Suggest the mode from the task's own fingerprint (David's law: Action owns the
   // NEW; Build/Selective/Restraint tend the existing). Deterministic, no API. The
   // suggestion only steers while the user hasn't picked by hand.
   useEffect(() => {
     if (!open) return;
-    const sug = suggestTaskMode({ title, cognitiveLoad, physicalLoad, emotionalLoad, creativeRequired, socialRequired, recurrence, projectId });
+    const sug = suggestTaskMode({ title, cognitiveLoad, physicalLoad, emotionalLoad, creativeRequired, socialRequired, recurrence, projectId, isNewVenture });
     setSuggestion(sug);
     if (!modeTouched && title.trim().length >= 3) setMode(sug.mode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, title, cognitiveLoad, physicalLoad, emotionalLoad, creativeRequired, socialRequired, recurrence, projectId, modeTouched]);
+  }, [open, title, cognitiveLoad, physicalLoad, emotionalLoad, creativeRequired, socialRequired, recurrence, projectId, isNewVenture, modeTouched]);
 
   const [lifeAreas, setLifeAreas] = useState<string[]>([]);
   // The native date input always renders a date-shaped placeholder, which reads
@@ -318,6 +319,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
       setMode(editTask.mode as TaskMode);
       setModeTouched(true); // editing: respect the stored choice
       setSuggestion(null);
+      setIsNewVenture((editTask as any).isNewVenture ?? null);
       setPriority(editTask.priority === 3 ? "High" : editTask.priority === 2 ? "Medium" : "Low");
       setIntent(((editTask as any).intent as "want" | "need") ?? "need");
       setDueDate(editTask.dueDate || "");
@@ -342,6 +344,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
       setMode(initialMode ?? "Build");
       setModeTouched(!!initialMode); // an orb-launched sheet already implies the mode
       setSuggestion(null);
+      setIsNewVenture(null);
       setPriority("Medium");
       setIntent("need");
       setDueDate("");
@@ -423,6 +426,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
           notes: notes || null,
           recurrence,
           lifeAreas,
+          isNewVenture,
         });
 
         // Sync subtasks in edit mode: create the newly-added ones, delete the removed ones.
@@ -454,6 +458,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
           notes: notes || null,
           recurrence,
           lifeAreas,
+          isNewVenture,
         });
 
         if (task && subtasks.length > 0) {
@@ -552,6 +557,26 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
             >
               Mode
             </label>
+            {/* NEW vs EXISTING — the user's own declaration; Action owns the new. */}
+            <div className="flex gap-2 mb-2">
+              {([["new", "Something new", true], ["existing", "Already in motion", false]] as const).map(([key, label, val]) => {
+                const on = isNewVenture === val;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setIsNewVenture(on ? null : val)}
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-150"
+                    style={{
+                      background: on ? "color-mix(in oklch, var(--color-foreground) 14%, transparent)" : "var(--color-secondary)",
+                      color: on ? "var(--color-foreground)" : "var(--color-muted-foreground)",
+                      border: `1px solid ${on ? "var(--color-foreground)" : "var(--border)"}`,
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
             <div className="flex gap-2 flex-wrap">
               {TASK_MODES.map((m: TaskMode) => {
                 const active = mode === m;
@@ -579,6 +604,14 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
               <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--color-muted-foreground)" }}>
                 Suggested — {suggestion.reason}. Tap another to override.
               </p>
+            )}
+            {modeTouched && suggestion && suggestion.mode !== mode && title.trim().length >= 3 && (
+              <button
+                onClick={() => setMode(suggestion.mode)}
+                style={{ margin: "0.4rem 0 0", padding: 0, background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: "var(--color-muted-foreground)", textDecoration: "underline", textUnderlineOffset: "2px", display: "block", textAlign: "left" }}
+              >
+                Suggested: {suggestion.mode} — {suggestion.reason}. Tap to apply.
+              </button>
             )}
           </div>
 

@@ -485,6 +485,7 @@ export const appRouter = router({
           notes: z.string().nullable().optional(),
           recurrence: RecurrenceEnum.optional(),
           lifeAreas: z.array(z.string()).optional(),
+          isNewVenture: z.boolean().nullable().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -533,6 +534,7 @@ export const appRouter = router({
           notes: z.string().nullable().optional(),
           recurrence: RecurrenceEnum.optional(),
           lifeAreas: z.array(z.string()).optional(),
+          isNewVenture: z.boolean().nullable().optional(),
           // When provided and isPinned=true, the task's mode is set to this value.
           // Ignored when isPinned is false or undefined.
           dayMode: TaskModeEnum.optional(),

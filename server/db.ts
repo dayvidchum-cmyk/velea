@@ -267,6 +267,7 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
       notes: tasks.notes,
       recurrence: tasks.recurrence,
       lifeAreas: tasks.lifeAreas,
+      isNewVenture: tasks.isNewVenture,
       createdAt: tasks.createdAt,
       updatedAt: tasks.updatedAt,
       projectName: projects.name,
