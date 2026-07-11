@@ -169,7 +169,7 @@ const MODE_BASE_INSTRUCTIONS: Record<string, string> = {
   Build:
     'Prioritize preparation, editing, and systems work. Strengthen the container.',
   Selective:
-    'Move existing threads forward — warm leads, active conversations, and follow-ups only.',
+    'Move existing threads forward — warm connections, active conversations, and follow-ups only.',
   Restraint:
     'Keep this contained. Rest, repair, stabilize — or pour quiet, steady attention into what is already in the works. Reduce exposure; do not force outcomes.',
   Flex:
