@@ -53,8 +53,8 @@ const PLANET_GLYPH: Record<string, string> = { Mercury: "☿︎", Venus: "♀︎
 // One symbol font for all five so they share metrics and sit on the same line.
 const PLANET_GLYPH_FONT = '"Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols", "Noto Sans Symbols2", sans-serif';
 const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string, string> } = {
-  bright: { Mercury: "#85CDB5", Venus: "#F7A8B4", Mars: "#E8556B", Jupiter: "#E6C33A", Saturn: "#7C8CEA" },
-  deep:   { Mercury: "#2E8B6E", Venus: "#C65A72", Mars: "#BD0039", Jupiter: "#9A7E00", Saturn: "#3F50AF" },
+  bright: { Mercury: "#85CDB5", Venus: "#F7A8B4", Mars: "#E8556B", Jupiter: "#E6C33A", Saturn: "#33A1FF" },
+  deep:   { Mercury: "#2E8B6E", Venus: "#C65A72", Mars: "#BD0039", Jupiter: "#9A7E00", Saturn: "#0E74D4" },
 };
 
 const MODE_DOT: Record<string, string> = {

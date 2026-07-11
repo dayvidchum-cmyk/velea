@@ -88,4 +88,6 @@
 // are single-weight so fontWeight did nothing. Re-tier by OPACITY instead — station full+glow,
 // window full, rx dimmer (.6), shadow faintest (.34). Added Noto Sans Symbols to the font fallback
 // for Android/web (the glyphs live in Misc Symbols, which Noto Sans Symbols covers).
-export const APP_VERSION = "1.1.331";
+// v1.1.332 = 2026-07-11 — Saturn ♄ recolored to electric blue (bright #33A1FF dark/FS, #0E74D4
+// light) — was a muddy indigo that read too close to the Selective-blue tiles.
+export const APP_VERSION = "1.1.332";
