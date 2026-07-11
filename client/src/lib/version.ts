@@ -113,4 +113,6 @@
 // are immutable snapshots (new horoscopes table) so a purchase never drifts on prompt/chart change;
 // generation reuses the date-specific "stage + guests" deep read. New 6th nav item (Sparkles).
 // NOTE: prod needs the horoscopes table created by hand (CREATE TABLE) — see deploy notes.
-export const APP_VERSION = "1.1.337";
+// v1.1.338 = 2026-07-11 — Horoscope nav icon is now a narrow vertical DIAMOND (DiamondMark) — a
+// node/knot/point, the single day you pin on the calendar — replacing the generic Sparkles.
+export const APP_VERSION = "1.1.338";
