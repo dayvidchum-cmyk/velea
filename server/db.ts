@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, checkIns, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, type User } from "../drizzle/schema";
+import { InsertUser, checkIns, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -1038,6 +1038,70 @@ export async function getRecommendedNextTask(projectId: number, userId: number, 
 
   // Return first unpinned task, or first task if all pinned
   return projectTasks.find((t) => !t.isPinned) ?? projectTasks[0] ?? null;
+}
+
+// ── REFERRALS (tester codes: 1 free month per referral / 10% off first month) ──
+
+/** The fraud gate: one redemption per PERSON, where a person = their birth-data
+ *  fingerprint. Email/name are stored for audit but deliberately NOT hashed —
+ *  they're trivial to vary; a birth chart isn't. */
+export function referralIdentityKey(birthDate: string, birthTime?: string | null, birthLocation?: string | null): string {
+  const norm = (x?: string | null) => (x ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+  return crypto.createHash("sha256").update([norm(birthDate), norm(birthTime), norm(birthLocation)].join("|")).digest("hex");
+}
+
+export async function getReferralCode(code: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(referralCodes).where(eq(referralCodes.code, code.trim().toUpperCase())).limit(1);
+  return rows[0] ?? null;
+}
+
+export type RedeemResult = "redeemed" | "invalid_code" | "already_redeemed_person" | "already_redeemed_email";
+
+/** Record a redemption. Uniqueness is enforced by the DB (identityKey + email unique)
+ *  so racing submissions can't double-redeem. */
+export async function redeemReferralCode(opts: {
+  code: string; email: string; name: string;
+  birthDate: string; birthTime?: string | null; birthLocation?: string | null;
+  userId?: number | null;
+}): Promise<{ result: RedeemResult; discountPct?: number; ownerName?: string }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const codeRow = await getReferralCode(opts.code);
+  if (!codeRow || !codeRow.active) return { result: "invalid_code" };
+  const identityKey = referralIdentityKey(opts.birthDate, opts.birthTime, opts.birthLocation);
+  try {
+    await db.insert(referralRedemptions).values({
+      codeId: codeRow.id,
+      email: opts.email.trim().toLowerCase(),
+      name: opts.name.trim(),
+      birthDate: opts.birthDate.trim(),
+      birthTime: opts.birthTime?.trim() ?? null,
+      birthLocation: opts.birthLocation?.trim() ?? null,
+      identityKey,
+      userId: opts.userId ?? null,
+    });
+    return { result: "redeemed", discountPct: codeRow.newUserDiscountPct, ownerName: codeRow.ownerName };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("identityKey")) return { result: "already_redeemed_person" };
+    if (msg.includes("Duplicate entry") || msg.includes("ER_DUP_ENTRY")) return { result: "already_redeemed_email" };
+    throw err;
+  }
+}
+
+/** Admin view: every code with its redemptions (pending + qualified counts). */
+export async function listReferralActivity() {
+  const db = await getDb();
+  if (!db) return [];
+  const codes = await db.select().from(referralCodes);
+  const reds = await db.select().from(referralRedemptions);
+  return codes.map((c) => ({
+    ...c,
+    redemptions: reds.filter((r) => r.codeId === c.id),
+    qualifiedCount: reds.filter((r) => r.codeId === c.id && r.status !== "pending").length,
+  }));
 }
 
 // ── WAITLIST (velealor.com landing) ──────────────────────────

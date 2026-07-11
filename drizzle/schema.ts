@@ -430,3 +430,37 @@ export const waitlist = mysqlTable("waitlist", {
 });
 
 export type WaitlistRow = typeof waitlist.$inferSelect;
+
+// REFERRAL PROGRAM (2026-07-10, David's spec): per-tester codes. Referrer earns ONE
+// FREE MONTH per successful referral (account credit); the new user gets 10% off the
+// first month. One redemption per PERSON — identity is the birth-data fingerprint
+// (identityKey), not the email: emails are free to change, birth data isn't.
+export const referralCodes = mysqlTable("referralCodes", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 32 }).unique().notNull(),
+  ownerName: varchar("ownerName", { length: 64 }).notNull(),
+  ownerUserId: int("ownerUserId"),
+  newUserDiscountPct: int("newUserDiscountPct").default(10).notNull(),
+  referrerRewardMonths: int("referrerRewardMonths").default(1).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const referralRedemptions = mysqlTable("referralRedemptions", {
+  id: int("id").autoincrement().primaryKey(),
+  codeId: int("codeId").notNull(),
+  email: varchar("email", { length: 320 }).unique().notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  birthDate: varchar("birthDate", { length: 16 }),
+  birthTime: varchar("birthTime", { length: 16 }),
+  birthLocation: varchar("birthLocation", { length: 255 }),
+  identityKey: varchar("identityKey", { length: 64 }).unique().notNull(), // sha256 of the birth-data fingerprint
+  userId: int("userId"),
+  // pending (recorded) → qualified (first month paid → referrer credit due) → credited
+  status: varchar("status", { length: 16 }).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  qualifiedAt: timestamp("qualifiedAt"),
+});
+
+export type ReferralCodeRow = typeof referralCodes.$inferSelect;
+export type ReferralRedemptionRow = typeof referralRedemptions.$inferSelect;

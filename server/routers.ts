@@ -54,6 +54,9 @@ import {
   snoozeTask,
   unsnoozeTask,
   getTaskById,
+  getReferralCode,
+  redeemReferralCode,
+  listReferralActivity,
 } from "./db";
 import { getDayField, dayModeToTaskMode } from "./panchang/service.js";
 import { getTimezoneOffset, getBostonOffset } from "./panchang/tz-offset.js";
@@ -129,6 +132,38 @@ function nextDueDate(base: string | null, recurrence: string): string {
 export const appRouter = router({
   system: systemRouter,
   profiles: profilesRouter,
+
+  // REFERRALS — tester codes (David's spec 2026-07-10): referrer earns 1 free month per
+  // successful referral, new user gets 10% off the first month. One redemption per
+  // PERSON — the birth-data fingerprint is the identity, not the email. Billing hooks
+  // (the actual credit + discount) land with Stripe; until then redemptions accrue as
+  // "pending" and the admin view is the ledger.
+  referrals: router({
+    validate: publicProcedure
+      .input(z.object({ code: z.string().min(2).max(32) }))
+      .query(async ({ input }) => {
+        const row = await getReferralCode(input.code);
+        return row && row.active
+          ? { valid: true as const, discountPct: row.newUserDiscountPct, ownerName: row.ownerName }
+          : { valid: false as const };
+      }),
+    redeem: publicProcedure
+      .input(z.object({
+        code: z.string().min(2).max(32),
+        email: z.string().email().max(320),
+        name: z.string().min(1).max(128),
+        birthDate: z.string().min(4).max(16),
+        birthTime: z.string().max(16).nullable().optional(),
+        birthLocation: z.string().max(255).nullable().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return redeemReferralCode({ ...input, userId: ctx.user?.id ?? null });
+      }),
+    adminActivity: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+      return listReferralActivity();
+    }),
+  }),
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
