@@ -51,7 +51,7 @@ function toDateStr(d: Date) {
 // font with its own baseline + it ignores our color), which threw the strip's alignment off.
 const PLANET_GLYPH: Record<string, string> = { Mercury: "☿︎", Venus: "♀︎", Mars: "♂︎", Jupiter: "♃︎", Saturn: "♄︎" };
 // One symbol font for all five so they share metrics and sit on the same line.
-const PLANET_GLYPH_FONT = '"Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols2", sans-serif';
+const PLANET_GLYPH_FONT = '"Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols", "Noto Sans Symbols2", sans-serif';
 const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string, string> } = {
   bright: { Mercury: "#85CDB5", Venus: "#F7A8B4", Mars: "#E8556B", Jupiter: "#E6C33A", Saturn: "#7C8CEA" },
   deep:   { Mercury: "#2E8B6E", Venus: "#C65A72", Mars: "#BD0039", Jupiter: "#9A7E00", Saturn: "#3F50AF" },
@@ -1206,8 +1206,10 @@ export default function Planner() {
                         fontSize: "0.82rem",
                         lineHeight: 1,
                         display: "inline-block",
-                        fontWeight: isStation ? 800 : e.state === "window" ? 700 : 600,
-                        opacity: e.state === "shadow" ? 0.5 : 1,
+                        // Symbol fonts are single-weight, so the tier is carried by OPACITY + a
+                        // glow, NOT font-weight: station = full + halo, window = full solid,
+                        // rx = dimmer, shadow = faintest.
+                        opacity: e.state === "shadow" ? 0.34 : e.state === "rx" ? 0.6 : 1,
                         textShadow: isStation ? `0 0 3px ${col}` : undefined,
                       }}>{PLANET_GLYPH[e.planet]}</span>
                     );

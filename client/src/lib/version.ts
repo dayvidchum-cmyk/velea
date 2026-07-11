@@ -84,4 +84,8 @@
 // v1.1.330 = 2026-07-11 — Fix retrograde glyph alignment: ♀/♂ were rendering as color EMOJI on
 // iOS (a different font + baseline, and it ignored our color), so ☿♀♂♃♄ never shared a line. Force
 // TEXT presentation (U+FE0E) + pin one symbol font (Apple Symbols…) so all five align on the strip.
-export const APP_VERSION = "1.1.330";
+// v1.1.331 = 2026-07-11 — Retrograde strip tiers were indistinguishable (rx vs window): symbol fonts
+// are single-weight so fontWeight did nothing. Re-tier by OPACITY instead — station full+glow,
+// window full, rx dimmer (.6), shadow faintest (.34). Added Noto Sans Symbols to the font fallback
+// for Android/web (the glyphs live in Misc Symbols, which Noto Sans Symbols covers).
+export const APP_VERSION = "1.1.331";
