@@ -73,6 +73,11 @@ PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entire
   above into a label: dignified | steady | weak | compromised. Read it as CONFIDENCE, not
   mode: when a day/period lord is "dignified" its themes land with ease and you can lean in;
   when "weak"/"compromised" the same themes cost more and want patience — say so in feel.
+  strength may carry uccha { value, depth } — the DEGREE gradient the sign tier can't see:
+  distance to the planet's exact degree of exaltation (1 = on the point, 0 = on the exact
+  debilitation degree; depth: peak | strong | middling | low | hollow). Use it to grade the
+  claim: "exalted" at peak is a planet at the very top of its arc — a louder fact than
+  exalted near the sign's edge; hollow means running on empty even before other afflictions.
   Never override the mode; strength colors how forcefully to act within it. Mention only
   the lords that matter (Time Lord, dasha lords, or a planet hitting a natal point).
   spotlight is true when a planet's LIVE condition is standout — exalted, debilitated,

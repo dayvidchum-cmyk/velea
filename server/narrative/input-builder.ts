@@ -227,7 +227,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const comb = combustion(n, lonp, a["Sun"], retro);
     const nod = nodalAffliction(n, lonp, a["Rahu"], retro);
     // Layer-4 strength: essential dignity of the CURRENT sign, minus live affliction.
-    const str = strength(n, sign, lonp % 30, { combust: !!comb?.combust, nodal: !!(nod && nod.afflicted) });
+    const str = strength(n, sign, lonp % 30, { combust: !!comb?.combust, nodal: !!(nod && nod.afflicted), lonDeg: lonp });
     // Spotlight: a transiting planet whose LIVE condition earns a solo beat in the scene —
     // exalted / debilitated / own-sign dignity, combust, or tight (≤2°) on a natal point.
     // The prompt gives these an "aria"; everything else stays ensemble. Deterministic (DIGN).
@@ -235,7 +235,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const spotlightReason = dg?.ex === sign ? "exalted" : dg?.de === sign ? "debilitated"
       : comb?.combust ? "combust" : dg?.own.includes(sign) ? "own sign"
       : (orb <= 2 && hit) ? `tight on natal ${hit}` : null;
-    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
+    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score, uccha: str.uccha } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
   }).filter(Boolean);
 
   // PERSONAL APEX — the crown day. The only fully-personal day signal: computed from the SAME

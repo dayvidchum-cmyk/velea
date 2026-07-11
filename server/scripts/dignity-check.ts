@@ -8,7 +8,7 @@
  * Run: npx tsx server/scripts/dignity-check.ts
  */
 import "dotenv/config";
-import { dignityTier, strength } from "../panchang/dignity.js";
+import { dignityTier, strength, ucchaBala } from "../panchang/dignity.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
 import { resolveAstrologySubject } from "../astrology-subject.js";
 
@@ -19,6 +19,26 @@ const ok = (name: string, cond: boolean, detail = "") => {
 };
 
 async function main() {
+  console.log("=== 0. UCCHA gradient vs fixed classical points ===");
+  // On the exact points the gradient must hit its rails.
+  ok("Sun at 10° Aries (lon 10) → 1.0", ucchaBala("Sun", 10)!.value === 1);
+  ok("Sun at 10° Libra (lon 190) → 0.0", ucchaBala("Sun", 190)!.value === 0);
+  ok("Jupiter at 5° Cancer (lon 95) → 1.0 peak", ucchaBala("Jupiter", 95)!.value === 1 && ucchaBala("Jupiter", 95)!.depth === "peak");
+  ok("Moon at 3° Taurus (lon 33) → 1.0", ucchaBala("Moon", 33)!.value === 1);
+  ok("Venus at 27° Pisces (lon 357) → 1.0", ucchaBala("Venus", 357)!.value === 1);
+  ok("Saturn at 20° Libra (lon 200) → 1.0", ucchaBala("Saturn", 200)!.value === 1);
+  ok("Mars at 28° Cancer (lon 118) → 0.0 hollow", ucchaBala("Mars", 118)!.value === 0 && ucchaBala("Mars", 118)!.depth === "hollow");
+  // Continuity + symmetry: 90° from either point → 0.5 middling.
+  ok("Sun at lon 100 (90° off) → 0.5", ucchaBala("Sun", 100)!.value === 0.5);
+  ok("Sun at lon 280 (90° other side) → 0.5", ucchaBala("Sun", 280)!.value === 0.5);
+  // Monotonic toward the point.
+  ok("Sun 5° Aries < 10° Aries", ucchaBala("Sun", 5)!.value < 1 && ucchaBala("Sun", 5)!.value > 0.9);
+  // Wrap-around safety (Venus point at 357).
+  ok("Venus at 2° Aries (lon 2, wraps) ≈ 0.97", Math.abs(ucchaBala("Venus", 2)!.value - (1 - 5 / 180)) < 0.001);
+  ok("Rahu → null (no consensus point)", ucchaBala("Rahu", 100) === null);
+  ok("strength() carries uccha when lonDeg given", strength("Sun", "Aries", 10, { lonDeg: 10 })!.uccha!.value === 1);
+  ok("strength() uccha null when lonDeg omitted", strength("Sun", "Aries", 10)!.uccha === null);
+
   console.log("=== 1. DIGNITY tiers vs fixed classical facts ===");
   ok("Sun in Aries → exalted", dignityTier("Sun", "Aries") === "exalted");
   ok("Sun in Libra → debilitated", dignityTier("Sun", "Libra") === "debilitated");

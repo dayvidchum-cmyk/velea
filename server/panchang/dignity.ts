@@ -46,6 +46,37 @@ const ENEMY: Record<string, string[]> = {
 
 const oppositeSign = (s: string) => SIGNS[(SIGNS.indexOf(s) + 6) % 12];
 
+// Exact exaltation POINTS (absolute ecliptic longitude) — the classical degree table
+// (David's workbook, 2026-07): Sun 10° Aries, Moon 3° Taurus, Mars 28° Capricorn,
+// Mercury 15° Virgo, Jupiter 5° Cancer, Venus 27° Pisces, Saturn 20° Libra.
+// The debilitation point is exactly opposite (+180°).
+const EXALT_POINT: Record<string, number> = {
+  Sun: 10, Moon: 33, Mars: 298, Mercury: 165, Jupiter: 95, Venus: 357, Saturn: 200,
+};
+
+export type UcchaDepth = "peak" | "strong" | "middling" | "low" | "hollow";
+export type Uccha = { value: number; depth: UcchaDepth };
+
+/**
+ * Uccha bala — the degree GRADIENT the sign-level tier can't see: angular distance from
+ * the planet's exact debilitation point, normalized. 1 = sitting on the exact exaltation
+ * degree, 0 = sitting on the exact debilitation degree, continuous everywhere between —
+ * so "exalted" near the sign's edge reads weaker than exalted ON the point, and strength
+ * exists on days the binary tier calls merely neutral. Null for Rahu/Ketu (no consensus
+ * points — the workbook marks them "handled contextually").
+ */
+export function ucchaBala(planet: string, lonDeg: number): Uccha | null {
+  const ep = EXALT_POINT[planet];
+  if (ep == null || !Number.isFinite(lonDeg)) return null;
+  const deb = (ep + 180) % 360;
+  let d = Math.abs((((lonDeg % 360) + 360) % 360) - deb);
+  if (d > 180) d = 360 - d;
+  const value = +(d / 180).toFixed(3);
+  const depth: UcchaDepth =
+    value >= 0.92 ? "peak" : value >= 0.7 ? "strong" : value >= 0.35 ? "middling" : value >= 0.12 ? "low" : "hollow";
+  return { value, depth };
+}
+
 export type DignityTier = "exalted" | "moolatrikona" | "own" | "friend" | "neutral" | "enemy" | "debilitated";
 
 /**
@@ -84,7 +115,7 @@ const COMBUST_PENALTY = 3;
 const NODAL_PENALTY = 2;
 
 export type StrengthLabel = "dignified" | "steady" | "weak" | "compromised";
-export type Strength = { tier: DignityTier; score: number; label: StrengthLabel; combust: boolean; nodal: boolean };
+export type Strength = { tier: DignityTier; score: number; label: StrengthLabel; combust: boolean; nodal: boolean; uccha: Uccha | null };
 
 /**
  * Composite "how able to deliver is this planet right now": essential dignity minus live
@@ -94,14 +125,17 @@ export function strength(
   planet: string,
   sign: string,
   degInSign: number | undefined,
-  opts: { combust?: boolean; nodal?: boolean } = {},
+  opts: { combust?: boolean; nodal?: boolean; lonDeg?: number } = {},
 ): Strength | null {
   const tier = dignityTier(planet, sign, degInSign);
   if (!tier) return null;
   const combust = !!opts.combust, nodal = !!opts.nodal;
   const score = TIER_SCORE[tier] - (combust ? COMBUST_PENALTY : 0) - (nodal ? NODAL_PENALTY : 0);
   const label: StrengthLabel = score >= 3 ? "dignified" : score >= 0 ? "steady" : score >= -3 ? "weak" : "compromised";
-  return { tier, score, label, combust, nodal };
+  // Degree gradient rides ALONGSIDE the tier (informational — does not move the score;
+  // the tier system stays stable, the gradient grades it).
+  const uccha = opts.lonDeg != null ? ucchaBala(planet, opts.lonDeg) : null;
+  return { tier, score, label, combust, nodal, uccha };
 }
 
 // Capitalized tier label for the human-facing natal dignity string (superset of the old
