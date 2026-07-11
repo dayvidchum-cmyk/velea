@@ -91,15 +91,9 @@ export default function HoraCard() {
                     <span style={{ width: 7, height: 7, borderRadius: 999, background: TONE_COLOR[h.tone], flexShrink: 0 }} />
                     <span style={{ fontSize: "0.66rem", color: "var(--color-muted-foreground)", width: "3.9rem", flexShrink: 0 }}>{fmt(h.startMs)}</span>
                     <span style={{ fontSize: "0.72rem", fontWeight: isNow ? 700 : 500, color: isNow ? TONE_COLOR[h.tone] : "var(--foreground)" }}>{h.lord}</span>
-                    {(h as any).isGolden && (
-                      <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
-                        {/* golden sub-window inside the hora (when narrower than the full hour) */}
-                        {(h as any).goldenStartMs != null && ((h as any).goldenEndMs - (h as any).goldenStartMs) < (h.endMs - h.startMs) - 60000 && (
-                          <span style={{ fontSize: "0.58rem", color: GOLD, fontWeight: 600 }}>{fmt((h as any).goldenStartMs)}</span>
-                        )}
-                        <VeleaLorMark size={12} color={GOLD} />
-                      </span>
-                    )}
+                    {/* Golden mark sits INLINE right after the planet — the Hora column is narrow
+                        (side-by-side with Time Master), so a far-right push clipped it off-screen. */}
+                    {(h as any).isGolden && <VeleaLorMark size={11} color={GOLD} style={{ flexShrink: 0 }} />}
                   </div>
                 );
               })}

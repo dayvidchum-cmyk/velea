@@ -115,4 +115,9 @@
 // NOTE: prod needs the horoscopes table created by hand (CREATE TABLE) — see deploy notes.
 // v1.1.338 = 2026-07-11 — Horoscope nav icon is now a narrow vertical DIAMOND (DiamondMark) — a
 // node/knot/point, the single day you pin on the calendar — replacing the generic Sparkles.
-export const APP_VERSION = "1.1.338";
+// v1.1.339 = 2026-07-11 — Fix golden-hour marks getting cut off in the Hora list: the Hora column
+// is narrow (side-by-side with Time Master), so the far-right ⊙ + peak-time clipped off-screen.
+// The bullseye now sits INLINE right after the planet name; the peak-time is dropped from the row
+// (it lives in the Time Master header). Also: Horoscope now LOCKED for testers (own hasHoroscope
+// gate — admin/allowlist only), and the Horoscope nav icon is a narrow diamond (node/knot/point).
+export const APP_VERSION = "1.1.339";
