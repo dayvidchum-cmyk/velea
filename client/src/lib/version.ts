@@ -150,4 +150,8 @@
 // more axes) and applies as a dominant override, so the static toggle only added a weak legacy
 // nudge and double-counted energy. Pulled from Settings, the ranking input, the scorer, and tests;
 // no-check-in days simply rank without an energy baseline (was already the "Medium" default).
-export const APP_VERSION = "1.1.346";
+// v1.1.347 = 2026-07-11 — Welcome splash now tracks the hour (David's greeting_splash art):
+// sunrise 5–7, day 8–16, sunset 17–18, evening 19–20 — and AT NIGHT (21–4) it becomes the current
+// Moon phase, the same phase art the Stage shows, so the welcome mirrors the sky overhead. Buckets
+// align to the greeting-text buckets so words + sky agree. Moon pulled from celestial.today (cached).
+export const APP_VERSION = "1.1.347";
