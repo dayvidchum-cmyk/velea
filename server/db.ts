@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, checkIns, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, type User } from "../drizzle/schema";
+import { InsertUser, checkIns, horoscopes, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -608,6 +608,77 @@ export async function setNarrativeLock(profileId: number, surface: string, cache
 export async function isNarrativeLocked(profileId: number, cacheDate: string): Promise<boolean> {
   const row = await getNarrativeCache(profileId, "glance", cacheDate);
   return !!(row as any)?.locked;
+}
+
+// ── HOROSCOPES (the "pick a date" premium reading — immutable purchased snapshots) ──
+// Every helper degrades gracefully: if the horoscopes table doesn't exist yet (pending the
+// hand-run prod migration), reads return empty and writes no-op rather than throwing.
+
+/** One purchased horoscope for a profile+date, or undefined. */
+export async function getHoroscope(profileId: number, readingDate: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  try {
+    const rows = await db
+      .select()
+      .from(horoscopes)
+      .where(and(eq(horoscopes.profileId, profileId), eq(horoscopes.readingDate, readingDate)))
+      .limit(1);
+    return rows[0];
+  } catch (e) {
+    console.error("[getHoroscope]", e);
+    return undefined;
+  }
+}
+
+/** Every purchased horoscope for a profile, newest reading-date first. */
+export async function listHoroscopes(profileId: number, limit = 180) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db
+      .select({ readingDate: horoscopes.readingDate, content: horoscopes.content, notes: horoscopes.notes, createdAt: horoscopes.createdAt })
+      .from(horoscopes)
+      .where(eq(horoscopes.profileId, profileId))
+      .orderBy(desc(horoscopes.readingDate))
+      .limit(limit);
+  } catch (e) {
+    console.error("[listHoroscopes]", e);
+    return [];
+  }
+}
+
+/** Freeze a purchased horoscope. No-op if the (profile,date) already exists (immutable). */
+export async function insertHoroscope(row: { userId: number; profileId: number; readingDate: string; promptVersion: string; model: string; content: string }): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    await db
+      .insert(horoscopes)
+      .values({ ...row, notes: null })
+      // A re-reveal must never overwrite the frozen snapshot — keep the original on conflict.
+      .onDuplicateKeyUpdate({ set: { readingDate: row.readingDate } });
+    return true;
+  } catch (e) {
+    console.error("[insertHoroscope]", e);
+    return false;
+  }
+}
+
+/** Update the user's notes under a purchased horoscope. */
+export async function updateHoroscopeNotes(profileId: number, readingDate: string, notes: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    await db
+      .update(horoscopes)
+      .set({ notes })
+      .where(and(eq(horoscopes.profileId, profileId), eq(horoscopes.readingDate, readingDate)));
+    return true;
+  } catch (e) {
+    console.error("[updateHoroscopeNotes]", e);
+    return false;
+  }
 }
 
 export async function upsertSystemPrompt(key: string, title: string, content: string) {

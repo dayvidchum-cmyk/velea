@@ -1721,6 +1721,85 @@ export const appRouter = router({
       }),
   }),
 
+  // ── HOROSCOPE (the "pick a date" premium reading) — GATED (same lock as Master Mode) ──
+  // Pick any date → a date-specific deep read is generated once and FROZEN as an immutable
+  // "purchased" snapshot (in the horoscopes table), with the user's own notes under it. The
+  // calendar scrolls back through every date they've revealed. Same allowlist as Time Master.
+  horoscope: router({
+    // Drives the lock UI — public to every signed-in user, entitled only off the allowlist.
+    access: protectedProcedure.query(({ ctx }) => ({ entitled: hasMasterMode(ctx.user) })),
+
+    // Every date the active profile has purchased, newest first (calendar marks + scroll-back).
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (!hasMasterMode(ctx.user)) return null;
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return [];
+      const { listHoroscopes } = await import("./db.js");
+      const rows = await listHoroscopes(profile.id, 200);
+      return rows.map((r) => {
+        let snippet = "";
+        try { const c = JSON.parse(r.content); snippet = String(c?.coreTheme?.synthesis ?? "").replace(/\s+/g, " ").trim().slice(0, 160); } catch { /* keep empty */ }
+        return { date: r.readingDate, createdAt: r.createdAt, snippet, hasNotes: !!(r.notes && r.notes.trim()) };
+      });
+    }),
+
+    // The frozen reading + notes for one date (null if not yet purchased).
+    get: protectedProcedure.input(z.object({ date: z.string() })).query(async ({ ctx, input }) => {
+      if (!hasMasterMode(ctx.user)) return null;
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return null;
+      const { getHoroscope } = await import("./db.js");
+      const row = await getHoroscope(profile.id, input.date);
+      if (!row) return { exists: false as const };
+      let read: any = null; try { read = JSON.parse(row.content); } catch { /* corrupt snapshot */ }
+      return { exists: true as const, date: row.readingDate, read, notes: row.notes ?? "", createdAt: row.createdAt };
+    }),
+
+    // Reveal ("purchase") a date: return the existing snapshot, or generate the date-specific
+    // full deep read once and freeze it. Costs one LLM call only on first reveal of a date.
+    reveal: protectedProcedure.input(z.object({ date: z.string() })).mutation(async ({ ctx, input }) => {
+      if (!hasMasterMode(ctx.user)) return null;
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const };
+      const { getHoroscope, insertHoroscope, getUserById } = await import("./db.js");
+
+      // Already purchased → return the immutable snapshot, never regenerate.
+      const existing = await getHoroscope(profile.id, input.date);
+      if (existing) {
+        let read: any = null; try { read = JSON.parse(existing.content); } catch { /* corrupt */ }
+        return { available: true as const, date: existing.readingDate, read, notes: existing.notes ?? "", cached: true };
+      }
+
+      // Date-specific full deep read (stage + that date's sky) — the `deepened` input path.
+      const u = await getUserById(ctx.user.id);
+      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
+      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
+        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
+        : undefined;
+      const { getDeepReadCached } = await import("./narrative/service.js");
+      const res = await getDeepReadCached(profile.id, input.date, false, true, dayLoc);
+      if (!res.available || !res.read) return { available: false as const };
+
+      const { PROMPT_VERSION, MODEL } = await import("./narrative/prompts.js");
+      await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, promptVersion: PROMPT_VERSION, model: MODEL, content: JSON.stringify(res.read) });
+      return { available: true as const, date: input.date, read: res.read, notes: "", cached: false };
+    }),
+
+    // Save the user's notes under a purchased horoscope.
+    saveNotes: protectedProcedure.input(z.object({ date: z.string(), notes: z.string().max(20000) })).mutation(async ({ ctx, input }) => {
+      if (!hasMasterMode(ctx.user)) return null;
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { saved: false as const };
+      const { updateHoroscopeNotes } = await import("./db.js");
+      const saved = await updateHoroscopeNotes(profile.id, input.date, input.notes);
+      return { saved };
+    }),
+  }),
+
   // ── CELESTIAL (tonight's moon phase / eclipse → shell-ocean artwork) — GATED ──
   celestial: router({
     today: protectedProcedure.query(async ({ ctx }) => {

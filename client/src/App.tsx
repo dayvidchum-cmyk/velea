@@ -27,6 +27,7 @@ import About from "./pages/About";
 import AdminPrompts from "./pages/AdminPrompts";
 import ReflectionHistory from "./pages/ReflectionHistory";
 import ReadingsArchive from "./pages/ReadingsArchive";
+import Horoscope from "./pages/Horoscope";
 import Diagnostics from "./pages/Diagnostics";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
@@ -251,6 +252,7 @@ const { user, loading } = useAuth();
           <Route path="/glossary" component={Glossary} />
           <Route path="/reflections" component={ReflectionHistory} />
           <Route path="/readings" component={ReadingsArchive} />
+        <Route path="/horoscope" component={Horoscope} />
           <Route path="/admin/prompts" component={AdminPrompts} />
           <Route path="/admin/users" component={Users} />
           <Route path="/projects" component={Projects} />

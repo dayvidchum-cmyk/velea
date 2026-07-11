@@ -5,6 +5,7 @@ import {
   Library,
   Settings,
   Folder,
+  Sparkles,
 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
 
@@ -13,6 +14,7 @@ const BASE_NAV = [
   { path: "/profection", label: "Chart", icon: BookOpen },
   { path: "/projects", label: "Projects", icon: Folder },
   { path: "/glossary", label: "Glossary", icon: Library },
+  { path: "/horoscope", label: "Horoscope", icon: Sparkles },
 ];
 
 export default function BottomNav() {

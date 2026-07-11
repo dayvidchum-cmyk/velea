@@ -418,6 +418,33 @@ export const narrativeCache = mysqlTable("narrative_cache", {
 
 export type NarrativeCacheRow = typeof narrativeCache.$inferSelect;
 
+/**
+ * HOROSCOPES — the "pick a date" premium reading. Distinct from narrative_cache: this is an
+ * IMMUTABLE, purchased snapshot. When a user reveals a date, we generate the date-specific deep
+ * read (the "stage + guests" full input) and freeze its JSON here so it never drifts when the
+ * prompt version or chart input changes. `notes` is the user's own reflection under the reading.
+ * Keyed per (profile, readingDate) so re-revealing a date returns the same purchased read.
+ * Created via direct SQL (CREATE TABLE horoscopes) in prod — not drizzle-kit push.
+ */
+export const horoscopes = mysqlTable("horoscopes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  profileId: int("profileId").notNull(),
+  readingDate: varchar("readingDate", { length: 10 }).notNull(), // YYYY-MM-DD the reading is for
+  promptVersion: varchar("promptVersion", { length: 64 }).notNull(), // frozen at purchase time
+  model: varchar("model", { length: 48 }).notNull(),
+  content: text("content").notNull(), // the DeepRead JSON snapshot — immutable once written
+  notes: text("notes"), // user's own notes under the reading (nullable)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (t) => ({
+  // One purchased horoscope per profile+date, so a re-reveal returns the same snapshot.
+  uniqHoroscope: unique("uniq_horoscope").on(t.profileId, t.readingDate),
+}));
+
+export type Horoscope = typeof horoscopes.$inferSelect;
+export type InsertHoroscope = typeof horoscopes.$inferInsert;
+
 // ── WAITLIST (velealor.com landing) ──────────────────────────
 // Public email capture from the marketing page. No FK to users — signups
 // predate accounts. Unique email so repeat submits dedupe server-side.

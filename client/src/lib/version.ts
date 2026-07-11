@@ -107,4 +107,10 @@
 // next to the mark. New computeGoldenHoras engine shares ONE golden definition with the live
 // "golden now" read (buildDayContext) — proven by server/scripts/golden-horas-check.ts (18/18
 // instants agree). Best-effort: horas without the user's bird data just render unmarked.
-export const APP_VERSION = "1.1.336";
+// v1.1.337 = 2026-07-11 — HOROSCOPE page (premium, gated with the usual lock): a clean month
+// calendar — pick any date, reveal ("purchase") its date-specific deep read, keep your own notes
+// under it. Purchased dates carry the Veleal'or bullseye and list below for scroll-back. Reveals
+// are immutable snapshots (new horoscopes table) so a purchase never drifts on prompt/chart change;
+// generation reuses the date-specific "stage + guests" deep read. New 6th nav item (Sparkles).
+// NOTE: prod needs the horoscopes table created by hand (CREATE TABLE) — see deploy notes.
+export const APP_VERSION = "1.1.337";
