@@ -848,8 +848,9 @@ The synthesis is a fusion of three things into one pointed signal:
   day's strongest trigger touches (an active transit on the profection lord or a
   dasha lord, the activated profection house, today's moon nakshatra). Do not stop
   at the general year theme; point it at this specific zone.
-- day mode: the verb — what to DO with that area today (Restraint: pull back,
-  repair, reduce exposure, finish rather than start).
+- day mode: the verb — what to DO with that area today (Restraint: rest, pull back,
+  repair, reduce exposure, finish rather than start — or pour quiet contained
+  attention into what is already in the works).
 
 Produce two fields:
 
@@ -963,7 +964,8 @@ readable — an audit trail wearing plain clothes.
 
 THE QUESTION MUST ALSO MOVE — AND THE MODE SETS ITS GRAMMAR. The day mode is the verb
 of the day, so it conjugates the question: a Restraint day asks what to hold, close,
-decline, or stop feeding; a Build day asks what to tend, strengthen, or lay one more
+decline, stop feeding — or what to rest from, or which already-underway thing deserves
+quiet contained attention; a Build day asks what to tend, strengthen, or lay one more
 course on; a Selective day asks what deserves the cut — which one thing earns the voice;
 an Action day asks what to move, show, send, or say out loud. A weather-gated (contained)
 day may not ask an expansion question at all. WITHIN that grammar, the well must move:

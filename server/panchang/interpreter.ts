@@ -171,7 +171,7 @@ const MODE_BASE_INSTRUCTIONS: Record<string, string> = {
   Selective:
     'Move existing threads forward — warm leads, active conversations, and follow-ups only.',
   Restraint:
-    'Keep this contained. Repair, stabilize, and reduce exposure. Do not force outcomes.',
+    'Keep this contained. Rest, repair, stabilize — or pour quiet, steady attention into what is already in the works. Reduce exposure; do not force outcomes.',
   Flex:
     'Use judgment. Lean Action if you have clear momentum; lean Build if you need structure.',
 };
