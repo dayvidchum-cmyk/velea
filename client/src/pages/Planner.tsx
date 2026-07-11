@@ -1162,11 +1162,11 @@ export default function Planner() {
                 {eclipseByDate.has(dateStr) ? (
                   <span style={{ position: "absolute", bottom: 1, left: "50%", transform: "translateX(-50%)", width: 9, height: 9, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", pointerEvents: "none" }} />
                 ) : stationByDate.has(dateStr) ? (
-                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.62rem", lineHeight: 1, color: "#F2A93B", textShadow: "0 0 5px rgba(242,169,59,0.8)", fontWeight: 700, pointerEvents: "none" }}>☿</span>
+                  <span style={{ position: "absolute", bottom: -2, left: "50%", transform: "translateX(-50%)", fontSize: "1rem", lineHeight: 1, color: "#FFB020", textShadow: "0 0 8px rgba(255,176,32,0.95), 0 0 3px rgba(255,176,32,0.9)", fontWeight: 800, pointerEvents: "none" }}>☿</span>
                 ) : windowSet.has(dateStr) ? (
-                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.58rem", lineHeight: 1, color: "#F2A93B", opacity: 0.85, pointerEvents: "none" }}>☿</span>
+                  <span style={{ position: "absolute", bottom: -1, left: "50%", transform: "translateX(-50%)", fontSize: "0.85rem", lineHeight: 1, color: "#F2A93B", fontWeight: 700, opacity: 1, pointerEvents: "none" }}>☿</span>
                 ) : rxSet.has(dateStr) ? (
-                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.55rem", lineHeight: 1, color: "#F2A93B", opacity: 0.45, pointerEvents: "none" }}>☿</span>
+                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", fontSize: "0.72rem", lineHeight: 1, color: "#F2A93B", opacity: 0.55, pointerEvents: "none" }}>☿</span>
                 ) : null}
                 {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
                     other day shows its date number. */}
