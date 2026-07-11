@@ -90,4 +90,10 @@
 // for Android/web (the glyphs live in Misc Symbols, which Noto Sans Symbols covers).
 // v1.1.332 = 2026-07-11 — Saturn ♄ recolored to electric blue (bright #33A1FF dark/FS, #0E74D4
 // light) — was a muddy indigo that read too close to the Selective-blue tiles.
-export const APP_VERSION = "1.1.332";
+// v1.1.333 = 2026-07-11 — Retrograde redesign "events pop, spans recede": the daily glyph strip
+// (which turned to wallpaper once 3-4 planets were retrograde for weeks) is replaced. STATIONS now
+// put the turning planet's glyph IN the date coin (large, crisp, no color-glow) in place of the
+// number. Ongoing spans become one thin continuous colored TRACK per planet under the coin (fixed
+// slots so each reads as a single line across days) — opacity by state (window/station full, rx
+// dimmer, shadow faintest). Tap still opens the "Retrograde sky" list.
+export const APP_VERSION = "1.1.333";

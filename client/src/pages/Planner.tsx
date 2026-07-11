@@ -220,6 +220,12 @@ export default function Planner() {
     for (const arr of Array.from(map.values())) arr.sort((a, b) => order.indexOf(a.planet) - order.indexOf(b.planet));
     return map;
   }, [skyMarks]);
+  // The retrograde planets present ANYWHERE this month, in canonical order — each gets a fixed
+  // track slot under the coins so its span reads as one continuous horizontal line across days.
+  const monthRetroPlanets = useMemo(() => {
+    const present = new Set<string>((skyMarks?.retro ?? []).map((p) => p.planet));
+    return ["Mercury", "Venus", "Mars", "Jupiter", "Saturn"].filter((p) => present.has(p));
+  }, [skyMarks]);
   const eclipseByDate = useMemo(() => {
     const m = new Map<string, string>();
     for (const e of skyMarks?.eclipses ?? []) m.set(e.date, e.type);
@@ -1112,6 +1118,8 @@ export default function Planner() {
             const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
             // Retrograde planets active this day → the bottom glyph strip (rendered below).
             const retroToday = retroByDate.get(dateStr);
+            const stationsToday = retroToday?.filter((e) => e.state === "station-retro" || e.state === "station-direct") ?? [];
+            const retroColor = isDark ? PLANET_RETRO_COLOR.bright : PLANET_RETRO_COLOR.deep;
             // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
@@ -1185,36 +1193,46 @@ export default function Planner() {
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
+                  ) : stationsToday.length ? (
+                    // Station day: the turning planet's glyph replaces the number — the turn owns the
+                    // coin. LARGE + a hair of dark edge for separation (no color-blur glow — it smeared).
+                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                      {stationsToday.map((e) => (
+                        <span key={e.planet} style={{
+                          fontFamily: PLANET_GLYPH_FONT,
+                          fontSize: stationsToday.length > 1 ? "1.05rem" : "1.42rem",
+                          fontWeight: 800,
+                          lineHeight: 1,
+                          color: retroColor[e.planet] ?? "currentColor",
+                          textShadow: "0 0 1.5px rgba(0,0,0,0.5)",
+                        }}>{PLANET_GLYPH[e.planet]}</span>
+                      ))}
+                    </span>
                   ) : (
                     <span className="text-xs" style={{ color: isToday ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)", fontWeight: isSelected || isToday ? 700 : 600 }}>
                       {day}
                     </span>
                   )}
                 </div>
-                {/* Literal strip lane UNDER the coin — a fixed-height row (always reserved so every
-                    coin aligns across the grid). One glyph per retrograde planet, ALL the same size
-                    for clean alignment; station = heavy + a color glow, window = bold, rx = normal,
-                    shadow = faint. Sits on the neutral card, not the tinted coin, so colors read cleanly. */}
-                <div style={{ height: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: 2.5, lineHeight: 1, pointerEvents: "none" }}>
-                  {retroToday?.map((e) => {
-                    const col = (isDark ? PLANET_RETRO_COLOR.bright : PLANET_RETRO_COLOR.deep)[e.planet] ?? "currentColor";
-                    const isStation = e.state === "station-retro" || e.state === "station-direct";
-                    return (
-                      <span key={e.planet} style={{
-                        color: col,
-                        fontFamily: PLANET_GLYPH_FONT,
-                        fontSize: "0.82rem",
-                        lineHeight: 1,
-                        display: "inline-block",
-                        // Symbol fonts are single-weight, so the tier is carried by OPACITY + a
-                        // glow, NOT font-weight: station = full + halo, window = full solid,
-                        // rx = dimmer, shadow = faintest.
-                        opacity: e.state === "shadow" ? 0.34 : e.state === "rx" ? 0.6 : 1,
-                        textShadow: isStation ? `0 0 3px ${col}` : undefined,
-                      }}>{PLANET_GLYPH[e.planet]}</span>
-                    );
-                  })}
-                </div>
+                {/* Track lane UNDER the coin — one fixed slot per retrograde planet this month, so
+                    each planet's span reads as ONE continuous colored line across days (not a glyph
+                    repeated daily). Opacity = state: window/station full, rx dimmer, shadow faintest,
+                    inactive transparent. Stations show the glyph on the coin above; the line stays
+                    lit through them for continuity. */}
+                {monthRetroPlanets.length ? (
+                  <div style={{ width: "100%", maxWidth: "3.1rem", display: "flex", flexDirection: "column", gap: 2, pointerEvents: "none" }}>
+                    {monthRetroPlanets.map((planet) => {
+                      const st = retroToday?.find((e) => e.planet === planet)?.state;
+                      const op = st === "window" || st === "station-retro" || st === "station-direct" ? 1
+                        : st === "rx" ? 0.8
+                        : st === "shadow" ? 0.35
+                        : 0;
+                      return (
+                        <div key={planet} style={{ height: 2.5, borderRadius: 2, background: op ? retroColor[planet] : "transparent", opacity: op }} />
+                      );
+                    })}
+                  </div>
+                ) : null}
               </button>
             );
           })}
