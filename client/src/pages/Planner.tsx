@@ -1140,87 +1140,74 @@ export default function Planner() {
                   if (kind === "eclipse") why = eclipseByDate.get(dateStr) ?? "";
                   setCrownTip({ date: dateStr, kind: kind as any, why, cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: kind === "caution" ? CAUTION_RED : accent });
                 }}
-                className="flex items-center justify-center transition-all duration-150 relative"
-                style={{
-                  // Circles — the day as a coin/bindu, not a chip.
-                  aspectRatio: "1 / 1",
-                  width: "100%",
-                  maxWidth: "3.1rem",
-                  margin: "0 auto",
-                  borderRadius: 999,
-                  // A retrograde strip sits along the bottom, so lift the centered number/mark up
-                  // a touch to give the glyphs breathing room off the edge.
-                  paddingBottom: retroToday && retroToday.length ? "0.5rem" : undefined,
-                  color: isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : undefined,
-                  background: restingBg,
-                  // Today = a WHITE border. Keeping it in the normal border slot (not an outward
-                  // box-shadow) means it can't bleed into the neighbor cell. If today is also
-                  // golden/crown, the gold moves INSIDE as an inset ring: white outer, gold inner.
-                  // David's law (2026-07-09): the gold border belongs to GOLDEN (collective) days
-                  // only. A crown wears just the badge; crown + border = a true double-crown day
-                  // (personal and collective sky aligned).
-                  border: isToday
-                    ? (isDark ? "2px solid #ffffff" : `2px solid ${darkenOklch(accent, 0.45)}`)
-                    : isGolden
-                    ? `2px solid ${GOLD_BRIGHT}`
-                    : cautionSet.has(dateStr)
-                    ? `2px solid ${CAUTION_RED}`
-                    : isSelected
-                    ? `1.5px solid ${accent}`
-                    : "1px solid transparent",
-                  boxShadow: isToday
-                    ? (isGolden ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : cautionSet.has(dateStr) ? `inset 0 0 0 2px ${CAUTION_RED}` : undefined)
-                    : undefined,
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : ""; }}
-                onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
-                onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
+                className="flex flex-col items-center transition-all duration-150"
+                style={{ width: "100%", gap: "0.2rem" }}
               >
-                {/* Eclipse + Mercury station days replace the number with their mark (rendered
-                    centered below). Mercury's shadow → rx → window influence reads as the
-                    planet-green RING on the cell, so those days keep their date number. */}
-                {/* Crown day (personal apex) = a big centered crown IN PLACE of the number; every
-                    other day shows its date number. */}
-                {isCrown ? (
-                  // The bindu — a single gold point. The day itself is the mark.
-                  <span style={{ width: 11, height: 11, borderRadius: 999, background: GOLD_BRIGHT, boxShadow: "0 0 7px rgba(242,194,28,0.8)", pointerEvents: "none", display: "inline-block" }} />
-                ) : eclipseByDate.has(dateStr) ? (
-                  // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
-                  <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
-                ) : (
-                  <span
-                    className="text-xs"
-                    style={{
-                      // Today reads white on its saturated tint, every appearance setting.
-                      color: isToday ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)",
-                      fontWeight: isSelected || isToday ? 700 : 600,
-                    }}
-                  >
-                    {day}
-                  </span>
-                )}
-                {/* Retrograde strip: one small planet-glyph per planet retrograde this day,
-                    along the bottom edge. Station = bold/large, window = bold, rx = normal,
-                    shadow = faint. Colors are mode-tuned (bright on dark/FS, deep on light);
-                    the date number stays intact above. */}
-                {retroToday && retroToday.length ? (
-                  <span style={{ position: "absolute", bottom: "0.24rem", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 1.5, lineHeight: 1, pointerEvents: "none" }}>
-                    {retroToday.map((e) => {
-                      const col = (isDark ? PLANET_RETRO_COLOR.bright : PLANET_RETRO_COLOR.deep)[e.planet] ?? "currentColor";
-                      const isStation = e.state === "station-retro" || e.state === "station-direct";
-                      return (
-                        <span key={e.planet} style={{
-                          color: col,
-                          fontSize: isStation ? "0.92rem" : "0.76rem",
-                          fontWeight: isStation ? 800 : e.state === "window" ? 700 : 600,
-                          opacity: e.state === "shadow" ? 0.42 : 1,
-                          textShadow: "0 0 2px rgba(0,0,0,0.6)",
-                        }}>{PLANET_GLYPH[e.planet]}</span>
-                      );
-                    })}
-                  </span>
-                ) : null}
+                {/* The round date coin. The retrograde strip rides in its own lane below. */}
+                <div
+                  className="flex items-center justify-center"
+                  style={{
+                    aspectRatio: "1 / 1",
+                    width: "100%",
+                    maxWidth: "3.1rem",
+                    borderRadius: 999,
+                    transition: "background 150ms",
+                    color: isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : undefined,
+                    background: restingBg,
+                    // Today = a WHITE border, kept in the border slot (not an outward box-shadow) so it
+                    // can't bleed into the neighbor. Today + golden/caution nests the second color as an
+                    // inset ring. David's law (2026-07-09): the gold border belongs to GOLDEN days only.
+                    border: isToday
+                      ? (isDark ? "2px solid #ffffff" : `2px solid ${darkenOklch(accent, 0.45)}`)
+                      : isGolden
+                      ? `2px solid ${GOLD_BRIGHT}`
+                      : cautionSet.has(dateStr)
+                      ? `2px solid ${CAUTION_RED}`
+                      : isSelected
+                      ? `1.5px solid ${accent}`
+                      : "1px solid transparent",
+                    boxShadow: isToday
+                      ? (isGolden ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : cautionSet.has(dateStr) ? `inset 0 0 0 2px ${CAUTION_RED}` : undefined)
+                      : undefined,
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : ""; }}
+                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
+                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
+                >
+                  {isCrown ? (
+                    // The bindu — a single gold point. The day itself is the mark.
+                    <span style={{ width: 11, height: 11, borderRadius: 999, background: GOLD_BRIGHT, boxShadow: "0 0 7px rgba(242,194,28,0.8)", pointerEvents: "none", display: "inline-block" }} />
+                  ) : eclipseByDate.has(dateStr) ? (
+                    // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
+                    <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
+                  ) : (
+                    <span className="text-xs" style={{ color: isToday ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)", fontWeight: isSelected || isToday ? 700 : 600 }}>
+                      {day}
+                    </span>
+                  )}
+                </div>
+                {/* Literal strip lane UNDER the coin — a fixed-height row (always reserved so every
+                    coin aligns across the grid). One glyph per retrograde planet, ALL the same size
+                    for clean alignment; station = heavy + a color glow, window = bold, rx = normal,
+                    shadow = faint. Sits on the neutral card, not the tinted coin, so colors read cleanly. */}
+                <div style={{ height: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: 2.5, lineHeight: 1, pointerEvents: "none" }}>
+                  {retroToday?.map((e) => {
+                    const col = (isDark ? PLANET_RETRO_COLOR.bright : PLANET_RETRO_COLOR.deep)[e.planet] ?? "currentColor";
+                    const isStation = e.state === "station-retro" || e.state === "station-direct";
+                    return (
+                      <span key={e.planet} style={{
+                        color: col,
+                        fontSize: "0.82rem",
+                        lineHeight: 1,
+                        display: "inline-block",
+                        fontWeight: isStation ? 800 : e.state === "window" ? 700 : 600,
+                        opacity: e.state === "shadow" ? 0.5 : 1,
+                        textShadow: isStation ? `0 0 3px ${col}` : undefined,
+                      }}>{PLANET_GLYPH[e.planet]}</span>
+                    );
+                  })}
+                </div>
               </button>
             );
           })}

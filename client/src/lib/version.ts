@@ -77,4 +77,8 @@
 // v1.1.328 = 2026-07-11 — Retrograde strip glyphs enlarged (rx .76rem / station .92rem, was
 // .52/.62) and lifted off the bottom edge; the date number gets a paddingBottom nudge up so
 // number and strip no longer crowd.
-export const APP_VERSION = "1.1.328";
+// v1.1.329 = 2026-07-11 — Retrograde strip is now a LITERAL LANE under the date coin (was glyphs
+// absolutely-placed inside the circle, which made mixed sizes misalign). Cell = coin on top +
+// fixed-height glyph lane below; all glyphs one size on a shared baseline (station = heavy + glow,
+// window = bold, rx = normal, shadow = faint). Lane sits on the neutral card, so colors read clean.
+export const APP_VERSION = "1.1.329";
