@@ -70,6 +70,15 @@
   figure.bleed img { width: 100%; display: block; }
   @media (min-width: 900px) { figure.bleed { margin-left: calc(-1 * clamp(2.5rem, 5.5vw, 5.5rem) - var(--pad)); width: 100vw; } }
   figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
+  /* Desktop: the demo loop rides the RIGHT edge of the frame; the closing statement +
+     Request-access CTA sit to its LEFT (David's spec). Mobile keeps the stacked flow. */
+  .demoRow .ctaRow { margin-top: 1.6rem; }
+  @media (min-width: 900px) {
+    .demoRow { display: flex; flex-direction: row-reverse; align-items: center; justify-content: space-between; gap: clamp(2.5rem, 6vw, 6rem); width: calc(100vw - 2 * clamp(2.5rem, 5.5vw, 5.5rem) - 2 * var(--pad)); }
+    .demoRow figure.demo { margin: 0; flex-shrink: 0; }
+    .demoRow .demoCopy { max-width: 34rem; }
+    .demoRow .demoCopy .big { font-size: clamp(1.5rem, 2.4vw, 2.1rem); }
+  }
   .p1hero { position: relative; min-height: 96svh; display: flex; align-items: flex-end;
     /* square source in a wide frame: 68% keeps sky ABOVE the shell instead of cropping it all away */
     background: url("/marketing/img/shell.jpg") center 68% / cover no-repeat; }
@@ -115,14 +124,16 @@
   </div>
 </div>
 <main>
-  <figure>
-    <video src="/marketing/img/demo-loop.mp4" poster="/marketing/img/demo-poster.jpg" autoplay muted loop playsinline style="display: block; width: 100%; max-width: 300px; margin: 0 auto; border-radius: 22px; box-shadow: 0 24px 60px -18px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,168,76,0.28);"></video>
-    <figcaption>A snapshot of timing, translated into focus.</figcaption>
-  </figure>
-
-  <hr class="rule" />
-  <p class="big">This is not a horoscope. It is not prediction. It is alignment &mdash; and when your actions line up with the day, life locks into place, and tells you when to pivot.</p>
-  <div class="ctaRow"><a class="cta" href="/access">Request access</a></div>
+  <div class="demoRow">
+    <figure class="demo">
+      <video src="/marketing/img/demo-loop.mp4" poster="/marketing/img/demo-poster.jpg" autoplay muted loop playsinline style="display: block; width: 100%; max-width: 300px; margin: 0 auto; border-radius: 22px; box-shadow: 0 24px 60px -18px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,168,76,0.28);"></video>
+      <figcaption>A snapshot of timing, translated into focus.</figcaption>
+    </figure>
+    <div class="demoCopy">
+      <p class="big">This is not a horoscope. It is not prediction. It is alignment &mdash; and when your actions line up with the day, life locks into place, and tells you when to pivot.</p>
+      <div class="ctaRow"><a class="cta" href="/access">Request access</a></div>
+    </div>
+  </div>
 </main>
 <footer><span class="fm">Velea</span><span class="km">វេលាល្អ</span> · The Golden Moment · © 2026</footer>
 </body>
