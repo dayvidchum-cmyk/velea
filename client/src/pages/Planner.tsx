@@ -45,6 +45,14 @@ function toDateStr(d: Date) {
   return `${y}-${m}-${day}`;
 }
 
+// Retrograde planets → their glyph + color for the calendar strip. Two tunings so the
+// small glyphs read on the mode-tinted tiles: BRIGHT on dark + Full Spectrum, DEEP on light.
+const PLANET_GLYPH: Record<string, string> = { Mercury: "☿", Venus: "♀", Mars: "♂", Jupiter: "♃", Saturn: "♄" };
+const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string, string> } = {
+  bright: { Mercury: "#85CDB5", Venus: "#F7A8B4", Mars: "#E8556B", Jupiter: "#E6C33A", Saturn: "#7C8CEA" },
+  deep:   { Mercury: "#2E8B6E", Venus: "#C65A72", Mars: "#BD0039", Jupiter: "#9A7E00", Saturn: "#3F50AF" },
+};
+
 const MODE_DOT: Record<string, string> = {
   Action:     "oklch(0.70 0.18 150)",  // clearer green
   Build:      "oklch(0.80 0.15 92)",
@@ -182,28 +190,37 @@ export default function Planner() {
   // intensities: faint ☿ across the retrograde, stronger in station windows, full on
   // station day. Eclipses get the dark disc.
   const { data: skyMarks } = trpc.sky.monthMarks.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
-  const rxSet = useMemo(() => new Set(skyMarks?.mercury?.retroDays ?? []), [skyMarks]);
-  const windowSet = useMemo(() => new Set(skyMarks?.mercury?.windowDays ?? []), [skyMarks]);
-  const preShadowSet = useMemo(() => new Set(skyMarks?.mercury?.preShadowDays ?? []), [skyMarks]);
-  const postShadowSet = useMemo(() => new Set(skyMarks?.mercury?.postShadowDays ?? []), [skyMarks]);
-  const shadowSet = useMemo(() => new Set([...(skyMarks?.mercury?.preShadowDays ?? []), ...(skyMarks?.mercury?.postShadowDays ?? [])]), [skyMarks]);
-  const stationByDate = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const st of skyMarks?.mercury?.stations ?? []) m.set(st.date, st.type);
-    return m;
+  // Every retrograde planet's marks, collapsed to a per-date list for the glyph strip.
+  // Each planet contributes at most one state per day; strongest wins: station > window
+  // > rx > shadow. `detail` feeds the tap popup.
+  const retroByDate = useMemo(() => {
+    const rank: Record<string, number> = { "station-retro": 5, "station-direct": 5, window: 4, rx: 3, shadow: 1 };
+    const map = new Map<string, { planet: string; state: string; detail: string }[]>();
+    const add = (date: string, planet: string, state: string, detail: string) => {
+      let arr = map.get(date);
+      if (!arr) { arr = []; map.set(date, arr); }
+      const existing = arr.find((e) => e.planet === planet);
+      if (existing) { if (rank[state] > rank[existing.state]) { existing.state = state; existing.detail = detail; } }
+      else arr.push({ planet, state, detail });
+    };
+    for (const p of skyMarks?.retro ?? []) {
+      for (const s of p.stations) add(s.date, p.planet, s.type === "turns retrograde" ? "station-retro" : "station-direct", s.type === "turns retrograde" ? "stations retrograde" : "stations direct");
+      for (const d of p.windowDays) add(d, p.planet, "window", "station window — the roughest days");
+      for (const d of p.retroDays) add(d, p.planet, "rx", "retrograde");
+      for (const d of p.preShadowDays) add(d, p.planet, "shadow", "in its pre-shadow");
+      for (const d of p.postShadowDays) add(d, p.planet, "shadow", "in its post-shadow");
+      for (const d of p.shadowEnterDays) add(d, p.planet, "shadow", "enters its shadow");
+      for (const d of p.shadowExitDays) add(d, p.planet, "shadow", "clears its shadow");
+    }
+    const order = ["Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
+    for (const arr of Array.from(map.values())) arr.sort((a, b) => order.indexOf(a.planet) - order.indexOf(b.planet));
+    return map;
   }, [skyMarks]);
   const eclipseByDate = useMemo(() => {
     const m = new Map<string, string>();
     for (const e of skyMarks?.eclipses ?? []) m.set(e.date, e.type);
     return m;
   }, [skyMarks]);
-  const nearestStationTo = (dateStr: string): { date: string; type: string } | null => {
-    let best: { date: string; type: string } | null = null;
-    for (const st of skyMarks?.mercury?.stations ?? []) {
-      if (!best || Math.abs(Date.parse(st.date) - Date.parse(dateStr)) < Math.abs(Date.parse(best.date) - Date.parse(dateStr))) best = st;
-    }
-    return best;
-  };
   const crownByDate = useMemo(() => {
     const m = new Map<string, string>();
     for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
@@ -227,7 +244,7 @@ export default function Planner() {
   const goldenSet = useMemo(() => new Set<string>((goldenData?.potential ?? []) as string[]), [goldenData]);
   // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
   // fixed-to-viewport (never clipped by the calendar card's overflow).
-  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden" | "caution" | "mercury" | "eclipse"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
+  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden" | "caution" | "retro" | "eclipse"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
   // Scroll-anchor: selecting a date re-renders the hero card ABOVE the calendar, whose height change
   // would otherwise shove the calendar and "jump" the screen. We capture the calendar's viewport top
   // on tap and restore it in a layout effect so the tapped cell stays visually put.
@@ -1089,25 +1106,8 @@ export default function Planner() {
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
             const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
-            // Mercury's planet color (green), mode-tuned so the ring + glyph read on every surface:
-            // FS paints the card gold, so a bright opaque mint is needed there; light mode needs a
-            // deeper green for contrast on the pale ground; dark uses the app's stock Mercury green.
-            const MERC = fullSpectrum ? "#8FE3C4" : isDark ? "#85CDB5" : "#2E8B6E";
-            // The retrograde influence as a green ring (date stays intact). Intensity = tier:
-            // window (±3, roughest) thick solid → rx-span thin solid → shadow ramp thin dashed.
-            // Station days carry the centered ☿ glyph instead, so they take no ring here.
-            const mercBorder = !stationByDate.has(dateStr)
-              ? (windowSet.has(dateStr) ? `2px solid ${MERC}`
-                : rxSet.has(dateStr) ? `1.5px solid ${MERC}`
-                : shadowSet.has(dateStr) ? `1.5px dashed ${MERC}`
-                : null)
-              : null;
-            // On FS + dark the greens run light and green-on-green (Action) goes soft, so the
-            // ring gets a hairline dark stroke to lift off any tile. Light mode's deep green
-            // already has the contrast — plain ring there (variant A).
-            const mercHairline = mercBorder && (fullSpectrum || isDark)
-              ? "0 0 0 0.9px rgba(0,0,0,0.55), inset 0 0 0 0.9px rgba(0,0,0,0.3)"
-              : null;
+            // Retrograde planets active this day → the bottom glyph strip (rendered below).
+            const retroToday = retroByDate.get(dateStr);
             // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
@@ -1132,21 +1132,12 @@ export default function Planner() {
                   // Crown days AND golden days pop a bubble; tapping the open day (or a plain day) closes it.
                   const isCaution = cautionSet.has(dateStr);
                   const isEclipseDay = eclipseByDate.has(dateStr);
-                  const isMercuryDay = stationByDate.has(dateStr) || windowSet.has(dateStr) || rxSet.has(dateStr) || shadowSet.has(dateStr);
-                  if (crownTip?.date === dateStr || (!isCrown && !isGolden && !isCaution && !isEclipseDay && !isMercuryDay)) { setCrownTip(null); return; }
+                  const isRetroDay = retroByDate.has(dateStr);
+                  if (crownTip?.date === dateStr || (!isCrown && !isGolden && !isCaution && !isEclipseDay && !isRetroDay)) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
-                  const kind = isCrown ? "crown" : isGolden ? "golden" : isCaution ? "caution" : isEclipseDay ? "eclipse" : "mercury";
+                  const kind = isCrown ? "crown" : isGolden ? "golden" : isCaution ? "caution" : isEclipseDay ? "eclipse" : "retro";
                   let why = isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution && !isGolden ? (cautionByDate.get(dateStr) ?? "") : "";
                   if (kind === "eclipse") why = eclipseByDate.get(dateStr) ?? "";
-                  if (kind === "mercury") {
-                    const st = stationByDate.get(dateStr);
-                    const near = nearestStationTo(dateStr);
-                    why = st ? `station:${st}`
-                      : windowSet.has(dateStr) ? `window:${near?.type ?? ""}:${near?.date ?? ""}`
-                      : preShadowSet.has(dateStr) ? `preshadow:${near?.date ?? ""}`
-                      : postShadowSet.has(dateStr) ? `postshadow:${near?.date ?? ""}`
-                      : `rx:${near?.type === "turns direct" ? near.date : ""}`;
-                  }
                   setCrownTip({ date: dateStr, kind: kind as any, why, cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: kind === "caution" ? CAUTION_RED : accent });
                 }}
                 className="flex items-center justify-center transition-all duration-150 relative"
@@ -1171,14 +1162,12 @@ export default function Planner() {
                     ? `2px solid ${GOLD_BRIGHT}`
                     : cautionSet.has(dateStr)
                     ? `2px solid ${CAUTION_RED}`
-                    : mercBorder
-                    ? mercBorder
                     : isSelected
                     ? `1.5px solid ${accent}`
                     : "1px solid transparent",
                   boxShadow: isToday
                     ? (isGolden ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : cautionSet.has(dateStr) ? `inset 0 0 0 2px ${CAUTION_RED}` : undefined)
-                    : mercHairline ?? undefined,
+                    : undefined,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : ""; }}
@@ -1196,11 +1185,6 @@ export default function Planner() {
                 ) : eclipseByDate.has(dateStr) ? (
                   // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                   <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
-                ) : stationByDate.has(dateStr) ? (
-                  // Station day: ☿ IN PLACE of the number — the turn is the whole meaning of the day.
-                  // Mercury green, mode-tuned. FS/dark add a dark halo so the glyph lifts off
-                  // green/gold tiles; light keeps the clean same-hue green glow (variant A).
-                  <span style={{ fontSize: "1.15rem", lineHeight: 1, color: MERC, textShadow: (fullSpectrum || isDark) ? `0 0 2px rgba(0,0,0,0.72), 0 0 9px ${MERC}` : `0 0 8px ${MERC}, 0 0 3px ${MERC}`, fontWeight: 800, pointerEvents: "none" }}>☿</span>
                 ) : (
                   <span
                     className="text-xs"
@@ -1213,6 +1197,27 @@ export default function Planner() {
                     {day}
                   </span>
                 )}
+                {/* Retrograde strip: one small planet-glyph per planet retrograde this day,
+                    along the bottom edge. Station = bold/large, window = bold, rx = normal,
+                    shadow = faint. Colors are mode-tuned (bright on dark/FS, deep on light);
+                    the date number stays intact above. */}
+                {retroToday && retroToday.length ? (
+                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 1, lineHeight: 1, pointerEvents: "none" }}>
+                    {retroToday.map((e) => {
+                      const col = (isDark ? PLANET_RETRO_COLOR.bright : PLANET_RETRO_COLOR.deep)[e.planet] ?? "currentColor";
+                      const isStation = e.state === "station-retro" || e.state === "station-direct";
+                      return (
+                        <span key={e.planet} style={{
+                          color: col,
+                          fontSize: isStation ? "0.62rem" : "0.52rem",
+                          fontWeight: isStation ? 800 : e.state === "window" ? 700 : 600,
+                          opacity: e.state === "shadow" ? 0.42 : 1,
+                          textShadow: "0 0 2px rgba(0,0,0,0.6)",
+                        }}>{PLANET_GLYPH[e.planet]}</span>
+                      );
+                    })}
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -1283,22 +1288,22 @@ export default function Planner() {
                 </span>
                 The light breaks its own rules today &mdash; a volatile sky. Watch, don&rsquo;t launch; what surfaces is information.
               </>
-            ) : crownTip.kind === "mercury" ? (
+            ) : crownTip.kind === "retro" ? (
               <>
-                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#4FB08E", marginBottom: "0.25rem" }}>
-                  ☿ {crownTip.why.startsWith("station:turns retrograde") ? "Mercury stations retrograde" : crownTip.why.startsWith("station:turns direct") ? "Mercury stations direct" : crownTip.why.startsWith("window:") ? "Station window" : crownTip.why.startsWith("preshadow:") ? "Mercury enters its shadow" : crownTip.why.startsWith("postshadow:") ? "Mercury clears its shadow" : "Mercury retrograde"}
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "var(--color-foreground)", marginBottom: "0.35rem" }}>
+                  Retrograde sky
                 </span>
-                {crownTip.why.startsWith("station:turns retrograde")
-                  ? "The turn itself. The days either side of a station are the roughest of the cycle — back up, double-check, say it twice."
-                  : crownTip.why.startsWith("station:turns direct")
-                  ? "The turn back. Clarity returns slowly — let momentum rebuild before you floor it."
-                  : crownTip.why.startsWith("window:")
-                  ? `Mercury ${crownTip.why.split(":")[1] === "turns direct" ? "stations direct" : "stations retrograde"} ${crownTip.why.split(":")[2]?.slice(5) ?? "soon"} — the days around a station are the roughest of the cycle.`
-                  : crownTip.why.startsWith("preshadow:")
-                  ? "The shadow opens — Mercury is now re-treading the exact degrees it will soon retrograde back over. What you begin here you'll likely revisit, so leave room to revise."
-                  : crownTip.why.startsWith("postshadow:")
-                  ? "The shadow closes — Mercury is re-crossing the ground it lost. The review is finishing; let what you restart now settle before it fully holds."
-                  : "Deep in the review — revisit, refine, reconnect. Hold big launches while the ground is re-walked."}
+                <span style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                  {(retroByDate.get(crownTip.date) ?? []).map((e) => {
+                    const col = (theme === "dark" || fullSpectrum) ? PLANET_RETRO_COLOR.bright[e.planet] : PLANET_RETRO_COLOR.deep[e.planet];
+                    return (
+                      <span key={e.planet} style={{ display: "flex", gap: 6, alignItems: "baseline" }}>
+                        <span style={{ color: col, fontWeight: 800, fontSize: "0.95rem", lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
+                        <span><b style={{ color: col }}>{e.planet}</b> {e.detail}.</span>
+                      </span>
+                    );
+                  })}
+                </span>
               </>
             ) : (
               <>

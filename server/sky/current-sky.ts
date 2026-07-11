@@ -262,18 +262,37 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
 const MONTH_MARKS_CACHE = new Map<string, { at: number; value: MonthSkyMarks }>();
 const MONTH_MARKS_TTL_MS = 12 * 60 * 60 * 1000;
 
+export type RetroPlanet = "Mercury" | "Venus" | "Mars" | "Jupiter" | "Saturn";
+
+export interface PlanetRetroMarks {
+  planet: RetroPlanet;
+  retroDays: string[];                                  // every date the planet is retrograde
+  stations: { date: string; type: "turns retrograde" | "turns direct" }[];
+  windowDays: string[];                                 // ±3 days around each station (the roughest stretch)
+  // Degree-exact shadow (retroshade) zones — the planet re-treading the exact degrees it
+  // will retrograde over. Pre-shadow: direct, from crossing the future DIRECT-station degree
+  // up to the retrograde station. Post-shadow: direct, from the direct station up to
+  // re-crossing the RETROGRADE-station degree. Both lie OUTSIDE the retro span.
+  // FAST planets (Mercury/Venus/Mars) expose the full spans; SLOW planets (Jupiter/Saturn)
+  // leave these empty and mark only the boundary days below (their shadows run months long).
+  preShadowDays: string[];
+  postShadowDays: string[];
+  shadowEnterDays: string[];                            // the single day each shadow OPENS (all planets)
+  shadowExitDays: string[];                             // the single day each shadow CLOSES (all planets)
+}
+
+// Retrograde-capable planets, by speed class. FAST = full shadow spans; SLOW = enter/leave
+// signals only (a 4-month Jupiter/Saturn shadow painted whole would swamp the calendar).
+const RETRO_PLANETS: { planet: RetroPlanet; cls: "fast" | "slow" }[] = [
+  { planet: "Mercury", cls: "fast" },
+  { planet: "Venus", cls: "fast" },
+  { planet: "Mars", cls: "fast" },
+  { planet: "Jupiter", cls: "slow" },
+  { planet: "Saturn", cls: "slow" },
+];
+
 export interface MonthSkyMarks {
-  mercury: {
-    retroDays: string[];                                  // every date Mercury is retrograde
-    stations: { date: string; type: "turns retrograde" | "turns direct" }[];
-    windowDays: string[];                                 // ±3 days around each station (the roughest stretch)
-    // Degree-exact shadow (retroshade) zones — Mercury re-treading the exact degrees it
-    // will retrograde over. Pre-shadow: direct, from crossing the future DIRECT-station
-    // degree up to the retrograde station. Post-shadow: direct, from the direct station
-    // up to re-crossing the RETROGRADE-station degree. Both lie OUTSIDE the retro span.
-    preShadowDays: string[];
-    postShadowDays: string[];
-  };
+  retro: PlanetRetroMarks[];                             // one entry per planet with any event this month
   eclipses: { date: string; type: "solar" | "lunar" }[];
 }
 
@@ -286,64 +305,95 @@ export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
   const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
   const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
-  // Daily Mercury speed + longitude. Padded ±50 days: a shadow day is defined by BOTH of
-  // its cycle's stations, and a post-shadow day can sit ~45 days after its retrograde
-  // station (retro span ~24d + post-shadow ~14d + margin). The pad must reach back far
-  // enough from either month edge to detect both stations and their turning longitudes.
-  const SHADOW_PAD = 50;
-  const speeds: { ms: number; speed: number; lon: number }[] = [];
-  for (let off = -SHADOW_PAD; off < daysInMonth + SHADOW_PAD; off++) {
+  // Daily speed + longitude for every retrograde planet, one ephemeris call per day.
+  // Padded ±245 days: a slow planet's shadow-exit day can sit ~200 days after its
+  // retrograde station (retro span ~140d + post-shadow ~60d), and a shadow zone is
+  // defined by BOTH of its cycle's stations, so the pad must reach far enough from
+  // either month edge to detect those stations and their turning longitudes.
+  const RETRO_PAD = 245;
+  const planetNames = RETRO_PLANETS.map((p) => p.planet);
+  const samples: { ms: number; pos: Record<string, { speed: number; lon: number }> }[] = [];
+  for (let off = -RETRO_PAD; off < daysInMonth + RETRO_PAD; off++) {
     const d = new Date(first + off * DAY_MS);
-    const pos = await getSiderealLongitudesWithSpeed(d, ["Mercury"]);
-    speeds.push({ ms: d.getTime(), speed: pos.Mercury?.speed ?? 0, lon: pos.Mercury?.longitude ?? 0 });
-  }
-  const retroDays: string[] = [];
-  for (const s of speeds) {
-    const date = iso(s.ms);
-    if (s.speed < 0 && date.startsWith(yearMonth)) retroDays.push(date);
-  }
-  // Stations with their exact turning longitude — the longitude defines the shadow zone.
-  const stationsFull: { date: string; ms: number; lon: number; type: "turns retrograde" | "turns direct" }[] = [];
-  for (let i = 1; i < speeds.length; i++) {
-    const a = speeds[i - 1], b = speeds[i];
-    if (a.speed !== 0 && b.speed !== 0 && Math.sign(a.speed) !== Math.sign(b.speed)) {
-      const exact = await bisectStation("Mercury", new Date(a.ms), new Date(b.ms));
-      const lonPos = await getSiderealLongitudesWithSpeed(exact, ["Mercury"]);
-      stationsFull.push({ date: exact.toISOString().slice(0, 10), ms: exact.getTime(), lon: lonPos.Mercury?.longitude ?? 0, type: b.speed < 0 ? "turns retrograde" : "turns direct" });
-    }
-  }
-  const stations: { date: string; type: "turns retrograde" | "turns direct" }[] = stationsFull.map((s) => ({ date: s.date, type: s.type }));
-  const windowSet = new Set<string>();
-  for (const st of stations) {
-    const stMs = Date.parse(st.date + "T12:00:00Z");
-    for (let off = -3; off <= 3; off++) {
-      const d = iso(stMs + off * DAY_MS);
-      if (d.startsWith(yearMonth)) windowSet.add(d);
-    }
+    const pos = await getSiderealLongitudesWithSpeed(d, planetNames);
+    const rec: Record<string, { speed: number; lon: number }> = {};
+    for (const n of planetNames) rec[n] = { speed: pos[n]?.speed ?? 0, lon: pos[n]?.longitude ?? 0 };
+    samples.push({ ms: d.getTime(), pos: rec });
   }
 
-  // Degree-exact shadow zones. Signed angular delta, normalized to (-180, 180].
+  // Signed angular delta, normalized to (-180, 180].
   const angDiff = (a: number, b: number) => ((a - b + 540) % 360) - 180;
-  const preShadowSet = new Set<string>();
-  const postShadowSet = new Set<string>();
-  const sortedStations = stationsFull.slice().sort((a, b) => a.ms - b.ms);
-  for (let i = 0; i < sortedStations.length; i++) {
-    const stR = sortedStations[i];
-    if (stR.type !== "turns retrograde") continue;
-    const stD = sortedStations.slice(i + 1).find((s) => s.type === "turns direct");
-    if (!stD) continue;
-    const lonDirect = stD.lon;             // far-back point — pre-shadow OPENS when direct Mercury reaches it
-    const width = angDiff(stR.lon, lonDirect); // retro-station degree sits ~+width ahead of the direct-station degree
-    if (width <= 0) continue;              // guard: unexpected geometry
-    for (const s of speeds) {
-      if (s.speed <= 0) continue;          // shadows are DIRECT motion only (retro is its own span)
-      const off = angDiff(s.lon, lonDirect);
-      if (off < -0.05 || off > width + 0.05) continue; // outside the [direct°, retro°] zone
-      const date = iso(s.ms);
-      if (!date.startsWith(yearMonth)) continue;
-      // Cap at ±35d so a day can't be mis-assigned to a neighboring cycle's zone.
-      if (s.ms < stR.ms && s.ms >= stR.ms - 35 * DAY_MS) preShadowSet.add(date);
-      else if (s.ms > stD.ms && s.ms <= stD.ms + 35 * DAY_MS) postShadowSet.add(date);
+  const inMonth = (ms: number) => iso(ms).startsWith(yearMonth);
+
+  const retro: PlanetRetroMarks[] = [];
+  for (const { planet, cls } of RETRO_PLANETS) {
+    const speeds = samples.map((s) => ({ ms: s.ms, speed: s.pos[planet].speed, lon: s.pos[planet].lon }));
+
+    const retroDays: string[] = [];
+    for (const s of speeds) if (s.speed < 0 && inMonth(s.ms)) retroDays.push(iso(s.ms));
+
+    // Stations with their exact turning longitude — the longitude defines the shadow zone.
+    const stationsFull: { ms: number; lon: number; type: "turns retrograde" | "turns direct" }[] = [];
+    for (let i = 1; i < speeds.length; i++) {
+      const a = speeds[i - 1], b = speeds[i];
+      if (a.speed !== 0 && b.speed !== 0 && Math.sign(a.speed) !== Math.sign(b.speed)) {
+        const exact = await bisectStation(planet, new Date(a.ms), new Date(b.ms));
+        const lonPos = await getSiderealLongitudesWithSpeed(exact, [planet]);
+        stationsFull.push({ ms: exact.getTime(), lon: lonPos[planet]?.longitude ?? 0, type: b.speed < 0 ? "turns retrograde" : "turns direct" });
+      }
+    }
+    const stations = stationsFull.filter((s) => inMonth(s.ms)).map((s) => ({ date: iso(s.ms), type: s.type }));
+
+    const windowSet = new Set<string>();
+    for (const st of stationsFull) {
+      for (let off = -3; off <= 3; off++) {
+        const d = iso(st.ms + off * DAY_MS);
+        if (d.startsWith(yearMonth)) windowSet.add(d);
+      }
+    }
+
+    // Degree-exact shadow, per retrograde cycle (retro station → next direct station).
+    const preShadowSet = new Set<string>(), postShadowSet = new Set<string>();
+    const shadowEnterSet = new Set<string>(), shadowExitSet = new Set<string>();
+    const cap = cls === "slow" ? 220 : 50;      // anti-bleed guard; slow cycles sit ~1yr apart
+    const sorted = stationsFull.slice().sort((a, b) => a.ms - b.ms);
+    for (let i = 0; i < sorted.length; i++) {
+      const stR = sorted[i];
+      if (stR.type !== "turns retrograde") continue;
+      const stD = sorted.slice(i + 1).find((s) => s.type === "turns direct");
+      if (!stD) continue;
+      const lonDirect = stD.lon;                // pre-shadow OPENS when the direct planet reaches this degree
+      const width = angDiff(stR.lon, lonDirect); // retro-station degree sits ~+width ahead of it
+      if (width <= 0) continue;                 // guard: unexpected geometry
+      const preMs: number[] = [], postMs: number[] = [];
+      for (const s of speeds) {
+        if (s.speed <= 0) continue;             // shadows are DIRECT motion only
+        const o = angDiff(s.lon, lonDirect);
+        if (o < -0.05 || o > width + 0.05) continue; // outside the [direct°, retro°] zone
+        if (s.ms < stR.ms && s.ms >= stR.ms - cap * DAY_MS) preMs.push(s.ms);
+        else if (s.ms > stD.ms && s.ms <= stD.ms + cap * DAY_MS) postMs.push(s.ms);
+      }
+      // Boundary blips (all planets): the true first pre-day and last post-day of the cycle.
+      if (preMs.length) { const enter = Math.min(...preMs); if (inMonth(enter)) shadowEnterSet.add(iso(enter)); }
+      if (postMs.length) { const exit = Math.max(...postMs); if (inMonth(exit)) shadowExitSet.add(iso(exit)); }
+      // Full spans (fast planets only).
+      if (cls === "fast") {
+        for (const ms of preMs) if (inMonth(ms)) preShadowSet.add(iso(ms));
+        for (const ms of postMs) if (inMonth(ms)) postShadowSet.add(iso(ms));
+      }
+    }
+
+    if (retroDays.length || stations.length || windowSet.size || preShadowSet.size || postShadowSet.size || shadowEnterSet.size || shadowExitSet.size) {
+      retro.push({
+        planet,
+        retroDays,
+        stations,
+        windowDays: Array.from(windowSet).sort(),
+        preShadowDays: Array.from(preShadowSet).sort(),
+        postShadowDays: Array.from(postShadowSet).sort(),
+        shadowEnterDays: Array.from(shadowEnterSet).sort(),
+        shadowExitDays: Array.from(shadowExitSet).sort(),
+      });
     }
   }
 
@@ -370,18 +420,7 @@ export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
     prevElong = elong;
   }
 
-  const value: MonthSkyMarks = {
-    // Keep stations from the ±4d pad too — a window can reach into this month from a
-    // station that lives in the next/previous one, and the popup names the date.
-    mercury: {
-      retroDays,
-      stations,
-      windowDays: Array.from(windowSet).sort(),
-      preShadowDays: Array.from(preShadowSet).sort(),
-      postShadowDays: Array.from(postShadowSet).sort(),
-    },
-    eclipses,
-  };
+  const value: MonthSkyMarks = { retro, eclipses };
   MONTH_MARKS_CACHE.set(yearMonth, { at: Date.now(), value });
   return value;
 }

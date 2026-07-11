@@ -68,4 +68,10 @@
 // hairline dark stroke on FS + dark (green-on-green Action was soft); light keeps the plain ring.
 // v1.1.326 = 2026-07-11 — Eclipse days now show ONLY the dark gold-rimmed disc, centered in
 // place of the date number (was disc + number), matching the Mercury station-day treatment.
-export const APP_VERSION = "1.1.326";
+// v1.1.327 = 2026-07-11 — Retrograde calendar goes multi-planet: Mercury, Venus, Mars, Jupiter,
+// Saturn each render as a small planet-colored glyph in a bottom STRIP (Mercury's ring removed).
+// Station = bold/large, window = bold, rx = normal, shadow = faint; colors mode-tuned (bright on
+// dark/FS, deep on light), date number kept. Degree-exact shadow for all; FAST planets show the
+// full pre/post-shadow span, SLOW (Jupiter/Saturn) show only enter/leave blips. Tap → a
+// "Retrograde sky" popup listing every planet's state that day.
+export const APP_VERSION = "1.1.327";
