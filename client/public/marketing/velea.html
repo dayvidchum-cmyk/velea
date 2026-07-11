@@ -70,8 +70,9 @@
   figure.bleed img { width: 100%; display: block; }
   @media (min-width: 900px) { figure.bleed { margin-left: calc(-1 * clamp(2.5rem, 5.5vw, 5.5rem) - var(--pad)); width: 100vw; } }
   figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
-  .p1hero { position: relative; min-height: 88svh; display: flex; align-items: flex-end;
-    background: url("/marketing/img/shell.jpg") center bottom / cover no-repeat; }
+  .p1hero { position: relative; min-height: 96svh; display: flex; align-items: flex-end;
+    /* square source in a wide frame: 68% keeps sky ABOVE the shell instead of cropping it all away */
+    background: url("/marketing/img/shell.jpg") center 68% / cover no-repeat; }
   .p1hero::before { content: ""; position: absolute; inset: 0;
     background: linear-gradient(180deg, rgba(20,10,26,0.42) 0%, rgba(20,10,26,0.05) 40%, rgba(20,10,26,0.55) 100%); }
   .p1hero .inner { position: relative; max-width: 42rem; padding: 0 var(--pad) clamp(2.6rem, 8vw, 4.5rem); }
