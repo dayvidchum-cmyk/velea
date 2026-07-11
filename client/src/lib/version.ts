@@ -154,4 +154,7 @@
 // sunrise 5–7, day 8–16, sunset 17–18, evening 19–20 — and AT NIGHT (21–4) it becomes the current
 // Moon phase, the same phase art the Stage shows, so the welcome mirrors the sky overhead. Buckets
 // align to the greeting-text buckets so words + sky agree. Moon pulled from celestial.today (cached).
-export const APP_VERSION = "1.1.347";
+// v1.1.348 = 2026-07-11 — Horoscope page: the leftover Sparkles icon on the reveal ("purchase")
+// prompt is replaced with the DiamondMark — the same node/knot/point symbol as the Horoscope nav
+// icon, so the page and its icon agree (Sparkles was retired app-wide).
+export const APP_VERSION = "1.1.348";
