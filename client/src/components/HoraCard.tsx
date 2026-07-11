@@ -2,6 +2,10 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import LockedFeatureCard from "./LockedFeatureCard";
+import VeleaLorMark from "./VeleaLorMark";
+
+// The golden-hour gold — same hue as the crown/Veleal'or mark on the Master Mode card.
+const GOLD = "#D4AF37";
 
 /**
  * Hora — the planetary hour, the intraday layer next to Master Mode. PRIVATE
@@ -69,6 +73,7 @@ export default function HoraCard() {
             <span style={{ fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Now</span>
             <span style={{ fontSize: "0.95rem", fontWeight: 800, color: TONE_COLOR[current.tone], lineHeight: 1.1 }}>{current.lord}</span>
             <span style={{ fontSize: "0.62rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</span>
+            {(current as any).isGolden && <VeleaLorMark size={13} color={GOLD} style={{ alignSelf: "center" }} />}
           </div>
         ) : (
           <p style={{ margin: 0, fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>Between hours.</p>
@@ -86,6 +91,15 @@ export default function HoraCard() {
                     <span style={{ width: 7, height: 7, borderRadius: 999, background: TONE_COLOR[h.tone], flexShrink: 0 }} />
                     <span style={{ fontSize: "0.66rem", color: "var(--color-muted-foreground)", width: "3.9rem", flexShrink: 0 }}>{fmt(h.startMs)}</span>
                     <span style={{ fontSize: "0.72rem", fontWeight: isNow ? 700 : 500, color: isNow ? TONE_COLOR[h.tone] : "var(--foreground)" }}>{h.lord}</span>
+                    {(h as any).isGolden && (
+                      <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
+                        {/* golden sub-window inside the hora (when narrower than the full hour) */}
+                        {(h as any).goldenStartMs != null && ((h as any).goldenEndMs - (h as any).goldenStartMs) < (h.endMs - h.startMs) - 60000 && (
+                          <span style={{ fontSize: "0.58rem", color: GOLD, fontWeight: 600 }}>{fmt((h as any).goldenStartMs)}</span>
+                        )}
+                        <VeleaLorMark size={12} color={GOLD} />
+                      </span>
+                    )}
                   </div>
                 );
               })}

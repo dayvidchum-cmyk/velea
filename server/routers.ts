@@ -1681,11 +1681,42 @@ export const appRouter = router({
           const prev = new Date(Date.UTC(y, m - 1, d - 1));
           horas = computeHoras(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate(), lat, lon);
         }
+
+        // Golden-hour flags per hora — the "plan ahead" signal in the list. Best-effort: needs the
+        // user's bird (birth Moon nakshatra + paksha). If unavailable, the list omits the marks.
+        // computeGoldenHoras rebuilds the SAME hora window (same nowMs/date/loc), so index aligns.
+        const goldenByIndex = new Map<number, { goldenStartMs: number | null; goldenEndMs: number | null }>();
+        try {
+          const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+          const profile = await getActiveProfile(ctx.user.id);
+          if (profile) {
+            const bodies = await getProfileNatalBodies(profile.id);
+            let moonNak: string | null = null, sunLon: number | null = null, moonLon: number | null = null;
+            for (const b of bodies) {
+              if (b.planet === "Moon") { moonNak = b.nakshatra ?? null; moonLon = (b as any).longitude != null ? parseFloat((b as any).longitude) : null; }
+              if (b.planet === "Sun") sunLon = (b as any).longitude != null ? parseFloat((b as any).longitude) : null;
+            }
+            if (moonNak && sunLon != null && moonLon != null) {
+              const { pakshaFromSunMoon } = await import("./panchapakshi/tables.js");
+              const { computeGoldenHoras } = await import("./panchapakshi/golden-hour.js");
+              const flags = await computeGoldenHoras({
+                year: y, month: m, day: d, nowMs: now, lat, lon,
+                birthNakshatra: moonNak, birthPaksha: pakshaFromSunMoon(sunLon, moonLon),
+              });
+              for (const f of flags) if (f.isGolden) goldenByIndex.set(f.index, { goldenStartMs: f.goldenStartMs, goldenEndMs: f.goldenEndMs });
+            }
+          }
+        } catch { /* golden flags are optional; fall back to a plain hora list */ }
+
         return {
-          horas: horas.map((h) => ({
-            index: h.index, lord: h.lord, phase: h.phase, tone: h.tone,
-            good: HORA_TONE[h.lord].good, startMs: h.startMs, endMs: h.endMs,
-          })),
+          horas: horas.map((h) => {
+            const g = goldenByIndex.get(h.index);
+            return {
+              index: h.index, lord: h.lord, phase: h.phase, tone: h.tone,
+              good: HORA_TONE[h.lord].good, startMs: h.startMs, endMs: h.endMs,
+              isGolden: !!g, goldenStartMs: g?.goldenStartMs ?? null, goldenEndMs: g?.goldenEndMs ?? null,
+            };
+          }),
         };
       }),
   }),

@@ -101,4 +101,10 @@
 // v1.1.335 = 2026-07-11 — Build Full Spectrum ground deepened #6F5B1D → #3F340F. The old mid-
 // lightness gold sat at the same brightness as text + wheel and read as a washed-out veil; same
 // hue, darker, so accents and content lift off it (matching how the cool FS modes behave).
-export const APP_VERSION = "1.1.335";
+// v1.1.336 = 2026-07-11 — Time Master Hora list now marks the GOLDEN hours (Veleal'or bullseye)
+// so you can plan ahead: each hora is flagged golden when its lord is favorable AND your bird is
+// favorable inside it; when the golden run is narrower than the full hour, its start time shows
+// next to the mark. New computeGoldenHoras engine shares ONE golden definition with the live
+// "golden now" read (buildDayContext) — proven by server/scripts/golden-horas-check.ts (18/18
+// instants agree). Best-effort: horas without the user's bird data just render unmarked.
+export const APP_VERSION = "1.1.336";

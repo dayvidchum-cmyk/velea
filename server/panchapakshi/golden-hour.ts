@@ -65,23 +65,24 @@ export interface GoldenHour {
   untilMs: number;         // end of the current hora
 }
 
-export async function computeGoldenHour(opts: {
+/**
+ * Shared per-day context — the hora sequence, the bird's activity, live planet conditions,
+ * and the golden predicate. Both the live "golden now" read (computeGoldenHour) and the
+ * per-hora "plan ahead" flags (computeGoldenHoras) build on this, so the DEFINITION of
+ * golden (bird favorable ∧ hora-lord favorable) lives in exactly one place.
+ */
+async function buildDayContext(opts: {
   year: number; month: number; day: number; nowMs: number;
-  lat: number; lon: number;
-  birthNakshatra: string; birthPaksha: Paksha;
-  lagnaSign: string; ascendantDegree?: string | null;
-  natal: Record<string, { house: number | null; longitude: number | null }>;
-}): Promise<GoldenHour | null> {
+  lat: number; lon: number; birthNakshatra: string; birthPaksha: Paksha;
+}) {
   const { year, month, day, nowMs, lat, lon } = opts;
 
-  // 1. The hora active right now (before today's sunrise → yesterday's sequence).
+  // 1. The hora sequence for the active window (before today's sunrise → yesterday's).
   let horas = computeHoras(year, month, day, lat, lon);
   if (nowMs < horas[0].startMs) {
     const prev = new Date(Date.UTC(year, month - 1, day - 1));
     horas = computeHoras(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate(), lat, lon);
   }
-  const cur = horas.find((h) => nowMs >= h.startMs && nowMs < h.endMs);
-  if (!cur) return null;
 
   // 2. The bird's activity across the day — quality at any instant. Same pre-sunrise rule as
   //    the horas above: before today's sunrise we are still inside YESTERDAY's bird day, so
@@ -118,16 +119,35 @@ export async function computeGoldenHour(opts: {
     return { lon: lon2, sign, retro, tier, combust, favorable: tier !== "debilitated" && !combust };
   };
 
+  // The golden predicate: a hora exists AND its lord is favorable AND the bird is favorable.
+  const goldenAt = (ms: number) => {
+    const h = horas.find((x) => ms >= x.startMs && ms < x.endMs);
+    return !!h && birdFavorableAt(ms) && condOf(h.lord).favorable;
+  };
+
+  return { horas, periods, qualityAt, birdFavorableAt, condOf, sunLon, goldenAt };
+}
+
+export async function computeGoldenHour(opts: {
+  year: number; month: number; day: number; nowMs: number;
+  lat: number; lon: number;
+  birthNakshatra: string; birthPaksha: Paksha;
+  lagnaSign: string; ascendantDegree?: string | null;
+  natal: Record<string, { house: number | null; longitude: number | null }>;
+}): Promise<GoldenHour | null> {
+  const { nowMs } = opts;
+  const { horas, periods, qualityAt, condOf, goldenAt } = await buildDayContext(opts);
+
+  // The hora active right now.
+  const cur = horas.find((h) => nowMs >= h.startMs && nowMs < h.endMs);
+  if (!cur) return null;
+
   const cond = condOf(cur.lord);
   const gate = gateFromInputs(qualityAt(nowMs), cond.tier, cond.combust);
 
   // 4. The next golden WINDOW still to come today, as a true interval. Golden = bird favorable
   //    ∧ the active hora's lord favorable; both are step functions, so the window edges land on
   //    hora OR yama boundaries. Walk the segments between boundaries and take the first run.
-  const goldenAt = (ms: number) => {
-    const h = horas.find((x) => ms >= x.startMs && ms < x.endMs);
-    return !!h && birdFavorableAt(ms) && condOf(h.lord).favorable;
-  };
   const bounds = new Set<number>();
   for (const h of horas) { bounds.add(h.startMs); bounds.add(h.endMs); }
   for (const p of periods) { bounds.add(p.startMs); bounds.add(p.endMs); }
@@ -178,4 +198,46 @@ export async function computeGoldenHour(opts: {
     subNow: liveSub ? { bird: liveSub.bird, activity: liveSub.activity, relation: liveSub.relation, power: liveSub.power, endMs: liveSub.endMs } : null,
     untilMs: cur.endMs,
   };
+}
+
+export interface GoldenHoraFlag {
+  index: number;
+  startMs: number;
+  endMs: number;
+  lord: string;
+  isGolden: boolean;         // any golden minutes inside this hora?
+  goldenStartMs: number | null; // first golden sub-run within the hora (for a precise mark)
+  goldenEndMs: number | null;
+}
+
+/**
+ * Per-hora golden flags for the whole active window — the Time Master "plan ahead" signal.
+ * A hora is golden when its lord is favorable AND the bird is favorable somewhere inside it.
+ * The lord's condition is constant across a hora, but the bird quality can flip on a yama
+ * boundary MID-hora, so we segment the hora at those boundaries and take the first golden run
+ * (returned as goldenStart/End for a precise mark). Same golden definition as computeGoldenHour
+ * (shared buildDayContext) — one source of truth for "golden".
+ */
+export async function computeGoldenHoras(opts: {
+  year: number; month: number; day: number; nowMs: number;
+  lat: number; lon: number; birthNakshatra: string; birthPaksha: Paksha;
+}): Promise<GoldenHoraFlag[]> {
+  const { horas, periods, goldenAt } = await buildDayContext(opts);
+  // Every yama boundary — the only places the bird quality (and thus golden-ness) can change.
+  const yamaBounds = Array.from(new Set(periods.flatMap((p) => [p.startMs, p.endMs]))).sort((a, b) => a - b);
+
+  return horas.map((h) => {
+    const edges = [h.startMs, ...yamaBounds.filter((b) => b > h.startMs && b < h.endMs), h.endMs];
+    let gStart: number | null = null, gEnd: number | null = null;
+    for (let i = 0; i < edges.length - 1; i++) {
+      const a = edges[i], b = edges[i + 1];
+      if (goldenAt((a + b) / 2)) {
+        if (gStart === null) gStart = a;
+        gEnd = b;
+      } else if (gStart !== null) {
+        break; // the first golden run inside this hora has closed
+      }
+    }
+    return { index: h.index, startMs: h.startMs, endMs: h.endMs, lord: h.lord, isGolden: gStart !== null, goldenStartMs: gStart, goldenEndMs: gEnd };
+  });
 }
