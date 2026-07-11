@@ -78,6 +78,11 @@ PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entire
   debilitation degree; depth: peak | strong | middling | low | hollow). Use it to grade the
   claim: "exalted" at peak is a planet at the very top of its arc — a louder fact than
   exalted near the sign's edge; hollow means running on empty even before other afflictions.
+  strength may carry maitri { lord, compound } — the FIVEFOLD relationship (permanent x
+  where the sign's lord stands right now) between the planet and its current host:
+  great_friend | friend | neutral | enemy | great_enemy. This grades the roof it lives
+  under: a great_friend's house is genuine welcome, a great_enemy's house is hostile
+  lodging — sharper truth than the flat friend/enemy tier when the two disagree.
   Never override the mode; strength colors how forcefully to act within it. Mention only
   the lords that matter (Time Lord, dasha lords, or a planet hitting a natal point).
   spotlight is true when a planet's LIVE condition is standout — exalted, debilitated,

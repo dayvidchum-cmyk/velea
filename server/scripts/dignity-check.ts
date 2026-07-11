@@ -8,7 +8,7 @@
  * Run: npx tsx server/scripts/dignity-check.ts
  */
 import "dotenv/config";
-import { dignityTier, strength, ucchaBala } from "../panchang/dignity.js";
+import { dignityTier, strength, ucchaBala, fivefoldMaitri, temporalRelation } from "../panchang/dignity.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
 import { resolveAstrologySubject } from "../astrology-subject.js";
 
@@ -38,6 +38,29 @@ async function main() {
   ok("Rahu → null (no consensus point)", ucchaBala("Rahu", 100) === null);
   ok("strength() carries uccha when lonDeg given", strength("Sun", "Aries", 10, { lonDeg: 10 })!.uccha!.value === 1);
   ok("strength() uccha null when lonDeg omitted", strength("Sun", "Aries", 10)!.uccha === null);
+
+  console.log("=== 0b. PANCHADHA MAITRI vs the textbook's Einstein examples ===");
+  // Worked examples from "The Art and Science of Vedic Astrology", Planetary Conditions ch.
+  // Einstein (sidereal): Sun Pisces, Moon Scorpio, Mercury Aries, Venus Pisces,
+  // Mars Capricorn, Jupiter Aquarius, Saturn Pisces.
+  ok("Moon 9th from Sun → temporary enemy", temporalRelation("Pisces", "Scorpio") === "enemy");
+  ok("Sun 2nd from Jupiter → temporary friend", temporalRelation("Aquarius", "Pisces") === "friend");
+  ok("Sun→Moon: perm friend + temp enemy = neutral", fivefoldMaitri("Sun", "Moon", "Pisces", "Scorpio") === "neutral");
+  ok("Jupiter→Sun: perm friend + temp friend = great friend", fivefoldMaitri("Jupiter", "Sun", "Aquarius", "Pisces") === "great_friend");
+  // "Sun is in a great friends sign": Sun in Pisces, lord Jupiter in Aquarius (12th from Sun).
+  ok("Sun in Pisces vs lord Jupiter → great_friend", fivefoldMaitri("Sun", "Jupiter", "Pisces", "Aquarius") === "great_friend");
+  // "Mercury is in the sign of a friend (neutral + friend)": lord Mars in Cap, 10th from Aries.
+  ok("Mercury in Aries vs lord Mars → friend", fivefoldMaitri("Mercury", "Mars", "Aries", "Capricorn") === "friend");
+  // "Jupiter is in a friends sign (neutral + friend)": lord Saturn in Pisces, 2nd from Aquarius.
+  ok("Jupiter in Aquarius vs lord Saturn → friend", fivefoldMaitri("Jupiter", "Saturn", "Aquarius", "Pisces") === "friend");
+  // "Saturn is in a friend's sign (neutral + friend)": lord Jupiter in Aquarius, 12th from Pisces.
+  ok("Saturn in Pisces vs lord Jupiter → friend", fivefoldMaitri("Saturn", "Jupiter", "Pisces", "Aquarius") === "friend");
+  // Compound rails: enemy+enemy and same-sign temporal enemy.
+  ok("Same sign → temporary enemy", temporalRelation("Leo", "Leo") === "enemy");
+  ok("Sun→Saturn both in Leo: perm enemy + temp enemy = great_enemy", fivefoldMaitri("Sun", "Saturn", "Leo", "Leo") === "great_enemy");
+  ok("Rahu → null (not classified)", fivefoldMaitri("Rahu", "Sun", "Leo", "Leo") === null);
+  ok("strength() carries maitri when lordSign given", strength("Sun", "Pisces", 10, { lordSign: "Aquarius" })!.maitri!.compound === "great_friend");
+  ok("strength() maitri null in own sign", strength("Sun", "Leo", 25, { lordSign: "Leo" })!.maitri === null);
 
   console.log("=== 1. DIGNITY tiers vs fixed classical facts ===");
   ok("Sun in Aries → exalted", dignityTier("Sun", "Aries") === "exalted");

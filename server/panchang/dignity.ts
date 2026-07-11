@@ -100,6 +100,41 @@ export function dignityTier(planet: string, sign: string, degInSign?: number): D
   return "neutral";
 }
 
+// ---- PANCHADHA MAITRI (fivefold friendship) — David's textbook, "Planetary
+// Conditions" ch. (2026-07-10 PDF). The permanent (naisargika) table above is only
+// half the method: TEMPORARY relationships come from the live sky, and the compound
+// of the two is what actually judges a placement.
+
+export type Fivefold = "great_friend" | "friend" | "neutral" | "enemy" | "great_enemy";
+
+/** Temporary relationship by sign count: a planet in the 2nd, 3rd, 4th, 10th, 11th or
+ *  12th sign AS COUNTED FROM the planet under consideration is a temporary friend;
+ *  same sign or 5th/6th/7th/8th/9th is a temporary enemy. */
+export function temporalRelation(fromSign: string, toSign: string): "friend" | "enemy" {
+  const count = ((SIGNS.indexOf(toSign) - SIGNS.indexOf(fromSign) + 12) % 12) + 1;
+  return [2, 3, 4, 10, 11, 12].includes(count) ? "friend" : "enemy";
+}
+
+/**
+ * The fivefold compound: permanent × temporary.
+ *   Friend+Friend = Great Friend · Neutral+Friend = Friend · Friend+Enemy = Neutral
+ *   Neutral+Enemy = Enemy · Enemy+Enemy = Great Enemy
+ * Directional (A's relationship TO B), from A's occupied sign to B's occupied sign.
+ * Null for Rahu/Ketu (not in the classification).
+ */
+export function fivefoldMaitri(a: string, b: string, aSign: string, bSign: string): Fivefold | null {
+  if (!EXALT[a] || !EXALT[b] || a === b) return null;
+  const perm = FRIEND[a]?.includes(b) ? 1 : ENEMY[a]?.includes(b) ? -1 : 0;
+  const temp = temporalRelation(aSign, bSign) === "friend" ? 1 : -1;
+  const sum = perm + temp;
+  return sum === 2 ? "great_friend" : sum === 1 ? "friend" : sum === 0 ? "neutral" : sum === -1 ? "enemy" : "great_enemy";
+}
+
+/** Lord of a sign (classical seven only — Rahu/Ketu rule nothing here). */
+export function signLordOf(sign: string): string | undefined {
+  return SIGN_LORD[sign];
+}
+
 /** The signs a planet rules (its own signs) — used to map a planet to the houses it
  *  rules from a given lagna. Returns [] for Rahu/Ketu (no rulership). */
 export function signsRuledBy(planet: string): string[] {
@@ -115,7 +150,7 @@ const COMBUST_PENALTY = 3;
 const NODAL_PENALTY = 2;
 
 export type StrengthLabel = "dignified" | "steady" | "weak" | "compromised";
-export type Strength = { tier: DignityTier; score: number; label: StrengthLabel; combust: boolean; nodal: boolean; uccha: Uccha | null };
+export type Strength = { tier: DignityTier; score: number; label: StrengthLabel; combust: boolean; nodal: boolean; uccha: Uccha | null; maitri: { lord: string; compound: Fivefold } | null };
 
 /**
  * Composite "how able to deliver is this planet right now": essential dignity minus live
@@ -125,7 +160,7 @@ export function strength(
   planet: string,
   sign: string,
   degInSign: number | undefined,
-  opts: { combust?: boolean; nodal?: boolean; lonDeg?: number } = {},
+  opts: { combust?: boolean; nodal?: boolean; lonDeg?: number; lordSign?: string } = {},
 ): Strength | null {
   const tier = dignityTier(planet, sign, degInSign);
   if (!tier) return null;
@@ -135,7 +170,11 @@ export function strength(
   // Degree gradient rides ALONGSIDE the tier (informational — does not move the score;
   // the tier system stays stable, the gradient grades it).
   const uccha = opts.lonDeg != null ? ucchaBala(planet, opts.lonDeg) : null;
-  return { tier, score, label, combust, nodal, uccha };
+  // Fivefold relation to the occupied sign's lord (needs the lord's CURRENT sign) —
+  // grades friend/neutral/enemy placements into the five true bands. Own sign → null.
+  const lord = SIGN_LORD[sign];
+  const compound = opts.lordSign && lord && lord !== planet ? fivefoldMaitri(planet, lord, sign, opts.lordSign) : null;
+  return { tier, score, label, combust, nodal, uccha, maitri: compound ? { lord, compound } : null };
 }
 
 // Capitalized tier label for the human-facing natal dignity string (superset of the old
