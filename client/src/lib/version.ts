@@ -145,4 +145,9 @@
 // gone (delete now also lives in the edit sheet, two-tap confirm). Pre-shadow Stage card pinned to
 // its midday art only. Golden-hour bullseye removed from the collapsed Time Master + Hora cards
 // (kept in the expanded views).
-export const APP_VERSION = "1.1.345";
+// v1.1.346 = 2026-07-11 — Removed "Personal Energy" (Settings): a static Low/Med/High baseline
+// that was redundant with the daily check-in — the check-in captures live physicalEnergy (+ four
+// more axes) and applies as a dominant override, so the static toggle only added a weak legacy
+// nudge and double-counted energy. Pulled from Settings, the ranking input, the scorer, and tests;
+// no-check-in days simply rank without an energy baseline (was already the "Medium" default).
+export const APP_VERSION = "1.1.346";

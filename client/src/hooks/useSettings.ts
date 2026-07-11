@@ -20,7 +20,6 @@ import { useState, useCallback } from "react";
 
 export type AppearanceMode = "dark" | "light" | "system";
 export type TodayTaskLimit = 1 | 2 | 3 | 4 | 5 | "unlimited";
-export type PersonalEnergy = "Low" | "Medium" | "High";
 
 export interface SettingsState {
   /** Dark or light mode */
@@ -29,8 +28,6 @@ export interface SettingsState {
   showOrbCounts: boolean;
   /** How many tasks to show at once in the Today view */
   todayTaskLimit: TodayTaskLimit;
-  /** Current personal energy level — influences task selection ranking */
-  personalEnergy: PersonalEnergy;
   /** Let the daily go/hold verdict tilt task ordering (default off) */
   verdictShapesRanking: boolean;
   /** While a slow planet activates your MC/IC, let the pole's life-areas rise (default off) */
@@ -51,7 +48,6 @@ const DEFAULTS: SettingsState = {
   appearance: "system",
   showOrbCounts: true,
   todayTaskLimit: 3,
-  personalEnergy: "Medium",
   verdictShapesRanking: false,
   meridianLift: false,
   glossaryTooltips: true,

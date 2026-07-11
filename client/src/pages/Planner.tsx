@@ -326,7 +326,6 @@ export default function Planner() {
     {
       todayMode: todayTaskMode ?? "Build",
       todayDate: todayDateStr,
-      personalEnergy: settings.personalEnergy,
       todayHouse: todayPanchang?.houseActivated ?? undefined,
       verdictShapesRanking: settings.verdictShapesRanking,
       meridianLift: settings.meridianLift,

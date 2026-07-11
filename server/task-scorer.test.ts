@@ -44,35 +44,35 @@ describe("scoreTasks", () => {
       makeTask({ id: 1, isCompleted: false }),
       makeTask({ id: 2, isCompleted: true }),
     ];
-    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY });
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(1);
   });
 
   it("adds +1000 and 'Pinned for today' reason for pinned tasks", () => {
     const tasks = [makeTask({ isPinned: true })];
-    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY });
     expect(result[0].score).toBeGreaterThanOrEqual(1000);
     expect(result[0].reasons).toContain("Pinned for today");
   });
 
   it("adds +500 and overdue reason for past-due tasks", () => {
     const tasks = [makeTask({ dueDate: "2026-06-01" })]; // 4 days ago
-    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY });
     expect(result[0].score).toBeGreaterThanOrEqual(500);
     expect(result[0].reasons.some((r) => r.startsWith("Overdue"))).toBe(true);
   });
 
   it("adds +300 and 'Due today' reason for tasks due today", () => {
     const tasks = [makeTask({ dueDate: TODAY })];
-    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY });
     expect(result[0].score).toBeGreaterThanOrEqual(300);
     expect(result[0].reasons).toContain("Due today");
   });
 
   it("adds +200 and 'Wealth flow task' reason for wealthFlow tasks", () => {
     const tasks = [makeTask({ wealthFlow: true } as any)];
-    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY });
     expect(result[0].score).toBeGreaterThanOrEqual(200);
     expect(result[0].reasons).toContain("Wealth flow task");
   });
@@ -81,7 +81,7 @@ describe("scoreTasks", () => {
     const high = makeTask({ id: 1, priority: "High" });
     const medium = makeTask({ id: 2, priority: "Medium" });
     const low = makeTask({ id: 3, priority: "Low" });
-    const result = scoreTasks([high, medium, low], { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks([high, medium, low], { todayMode: "Build", todayDate: TODAY });
     const scores = Object.fromEntries(result.map((t) => [t.id, t.score]));
     expect(scores[1]).toBeGreaterThan(scores[2]);
     expect(scores[2]).toBeGreaterThan(scores[3]);
@@ -89,25 +89,9 @@ describe("scoreTasks", () => {
 
   it("adds +100 and mode alignment reason when task mode matches today mode", () => {
     const tasks = [makeTask({ mode: "Restraint" })];
-    const result = scoreTasks(tasks, { todayMode: "Restraint", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks(tasks, { todayMode: "Restraint", todayDate: TODAY });
     expect(result[0].score).toBeGreaterThanOrEqual(100);
     expect(result[0].reasons).toContain("Aligned with Restraint mode");
-  });
-
-  it("adds personal energy bonus for High energy + High priority", () => {
-    const tasks = [makeTask({ priority: "High" })];
-    const withBonus = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "High" });
-    const withoutBonus = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
-    expect(withBonus[0].score).toBeGreaterThan(withoutBonus[0].score);
-    expect(withBonus[0].reasons).toContain("Matches high energy");
-  });
-
-  it("adds personal energy bonus for Low energy + Low priority", () => {
-    const tasks = [makeTask({ priority: "Low" })];
-    const withBonus = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Low" });
-    const withoutBonus = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
-    expect(withBonus[0].score).toBeGreaterThan(withoutBonus[0].score);
-    expect(withBonus[0].reasons).toContain("Matches low energy");
   });
 
   it("returns tasks sorted by score descending", () => {
@@ -116,7 +100,7 @@ describe("scoreTasks", () => {
       makeTask({ id: 2, priority: "High" }),
       makeTask({ id: 3, priority: "Medium" }),
     ];
-    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const result = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY });
     expect(result[0].id).toBe(2); // High first
     expect(result[1].id).toBe(3); // Medium second
     expect(result[2].id).toBe(1); // Low last
@@ -289,7 +273,6 @@ describe("scoreTasks with currentState", () => {
     const result = scoreTasks([plain, creative], {
       todayMode: "Build",
       todayDate: TODAY,
-      personalEnergy: "Medium",
       currentState: state,
     });
     expect(result[0].id).toBe(1); // creative task should rank first
@@ -302,7 +285,6 @@ describe("scoreTasks with currentState", () => {
     const result = scoreTasks([hard, easy], {
       todayMode: "Build",
       todayDate: TODAY,
-      personalEnergy: "Medium",
       currentState: state,
     });
     expect(result[0].id).toBe(1); // easy task should rank first
@@ -313,8 +295,8 @@ describe("scoreTasks with currentState", () => {
       makeTask({ id: 1, priority: "High" }),
       makeTask({ id: 2, priority: "Low" }),
     ];
-    const withState = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium", currentState: null });
-    const withoutState = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium" });
+    const withState = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY, currentState: null });
+    const withoutState = scoreTasks(tasks, { todayMode: "Build", todayDate: TODAY });
     expect(withState[0].id).toBe(withoutState[0].id);
     expect(withState[1].id).toBe(withoutState[1].id);
   });
@@ -324,7 +306,7 @@ describe("scoreTasks with currentState", () => {
     const pinned = makeTask({ id: 1, isPinned: true, cognitiveLoad: "Low" });
     const other = makeTask({ id: 2, isPinned: false, cognitiveLoad: "Low" });
     const state = { physicalEnergy: 3, mentalClarity: 3, emotionalStability: 3, creativeFlow: 3, motivation: 3 };
-    const result = scoreTasks([other, pinned], { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium", currentState: state });
+    const result = scoreTasks([other, pinned], { todayMode: "Build", todayDate: TODAY, currentState: state });
     expect(result[0].id).toBe(1); // equal fit → pinned floor wins
   });
 
@@ -334,7 +316,7 @@ describe("scoreTasks with currentState", () => {
     const pinned = makeTask({ id: 1, isPinned: true, cognitiveLoad: "High", emotionalLoad: "High", socialRequired: true });
     const easy = makeTask({ id: 2, isPinned: false, cognitiveLoad: "Low" });
     const state = { physicalEnergy: 1, mentalClarity: 1, emotionalStability: 1, creativeFlow: 1, motivation: 1 };
-    const result = scoreTasks([easy, pinned], { todayMode: "Build", todayDate: TODAY, personalEnergy: "Medium", currentState: state });
+    const result = scoreTasks([easy, pinned], { todayMode: "Build", todayDate: TODAY, currentState: state });
     expect(result[0].id).toBe(2); // state fit dominates
   });
 
@@ -344,7 +326,6 @@ describe("scoreTasks with currentState", () => {
     const result = scoreTasks([task], {
       todayMode: "Build",
       todayDate: TODAY,
-      personalEnergy: "Medium",
       currentState: state,
     });
     expect(result[0].reasons.some((r) => r.includes("high creative flow"))).toBe(true);

@@ -410,24 +410,6 @@ export default function Settings() {
             </div>
           </SettingRow>
 
-          {/* 4. Personal Energy */}
-          <SettingRow
-            label="Personal Energy"
-            description="Your typical energy level. Used to prioritize tasks that match your capacity today."
-          >
-            <TogglePair
-              options={["Low", "Medium", "High"] as const}
-              value={draft.personalEnergy}
-              onChange={(v) => updateDraft("personalEnergy", v as "Low" | "Medium" | "High")}
-              renderLabel={(v) => (
-                <span className="flex items-center gap-1">
-                  {v === "Low" ? "🌙" : v === "Medium" ? "⚡" : "🔥"}
-                  {v}
-                </span>
-              )}
-            />
-          </SettingRow>
-
         </SettingsSection>
 
         {/* ── Help ──────────────────────────────────────────────────── */}

@@ -85,7 +85,6 @@ describe("scoreTasks — floors are untouchable by layers (Conflict A)", () => {
     const opts = {
       todayMode: "Action",
       todayDate: new Date().toISOString().split("T")[0],
-      personalEnergy: "Medium" as const,
       // Saturn opposes Action → ×0.85 on BOTH tasks' soft subscore
       layers: layers({
         transits: { active: [{ transitingPlanet: "Saturn" as const, natalPoint: "Sun" as const, orb: 1, severity: "moderate" as const }] },
@@ -103,7 +102,6 @@ describe("scoreTasks — floors are untouchable by layers (Conflict A)", () => {
     const opts = {
       todayMode: "Restraint",
       todayDate: new Date().toISOString().split("T")[0],
-      personalEnergy: "Medium" as const,
       layers: layers({
         transits: { active: [{ transitingPlanet: "Saturn" as const, natalPoint: "Sun" as const, orb: 1, severity: "moderate" as const }] },
       }),

@@ -676,7 +676,6 @@ export const appRouter = router({
         z.object({
           todayMode: z.string(),
           todayDate: z.string(), // YYYY-MM-DD
-          personalEnergy: z.enum(["Low", "Medium", "High"]).default("Medium"),
           todayHouse: z.number().optional(), // the day's domain (activated house)
           verdictShapesRanking: z.boolean().default(false), // opt-in: verdict tilts order
           meridianLift: z.boolean().default(false), // opt-in: MC/IC chapter lifts its pole's areas
@@ -745,7 +744,6 @@ export const appRouter = router({
         return scoreTasks(allTasks, {
           todayMode: input.todayMode,
           todayDate: input.todayDate,
-          personalEnergy: input.personalEnergy,
           dayHouses: input.todayHouse != null ? [input.todayHouse] : [],
           meridianHouses,
           projectAreas,

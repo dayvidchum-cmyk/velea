@@ -26,8 +26,6 @@ import { themeMatchesTask } from "./layers/time-lord-theme";
 import { goldenMomentEffect, type GoldenMomentSignal } from "./sky/golden-moment";
 import { housesForAreas, matchedAreaLabels, parseLifeAreas } from "../shared/life-areas";
 
-export type PersonalEnergy = "Low" | "Medium" | "High";
-
 /**
  * Layer 3 transit → task-mode effect map (Conflict-Q3 confirmed):
  *   Saturn favors Restraint/Build, opposes Action.
@@ -209,7 +207,6 @@ export function scoreTasks(
   opts: {
     todayMode: string;       // e.g. "Restraint"
     todayDate: string;       // YYYY-MM-DD
-    personalEnergy: PersonalEnergy;
     currentState?: CurrentState | null;
     /** Pressure layers — multiply only the soft subscore; never the floors. */
     layers?: CurrentLayers | null;
@@ -226,7 +223,7 @@ export function scoreTasks(
     meridianHouses?: number[];
   }
 ): ScoredTask[] {
-  const { todayMode, todayDate, personalEnergy, currentState, layers, dayHouses, projectAreas, goldenSignals } = opts;
+  const { todayMode, todayDate, currentState, layers, dayHouses, projectAreas, goldenSignals } = opts;
   const verdictBias = opts.verdictBias ?? 1;
   const dayHouseSet = new Set(dayHouses ?? []);
   const today = new Date(todayDate);
@@ -332,16 +329,7 @@ export function scoreTasks(
       const cs = currentState ? currentStateScore(task, currentState) : null;
       if (cs) reasons.push(...cs.reasons);
 
-      // 8. Personal energy bonus (soft, legacy)
-      if (personalEnergy === "High" && task.priority === "High") {
-        soft += 50;
-        reasons.push("Matches high energy");
-      } else if (personalEnergy === "Low" && task.priority === "Low") {
-        soft += 50;
-        reasons.push("Matches low energy");
-      }
-
-      // 9. Task age (soft, max 30 points)
+      // Task age (soft, max 30 points)
       const ageMs = today.getTime() - new Date(task.createdAt).getTime();
       const ageDays = Math.min(30, Math.floor(ageMs / (1000 * 60 * 60 * 24)));
       if (ageDays > 0) {
