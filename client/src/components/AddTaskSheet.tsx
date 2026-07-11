@@ -546,7 +546,8 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
             className="w-full px-4 py-3 rounded-lg bg-secondary text-foreground placeholder-muted-foreground mb-6 focus:outline-none focus:ring-2 focus:ring-accent"
           />
 
-          {/* Mode selector */}
+          {/* STATUS — the user's own declaration: new venture vs already in their story.
+              Feeds the mode suggester + the day scorer (Action owns the new). */}
           <div className="mb-6">
             <label
               className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
@@ -555,10 +556,9 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
                 letterSpacing: "0.04em",
               }}
             >
-              Mode
+              Status
             </label>
-            {/* NEW vs EXISTING — the user's own declaration; Action owns the new. */}
-            <div className="flex gap-2 mb-2">
+            <div className="flex gap-2">
               {([["new", "Something new", true], ["existing", "Already in motion", false]] as const).map(([key, label, val]) => {
                 const on = isNewVenture === val;
                 return (
@@ -577,6 +577,19 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
                 );
               })}
             </div>
+          </div>
+
+          {/* Mode selector */}
+          <div className="mb-6">
+            <label
+              className="block text-[12px] font-semibold tracking-wide uppercase mb-2"
+              style={{
+                color: "var(--color-muted-foreground)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Mode
+            </label>
             <div className="flex gap-2 flex-wrap">
               {TASK_MODES.map((m: TaskMode) => {
                 const active = mode === m;
