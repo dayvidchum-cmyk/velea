@@ -1148,6 +1148,9 @@ export default function Planner() {
                   maxWidth: "3.1rem",
                   margin: "0 auto",
                   borderRadius: 999,
+                  // A retrograde strip sits along the bottom, so lift the centered number/mark up
+                  // a touch to give the glyphs breathing room off the edge.
+                  paddingBottom: retroToday && retroToday.length ? "0.5rem" : undefined,
                   color: isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : undefined,
                   background: restingBg,
                   // Today = a WHITE border. Keeping it in the normal border slot (not an outward
@@ -1202,14 +1205,14 @@ export default function Planner() {
                     shadow = faint. Colors are mode-tuned (bright on dark/FS, deep on light);
                     the date number stays intact above. */}
                 {retroToday && retroToday.length ? (
-                  <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 1, lineHeight: 1, pointerEvents: "none" }}>
+                  <span style={{ position: "absolute", bottom: "0.24rem", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 1.5, lineHeight: 1, pointerEvents: "none" }}>
                     {retroToday.map((e) => {
                       const col = (isDark ? PLANET_RETRO_COLOR.bright : PLANET_RETRO_COLOR.deep)[e.planet] ?? "currentColor";
                       const isStation = e.state === "station-retro" || e.state === "station-direct";
                       return (
                         <span key={e.planet} style={{
                           color: col,
-                          fontSize: isStation ? "0.62rem" : "0.52rem",
+                          fontSize: isStation ? "0.92rem" : "0.76rem",
                           fontWeight: isStation ? 800 : e.state === "window" ? 700 : 600,
                           opacity: e.state === "shadow" ? 0.42 : 1,
                           textShadow: "0 0 2px rgba(0,0,0,0.6)",

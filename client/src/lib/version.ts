@@ -74,4 +74,7 @@
 // dark/FS, deep on light), date number kept. Degree-exact shadow for all; FAST planets show the
 // full pre/post-shadow span, SLOW (Jupiter/Saturn) show only enter/leave blips. Tap → a
 // "Retrograde sky" popup listing every planet's state that day.
-export const APP_VERSION = "1.1.327";
+// v1.1.328 = 2026-07-11 — Retrograde strip glyphs enlarged (rx .76rem / station .92rem, was
+// .52/.62) and lifted off the bottom edge; the date number gets a paddingBottom nudge up so
+// number and strip no longer crowd.
+export const APP_VERSION = "1.1.328";
