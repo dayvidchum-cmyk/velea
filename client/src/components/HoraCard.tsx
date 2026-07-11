@@ -73,7 +73,6 @@ export default function HoraCard() {
             <span style={{ fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Now</span>
             <span style={{ fontSize: "0.95rem", fontWeight: 800, color: TONE_COLOR[current.tone], lineHeight: 1.1 }}>{current.lord}</span>
             <span style={{ fontSize: "0.62rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</span>
-            {(current as any).isGolden && <VeleaLorMark size={13} color={GOLD} style={{ alignSelf: "center" }} />}
           </div>
         ) : (
           <p style={{ margin: 0, fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>Between hours.</p>

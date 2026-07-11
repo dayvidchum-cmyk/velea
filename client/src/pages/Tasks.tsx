@@ -57,7 +57,8 @@ function CompletedArchive({
               isCompleted={task.isCompleted}
               isPinned={task.isPinned}
               onSwipeLeft={() => onToggleComplete(task.id, task.isCompleted)}
-              onSwipeRight={() => onTogglePin(task.id, task.isPinned)}
+              onSwipeRight={() => onDelete(task.id)}
+              rightMode="delete"
             >
               <TaskItem
                 task={task}
@@ -293,7 +294,8 @@ export default function Tasks() {
                   isPinned={task.isPinned}
                   isExpanded={expandedTaskId === task.id}
                   onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned })}
+                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })}
+                  rightMode="delete"
                 >
                   <TaskItem
                     task={task}

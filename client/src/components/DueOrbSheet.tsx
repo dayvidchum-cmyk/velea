@@ -184,7 +184,8 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
                   isPinned={task.isPinned}
                   modeColor={MODE_OKLCH[task.mode as TaskMode]}
                   onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: true })}
-                  onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayMode ? { dayMode: todayMode } : {}) })}
+                  onSwipeRight={() => deleteMutation.mutate({ id: task.id })}
+                  rightMode="delete"
                 >
                   <TaskItem
                     task={task as any}

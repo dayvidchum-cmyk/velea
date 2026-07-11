@@ -295,6 +295,10 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
   const refreshAllLists = async () => { await utils.tasks.invalidate(); await utils.projects.invalidate(); };
   const createTask = trpc.tasks.create.useMutation({ onSuccess: refreshAllLists });
   const updateTask = trpc.tasks.update.useMutation({ onSuccess: refreshAllLists });
+  const deleteTask = trpc.tasks.delete.useMutation({ onSuccess: refreshAllLists });
+  // Delete now lives here (removed from the collapsed row) — two-tap confirm so it can't
+  // be triggered by accident.
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const createSubtask = trpc.subtasks.create.useMutation();
   const deleteSubtask = trpc.subtasks.delete.useMutation();
@@ -313,6 +317,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
   // Initialize form when sheet opens or editTask changes
   useEffect(() => {
     if (!open) return;
+    setConfirmDelete(false);
 
     if (editTask) {
       setTitle(editTask.title);
@@ -980,6 +985,29 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
                 : "Save Task"}
             </button>
           </div>
+
+          {/* Delete task — edit mode only. Two-tap confirm; the fast/accidental path
+              (the old collapsed trash icon) is gone, swipe-right is the other way. */}
+          {editTask && (
+            <div className="mb-6">
+              <button
+                onClick={() => {
+                  if (!editTaskId) return;
+                  if (!confirmDelete) { setConfirmDelete(true); return; }
+                  deleteTask.mutate({ id: editTaskId }, { onSuccess: () => { setConfirmDelete(false); onClose(); } });
+                }}
+                disabled={deleteTask.isPending}
+                className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-150 disabled:opacity-40"
+                style={{
+                  background: confirmDelete ? "oklch(0.62 0.22 25)" : "transparent",
+                  color: confirmDelete ? "#fff" : "oklch(0.62 0.22 25)",
+                  border: "1px solid oklch(0.62 0.22 25)",
+                }}
+              >
+                {deleteTask.isPending ? "Deleting…" : confirmDelete ? "Tap again to delete" : "Delete task"}
+              </button>
+            </div>
+          )}
 
           {/* Subtasks section - only for new tasks */}
           {!editTask && (

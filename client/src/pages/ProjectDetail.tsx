@@ -232,7 +232,8 @@ export default function ProjectDetail() {
               isPinned={recommendedTask.isPinned}
               isExpanded={expandedTaskId === recommendedTask.id}
               onSwipeLeft={() => handleToggleComplete(recommendedTask.id, false)}
-              onSwipeRight={() => handleTogglePin(recommendedTask.id, recommendedTask.isPinned)}
+              onSwipeRight={() => handleDelete(recommendedTask.id)}
+              rightMode="delete"
               modeColor={MODE_OKLCH[recommendedTask.mode as TaskMode]}
             >
               <TaskItem
@@ -315,7 +316,8 @@ export default function ProjectDetail() {
                     isPinned={task.isPinned}
                     isExpanded={expandedTaskId === task.id}
                     onSwipeLeft={() => handleToggleComplete(task.id, task.isCompleted)}
-                    onSwipeRight={() => handleTogglePin(task.id, task.isPinned)}
+                    onSwipeRight={() => handleDelete(task.id)}
+                    rightMode="delete"
                     modeColor={MODE_OKLCH[task.mode as TaskMode]}
                   >
                     <TaskItem

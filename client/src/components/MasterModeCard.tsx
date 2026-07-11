@@ -87,9 +87,6 @@ export default function MasterModeCard() {
       {/* Heading OUTSIDE the card — name + YOU:bird + golden badge + chevron. */}
       <button onClick={() => setExpanded((e) => !e)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", padding: "0 0.15rem 0.35rem", cursor: "pointer", textAlign: "left" }}>
         <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--foreground)", whiteSpace: "nowrap" }}>Time Master</span>
-        {g?.isGolden && (
-          <VeleaLorMark size={13} color="#D4AF37" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.5))" }} />
-        )}
         <span style={{ fontSize: "0.54rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· You : {data.bird}</span>
         <span style={{ marginLeft: "auto", flexShrink: 0 }}>
           {expanded ? <ChevronDown size={14} style={{ color: "var(--color-muted-foreground)" }} /> : <ChevronRight size={14} style={{ color: "var(--color-muted-foreground)" }} />}
@@ -103,7 +100,6 @@ export default function MasterModeCard() {
             <span style={{ fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Now</span>
             <span style={{ fontSize: "0.95rem", fontWeight: 800, color: CAT_COLOR[current.category], lineHeight: 1.1 }}>{current.category}</span>
             <span style={{ fontSize: "0.62rem", color: "var(--color-muted-foreground)" }}>until {fmt(current.endMs)}</span>
-            {g?.isGolden && <VeleaLorMark size={12} color="#D4AF37" style={{ alignSelf: "center" }} />}
           </div>
         ) : (
           <p style={{ margin: 0, fontSize: "0.66rem", color: "var(--color-muted-foreground)" }}>Between windows.</p>

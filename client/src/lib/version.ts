@@ -136,4 +136,13 @@
 // with the viewer's time of day (dawn/day/dusk/night). todSrc skips the time-of-day suffix for any
 // mercury-rx image; the 4 unused Mercury Rx time-of-day variant files were removed. All other Stage
 // cards still breathe with the real sky. (Also today: new moon art swapped into the Stage cards.)
-export const APP_VERSION = "1.1.344";
+// v1.1.344 = 2026-07-11 — Mercury Rx art timeline: rx-2 now owns the MIDDLE of the retrograde;
+// rx-1 (the flat card) bookends it (first week after the station + final week before it turns
+// direct). direct-2 "stations direct" art retired — the single post-turn card uses direct-1's art
+// with the "stations direct" copy. Pre-shadow dawn/dusk/night variants removed.
+// v1.1.345 = 2026-07-11 — Task delete moved to swipe-RIGHT (was pin) everywhere — a deliberate
+// gesture, since the crowded collapsed row made accidental taps easy; the collapsed trash icon is
+// gone (delete now also lives in the edit sheet, two-tap confirm). Pre-shadow Stage card pinned to
+// its midday art only. Golden-hour bullseye removed from the collapsed Time Master + Hora cards
+// (kept in the expanded views).
+export const APP_VERSION = "1.1.345";

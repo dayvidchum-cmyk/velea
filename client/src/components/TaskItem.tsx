@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Pin, Trash2, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat, Pencil } from "lucide-react";
+import { Pin, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat, Pencil } from "lucide-react";
 
 const RECURRENCE_SHORT: Record<string, string> = {
   daily: "Daily", weekly: "Weekly", biweekly: "2 wks", monthly: "Monthly", yearly: "Yearly",
@@ -361,18 +361,8 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           </button>
         )}
 
-        {/* Delete — quick access with the main icons (also swipe-right) */}
-        {!task.isCompleted && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
-            className="flex-shrink-0 p-1"
-            style={{ color: "rgba(var(--ink),0.55)" }}
-            aria-label="Delete task"
-            title="Delete"
-          >
-            <Trash2 size={13} />
-          </button>
-        )}
+        {/* Delete lives on swipe-right (deliberate gesture) + inside the edit sheet now —
+            removed from the collapsed strip to de-clutter and prevent accidental taps. */}
 
         {/* Expand toggle */}
         <button

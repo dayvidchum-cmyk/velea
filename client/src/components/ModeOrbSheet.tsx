@@ -238,7 +238,8 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
                       isPinned={task.isPinned}
                       modeColor={modeColor}
                       onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                      onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned ? { dayMode: mode } : {}) })}
+                      onSwipeRight={() => deleteMutation.mutate({ id: task.id })}
+                      rightMode="delete"
                     >
                       <TaskItem
                         task={task}
@@ -269,7 +270,8 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
                         isPinned={task.isPinned}
                         modeColor={modeColor}
                         onSwipeLeft={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
-                        onSwipeRight={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned ? { dayMode: mode } : {}) })}
+                        onSwipeRight={() => deleteMutation.mutate({ id: task.id })}
+                        rightMode="delete"
                       >
                         <TaskItem
                           task={task}
