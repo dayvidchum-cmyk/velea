@@ -108,6 +108,13 @@ const MASTER_MODE_USER_IDS = [1, 2];
 const hasMasterMode = (user: { id: number; role?: string | null }) =>
   user.role === "admin" || user.role === "tester" || MASTER_MODE_USER_IDS.includes(user.id);
 
+// Horoscope is a stricter, still-locked tier. Testers do NOT get it by default — David hasn't
+// unlocked it for them (unlike Time Master/Hora, which the tester role deliberately grants). New
+// premium features stay LOCKED for testers until he explicitly opens them. Only admins + the
+// bootstrap allowlist. To hand Horoscope to testers later, add `user.role === "tester"` here.
+const hasHoroscope = (user: { id: number; role?: string | null }) =>
+  user.role === "admin" || MASTER_MODE_USER_IDS.includes(user.id);
+
 const TaskModeEnum = z.enum(["Restraint", "Build", "Selective", "Action"]);
 const PriorityEnum = z.enum(["High", "Medium", "Low"]);
 const RecurrenceEnum = z.enum(["none", "daily", "weekly", "biweekly", "monthly", "yearly"]);
@@ -1727,11 +1734,11 @@ export const appRouter = router({
   // calendar scrolls back through every date they've revealed. Same allowlist as Time Master.
   horoscope: router({
     // Drives the lock UI — public to every signed-in user, entitled only off the allowlist.
-    access: protectedProcedure.query(({ ctx }) => ({ entitled: hasMasterMode(ctx.user) })),
+    access: protectedProcedure.query(({ ctx }) => ({ entitled: hasHoroscope(ctx.user) })),
 
     // Every date the active profile has purchased, newest first (calendar marks + scroll-back).
     list: protectedProcedure.query(async ({ ctx }) => {
-      if (!hasMasterMode(ctx.user)) return null;
+      if (!hasHoroscope(ctx.user)) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return [];
@@ -1746,7 +1753,7 @@ export const appRouter = router({
 
     // The frozen reading + notes for one date (null if not yet purchased).
     get: protectedProcedure.input(z.object({ date: z.string() })).query(async ({ ctx, input }) => {
-      if (!hasMasterMode(ctx.user)) return null;
+      if (!hasHoroscope(ctx.user)) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return null;
@@ -1760,7 +1767,7 @@ export const appRouter = router({
     // Reveal ("purchase") a date: return the existing snapshot, or generate the date-specific
     // full deep read once and freeze it. Costs one LLM call only on first reveal of a date.
     reveal: protectedProcedure.input(z.object({ date: z.string() })).mutation(async ({ ctx, input }) => {
-      if (!hasMasterMode(ctx.user)) return null;
+      if (!hasHoroscope(ctx.user)) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -1790,7 +1797,7 @@ export const appRouter = router({
 
     // Save the user's notes under a purchased horoscope.
     saveNotes: protectedProcedure.input(z.object({ date: z.string(), notes: z.string().max(20000) })).mutation(async ({ ctx, input }) => {
-      if (!hasMasterMode(ctx.user)) return null;
+      if (!hasHoroscope(ctx.user)) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { saved: false as const };
