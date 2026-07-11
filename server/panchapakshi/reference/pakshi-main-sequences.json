@@ -1,0 +1,1080 @@
+{
+ "Sunday": {
+  "Suklapaksha": {
+   "day": {
+    "Crow": [
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk"
+    ],
+    "Peacock": [
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep"
+    ],
+    "Vulture": [
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death"
+    ],
+    "Owl": [
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat"
+    ],
+    "Cock": [
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep"
+    ],
+    "Peacock": [
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death"
+    ],
+    "Vulture": [
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule"
+    ],
+    "Owl": [
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat"
+    ],
+    "Cock": [
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk"
+    ]
+   }
+  },
+  "Krishnapaksha": {
+   "day": {
+    "Crow": [
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death"
+    ],
+    "Vulture": [
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule"
+    ],
+    "Owl": [
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat"
+    ],
+    "Cock": [
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat"
+    ],
+    "Vulture": [
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule"
+    ],
+    "Owl": [
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death"
+    ],
+    "Cock": [
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep"
+    ]
+   }
+  }
+ },
+ "Monday": {
+  "Suklapaksha": {
+   "day": {
+    "Crow": [
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule"
+    ],
+    "Vulture": [
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep"
+    ],
+    "Owl": [
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death"
+    ],
+    "Cock": [
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk"
+    ],
+    "Vulture": [
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death"
+    ],
+    "Owl": [
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule"
+    ],
+    "Cock": [
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep"
+    ]
+   }
+  },
+  "Krishnapaksha": {
+   "day": {
+    "Crow": [
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat"
+    ],
+    "Peacock": [
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk"
+    ],
+    "Vulture": [
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death"
+    ],
+    "Owl": [
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule"
+    ],
+    "Cock": [
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat"
+    ],
+    "Peacock": [
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death"
+    ],
+    "Vulture": [
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk"
+    ],
+    "Owl": [
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep"
+    ],
+    "Cock": [
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule"
+    ]
+   }
+  }
+ },
+ "Tuesday": {
+  "Suklapaksha": {
+   "day": {
+    "Crow": [
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk"
+    ],
+    "Peacock": [
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep"
+    ],
+    "Vulture": [
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death"
+    ],
+    "Owl": [
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat"
+    ],
+    "Cock": [
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep"
+    ],
+    "Peacock": [
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death"
+    ],
+    "Vulture": [
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule"
+    ],
+    "Owl": [
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat"
+    ],
+    "Cock": [
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk"
+    ]
+   }
+  },
+  "Krishnapaksha": {
+   "day": {
+    "Crow": [
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death"
+    ],
+    "Vulture": [
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule"
+    ],
+    "Owl": [
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat"
+    ],
+    "Cock": [
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat"
+    ],
+    "Vulture": [
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule"
+    ],
+    "Owl": [
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death"
+    ],
+    "Cock": [
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep"
+    ]
+   }
+  }
+ },
+ "Wednesday": {
+  "Suklapaksha": {
+   "day": {
+    "Crow": [
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule"
+    ],
+    "Vulture": [
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep"
+    ],
+    "Owl": [
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death"
+    ],
+    "Cock": [
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat"
+    ],
+    "Peacock": [
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk"
+    ],
+    "Vulture": [
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death"
+    ],
+    "Owl": [
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule"
+    ],
+    "Cock": [
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep"
+    ]
+   }
+  },
+  "Krishnapaksha": {
+   "day": {
+    "Crow": [
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk"
+    ],
+    "Peacock": [
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule"
+    ],
+    "Vulture": [
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat"
+    ],
+    "Owl": [
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep"
+    ],
+    "Cock": [
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death"
+    ],
+    "Peacock": [
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep"
+    ],
+    "Vulture": [
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat"
+    ],
+    "Owl": [
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule"
+    ],
+    "Cock": [
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk"
+    ]
+   }
+  }
+ },
+ "Thursday": {
+  "Suklapaksha": {
+   "day": {
+    "Crow": [
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death"
+    ],
+    "Peacock": [
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk"
+    ],
+    "Vulture": [
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule"
+    ],
+    "Owl": [
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep"
+    ],
+    "Cock": [
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule"
+    ],
+    "Peacock": [
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep"
+    ],
+    "Vulture": [
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk"
+    ],
+    "Owl": [
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death"
+    ],
+    "Cock": [
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat"
+    ]
+   }
+  },
+  "Krishnapaksha": {
+   "day": {
+    "Crow": [
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death"
+    ],
+    "Peacock": [
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat"
+    ],
+    "Vulture": [
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep"
+    ],
+    "Owl": [
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk"
+    ],
+    "Cock": [
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule"
+    ],
+    "Peacock": [
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk"
+    ],
+    "Vulture": [
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep"
+    ],
+    "Owl": [
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat"
+    ],
+    "Cock": [
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death"
+    ]
+   }
+  }
+ },
+ "Friday": {
+  "Suklapaksha": {
+   "day": {
+    "Crow": [
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep"
+    ],
+    "Peacock": [
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat"
+    ],
+    "Vulture": [
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk"
+    ],
+    "Owl": [
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule"
+    ],
+    "Cock": [
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death"
+    ],
+    "Peacock": [
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat"
+    ],
+    "Vulture": [
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep"
+    ],
+    "Owl": [
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk"
+    ],
+    "Cock": [
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule"
+    ]
+   }
+  },
+  "Krishnapaksha": {
+   "day": {
+    "Crow": [
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule"
+    ],
+    "Peacock": [
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep"
+    ],
+    "Vulture": [
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk"
+    ],
+    "Owl": [
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death"
+    ],
+    "Cock": [
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep"
+    ],
+    "Peacock": [
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule"
+    ],
+    "Vulture": [
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death"
+    ],
+    "Owl": [
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk"
+    ],
+    "Cock": [
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat"
+    ]
+   }
+  }
+ },
+ "Saturday": {
+  "Suklapaksha": {
+   "day": {
+    "Crow": [
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule"
+    ],
+    "Peacock": [
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death"
+    ],
+    "Vulture": [
+     "Walk",
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat"
+    ],
+    "Owl": [
+     "Rule",
+     "Sleep",
+     "Death",
+     "Eat",
+     "Walk"
+    ],
+    "Cock": [
+     "Death",
+     "Eat",
+     "Walk",
+     "Rule",
+     "Sleep"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk"
+    ],
+    "Peacock": [
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule"
+    ],
+    "Vulture": [
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep",
+     "Eat"
+    ],
+    "Owl": [
+     "Eat",
+     "Rule",
+     "Death",
+     "Walk",
+     "Sleep"
+    ],
+    "Cock": [
+     "Walk",
+     "Sleep",
+     "Eat",
+     "Rule",
+     "Death"
+    ]
+   }
+  },
+  "Krishnapaksha": {
+   "day": {
+    "Crow": [
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat"
+    ],
+    "Peacock": [
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule",
+     "Walk"
+    ],
+    "Vulture": [
+     "Sleep",
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death"
+    ],
+    "Owl": [
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep",
+     "Rule"
+    ],
+    "Cock": [
+     "Rule",
+     "Walk",
+     "Eat",
+     "Death",
+     "Sleep"
+    ]
+   },
+   "night": {
+    "Crow": [
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat"
+    ],
+    "Peacock": [
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death"
+    ],
+    "Vulture": [
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep",
+     "Walk"
+    ],
+    "Owl": [
+     "Walk",
+     "Death",
+     "Rule",
+     "Eat",
+     "Sleep"
+    ],
+    "Cock": [
+     "Eat",
+     "Sleep",
+     "Walk",
+     "Death",
+     "Rule"
+    ]
+   }
+  }
+ }
+}

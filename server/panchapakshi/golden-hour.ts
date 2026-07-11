@@ -59,6 +59,9 @@ export interface GoldenHour {
   transitHouse: number;    // house the lord is transiting now
   nextGoldenMs: number | null;    // start of the next golden window today (null = none left)
   nextGoldenEndMs: number | null; // end of that window
+  nextGoldenPeakMs: number | null;    // strongest apahara sub-window inside that golden window
+  nextGoldenPeakEndMs: number | null;
+  subNow: { bird: string; activity: string; relation: string; power: number; endMs: number } | null; // the apahara live right now
   untilMs: number;         // end of the current hora
 }
 
@@ -141,6 +144,23 @@ export async function computeGoldenHour(opts: {
     segStart = t;
   }
 
+  // 4b. APAHARA sharpening (low friction, high accuracy): inside the next golden window,
+  //     find the strongest sub-window — highest power wins, Enemy sub-birds are down-ranked
+  //     below any non-Enemy at equal power, longer window breaks remaining ties. The header
+  //     can then point at the truest minutes instead of the whole yama∩hora span.
+  const subsIn = (a: number, b: number) =>
+    periods.flatMap((p) => p.sub ?? []).map((sw) => ({ ...sw, startMs: Math.max(sw.startMs, a), endMs: Math.min(sw.endMs, b) }))
+      .filter((sw) => sw.endMs > sw.startMs);
+  let nextGoldenPeakMs: number | null = null, nextGoldenPeakEndMs: number | null = null;
+  if (nextGoldenMs !== null && nextGoldenEndMs !== null) {
+    const candidates = subsIn(nextGoldenMs, nextGoldenEndMs);
+    candidates.sort((x, y) =>
+      (y.power - (y.relation === "Enemy" ? 0.001 : 0)) - (x.power - (x.relation === "Enemy" ? 0.001 : 0)) ||
+      (y.endMs - y.startMs) - (x.endMs - x.startMs));
+    if (candidates.length) { nextGoldenPeakMs = candidates[0].startMs; nextGoldenPeakEndMs = candidates[0].endMs; }
+  }
+  const liveSub = periods.flatMap((p) => p.sub ?? []).find((sw) => nowMs >= sw.startMs && nowMs < sw.endMs) ?? null;
+
   // 5. What it points to for THIS chart + where it is now.
   const lagnaLon = norm360(SIGNS.indexOf(opts.lagnaSign) * 30 + (opts.ascendantDegree ? parseFloat(opts.ascendantDegree) : 0));
   return {
@@ -154,6 +174,8 @@ export async function computeGoldenHour(opts: {
     occupiesHouse: opts.natal[cur.lord]?.house ?? null,
     transitHouse: houseFromLagna(lagnaLon, cond.lon),
     nextGoldenMs, nextGoldenEndMs,
+    nextGoldenPeakMs, nextGoldenPeakEndMs,
+    subNow: liveSub ? { bird: liveSub.bird, activity: liveSub.activity, relation: liveSub.relation, power: liveSub.power, endMs: liveSub.endMs } : null,
     untilMs: cur.endMs,
   };
 }

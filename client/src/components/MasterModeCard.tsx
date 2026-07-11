@@ -108,7 +108,7 @@ export default function MasterModeCard() {
           ) : g ? (
             <p style={{ margin: "0.5rem 0 0", fontSize: "0.66rem", fontWeight: 600, color: "#C9A84C", lineHeight: 1.25, display: "flex", alignItems: "center", gap: "0.3rem" }}>
               {g.nextGoldenMs ? (
-                <><VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} /> Next · {fmt(g.nextGoldenMs)}–{fmt(g.nextGoldenEndMs)}</>
+                <><VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} /> Next · {fmt(g.nextGoldenPeakMs ?? g.nextGoldenMs)}–{fmt(g.nextGoldenPeakEndMs ?? g.nextGoldenEndMs)}</>
               ) : "No golden window left"}
             </p>
           ) : null}

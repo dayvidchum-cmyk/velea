@@ -3,6 +3,7 @@ import { getBird, pakshaFromSunMoon, BIRDS, type Bird, type Paksha } from "./tab
 import { computeYamas } from "./yamas.js";
 import { BIRD_MAIN_SEQUENCES } from "./sequences.js";
 import { ACTIVITIES, ACTIVITY_LABEL, quality, type Activity, type Quality } from "./activities.js";
+import { computeApaharas, type Apahara } from "./apahara.js";
 
 /**
  * Master Mode — the single-track Pancha Pakshi timeline: your bird's main activity in
@@ -18,6 +19,7 @@ export type MasterPeriod = {
   activity: Activity;
   category: string;   // Succeed / Energize / Action / Restore / Caution
   quality: Quality;
+  sub: Apahara[];     // the five apahara sub-windows inside this yama (corpus-proven laws)
 };
 
 export type MasterModeRead = {
@@ -62,6 +64,7 @@ export async function computeMasterMode(opts: {
       activity,
       category: ACTIVITY_LABEL[activity],
       quality: quality(activity, dayPaksha),
+      sub: computeApaharas({ mainBird: bird, mainActivity: activity, paksha: dayPaksha, phase: y.phase, startMs: y.startMs, endMs: y.endMs }),
     };
   });
 
