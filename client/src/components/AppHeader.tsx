@@ -149,13 +149,25 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     (k) => MODE_SOLID[k].toLowerCase() === modeColor.trim().toLowerCase(),
   ) ?? null;
   const stampQualifier = heroMode?.qualifier ?? (headerPanchang as any)?.qualifier ?? null;
-  const tmCurrent = tmToday?.periods?.find((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
+  // PRE-DAWN FALLBACK: before today's sunrise the clock-date tables haven't started, so the
+  // activity + hora segment silently vanished (David, 1:39 AM: "why doesn't the dateline say
+  // the time master stuff with the hora planet anymore???"). Between midnight and sunrise we
+  // are still inside YESTERDAY's vedic tables — same rule the golden-hour engine uses.
+  const yd = new Date(nowMs - 86400000);
+  const yesterdayStr = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, "0")}-${String(yd.getDate()).padStart(2, "0")}`;
+  const preDawnTm = !!tmToday?.periods?.length && !tmToday.periods.some((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
+  const { data: tmYesterday } = trpc.masterMode.today.useQuery({ date: yesterdayStr }, { enabled: isAdmin && preDawnTm, staleTime: 600000 });
+  const preDawnHora = !!horaToday?.horas?.length && !horaToday.horas.some((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
+  const { data: horaYesterday } = trpc.masterMode.hora.useQuery({ date: yesterdayStr }, { enabled: isAdmin && preDawnHora, staleTime: 300000 });
+  const tmCurrent = tmToday?.periods?.find((p: any) => nowMs >= p.startMs && nowMs < p.endMs)
+    ?? tmYesterday?.periods?.find((p: any) => nowMs >= p.startMs && nowMs < p.endMs);
   const stampActivity = tmCurrent?.category ?? null;
   // Golden-hour readout for the brand line (private — only present when Time Master data is: golden
   // now, else a heads-up for the next golden window). Non-entitled users get no Time Master data → null.
   const golden = (tmToday as any)?.goldenNow ?? null;
   const fmtClock = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  const horaCurrent = horaToday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
+  const horaCurrent = horaToday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs)
+    ?? horaYesterday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
   const stampHoraLord = horaCurrent?.lord ?? null;
   const stampTime = stampDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   // The qualifier is usually the FULL 2-word label ("Restrained Build"); only append the mode
