@@ -31,10 +31,11 @@ const bgSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="$
 
 const bg = await sharp(Buffer.from(bgSvg)).png().toBuffer();
 
-// Emblem at ~88% so the circle stays in the safe zone; the comet streaks toward
-// the top-right corner (slightly trimmed by the OS rounding, which reads fine).
+// The THICK mark (velea-mark.svg — the one used in-app; David prefers it over the
+// thin first emblem) at ~88% so the circle stays in the safe zone; the comet
+// streaks toward the top-right corner (slightly trimmed by OS rounding, reads fine).
 const emblemBox = Math.round(SIZE * 0.88);
-const emblem = await sharp("client/public/velea-emblem.png")
+const emblem = await sharp("client/public/velea-mark.svg", { density: 300 })
   .resize(emblemBox, emblemBox, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
   .toBuffer();
 
