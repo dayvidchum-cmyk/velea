@@ -311,6 +311,22 @@ export function scoreTasks(
         reasons.push(`Aligned with ${todayMode} mode`);
       }
 
+      // 6b. Venture fit (soft) — David's law: ACTION OWNS THE NEW; every other mode
+      // tends what already exists. A task DECLARED new (isNewVenture=true) rises on
+      // Action days and sinks hardest on Restraint ("nothing forward, nothing new");
+      // a task declared already-in-motion gets a gentle lift on the tending modes.
+      // Undeclared (null) tasks are untouched — no guessing at scoring time.
+      const venture = (task as any).isNewVenture as boolean | null | undefined;
+      if (venture === true) {
+        if (todayMode === "Action") { soft += 120; reasons.push("Something new — Action owns the new"); }
+        else if (todayMode === "Restraint") { soft -= 120; reasons.push("Something new on a Restraint day — nothing forward, nothing new"); }
+        else { soft -= 40; reasons.push("Something new — today tends what exists"); }
+      } else if (venture === false) {
+        if (todayMode === "Selective" || todayMode === "Build" || todayMode === "Restraint") {
+          soft += 60; reasons.push("Already in motion — today's kind of work");
+        }
+      }
+
       // 7. Current State Fit — computed here for reasons; applied as a dominant
       // OVERRIDE band below (not a soft nudge).
       const cs = currentState ? currentStateScore(task, currentState) : null;
