@@ -253,6 +253,9 @@ export default function Settings() {
   }
 
   const [fullSpectrum, setFullSpectrum] = useFullSpectrum();
+  // Force-logout danger red: the deep brick #c0392b vibrates + washes out on the warm gold FS
+  // ground, so lighten it (same hue) when Full Spectrum is on. Dark/light keep the brick red.
+  const dangerRed = fullSpectrum ? "oklch(0.75 0.15 27)" : "#c0392b";
   const logoutMutation = trpc.auth.logout.useMutation();
   const logoutOthersMutation = trpc.auth.logoutOtherSessions.useMutation({
     onSuccess: () => toast.success("Signed out of all other devices."),
@@ -622,7 +625,7 @@ export default function Settings() {
           {user?.role === "admin" && (
             <div className="flex items-center justify-between py-4" style={{ borderTop: "1px solid var(--color-border)" }}>
               <div className="pr-4">
-                <p className="text-sm font-semibold" style={{ color: "#c0392b" }}>
+                <p className="text-sm font-semibold" style={{ color: dangerRed }}>
                   Force log out all users
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-foreground)" }}>
@@ -639,7 +642,7 @@ export default function Settings() {
                 variant="outline"
                 size="sm"
                 className="flex-shrink-0"
-                style={{ borderColor: "#c0392b", color: "#c0392b" }}
+                style={{ borderColor: dangerRed, color: dangerRed }}
               >
                 {forceLogoutAll.isPending ? "Working…" : "Force logout"}
               </Button>

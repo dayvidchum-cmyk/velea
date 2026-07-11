@@ -2,12 +2,14 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Archive, ArchiveRestore, Trash2, Pencil, Check, X, FolderOpen, ChevronRight, ChevronDown } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
-import { useDayModeColor, useDayModeGradient } from "@/hooks/useDayModeColor";
+import { useDayModeGradient } from "@/hooks/useDayModeColor";
+import { useDayMode } from "@/hooks/useDayMode";
+import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { LIFE_AREAS } from "@shared/life-areas";
-import { MODE_SOLID } from "@shared/types";
+import { MODE_SOLID, MODE_OKLCH } from "@shared/types";
 
 
 type Project = {
@@ -310,7 +312,15 @@ function ArchiveConfirmDialog({
 export default function Projects() {
   const { isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
-  const dayLabelColor = useDayModeColor();
+  // Full Spectrum uses the SOFTENED palette (MODE_OKLCH) — the vibrant MODE_SOLID rose/red vibrated
+  // and washed out on the warm gold FS ground (which is exactly why MODE_OKLCH exists). Dark/light
+  // keep the vibrant solids they already had.
+  const dayMode = useDayMode();
+  const [fullSpectrum] = useFullSpectrum();
+  const dayLabelColor = fullSpectrum ? dayMode.oklch : dayMode.solid;
+  // Destructive rose: keep the deep dark/light rose, but LIGHTEN it on the warm FS ground so it
+  // reads instead of vibrating (same hue, higher lightness).
+  const dangerText = fullSpectrum ? "oklch(0.76 0.12 15)" : "oklch(0.52 0.12 15)";
   const heroGradient = useDayModeGradient();
   const [newName, setNewName] = useState("");
 
@@ -521,7 +531,7 @@ export default function Projects() {
           ) : (
             <div className="divide-y" style={{ borderColor: "var(--border)" }}>
               {activeProjects.map((project) => {
-                const projColor = projectMode[project.id] ? MODE_SOLID[projectMode[project.id] as keyof typeof MODE_SOLID] : dayLabelColor;
+                const projColor = projectMode[project.id] ? (fullSpectrum ? MODE_OKLCH : MODE_SOLID)[projectMode[project.id] as keyof typeof MODE_SOLID] : dayLabelColor;
                 const isExpanded = expandedProjects.has(project.id);
                 return (
                 <div
@@ -573,7 +583,7 @@ export default function Projects() {
                         <button
                           onClick={() => setDeleteTarget(project)}
                           className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                          style={{ color: "oklch(0.52 0.12 15)", border: "1px solid color-mix(in srgb, oklch(0.52 0.12 15) 35%, transparent)", background: "transparent" }}
+                          style={{ color: dangerText, border: `1px solid color-mix(in srgb, ${dangerText} 35%, transparent)`, background: "transparent" }}
                         >
                           <Trash2 size={13} /> Delete
                         </button>

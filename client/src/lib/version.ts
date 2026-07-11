@@ -120,4 +120,9 @@
 // The bullseye now sits INLINE right after the planet name; the peak-time is dropped from the row
 // (it lives in the Time Master header). Also: Horoscope now LOCKED for testers (own hasHoroscope
 // gate — admin/allowlist only), and the Horoscope nav icon is a narrow diamond (node/knot/point).
-export const APP_VERSION = "1.1.339";
+// v1.1.340 = 2026-07-11 — Build Full Spectrum legibility: warm reds/roses vibrated + washed out on
+// the gold FS ground. (1) Project life-area chips now use the SOFTENED MODE_OKLCH palette in FS
+// (the vibrant MODE_SOLID rose was the culprit; MODE_OKLCH exists for exactly this) — dark/light
+// unchanged. (2) The row Delete rose and (3) the admin Force-logout red are lightened (same hue) in
+// FS so they read instead of vibrating; dark/light keep their original reds.
+export const APP_VERSION = "1.1.340";
