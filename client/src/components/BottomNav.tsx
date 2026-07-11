@@ -36,7 +36,7 @@ export default function BottomNav() {
 
   return (
     <nav className="glass-nav">
-      <div className="flex items-stretch justify-around max-w-lg mx-auto" style={{ height: 58 }}>
+      <div className="flex items-stretch justify-between max-w-lg mx-auto px-4" style={{ height: 58 }}>
         {navItems.map(({ path, label, icon: Icon }) => {
           const active = path === "/projects" ? isProjectsActive : location === path;
           return (
@@ -44,7 +44,7 @@ export default function BottomNav() {
               key={path}
               data-tour={path === "/profection" ? "chart-nav" : path === "/settings" ? "settings-nav" : undefined}
               onClick={() => navigate(path)}
-              className="flex flex-col items-center justify-center gap-0.5 px-0.5 flex-1 transition-all duration-200 relative"
+              className="flex flex-col items-center justify-center gap-0.5 transition-all duration-200 relative"
               style={{ minWidth: 0, overflow: "hidden", color: active ? accent : "var(--muted-foreground)" }}
               onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = accent; }}
               onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "var(--muted-foreground)"; }}

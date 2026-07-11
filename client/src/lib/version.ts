@@ -128,4 +128,8 @@
 // v1.1.341 = 2026-07-11 — Bottom nav spacing fix for the 6th item: "HOROSCOPE" (the longest label)
 // was clipping its last letter and crowding Settings. Nav labels 10px→9px, letter-spacing→0, and
 // per-item padding px-1→px-0.5 so all six fit cleanly.
-export const APP_VERSION = "1.1.341";
+// v1.1.342 = 2026-07-11 — Even nav spacing: labels were centered in equal-width cells, so short
+// words (TODAY) had big side-gaps and long words (HOROSCOPE) had tiny ones — airy left, crowded
+// right. Items now size to their word and justify-between distributes the gaps evenly (px-4 insets
+// so the first/last don't hug the screen edge).
+export const APP_VERSION = "1.1.342";
