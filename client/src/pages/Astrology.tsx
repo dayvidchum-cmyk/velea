@@ -7,7 +7,7 @@ import GlossaryText from "@/components/GlossaryText";
 import { ModeCard } from "@/components/ModeCard";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
-import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, MODE_SOLID, type TaskMode } from "@shared/types";
+import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, MODE_SOLID, autoTextColors, type TaskMode } from "@shared/types";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -791,8 +791,9 @@ export function DashaSection() {
         // Immersive gradient card matching the Today page's Time Lord Movement card,
         // tinted with the active mahadasha's planet color.
         const activeColor = PLANET_COLORS[currentPeriod.mahadasha] ?? "#888";
-        // Active period uses dark text to match the active mahadasha card.
-        const t = { primary: "rgba(0,0,0,0.85)", muted: "rgba(0,0,0,0.6)", faint: "rgba(0,0,0,0.5)" };
+        // Text color follows the planet's luminance — Saturn's dark banner takes white,
+        // the Sun's bright one takes ink. (Hardcoded dark text was the old clarity bug.)
+        const t = autoTextColors(activeColor);
         const isOpen = expandedMaha === currentMaha;
         return (
           <div className="overflow-hidden" style={{ borderRadius: "var(--radius-card)", background: planetGradient(activeColor), border: `4px solid ${activeColor}`, boxShadow: `0 0 20px ${activeColor}44` }}>
@@ -872,7 +873,7 @@ export function DashaSection() {
                     const isCurrent = !!period.isCurrent;
                     return (
                       <div key={`${period.antardasha}-${i}`} className="px-4 py-3"
-                        style={{ borderBottom: i < g.periods.length - 1 ? "1px solid var(--color-border)" : "none", background: isCurrent ? `${antColor}18` : "transparent" }}>
+                        style={{ borderBottom: i < g.periods.length - 1 ? "1px solid var(--color-border)" : "none", background: isCurrent ? `${antColor}2E` : "transparent", borderLeft: isCurrent ? `3px solid ${antColor}` : "3px solid transparent" }}>
                         <div className="flex items-center gap-3">
                           <span className="flex-shrink-0 leading-none text-center" style={{ fontSize: "0.95rem", color: antColor, width: "1rem" }}>
                             {PLANET_SYMBOLS[period.antardasha] ?? "●"}
@@ -882,8 +883,8 @@ export function DashaSection() {
                             {period.antardasha}
                           </span>
                           {isCurrent && (
-                            <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0"
-                              style={{ background: `${antColor}25`, color: antColor, border: `1px solid ${antColor}50` }}>
+                            <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-semibold"
+                              style={{ background: antColor, color: autoTextColors(antColor).primary, border: `1px solid ${antColor}` }}>
                               NOW
                             </span>
                           )}
