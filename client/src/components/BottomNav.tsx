@@ -44,7 +44,7 @@ export default function BottomNav() {
               key={path}
               data-tour={path === "/profection" ? "chart-nav" : path === "/settings" ? "settings-nav" : undefined}
               onClick={() => navigate(path)}
-              className="flex flex-col items-center justify-center gap-0.5 px-1 flex-1 transition-all duration-200 relative"
+              className="flex flex-col items-center justify-center gap-0.5 px-0.5 flex-1 transition-all duration-200 relative"
               style={{ minWidth: 0, overflow: "hidden", color: active ? accent : "var(--muted-foreground)" }}
               onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = accent; }}
               onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "var(--muted-foreground)"; }}
@@ -56,7 +56,7 @@ export default function BottomNav() {
               />
               <span
                 className="font-medium uppercase"
-                style={{ fontSize: "10px", letterSpacing: "0.01em", lineHeight: 1, maxWidth: "100%", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "clip" }}
+                style={{ fontSize: "9px", letterSpacing: "0", lineHeight: 1, maxWidth: "100%", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "clip" }}
               >
                 {label}
               </span>

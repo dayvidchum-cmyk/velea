@@ -125,4 +125,7 @@
 // (the vibrant MODE_SOLID rose was the culprit; MODE_OKLCH exists for exactly this) — dark/light
 // unchanged. (2) The row Delete rose and (3) the admin Force-logout red are lightened (same hue) in
 // FS so they read instead of vibrating; dark/light keep their original reds.
-export const APP_VERSION = "1.1.340";
+// v1.1.341 = 2026-07-11 — Bottom nav spacing fix for the 6th item: "HOROSCOPE" (the longest label)
+// was clipping its last letter and crowding Settings. Nav labels 10px→9px, letter-spacing→0, and
+// per-item padding px-1→px-0.5 so all six fit cleanly.
+export const APP_VERSION = "1.1.341";
