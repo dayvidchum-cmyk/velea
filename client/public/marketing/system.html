@@ -54,13 +54,13 @@
   @media (min-width: 900px) { main { margin-left: clamp(2.5rem, 5.5vw, 5.5rem); } }
   .kicker { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; }
   .kicker .km { font-family: var(--khmer); letter-spacing: normal; text-transform: none; font-size: 1rem; }
-  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(2.5rem, 8.5vw, 3.8rem); letter-spacing: 0.12em; line-height: 1.08; margin: 1.3rem 0 2.4rem; text-wrap: balance; }
+  h1 { font-family: var(--sans); font-weight: 600; font-size: 0.75rem; letter-spacing: 0.3em; line-height: 1.35; color: var(--champ); text-transform: uppercase; margin: 0 0 1.8rem; text-wrap: balance; }
   h2.sub { font-family: var(--serif); font-weight: 500; font-size: clamp(1.45rem, 4.8vw, 1.95rem); line-height: 1.38; color: var(--ink); margin: 1.6rem 0 0; text-wrap: balance; }
   .lede { font-size: clamp(1.05rem, 2.6vw, 1.2rem); line-height: 1.7; color: var(--ink-dim); margin: 1.6rem 0 0; }
-  .label { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; margin: 0 0 1.1rem; }
+  .label { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; margin: 0 0 1.1rem; text-wrap: balance; }
   .rule { border: none; height: 1px; background: var(--gold-line); margin: clamp(2.6rem, 7vw, 4rem) 0; width: 100%; }
   @media (min-width: 900px) { .rule { width: calc(100vw - 2 * clamp(2.5rem, 5.5vw, 5.5rem) - 2 * var(--pad)); max-width: none; } }
-  p { font-size: 1.04rem; line-height: 1.75; color: var(--ink-dim); margin: 0 0 1.1rem; }
+  p { font-size: 1.04rem; line-height: 1.75; color: var(--ink-dim); margin: 0 0 1.1rem; text-wrap: pretty; }
   strong { color: var(--ink); font-weight: 600; }
   ul { padding-left: 1.15rem; margin: 0 0 1.1rem; }
   li { font-size: 1.02rem; line-height: 1.7; color: var(--ink-dim); margin-bottom: 0.45rem; }
@@ -108,6 +108,20 @@
   footer .fm { font-family: var(--serif); font-size: 0.95rem; color: var(--champ); text-transform: none; letter-spacing: 0.02em; }
   footer .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; }
   @media (max-width: 560px) { .nav { gap: 0.35rem 0.9rem; } .nav a.item { font-size: 0.6rem; letter-spacing: 0.08em; } }
+  /* ── Merged System page: alternating image/text beats + placeholder slots ──
+     The eye must zigzag down: each beat flips the image side (.flip = row-reverse),
+     never a static two-column grid. Stacks to a single column on phones. */
+  .beat { display: flex; align-items: center; gap: clamp(1.4rem, 4vw, 3.4rem); margin: clamp(2rem, 5.5vw, 3.6rem) 0; }
+  .beat.flip { flex-direction: row-reverse; }
+  .beat .shot { flex: 1 1 46%; min-width: 0; }
+  .beat .say { flex: 1 1 54%; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
+  .beat .say p { margin: 0; }
+  .n { display: inline-flex; align-items: center; justify-content: center; width: 1.85rem; height: 1.85rem; border-radius: 999px; border: 1px solid var(--gold-line); color: var(--champ); font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem; }
+  .prem { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.16em; color: var(--champ); white-space: nowrap; }
+  .offset { width: min(78%, 40rem); margin-left: auto; }
+  @media (max-width: 720px) { .beat, .beat.flip { flex-direction: column; align-items: stretch; gap: 0.85rem; } .offset { width: 100%; } }
+  .slot { flex-direction: column; padding: 1.1rem; text-align: center; line-height: 1.5; }
+  .slot .dim { margin-top: 0.4rem; font-size: 0.66rem; letter-spacing: 0.1em; opacity: 0.72; text-transform: none; }
 </style>
 
 </head>
@@ -115,45 +129,114 @@
 <header class="nav">
   <a class="brand" href="/"><span class="vmark"></span><span class="bname">Velea</span></a>
   <button class="burger" aria-label="Menu" onclick="document.querySelector('.nav').classList.toggle('open')"><span></span><span></span><span></span></button>
-  <nav class="links"><a class="item" href="/velea">About</a><a class="item" href="/why">Why This Exists</a><a class="item on" href="/system">The System</a><a class="item" href="/receive">What You Receive</a><a class="item" href="/access">Request Access</a></nav>
+  <nav class="links"><a class="item" href="/velea">About</a><a class="item" href="/why">Why This Exists</a><a class="item on" href="/system">The System</a><a class="item" href="/access">Request Access</a></nav>
 </header>
 
 <main>
-  <p class="kicker">The System</p>
-  <h1>What This Is</h1>
+  <h1>The System</h1>
+
+  <div class="label">What This Is</div>
   <p class="big">Velea translates your chart into a timing interface that organizes your day into phases of Action, Build, Selective, and Restraint.</p>
   <p>Not prediction. Not spiritual performance. Not a generalized horoscope with no hierarchy.</p>
   <p>A practical system for deciding what deserves your time now.</p>
-  
+
   <figure class="bleed">
-    <div class="phaseStrip" role="img" aria-label="The eight phases of the moon, painted for Velea, side by side.">
+    <div class="phaseStrip" role="img" aria-label="The eight phases of the moon, painted for Velea, in cycle order from new to waning crescent.">
       <img src="/marketing/img/phases/new-moon.jpg" alt="New Moon" loading="lazy" />
-      <img src="/marketing/img/phases/waning-crescent.jpg" alt="Waning Crescent" loading="lazy" />
-      <img src="/marketing/img/phases/last-quarter.jpg" alt="Last Quarter" loading="lazy" />
-      <img src="/marketing/img/phases/waning-gibbous.jpg" alt="Waning Gibbous" loading="lazy" />
-      <img src="/marketing/img/phases/full-moon.jpg" alt="Full Moon" loading="lazy" />
-      <img src="/marketing/img/phases/waxing-gibbous.jpg" alt="Waxing Gibbous" loading="lazy" />
-      <img src="/marketing/img/phases/first-quarter.jpg" alt="First Quarter" loading="lazy" />
       <img src="/marketing/img/phases/waxing-crescent.jpg" alt="Waxing Crescent" loading="lazy" />
+      <img src="/marketing/img/phases/first-quarter.jpg" alt="First Quarter" loading="lazy" />
+      <img src="/marketing/img/phases/waxing-gibbous.jpg" alt="Waxing Gibbous" loading="lazy" />
+      <img src="/marketing/img/phases/full-moon.jpg" alt="Full Moon" loading="lazy" />
+      <img src="/marketing/img/phases/waning-gibbous.jpg" alt="Waning Gibbous" loading="lazy" />
+      <img src="/marketing/img/phases/last-quarter.jpg" alt="Last Quarter" loading="lazy" />
+      <img src="/marketing/img/phases/waning-crescent.jpg" alt="Waning Crescent" loading="lazy" />
     </div>
     <figcaption>The sky moves; the read moves with it.</figcaption>
   </figure>
+
   <hr class="rule" />
+
   <div class="label">A Note on the Foundation</div>
   <p>Velea blends two traditions. Vedic astrology is sidereal &mdash; it tracks observed planetary positions against fixed constellations and reads the chart as a full system. From the Western lineage comes the profection year, a technique that shifts each birthday and marks which area of life is most active now.</p>
   <p>The two together do what neither does alone: locate you in the larger arc and in the hour.</p>
   <p>Some placements may look different than what you&rsquo;re used to &mdash; particularly your Sun sign. That is because the Sun sign here is where the Sun <em>literally stood in the sky</em> when you were born, measured against the fixed constellations &mdash; not a set span of calendar dates that never changes. Nothing about you has changed. You are looking at the same sky through a more precise framework. What counts is not the label &mdash; it is what the chart reveals about sequence, pressure, and what your current chapter is asking of you.</p>
+
   <hr class="rule" />
+
   <div class="label">How It Works</div>
   <p>Each day&rsquo;s read is built from the layers the engine computes:</p>
-  <ul>
-    <li><strong>Your natal chart</strong> &mdash; the fixed instrument everything is read against</li>
-    <li><strong>Your long arc</strong> &mdash; the dasha chapter you are in, and the profection year marking which area of life is active now</li>
-    <li><strong>The day&rsquo;s Moon</strong> &mdash; which house of <em>your</em> chart it lights (this is what sets the day&rsquo;s mode), the star it rides, the lunar day and its half</li>
-    <li><strong>The live sky</strong> &mdash; today&rsquo;s transits read against your chart, down to the planetary hour</li>
-    <li><strong>You</strong> &mdash; a daily check-in that weighs what you actually have today against what each task demands</li>
-  </ul>
+
+  <div class="beat">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Natal chart view</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><span class="n">1</span><p><strong>Your natal chart</strong> &mdash; the fixed instrument everything is read against.</p></div>
+  </div>
+  <div class="beat flip">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Dasha / profection view</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><span class="n">2</span><p><strong>Your long arc</strong> &mdash; the dasha chapter you are in, and the profection year marking which area of life is active now.</p></div>
+  </div>
+  <div class="beat">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Day&rsquo;s moon / mode view</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><span class="n">3</span><p><strong>The day&rsquo;s Moon</strong> &mdash; which house of <em>your</em> chart it lights (this is what sets the day&rsquo;s mode), the star it rides, the lunar day and its half.</p></div>
+  </div>
+  <div class="beat flip">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Transits view</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><span class="n">4</span><p><strong>The live sky</strong> &mdash; today&rsquo;s transits read against your chart, down to the planetary hour.</p></div>
+  </div>
+  <div class="beat">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Check-in view</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><span class="n">5</span><p><strong>You</strong> &mdash; a daily check-in that weighs what you actually have today against what each task demands.</p></div>
+  </div>
+
   <p>These become an interface that organizes your day into usable time segments. Not symbolic interpretation. Not generalized advice. A mapping of timing, attention, and priority &mdash; built around the chapter you are in. When the day itself turns mid-stream &mdash; the Moon changing stars in the afternoon &mdash; the read turns with it, and says so.</p>
+
+  <hr class="rule" />
+
+  <div class="label">What It Does</div>
+  <p>It reduces decision load by organizing your day into defined phases. Instead of facing everything at once, you work with clearer timing windows, less cognitive switching, simpler prioritization, and a read on when effort is likely to land versus stall.</p>
+  <p>The goal is not to control your behavior. It is to reduce friction between intention and execution.</p>
+  <figure class="offset">
+    <div class="slot" style="aspect-ratio:16/10"><span>The working surfaces &mdash; day card · task layer · marked calendar</span><span class="dim">screenshot · landscape ~1920&times;1200</span></div>
+    <figcaption>The day card, the task layer, the marked calendar &mdash; the working surfaces.</figcaption>
+  </figure>
+
+  <hr class="rule" />
+
+  <div class="label">What You Receive</div>
+
+  <div class="beat">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>The day, read</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><p><strong>The day, read</strong> &mdash; Each morning: the day&rsquo;s mode, what it supports, what to avoid &mdash; in plain language, from your chart against today&rsquo;s sky. If the day turns mid-stream, the read tells you when.</p></div>
+  </div>
+  <div class="beat flip">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>The chapter</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><p><strong>The chapter</strong> &mdash; Your longer arc &mdash; the cycle you are inside now &mdash; so daily reads land in context instead of floating free.</p></div>
+  </div>
+  <div class="beat">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>A marked calendar</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><p><strong>A marked calendar</strong> &mdash; Knot days, where the shared sky and your chart tie together with unusual force. Golden days, bright for everyone. And the days to keep the stakes low &mdash; marked in red, so you plan around them instead of into them.</p></div>
+  </div>
+  <div class="beat flip">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Task layer</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><p><strong>Task layer</strong> &mdash; One place for your tasks. Flag them by the load they carry; a daily check-in weighs what you actually have against what each task demands, and surfaces the ones aligned for today. Nothing is urgent in the abstract.</p></div>
+  </div>
+  <div class="beat">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Time Master</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><p><strong>Time Master</strong> <span class="prem">· PREMIUM</span> &mdash; The golden hour: the window when the hour itself favors your move &mdash; read from your chart, down to the minute, with the next window always in view.</p></div>
+  </div>
+  <div class="beat flip">
+    <div class="shot"><div class="slot" style="aspect-ratio:4/5"><span>Glossary</span><span class="dim">screenshot · portrait ~1080&times;1350</span></div></div>
+    <div class="say"><p><strong>Glossary</strong> &mdash; Clear definitions, so the system stays readable without interpretation.</p></div>
+  </div>
+
+  <p>No abstraction overload. No unnecessary complexity.</p>
+
+  <hr class="rule" />
+
+  <div class="label">What Changes</div>
+  <p>When it&rsquo;s working, it is not dramatic. You stop second-guessing timing. You stop starting things in the wrong window and wondering why traction won&rsquo;t come. You stop treating every hour as equal and every task as equally urgent.</p>
+  <p class="big">You move differently. Not faster. More deliberately.</p>
+
+  <div class="ctaRow"><a class="cta" href="/access">Request access</a></div>
 </main>
 <footer><span class="fm">Velea</span><span class="km">វេលាល្អ</span> · The Golden Moment · © 2026</footer>
 </body>
