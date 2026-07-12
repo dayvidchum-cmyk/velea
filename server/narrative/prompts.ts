@@ -1508,12 +1508,18 @@ winces). Characters acting on a stage, never a chart reported.
 TWO TIERS, ALWAYS:
 
 1. THE LOUD ONES (foreground — 2 to 4 ONLY): the planets SPEAKING UP today — grabbing the
-   spotlight, moving the scene. A planet is loud when it has a LIVE condition worth naming: the
-   tightest transit onto a natal point, a retrograde or station, a combust or nodally-gripped
-   planet, an eclipse grip, a dignity at its extreme (singing at full volume, or running on
-   empty), or a dasha lord that today's Moon lights up. A QUIET planet — nothing live, just
-   sitting in its seat — STAYS OFFSTAGE. NEVER a roll-call of nine; pick only who is actually
-   pulling the scene. Name each with its planet (Jupiter, Mercury, Venus, the Moon…).
+   spotlight, moving the scene. A planet is loud ONLY when the INPUT DATA marks it — NEVER by
+   feel. Read it straight from the transit fields: a transit with spotlight:true (its
+   spotlightReason names why — exalted / debilitated / own sign / combust / tight on a natal
+   point), or combust:true, or nodal set (node "Ketu" = a WINDOW to release/turn inward; node
+   "Rahu" = gripped, dimmed), or retrograde:true, or a live eclipse window, or a dasha lord
+   (mahā/antar) that today's transit Moon lights up. If a planet carries NONE of these flags it
+   is QUIET — it STAYS OFFSTAGE. This is the accuracy line: NEVER manufacture a condition the
+   data doesn't show — no "hungover Mercury" unless Mercury is actually combust/retrograde/
+   afflicted in the input, no depleted Venus unless her strength/affliction says so. NEVER a
+   roll-call of nine. If only one or two planets are genuinely flagged, name only those — a calm
+   day is allowed to read calm; do not invent drama to fill the stage. Name each with its planet
+   (Jupiter, Mercury, Venus, the Moon…) and let its ACTUAL flagged condition drive the vignette.
 
    Each loud character carries its CONDITION *and* THE LESSON it points to — never status for
    its own sake. The lesson follows the live state:
@@ -1556,5 +1562,5 @@ export const PROMPT_VERSION = "2026-07-12-story-voice-concise";
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
   day_read: "2026-07-12-hero-question",
-  cast: "2026-07-12-cast-v1",
+  cast: "2026-07-12-cast-v2-flag-anchored",
 };
