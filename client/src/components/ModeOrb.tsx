@@ -1,17 +1,17 @@
-import type { TaskMode } from "../../../shared/types";
-
-const ORB_CLASSES: Record<TaskMode, string> = {
-  Restraint: "orb-restraint",
-  Build: "orb-build",
-  Selective: "orb-selective",
-  Action: "orb-action",
-};
+import { MODE_OKLCH, type TaskMode } from "../../../shared/types";
 
 const MODE_LABELS: Record<TaskMode, string> = {
   Restraint: "Restraint",
   Build: "Build",
   Selective: "Selective",
   Action: "Action",
+};
+
+// Darken an oklch color by scaling its lightness — the filled (active) orb's number is a dark
+// tonal version of its own mode color, matching the calendar's filled coins.
+const darken = (c: string, f: number) => {
+  const m = c.match(/^oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)/);
+  return m ? `oklch(${(parseFloat(m[1]) * f).toFixed(3)} ${m[2]} ${m[3]})` : c;
 };
 
 interface ModeOrbProps {
@@ -24,21 +24,25 @@ interface ModeOrbProps {
 }
 
 export default function ModeOrb({ mode, count, active = false, size = "md", onClick, showCount = true }: ModeOrbProps) {
-  const orbCls = ORB_CLASSES[mode];
-  const sizeMap = { sm: "w-10 h-10 text-xs", md: "w-14 h-14 text-sm", lg: "w-18 h-18 text-base" };
+  const sizeMap = { sm: "w-10 h-10", md: "w-14 h-14", lg: "w-18 h-18" };
   const textSize = size === "sm" ? "text-[12px]" : size === "md" ? "text-[12px]" : "text-xs";
+  const color = MODE_OKLCH[mode];
 
+  // Calendar-coin model (David): the CURRENT day mode is a FILLED orb with a dark tonal number;
+  // every other mode is an OUTLINE — a ring in its mode color with the number that same color.
   return (
     <button
       onClick={onClick}
       className={`flex flex-col items-center gap-1.5 group transition-all duration-200 ${onClick ? "cursor-pointer" : "cursor-default"}`}
     >
       <div
-        className={`${orbCls} ${sizeMap[size]} rounded-full flex items-center justify-center font-bold transition-all duration-200 relative ${
-          active ? "scale-110" : "opacity-80 group-hover:opacity-100 group-hover:scale-105"
+        className={`${sizeMap[size]} rounded-full flex items-center justify-center font-bold transition-all duration-200 ${
+          active ? "scale-110" : "group-hover:scale-105"
         }`}
         style={{
-          color: "oklch(1 0 0)",
+          background: active ? color : "transparent",
+          border: `2px solid ${color}`,
+          color: active ? darken(color, 0.5) : color,
         }}
       >
         <span className={size === "sm" ? "text-xs font-bold" : "text-sm font-bold"}>
@@ -46,7 +50,6 @@ export default function ModeOrb({ mode, count, active = false, size = "md", onCl
             <span style={{ fontSize: size === "sm" ? "0.65rem" : "0.75rem", opacity: 0.85 }}>●</span>
           ) : count === 0 ? "+" : count}
         </span>
-        {/* (Pulsing "ping" ring on the active orb removed — David turned off the blink.) */}
       </div>
       <span
         className={`${textSize} font-semibold tracking-wide uppercase`}
