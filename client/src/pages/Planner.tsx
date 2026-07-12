@@ -1203,14 +1203,14 @@ export default function Planner() {
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
                   {isCrown ? (
-                    // The knot mark — the octagram (Star of Lakshmi, with its centre bindu), sized to
-                    // fill the coin. Normally BRIGHT GOLD (with a gold glow) — reads on white outline
-                    // coins and on green/teal/rose filled coins alike. The one collision: a FILLED
-                    // Build coin is itself bright gold, so a gold knot vanishes (David, 7/12) — there
-                    // the knot takes the number's dark tonal ink so it reads engraved, glow dropped.
+                    // The knot mark — a SOLID octagram (Star of Lakshmi). Solid, never a hollow
+                    // outline: an unfilled star let the light calendar show through its middle and read
+                    // as a white-outline coin (David). Bright gold normally; on a filled Build coin
+                    // (itself gold) it takes the number's dark tonal ink so it reads engraved.
                     (() => {
                       const knotOnGold = filled && modeColor === MODE_DOT.Build;
-                      return <OctagramMark size={28} color={knotOnGold ? darkInk : GOLD_BRIGHT} strokeWidth={1.6} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 4px rgba(242,194,28,0.6))", pointerEvents: "none" }} />;
+                      const knotColor = knotOnGold ? darkInk : GOLD_BRIGHT;
+                      return <OctagramMark size={24} color={knotColor} fill={knotColor} strokeWidth={0.75} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))", pointerEvents: "none" }} />;
                     })()
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
