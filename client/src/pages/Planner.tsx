@@ -1029,15 +1029,13 @@ export default function Planner() {
           background: "#FDFDFD",
         }}
       >
-        {/* Colored strip header */}
-        <div
-          className="flex items-center justify-between px-3 py-2"
-          style={{ background: calModeColor }}
-        >
+        {/* Month header — the colored band is gone (David); month/year/arrows sit on the light
+            surface as dark gray. The thin colored border around the whole calendar stays. */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <button
             onClick={prevMonth}
             className="p-1 rounded-full transition-all duration-150 active:scale-95"
-            style={{ color: "#FDFDFD", background: "rgba(255,255,255,0.18)" }}
+            style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
           >
             <ChevronLeft size={15} />
           </button>
@@ -1047,7 +1045,7 @@ export default function Planner() {
                 fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
                 fontSize: "1rem",
                 fontWeight: 600,
-                color: "#FDFDFD",
+                color: "#2a2a2a",
                 letterSpacing: "0.04em",
               }}
             >
@@ -1057,7 +1055,7 @@ export default function Planner() {
               style={{
                 fontSize: "0.8rem",
                 fontWeight: 500,
-                color: "rgba(255,255,255,0.75)",
+                color: "#8a8a8a",
                 letterSpacing: "0.1em",
               }}
             >
@@ -1067,7 +1065,7 @@ export default function Planner() {
           <button
             onClick={nextMonth}
             className="p-1 rounded-full transition-all duration-150 active:scale-95"
-            style={{ color: "#FDFDFD", background: "rgba(255,255,255,0.18)" }}
+            style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
           >
             <ChevronRight size={15} />
           </button>
