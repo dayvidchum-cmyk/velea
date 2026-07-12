@@ -10,7 +10,7 @@ import { computeDashaJourney } from "../sky/arc.js";
 import { calcPanchang } from "../panchang/astronomy.js";
 import { interpretPanchang } from "../panchang/interpreter.js";
 import { getDayField, gateDayField } from "../panchang/service.js";
-import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
+import { combustion, nodalAffliction, eclipseNear, eclipseSeason } from "../panchang/affliction.js";
 import { strength, dignityLabel, signLordOf } from "../panchang/dignity.js";
 import { crownDay } from "../panchang/crown.js";
 import { natalDignities } from "../vedic/dignity.js";
@@ -307,9 +307,25 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // rule ("when hora is absent, say nothing of hours") holds for every read, moment or daily.
   const hora: { lord: string; tone: string; phase: string; good: string } | null = null;
 
-  // Real solar/lunar eclipse near this date — a volatile whole-sky window (deterministic).
+  // Eclipse, read by its PHASE across the whole season (deterministic). eclipseNear gives the tight
+  // ±7-day peak (with a SIGNED daysAway); eclipseSeason gives the broader ~5-week window and whether
+  // the Sun is still approaching the nodal axis (building) or has passed it (aftermath). Combined so
+  // the read turns the corner: a build before, the sacred pause at peak, the clearing/unfolding after
+  // — instead of one flat "be careful." null only when the Sun is well clear of the axis.
   const ecl = eclipseNear(a["Sun"], a["Moon"], a["Rahu"]);
-  const eclipse = ecl.type ? { type: ecl.type, daysAway: ecl.daysToSyzygy, sunNodeOrbDeg: ecl.sunNodeOrbDeg } : null;
+  const eclSeason = eclipseSeason(a["Sun"], a["Rahu"]);
+  let eclipse:
+    | { type: "solar" | "lunar" | null; phase: "building" | "peak" | "aftermath"; daysAway: number | null; orbDeg: number; node: "Rahu" | "Ketu" }
+    | null = null;
+  if (ecl.type) {
+    // At the tight peak: the sign of daysAway says upcoming (build), the day itself (peak), or just
+    // past (already clearing) — so even inside the fortnight the read turns after the eclipse passes.
+    const phase = ecl.daysToSyzygy > 1 ? "building" : ecl.daysToSyzygy < -1.5 ? "aftermath" : "peak";
+    eclipse = { type: ecl.type, phase, daysAway: ecl.daysToSyzygy, orbDeg: ecl.sunNodeOrbDeg, node: eclSeason.node };
+  } else if (eclSeason.inSeason) {
+    // In the season's tails (beyond the tight orb): building on the approach, aftermath on the way out.
+    eclipse = { type: null, phase: eclSeason.side === "leaving" ? "aftermath" : "building", daysAway: null, orbDeg: eclSeason.sunAxisOrbDeg, node: eclSeason.node };
+  }
 
   const panchang = {
     mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated,

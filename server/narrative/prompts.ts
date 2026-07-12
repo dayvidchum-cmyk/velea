@@ -112,12 +112,26 @@ PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entire
   ("give it an hour") and what it does suit (its good); if "benefic", you may note the
   hour supports its good. A nudge for THIS HOUR ONLY — never the day's theme, never
   mode-changing. When hora is absent (the normal daily read), say nothing of hours.
-  eclipse — present only when a real solar/lunar eclipse falls near this date — is
-  { type, daysAway, sunNodeOrbDeg }. When present, note the eclipse window as a
-  volatile, unsettled stretch: results are unreliable, avoid launching or sealing big
-  commitments, treat it as a time to rest and observe rather than initiate — strongest
-  right around daysAway ≈ 0. Do NOT flip the day's mode; it colors caution, not focus.
-  When eclipse is null, say nothing of eclipses.
+  eclipse — present through the whole eclipse SEASON (the Sun near the nodal axis, ~5
+  weeks), not just the day of — is { type, phase, daysAway, orbDeg, node }. type is
+  "solar"/"lunar" at the peak, null in the broader season. phase is THE signal — read the
+  eclipse by WHERE in its arc this date sits, NEVER as one flat "be careful," because an
+  eclipse is a PORTAL, not only a hazard (an ending and a beginning in one point):
+    • "building" — an eclipse is APPROACHING. A charged, gathering, unsettled wind-up in
+      the lit area; the ground grows unstable. Wind DOWN, don't launch into it — something
+      is about to reset here.
+    • "peak" — the eclipse ITSELF (daysAway ≈ 0). The sacred PAUSE: do not initiate, sign,
+      or seal — results are unreliable, the field is scrambled; rest and observe, let it
+      pass. BUT name it as the RESET / turning point it is — what is being cleared or
+      re-seeded in the lit area — not merely danger. The pause is FOR the turn.
+    • "aftermath" — the eclipse has PASSED (daysAway negative, or the season's leaving
+      side). The field CLEARS and what the eclipse set in motion begins to MOVE: a new
+      direction opening, the reset taking shape, the fruit on the other side. Read it
+      FORWARD and largely OPENING — the turn has happened, now it ripens (things may still
+      be settling, but the caution is OVER). Do NOT read aftermath as "be careful"; that
+      phase has passed. This is the positive, unfolding read.
+  Whatever the phase, do NOT flip the day's mode; the eclipse colors the read, not the
+  focus. When eclipse is null, say nothing of eclipses.
 - humanTime: { dayOfWeek, isWeekend, weekFrame, season, nearSeasonalTurn } —
   ordinary human time (weekday rhythm + season), not astrology. (Culture-specific
   holidays are not yet supplied; use only what is present.)
@@ -1299,7 +1313,9 @@ THE MANDATE — a day read does THREE things, always, in every read:
 1. explains the OUTER — what the SKY is doing today: the day mode, the transit Moon, the
    loudest transit, AND any live condition of the sky — a RETROGRADE (a planet reviewing,
    revisiting, turning inward in its arena), a STATION (a planet turning — a hinge), an
-   ECLIPSE window (panchang.eclipse — a volatile few days; don't launch, let it pass), a
+   ECLIPSE (panchang.eclipse — read it by its PHASE per the base rule: the gathering build
+   before, the sacred pause AND reset at peak, the clearing/opening in the aftermath — NEVER
+   one flat "be careful"; the aftermath is the forward, unfolding read), a
    combust or nodally-gripped planet — combust or Rahu-gripped = dimmed, don't lean on it now;
    Ketu-gripped = NOT merely weak but a window opening in that arena, a place to release, let
    one thing go, or turn inward (hard ≠ bad). When one of these is live, it is NOT optional
@@ -1617,7 +1633,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-12-story-voice-concise";
+export const PROMPT_VERSION = "2026-07-12-eclipse-phase-aware";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

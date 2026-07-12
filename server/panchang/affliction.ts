@@ -103,3 +103,37 @@ export function eclipseNear(sunLon: number, moonLon: number, rahuLon: number): E
 
   return { type, syzygy, daysToSyzygy: +days.toFixed(1), sunNodeOrbDeg: +orbToAxis.toFixed(1), limitDeg: limit };
 }
+
+export type EclipseSeason = {
+  inSeason: boolean;
+  node: "Rahu" | "Ketu";
+  sunAxisOrbDeg: number;              // |Sun − nearest node|, degrees
+  side: "approaching" | "leaving";   // Sun before the node (building) vs past it (aftermath)
+};
+
+// The Sun sits within the solar ecliptic limit of the nodal axis for ~±18 days around each
+// crossing — the ~5-week eclipse SEASON in which the eclipse pair falls and its effects build
+// then unwind. Wider than eclipseNear's tight ±7-day peak, so a read weeks after an eclipse can
+// still know the aftermath is unfolding.
+const ECLIPSE_SEASON_LIMIT = SOLAR_LIMIT;
+const norm180 = (x: number) => (((x % 360) + 540) % 360) - 180;
+
+/**
+ * The broader eclipse SEASON and where in it this moment sits — distinct from eclipseNear's tight
+ * peak. `side` reads the Sun's position relative to the nearest node it is closest to:
+ * "approaching" (Sun still before the node → the build) vs "leaving" (Sun past the node → the
+ * aftermath, effects unwinding). Deterministic from the Sun and Rahu sidereal longitudes.
+ */
+export function eclipseSeason(sunLon: number, rahuLon: number): EclipseSeason {
+  const dR = norm180(sunLon - rahuLon);
+  const dK = norm180(sunLon - norm360(rahuLon + 180));
+  const useRahu = Math.abs(dR) <= Math.abs(dK);
+  const delta = useRahu ? dR : dK;
+  return {
+    inSeason: Math.abs(delta) <= ECLIPSE_SEASON_LIMIT,
+    node: useRahu ? "Rahu" : "Ketu",
+    sunAxisOrbDeg: +Math.abs(delta).toFixed(1),
+    // Sun moves forward: negative offset = still before the node (building); ≥0 = past it (leaving).
+    side: delta < 0 ? "approaching" : "leaving",
+  };
+}
