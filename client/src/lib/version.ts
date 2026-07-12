@@ -168,4 +168,8 @@
 // And since the surface is ALWAYS light now, the day-mode coin colors are ONE light-tuned palette
 // (~0.55 lightness) shared across every appearance mode — dark enough to read on white and to carry
 // a white number when filled; Build is a deeper amber-gold (a bright gold couldn't hold white text).
-export const APP_VERSION = "1.1.351";
+// v1.1.352 = 2026-07-11 — Calendar coin polish (David): numbers up to 0.875rem (~+2px), rings
+// tightened (coin 2.5→2rem) so the circle hugs the digit. Reverted to the BRIGHT/true mode palette
+// (bright gold is fine on white) — and a FILLED coin's number is now a very dark TONAL version of
+// its day-mode color (darkenOklch ×0.32) instead of flat white: a monochromatic, more elegant coin.
+export const APP_VERSION = "1.1.352";

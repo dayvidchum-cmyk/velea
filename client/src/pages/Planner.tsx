@@ -58,20 +58,21 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 };
 
 // Day-mode coin colors, ONE palette for the always-light calendar (David 2026-07-11): appearance
-// mode no longer changes the surface, so it no longer changes these. Tuned DARKER than the old
-// dark-bg dots (~0.55 lightness) so each mode reads on white AND carries a white number when the
-// coin is filled. Build is a deeper amber-gold — a bright gold couldn't hold white text on white.
+// mode no longer changes the surface, so it no longer changes these. BRIGHT/true mode colors — they
+// read fine on the light background (David: bright gold is fine on white). A FILLED coin's NUMBER is
+// a very dark tonal version of the same color (darkenOklch), not white — more elegant, and it lets
+// the fill stay bright, gold included.
 const MODE_DOT: Record<string, string> = {
-  Action:     "oklch(0.55 0.15 150)",  // green
-  Build:      "oklch(0.60 0.12 82)",   // amber-gold, deep enough for a white number
-  Restraint:  "oklch(0.55 0.15 18)",   // rose-wine
-  Selective:  "oklch(0.56 0.11 228)",  // teal-blue
-  Flex:       "oklch(0.56 0.14 285)",  // purple
-  Activate:   "oklch(0.55 0.15 150)",
-  ACTION:     "oklch(0.55 0.15 150)",
-  BUILD:      "oklch(0.60 0.12 82)",
-  RESTRAINT:  "oklch(0.55 0.15 18)",
-  "SELECTIVE ACTION": "oklch(0.56 0.11 228)",
+  Action:     "oklch(0.70 0.18 150)",  // green
+  Build:      "oklch(0.80 0.15 92)",   // bright gold
+  Restraint:  "oklch(0.68 0.09 14)",   // rose
+  Selective:  "oklch(0.68 0.08 225)",  // teal
+  Flex:       "oklch(0.72 0.10 280)",  // purple
+  Activate:   "oklch(0.70 0.18 150)",
+  ACTION:     "oklch(0.70 0.18 150)",
+  BUILD:      "oklch(0.80 0.15 92)",
+  RESTRAINT:  "oklch(0.68 0.09 14)",
+  "SELECTIVE ACTION": "oklch(0.68 0.08 225)",
 };
 
 /** Adds an alpha value to an oklch() color string, e.g. "oklch(0.72 0.16 145)" → "oklch(0.72 0.16 145 / 0.15)" */
@@ -1139,7 +1140,11 @@ export default function Planner() {
             // OUTLINE — a ring in the day-mode color, with the number in that same color. No more white
             // today-border: today is simply the filled coin.
             const filled = (isToday || isSelected) && hasMode;
-            const numberColor = filled ? "#fff" : hasMode ? accent : "var(--color-muted-foreground)";
+            // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
+            // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
+            // coin's number is the mode color itself, on white.
+            const darkInk = darkenOklch(accent, 0.32);
+            const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
             const restingBg = filled ? accent : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
@@ -1171,7 +1176,7 @@ export default function Planner() {
                   style={{
                     aspectRatio: "1 / 1",
                     width: "100%",
-                    maxWidth: "2.5rem",
+                    maxWidth: "2rem",
                     borderRadius: 999,
                     transition: "background 150ms",
                     color: numberColor,
@@ -1187,10 +1192,10 @@ export default function Planner() {
                       ? `1.5px solid ${accent}`
                       : "1px solid transparent",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = numberColor; }}
-                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
-                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
+                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
                 >
                   {isCrown ? (
                     // The bindu — a single gold point. The day itself is the mark.
@@ -1214,7 +1219,7 @@ export default function Planner() {
                       ))}
                     </span>
                   ) : (
-                    <span className="text-xs" style={{ color: "inherit", fontWeight: filled ? 700 : 600 }}>
+                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "0.875rem" }}>
                       {day}
                     </span>
                   )}
