@@ -153,6 +153,9 @@ export default function Horoscope() {
           Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
         </p>
 
+        {/* ── This eclipse season (the whole double-eclipse arc, read for your chart) ── */}
+        <EclipseSeasonCard modeColor={modeColor} />
+
         {/* ── Calendar ── */}
         <div style={{ borderRadius: 16, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "0.9rem 0.9rem 1rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.7rem" }}>
@@ -313,6 +316,88 @@ function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: 
       </button>
       {failed && !pending && (
         <p style={{ fontSize: "0.72rem", color: "#B15F71", margin: "0.9rem 0 0" }}>The reading couldn't be drawn just now. Please try again in a moment.</p>
+      )}
+    </div>
+  );
+}
+
+// ── A small eclipse glyph: a corona ring around a dark disc (an annular "ring of fire"). Reads
+// on either theme because the disc stays dark. Used only on the eclipse-season card. ──
+function EclipseGlyph({ size = 17, color }: { size?: number; color: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden style={{ display: "block", flexShrink: 0 }}>
+      <circle cx="12" cy="12" r="9.5" fill="none" stroke={color} strokeWidth="1.3" opacity="0.55" />
+      <circle cx="12" cy="12" r="7" fill="none" stroke={color} strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="5.4" fill="#0b0b14" />
+    </svg>
+  );
+}
+
+// ── THE ECLIPSE SEASON card — the whole double-eclipse arc (build → resets → aftermath) read for
+// this chart. Collapsed teaser by default (low cognitive load); taps the eclipseSeason mutation,
+// which is cached by season server-side, so re-opening the same season is free. ──
+function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
+  const reveal = trpc.horoscope.eclipseSeason.useMutation();
+  const data = reveal.data as { available: boolean; read?: DayRead | null; season?: { firstDate: string; count: number } | null } | undefined;
+  const read = data?.available ? data.read ?? null : null;
+  const season = data?.available ? data.season ?? null : null;
+  const noSeason = data && data.available === false;
+
+  const accent = "#C9A227"; // eclipse gold — steady, not the day-mode hue, so the card reads as its own layer
+
+  return (
+    <div
+      style={{
+        borderRadius: 16, marginBottom: "1.1rem", padding: "1rem 1.1rem 1.1rem",
+        border: `1px solid color-mix(in srgb, ${accent} 42%, var(--color-border))`,
+        background: `linear-gradient(180deg, color-mix(in srgb, ${accent} 7%, var(--color-card)), var(--color-card))`,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: read ? "0.2rem" : "0.5rem" }}>
+        <EclipseGlyph color={accent} />
+        <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent, margin: 0 }}>
+          This eclipse season
+        </p>
+      </div>
+
+      {!read && !noSeason && (
+        <>
+          <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.55, margin: "0 0 0.9rem" }}>
+            The whole arc of the eclipses ahead — the buildup, each reset, and where the field opens after — read once for your chart, and kept.
+          </p>
+          <button
+            onClick={() => reveal.mutate()}
+            disabled={reveal.isPending}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: reveal.isPending ? "default" : "pointer",
+              borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, letterSpacing: "0.01em",
+              color: "#1a1305", background: `linear-gradient(180deg, ${accent}, #a5811f)`, opacity: reveal.isPending ? 0.7 : 1,
+              boxShadow: `0 2px 12px ${accent}3a`,
+            }}
+          >
+            {reveal.isPending ? <><Loader2 size={15} className="animate-spin" /> Reading the season…</> : <>Read this eclipse season</>}
+          </button>
+          {reveal.isError && (
+            <p style={{ fontSize: "0.72rem", color: "#B15F71", margin: "0.9rem 0 0" }}>The season couldn't be drawn just now. Please try again in a moment.</p>
+          )}
+        </>
+      )}
+
+      {noSeason && (
+        <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
+          The sky is between eclipse seasons right now — nothing to read yet. This opens again as the next season builds.
+        </p>
+      )}
+
+      {read && (
+        <>
+          {season && (
+            <p style={{ fontSize: "0.68rem", color: "var(--color-muted-foreground)", margin: "0 0 0.7rem", opacity: 0.9 }}>
+              {season.count === 1 ? "One eclipse" : `${season.count} eclipses`} · read once, kept
+            </p>
+          )}
+          <DayReadBody read={read} modeColor={modeColor} />
+        </>
       )}
     </div>
   );

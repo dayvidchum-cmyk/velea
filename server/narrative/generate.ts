@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, LIFE_AREA_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -357,6 +357,28 @@ export async function generateLifeAreaRead(input: NarrativeInput): Promise<DayRe
     return r ? scrubDayRead(r) : null; // deterministic scrub is the final guarantee no banned term ships
   } catch (err) {
     console.error("[narrative] generateLifeAreaRead failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
+// THE ECLIPSE SEASON — one arc across a whole double-eclipse (build → resets → aftermath), read for
+// this chart's houses. DayRead shape + the same guards, with a longer premium cap (a season legitimately
+// covers more than a day) and the eclipse-season lens in the input (input.eclipseSeasonArc).
+export async function generateEclipseSeasonRead(input: NarrativeInput): Promise<DayRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const r = await callGuarded<DayRead>({
+      c, tail: ECLIPSE_SEASON_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
+      // A whole season across two eclipses → ~420-word target, 550 hard cap. ~1100 tokens lets a full
+      // draft complete so the guard can catch + correct an overrun.
+      maxTokens: 1100, maxWords: 550,
+      complete: isCompleteDayRead,
+      textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
+    });
+    return r ? scrubDayRead(r) : null; // deterministic scrub — no banned term ships
+  } catch (err) {
+    console.error("[narrative] generateEclipseSeasonRead failed, using static fallback:", (err as any)?.message ?? err);
     return null;
   }
 }

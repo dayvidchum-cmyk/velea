@@ -1628,6 +1628,63 @@ Do not restate the story — give the characters. No preamble, no title, no clos
 
 Return your answer by calling the cast tool with a single "read" field — one paragraph, ≤120 words.`;
 
+// ECLIPSE_SEASON_TAIL — the "how will this eclipse season affect me" period reading. One arc across a
+// whole double-eclipse: the build into it, each eclipse's reset in THIS chart's houses, and the
+// aftermath opening. Rides BASE_PROMPT (house dictionary + the phase-aware eclipse rule). DayRead
+// shape, so it renders like the hero and rides the same guards. Data: input.eclipseSeasonArc.
+// ─────────────────────────────────────────────────────────────────────────────
+export const ECLIPSE_SEASON_TAIL = `TASK: THE ECLIPSE SEASON — the whole arc, read for THIS chart
+
+The reader wants full clarity on the eclipse season ahead — not one day, but the whole arc: the build
+into it, the eclipse(s) themselves, and the aftermath as it clears. input.eclipseSeasonArc is the
+engine of this read (deterministic; never invent past it):
+- today + windowEnd — the span you narrate: from now through the season's settling.
+- count — how many eclipses this season (usually two: a solar + lunar pair).
+- eclipses: [{ date, daysAway (days from today; the first is nearest), type (SOLAR = a new-moon
+  RESET — something cleared and re-seeded; LUNAR = a full-moon CULMINATION — something brought to a
+  head and released), sign, house, houseGloss (the CONCRETE life-area the eclipse lands on — name
+  THIS, never the number), oppositeHouse + oppositeHouseGloss (an eclipse lights its WHOLE axis, so
+  the opposite life-area is pulled too), houseFromMoon, dispositor { planet, natalHouse, dignity }
+  (the eclipse borrows this planet's condition — read it: strong = the reset has backing; strained =
+  it costs more), hits [{ point, orbDeg, which }] (natal points the eclipse sits on; a TIGHT hit,
+  orb ≤ 3°, is a direct personal strike — name what it touches; wider ones stay background) }].
+
+READ THE WHOLE ARC, in order, as ONE story — this IS the phase progression from the base eclipse rule:
+1. NOW — the BUILD. Today is the first eclipse's daysAway out. The season is APPROACHING: a
+   gathering, charging wind-up in the areas about to be lit. Name what's coming and in which concrete
+   life-areas (houseGloss); the move now is to wind DOWN into it, not to launch.
+2. EACH ECLIPSE — the RESET / PORTAL (not just a hazard). For each: its date, whether it CLEARS &
+   re-seeds (solar) or brings to a head & releases (lunar), the concrete life-area it lands on AND the
+   opposite end of the axis it pulls, coloured by the dispositor's live condition, and any tight natal
+   hit as a direct personal strike. This is the personalized heart — spend the read here.
+3. THE AFTERMATH — through windowEnd. After the last eclipse the field CLEARS and what was reset
+   begins to MOVE: the new direction in those life-areas, the opening on the other side. Read it
+   FORWARD and largely POSITIVE — the turns have happened, now they ripen. Do NOT leave the reader in
+   caution; the reward is the point the whole season was aiming at.
+
+VOICE + HARD RULES — the horoscope's voice with premium room (this is a whole season; let it be
+thorough), enforced in code:
+- ZERO chart machinery: no house NUMBERS, no sign names, no dignity/motion terms (exalted,
+  debilitated, retrograde, combust), never "eclipse axis/dispositor/node." Translate every one into
+  felt life-language. Planets appear only as characters doing something, never reported at a placement.
+- THE PROOF IS IN THE SPECIFICS: every line points at a real, checkable life-thing (income, the wider
+  circle, the daily work, what you owe, the craft, home) — never vague "intensity." A line that could
+  apply to anyone has FAILED.
+- Aim ~420 words across the four prose fields; HARD CAP 550, enforced in code. Thorough, never a wall.
+
+FIELDS (DayRead shape, repurposed to the arc):
+- scene (~70w): where you are NOW and what's coming — the season ahead, how many days to the first
+  eclipse, and the concrete life-areas it will work. The build.
+- story (~230w, the heart): the eclipse(s) in order — each one's reset, its life-area and the axis's
+  other end, its dispositor's condition, any tight natal hit. The clarity they came for.
+- tilt (~90w): how to move through the WHOLE span — wind down into the build, hold and observe at each
+  reset (don't launch or seal big things), then move on the aftermath opening. A posture across the
+  season, NO single move.
+- closeLine: one line that lands the whole arc — the reset and the opening it makes.
+- question: one reflective door into the season's work, ends in "?".
+
+Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
+
 export const MODEL = "claude-sonnet-4-6";
 
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
@@ -1644,4 +1701,5 @@ export const SURFACE_VERSION: Record<string, string> = {
   day_read: "2026-07-12-hero-120-planets-out",
   cast: "2026-07-12-cast-one-paragraph",
   life_area: "2026-07-12-horoscope-varga-deep",
+  eclipse_season: "2026-07-12-eclipse-season-arc",
 };

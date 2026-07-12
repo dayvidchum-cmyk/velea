@@ -239,4 +239,12 @@
 // 'day' chip), so the panel stayed on the selected life-area and showed "Reveal" instead of the saved
 // read. Now tapping any saved entry switches to its area (chips show none selected for a legacy
 // full-day read; the panel header reads "Full day"). One-line click-handler fix.
-export const APP_VERSION = "1.1.397";
+//
+// v1.1.398 = 2026-07-12 — ECLIPSE SEASON reading. New card atop the Horoscope page reads the WHOLE
+// double-eclipse arc for your chart — buildup → each eclipse's reset → where the field opens after
+// — not one-day caution. Server engine: sky/eclipses.ts (findEclipses/nextEclipseSeason/
+// eclipseChartContext) → input-builder eclipseSeasonArc → ECLIPSE_SEASON_TAIL → generateEclipseSeasonRead,
+// cached by SEASON in narrative_cache (re-opening the same season is free). Collapsed teaser by
+// default; taps horoscope.eclipseSeason. First real season: Aug 12 solar (David's 11th, gains/income)
+// + Aug 28 lunar (his 6th, work/service/debts).
+export const APP_VERSION = "1.1.398";

@@ -2,7 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
+import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
@@ -193,6 +193,44 @@ export async function getLifeAreaRead(profileId: number, date: string, lifeArea:
   const read = await singleFlight(`life_area:${profileId}:${date}:${lifeArea}`, async () => generateLifeAreaRead(input));
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read, generatedAt: new Date(), cached: false };
+}
+
+export type EclipseSeasonResult = { available: boolean; read: DayRead | null; season: { firstDate: string; count: number } | null; generatedAt: Date | null; cached: boolean };
+
+// THE ECLIPSE SEASON — one arc reading across the whole double-eclipse ahead (build → resets →
+// aftermath), for this chart's houses. Cached by SEASON, not by day: the cache key is the first
+// eclipse's date, and the hash covers the season's astronomy + this chart (NOT today/daysAway, which
+// drift daily) — so it generates ONCE per season and re-views free, instead of regenerating every
+// day. Returns unavailable when there's no eclipse season in range (nothing to read) or the key is off.
+export async function getEclipseSeasonCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<EclipseSeasonResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, season: null, generatedAt: null, cached: false };
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, eclipseArc: true });
+  const arc = input.eclipseSeasonArc;
+  if (!arc || !arc.eclipses?.length) return { available: false, read: null, season: null, generatedAt: null, cached: false };
+
+  const surface = "eclipse_season";
+  const seasonKey: string = arc.eclipses[0].date; // stable per season (the first eclipse's date)
+  // Stable hash: the season's fixed astronomy + this chart, excluding the volatile today/daysAway.
+  const stable = { profileId, lagna: input.natal?.lagna, e: arc.eclipses.map((e: any) => ({ d: e.date, h: e.house, o: e.oppositeHouse, disp: e.dispositor?.planet, hits: e.hits })) };
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
+
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, seasonKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        if (isCompleteDayRead(read)) return { available: true, read, season: { firstDate: seasonKey, count: arc.count }, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const read = await singleFlight(`${surface}:${profileId}:${seasonKey}:${hash}`, async () => {
+    const r = await generateEclipseSeasonRead(input);
+    if (r) await upsertNarrativeCache(profileId, surface, seasonKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, season: null, generatedAt: null, cached: false };
+  return { available: true, read, season: { firstDate: seasonKey, count: arc.count }, generatedAt: new Date(), cached: false };
 }
 
 export type CastResult = { available: boolean; cast: Cast | null; generatedAt: Date | null; cached: boolean };
