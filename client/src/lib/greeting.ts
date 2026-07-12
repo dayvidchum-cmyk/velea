@@ -42,11 +42,12 @@ const BUCKETS: Bucket[] = [
     "Evening, {name}.",
     "Winding down, {name}?",
   ] },
-  // Night
+  // Night — 9–11 PM. NOT "late night" yet (that lives in the 0–4 deep-night bucket); at 9:28 PM
+  // "Late night, David" read as a punchline, so these stay in the winding-down register.
   { from: 21, to: 23, lines: [
     "Good night, {name}.",
-    "Still going, {name}?",
-    "Late night, {name}.",
+    "Getting late, {name}?",
+    "Quiet hours, {name}.",
   ] },
 ];
 

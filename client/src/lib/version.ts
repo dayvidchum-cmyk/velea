@@ -168,4 +168,4 @@
 // And since the surface is ALWAYS light now, the day-mode coin colors are ONE light-tuned palette
 // (~0.55 lightness) shared across every appearance mode — dark enough to read on white and to carry
 // a white number when filled; Build is a deeper amber-gold (a bright gold couldn't hold white text).
-export const APP_VERSION = "1.1.350";
+export const APP_VERSION = "1.1.351";
