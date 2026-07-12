@@ -34,7 +34,7 @@ import HoraCard from "@/components/HoraCard";
 import MeridianWhisper from "@/components/MeridianWhisper";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 // Planetary glyphs for the Time Lord (Sun's is the circle-dot, its alchemical symbol).
 
@@ -993,15 +993,6 @@ export default function Planner() {
         </div>
       )}
 
-      {/* "What are day modes?" removed — the day card already explains its mode inline with a
-          glossary pop-up, so the separate explainer link was redundant. Time Master / Hora follow. */}
-      {isAuthenticated && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start" }}>
-          <MasterModeCard />
-          <HoraCard />
-        </div>
-      )}
-
       {/* ── CALENDAR & REFLECTIONS (collapsed by default — low cognitive load). The toggle also
           gates Time Lord Movement + the reflection journal, so the label names them — "Calendar"
           alone hid the journal. ── */}
@@ -1085,9 +1076,9 @@ export default function Planner() {
         <div className="px-4 py-5">
 
         <div className="grid grid-cols-7 mb-3">
-          {DAYS.map((d) => (
+          {DAYS.map((d, i) => (
             <div
-              key={d}
+              key={i}
               className="text-center text-xs font-semibold tracking-wide py-1"
               style={{ color: "#9a9a9a", letterSpacing: "0.04em" }}
             >
@@ -1208,8 +1199,9 @@ export default function Planner() {
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                   ) : stationsToday.length ? (
                     // Station day: the turning planet's glyph replaces the number, in the DAY-MODE
-                    // color — same as the ring (David). Larger size; the wrapper is a full-size grid
-                    // that place-centers the glyph's em-box so it sits dead-centre in the coin.
+                    // color — same as the ring (David). Grid place-centers the em-box; the symbol
+                    // font's ink sits above its own baseline, so a small translateY drops it to the
+                    // optical centre of the ring. (Tune the em value if it reads high/low.)
                     <span style={{ display: "grid", gridAutoFlow: "column", gap: 2, placeItems: "center", width: "100%", height: "100%", lineHeight: 1, pointerEvents: "none" }}>
                       {stationsToday.map((e) => (
                         <span key={e.planet} style={{
@@ -1218,6 +1210,7 @@ export default function Planner() {
                           fontWeight: 800,
                           lineHeight: 1,
                           color: accent,
+                          transform: "translateY(0.09em)",
                         }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
@@ -1406,6 +1399,15 @@ export default function Planner() {
           </button>
         )}
 
+        </div>
+      )}
+
+      {/* Time Master / Hora — the moment tiles, moved BELOW Calendar & Reflections so the calendar
+          and reflections sit directly under the day card (David 2026-07-11). */}
+      {isAuthenticated && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start" }}>
+          <MasterModeCard />
+          <HoraCard />
         </div>
       )}
 
