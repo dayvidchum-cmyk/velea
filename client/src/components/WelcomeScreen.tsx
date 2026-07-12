@@ -89,7 +89,7 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
             fontSize: "clamp(2rem, 8.5vw, 3rem)",
             lineHeight: 1.15,
             letterSpacing: "-0.01em",
-            color: "#ffffff",
+            color: "#FDFDFD",
             textShadow: "0 2px 18px rgba(30,40,70,0.45)",
           }}
         >

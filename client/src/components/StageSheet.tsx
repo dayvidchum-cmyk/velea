@@ -114,7 +114,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
         <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col"
           style={{ maxHeight: "min(92vh, 840px)", background: "var(--color-card)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1px solid var(--color-border)", position: "relative" }}>
 
-          <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: "0.85rem", right: "0.85rem", zIndex: 6, width: 36, height: 36, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.5)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: "0.85rem", right: "0.85rem", zIndex: 6, width: 36, height: 36, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.5)", color: "#FDFDFD", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <X size={18} />
           </button>
 
@@ -142,14 +142,14 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                       {/* The reading — moon card rides a gradient scrim; station cards sit on the flat veil */}
                       <div style={{ position: "absolute", top: "15%", left: 0, right: 0, padding: "2.6rem 1.4rem 1.6rem", background: h.primary ? TEXT_SCRIM : "transparent", animation: "velea-rise 0.7s ease both" }}>
                         <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: ts }}>{h.kicker}</p>
-                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: ts, lineHeight: 1.05 }}>{h.title}</p>
+                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "'Playfair Display', Georgia, serif", textShadow: ts, lineHeight: 1.05 }}>{h.title}</p>
                         <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: ts }}>{h.note}</p>
 
                         {/* Moon card carries Today's call */}
                         {h.primary && stage?.verdict && (
                           <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
                             <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", textShadow: ts }}>Today's call</p>
-                            <p style={{ margin: "0.1rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: "#fff", textShadow: ts, lineHeight: 1.15 }}>{stage.verdict.call}</p>
+                            <p style={{ margin: "0.1rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: "#FDFDFD", textShadow: ts, lineHeight: 1.15 }}>{stage.verdict.call}</p>
                             <p style={{ margin: "0.25rem 0 0", fontSize: "0.86rem", color: "rgba(255,255,255,0.9)", lineHeight: 1.45, textShadow: ts }}>{stage.verdict.summary}</p>
                             {stage.verdict.forPersonal && stage.verdict.forCollective && (
                               <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginTop: "0.6rem" }}>
@@ -181,7 +181,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                         )}
 
                         <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.9rem", alignItems: "center" }}>
-                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.2)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
+                          {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#FDFDFD", background: "rgba(255,255,255,0.2)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
                           {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.75)", textShadow: ts }}>swipe →</span>}
                           <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.65)", textShadow: ts }}>tap to expand ↗</span>
                         </div>
@@ -227,7 +227,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
           </div>
           <div style={{ position: "absolute", bottom: "calc(env(safe-area-inset-bottom,0px) + 1.6rem)", left: 0, right: 0, padding: "0 1.4rem", pointerEvents: "none" }}>
             <p style={{ margin: 0, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.78)" }}>{heroes[skyIdx].kicker}</p>
-            <p style={{ margin: "0.3rem 0 0", fontSize: "1.9rem", fontWeight: 800, color: "#fff", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].title}</p>
+            <p style={{ margin: "0.3rem 0 0", fontSize: "1.9rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].title}</p>
             <p style={{ margin: "0.35rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.9)", fontStyle: "italic", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].note}</p>
           </div>
         </div>

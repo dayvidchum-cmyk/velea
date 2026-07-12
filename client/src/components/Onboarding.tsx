@@ -438,7 +438,7 @@ function CardsDeck({
           <button
             onClick={() => (isLast ? onDone() : setIndex(index + 1))}
             className="text-sm font-semibold inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full transition-transform active:scale-95"
-            style={{ background: accent, color: "#fff" }}
+            style={{ background: accent, color: "#FDFDFD" }}
           >
             {isLast ? "Show me around" : "Next"}
             <ArrowRight size={15} />
@@ -648,7 +648,7 @@ function TourLayer({
         <button
           onClick={onFinish}
           className="absolute top-5 right-5 text-xs font-semibold px-3 py-1.5 rounded-full"
-          style={{ background: "rgba(0,0,0,0.4)", color: "#fff" }}
+          style={{ background: "rgba(0,0,0,0.4)", color: "#FDFDFD" }}
         >
           Skip tour
         </button>
@@ -724,7 +724,7 @@ function TourLayer({
             <button
               onClick={next}
               className="text-xs font-semibold px-4 py-1.5 rounded-full transition-transform active:scale-95"
-              style={{ background: accent, color: "#fff" }}
+              style={{ background: accent, color: "#FDFDFD" }}
             >
               {isLast ? "Done" : "Next"}
             </button>

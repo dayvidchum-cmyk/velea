@@ -29,7 +29,7 @@ export default function WhyNowSheet({ task, modeColor, onClose }: { task: any; m
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem", marginTop: "0.85rem" }}>
           {bubbles.map((b) => (
-            <span key={b} style={{ fontSize: "0.84rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: 999, background: modeColor, color: "#fff", letterSpacing: "0.02em" }}>{b}</span>
+            <span key={b} style={{ fontSize: "0.84rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: 999, background: modeColor, color: "#FDFDFD", letterSpacing: "0.02em" }}>{b}</span>
           ))}
           {reasons.map((r) => (
             <span key={r} style={{ fontSize: "0.84rem", fontWeight: 600, padding: "0.35rem 0.75rem", borderRadius: 999, background: `color-mix(in srgb, ${modeColor} 12%, var(--color-card))`, color: modeColor, border: `1px solid color-mix(in srgb, ${modeColor} 30%, transparent)` }}>{r}</span>

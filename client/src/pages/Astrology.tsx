@@ -53,7 +53,7 @@ function planetTextColors(hex: string) {
 
 /** Subtle ±12% vertical gradient so cards read as one family with gentle depth. */
 function planetGradient(hex: string): string {
-  return `linear-gradient(180deg, color-mix(in srgb, ${hex} 88%, #fff) 0%, ${hex} 50%, color-mix(in srgb, ${hex} 88%, #000) 100%)`;
+  return `linear-gradient(180deg, color-mix(in srgb, ${hex} 88%, #FDFDFD) 0%, ${hex} 50%, color-mix(in srgb, ${hex} 88%, #000) 100%)`;
 }
 
 const PLANET_DIGNITY: Record<string, { exalt: string; debil: string; own: string[] }> = {
@@ -404,7 +404,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
         }}
       >
         {headers.map((label) => (
-          <span key={label} style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#fff", textAlign: "center" }}>
+          <span key={label} style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#FDFDFD", textAlign: "center" }}>
             {label}
           </span>
         ))}
@@ -943,7 +943,7 @@ function ProfectionSection() {
   const TEXT_PRIMARY = "var(--foreground)";
   const TEXT_MUTED = "var(--muted-foreground)";
   // Light text for use on the immersive gradient cards
-  const LIGHT_PRIMARY = "#ffffff";
+  const LIGHT_PRIMARY = "#FDFDFD";
   const LIGHT_MUTED = "rgba(255,255,255,0.94)";
 
   // Immersive gradient accordion card — same style as Current Time Lord Movement
@@ -1056,10 +1056,10 @@ function ProfectionSection() {
                 <div key={idx} style={{ border: `1.5px solid ${isCurrent ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)"}`, borderRadius: "0.5rem", overflow: "hidden", background: isCurrent ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)" }}>
                   <button onClick={() => setExpandedTransitId(isExpanded ? null : idx)}
                     style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", background: "transparent", border: "none", cursor: "pointer", fontSize: "0.875rem" }}>
-                    <p style={{ margin: 0, fontWeight: isCurrent ? 700 : 600, color: isCurrent ? "#fff" : LIGHT_PRIMARY }}>
+                    <p style={{ margin: 0, fontWeight: isCurrent ? 700 : 600, color: isCurrent ? "#FDFDFD" : LIGHT_PRIMARY }}>
                       {transit.startDate} – {transit.endDate} — {transit.sign} H{transit.house}
                     </p>
-                    <ChevronDown size={16} style={{ color: isCurrent ? "#fff" : LIGHT_MUTED, transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease-out", flexShrink: 0, marginLeft: "0.5rem" }} />
+                    <ChevronDown size={16} style={{ color: isCurrent ? "#FDFDFD" : LIGHT_MUTED, transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease-out", flexShrink: 0, marginLeft: "0.5rem" }} />
                   </button>
                   {isExpanded && (
                     <div style={{ padding: "1rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>

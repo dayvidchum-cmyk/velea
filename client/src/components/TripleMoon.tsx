@@ -1,6 +1,6 @@
 // Triple moon — Velea's mark for a golden-moment day (user-provided artwork,
 // background stripped; the shape tints via `color`).
-export default function TripleMoon({ size = 30, color = "#ffffff" }: { size?: number; color?: string }) {
+export default function TripleMoon({ size = 30, color = "#FDFDFD" }: { size?: number; color?: string }) {
   return (
     <svg
       width={size}

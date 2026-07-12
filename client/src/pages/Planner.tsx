@@ -1037,7 +1037,7 @@ export default function Planner() {
           <button
             onClick={prevMonth}
             className="p-1 rounded-full transition-all duration-150 active:scale-95"
-            style={{ color: "white", background: "rgba(255,255,255,0.18)" }}
+            style={{ color: "#FDFDFD", background: "rgba(255,255,255,0.18)" }}
           >
             <ChevronLeft size={15} />
           </button>
@@ -1047,7 +1047,7 @@ export default function Planner() {
                 fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
                 fontSize: "1rem",
                 fontWeight: 600,
-                color: "white",
+                color: "#FDFDFD",
                 letterSpacing: "0.04em",
               }}
             >
@@ -1067,7 +1067,7 @@ export default function Planner() {
           <button
             onClick={nextMonth}
             className="p-1 rounded-full transition-all duration-150 active:scale-95"
-            style={{ color: "white", background: "rgba(255,255,255,0.18)" }}
+            style={{ color: "#FDFDFD", background: "rgba(255,255,255,0.18)" }}
           >
             <ChevronRight size={15} />
           </button>

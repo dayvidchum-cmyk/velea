@@ -177,14 +177,14 @@ export default function ProjectDetail() {
             <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
               Progress
             </span>
-            <span style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fff", lineHeight: 1 }}>
+            <span style={{ fontSize: "1.5rem", fontWeight: 700, color: "#FDFDFD", lineHeight: 1 }}>
               {stats.progressPercent}%
             </span>
           </div>
 
           {/* Progress bar */}
           <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.22)" }}>
-            <div className="h-full transition-all duration-300" style={{ width: `${stats.progressPercent}%`, background: "#fff" }} />
+            <div className="h-full transition-all duration-300" style={{ width: `${stats.progressPercent}%`, background: "#FDFDFD" }} />
           </div>
 
           {/* Task counts */}
@@ -198,7 +198,7 @@ export default function ProjectDetail() {
                 <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)" }}>
                   {label}
                 </div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 700, marginTop: "0.25rem", color: "#fff" }}>
+                <div style={{ fontSize: "1.4rem", fontWeight: 700, marginTop: "0.25rem", color: "#FDFDFD" }}>
                   {value}
                 </div>
               </div>
@@ -274,7 +274,7 @@ export default function ProjectDetail() {
                   <div className="text-sm font-bold uppercase" style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.04em" }}>
                     {item.label}
                   </div>
-                  <div className="text-sm font-bold mt-1" style={{ color: "#fff" }}>
+                  <div className="text-sm font-bold mt-1" style={{ color: "#FDFDFD" }}>
                     {item.value}
                   </div>
                 </div>
@@ -420,8 +420,8 @@ export default function ProjectDetail() {
                   minHeight: "120px",
                   background: "rgba(255,255,255,0.15)",
                   border: "1px solid rgba(255,255,255,0.25)",
-                  color: "#fff",
-                  caretColor: "#fff",
+                  color: "#FDFDFD",
+                  caretColor: "#FDFDFD",
                 }}
               />
               <div className="flex gap-2 justify-end">
@@ -433,7 +433,7 @@ export default function ProjectDetail() {
                   className="px-3 py-2 rounded-xl text-xs font-bold transition-all"
                   style={{
                     background: "rgba(255,255,255,0.15)",
-                    color: "#fff",
+                    color: "#FDFDFD",
                     border: "1px solid rgba(255,255,255,0.3)",
                   }}
                 >
@@ -444,7 +444,7 @@ export default function ProjectDetail() {
                   onClick={handleSaveNote}
                   disabled={updateNoteMutation.isPending}
                   className="px-3 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
-                  style={{ background: "#fff", color: "#1a1a1a" }}
+                  style={{ background: "#FDFDFD", color: "#1a1a1a" }}
                 >
                   <Save size={14} className="inline mr-1" />
                   {updateNoteMutation.isPending ? "Saving\u2026" : "Save"}
@@ -457,7 +457,7 @@ export default function ProjectDetail() {
               style={{
                 background: "rgba(255,255,255,0.12)",
                 border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
+                color: "#FDFDFD",
                 whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
               }}

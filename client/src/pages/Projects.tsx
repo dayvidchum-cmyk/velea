@@ -462,15 +462,15 @@ export default function Projects() {
                 style={{
                   background: "rgba(255,255,255,0.15)",
                   border: "1px solid rgba(255,255,255,0.25)",
-                  color: "#fff",
-                  caretColor: "#fff",
+                  color: "#FDFDFD",
+                  caretColor: "#FDFDFD",
                 }}
               />
               {addFormOpen && activeProjects.length > 0 && (
                 <button
                   onClick={() => { setNewName(""); setAddFormOpen(false); }}
                   className="px-3 py-2.5 rounded-xl text-xs font-bold uppercase transition-all"
-                  style={{ background: "rgba(255,255,255,0.15)", color: "#fff", letterSpacing: "0.06em" }}
+                  style={{ background: "rgba(255,255,255,0.15)", color: "#FDFDFD", letterSpacing: "0.06em" }}
                 >
                   Cancel
                 </button>
@@ -480,7 +480,7 @@ export default function Projects() {
                 disabled={!newName.trim() || createMutation.isPending}
                 className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-40"
                 style={{
-                  background: "#fff",
+                  background: "#FDFDFD",
                   color: "#1a1a1a",
                   letterSpacing: "0.06em",
                 }}

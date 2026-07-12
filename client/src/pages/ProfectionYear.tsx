@@ -253,7 +253,7 @@ export default function ProfectionYear() {
         onClick={() => setOpen(!open)}
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.85rem 1.1rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
       >
-        <span style={{ color: open ? "#fff" : "rgba(255,255,255,0.85)", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{label}</span>
+        <span style={{ color: open ? "#FDFDFD" : "rgba(255,255,255,0.85)", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{label}</span>
         <ChevronDown size={16} style={{ color: "rgba(255,255,255,0.7)", flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
       </button>
       {open && <div style={{ padding: "0 1.1rem 1.1rem" }}>{content}</div>}
@@ -732,7 +732,7 @@ export default function ProfectionYear() {
               </p>
               {tlTransit?.house != null && (
                 <div style={{ marginBottom: (chapterGoodFor.length || chapterAvoid.length || triggerData?.available) ? "1.1rem" : 0 }}>
-                  <p style={{ color: "#fff", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
+                  <p style={{ color: "#FDFDFD", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
                     Right now: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
                   </p>
                   <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.6, margin: 0 }}>
@@ -746,7 +746,7 @@ export default function ProfectionYear() {
                     <div>
                       <p style={{ margin: "0 0 0.4rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Best uses</p>
                       <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                        {chapterGoodFor.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "#fff", lineHeight: 1.4 }}>{t}</li>)}
+                        {chapterGoodFor.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "#FDFDFD", lineHeight: 1.4 }}>{t}</li>)}
                       </ul>
                     </div>
                   ) : null}
@@ -816,11 +816,11 @@ export default function ProfectionYear() {
                             opacity: selected ? 1 : isCurrent ? 0.96 : 0.8,
                             border: "none", borderRight: idx < segs.length - 1 ? "1px solid rgba(0,0,0,0.28)" : "none",
                             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
-                            cursor: "pointer", overflow: "hidden", boxShadow: selected ? "inset 0 0 0 2px #fff" : "none",
+                            cursor: "pointer", overflow: "hidden", boxShadow: selected ? "inset 0 0 0 2px #FDFDFD" : "none",
                           }}
                         >
-                          <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>{SIGN_GLYPH[t.sign]}</span>
-                          {t.retrogradeStatus && <span style={{ fontSize: "0.75rem", color: "#fff", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
+                          <span style={{ fontFamily: GLYPH_FONT, fontSize: 16, color: "#FDFDFD", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>{SIGN_GLYPH[t.sign]}</span>
+                          {t.retrogradeStatus && <span style={{ fontSize: "0.75rem", color: "#FDFDFD", lineHeight: 1, textShadow: "0 1px 2px rgba(0,0,0,0.55)" }}>℞</span>}
                         </button>
                       );
                     })}
@@ -838,10 +838,10 @@ export default function ProfectionYear() {
                       <div style={{ marginTop: "0.55rem" }}>
                         <div style={{ position: "relative", width: "100%", height: 30 }}>
                           {/* the rule */}
-                          <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1.5, background: "#fff", transform: "translateY(-50%)" }} />
+                          <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1.5, background: "#FDFDFD", transform: "translateY(-50%)" }} />
                           {/* notches — start · middle · end */}
                           {[0, 50, 100].map((pct) => (
-                            <div key={pct} style={{ position: "absolute", left: `${pct}%`, top: "50%", width: 1.5, height: 9, background: "#fff", transform: "translate(-50%, -50%)" }} />
+                            <div key={pct} style={{ position: "absolute", left: `${pct}%`, top: "50%", width: 1.5, height: 9, background: "#FDFDFD", transform: "translate(-50%, -50%)" }} />
                           ))}
                           {/* Velea mark rides the line at today (flex-mirror keeps it in the true segment) */}
                           <div style={{ position: "absolute", left: 0, right: 0, top: "50%", transform: "translateY(-50%)", display: "flex", height: 0 }}>
@@ -912,7 +912,7 @@ export default function ProfectionYear() {
           const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
           const compact = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n}d` : `${Math.round(n / 30.4)}mo`);
           const slow = (arcData.milestones as any[]).filter((m) => m.kind !== "apex");
-          const dotColor = (k: string) => (k === "profection" ? "var(--brand-gold)" : k === "dasha" ? modeColor : `color-mix(in srgb, ${modeColor} 68%, #ffffff)`);
+          const dotColor = (k: string) => (k === "profection" ? "var(--brand-gold)" : k === "dasha" ? modeColor : `color-mix(in srgb, ${modeColor} 68%, #FDFDFD)`);
           const apex = arcData.apex;
           return (
             <div>

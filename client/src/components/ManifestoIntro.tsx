@@ -26,7 +26,7 @@ const BEATS: { lines: string[] }[] = [
 function Line({ text }: { text: string }) {
   const parts = text.split(/(\*[^*]+\*)/g);
   return <>{parts.map((p, i) => p.startsWith("*") && p.endsWith("*")
-    ? <em key={i} style={{ fontStyle: "italic", color: "#fff" }}>{p.slice(1, -1)}</em>
+    ? <em key={i} style={{ fontStyle: "italic", color: "#FDFDFD" }}>{p.slice(1, -1)}</em>
     : <span key={i}>{p}</span>)}</>;
 }
 
@@ -48,16 +48,16 @@ export default function ManifestoIntro({ onBegin }: { onBegin: () => void }) {
           </div>
         ) : (
           <div key="thesis" style={{ animation: "velea-rise 0.7s ease both" }}>
-            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.35rem", fontWeight: 700, color: "#fff", lineHeight: 1.35, margin: 0 }}>
+            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.35rem", fontWeight: 700, color: "#FDFDFD", lineHeight: 1.35, margin: 0 }}>
               Velea reads three things at once —
             </p>
             <p style={{ fontSize: "1.12rem", lineHeight: 1.65, color: "rgba(255,255,255,0.85)", margin: "1rem 0 0" }}>
-              <strong style={{ color: "#fff" }}>The sky</strong> as it moves right now. <strong style={{ color: "#fff" }}>Your birth chart</strong> — the lens that bends that sky into <em style={{ fontStyle: "italic", color: "#fff" }}>your</em> meaning. And <strong style={{ color: "#fff" }}>how you actually are</strong> today.
+              <strong style={{ color: "#FDFDFD" }}>The sky</strong> as it moves right now. <strong style={{ color: "#FDFDFD" }}>Your birth chart</strong> — the lens that bends that sky into <em style={{ fontStyle: "italic", color: "#FDFDFD" }}>your</em> meaning. And <strong style={{ color: "#FDFDFD" }}>how you actually are</strong> today.
             </p>
             <p style={{ fontSize: "1.12rem", lineHeight: 1.65, color: "rgba(255,255,255,0.85)", margin: "1rem 0 0" }}>
               Where those three meet is data. Velea uses it to tell you which of your tasks belongs to this moment — and why.
             </p>
-            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.3rem", fontWeight: 700, color: "#fff", margin: "1.5rem 0 0", letterSpacing: "0.02em" }}>
+            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.3rem", fontWeight: 700, color: "#FDFDFD", margin: "1.5rem 0 0", letterSpacing: "0.02em" }}>
               Not prediction. Timing.
             </p>
           </div>
@@ -68,12 +68,12 @@ export default function ManifestoIntro({ onBegin }: { onBegin: () => void }) {
       <div className="px-7" style={{ paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 2rem)", maxWidth: 640, margin: "0 auto", width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "center", gap: 7, marginBottom: "1.4rem" }}>
           {Array.from({ length: total }, (_, k) => (
-            <span key={k} style={{ width: k === i ? 22 : 7, height: 7, borderRadius: 999, background: k === i ? "#fff" : "rgba(255,255,255,0.28)", transition: "width 0.25s" }} />
+            <span key={k} style={{ width: k === i ? 22 : 7, height: 7, borderRadius: 999, background: k === i ? "#FDFDFD" : "rgba(255,255,255,0.28)", transition: "width 0.25s" }} />
           ))}
         </div>
         <button
           onClick={() => (last ? onBegin() : setI(i + 1))}
-          style={{ width: "100%", minHeight: 56, borderRadius: 16, border: last ? "none" : "1px solid rgba(255,255,255,0.28)", background: last ? "#fff" : "transparent", color: last ? "#0a0a12" : "#fff", fontSize: "1.08rem", fontWeight: 700, cursor: "pointer" }}
+          style={{ width: "100%", minHeight: 56, borderRadius: 16, border: last ? "none" : "1px solid rgba(255,255,255,0.28)", background: last ? "#FDFDFD" : "transparent", color: last ? "#0a0a12" : "#FDFDFD", fontSize: "1.08rem", fontWeight: 700, cursor: "pointer" }}
         >
           {last ? "Begin" : "Continue"}
         </button>

@@ -74,10 +74,10 @@ export default function ReflectionHistory() {
                     className="w-full flex items-center justify-between px-4 py-2"
                     style={{ background: dayLabelColor }}
                   >
-                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#ffffff" }}>
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#FDFDFD" }}>
                       {formatDate(r.date)}
                     </span>
-                    <ChevronDown size={14} style={{ color: "#ffffff", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+                    <ChevronDown size={14} style={{ color: "#FDFDFD", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
                   </button>
                   {open && (
                     <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap p-4">

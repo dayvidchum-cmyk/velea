@@ -47,7 +47,7 @@ export function ModeCard({
     <div style={{ flex: 1 }}>
       <span
         style={{
-          color: "#ffffff",
+          color: "#FDFDFD",
           fontSize: "0.8rem",
           fontWeight: 700,
           letterSpacing: "0.08em",

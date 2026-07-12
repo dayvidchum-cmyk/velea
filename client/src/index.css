@@ -65,11 +65,11 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --background: #121212;
+  --background: #242526;
   --foreground: #FDFDFD;
-  --card: #121212;
+  --card: #242526;
   --card-foreground: #FDFDFD;
-  --popover: #121212;
+  --popover: #242526;
   --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
@@ -80,7 +80,7 @@
   --accent: oklch(0.767 0.139 91.1);
   --accent-foreground: #000000;
   --destructive: oklch(0.55 0.18 25);
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #FDFDFD;
   --border: rgba(255, 255, 255, 0.10);
   --input: rgba(255, 255, 255, 0.06);
   --ring: oklch(0.767 0.139 91.1);
@@ -97,18 +97,18 @@
   --space-navy: #050505;
   --space-mid: #0A0A0A;
   --space-light: #111111;
-  --cream: #FFFFFF;
+  --cream: #FDFDFD;
   --cream-dim: rgba(255, 255, 255, 0.60);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.54 0.14 10);
   --mode-selective: oklch(0.50 0.12 200);
   --sidebar: #000000;
-  --sidebar-foreground: #FFFFFF;
+  --sidebar-foreground: #FDFDFD;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #000000;
   --sidebar-accent: #111111;
-  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-accent-foreground: #FDFDFD;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: oklch(0.767 0.139 91.1);
   /* Task card backgrounds — mode-specific tints */
@@ -128,7 +128,7 @@
   /* Dialog colors */
   --dialog-overlay: oklch(0 0 0 / 0.6);
   --dialog-delete-bg: oklch(0.52 0.12 15);
-  --dialog-delete-text: oklch(1 0 0);
+  --dialog-delete-text: #FDFDFD;
   --dialog-archive-text: oklch(0.1 0 0);
 
   /* ── VELEA MODE PALETTE (exact brand values from design brief) ── */
@@ -337,7 +337,7 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: none;
     border-radius: calc(var(--radius) - 2px);
-    color: #FFFFFF;
+    color: #FDFDFD;
     font-size: 16px !important;
   }
 
@@ -579,11 +579,11 @@
 
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
-  --background: #121212;
+  --background: #242526;
   --foreground: #FDFDFD;
-  --card: #121212;
+  --card: #242526;
   --card-foreground: #FDFDFD;
-  --popover: #121212;
+  --popover: #242526;
   --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
@@ -594,7 +594,7 @@
   --accent: oklch(0.767 0.139 91.1);
   --accent-foreground: #000000;
   --destructive: oklch(0.58 0.18 25);
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #FDFDFD;
   --border: rgba(255, 255, 255, 0.10);
   /* Inputs need a visible edge in dark mode — 0.06 vanished into the background. */
   --input: rgba(255, 255, 255, 0.22);
@@ -605,25 +605,25 @@
   --space-navy: #050505;
   --space-mid: #0A0A0A;
   --space-light: #111111;
-  --cream: #FFFFFF;
+  --cream: #FDFDFD;
   --cream-dim: rgba(255, 255, 255, 0.60);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.54 0.14 10);
   --mode-selective: oklch(0.50 0.12 200);
   --sidebar: #000000;
-  --sidebar-foreground: #FFFFFF;
+  --sidebar-foreground: #FDFDFD;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #000000;
   --sidebar-accent: #111111;
-  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-accent-foreground: #FDFDFD;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: oklch(0.767 0.139 91.1);
 }
 
 .dark body {
   background: #000000;
-  color: #FFFFFF;
+  color: #FDFDFD;
 }
 
 /* App top bar — solid background matching the app surface (dark mode is a plain solid
@@ -650,7 +650,7 @@
 .dark .glass-input {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #FFFFFF;
+  color: #FDFDFD;
 }
 
 .dark .glass-input::placeholder {
@@ -761,15 +761,15 @@ html.light {
   --popover: #FFFFFF;
   --popover-foreground: #000000;
   --primary: oklch(0.767 0.139 91.1);
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #FDFDFD;
   --secondary: #F5F5F5;
   --secondary-foreground: #000000;
   --muted: #F5F5F5;
   --muted-foreground: #666666;
   --accent: oklch(0.767 0.139 91.1);
-  --accent-foreground: #FFFFFF;
+  --accent-foreground: #FDFDFD;
   --destructive: oklch(0.50 0.18 25);
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #FDFDFD;
   --border: #E5E5E5;
   --input: #F0F0F0;
   --ring: oklch(0.767 0.139 91.1);
@@ -788,7 +788,7 @@ html.light {
   --sidebar: #FFFFFF;
   --sidebar-foreground: #000000;
   --sidebar-primary: oklch(0.767 0.139 91.1);
-  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-primary-foreground: #FDFDFD;
   --sidebar-accent: #F5F5F5;
   --sidebar-accent-foreground: #000000;
   --sidebar-border: #E5E5E5;

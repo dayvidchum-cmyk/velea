@@ -1000,7 +1000,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
                 className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-150 disabled:opacity-40"
                 style={{
                   background: confirmDelete ? "oklch(0.62 0.22 25)" : "transparent",
-                  color: confirmDelete ? "#fff" : "oklch(0.62 0.22 25)",
+                  color: confirmDelete ? "#FDFDFD" : "oklch(0.62 0.22 25)",
                   border: "1px solid oklch(0.62 0.22 25)",
                 }}
               >

@@ -89,7 +89,7 @@ export default function Login() {
     <div
       className="min-h-screen flex flex-col items-center justify-center px-8 py-16"
       style={{
-        backgroundColor: dark ? "#0b0a14" : "#ffffff",
+        backgroundColor: dark ? "#0b0a14" : "#FDFDFD",
         backgroundImage: dark
           ? "linear-gradient(180deg, rgba(6,6,16,0.5) 0%, rgba(6,6,16,0.38) 32%, rgba(6,6,16,0.8) 100%), url('/shell-night.jpg')"
           : "linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.5) 100%), url('/shell-sunset.jpg')",
@@ -129,7 +129,7 @@ export default function Login() {
             letterSpacing: "0.4em",
             paddingLeft: "0.4em", // compensate trailing letter-spacing so it stays centered
             textTransform: "uppercase",
-            color: "#ffffff",
+            color: "#FDFDFD",
             textShadow: "0 1px 8px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.4)",
             margin: 0,
           }}
@@ -138,7 +138,7 @@ export default function Login() {
         </p>
 
         {/* Rule */}
-        <div style={{ width: 140, height: 1, background: "#ffffff", opacity: 0.95, margin: "1.25rem 0 2.5rem", boxShadow: "0 0 6px rgba(0,0,0,0.45)" }} />
+        <div style={{ width: 140, height: 1, background: "#FDFDFD", opacity: 0.95, margin: "1.25rem 0 2.5rem", boxShadow: "0 0 6px rgba(0,0,0,0.45)" }} />
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="w-full space-y-4">

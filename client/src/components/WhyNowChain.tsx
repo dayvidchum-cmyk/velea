@@ -50,7 +50,7 @@ export function WhyNowChain({
       {steps.map((s, i) => (
         <div key={i}>
           <div style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start" }}>
-            <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: "999px", background: accent, color: "#fff", fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", marginTop: "0.05rem" }}>{i + 1}</span>
+            <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: "999px", background: accent, color: "#FDFDFD", fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", marginTop: "0.05rem" }}>{i + 1}</span>
             <p style={{ color: "var(--foreground)", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}><GlossaryText>{s}</GlossaryText></p>
           </div>
           {i < steps.length - 1 && (

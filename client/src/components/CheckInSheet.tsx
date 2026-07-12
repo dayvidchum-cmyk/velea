@@ -102,7 +102,7 @@ function ScoreRow({
               className="flex-1 h-11 rounded-xl text-sm font-bold transition-all duration-150 active:scale-95"
               style={{
                 background: selected ? modeColor : "var(--color-secondary)",
-                color: selected ? "#fff" : "var(--color-muted-foreground)",
+                color: selected ? "#FDFDFD" : "var(--color-muted-foreground)",
                 border: `1px solid ${selected ? modeColor : "var(--color-border)"}`,
                 boxShadow: selected ? `0 2px 10px color-mix(in srgb, ${modeColor} 40%, transparent)` : "none",
               }}
@@ -280,7 +280,7 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
             disabled={!allFilled || createMutation.isPending}
             className="w-full h-12 rounded-2xl text-sm font-bold uppercase transition-all active:scale-[0.99] disabled:cursor-not-allowed"
             style={{
-              background: allFilled ? "#fff" : "rgba(255,255,255,0.2)",
+              background: allFilled ? "#FDFDFD" : "rgba(255,255,255,0.2)",
               color: allFilled ? "#1a1a1a" : "rgba(255,255,255,0.85)",
               letterSpacing: "0.08em",
               border: allFilled ? "none" : "1px solid rgba(255,255,255,0.3)",

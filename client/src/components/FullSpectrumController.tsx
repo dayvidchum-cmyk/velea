@@ -29,7 +29,7 @@ export default function FullSpectrumController() {
       // same brightness as the text + wheel, reading as a washed-out veil). Same hue, darker, so
       // gold accents and the mode-colored wheel lift off it like the cool modes do.
       surface = "#3F340F";
-      secondary = "color-mix(in srgb, #3F340F 86%, #ffffff)"; // a hair lighter so inputs still lift
+      secondary = "color-mix(in srgb, #3F340F 86%, #FDFDFD)"; // a hair lighter so inputs still lift
     } else {
       surface = `color-mix(in srgb, ${color} 30%, #070b12)`;
       secondary = `color-mix(in srgb, ${color} 42%, #0b1119)`;

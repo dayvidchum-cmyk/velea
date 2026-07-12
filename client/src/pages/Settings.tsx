@@ -106,10 +106,10 @@ function SettingsSection({ title, children, defaultOpen = false }: { title: stri
         className="w-full px-5 py-3 flex items-center justify-between"
         style={{ background: modeColor, border: "none", cursor: "pointer" }}
       >
-        <span className="text-sm font-bold uppercase" style={{ color: "#ffffff", letterSpacing: "0.08em" }}>
+        <span className="text-sm font-bold uppercase" style={{ color: "#FDFDFD", letterSpacing: "0.08em" }}>
           {title}
         </span>
-        <ChevronDown size={18} style={{ color: "#ffffff", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+        <ChevronDown size={18} style={{ color: "#FDFDFD", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
       </button>
       {open && <div className="px-5">{children}</div>}
     </div>
@@ -452,7 +452,7 @@ export default function Settings() {
                 {toursEnabled ? "On" : "Off"}
               </span>
               <span style={{ width: 46, height: 28, borderRadius: 999, background: toursEnabled ? "var(--color-primary)" : "var(--color-border)", display: "inline-flex", alignItems: "center", padding: 3, transition: "background 0.2s", justifyContent: toursEnabled ? "flex-end" : "flex-start" }}>
-                <span style={{ width: 22, height: 22, borderRadius: 999, background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.35)" }} />
+                <span style={{ width: 22, height: 22, borderRadius: 999, background: "#FDFDFD", boxShadow: "0 1px 3px rgba(0,0,0,0.35)" }} />
               </span>
             </button>
           </div>
