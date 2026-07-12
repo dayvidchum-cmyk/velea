@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
-import DotMark from "@/components/DotMark";
+import OctagramMark from "@/components/OctagramMark";
 import AppHeader from "@/components/AppHeader";
 import LockedFeatureCard from "@/components/LockedFeatureCard";
 import VeleaLorMark from "@/components/VeleaLorMark";
@@ -224,7 +224,7 @@ export default function Horoscope() {
 function RevealPanel({ date, pending, failed, onReveal, modeColor }: { date: string; pending: boolean; failed: boolean; onReveal: () => void; modeColor: string }) {
   return (
     <div style={{ borderRadius: 14, border: "1px dashed var(--color-border)", background: "var(--color-card)", padding: "1.4rem 1.1rem", textAlign: "center" }}>
-      <DotMark size={20} color={modeColor} style={{ display: "block", opacity: 0.85, margin: "0 auto 0.6rem" }} />
+      <OctagramMark size={20} color={modeColor} style={{ display: "block", opacity: 0.85, margin: "0 auto 0.6rem" }} />
       <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0 0 1rem" }}>
         No reading yet for {fmtShort(date)}. Reveal it to read your chart for this day.
       </p>
