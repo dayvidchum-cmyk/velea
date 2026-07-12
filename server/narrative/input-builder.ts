@@ -252,9 +252,14 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   if (birthNakIdx >= 0 && natalMoonSignIdx >= 0 && lagnaSignIdx >= 0 && a["Sun"] != null && a["Moon"] != null) {
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = Object.fromEntries(PLANETS.filter((n) => a[n] != null).map((n) => [n, si(a[n]!)]));
-    const { majorityDayStarIdx } = await import("../panchang/crown.js");
+    const { majorityDayStarIdx, natalAshtakavarga } = await import("../panchang/crown.js");
     const majIdx = await majorityDayStarIdx(dateStr);
-    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined });
+    // Same natal Ashtakavarga the calendar uses, from the natal bodies — keeps the reading's crown
+    // in lockstep with the calendar's crown badge (both AV-refined).
+    const natalSignIdx: Record<string, number> = {};
+    for (const [n, b] of Object.entries(byPlanet)) { const i = ZODIAC.indexOf((b as any)?.sign ?? ""); if (i >= 0) natalSignIdx[n] = i; }
+    const natalAv = natalAshtakavarga(natalSignIdx, lagnaSignIdx);
+    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined, ashtakavarga: natalAv });
     personalRating = cd.rating;
     personalApex = {
       isCrown: cd.rating === "crown",

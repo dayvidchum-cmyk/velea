@@ -6,7 +6,7 @@
 // Deliberately conservative: it reports WHAT changes and WHEN, never a life-event claim
 // (that's the guardrail — the sky is many-to-one, the engine must not collapse it blindly).
 
-import { crownDay } from "../panchang/crown.js";
+import { crownDay, natalAshtakavarga } from "../panchang/crown.js";
 import { calculateDashaTimeline } from "../dasha-calculator.js";
 import { calculateProfectionYear } from "../profection/calculator.js";
 import { getSiderealLongitudesWithSpeed } from "../vedic/natal-chart-engine.js";
@@ -75,6 +75,7 @@ export interface ArcSubject {
   moonLongitude: string | null;
   lagnaSign: string;
   natalHouseByPlanet?: Record<string, number>; // e.g. { Jupiter: 2, Saturn: 1, ... } — enriches the journey
+  natalSignByPlanet?: Record<string, string>;  // planet → natal sign name — unlocks the Ashtakavarga crown layer
 }
 
 /**
@@ -128,6 +129,14 @@ export async function computeArc(subject: ArcSubject, from: string, horizonDays 
   const lagnaIdx = ZOD.indexOf(subject.lagnaSign);
   const birthNakIdx = NAK.indexOf(subject.moonNakshatra);
   const natalMoonSignIdx = ZOD.indexOf(subject.moonSign);
+  // Natal Ashtakavarga (when the caller supplied natal signs) — the same AV crown refinement the
+  // calendar + narrative use, so the Road Ahead's crowns agree with the calendar's.
+  const natalAv = subject.natalSignByPlanet
+    ? natalAshtakavarga(
+        Object.fromEntries(Object.entries(subject.natalSignByPlanet).map(([p, s]) => [p, ZOD.indexOf(s)])),
+        lagnaIdx,
+      )
+    : null;
   const houseOf = (sIdx: number) => ((sIdx - lagnaIdx + 12) % 12) + 1;
   const milestones: ArcMilestone[] = [];
 
@@ -144,7 +153,7 @@ export async function computeArc(subject: ArcSubject, from: string, horizonDays 
       Mercury: signIdx(lon("Mercury")), Jupiter: signIdx(lon("Jupiter")), Venus: signIdx(lon("Venus")),
       Saturn: signIdx(lon("Saturn")), Rahu: signIdx(lon("Rahu")), Ketu: signIdx(lon("Ketu")),
     };
-    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx: lagnaIdx, sunLon: lon("Sun"), moonLon: lon("Moon"), transitSignByPlanet: T });
+    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx: lagnaIdx, sunLon: lon("Sun"), moonLon: lon("Moon"), transitSignByPlanet: T, ashtakavarga: natalAv });
     const isCrown = cd.rating === "crown";
     if (isCrown) crownDates.push(day);
     // Apex = the single highest-scoring day; a crown outranks a non-crown at equal score; earliest wins ties.

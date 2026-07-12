@@ -1586,7 +1586,10 @@ export const appRouter = router({
         if (birthNakIdx < 0 || natalMoonSignIdx < 0 || lagnaSignIdx < 0) return null;
 
         const { calculateBirthChart } = await import("./birthchart/calculator.js");
-        const { crownDay } = await import("./panchang/crown.js");
+        const { crownDay, natalAshtakavarga } = await import("./panchang/crown.js");
+        const natalSignIdx: Record<string, number> = {};
+        for (const b of bodies) { const i = ZOD.indexOf(b.sign ?? ""); if (i >= 0) natalSignIdx[b.planet] = i; }
+        const natalAv = natalAshtakavarga(natalSignIdx, lagnaSignIdx);
         const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
         const p2 = (n: number) => String(n).padStart(2, "0");
         const daysInMonth = new Date(Date.UTC(input.year, input.month, 0)).getUTCDate();
@@ -1599,7 +1602,7 @@ export const appRouter = router({
             const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
             const { majorityDayStarIdx } = await import("./panchang/crown.js");
             const majIdx = await majorityDayStarIdx(date);
-            const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined });
+            const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined, ashtakavarga: natalAv });
             const why = cd.rating === "crown"
               ? `${cd.tarabala.name} tara · Moon in your ${ORD[cd.chandrabala.house]} house · a clean day — one of your strongest this month.`
               : cd.rating === "caution"

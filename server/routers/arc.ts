@@ -28,6 +28,9 @@ export const arcRouter = router({
     const natalHouseByPlanet = Object.fromEntries(
       subject.natalBodies.map((b) => [b.planet, b.house]),
     ) as Record<string, number>;
+    const natalSignByPlanet = Object.fromEntries(
+      subject.natalBodies.filter((b) => b.sign).map((b) => [b.planet, b.sign]),
+    ) as Record<string, string>;
 
     const today = new Date().toISOString().split("T")[0];
     const arc = await computeArc(
@@ -39,6 +42,7 @@ export const arcRouter = router({
         moonLongitude: moon.longitude ?? null,
         lagnaSign: subject.lagnaSign,
         natalHouseByPlanet,
+        natalSignByPlanet,
       },
       today,
     );

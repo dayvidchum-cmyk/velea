@@ -9,9 +9,33 @@
  * — rare and special, the macro layer under which the Master Mode hours (micro) play out.
  */
 import { dayQuality, type DayQuality } from "./auspiciousness.js";
+import { computeAshtakavarga, sarvaBindu, SARVA_TOTAL, type Ashtakavarga, type RefPoint } from "../vedic/ashtakavarga.js";
 
 const TWO_PI_27 = 360 / 27;
 const norm = (x: number) => ((x % 360) + 360) % 360;
+
+// Ashtakavarga support baseline — the mean SAV per sign (337/12 ≈ 28.1). A day's Moon-sign
+// bindus are read RELATIVE to this: above = supported, well below = thin. AV never penalizes on
+// its own (a bindu is a benefic contribution, not a malefic); it BOOSTS, and only interacts with
+// an adverse tara to deepen caution. See velea-precision-engine-roadmap.
+const AV_BASELINE = SARVA_TOTAL / 12;
+const AV_GRAHAS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as const;
+
+/**
+ * Natal Ashtakavarga from the native's planet + lagna sign indices (0–11). Returns null if any of
+ * the seven grahas or the lagna is missing (e.g. an incomplete/Moon-only anchor) — callers then
+ * fall back to the pre-AV crown scoring, unchanged.
+ */
+export function natalAshtakavarga(signIdxByPlanet: Record<string, number | undefined>, lagnaSignIdx: number): Ashtakavarga | null {
+  if (lagnaSignIdx == null || lagnaSignIdx < 0) return null;
+  const refSign = { Lagna: lagnaSignIdx } as Record<RefPoint, number>;
+  for (const p of AV_GRAHAS) {
+    const s = signIdxByPlanet[p];
+    if (s == null || s < 0) return null;
+    refSign[p] = s;
+  }
+  return computeAshtakavarga(refSign);
+}
 
 // The 9 taras (day-star counted from birth-star, cycling every 9). Classical qualities.
 const TARAS: { name: string; quality: "good" | "bad" | "mixed" }[] = [
@@ -105,6 +129,8 @@ export interface CrownDay {
   tarabala: Tarabala;
   chandrabala: Chandrabala;
   transit?: TransitScore;
+  /** Ashtakavarga support of the day's Moon sign (present only when natal AV was supplied). */
+  ashtakavarga?: { moonSignBindu: number; support: "high" | "neutral" | "low" };
 }
 
 /**
@@ -124,6 +150,10 @@ export function crownDay(opts: {
    *  the nakshatra that RULES most of the vedic day, not the noon-UTC instant. The universal
    *  (collective/golden) scoring keeps the noon convention — it is a different, shared layer. */
   dayNakIdxOverride?: number;
+  /** Natal Ashtakavarga (optional). When supplied, the day's Moon-sign bindus INTERACT with the
+   *  tara: they boost golden days, cushion an adverse tara out of caution, and — only when a thin
+   *  sign coincides with an adverse tara — deepen the day into caution. Omit → pre-AV behaviour. */
+  ashtakavarga?: Ashtakavarga | null;
 }): CrownDay {
   const dq = dayQuality(opts.sunLon, opts.moonLon, opts.universalThreshold ?? 2);
   const dayNakIdx = opts.dayNakIdxOverride ?? dq.nakshatra; // 0..26 (majority star when provided)
@@ -141,22 +171,40 @@ export function crownDay(opts: {
     score += Math.round(ts.score / 2); // weighted so transits inform, not dominate
   }
 
+  // Ashtakavarga INTERACTION (optional layer). The day's Moon-sign support meets the tara:
+  //   • BOOST  — bindus above baseline lift the score (positive only; a thin sign is never docked).
+  //              That same lift is what CUSHIONS an adverse-tara day out of caution (rich ground).
+  //   • VETO   — a thin sign deepens the day into caution ONLY when the tara is ALSO adverse
+  //              (both axes down). AV never vetoes alone; the veto lives in the pair.
+  let av: CrownDay["ashtakavarga"];
+  if (opts.ashtakavarga) {
+    const bindu = sarvaBindu(opts.ashtakavarga, dayMoonSignIdx);
+    const support: "high" | "neutral" | "low" =
+      bindu >= AV_BASELINE + 2 ? "high" : bindu <= AV_BASELINE - 4 ? "low" : "neutral";
+    av = { moonSignBindu: bindu, support };
+    score += bindu >= AV_BASELINE + 6 ? 2 : bindu >= AV_BASELINE + 2 ? 1 : 0; // boost
+    if (tb.quality === "bad" && support === "low") score -= 2;                 // interaction veto
+  }
+
   // Crown = the daily APEX: both Moon strengths aligned (good tara AND good chandra) on a
-  // non-negative universal day, and the day's transits aren't a malefic pileup. The slow-transit
-  // season tone shifts the favorable/caution bands (via `score`) but can't erase the apex — a
-  // tough season just means fewer of the daily factors line up, not that a clean day is denied.
-  const crown = tb.favorable && cb.favorable && dq.score >= 0 && (!ts || ts.score > -3);
+  // non-negative universal day, the transits aren't a malefic pileup — and, when AV is known, the
+  // Moon sits on well-stocked ground (high support). Favorable-tara on a THIN sign is golden but
+  // unbacked → "favorable", never the apex. The slow-transit season shifts the bands (via `score`)
+  // but can't erase the apex — a tough season means fewer factors line up, not that a clean day is denied.
+  const crown = tb.favorable && cb.favorable && dq.score >= 0 && (!ts || ts.score > -3) && (!av || av.support === "high");
   const rating: CrownRating = crown ? "crown" : score >= 2 ? "favorable" : score <= -3 ? "caution" : "neutral";
-  return { rating, score, universal: dq, tarabala: tb, chandrabala: cb, transit: ts };
+  return { rating, score, universal: dq, tarabala: tb, chandrabala: cb, transit: ts, ashtakavarga: av };
 }
 
 // ── Helpers for the personal-weather gate ────────────────────────────────────
 const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
 const ZODIAC12 = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 
-export interface CrownAnchors { birthNakIdx: number; natalMoonSignIdx: number; lagnaSignIdx: number }
+export interface CrownAnchors { birthNakIdx: number; natalMoonSignIdx: number; lagnaSignIdx: number; ashtakavarga?: Ashtakavarga | null }
 
-/** Extract the three personal anchors from a profile's natal bodies + lagna. null if incomplete. */
+/** Extract the personal anchors from a profile's natal bodies + lagna. null if the Moon/lagna are
+ *  incomplete. Natal Ashtakavarga is computed too when ALL seven grahas are present in `bodies`
+ *  (a Moon-only anchor leaves it null → crown scoring falls back to the pre-AV path). */
 export function anchorsFromBodies(
   bodies: Array<{ planet: string; nakshatra?: string | null; sign?: string | null }>,
   lagnaSign: string | null | undefined
@@ -166,7 +214,10 @@ export function anchorsFromBodies(
   const natalMoonSignIdx = ZODIAC12.indexOf(moon?.sign ?? "");
   const lagnaSignIdx = ZODIAC12.indexOf(lagnaSign ?? "");
   if (birthNakIdx < 0 || natalMoonSignIdx < 0 || lagnaSignIdx < 0) return null;
-  return { birthNakIdx, natalMoonSignIdx, lagnaSignIdx };
+  const signIdxByPlanet: Record<string, number> = {};
+  for (const b of bodies) { const i = ZODIAC12.indexOf(b.sign ?? ""); if (i >= 0) signIdxByPlanet[b.planet] = i; }
+  const ashtakavarga = natalAshtakavarga(signIdxByPlanet, lagnaSignIdx);
+  return { birthNakIdx, natalMoonSignIdx, lagnaSignIdx, ashtakavarga };
 }
 
 /** The native's crown-layer rating for a calendar date (noon UTC, same as the calendar). */
