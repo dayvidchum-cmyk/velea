@@ -1207,16 +1207,17 @@ export default function Planner() {
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                   ) : stationsToday.length ? (
-                    // Station day: the turning planet's glyph replaces the number. Sized to sit
-                    // centered inside the 2rem ring (1.75rem cramped it against the edge).
-                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}>
+                    // Station day: the turning planet's glyph replaces the number, in the DAY-MODE
+                    // color — same as the ring (David). Larger size; the wrapper is a full-size grid
+                    // that place-centers the glyph's em-box so it sits dead-centre in the coin.
+                    <span style={{ display: "grid", gridAutoFlow: "column", gap: 2, placeItems: "center", width: "100%", height: "100%", lineHeight: 1, pointerEvents: "none" }}>
                       {stationsToday.map((e) => (
                         <span key={e.planet} style={{
                           fontFamily: PLANET_GLYPH_FONT,
-                          fontSize: stationsToday.length > 1 ? "1.05rem" : "1.4rem",
+                          fontSize: stationsToday.length > 1 ? "1.3rem" : "1.75rem",
                           fontWeight: 800,
                           lineHeight: 1,
-                          color: retroColor[e.planet] ?? "currentColor",
+                          color: accent,
                         }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
