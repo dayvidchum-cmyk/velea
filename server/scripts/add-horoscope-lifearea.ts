@@ -5,47 +5,56 @@
  * become lifeArea = 'day' (the DEFAULT), so nothing is lost or overwritten.
  *
  * Run against the target DB (Railway prod with its DATABASE_URL):
- *   npx tsx server/scripts/add-horoscope-lifearea.ts
- * Safe to run repeatedly — each step checks whether it's already applied before touching anything.
- * NEVER a drizzle-kit push/force (see memory: velea-no-auto-force-migrate) — this is a plain,
- * reviewed ALTER that only adds a column and swaps a unique index.
+ *   DATABASE_URL='mysql://…' npx tsx server/scripts/add-horoscope-lifearea.ts
+ *
+ * Idempotency is done by ATTEMPTING each change and catching the "already exists" error — NOT by
+ * pre-querying information_schema (the previous version parsed that query's result wrong, falsely
+ * reported "already present," and never added the column). This try/catch form can't misfire: the
+ * column/key either gets added, or the ALTER errors with a duplicate code we recognize.
+ *
+ * NEVER a drizzle-kit push/force (see memory: velea-no-auto-force-migrate) — a plain, reviewed ALTER.
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "../db.js";
+
+const isDup = (e: unknown, codes: RegExp) => codes.test(String((e as any)?.cause?.code ?? (e as any)?.code ?? e));
 
 async function main() {
   const db = await getDb();
   if (!db) { console.error("No DB (DATABASE_URL unset?). Aborting."); process.exit(1); }
 
-  // 1. Add the column if it isn't there yet (default 'day' backfills every legacy row).
-  const [{ n: hasCol }] = (await db.execute(sql`
-    SELECT COUNT(*) AS n FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'horoscopes' AND COLUMN_NAME = 'lifeArea'
-  `)) as any as [{ n: number }];
-  if (Number(hasCol) === 0) {
+  // 1. Add the column. ER_DUP_FIELDNAME (1060) = it's already there → fine.
+  try {
     await db.execute(sql`ALTER TABLE horoscopes ADD COLUMN lifeArea VARCHAR(16) NOT NULL DEFAULT 'day' AFTER readingDate`);
     console.log("✅ added column horoscopes.lifeArea (existing rows backfilled to 'day').");
-  } else {
-    console.log("• column horoscopes.lifeArea already present — skipping.");
+  } catch (e) {
+    if (isDup(e, /1060|ER_DUP_FIELDNAME|Duplicate column/i)) console.log("• column horoscopes.lifeArea already present — skipping.");
+    else throw e;
   }
 
-  // 2. Swap the unique key from (profileId, readingDate) to (profileId, readingDate, lifeArea).
-  const [{ n: hasOldKey }] = (await db.execute(sql`
-    SELECT COUNT(*) AS n FROM information_schema.STATISTICS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'horoscopes' AND INDEX_NAME = 'uniq_horoscope'
-      AND COLUMN_NAME = 'lifeArea'
-  `)) as any as [{ n: number }];
-  if (Number(hasOldKey) === 0) {
-    // Drop the 2-column unique (it exists on the old schema) and recreate it with lifeArea.
+  // 2. Drop the old 2-column unique if it exists (so we can recreate it with lifeArea).
+  //    ER_CANT_DROP_FIELD_OR_KEY (1091) = it wasn't there → fine.
+  try {
     await db.execute(sql`ALTER TABLE horoscopes DROP INDEX uniq_horoscope`);
+    console.log("✅ dropped old uniq_horoscope.");
+  } catch (e) {
+    if (isDup(e, /1091|ER_CANT_DROP_FIELD_OR_KEY|check that column\/key exists/i)) console.log("• no old uniq_horoscope to drop — skipping.");
+    else throw e;
+  }
+
+  // 3. Add the 3-column unique. ER_DUP_KEYNAME (1061) = it's already the new shape → fine.
+  try {
     await db.execute(sql`ALTER TABLE horoscopes ADD UNIQUE KEY uniq_horoscope (profileId, readingDate, lifeArea)`);
     console.log("✅ unique key uniq_horoscope now (profileId, readingDate, lifeArea).");
-  } else {
-    console.log("• unique key already includes lifeArea — skipping.");
+  } catch (e) {
+    if (isDup(e, /1061|ER_DUP_KEYNAME|Duplicate key name/i)) console.log("• unique key already includes lifeArea — skipping.");
+    else throw e;
   }
 
-  console.log("🪐 horoscopes life-area migration complete.");
+  // 4. Verify — SELECT the column so success is PROVEN, not assumed (the whole point of this rewrite).
+  await db.execute(sql`SELECT lifeArea FROM horoscopes LIMIT 1`);
+  console.log("🪐 verified: horoscopes.lifeArea is queryable. Migration complete.");
   process.exit(0);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => { console.error("MIGRATION FAILED:", e); process.exit(1); });
