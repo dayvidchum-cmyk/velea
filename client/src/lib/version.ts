@@ -234,4 +234,9 @@
 // notes. Life-area chips on the page; scroll-back list tags each read with its area. Schema: horoscopes
 // gains a lifeArea column + widened unique key — run server/scripts/add-horoscope-lifearea.ts on prod
 // (NOT auto-applied). Inert until the Anthropic key is on + the migration is run.
-export const APP_VERSION = "1.1.396";
+// v1.1.397 = 2026-07-12 — Fix: legacy "Full day" horoscope snapshots were unopenable. Tapping a saved
+// read in the scroll-back list skipped switching to its area when that area was 'day' (there's no
+// 'day' chip), so the panel stayed on the selected life-area and showed "Reveal" instead of the saved
+// read. Now tapping any saved entry switches to its area (chips show none selected for a legacy
+// full-day read; the panel header reads "Full day"). One-line click-handler fix.
+export const APP_VERSION = "1.1.397";

@@ -266,7 +266,7 @@ export default function Horoscope() {
                 return (
                 <button
                   key={`${r.date}:${rArea}`}
-                  onClick={() => { const [y, m] = r.date.split("-").map(Number); setView({ y, m: m - 1 }); if (rArea !== "day") setSelectedArea(rArea); selectDate(r.date); }}
+                  onClick={() => { const [y, m] = r.date.split("-").map(Number); setView({ y, m: m - 1 }); setSelectedArea(rArea); selectDate(r.date); }}
                   style={{
                     textAlign: "left", cursor: "pointer", borderRadius: 12, padding: "0.7rem 0.8rem",
                     border: active ? `1.5px solid ${GOLD}` : "1px solid var(--color-border)",
