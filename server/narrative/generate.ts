@@ -240,6 +240,32 @@ const MACHINERY = /\b(\d+\s*(?:st|nd|rd|th)\s+house|(?:first|second|third|fourth
 
 const wordCount = (s: string): number => (s.trim().match(/\S+/g) ?? []).length;
 
+// DETERMINISTIC LAST-RESORT SCRUB. The retries below catch most machinery, but a dignity/motion
+// term stubborn across every retry would otherwise reach the reader (this is exactly what happened:
+// "debilitation" survived a life-area read). This GUARANTEES those specific words can never ship —
+// they're replaced with felt language in code, no model involved. (Sign names and house numbers
+// can't be cleanly swapped for their life-territory here, so those still lean on the retries; this
+// covers the recurring dignity/motion leaks, which are the ones that actually slip.)
+const SCRUB: Array<[RegExp, string]> = [
+  [/\bdebilitations?\b/gi, "weakness"],
+  [/\bdebilitated\b/gi, "weakened"],
+  [/\bexaltations?\b/gi, "full strength"],
+  [/\bexalted\b/gi, "at full strength"],
+  [/\bretrograde\b/gi, "turned inward"],
+  [/\bcombustions?\b/gi, "lost in the glare"],
+  [/\bcombust\b/gi, "lost in the glare"],
+  [/\bmoolatrikona\b/gi, "its own strong ground"],
+];
+export function scrubMachinery(s: string): string {
+  let out = s;
+  for (const [re, rep] of SCRUB) out = out.replace(re, rep);
+  return out;
+}
+const scrubDayRead = (r: DayRead): DayRead => ({
+  scene: scrubMachinery(r.scene), story: scrubMachinery(r.story), tilt: scrubMachinery(r.tilt),
+  closeLine: scrubMachinery(r.closeLine), question: scrubMachinery(r.question),
+});
+
 // Returns the reason a read FAILS a guard (too long / machinery leak), or null if it's clean.
 export function guardViolation(fullText: string, maxWords: number): string | null {
   const wc = wordCount(fullText);
@@ -270,21 +296,27 @@ async function callGuarded<T>(o: {
     if (!block || block.type !== "tool_use") return null;
     return o.complete(block.input) ? (block.input as T) : null;
   };
-  const first = await run();
-  if (!first) return null;
-  const bad = guardViolation(o.textOf(first), o.maxWords);
-  if (!bad) return first;
-  // ONE corrective retry, naming the exact violation. Bounded cost; only fires on a real miss.
-  console.warn(`[narrative] ${o.toolName} tripped a guard, regenerating once: ${bad}`);
-  const retry = await run(`CRITICAL — your previous attempt was REJECTED. ${bad} Return the ${o.toolName} tool again, corrected. This is your last attempt.`);
-  return retry ?? first; // serve the better-of-two rather than a blank day
+  let best = await run();
+  if (!best) return null;
+  let bad = guardViolation(o.textOf(best), o.maxWords);
+  if (!bad) return best;
+  // Up to TWO corrective retries (3 attempts total), each naming the exact violation. Return the
+  // first CLEAN result; if none comes back clean, serve the last best-effort rather than a blank
+  // day. Bounded cost, and only fires when a guard actually trips. (A surviving dignity/motion term
+  // is then scrubbed deterministically by the caller — see scrubMachinery — so the WORD never ships.)
+  for (let attempt = 1; attempt <= 2 && bad; attempt++) {
+    console.warn(`[narrative] ${o.toolName} tripped a guard (attempt ${attempt}), regenerating: ${bad}`);
+    const next = await run(`CRITICAL — your previous attempt was REJECTED. ${bad} Return the ${o.toolName} tool again, fully corrected.`);
+    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords); }
+  }
+  return best;
 }
 
 export async function generateDayRead(input: NarrativeInput): Promise<DayRead | null> {
   const c = client();
   if (!c) return null;
   try {
-    return await callGuarded<DayRead>({
+    const r = await callGuarded<DayRead>({
       c, tail: DAY_READ_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
       // Hard token ceiling (was 800 → ~600 words). The 130-word guard is the real length enforcer;
       // 400 just lets a slightly-over draft COMPLETE so the guard can catch and correct it.
@@ -293,6 +325,7 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
       // The question is one short line, excluded from the story's word budget.
       textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
     });
+    return r ? scrubDayRead(r) : null; // deterministic scrub is the final guarantee no banned term ships
   } catch (err) {
     console.error("[narrative] generateDayRead failed, using static fallback:", (err as any)?.message ?? err);
     return null;
@@ -313,7 +346,7 @@ export async function generateLifeAreaRead(input: NarrativeInput): Promise<DayRe
   const c = client();
   if (!c) return null;
   try {
-    return await callGuarded<DayRead>({
+    const r = await callGuarded<DayRead>({
       c, tail: LIFE_AREA_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
       // PREMIUM room: a paid, kept reading targets ~350 words; 450 is the hard cap the guard enforces.
       // ~900 tokens lets a full ~450-word draft complete so the guard can catch + correct an overrun.
@@ -321,6 +354,7 @@ export async function generateLifeAreaRead(input: NarrativeInput): Promise<DayRe
       complete: isCompleteDayRead,
       textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
     });
+    return r ? scrubDayRead(r) : null; // deterministic scrub is the final guarantee no banned term ships
   } catch (err) {
     console.error("[narrative] generateLifeAreaRead failed, using static fallback:", (err as any)?.message ?? err);
     return null;
@@ -346,7 +380,7 @@ export async function generateCast(input: NarrativeInput): Promise<Cast | null> 
   const c = client();
   if (!c) return null;
   try {
-    return await callGuarded<Cast>({
+    const r = await callGuarded<Cast>({
       c, tail: CAST_TAIL, toolName: "cast", schema: CAST_SCHEMA as any, input,
       // One ~120-word paragraph ≈ ~165 tokens; 320 lets a slightly-long draft complete so the
       // 130-word guard can catch + correct it. (Was 900 → ~700-word five-card wall.)
@@ -354,6 +388,7 @@ export async function generateCast(input: NarrativeInput): Promise<Cast | null> 
       complete: isCompleteCast,
       textOf: (r) => r.read,
     });
+    return r ? { read: scrubMachinery(r.read) } : null; // deterministic scrub — no banned term ships
   } catch (err) {
     console.error("[narrative] generateCast failed, using static fallback:", (err as any)?.message ?? err);
     return null;

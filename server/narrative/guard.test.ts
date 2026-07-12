@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { guardViolation } from "./generate";
+import { guardViolation, scrubMachinery } from "./generate";
 
 // These prove — deterministically, no LLM, no spend — that the two failure modes David kept
 // hitting (chart-machinery leaks and over-length reads) are CAUGHT in code and regenerated,
@@ -32,6 +32,30 @@ describe("guardViolation — clean prose passes", () => {
       "in a back room — let the words cook. And Venus is running on fumes; she's not asking to be " +
       "spent, she's asking to be refilled.";
     expect(guardViolation(clean, 120)).toBeNull();
+  });
+});
+
+describe("scrubMachinery — the deterministic last-resort net (nothing model-dependent)", () => {
+  // The retries catch most leaks; this GUARANTEES a dignity/motion term stubborn across every retry
+  // still can't reach the reader. Regression anchor: "debilitation" shipped in an Aug-12 Money read.
+  it("removes the exact term that leaked (debilitation) and reads clean", () => {
+    const leaked = "Mars in the deep chart sits in a position of debilitation and withdrawal.";
+    const scrubbed = scrubMachinery(leaked);
+    expect(scrubbed).not.toMatch(/debilitat/i);
+    expect(scrubbed).toBe("Mars in the deep chart sits in a position of weakness and withdrawal.");
+  });
+  it("neutralizes the whole dignity/motion family", () => {
+    const s = scrubMachinery("Jupiter is exalted; Mercury is retrograde and combust; Venus is debilitated.");
+    for (const banned of [/exalt/i, /retrograde/i, /combust/i, /debilitat/i]) expect(s).not.toMatch(banned);
+  });
+  it("leaves clean prose untouched", () => {
+    const clean = "The floor holds — today is for finding the drain, not opening a new tap.";
+    expect(scrubMachinery(clean)).toBe(clean);
+  });
+  it("the scrubbed output passes guardViolation's machinery check", () => {
+    const scrubbed = scrubMachinery("Venus is debilitated; the Moon is exalted.");
+    // (No house numbers / sign names here, so a machinery-clean scrub yields a clean guard result.)
+    expect(guardViolation(scrubbed, 120)).toBeNull();
   });
 });
 
