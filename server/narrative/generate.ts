@@ -210,17 +210,19 @@ export type DayRead = {
   story: string;
   tilt: string;
   closeLine: string;
+  question: string;
 };
 
 const DAY_READ_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["scene", "story", "tilt", "closeLine"],
+  required: ["scene", "story", "tilt", "closeLine", "question"],
   properties: {
     scene: { type: "string" },
     story: { type: "string" },
     tilt: { type: "string" },
     closeLine: { type: "string" },
+    question: { type: "string" },
   },
 } as const;
 
@@ -237,7 +239,7 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
         { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
         { type: "text" as const, text: DAY_READ_TAIL },
       ],
-      tools: [{ name: "day_read", description: "Return the day read: scene, story, tilt, and closeLine.", input_schema: DAY_READ_SCHEMA as any }],
+      tools: [{ name: "day_read", description: "Return the day read: scene, story, tilt, closeLine, and question.", input_schema: DAY_READ_SCHEMA as any }],
       tool_choice: { type: "tool", name: "day_read" },
       messages: [{ role: "user", content: JSON.stringify(input) }],
     });
@@ -252,6 +254,6 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
 
 // Reject a truncated day read so the caller falls back instead of rendering half a read.
 function isCompleteDayRead(r: any): r is DayRead {
-  return !!r && typeof r.scene === "string" && typeof r.story === "string" && typeof r.tilt === "string" && typeof r.closeLine === "string";
+  return !!r && typeof r.scene === "string" && typeof r.story === "string" && typeof r.tilt === "string" && typeof r.closeLine === "string" && typeof r.question === "string";
 }
 export { isCompleteDayRead };

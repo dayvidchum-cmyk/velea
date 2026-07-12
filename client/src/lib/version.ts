@@ -196,4 +196,12 @@
 // bust → no regen cost). (1) Horoscope scroll-back snippet read c?.scene?.synthesis but scene is
 // now a prose STRING → blank snippets for new day-read snapshots; fixed to c?.scene. (2) Horoscope
 // day-read prose now glossary-links its terms (GlossaryText), matching the Today card.
-export const APP_VERSION = "1.1.391";
+// v1.1.392 = 2026-07-12 — STORY-AS-HERO (David's option B). The concise day-read IS the hero now:
+// (1) the day-story (scene→story→tilt→carried line) auto-loads as the hero prose, replacing the
+// old glance teaser; (2) the glance surface is retired from Today (no double-generation — ONE read
+// per day); (3) the day-read gains a `question` field so it powers the hero's closing question too;
+// (4) "Why this today?" moved BELOW the story + rebranded "The Read" (opens the cast — Phase 2);
+// (5) the collapsed "The day, in full" press-line is gone (its content is the hero); (6) admin ↻
+// repointed to refresh the day-read. Prompt: THE PROOF IS IN THE SPECIFICS law + Ketu-window
+// (day_read surface salt only — glance/deep/chapter caches untouched).
+export const APP_VERSION = "1.1.392";

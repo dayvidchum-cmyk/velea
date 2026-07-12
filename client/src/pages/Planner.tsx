@@ -125,31 +125,6 @@ function toSheetTask(t: any) {
   };
 }
 
-// THE FULL DAY READ card — pure prose: scene (today's outer weather) → story (the inner self
-// + chapter) → tilt (how to move), closed by the carried line. No mechanics/why layer — the
-// placements live inside the prose, glossary-linked so any term opens its popover.
-type DayReadData = { scene: string; story: string; tilt: string; closeLine: string };
-function DayReadCard({ read, modeColor }: { read: DayReadData; modeColor: string }) {
-  const label = (t: string) => (
-    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: modeColor, margin: "1.2rem 0 0.35rem", opacity: 0.95 }}>{t}</p>
-  );
-  const body = (s: string) => (
-    <p style={{ fontSize: "0.9rem", lineHeight: 1.62, color: "var(--foreground)", margin: 0 }}><GlossaryText>{s}</GlossaryText></p>
-  );
-
-  return (
-    <div>
-      {read.scene && body(read.scene)}
-      {read.story && (<>{label("The story underneath")}{body(read.story)}</>)}
-      {read.tilt && (<>{label("How to carry the day")}{body(read.tilt)}</>)}
-      {read.closeLine && (
-        <p style={{ fontSize: "0.95rem", lineHeight: 1.55, fontWeight: 600, fontStyle: "italic", color: modeColor, margin: "1.4rem 0 0", opacity: 0.95 }}>
-          {read.closeLine}
-        </p>
-      )}
-    </div>
-  );
-}
 
 export default function Planner() {
   const [, navigate] = useLocation();
@@ -186,10 +161,6 @@ export default function Planner() {
   // Edit sheets for the curated daily lists (ported from the retired Today page)
   const [heroOpen, setHeroOpen] = useState(true);
   const [signpostOpen, setSignpostOpen] = useState(false);
-  // The full day read (scene/story/tilt/closeLine) — a SEPARATE, heavier LLM read than the
-  // glance, so it's LAZY: the query only fires when the user opens the section (cost-safe,
-  // and collapsed-by-default per the low-cognitive-load law).
-  const [dayReadOpen, setDayReadOpen] = useState(false);
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
@@ -385,25 +356,15 @@ export default function Planner() {
     { date: selectedDate },
     { enabled: isAuthenticated }
   );
-  // LLM daily signal (Glance) — the SAME cached source the Today/Home hero uses.
-  // Only fetched when the selected date is today, so the Planner hero mirrors
-  // Home's cached content exactly (same profileId + local date string = same
-  // cache key). Other calendar dates keep the deterministic composed narrative,
-  // which also avoids triggering on-demand LLM generation per calendar click.
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
   const glanceProfileId = activeProfile?.id;
-  // The prose generates for ANY selected date (server-caches per profile+date, so
-  // re-selecting a day is free). The mode card and its narrative both track selectedDate.
-  const { data: glance, isFetching: glanceFetching } = trpc.narrative.glance.useQuery(
-    { profileId: glanceProfileId as number, date: selectedDate },
-    { enabled: !!glanceProfileId, staleTime: 1000 * 60 * 30 },
-  );
-  const glanceContent = glance?.content ?? null;
-
-  // The full day read — fired ONLY when the section is opened (lazy), for the selected date.
+  // THE DAY READ — the ONE hero read (story + its final question). Auto-loads for the selected
+  // date and server-caches per (profile, date), so re-selecting a day is free. It IS the hero:
+  // the concise day-story replaced the old glance teaser + the "day in full" press-line, so
+  // exactly one read generates per day (no double-pay). The prose generates for ANY date.
   const { data: dayRead, isFetching: dayReadFetching } = trpc.narrative.dayRead.useQuery(
     { profileId: glanceProfileId as number, date: selectedDate },
-    { enabled: !!glanceProfileId && dayReadOpen, staleTime: 1000 * 60 * 30 },
+    { enabled: !!glanceProfileId, staleTime: 1000 * 60 * 30 },
   );
   const dayReadContent = (dayRead as any)?.read ?? null;
 
@@ -417,8 +378,8 @@ export default function Planner() {
     if (!glanceProfileId) return;
     setRefreshingRead(true);
     try {
-      const res = await utils.narrative.glance.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true });
-      utils.narrative.glance.setData({ profileId: glanceProfileId, date: selectedDate }, res);
+      const res = await utils.narrative.dayRead.fetch({ profileId: glanceProfileId, date: selectedDate, refresh: true });
+      utils.narrative.dayRead.setData({ profileId: glanceProfileId, date: selectedDate }, res);
     } finally {
       setRefreshingRead(false);
     }
@@ -635,8 +596,6 @@ export default function Planner() {
 
   // Today's mode color for the curated daily lists (ported from Home).
   const todayModeColor = todayTaskMode ? MODE_OKLCH[todayTaskMode] : "var(--color-border)";
-  // The selected date's mode color — the accent for the full day read's labels + close line.
-  const selectedModeColor = selectedTaskMode ? MODE_OKLCH[selectedTaskMode] : todayModeColor;
 
   // Pinned for Now: explicitly pinned, not completed, sorted by priority.
   const pinnedForNow = useMemo(() => {
@@ -753,7 +712,7 @@ export default function Planner() {
     : heroGradient;
   const selectedModeRgba = selectedTaskModeForHero ? MODE_RGBA[selectedTaskModeForHero] : modeRgba;
   // The day card is (re)loading for the selected date — used to visibly mark the whole box as pending.
-  const dayCardLoading = panchangFetching || glanceFetching;
+  const dayCardLoading = panchangFetching || dayReadFetching;
 
   // Calendar card: use today's mode color for strip header + border
   const calModeColor = todayTaskMode ? MODE_SOLID[todayTaskMode] : '#888';
@@ -801,8 +760,8 @@ export default function Planner() {
                 (RIGHT corner). The refresh lives OPPOSITE the caret with the date between them, so the
                 two tap targets never crowd — reaching for one can't catch the other. */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', width: '100%', marginBottom: '0.25rem' }}>
-              {/* Premium preview (admin only): regenerate the read to this moment. */}
-              {user?.role === "admin" && glanceProfileId && glanceContent && (
+              {/* Premium preview (admin only): regenerate the day-read to this moment. */}
+              {user?.role === "admin" && glanceProfileId && dayReadContent && (
                 <button
                   type="button"
                   onClick={updateToMoment}
@@ -888,7 +847,59 @@ export default function Planner() {
               </p>
             )}
 
-            {/* Why this today? — opens the three-layer signpost (sky ⊗ your chart ⊗ you) */}
+            {heroOpen && (<>
+            {/* THE DAY STORY — the hero read: one flowing story (scene → story → tilt), closed by
+                the carried line. Auto-loads; the concise story IS the hero (no teaser, no press-
+                line). Pure prose on the hero ground, glossary-linked. */}
+            {(() => {
+              // Only the generated read — never fabricated/hard-coded prose. If it isn't
+              // ready, show the loading shimmer; if genuinely absent, show nothing.
+              if (!dayReadContent) {
+                return dayReadFetching
+                  ? <div style={{ marginBottom: '1.25rem' }}><ProseLoading label="Crafting today's reading — this can take up to a minute the first time…" /></div>
+                  : null;
+              }
+              const paras = [dayReadContent.scene, dayReadContent.story, dayReadContent.tilt].filter(Boolean);
+              return (
+                <div style={{ marginBottom: '1rem' }}>
+                  {paras.map((para: string, i: number) => (
+                    <p
+                      key={i}
+                      style={{
+                        fontFamily: "'Inter', ui-sans-serif, sans-serif",
+                        fontSize: 'clamp(0.8rem, 3.2vw, 0.875rem)',
+                        lineHeight: 1.65,
+                        color: 'rgba(255,255,255,0.9)',
+                        fontWeight: 400,
+                        marginBottom: '0.7rem',
+                      }}
+                    >
+                      <GlossaryText>{para}</GlossaryText>
+                    </p>
+                  ))}
+                  {dayReadContent.closeLine && (
+                    <p
+                      style={{
+                        fontFamily: "'Inter', ui-sans-serif, sans-serif",
+                        fontSize: 'clamp(0.85rem, 3.4vw, 0.95rem)',
+                        lineHeight: 1.55,
+                        fontStyle: 'italic',
+                        fontWeight: 600,
+                        color: 'rgba(255,255,255,0.96)',
+                        marginTop: '0.9rem',
+                        marginBottom: 0,
+                      }}
+                    >
+                      <GlossaryText>{dayReadContent.closeLine}</GlossaryText>
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* THE READ — opens the cast: the characters moving today's story (was "Why this
+                today?"). Sits below the story: hero = what's my day, THE READ = who made it. */}
+            {dayReadContent && (
             <button
               type="button"
               onClick={() => setSignpostOpen(true)}
@@ -900,56 +911,20 @@ export default function Planner() {
                 background: 'rgba(255,255,255,0.16)',
                 border: '1px solid rgba(255,255,255,0.28)',
                 borderRadius: '999px',
-                padding: '0.3rem 0.8rem',
-                marginBottom: '1rem',
+                padding: '0.3rem 0.85rem',
+                marginBottom: '1.25rem',
                 cursor: 'pointer',
                 fontSize: '0.72rem',
                 fontWeight: 700,
-                letterSpacing: '0.06em',
+                letterSpacing: '0.08em',
                 textTransform: 'uppercase',
                 color: 'rgba(255,255,255,0.95)',
               }}
             >
-              Why this today?
+              The Read
               <ChevronDown size={12} style={{ transform: 'rotate(-90deg)', color: 'rgba(255,255,255,0.95)' }} />
             </button>
-
-            {heroOpen && (<>
-            {/* Narrative paragraph — the personalized read stands on its own; the
-                templated mode instruction is intentionally omitted (redundant). */}
-            {(() => {
-              // Only the generated read — never fabricated/hard-coded prose. If it isn't
-              // ready, show the loading shimmer; if genuinely absent, show nothing.
-              const narrative = glanceContent?.narrative;
-              if (!narrative) {
-                return glanceFetching
-                  ? <div style={{ marginBottom: '1.25rem' }}><ProseLoading label="Crafting today's reading — this can take up to a minute the first time…" /></div>
-                  : null;
-              }
-              // The glance is now a TIGHT TEASER (1–2 short paragraphs) — shown whole, no
-              // truncation and no "THE FULL READ" toggle. The full read lives in the "The day,
-              // in full" section below (the day read); the hero is the at-a-glance card.
-              const paras = narrative.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-              return (
-                <div style={{ marginBottom: '1.25rem' }}>
-                  {paras.map((para, i) => (
-                    <p
-                      key={i}
-                      style={{
-                        fontFamily: "'Inter', ui-sans-serif, sans-serif",
-                        fontSize: 'clamp(0.8rem, 3.2vw, 0.875rem)',
-                        lineHeight: 1.65,
-                        color: 'rgba(255,255,255,0.9)',
-                        fontWeight: 400,
-                        marginBottom: '0.65rem',
-                      }}
-                    >
-                      <GlossaryText>{para}</GlossaryText>
-                    </p>
-                  ))}
-                </div>
-              );
-            })()}
+            )}
 
             {/* Panchang mini row */}
             <div data-tour="panchang-terms" className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
@@ -982,8 +957,8 @@ export default function Planner() {
               </div>
             </div>
 
-            {/* Italic question — ONLY the generated one; no hard-coded per-mode fallback. */}
-            {glanceContent?.question && (
+            {/* Italic question — the day-read's own closing question; no hard-coded fallback. */}
+            {dayReadContent?.question && (
             <p
               style={{
                 marginTop: 'auto',
@@ -1000,13 +975,13 @@ export default function Planner() {
                 textWrap: 'balance',
               }}
             >
-              {glanceContent.question}
+              <GlossaryText>{dayReadContent.question}</GlossaryText>
             </p>
             )}
 
             {/* Kept Readings — at the very bottom, under the day's final question: pin this reading
                 + link to the timestamped archive (gated teaser). */}
-            {glanceProfileId && glanceContent?.narrative && (
+            {glanceProfileId && dayReadContent && (
               <KeptReadings profileId={glanceProfileId} date={selectedDate} />
             )}
             </>)}
@@ -1018,36 +993,6 @@ export default function Planner() {
             <ProseLoading color="var(--color-muted-foreground)" label="Reading the day…" />
           ) : (
             <p className="text-sm text-center" style={{ color: "var(--color-muted-foreground)" }}>No panchang data for this date.</p>
-          )}
-        </div>
-      )}
-
-      {/* ── THE FULL DAY READ — the metaphor read (scene/story/tilt), collapsed + lazy. Explains
-          the outer (today's sky), the inner (the self it lands on), and how to move. Only the
-          glance fires by default; this heavier read fires when opened. ── */}
-      {glanceProfileId && (
-        <div className="relative z-10" style={{ marginTop: "0.9rem" }}>
-          <button
-            onClick={() => setDayReadOpen((v) => !v)}
-            className="flex items-center gap-2 w-full py-2 transition-all"
-            aria-expanded={dayReadOpen}
-          >
-            <OctagramMark size={14} color="var(--color-muted-foreground)" />
-            <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
-              The day, in full
-            </span>
-            <ChevronDown size={14} style={{ marginLeft: "auto", color: "var(--color-muted-foreground)", transform: dayReadOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
-          </button>
-          {dayReadOpen && (
-            <div className="glass-card" style={{ padding: "1.05rem 1.1rem 1.2rem", marginTop: "0.4rem" }}>
-              {dayReadContent ? (
-                <DayReadCard read={dayReadContent} modeColor={selectedModeColor} />
-              ) : dayReadFetching ? (
-                <ProseLoading color="var(--color-muted-foreground)" label="Reading the day in full — this can take up to a minute the first time…" />
-              ) : (
-                <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>The full day read isn't available right now.</p>
-              )}
-            </div>
           )}
         </div>
       )}

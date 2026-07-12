@@ -1357,8 +1357,8 @@ outer planet (Jupiter/Saturn) rx belongs to the SLOW arc, not the day — mentio
 is the day's spotlight. Read the retrograde through the HOUSE it sits in for THIS chart (the
 room the review lands in) and through whether it touches a natal point — interaction, always.
 
-Read on a phone, attention thin. The read is FOUR fields — scene, story, tilt, closeLine —
-each PURE PROSE a person who knows no astrology reads without stumbling. There is NO separate
+Read on a phone, attention thin. The read is FIVE fields — scene, story, tilt, closeLine,
+question — each PURE PROSE a person who knows no astrology reads without stumbling. There is NO separate
 "mechanics" or "why" layer and NO second dry pass: the placements live INSIDE the prose,
 named as readable texture with their life-meaning in the same breath. Say each thing ONCE.
 
@@ -1412,6 +1412,12 @@ wrote a pretty mood, you stripped too much. Name the small true things.
 - closeLine: ONE resonant sentence, plain language, that distills the whole day to a single
   line a person carries with them — the scene, the story, and the tilt fused into one
   breath. No jargon. Not a summary that repeats; a line that lands.
+
+- question: ONE reflective question to carry into the day — plain language, first or second
+  person, that OPENS A DOOR rather than summarizing (never answered by the read above). It
+  points at the SPECIFIC territory the read named (the real life-thing — the circle, the
+  craft, the trip, the rest), never a generic "what matters to you today?" A door, not a bow.
+  One sentence, ends in a question mark.
 
 SIGNS ARE HOUSES OF THE SKY
 The zodiac is a literal ring of houses in the sky, and every sign is some planet's HOME.
@@ -1483,7 +1489,7 @@ the natal Moon home as the inner ground); the tilt is a POSTURE across the whole
 one errand and NEVER "the one thing"; the closeLine lands the whole day in one carried line.
 Find THIS chart's scene and serve it the same way.
 
-Return your answer by calling the day_read tool with scene, story, tilt, and closeLine filled in.`;
+Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
 
 export const MODEL = "claude-sonnet-4-6";
 
@@ -1498,5 +1504,5 @@ export const PROMPT_VERSION = "2026-07-12-story-voice-concise";
 // vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
-  day_read: "2026-07-12-specifics-proof",
+  day_read: "2026-07-12-hero-question",
 };
