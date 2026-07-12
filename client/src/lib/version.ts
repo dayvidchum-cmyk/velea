@@ -172,4 +172,4 @@
 // tightened (coin 2.5→2rem) so the circle hugs the digit. Reverted to the BRIGHT/true mode palette
 // (bright gold is fine on white) — and a FILLED coin's number is now a very dark TONAL version of
 // its day-mode color (darkenOklch ×0.32) instead of flat white: a monochromatic, more elegant coin.
-export const APP_VERSION = "1.1.386";
+export const APP_VERSION = "1.1.387";

@@ -871,8 +871,9 @@ Produce two fields:
   the move the day-mode asks; (2) the year's standing theme as a single line IN MOTION — not a
   static state but a movement: where the long season now closing has brought them, giving way to
   what the next one opens (draw it from arc.journey when present — the chapter behind → what opens
-  next — in plain life-language, never a planet or house name; ONE line, not a new paragraph); (3) the ONE
-  concrete thing to do or protect. CUT everything not load-bearing. Lead with what is at
+  next — in plain life-language, never a planet or house name; ONE line, not a new paragraph); (3) the day's TILT —
+  the direction it favors and what it resists, to apply across WHATEVER is already on their plate, NOT one prescribed
+  act (see NO SINGLE MOVE). CUT everything not load-bearing. Lead with what is at
   STAKE for this person — the axis and its risk (per NAME THE AXIS AND ITS RISK):
   their self, their agency, their energy, what they stand to lose — not the literal
   contents of a house. Keep the year's SUBJECT (the activated
@@ -902,9 +903,18 @@ Produce two fields:
   recognize their day, without reading a chart printout; the raw mechanics live in
   the deep read.
 
+NO SINGLE MOVE. The guidance is the day's TILT, never one prescribed act. Modern life runs many
+threads at once; "move the one thing," "give it one committed hour," "the one piece to finish"
+each read SMALLER than the day actually is — they collapse a direction into an errand and undersell
+it. Name the LEAN — what today favors and what it resists — so the reader applies it across whatever
+is already on their plate. The beat-3 example ("serve less, guard your own ground, let the friction
+show you where you've given too much") is a TILT, not a task — keep that register: a posture to carry
+through everything, not one item to check off. This binds the narrative AND the question below.
+
 - question: one personalized question for today, grounded in this person's Time
-  Lord, dasha lords, activated profection house, and the day mode — the single
-  thing for them to sit with. It must read as theirs, not a generic mode prompt.
+  Lord, dasha lords, activated profection house, and the day mode — the LEAN for them
+  to sit with (the faculty or posture the day asks of them), never "which one thing to
+  do." It must read as theirs, not a generic mode prompt.
   This is the ONLY place a question mark is permitted; end the question with one.
 
 - goodFor: 3 to 6 short action phrases (3–7 words each) — the SAME synthesis as the
@@ -1272,4 +1282,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-10-signs-in-prose";
+export const PROMPT_VERSION = "2026-07-12-no-single-move";

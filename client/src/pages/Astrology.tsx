@@ -614,8 +614,8 @@ function DignityReadout() {
             <div key={d.planet} style={{ display: "flex", gap: "0.55rem", alignItems: "baseline" }}>
               <span style={{ fontSize: "0.8rem", fontWeight: 700, minWidth: "3.4rem", color: (PLANET_COLORS as any)[d.planet] ?? "var(--color-foreground)" }}>{d.planet}</span>
               <span style={{ fontSize: "0.78rem", lineHeight: 1.4 }}>
-                <span style={{ fontWeight: 600, color }}>{label}</span>
-                {flavor && <span style={{ color: "var(--color-muted-foreground)" }}> — {flavor}</span>}
+                <span style={{ fontWeight: 600, color }}><GlossaryText>{label}</GlossaryText></span>
+                {flavor && <span style={{ color: "var(--color-muted-foreground)" }}> — <GlossaryText>{flavor}</GlossaryText></span>}
               </span>
             </div>
           );

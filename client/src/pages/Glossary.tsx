@@ -158,6 +158,7 @@ export const GLOSSARY: GlossaryTerm[] = [
   { term: "Yogas", category: "System", definition: "Specific planetary combinations in the natal chart that produce particular results. There are hundreds of named yogas in Jyotish — some highly auspicious (Raj Yoga: planets in kendra-trikona relationship), some challenging (Kemadruma Yoga: Moon with no planets in adjacent signs). Yogas modify and color the overall chart reading." },
   { term: "Raj Yoga", category: "System", definition: "A royal combination — formed when the lord of a kendra (angular house) and the lord of a trikona (trine house) are connected by conjunction, mutual aspect, or exchange. Raj Yogas indicate periods of power, recognition, and achievement, especially when activated by the relevant dasha periods." },
   { term: "Neecha Bhanga", category: "System", definition: "Cancellation of debilitation — specific conditions that cancel or mitigate a planet's debilitation, often turning weakness into a form of strength. A debilitated planet can produce powerful results when neecha bhanga applies, sometimes even more powerfully than an exalted planet." },
+  { term: "Dispositor", category: "System", definition: "The ruler of the sign a planet sits in — its host. A planet lives on its dispositor's terms, so you read a placement by following the dispositor one step to its own sign and condition: a guest's stay is set by the house it lodges in. Chains of dispositors resolve toward the planets that anchor the chart." },
 ];
 
 
