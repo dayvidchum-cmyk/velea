@@ -1357,29 +1357,28 @@ room the review lands in) and through whether it touches a natal point — inter
 Read on a phone, attention thin. The read is FOUR fields — scene, story, tilt, closeLine —
 each PURE PROSE a person who knows no astrology reads without stumbling. There is NO separate
 "mechanics" or "why" layer and NO second dry pass: the placements live INSIDE the prose,
-named as readable texture with their life-meaning in the same breath, and the app's glossary
-links every term for the curious. Say each thing ONCE, in the prose; never restate it as data
-underneath. Depth from the line, never volume.
+named as readable texture with their life-meaning in the same breath. Say each thing ONCE.
 
-- scene: what TODAY actually is and what it asks — the day's weather (the day mode as its
-  atmosphere), landed on the literal life-area today activates (name the concrete nouns: the
-  writing, the client, the room of home — per NAME THE LITERAL PARTICULARS), with any live
-  sky condition woven in (a retrograde, a station, an eclipse window, a dimmed planet — see
-  THE MANDATE and rx-by-planet). The transit Moon and the mode belong here — but as the FEELING
-  of the territory today (where the day's light falls and how it falls), NEVER as "the Moon is
-  in your Nth house" or "exalted at strong degree." The scene must NOT open as a ledger; it
-  opens as a scene (see DISSOLVE THE CHART INTO STORY).
-- story: where the long story stands and how today's scene serves it — the chapter behind
-  giving way to what opens next (arc.journey), so the reader feels the arc carrying them, not
-  a stack of days. Name the dasha lords in plain, glossed terms (mahadasha = the long,
-  years-long cycle; antardasha = the season within it) and the standing self (the natal Moon,
-  hardWon honored) as readable prose. Per THE SLOW LAYERS DECAY: if recentReads already
-  carries this chapter, keep it to ONE clause — spend the words on what is live TODAY.
-- tilt: how to CARRY the day — its lean, what it favors and what it resists, as a posture to
-  apply across whatever is already on their plate (NO SINGLE MOVE — never one prescribed act,
-  never "the one thing"). When a live outer condition cuts against the day (a strained year
-  lord, a retrograde, an eclipse), name that honest friction here — the tilt holds BOTH the
-  green light and its cost.
+CONCISE, PRECISE, INFORMATIVE, USEFUL — THIS IS THE WHOLE BAR (David). The ENTIRE read is
+UNDER ~150 WORDS. It must be readable at a glance by a neurodivergent brain that bounces off a
+wall of text — if it's long, it fails, no matter how good the prose. Every line earns its
+place: cut anything that isn't precise AND useful. Depth from the line, never volume. Fit
+inside ~1.5 phone screens, not 5. Concise is not thin — the character/story voice stays, just
+tight.
+
+- scene (≤ ~50 words, 2–3 sentences): what TODAY is and what it asks — the day's weather (the
+  mode), where the day's light falls (the live life-territory), and the move. Any live sky
+  condition (a retrograde, a station, an eclipse, a dimmed planet — see THE MANDATE) woven in
+  ONLY if it's actually live today. As the FEELING of the territory, NEVER "the Moon is in
+  your Nth house / exalted at strong degree." Opens as a scene, never a ledger.
+- story (≤ ~40 words, 2 sentences): where the long story stands and how today serves it — the
+  chapter turning (arc.journey) and/or the standing self (the natal Moon, hardWon honored), in
+  the character/stage voice. Per THE SLOW LAYERS DECAY: if recentReads already carries this
+  chapter, ONE clause or skip it. Do NOT re-tell the whole arc — one live thread of it.
+- tilt (≤ ~45 words, 2–3 sentences): how to CARRY the day — its lean, what it favors and
+  resists, as a posture across the whole plate (NO SINGLE MOVE — never "the one thing"). If a
+  live outer condition cuts against the day (a strained year lord, a retrograde, an eclipse),
+  name that friction in ONE clause — the tilt holds both the green light and its cost.
   EVEN SELECTIVE IS NOT "ONE THING." A Selective day is the mode most likely to collapse
   into a single errand — resist it hardest here. Selective is a DISCERNING POSTURE carried
   across the whole plate: put your real weight where it earns it, let the noise go
@@ -1471,4 +1470,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-12-story-voice";
+export const PROMPT_VERSION = "2026-07-12-story-voice-concise";

@@ -230,7 +230,9 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
   try {
     const msg = await c.messages.create({
       model: MODEL,
-      max_tokens: 1800,
+      // ~150-word target (see DAY_READ_TAIL) ≈ ~220 tokens across 4 fields; 800 is a generous
+      // backstop that caps a runaway without truncating a compliant read. (Was 1800 → 5 screens.)
+      max_tokens: 800,
       system: [
         { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
         { type: "text" as const, text: DAY_READ_TAIL },
