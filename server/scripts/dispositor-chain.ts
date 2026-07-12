@@ -53,9 +53,10 @@ async function main(){
 
   if (checkLon != null){
     console.log(`Natal points near ${fmt(checkLon)} (the checked degree — e.g. an eclipse's Sun-end):`);
-    const pts = [["Sun","sun"],["Moon","moon"],["Mars","mars"],["Mercury","mercury"],["Jupiter","jupiter"],["Venus","venus"],["Saturn","saturn"],["Rahu","rahu"],["Ketu","ketu"],["Asc","lagna"]] as const;
-    const rows = pts.map(([name,k])=>({name, lon:n[k].longitude as number})).concat(n.mc?[{name:"MC",lon:n.mc.longitude}]:[])
-      .map(p=>({...p, orb: sep(p.lon, checkLon)})).sort((a,b)=>a.orb-b.orb);
+    const pts: [string, string][] = [["Sun","sun"],["Moon","moon"],["Mars","mars"],["Mercury","mercury"],["Jupiter","jupiter"],["Venus","venus"],["Saturn","saturn"],["Rahu","rahu"],["Ketu","ketu"],["Asc","lagna"]];
+    const base: { name: string; lon: number }[] = pts.map(([name,k])=>({name, lon:n[k].longitude as number}));
+    if (n.mc) base.push({ name: "MC", lon: n.mc.longitude as number });
+    const rows = base.map(p=>({...p, orb: sep(p.lon, checkLon)})).sort((a,b)=>a.orb-b.orb);
     for (const r of rows.slice(0,4)) console.log(`  ${r.name.padEnd(5)} ${fmt(r.lon).padEnd(16)} ${r.orb.toFixed(1)}°${r.orb<=8?"  ◄ in orb":""}`);
     const empty = signOf(checkLon);
     const occupants = rows.filter(r=>signOf(r.lon)===empty && r.name!=="Asc" && r.name!=="MC");

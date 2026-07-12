@@ -123,7 +123,7 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
     if (aspectsHouse(dispositor, houseAway)) reasons.push(`aspected by dispositor ${dispositor}`);
   }
 
-  const uniq = [...new Set(reasons)];
+  const uniq = Array.from(new Set(reasons));
   return { cancelled: uniq.length > 0, reasons: uniq, count: uniq.length };
 }
 

@@ -1638,6 +1638,27 @@ export const appRouter = router({
         }
         return { days };
       }),
+
+    /** Natal dignity of each graha for the active profile — WITH neecha-bhanga cancellation, so a
+     *  debilitated-but-cancelled planet is never read as flatly weak (David 2026-07-12). */
+    dignities: protectedProcedure.query(async ({ ctx }) => {
+      const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile || !(profile as any).lagnaSign) return null;
+      const { natalDignities, GRAHAS } = await import("./vedic/dignity.js");
+      const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+      const lagIdx = ZOD.indexOf((profile as any).lagnaSign);
+      if (lagIdx < 0) return null;
+      const bodies = await getProfileNatalBodies(profile.id);
+      const lonBy: Record<string, number> = {};
+      for (const g of GRAHAS) {
+        const b = bodies.find((x: any) => x.planet === g);
+        const lon = b && (b as any).longitude != null ? parseFloat(String((b as any).longitude)) : NaN;
+        if (Number.isNaN(lon)) return null; // incomplete chart → no partial verdict
+        lonBy[g] = lon;
+      }
+      return natalDignities(lonBy as any, lagIdx * 30);
+    }),
   }),
 
   // ── MASTER MODE (Pancha Pakshi hourly timing) — GATED to an allowlist (private) ──

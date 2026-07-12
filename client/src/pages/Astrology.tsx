@@ -579,6 +579,52 @@ function NatalExplainer() {
 
 // ── Natal section ──────────────────────────────────────────────────────────
 
+// ── Dignity & strength ──────────────────────────────────────────────────────
+// Reads server-computed natal dignity WITH neecha-bhanga cancellation. The whole point:
+// a debilitated-but-cancelled planet (David's Moon) is NOT flatly weak — it's the
+// fall-then-rise, "hard-won strength", carried in the DAY color, never the debil-red.
+function describeDignity(d: any, modeColor: string): { label: string; flavor: string; color: string } {
+  if (d.state === "exalted") return { label: "Exalted", flavor: "at full power, in its highest sign", color: "#1f9d57" };
+  if (d.state === "moolatrikona") return { label: "Moolatrikona", flavor: "in its seat of strength", color: "#357E85" };
+  if (d.state === "own") return { label: "Own sign", flavor: "dignified, at home", color: "#357E85" };
+  if (d.state === "debilitated") {
+    if (d.neechaBhanga?.cancelled)
+      return { label: "Debilitated — but cancelled (neecha bhanga)", flavor: `hard-won strength: it fell, and rose (${d.neechaBhanga.reasons.join("; ")})`, color: modeColor };
+    return { label: "Debilitated", flavor: "weakened in its fall — needs support", color: "#cc3b2e" };
+  }
+  return { label: d.state, flavor: "", color: "var(--color-foreground)" };
+}
+
+function DignityReadout() {
+  const { data } = trpc.crown.dignities.useQuery(undefined, { retry: false });
+  const modeColor = useDayModeColor();
+  if (!data) return null;
+  const order = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+  const notable = order.map((p) => (data as any)[p]).filter((d) => d && d.state !== "neutral");
+  if (!notable.length) return null;
+  return (
+    <div style={{ borderRadius: "0.75rem", border: "1px solid var(--color-border)", padding: "0.75rem 0.9rem" }}>
+      <div style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--color-muted-foreground)", marginBottom: "0.55rem" }}>
+        Dignity &amp; strength
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+        {notable.map((d: any) => {
+          const { label, flavor, color } = describeDignity(d, modeColor);
+          return (
+            <div key={d.planet} style={{ display: "flex", gap: "0.55rem", alignItems: "baseline" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, minWidth: "3.4rem", color: (PLANET_COLORS as any)[d.planet] ?? "var(--color-foreground)" }}>{d.planet}</span>
+              <span style={{ fontSize: "0.78rem", lineHeight: 1.4 }}>
+                <span style={{ fontWeight: 600, color }}>{label}</span>
+                {flavor && <span style={{ color: "var(--color-muted-foreground)" }}> — {flavor}</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function NatalSection() {
   const { data: subject, isLoading, error } = trpc.profiles.getSubject.useQuery();
   const dayLabelColor = useDayModeColor();
@@ -637,6 +683,10 @@ export function NatalSection() {
 
       {/* Planet table */}
       <PlanetTable natalBodies={subject.natalBodies} />
+
+      {/* Dignity & strength — with neecha-bhanga cancellation (a cancelled fall reads as hard-won,
+          not weak). Renders only the notable placements. */}
+      <DignityReadout />
     </div>
   );
 }
