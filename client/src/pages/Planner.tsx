@@ -1042,11 +1042,11 @@ export default function Planner() {
           <div className="flex items-baseline gap-2">
             <h2
               style={{
-                fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
-                fontSize: "1rem",
-                fontWeight: 600,
+                fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+                fontSize: "1.3rem",
+                fontWeight: 700,
                 color: "#2a2a2a",
-                letterSpacing: "0.04em",
+                letterSpacing: "0.01em",
               }}
             >
               {MONTHS[viewDate.getMonth()]}
@@ -1055,7 +1055,7 @@ export default function Planner() {
               style={{
                 fontSize: "0.8rem",
                 fontWeight: 500,
-                color: "#8a8a8a",
+                color: "#2a2a2a",
                 letterSpacing: "0.1em",
               }}
             >
