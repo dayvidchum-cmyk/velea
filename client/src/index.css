@@ -66,15 +66,15 @@
 
 :root {
   --background: #121212;
-  --foreground: #EAE7E1;
+  --foreground: #FDFDFD;
   --card: #121212;
-  --card-foreground: #EAE7E1;
+  --card-foreground: #FDFDFD;
   --popover: #121212;
-  --popover-foreground: #EAE7E1;
+  --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
   --secondary: #111111;
-  --secondary-foreground: #EAE7E1;
+  --secondary-foreground: #FDFDFD;
   --muted: #111111;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
@@ -580,15 +580,15 @@
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
   --background: #121212;
-  --foreground: #EAE7E1;
+  --foreground: #FDFDFD;
   --card: #121212;
-  --card-foreground: #EAE7E1;
+  --card-foreground: #FDFDFD;
   --popover: #121212;
-  --popover-foreground: #EAE7E1;
+  --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
   --secondary: #111111;
-  --secondary-foreground: #EAE7E1;
+  --secondary-foreground: #FDFDFD;
   --muted: #111111;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
@@ -967,18 +967,18 @@ html.full-spectrum .signature-ink { filter: invert(1); mix-blend-mode: screen; }
    dark, so cards/inputs built on them never flash white under FS. Placed last to win the
    specificity tie with html.light. */
 html.full-spectrum {
-  --foreground: #EAE7E1;
+  --foreground: #FDFDFD;
   --muted-foreground: rgba(234, 231, 225, 0.66);
   --border: rgba(234, 231, 225, 0.16);
-  --card-foreground: #EAE7E1;
-  --popover-foreground: #EAE7E1;
-  --secondary-foreground: #EAE7E1;
-  --color-foreground: #EAE7E1;
+  --card-foreground: #FDFDFD;
+  --popover-foreground: #FDFDFD;
+  --secondary-foreground: #FDFDFD;
+  --color-foreground: #FDFDFD;
   --color-muted-foreground: rgba(234, 231, 225, 0.66);
   --color-border: rgba(234, 231, 225, 0.16);
-  --color-card-foreground: #EAE7E1;
-  --color-popover-foreground: #EAE7E1;
-  --color-secondary-foreground: #EAE7E1;
+  --color-card-foreground: #FDFDFD;
+  --color-popover-foreground: #FDFDFD;
+  --color-secondary-foreground: #FDFDFD;
   --input: rgba(0, 0, 0, 0.22);
   --color-input: rgba(0, 0, 0, 0.22);
   --muted: rgba(0, 0, 0, 0.22);
