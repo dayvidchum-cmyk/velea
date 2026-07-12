@@ -1181,14 +1181,17 @@ export default function Planner() {
                     transition: "background 150ms",
                     color: numberColor,
                     background: restingBg,
-                    // The ring carries the day-mode color on every un-filled day; golden and caution
-                    // days keep their special borders (gold / red). Today and the pressed day are
-                    // FILLED, so they no longer need a white border — the fill is the highlight.
+                    // David 2026-07-11: day-mode rings REMOVED. A regular day is just its colored
+                    // number (or, for today / the pressed day, a filled coin). A ring survives ONLY on
+                    // the days that earn one: caution (red), knot/crown (gold), golden (gold), and
+                    // station (the day-mode color, around the planet glyph).
                     border: cautionSet.has(dateStr)
                       ? `2px solid ${CAUTION_RED}`
+                      : isCrown
+                      ? `2px solid ${GOLD_BRIGHT}`
                       : isGolden
                       ? `2px solid ${GOLD_BRIGHT}`
-                      : hasMode
+                      : stationsToday.length
                       ? `1.5px solid ${accent}`
                       : "1px solid transparent",
                   }}
