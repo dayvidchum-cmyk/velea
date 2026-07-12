@@ -1112,6 +1112,7 @@ export default function Planner() {
             const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
             const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
+            const ECLIPSE_RING = "#6E5AA6"; // muted violet — echoes the eclipse disc's cosmic indigo
             // Retrograde planets active this day → the bottom glyph strip (rendered below).
             const retroToday = retroByDate.get(dateStr);
             const stationsToday = retroToday?.filter((e) => e.state === "station-retro" || e.state === "station-direct") ?? [];
@@ -1177,6 +1178,8 @@ export default function Planner() {
                     // station (the day-mode color, around the planet glyph).
                     border: cautionSet.has(dateStr)
                       ? `2px solid ${CAUTION_RED}`
+                      : eclipseByDate.has(dateStr)
+                      ? `2px solid ${ECLIPSE_RING}`
                       : isCrown
                       ? `2px solid ${GOLD_BRIGHT}`
                       : isGolden
