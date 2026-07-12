@@ -1076,7 +1076,7 @@ export default function Planner() {
             <div
               key={i}
               className="text-center text-xs font-semibold tracking-wide py-1"
-              style={{ color: "#9a9a9a", letterSpacing: "0.04em" }}
+              style={{ color: "#2a2a2a", letterSpacing: "0.04em" }}
             >
               {d}
             </div>
@@ -1198,20 +1198,15 @@ export default function Planner() {
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                   ) : stationsToday.length ? (
-                    // Station day: the turning planet's glyph replaces the number, in the DAY-MODE
-                    // color — same as the ring (David). Grid place-centers the em-box; the symbol
-                    // font's ink sits above its own baseline, so a small translateY drops it to the
-                    // optical centre of the ring. (Tune the em value if it reads high/low.)
-                    <span style={{ display: "grid", gridAutoFlow: "column", gap: 2, placeItems: "center", width: "100%", height: "100%", lineHeight: 1, pointerEvents: "none" }}>
+                    // Station day: the turning planet's glyph, in the DAY-MODE color. Rendered as
+                    // SVG <text> with dominant-baseline="central" + text-anchor="middle" so the glyph
+                    // is TRULY centered in the coin — HTML text + translateY never reliably centered
+                    // these symbol-font glyphs (they kept sitting high).
+                    <span style={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                       {stationsToday.map((e) => (
-                        <span key={e.planet} style={{
-                          fontFamily: PLANET_GLYPH_FONT,
-                          fontSize: stationsToday.length > 1 ? "1.3rem" : "1.75rem",
-                          fontWeight: 800,
-                          lineHeight: 1,
-                          color: accent,
-                          transform: "translateY(0.09em)",
-                        }}>{PLANET_GLYPH[e.planet]}</span>
+                        <svg key={e.planet} width={stationsToday.length > 1 ? 19 : 26} height={26} viewBox="0 0 24 24" style={{ overflow: "visible" }}>
+                          <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fontFamily={PLANET_GLYPH_FONT} fontSize={stationsToday.length > 1 ? 14 : 18} fontWeight={800} fill={accent}>{PLANET_GLYPH[e.planet]}</text>
+                        </svg>
                       ))}
                     </span>
                   ) : (
