@@ -1023,7 +1023,8 @@ export default function Planner() {
         className="relative z-10 overflow-hidden"
         style={{
           borderRadius: "16px",
-          border: `2px solid ${calModeColor}`,
+          // Soft sliver frame — a 1px hairline at low opacity of the day-mode color (David).
+          border: `1px solid color-mix(in srgb, ${calModeColor} 38%, transparent)`,
           // David's law (2026-07-11): the calendar body is ALWAYS #FDFDFD — appearance mode never
           // touches it. The coins carry all the color; the surface stays a clean light foundation.
           background: "#FDFDFD",
