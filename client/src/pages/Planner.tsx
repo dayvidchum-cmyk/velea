@@ -1214,7 +1214,6 @@ export default function Planner() {
                           fontWeight: 800,
                           lineHeight: 1,
                           color: retroColor[e.planet] ?? "currentColor",
-                          textShadow: "0 0 1.5px rgba(0,0,0,0.5)",
                         }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
