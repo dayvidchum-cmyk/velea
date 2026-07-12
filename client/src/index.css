@@ -754,16 +754,16 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 html.light {
   --background: #FDFDFD;
-  --foreground: #000000;
+  --foreground: #2d2d2d;
   --brand-gold: #C9A84C;
   --card: #FFFFFF;
-  --card-foreground: #000000;
+  --card-foreground: #2d2d2d;
   --popover: #FFFFFF;
-  --popover-foreground: #000000;
+  --popover-foreground: #2d2d2d;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #FDFDFD;
   --secondary: #F5F5F5;
-  --secondary-foreground: #000000;
+  --secondary-foreground: #2d2d2d;
   --muted: #F5F5F5;
   --muted-foreground: #666666;
   --accent: oklch(0.767 0.139 91.1);
@@ -779,18 +779,18 @@ html.light {
   --space-navy: #F5F5F5;
   --space-mid: #FFFFFF;
   --space-light: #F0F0F0;
-  --cream: #000000;
+  --cream: #2d2d2d;
   --cream-dim: #666666;
   --mode-action: oklch(0.40 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.48 0.14 10);
   --mode-selective: oklch(0.42 0.12 200);
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #000000;
+  --sidebar-foreground: #2d2d2d;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #FDFDFD;
   --sidebar-accent: #F5F5F5;
-  --sidebar-accent-foreground: #000000;
+  --sidebar-accent-foreground: #2d2d2d;
   --sidebar-border: #E5E5E5;
   --sidebar-ring: oklch(0.767 0.139 91.1);
   /* Task card backgrounds — light mode with better contrast */
