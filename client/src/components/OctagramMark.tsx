@@ -35,6 +35,8 @@ export default function OctagramMark({
       {/* Two equal squares, one rotated 45° — their union is the eight-pointed star. */}
       <path d="M12 2 L22 12 L12 22 L2 12 Z" />
       <path d="M5 5 H19 V19 H5 Z" />
+      {/* The bindu at its heart — a solid point held in the star. */}
+      <circle cx="12" cy="12" r="2.3" fill={color} stroke="none" />
     </svg>
   );
 }

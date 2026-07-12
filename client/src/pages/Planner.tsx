@@ -1195,8 +1195,9 @@ export default function Planner() {
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
                 >
                   {isCrown ? (
-                    // The knot mark — a solid gold eight-pointed star (octagram). The day is the mark.
-                    <OctagramMark size={15} color={GOLD_BRIGHT} fill={GOLD_BRIGHT} strokeWidth={0} style={{ filter: "drop-shadow(0 0 5px rgba(242,194,28,0.7))", pointerEvents: "none" }} />
+                    // The knot mark — the OUTLINE gold octagram (with its centre bindu), sized to
+                    // fill the coin. The day is the mark.
+                    <OctagramMark size={28} color={GOLD_BRIGHT} strokeWidth={1.6} style={{ filter: "drop-shadow(0 0 4px rgba(242,194,28,0.6))", pointerEvents: "none" }} />
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
