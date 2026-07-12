@@ -1208,8 +1208,12 @@ export default function Planner() {
                     // as a white-outline coin (David). Bright gold normally; on a filled Build coin
                     // (itself gold) it takes the number's dark tonal ink so it reads engraved.
                     (() => {
+                      // On a bright-gold Build coin the knot needs to read WITHOUT becoming a dark
+                      // blob — a solid star covers far more area than a thin number, so the number's
+                      // darkInk (0.5×L) is too heavy here. Use a softer medium amber (0.72×L): visible,
+                      // engraved, not a sore thumb (David). Bright gold elsewhere.
                       const knotOnGold = filled && modeColor === MODE_DOT.Build;
-                      const knotColor = knotOnGold ? darkInk : GOLD_BRIGHT;
+                      const knotColor = knotOnGold ? darkenOklch(accent, 0.72) : GOLD_BRIGHT;
                       return <OctagramMark size={24} color={knotColor} fill={knotColor} strokeWidth={0.75} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))", pointerEvents: "none" }} />;
                     })()
                   ) : eclipseByDate.has(dateStr) ? (
@@ -1223,7 +1227,7 @@ export default function Planner() {
                     // above the 1rem number so the turning planet reads at a glance (David).
                     <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1rem" : "1.35rem", fontWeight: 500, color: accent, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
+                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.2rem" : "1.65rem", fontWeight: 500, color: accent, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
                   ) : (
