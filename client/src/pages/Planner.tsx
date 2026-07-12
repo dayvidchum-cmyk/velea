@@ -1143,7 +1143,7 @@ export default function Planner() {
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
-            const darkInk = darkenOklch(accent, 0.32);
+            const darkInk = darkenOklch(accent, 0.5);
             const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
             const restingBg = filled ? accent : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
@@ -1170,7 +1170,7 @@ export default function Planner() {
                 className="flex flex-col items-center transition-all duration-150"
                 style={{ width: "100%", gap: "0.2rem" }}
               >
-                {/* The round date coin. The retrograde strip rides in its own lane below. */}
+                {/* The round date coin. */}
                 <div
                   className="flex items-center justify-center"
                   style={{
@@ -1207,13 +1207,13 @@ export default function Planner() {
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                   ) : stationsToday.length ? (
-                    // Station day: the turning planet's glyph replaces the number — the turn owns the
-                    // coin. LARGE + a hair of dark edge for separation (no color-blur glow — it smeared).
-                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                    // Station day: the turning planet's glyph replaces the number. Sized to sit
+                    // centered inside the 2rem ring (1.75rem cramped it against the edge).
+                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}>
                       {stationsToday.map((e) => (
                         <span key={e.planet} style={{
                           fontFamily: PLANET_GLYPH_FONT,
-                          fontSize: stationsToday.length > 1 ? "1.3rem" : "1.75rem",
+                          fontSize: stationsToday.length > 1 ? "1.05rem" : "1.4rem",
                           fontWeight: 800,
                           lineHeight: 1,
                           color: retroColor[e.planet] ?? "currentColor",
@@ -1226,29 +1226,6 @@ export default function Planner() {
                     </span>
                   )}
                 </div>
-                {/* Track lane UNDER the coin — one fixed slot per retrograde planet this month, so
-                    each planet's span reads as ONE continuous colored line across days (not a glyph
-                    repeated daily). Opacity = state: window/station full, rx dimmer, shadow faintest,
-                    inactive transparent. Stations show the glyph on the coin above; the line stays
-                    lit through them for continuity. */}
-                {monthRetroPlanets.length ? (
-                  <div style={{ width: "100%", maxWidth: "2.5rem", display: "flex", flexDirection: "column", gap: 2, pointerEvents: "none" }}>
-                    {monthRetroPlanets.map((planet) => {
-                      const st = retroToday?.find((e) => e.planet === planet)?.state;
-                      const col = retroColor[planet];
-                      const solid = st === "window" || st === "station-retro" || st === "station-direct";
-                      // Shadow = a DASHED line (unmistakably different from the solid retrograde run);
-                      // window/station = full solid, rx = solid but a touch quieter, inactive = blank.
-                      const bg = st === "shadow"
-                        ? `repeating-linear-gradient(90deg, ${col} 0 3px, transparent 3px 6px)`
-                        : (solid || st === "rx") ? col : "transparent";
-                      const op = solid ? 1 : st === "rx" ? 0.75 : st === "shadow" ? 0.9 : 0;
-                      return (
-                        <div key={planet} style={{ height: 3, borderRadius: solid || st === "rx" ? 2 : 0, background: bg, opacity: op }} />
-                      );
-                    })}
-                  </div>
-                ) : null}
               </button>
             );
           })}
