@@ -13,6 +13,7 @@ import { getDayField, gateDayField } from "../panchang/service.js";
 import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction.js";
 import { strength, dignityLabel, signLordOf } from "../panchang/dignity.js";
 import { crownDay } from "../panchang/crown.js";
+import { natalDignities } from "../vedic/dignity.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
@@ -133,7 +134,16 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     }
     return out.sort((a, b) => a.orb - b.orb);
   };
-  const nat = (b: any) => (b ? { sign: b.sign, house: b.house, nakshatra: b.nakshatra, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(b.planet, b.sign, degOf(b) ?? undefined), retrograde: !!b.isRetrograde, conjunct: conjunctOf(b.planet) } : null);
+  // Neecha-bhanga-aware dignity for the whole natal chart, computed ONCE. A debilitated
+  // planet whose fall is CANCELLED is not weak — it's hard-won strength (the fall-then-rise,
+  // a raja-yoga signature). Dignity and cancellation must travel together (raw debilitation
+  // is a trap). The flat dignityLabel can't know this — cancellation needs the whole chart.
+  const lagnaLonForDig = ZODIAC.indexOf(lagna) * 30 + (p.ascendantDegree != null && !isNaN(parseFloat(p.ascendantDegree)) ? parseFloat(p.ascendantDegree) : 0);
+  let natDig: Record<string, any> = {};
+  try { natDig = natalDignities(lonAll as any, lagnaLonForDig); } catch { natDig = {}; }
+  const cancelledOf = (planet: string) => !!natDig[planet]?.neechaBhanga?.cancelled;
+  const hardWonOf = (planet: string) => !!natDig[planet]?.debilitated && cancelledOf(planet);
+  const nat = (b: any) => (b ? { sign: b.sign, house: b.house, nakshatra: b.nakshatra, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(b.planet, b.sign, degOf(b) ?? undefined), cancelledDebilitation: cancelledOf(b.planet), hardWon: hardWonOf(b.planet), retrograde: !!b.isRetrograde, conjunct: conjunctOf(b.planet) } : null);
 
   const lagnaDeg = p.ascendantDegree != null && !isNaN(parseFloat(p.ascendantDegree)) ? +parseFloat(p.ascendantDegree).toFixed(1) : null;
   const natal = {
@@ -145,7 +155,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     lagnaThreshold: threshold(lagna, lagnaDeg),
     planets: PLANETS.map((n) => {
       const b = byPlanet[n];
-      return b ? { name: n, sign: b.sign, house: b.house, nakshatra: b.nakshatra, pada: b.pada, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(n, b.sign, degOf(b) ?? undefined), retrograde: !!b.isRetrograde, rulesHouses: rulesHouses(n, lagna), conjunct: conjunctOf(n) } : null;
+      return b ? { name: n, sign: b.sign, house: b.house, nakshatra: b.nakshatra, pada: b.pada, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(n, b.sign, degOf(b) ?? undefined), cancelledDebilitation: cancelledOf(n), hardWon: hardWonOf(n), retrograde: !!b.isRetrograde, rulesHouses: rulesHouses(n, lagna), conjunct: conjunctOf(n) } : null;
     }).filter(Boolean),
   };
 

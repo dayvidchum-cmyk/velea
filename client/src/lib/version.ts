@@ -172,4 +172,10 @@
 // tightened (coin 2.5→2rem) so the circle hugs the digit. Reverted to the BRIGHT/true mode palette
 // (bright gold is fine on white) — and a FILLED coin's number is now a very dark TONAL version of
 // its day-mode color (darkenOklch ×0.32) instead of flat white: a monochromatic, more elegant coin.
-export const APP_VERSION = "1.1.387";
+// v1.1.388 = 2026-07-12 — Two fixes. (1) Calendar knot mark: the Star of Lakshmi (octagram) is drawn
+// in LINES again (outline + center bindu + glow), not a solid fill (David) — the amber-on-gold stroke
+// on a Build coin is kept so a knot+Build day still reads. (2) Neecha bhanga in the dasha breakdown:
+// a debilitated-but-CANCELLED dasha lord (David's Moon) no longer reads as flatly "debilitated" — it
+// gains a gold "hard-won strength — neecha bhanga" bullet, fed by the server crown.dignities engine.
+// Same signal (cancelledDebilitation/hardWon) wired into the narrative input so the LLM prose honors it.
+export const APP_VERSION = "1.1.388";

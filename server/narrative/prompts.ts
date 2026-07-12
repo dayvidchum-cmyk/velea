@@ -9,7 +9,11 @@ generic astrology prose.
 INPUT
 You receive one JSON object with these blocks:
 - natal: { lagna, moonFramed, personalApex, planets:[{ name, sign, house, nakshatra, pada, dignity,
-  retrograde, rulesHouses:[int] }] } — moonFramed TRUE means NO birth time was given, so the
+  cancelledDebilitation, hardWon, retrograde, rulesHouses:[int] }] } — hardWon TRUE means the planet
+  is debilitated but the fall is CANCELLED (neecha bhanga): it is NOT weak — it is hard-won strength,
+  the fall-then-rise (often a raja-yoga signature). NEVER write such a planet as flatly "debilitated"
+  or "weak"; name the recovery — it fell and rose, and its power is earned, not given. This applies
+  everywhere the planet is described, dasha lords included. moonFramed TRUE means NO birth time was given, so the
   lagna is the MOON'S sign (Chandra lagna), not the rising sign; see the 1st-house Moon-framed rule.
   personalApex: { isCrown, tara, taraFavorable, chandraHouse, chandraFavorable } — today's PERSONAL
   day-strength from the birth star (tara) + the natal Moon (chandraHouse); isCrown TRUE = a rare
@@ -1282,4 +1286,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-12-no-single-move";
+export const PROMPT_VERSION = "2026-07-12-neecha-bhanga";

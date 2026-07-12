@@ -160,6 +160,10 @@ export default function ProfectionYear() {
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
   const { data: subject } = trpc.profiles.getSubject.useQuery();
   const { data: dashaTimeline } = trpc.dasha.timeline.useQuery(undefined, { retry: false });
+  // Neecha-bhanga-aware natal dignity (server-computed) — so a dasha lord that is
+  // debilitated-but-CANCELLED never reads as flatly weak. A cancelled fall is hard-won
+  // strength (the fall-then-rise), not a deficit. Keyed by planet.
+  const { data: dignities } = trpc.crown.dignities.useQuery(undefined, { retry: false });
   const localToday = useMemo(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -298,16 +302,18 @@ export default function ProfectionYear() {
 
   // A planet's placement, under a gold header that names WHO it is (Venus · Time Lord,
   // Moon Mahadasha…). Without the header a bullet like "Sits in the 6th" has no subject.
-  const planetGroupBlock = (g: { label: string; bullets: { head: string; gloss: string }[] }) => (
+  const planetGroupBlock = (g: { label: string; bullets: { head: string; gloss: string; tone?: "hardWon" }[] }) => (
     <div style={{ marginTop: "0.95rem" }}>
       <p style={{ color: "#E7C766", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" as const, margin: "0 0 0.45rem" }}>{g.label}</p>
       <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
         {g.bullets.map((bl, i) => (
           <li key={i} style={{ fontSize: "0.9rem", lineHeight: 1.45, display: "flex", gap: "0.55rem" }}>
-            <span style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0, fontWeight: 700, lineHeight: "1.35rem" }}>•</span>
+            <span style={{ color: bl.tone === "hardWon" ? "#E7C766" : "rgba(255,255,255,0.5)", flexShrink: 0, fontWeight: 700, lineHeight: "1.35rem" }}>{bl.tone === "hardWon" ? "✦" : "•"}</span>
             <span>
-              <span style={{ color: "rgba(255,255,255,0.92)" }}>{bl.head}</span>
-              {bl.gloss && <span style={{ color: "rgba(255,255,255,0.6)" }}> ({bl.gloss})</span>}
+              {/* A cancelled debilitation (neecha bhanga) reads in gold as hard-won strength,
+                  never the muted-white of an ordinary placement — the fall-then-rise is a signature. */}
+              <span style={{ color: bl.tone === "hardWon" ? "#E7C766" : "rgba(255,255,255,0.92)", fontWeight: bl.tone === "hardWon" ? 600 : 400 }}>{bl.head}</span>
+              {bl.gloss && <span style={{ color: bl.tone === "hardWon" ? "rgba(231,199,102,0.7)" : "rgba(255,255,255,0.6)" }}> ({bl.gloss})</span>}
             </span>
           </li>
         ))}
@@ -374,15 +380,24 @@ export default function ProfectionYear() {
   const buildPlanetGroup = (lord: string, label: string) => {
     const bodies: any[] = (subject as any)?.natalBodies ?? [];
     if (!lord || !lagnaSign || bodies.length === 0) return null;
-    const bullets: { head: string; gloss: string }[] = [];
+    const bullets: { head: string; gloss: string; tone?: "hardWon" }[] = [];
     const b = bodies.find((x) => x.planet === lord);
+    // Is this lord debilitated-but-cancelled (neecha bhanga)? Server-computed; the flat
+    // dignityWord table can't know — cancellation needs the whole chart. A cancelled fall
+    // is NEVER written as plain "debilitated" (David: "Moon dignity here").
+    const dg: any = (dignities as any)?.[lord];
+    const cancelled = dg?.state === "debilitated" && !!dg?.neechaBhanga?.cancelled;
     if (b) {
-      const states = [dignityWord(lord, b.sign), b.isRetrograde ? "retrograde" : null].filter(Boolean) as string[];
+      const digWord = cancelled ? "debilitated but cancelled" : dignityWord(lord, b.sign);
+      const states = [digWord, b.isRetrograde ? "retrograde" : null].filter(Boolean) as string[];
       const cond = states.join(" and ");
       const head = cond
         ? `${cond.charAt(0).toUpperCase()}${cond.slice(1)} in the ${ORD[b.house]} house`
         : `In the ${ORD[b.house]} house`;
       bullets.push({ head, gloss: HOUSE_GLOSS[b.house] ?? "" });
+      // The cancellation's own flavor: hard-won strength, the fall-then-rise (a raja-yoga
+      // signature). Its own gold bullet so the eye doesn't stop at "debilitated".
+      if (cancelled) bullets.push({ head: "Hard-won strength — neecha bhanga", gloss: "it fell, and rose", tone: "hardWon" });
     }
     for (const h of housesRuledFromLagna(lord, lagnaSign)) {
       bullets.push({ head: `Rules the ${ORD[h]} house`, gloss: HOUSE_GLOSS[h] ?? "" });
@@ -402,7 +417,7 @@ export default function ProfectionYear() {
     return [
       buildPlanetGroup(cur.mahadasha, `${cur.mahadasha} Mahadasha`),
       buildPlanetGroup(cur.antardasha, `${cur.antardasha} Antardasha`),
-    ].filter(Boolean) as { label: string; bullets: { head: string; gloss: string }[] }[];
+    ].filter(Boolean) as { label: string; bullets: { head: string; gloss: string; tone?: "hardWon" }[] }[];
   })();
 
   // The interpretive takeaway = the part of whyNow.why after a late em dash.

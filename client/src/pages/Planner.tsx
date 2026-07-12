@@ -1203,18 +1203,17 @@ export default function Planner() {
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
                   {isCrown ? (
-                    // The knot mark — a SOLID octagram (Star of Lakshmi). Solid, never a hollow
-                    // outline: an unfilled star let the light calendar show through its middle and read
-                    // as a white-outline coin (David). Bright gold normally; on a filled Build coin
-                    // (itself gold) it takes the number's dark tonal ink so it reads engraved.
+                    // The knot mark — an OUTLINE octagram (Star of Lakshmi), drawn in LINES, not a
+                    // solid fill (David: "I want the lakshmi stars to be lines again"). The center
+                    // bindu (a solid point in the star's heart) + a soft glow keep it reading as a
+                    // luminous star, not a hollow white coin.
                     (() => {
-                      // On a bright-gold Build coin the knot needs to read WITHOUT becoming a dark
-                      // blob — a solid star covers far more area than a thin number, so the number's
-                      // darkInk (0.5×L) is too heavy here. Use a softer medium amber (0.72×L): visible,
-                      // engraved, not a sore thumb (David). Bright gold elsewhere.
+                      // On a bright-gold Build coin a GOLD line would vanish — so the stroke takes a
+                      // softer medium amber (0.72×L) there: visible, engraved, not a sore thumb.
+                      // Bright gold with a glow everywhere else.
                       const knotOnGold = filled && modeColor === MODE_DOT.Build;
                       const knotColor = knotOnGold ? darkenOklch(accent, 0.72) : GOLD_BRIGHT;
-                      return <OctagramMark size={24} color={knotColor} fill={knotColor} strokeWidth={0.75} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))", pointerEvents: "none" }} />;
+                      return <OctagramMark size={24} color={knotColor} strokeWidth={1.6} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))", pointerEvents: "none" }} />;
                     })()
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
