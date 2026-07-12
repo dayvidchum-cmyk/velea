@@ -1140,7 +1140,11 @@ export default function Planner() {
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
             const darkInk = darkenOklch(accent, 0.5);
-            const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
+            // A caution day is always contained to Restraint and already wears the red ring — so the
+            // number is bright red too, matching the circle (David). Applies filled or outline.
+            const isCautionDay = cautionSet.has(dateStr);
+            const numberColor = isCautionDay ? CAUTION_RED : filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
+            const activeInk = isCautionDay ? CAUTION_RED : darkInk; // number color while hovered/pressed
             const restingBg = filled ? accent : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
@@ -1193,28 +1197,33 @@ export default function Planner() {
                       ? `1.5px solid ${accent}`
                       : "1px solid transparent",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = numberColor; }}
-                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
-                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
+                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
+                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
                   {isCrown ? (
-                    // The knot mark — the OUTLINE gold octagram (with its centre bindu), sized to
-                    // fill the coin. The day is the mark.
-                    <OctagramMark size={28} color={GOLD_BRIGHT} strokeWidth={1.6} style={{ filter: "drop-shadow(0 0 4px rgba(242,194,28,0.6))", pointerEvents: "none" }} />
+                    // The knot mark — the octagram (Star of Lakshmi, with its centre bindu), sized to
+                    // fill the coin. Normally BRIGHT GOLD (with a gold glow) — reads on white outline
+                    // coins and on green/teal/rose filled coins alike. The one collision: a FILLED
+                    // Build coin is itself bright gold, so a gold knot vanishes (David, 7/12) — there
+                    // the knot takes the number's dark tonal ink so it reads engraved, glow dropped.
+                    (() => {
+                      const knotOnGold = filled && modeColor === MODE_DOT.Build;
+                      return <OctagramMark size={28} color={knotOnGold ? darkInk : GOLD_BRIGHT} strokeWidth={1.6} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 4px rgba(242,194,28,0.6))", pointerEvents: "none" }} />;
+                    })()
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                   ) : stationsToday.length ? (
-                    // Station day: the turning planet's glyph, in the DAY-MODE color. Rendered as
-                    // SVG <text> with dominant-baseline="central" + text-anchor="middle" so the glyph
-                    // is TRULY centered in the coin — HTML text + translateY never reliably centered
-                    // these symbol-font glyphs (they kept sitting high).
-                    <span style={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                    // Station day: the turning planet's glyph, in the DAY-MODE color. Rendered the same
+                    // proven way as the date number and the retro strip — a plain flex-centered span
+                    // with line-height:1. The SVG <text> route kept these Apple-Symbols astro glyphs
+                    // sitting high; the coin's own flexbox centers a plain span cleanly. Sized well
+                    // above the 1rem number so the turning planet reads at a glance (David).
+                    <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <svg key={e.planet} width={stationsToday.length > 1 ? 22 : 30} height={30} viewBox="0 0 24 24" style={{ overflow: "visible" }}>
-                          <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fontFamily={PLANET_GLYPH_FONT} fontSize={stationsToday.length > 1 ? 16 : 21} fontWeight={400} fill={accent}>{PLANET_GLYPH[e.planet]}</text>
-                        </svg>
+                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1rem" : "1.35rem", fontWeight: 500, color: accent, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
                   ) : (
