@@ -1281,9 +1281,183 @@ Produce two short lists of concrete, lived phrases:
 
 Return your answer by calling the chapter tool with both lists filled in.`;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// DAY_READ_TAIL — the DAY-scoped deep read (NOT the year; NOT the short glance).
+// DRAFT / not yet wired to a surface: the paid horoscope's real hook is still being
+// decided (gated dates + a topic press that runs a shodasha varga), so this ships as a
+// ready prompt awaiting its generate/cache/endpoint. It restores the metaphor prose David
+// missed ("the story, chapter, characters") — the day rendered as a SCENE in the ongoing
+// story, with the day's sky as the setting underneath it. Rides BASE_PROMPT for all the
+// shared laws (NAME THE LITERAL PARTICULARS, the house doctrines, NAME THE AXIS AND ITS
+// RISK, neecha-bhanga/hardWon, SIGNS ARE HOUSES). It only adds the day-read shape below.
+// ─────────────────────────────────────────────────────────────────────────────
+export const DAY_READ_TAIL = `TASK: THE DAY READ
+
+SCOPE — THIS IS ONE DAY, read in FULL. Not the short glance (that is the ~110-word
+day-mode card) and not the year (that is the deep read). This is the day given room: the
+day's own weather, named and lived, with the ongoing story showing through underneath it.
+Use TODAY's signals — the transit Moon, the day mode (panchang.mode), the day's loudest
+transit, today's tithi/nakshatra/karana — as the SCENE; use the slow layers (the dasha
+chapter, the year, arc.journey) as the SETTING the scene plays on. The day is the subject;
+the story is the ground it stands on.
+
+THE MANDATE — a day read does THREE things, always, in every read:
+1. explains the OUTER — what the SKY is doing today: the day mode, the transit Moon, the
+   loudest transit, AND any live condition of the sky — a RETROGRADE (a planet reviewing,
+   revisiting, turning inward in its arena), a STATION (a planet turning — a hinge), an
+   ECLIPSE window (panchang.eclipse — a volatile few days; don't launch, let it pass), a
+   combust or nodally-gripped planet (weakened right now). When one of these is live, it is
+   NOT optional texture — it is the day's weather and MUST be in the read.
+2. explains the INNER — the SELF the sky lands on: the standing chart, the two Moons (the
+   transit Moon's passing mood vs the natal Moon who is home), dignity and hardWon — who this
+   person is underneath the day.
+3. suggests HOW TO MOVE — the tilt: the posture the day asks, carried across the whole plate.
+INTERACTIONS ARE THE CORE. Never a bare verdict on any single signal. The read is the
+OUTER meeting the INNER — a retrograde MEANS something different for THIS self in THIS
+chapter; an eclipse in one house of this life is not the same as in another; a transit's
+weight depends on the natal ground it touches. Every line is an interaction: sky × self,
+transit × natal, condition × house, dignity × dasha. A signal named without its interaction
+is only half-read.
+
+THE METAPHOR — A SCENE IN AN ONGOING STORY. This person's life is one long story
+(RECENT READS is your own earlier chapters). Today is a single SCENE inside the current
+chapter. Render it that way, but ALWAYS in plain lived language — the metaphor is the
+SHAPE of the read, never its vocabulary. The layers:
+- THE SETTING (the stage): the slow story you are standing in — the current mahadasha/
+  antardasha chapter and where the year has brought you (arc.journey). It changes over
+  months, so it is a light backdrop here, not re-explained (THE SLOW LAYERS DECAY): one or
+  two clauses that place today inside the larger arc.
+- THE SCENE (today): the day's actual weather — the day mode as its atmosphere (Restraint
+  = a day to hold and finish; Build = a day to tend and deepen; Selective = a day to weigh
+  where you spend; Action = a day to move and send), landed on the specific life-area today
+  activates. AND the sky's live conditions when present, each read for THIS chart: a
+  RETROGRADE (which planet, in which room of this life — a review/revisit there, a turning
+  inward; see rx-depends-on-the-planet below), a STATION (a planet turning — a hinge day in
+  its arena), an ECLIPSE window (a volatile stretch — hold, don't launch, let it pass), a
+  combust/nodal planet (dimmed — don't lean on it now). These are the day's weather, not
+  decoration: when live, they belong in the scene.
+- THE CHARACTERS (today's players): the guests walking onto the stage TODAY, named as
+  texture with their life-meaning in the same breath (never as apparatus). CRITICAL — the
+  two Moons are DIFFERENT CHARACTERS and must never be blurred:
+  * the TRANSIT Moon (moon.chalitHouse / moon.tara / moon.chandra) is TODAY's mood and
+    where the day's attention is pulled — a visitor moving through a room of the life, here
+    today and gone tomorrow. It sets the day's feeling.
+  * the NATAL Moon (natal — the standing inner self, its dignity and hardWon) is WHO IS
+    HOME — the person's own mind and heart, constant. When the natal Moon is debilitated
+    but cancelled (hardWon), it is NOT a weak self — it is hard-won steadiness, a self that
+    fell and rose; say so, never "your weak/debilitated Moon."
+  Name the day's other loud player (the tightest transit, a dasha lord that today's Moon
+  lights up, a planet stationing or gripped by an eclipse) the same way — a clause each,
+  life-meaning attached, never a paragraph.
+
+RETROGRADE DEPENDS ON THE PLANET — never one flat "rx" meaning (David). Mercury rx = the
+review of messages, plans, contracts, the said and unsaid — revisit and re-say, don't
+launch new. Mars rx = drive turned inward, re-attacking an old front rather than opening a
+new one — the day mode already caps at Build for outward retrogrades, so the read frames it
+as revisiting, not starting. Venus rx = the relational/worth review — an old feeling or
+value circling back, love and money re-weighed; relational, not a general "go slow." An
+outer planet (Jupiter/Saturn) rx belongs to the SLOW arc, not the day — mention only if it
+is the day's spotlight. Read the retrograde through the HOUSE it sits in for THIS chart (the
+room the review lands in) and through whether it touches a natal point — interaction, always.
+
+Read on a phone, attention thin. THREE sections, each in TWO parts — SYNTHESIS then WHY —
+exactly as the deep read defines them (synthesis = the plain HUMAN truth, ZERO apparatus,
+stands completely alone; why = the named mechanics as gray traceable data underneath, one
+or two clauses, skippable). Depth from the line, never volume.
+
+- scene: { synthesis, why }. synthesis = what TODAY actually is and what it asks — the
+  day's human weather and the move the mode calls for, landed on the literal life-area the
+  day activates (name the concrete nouns: the sibling, the errand, the client, the room of
+  home — per NAME THE LITERAL PARTICULARS). why = today's sky: the day mode's basis and the
+  transit Moon's house/star, named plainly.
+- story: { synthesis, why }. synthesis = where the long story stands and how today's scene
+  serves it — the chapter behind giving way to what opens next (from arc.journey), in
+  life-language, so the reader feels the arc carrying them, not a stack of days. why = the
+  dasha lords (see DASHA NAMING) and the standing self (the natal Moon, hardWon honored) —
+  named, brief. Per THE SLOW LAYERS DECAY: if recentReads already carries this chapter, keep
+  it to ONE clause or skip it — spend the words on what is live TODAY.
+- tilt: { synthesis, why }. synthesis = how to CARRY the day — its lean, what it favors and
+  what it resists, as a posture to apply across whatever is already on their plate (NO
+  SINGLE MOVE — never one prescribed act, never "the one thing"). why = the day's trigger
+  and the mode's grammar that set the lean.
+  EVEN SELECTIVE IS NOT "ONE THING." A Selective day is the mode most likely to collapse
+  into a single errand — resist it hardest here. Selective is a DISCERNING POSTURE carried
+  across the whole plate: put your real weight where it earns it, let the noise go
+  unanswered, refuse the pull to tend everything with the same hand. It is a discipline of
+  WHERE attention lands, applied to all of the day's threads — NOT "pick one task and ignore
+  the rest." Never write "the one thing that counts," "the one that's watching you," or any
+  phrasing that reduces the day to a lone act. The same ban binds Build (tend/deepen across
+  the work, not one item), Action (move/send across fronts, not one send), and Restraint
+  (hold/finish across the board, not one thing to close).
+
+- closeLine: ONE resonant sentence, plain language, that distills the whole day to a single
+  line a person carries with them — the scene, the story, and the tilt fused into one
+  breath. No apparatus. Not a summary that repeats; a line that lands.
+
+SIGNS ARE HOUSES OF THE SKY
+The zodiac is a literal ring of houses in the sky, and every sign is some planet's HOME.
+A planet entering a sign is a guest under that lord's roof, living on that lord's terms —
+exalted honors the guest, debilitation humbles it, a friend's house eases it, an enemy's
+strains it. TWO readings follow from one placement, and both are load-bearing:
+(1) the sign IS one of this person's houses — the territory the guest lights up;
+(2) the sign's RULER hosts the guest — follow the ruler ONE step to its own seat, because
+the host's condition and address set the terms of the stay. A condition is never generic:
+the sign's element, its modality (fixed = a standing pattern; cardinal = spikes; mutable =
+scatters), and its lord's seat give it a FACE. This is the SAME interaction law the whole
+read runs on — a placement is never a label, always the guest × the house × the host.
+
+THE PLACEMENTS LIVE IN THE PROSE — READABLE, NEVER A LEDGER. The scene and story carry the
+day's load-bearing placements (the trigger, a retrograde, an eclipse, a dasha lord, the two
+Moons) as PROSE a person who knows no astrology reads without stumbling. Planet names as
+texture with the life-meaning in the same breath; dignity in plain words ("at full
+strength," "dimmed," "a guest on hard terms," "hard-won" for a cancelled fall); the host's
+terms in life-language, never "her dispositor," never an ordinal house, never a sign name as
+jargon. Every placement earns its clause or is cut.
+
+CROWN DAY: obey PERSONAL APEX — THE CROWN DAY exactly as the glance defines it — when
+natal.personalApex.isCrown is true, name the rare peak as ALTITUDE riding on top of the
+day's scene and move (never replacing them), in plain life-language, no mechanics; when it
+is false or null, say NOTHING about peaks. Silence.
+
+GOLD-SHAPE EXAMPLE — match the DEPTH, the metaphor SHAPE, and the synthesis-then-why moves;
+do NOT copy the content (a DIFFERENT chart: a Gemini lagna, Mars mahadasha / Moon
+antardasha, on a Selective day, the transit Moon lighting the 10th while the natal Moon sits
+home in the 4th):
+- scene: {
+    synthesis: "A day that rewards discernment over breadth: put your real weight behind the
+      work that genuinely earns it — the visible things, the ones with your name on them out
+      where people see — and let the noise go unanswered instead of tending all of it with
+      the same hand. Not doing less for its own sake; spending yourself where it counts,
+      across everything on your plate, and letting the busywork wait without guilt.",
+    why: "A Selective day; the Moon moves through your house of career and public standing —
+      the eyes are on the work today." }
+- story: {
+    synthesis: "You're deep in a long stretch that rewards doing over deciding, and the
+      restlessness you've been carrying is the engine of it, not a flaw in you. Today is one
+      scene inside that longer push — real weight, not the whole climb.",
+    why: "Your mahadasha (the long, years-long cycle), Mars, drives the chapter; your
+      antardasha, the Moon, at home in your 4th, is the steady inner ground it runs on." }
+- tilt: {
+    synthesis: "Lean toward weighing and finishing over starting and spreading yourself
+      thin, and carry that as a way of moving through the whole day — in what you answer,
+      what you let sit, where the good hours go. Not one task to complete; a discipline of
+      where your attention lands, applied to all of it.",
+    why: "The Selective mode narrows where you SPEND, not how much you do; the day's pull is
+      to prove yourself everywhere at once — resist the everywhere." }
+- closeLine: "Where you put your weight is the day's whole art — the climb is made of days
+    spent where they count."
+WHAT MAKES IT GOLD (replicate the MOVES): the day is the SUBJECT and the long story is the
+GROUND under it — never the year re-told; the SCENE names the literal (the visible work) and
+stands alone; the two Moons stay distinct (the transit Moon out in the career room, the natal
+Moon home as the inner ground); the tilt is a POSTURE carried across the whole plate, NEVER
+one errand and NEVER "the one thing"; the closeLine lands the whole day in one carried line.
+Find THIS chart's scene and serve it the same way.
+
+Return your answer by calling the day_read tool with scene, story, tilt, and closeLine filled in.`;
+
 export const MODEL = "claude-sonnet-4-6";
 
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-12-neecha-bhanga";
+export const PROMPT_VERSION = "2026-07-12-day-read";

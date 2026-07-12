@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -199,3 +199,57 @@ function isCompleteChapter(r: any): r is Chapter {
     && Array.isArray(r.chapterAvoid) && r.chapterAvoid.every((s: any) => typeof s === "string");
 }
 export { isCompleteChapter };
+
+// THE DAY READ — the metaphor day-read: a single day rendered as a scene in the ongoing
+// story. scene = today's outer weather (mode, transit Moon, live rx/eclipse); story = the
+// inner self + chapter it lands on; tilt = how to move (the posture, no single move);
+// closeLine = one carried sentence. Distinct from the year deep read and the short glance.
+export type DayRead = {
+  scene: Section;
+  story: Section;
+  tilt: Section;
+  closeLine: string;
+};
+
+const DAY_READ_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["scene", "story", "tilt", "closeLine"],
+  properties: {
+    scene: SECTION,
+    story: SECTION,
+    tilt: SECTION,
+    closeLine: { type: "string" },
+  },
+} as const;
+
+export async function generateDayRead(input: NarrativeInput): Promise<DayRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 1800,
+      system: [
+        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
+        { type: "text" as const, text: DAY_READ_TAIL },
+      ],
+      tools: [{ name: "day_read", description: "Return the day read: scene, story, tilt, and closeLine.", input_schema: DAY_READ_SCHEMA as any }],
+      tool_choice: { type: "tool", name: "day_read" },
+      messages: [{ role: "user", content: JSON.stringify(input) }],
+    });
+    const block = msg.content.find((b) => b.type === "tool_use");
+    if (!block || block.type !== "tool_use") return null;
+    return isCompleteDayRead(block.input) ? (block.input as DayRead) : null;
+  } catch (err) {
+    console.error("[narrative] generateDayRead failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
+// Reject a truncated day read so the caller falls back instead of rendering half a read.
+function isCompleteDayRead(r: any): r is DayRead {
+  const sec = (s: any) => !!s && typeof s.synthesis === "string" && typeof s.why === "string";
+  return !!r && sec(r.scene) && sec(r.story) && sec(r.tilt) && typeof r.closeLine === "string";
+}
+export { isCompleteDayRead };

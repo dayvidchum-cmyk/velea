@@ -2,7 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, generateChapter, isCompleteDeepRead, isCompleteChapter, hasAnthropicKey, type DeepRead, type Chapter, type GlanceContent } from "./generate.js";
+import { generateGlance, generateDeepRead, generateChapter, generateDayRead, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type GlanceContent } from "./generate.js";
 import { MODEL, PROMPT_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
 
@@ -136,4 +136,40 @@ export async function getChapterCached(profileId: number, date: string, refresh 
   });
   if (!chapter) return { available: false, chapter: null, generatedAt: null, cached: false };
   return { available: true, chapter, generatedAt: new Date(), cached: false };
+}
+
+export type DayReadResult = { available: boolean; read: DayRead | null; generatedAt: Date | null; cached: boolean };
+
+// THE DAY READ — the metaphor day-read for ONE specific date. DATE-SPECIFIC (unlike the
+// year deep read / chapter, which reuse the latest matching row): every date has its own
+// sky, so each caches under its own ("day_read", date) row. Uses the FULL day input (the
+// fast tier: transit Moon, today's mode, live rx/eclipse). Powers BOTH the Today page
+// (date = today) and the Horoscope reveal (date = the picked day). Returns unavailable →
+// static fallback when the key is off / the wallet is dry, exactly like the glance.
+export async function getDayReadCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<DayReadResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const surface = "day_read";
+  const input = await buildNarrativeInput(profileId, date, { dayLoc });
+  const hash = hashInput(input);
+
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, date);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        if (isCompleteDayRead(read)) {
+          return { available: true, read, generatedAt: row.generatedAt, cached: true };
+        }
+      } catch {
+        /* fall through to regenerate on corrupt cache */
+      }
+    }
+  }
+  const read = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+    const r = await generateDayRead(input);
+    if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, generatedAt: null, cached: false };
+  return { available: true, read, generatedAt: new Date(), cached: false };
 }

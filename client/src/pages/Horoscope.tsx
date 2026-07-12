@@ -26,11 +26,18 @@ const fmtLong = (s: string) => { const [y, m, d] = s.split("-").map(Number); ret
 const fmtShort = (s: string) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
 
 type Section = { synthesis: string; why: string };
+// The current shape: the metaphor DAY read (scene = outer weather, story = inner self +
+// chapter, tilt = how to move, closeLine = one carried line).
+type DayRead = { scene: Section; story: Section; tilt: Section; closeLine: string };
+// Legacy shape: older horoscope snapshots froze a year-style deep read. Still rendered for
+// any date purchased before the day-engine switch (immutable snapshots never regenerate).
 type DeepRead = {
   coreTheme: Section; whyNow: Section; developmentalTask: Section;
   manifestations: { area: string; synthesis: string; why?: string }[];
   confidence?: { level: string; factors: { plain: string; astro: string }[] };
 };
+type AnyRead = DayRead | DeepRead;
+const isDayRead = (r: AnyRead | null): r is DayRead => !!r && (r as DayRead).scene !== undefined;
 
 export default function Horoscope() {
   const [, navigate] = useLocation();
@@ -108,8 +115,8 @@ export default function Horoscope() {
 
   // Prefer the frozen reading from `get`; fall back to the fresh reveal response for THIS date
   // (so the prose appears the instant the mutation returns, before `get` refetches).
-  const revealed: DeepRead | null = reveal.data?.available && (reveal.data as any).date === selectedDate ? ((reveal.data as any).read ?? null) : null;
-  const read: DeepRead | null = (exists ? (reading as any).read : null) ?? revealed ?? null;
+  const revealed: AnyRead | null = reveal.data?.available && (reveal.data as any).date === selectedDate ? ((reveal.data as any).read ?? null) : null;
+  const read: AnyRead | null = (exists ? (reading as any).read : null) ?? revealed ?? null;
 
   return (
     <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "7rem" }}>
@@ -247,10 +254,62 @@ function RevealPanel({ date, pending, failed, onReveal, modeColor }: { date: str
   );
 }
 
-// ── The deep read, rendered as horoscope prose (mechanics tucked behind one toggle) + notes ──
-function ReadingView({ read, modeColor, notesDraft, setNotesDraft, onNotesBlur, saving }: {
-  read: DeepRead; modeColor: string; notesDraft: string; setNotesDraft: (s: string) => void; onNotesBlur: () => void; saving: boolean;
-}) {
+// ── The DAY read body: scene → story → tilt, each a plain-language synthesis, closed by the
+// carried line; the chart mechanics (the whys) tuck behind one toggle (low cognitive load). ──
+function DayReadBody({ read, modeColor }: { read: DayRead; modeColor: string }) {
+  const [mechOpen, setMechOpen] = useState(false);
+  const label = (t: string) => (
+    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
+  );
+  const body = (s: string) => <p style={{ fontSize: "0.95rem", lineHeight: 1.68, color: "var(--foreground)", margin: 0 }}>{s}</p>;
+  const whys = [
+    { t: "Today's sky", w: read.scene.why },
+    { t: "The story underneath", w: read.story.why },
+    { t: "The lean", w: read.tilt.why },
+  ].filter((x) => x.w);
+
+  return (
+    <div style={{ borderRadius: 14, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.1rem 1.25rem" }}>
+      {/* The day itself — the scene, given room to breathe. */}
+      {body(read.scene.synthesis)}
+      {read.story?.synthesis && (<>{label("The story underneath")}{body(read.story.synthesis)}</>)}
+      {read.tilt?.synthesis && (<>{label("How to carry the day")}{body(read.tilt.synthesis)}</>)}
+
+      {/* The carried line — set apart, in the day-mode color. */}
+      {read.closeLine && (
+        <p style={{ fontSize: "1rem", lineHeight: 1.55, fontWeight: 600, fontStyle: "italic", color: modeColor, margin: "1.5rem 0 0", opacity: 0.95 }}>
+          {read.closeLine}
+        </p>
+      )}
+
+      {/* Mechanics — the chart reasoning, collapsed by default. */}
+      {whys.length > 0 && (
+        <>
+          <button
+            onClick={() => setMechOpen((o) => !o)}
+            style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, margin: "1.4rem 0 0", color: "var(--color-muted-foreground)" }}
+          >
+            <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>The mechanics</span>
+            <ChevronDown size={14} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+          </button>
+          {mechOpen && (
+            <div style={{ marginTop: "0.7rem", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+              {whys.map((x, i) => (
+                <div key={i}>
+                  <p style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{x.t}</p>
+                  <p style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", margin: 0 }}>{x.w}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Legacy year-read body — renders horoscope snapshots frozen before the day-engine switch. ──
+function DeepReadBody({ read, modeColor }: { read: DeepRead; modeColor: string }) {
   const [mechOpen, setMechOpen] = useState(false);
   const label = (t: string) => (
     <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
@@ -258,64 +317,71 @@ function ReadingView({ read, modeColor, notesDraft, setNotesDraft, onNotesBlur, 
   const body = (s: string) => <p style={{ fontSize: "0.95rem", lineHeight: 1.68, color: "var(--foreground)", margin: 0 }}>{s}</p>;
 
   return (
-    <div>
-      <div style={{ borderRadius: 14, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.1rem 1.25rem" }}>
-        {/* Lead — the core theme, given room to breathe. */}
-        {body(read.coreTheme.synthesis)}
-
-        {read.whyNow?.synthesis && (<>{label("Why now")}{body(read.whyNow.synthesis)}</>)}
-
-        {read.manifestations?.length > 0 && (
-          <>
-            {label("How it may show up")}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
-              {read.manifestations.map((m, i) => (
-                <div key={i}>
-                  <p style={{ fontSize: "0.7rem", fontWeight: 700, color: modeColor, margin: "0 0 0.15rem", opacity: 0.85 }}>{m.area}</p>
-                  {body(m.synthesis)}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {read.developmentalTask?.synthesis && (<>{label("Your work")}{body(read.developmentalTask.synthesis)}</>)}
-
-        {/* Mechanics — the chart reasoning, collapsed by default (low cognitive load). */}
-        <button
-          onClick={() => setMechOpen((o) => !o)}
-          style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, margin: "1.4rem 0 0", color: "var(--color-muted-foreground)" }}
-        >
-          <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>The mechanics</span>
-          <ChevronDown size={14} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
-        </button>
-        {mechOpen && (
-          <div style={{ marginTop: "0.7rem", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
-            {[
-              { t: "Core theme", w: read.coreTheme.why },
-              { t: "Why now", w: read.whyNow?.why },
-              { t: "Your work", w: read.developmentalTask?.why },
-            ].filter((x) => x.w).map((x, i) => (
+    <div style={{ borderRadius: 14, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.1rem 1.25rem" }}>
+      {body(read.coreTheme.synthesis)}
+      {read.whyNow?.synthesis && (<>{label("Why now")}{body(read.whyNow.synthesis)}</>)}
+      {read.manifestations?.length > 0 && (
+        <>
+          {label("How it may show up")}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+            {read.manifestations.map((m, i) => (
               <div key={i}>
-                <p style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{x.t}</p>
-                <p style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", margin: 0 }}>{x.w}</p>
+                <p style={{ fontSize: "0.7rem", fontWeight: 700, color: modeColor, margin: "0 0 0.15rem", opacity: 0.85 }}>{m.area}</p>
+                {body(m.synthesis)}
               </div>
             ))}
-            {read.confidence && (
-              <div>
-                <p style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{read.confidence.level} confidence</p>
-                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                  {read.confidence.factors?.map((f, i) => (
-                    <li key={i} style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", display: "flex", gap: "0.5rem" }}>
-                      <span style={{ opacity: 0.5, flexShrink: 0 }}>•</span><span>{f.plain}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
+      {read.developmentalTask?.synthesis && (<>{label("Your work")}{body(read.developmentalTask.synthesis)}</>)}
+      <button
+        onClick={() => setMechOpen((o) => !o)}
+        style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, margin: "1.4rem 0 0", color: "var(--color-muted-foreground)" }}
+      >
+        <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>The mechanics</span>
+        <ChevronDown size={14} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+      </button>
+      {mechOpen && (
+        <div style={{ marginTop: "0.7rem", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+          {[
+            { t: "Core theme", w: read.coreTheme.why },
+            { t: "Why now", w: read.whyNow?.why },
+            { t: "Your work", w: read.developmentalTask?.why },
+          ].filter((x) => x.w).map((x, i) => (
+            <div key={i}>
+              <p style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{x.t}</p>
+              <p style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", margin: 0 }}>{x.w}</p>
+            </div>
+          ))}
+          {read.confidence && (
+            <div>
+              <p style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{read.confidence.level} confidence</p>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                {read.confidence.factors?.map((f, i) => (
+                  <li key={i} style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", display: "flex", gap: "0.5rem" }}>
+                    <span style={{ opacity: 0.5, flexShrink: 0 }}>•</span><span>{f.plain}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── The reading, rendered as horoscope prose (mechanics tucked behind one toggle) + notes.
+// Renders the DAY read (scene/story/tilt/closeLine); legacy year-read snapshots fall through
+// to the deep-read renderer so old purchases still display. ──
+function ReadingView({ read, modeColor, notesDraft, setNotesDraft, onNotesBlur, saving }: {
+  read: AnyRead; modeColor: string; notesDraft: string; setNotesDraft: (s: string) => void; onNotesBlur: () => void; saving: boolean;
+}) {
+  return (
+    <div>
+      {isDayRead(read)
+        ? <DayReadBody read={read} modeColor={modeColor} />
+        : <DeepReadBody read={read} modeColor={modeColor} />}
 
       {/* Notes — the user's own reflection, under the reading. */}
       <div style={{ marginTop: "1rem" }}>

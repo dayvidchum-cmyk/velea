@@ -1793,7 +1793,8 @@ export const appRouter = router({
       const rows = await listHoroscopes(profile.id, 200);
       return rows.map((r) => {
         let snippet = "";
-        try { const c = JSON.parse(r.content); snippet = String(c?.coreTheme?.synthesis ?? "").replace(/\s+/g, " ").trim().slice(0, 160); } catch { /* keep empty */ }
+        // Day-read snapshots lead with scene.synthesis; legacy year-read snapshots with coreTheme.
+        try { const c = JSON.parse(r.content); snippet = String(c?.scene?.synthesis ?? c?.coreTheme?.synthesis ?? "").replace(/\s+/g, " ").trim().slice(0, 160); } catch { /* keep empty */ }
         return { date: r.readingDate, createdAt: r.createdAt, snippet, hasNotes: !!(r.notes && r.notes.trim()) };
       });
     }),
@@ -1827,14 +1828,16 @@ export const appRouter = router({
         return { available: true as const, date: existing.readingDate, read, notes: existing.notes ?? "", cached: true };
       }
 
-      // Date-specific full deep read (stage + that date's sky) — the `deepened` input path.
+      // The date-specific DAY read (this date's actual sky — outer + inner + how to move),
+      // NOT the year deep read. The old deepened path returned the same year story for every
+      // date; the day engine reads the picked day itself. (The varga topic-lens layers on later.)
       const u = await getUserById(ctx.user.id);
       const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
       const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
         ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
         : undefined;
-      const { getDeepReadCached } = await import("./narrative/service.js");
-      const res = await getDeepReadCached(profile.id, input.date, false, true, dayLoc);
+      const { getDayReadCached } = await import("./narrative/service.js");
+      const res = await getDayReadCached(profile.id, input.date, false, dayLoc);
       if (!res.available || !res.read) return { available: false as const };
 
       const { PROMPT_VERSION, MODEL } = await import("./narrative/prompts.js");

@@ -178,4 +178,12 @@
 // a debilitated-but-CANCELLED dasha lord (David's Moon) no longer reads as flatly "debilitated" — it
 // gains a gold "hard-won strength — neecha bhanga" bullet, fed by the server crown.dignities engine.
 // Same signal (cancelledDebilitation/hardWon) wired into the narrative input so the LLM prose honors it.
-export const APP_VERSION = "1.1.388";
+// v1.1.389 = 2026-07-12 — THE DAY READ shipped: the metaphor day-read (scene = today's outer
+// weather incl. live rx/eclipse/station; story = the inner self + chapter, the two Moons kept
+// distinct, hardWon honored; tilt = how to move, no single move; closeLine). New DAY_READ_TAIL
+// + generate/cache/endpoint (narrative.dayRead). Wired to BOTH: the Horoscope reveal now reads
+// the PICKED DAY (was wrongly reusing the year deep-read for every date), and the Today page
+// gains a lazy, collapsed "The day, in full" section. Legacy year-read horoscope snapshots
+// still render. Prompt mandate: a read explains the OUTER, the INNER, and how to MOVE — as
+// interactions. (Inert until the Anthropic key is re-enabled.) Varga topic-lens layers on next.
+export const APP_VERSION = "1.1.389";

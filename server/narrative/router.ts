@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
-import { getGlanceCached, getDeepReadCached, getChapterCached } from "./service.js";
+import { getGlanceCached, getDeepReadCached, getChapterCached, getDayReadCached } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
 import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
 import { assertOwnsProfile } from "../routers/profiles.js";
@@ -67,6 +67,22 @@ export const narrativeRouter = router({
       return await getDeepReadCached(input.profileId, date, input.refresh ?? false, deepened, dayLoc);
     } catch (e) {
       console.error("[narrative.deepRead]", e);
+      return { available: false, read: null, generatedAt: null, cached: false } as const;
+    }
+  }),
+
+  // THE DAY READ — the metaphor day-read for a specific date (the Today page uses today;
+  // the Horoscope reveal uses the picked date). Date-specific; falls back to unavailable
+  // (→ static copy) when the key is off. Explains the outer (today's sky), the inner (the
+  // self it lands on), and how to move — as interactions.
+  dayRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
+    const date = input.date ?? todayUTC();
+    try {
+      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id));
+      return await getDayReadCached(input.profileId, date, input.refresh ?? false, dayLoc);
+    } catch (e) {
+      console.error("[narrative.dayRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
     }
   }),

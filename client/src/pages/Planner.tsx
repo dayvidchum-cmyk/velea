@@ -125,6 +125,61 @@ function toSheetTask(t: any) {
   };
 }
 
+// THE FULL DAY READ card — scene (today's outer weather) → story (the inner self + chapter)
+// → tilt (how to move), closed by the carried line; the chart mechanics (the whys) tuck
+// behind one toggle. Rendered inside a glass-card on the Today page. Glossary-linked so
+// terms in the prose open their popovers.
+type DayReadSection = { synthesis: string; why: string };
+type DayReadData = { scene: DayReadSection; story: DayReadSection; tilt: DayReadSection; closeLine: string };
+function DayReadCard({ read, modeColor }: { read: DayReadData; modeColor: string }) {
+  const [mechOpen, setMechOpen] = useState(false);
+  const label = (t: string) => (
+    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: modeColor, margin: "1.2rem 0 0.35rem", opacity: 0.95 }}>{t}</p>
+  );
+  const body = (s: string) => (
+    <p style={{ fontSize: "0.9rem", lineHeight: 1.62, color: "var(--foreground)", margin: 0 }}><GlossaryText>{s}</GlossaryText></p>
+  );
+  const whys = [
+    { t: "Today's sky", w: read.scene?.why },
+    { t: "The story underneath", w: read.story?.why },
+    { t: "The lean", w: read.tilt?.why },
+  ].filter((x) => x.w);
+
+  return (
+    <div>
+      {read.scene?.synthesis && body(read.scene.synthesis)}
+      {read.story?.synthesis && (<>{label("The story underneath")}{body(read.story.synthesis)}</>)}
+      {read.tilt?.synthesis && (<>{label("How to carry the day")}{body(read.tilt.synthesis)}</>)}
+      {read.closeLine && (
+        <p style={{ fontSize: "0.95rem", lineHeight: 1.55, fontWeight: 600, fontStyle: "italic", color: modeColor, margin: "1.4rem 0 0", opacity: 0.95 }}>
+          {read.closeLine}
+        </p>
+      )}
+      {whys.length > 0 && (
+        <>
+          <button
+            onClick={() => setMechOpen((o) => !o)}
+            style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, margin: "1.3rem 0 0", color: "var(--color-muted-foreground)" }}
+          >
+            <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>The mechanics</span>
+            <ChevronDown size={13} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+          </button>
+          {mechOpen && (
+            <div style={{ marginTop: "0.65rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+              {whys.map((x, i) => (
+                <div key={i}>
+                  <p style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{x.t}</p>
+                  <p style={{ fontSize: "0.78rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", margin: 0 }}><GlossaryText>{x.w as string}</GlossaryText></p>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Planner() {
   const [, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -161,6 +216,10 @@ export default function Planner() {
   const [heroOpen, setHeroOpen] = useState(true);
   const [signpostOpen, setSignpostOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
+  // The full day read (scene/story/tilt/closeLine) — a SEPARATE, heavier LLM read than the
+  // glance, so it's LAZY: the query only fires when the user opens the section (cost-safe,
+  // and collapsed-by-default per the low-cognitive-load law).
+  const [dayReadOpen, setDayReadOpen] = useState(false);
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
@@ -370,6 +429,13 @@ export default function Planner() {
     { enabled: !!glanceProfileId, staleTime: 1000 * 60 * 30 },
   );
   const glanceContent = glance?.content ?? null;
+
+  // The full day read — fired ONLY when the section is opened (lazy), for the selected date.
+  const { data: dayRead, isFetching: dayReadFetching } = trpc.narrative.dayRead.useQuery(
+    { profileId: glanceProfileId as number, date: selectedDate },
+    { enabled: !!glanceProfileId && dayReadOpen, staleTime: 1000 * 60 * 30 },
+  );
+  const dayReadContent = (dayRead as any)?.read ?? null;
 
   const utils = trpc.useUtils();
 
@@ -599,6 +665,8 @@ export default function Planner() {
 
   // Today's mode color for the curated daily lists (ported from Home).
   const todayModeColor = todayTaskMode ? MODE_OKLCH[todayTaskMode] : "var(--color-border)";
+  // The selected date's mode color — the accent for the full day read's labels + close line.
+  const selectedModeColor = selectedTaskMode ? MODE_OKLCH[selectedTaskMode] : todayModeColor;
 
   // Pinned for Now: explicitly pinned, not completed, sorted by priority.
   const pinnedForNow = useMemo(() => {
@@ -995,6 +1063,36 @@ export default function Planner() {
             <ProseLoading color="var(--color-muted-foreground)" label="Reading the day…" />
           ) : (
             <p className="text-sm text-center" style={{ color: "var(--color-muted-foreground)" }}>No panchang data for this date.</p>
+          )}
+        </div>
+      )}
+
+      {/* ── THE FULL DAY READ — the metaphor read (scene/story/tilt), collapsed + lazy. Explains
+          the outer (today's sky), the inner (the self it lands on), and how to move. Only the
+          glance fires by default; this heavier read fires when opened. ── */}
+      {glanceProfileId && (
+        <div className="relative z-10" style={{ marginTop: "0.9rem" }}>
+          <button
+            onClick={() => setDayReadOpen((v) => !v)}
+            className="flex items-center gap-2 w-full py-2 transition-all"
+            aria-expanded={dayReadOpen}
+          >
+            <OctagramMark size={14} color="var(--color-muted-foreground)" />
+            <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+              The day, in full
+            </span>
+            <ChevronDown size={14} style={{ marginLeft: "auto", color: "var(--color-muted-foreground)", transform: dayReadOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+          </button>
+          {dayReadOpen && (
+            <div className="glass-card" style={{ padding: "1.05rem 1.1rem 1.2rem", marginTop: "0.4rem" }}>
+              {dayReadContent ? (
+                <DayReadCard read={dayReadContent} modeColor={selectedModeColor} />
+              ) : dayReadFetching ? (
+                <ProseLoading color="var(--color-muted-foreground)" label="Reading the day in full — this can take up to a minute the first time…" />
+              ) : (
+                <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>The full day read isn't available right now.</p>
+              )}
+            </div>
           )}
         </div>
       )}
