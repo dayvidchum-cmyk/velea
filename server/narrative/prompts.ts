@@ -868,19 +868,17 @@ The synthesis is a fusion of three things into one pointed signal:
 
 Produce two fields:
 
-- narrative: a TIGHT TEASER — 1 to 2 SHORT paragraphs, UNDER ~70 WORDS total, one or two
-  sentences each. This is the Today hero's AT-A-GLANCE card, NOT the full read — the day read
-  (a separate, deeper surface) now carries the story, the arc, and the depth. Two beats only:
-  (1) what is at STAKE today and the move the day-mode asks; (2) the day's TILT — the direction
-  it favors and what it resists, to apply across WHATEVER is already on their plate, NOT one
-  prescribed act (see NO SINGLE MOVE). Do NOT include the arc / standing-theme line here — it
-  lives in the day read now; a teaser that lands beats a paragraph that explains. CUT
-  everything not load-bearing. Lead with the axis and its risk (per NAME THE AXIS AND ITS
-  RISK): their self, their agency, their energy, what they stand to lose — not the literal
-  contents of a house. Example shape (do not copy the content): "A Restraint day — hold your
-  line, don't give past it. Today the pull is to overextend in service and lose yourself in
-  it; serve less, guard your own ground, and let the friction show you where you've already
-  given too much."
+- narrative: a HEADLINE TEASER — ONE short paragraph, 2 SENTENCES MAX, HARD CAP ~40 WORDS.
+  This is the Today hero's at-a-glance line, NOT a read; the day read (a separate, deeper
+  surface) carries the story, the arc, the crown, and ALL depth. Include ONLY: (1) the day's
+  stake + the mode's move, and (2) the day's TILT in a single clause — the direction it favors
+  and resists, applied across whatever is on their plate, NEVER one prescribed act (see NO
+  SINGLE MOVE). EXCLUDE everything else: NO standing-theme/arc line, NO chapter, NO
+  "yesterday/Saturday" callback, NO two-sentence crown description — a crown day gets at most
+  ONE clause ("a rare peak day"), never a sentence of its own. If you are over ~40 words, CUT
+  until you are under — brevity is the ENTIRE job of this field. Example (do not copy the
+  content): "A rare peak Build day — go deeper on what's already in motion, don't start fresh;
+  the work itself is the clean thing today."
   OVERRIDE the house-naming convention here. The glance names ZERO chart apparatus.
   Banned in this field, in any form: the words "transit"/"transiting";
   "conjunct"/"conjunction"/"closing in on"/"lands on"/"activates"; any orb or degree;
@@ -950,7 +948,10 @@ most days it is false, and personalApex may be null.
 A crown does NOT change the day's mode or texture — the panchang still sets what KIND of day it
 is. The crown is ALTITUDE, not weather: the same day, graded as one of this person's rare highs.
 Read the mode exactly as you would, then — ONLY when isCrown is true — name the altitude, inside
-the SAME no-mechanics rule as the rest of the narrative:
+the SAME no-mechanics rule as the rest of the narrative. CRITICAL FOR THIS TEASER: the crown is
+ONE CLAUSE, inside the narrative's ~40-word cap — never its own sentence, never a description of
+the components. The bullets below are the INTENT and the VOICE (and the full treatment for the
+day read, which has room), NEVER a license to add length to this teaser:
 - Say plainly it is one of their rare personal peak days — the sky, their own birth-star's count,
   and the Moon's return to a strong angle from their own Moon all landing in their favor at once.
   Let the components color WHERE the peak lands, but in PLAIN LIFE-LANGUAGE only: a favorable tara
@@ -1364,8 +1365,10 @@ underneath. Depth from the line, never volume.
   atmosphere), landed on the literal life-area today activates (name the concrete nouns: the
   writing, the client, the room of home — per NAME THE LITERAL PARTICULARS), with any live
   sky condition woven in (a retrograde, a station, an eclipse window, a dimmed planet — see
-  THE MANDATE and rx-by-planet). The transit Moon's house/star and the mode belong here, as
-  prose — never as a label.
+  THE MANDATE and rx-by-planet). The transit Moon and the mode belong here — but as the FEELING
+  of the territory today (where the day's light falls and how it falls), NEVER as "the Moon is
+  in your Nth house" or "exalted at strong degree." The scene must NOT open as a ledger; it
+  opens as a scene (see DISSOLVE THE CHART INTO STORY).
 - story: where the long story stands and how today's scene serves it — the chapter behind
   giving way to what opens next (arc.journey), so the reader feels the arc carrying them, not
   a stack of days. Name the dasha lords in plain, glossed terms (mahadasha = the long,
@@ -1403,17 +1406,29 @@ the sign's element, its modality (fixed = a standing pattern; cardinal = spikes;
 scatters), and its lord's seat give it a FACE. This is the SAME interaction law the whole
 read runs on — a placement is never a label, always the guest × the house × the host.
 
-THE PROSE IS THE ONLY LAYER — READABLE, NEVER A LEDGER, NEVER RAW FIELDS. Every placement
-lives inside the prose as language a non-astrologer reads without stumbling: planet names as
-texture with the life-meaning in the same breath ("Jupiter, still singing in the background —
-gains, the wide circle"); dignity in plain words ("at full strength," "dimmed," "a guest on
-hard terms," "hard-won" for a cancelled fall); a house by its life-domain, and if you name an
-ordinal ("your 9th house of teaching and belief") give its meaning in the SAME breath so the
-glossary link teaches rather than puzzles. ABSOLUTELY NEVER echo the input's raw field names
-or code: NOT "personalApex isCrown true," NOT "chandraHouse 7," NOT "moonFramed," NOT
-"taraFavorable," NOT a bare technical term like "Sadhaka tara" with no plain meaning attached.
-Translate every one into plain human or plainly-glossed astrological language. If a clause
-reads like data, rewrite it or cut it.
+DISSOLVE THE CHART INTO STORY — CHARACTERS, TERRITORIES, A STAGE (this is THE BAR, David).
+The read is a SCENE WITH CHARACTERS, never a chart explained. The astrology is the ENGINE; it
+must NOT appear as vocabulary. "The Moon is in this, Venus is in that" is NOISE even to a
+reader who knows astrology — it is the one thing that kills the read. Hard bans:
+- NO ordinal house numbers, ever. Never "your 9th house," "the 11th," "your 2nd house." A
+  house is named ONLY by its life-territory: "the meaning-work — teaching, belief, what you
+  put out with your name on it"; "your wider circle — allies, gains, the people who carry
+  you"; "what you charge and what your word is worth." The territory, never the number.
+- NO dignity / motion jargon. Never "exalted," "exaltation," "debilitated," "at strong
+  degree," "on the exact degree," "transiting," "transit," "combust," "retrograde" as a bare
+  term. Translate condition into felt QUALITY: exalted → "singing at full volume," "at full
+  ease," "as strong as it ever stands"; a hard condition → "a compromised guest in difficult
+  lodging," "the carrier is strained," "running on fumes"; a cancelled fall → "hard-won, a
+  self that lost the ground and found it again."
+- Planets DO appear, but as CHARACTERS — named (Jupiter, the Moon, Venus) with their nature
+  and what they are DOING in the story ("Jupiter is singing over your wider circle"; "Venus,
+  the year's guide, is in difficult lodging"). A character acting on the stage is story; a
+  planet reported in a house at a dignity is a ledger. Write the first, never the second.
+- NEVER echo raw input field names/code (NOT "personalApex isCrown true," NOT "chandraHouse
+  7," NOT "taraFavorable," NOT bare "Sadhaka tara").
+If a clause names a house-number or a dignity term, it has FAILED — rewrite it as territory +
+character + felt quality, or cut it. Every section reads like the TILT and CLOSELINE of the
+gold example; the SCENE especially must not open as a ledger.
 
 CROWN DAY: obey PERSONAL APEX — THE CROWN DAY exactly as the glance defines it — when
 natal.personalApex.isCrown is true, name the rare peak as ALTITUDE riding on top of the
@@ -1456,4 +1471,4 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-12-day-read-prose";
+export const PROMPT_VERSION = "2026-07-12-story-voice";
