@@ -249,10 +249,13 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const lagnaSignIdx = ZODIAC.indexOf(lagna);
   let personalApex: { isCrown: boolean; tara: string; taraFavorable: boolean; chandraHouse: number; chandraFavorable: boolean } | null = null;
   let personalRating: string | null = null;
+  // The interaction MODE — computed by the SAME personalDayForDate the hero uses, so the prose and
+  // the hero can never name different modes (a debilitated split we just fixed for the day mode).
+  let interactionMode: import("../panchang/interpreter.js").FinalMode | null = null;
   if (birthNakIdx >= 0 && natalMoonSignIdx >= 0 && lagnaSignIdx >= 0 && a["Sun"] != null && a["Moon"] != null) {
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = Object.fromEntries(PLANETS.filter((n) => a[n] != null).map((n) => [n, si(a[n]!)]));
-    const { majorityDayStarIdx, natalAshtakavarga } = await import("../panchang/crown.js");
+    const { majorityDayStarIdx, natalAshtakavarga, personalDayForDate } = await import("../panchang/crown.js");
     const majIdx = await majorityDayStarIdx(dateStr);
     // Same natal Ashtakavarga the calendar uses, from the natal bodies — keeps the reading's crown
     // in lockstep with the calendar's crown badge (both AV-refined).
@@ -268,6 +271,8 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       chandraHouse: cd.chandrabala.house,
       chandraFavorable: cd.chandrabala.favorable,
     };
+    // Interaction mode off the same anchors (noon-UTC day chart) → identical to the hero's mode.
+    interactionMode = (await personalDayForDate({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, ashtakavarga: natalAv }, dateStr))?.mode ?? null;
   }
   (natal as any).personalApex = personalApex;
 
@@ -277,9 +282,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // the read name different modes on the same day — the root of the "Selective vs Restrained
   // Build" split. Fall back to the birth-loc panchang only if getDayField yields nothing.
   const field = gateDayField(
-    (await getDayField(dateStr, false, moment?.dayLoc, lagna, personalRating)) ??
+    (await getDayField(dateStr, false, moment?.dayLoc, lagna, personalRating, interactionMode)) ??
       interpretPanchang(await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon)), lagna),
-    personalRating
+    personalRating,
+    interactionMode
   );
   // Hora (planetary hour) is deliberately NOT fed to the day reading. Per David: the day-card prose
   // must NEVER synthesize all the way to the current hour ("this Jupiter hour is good…"). The hora
