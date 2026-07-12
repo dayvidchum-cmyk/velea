@@ -174,16 +174,23 @@ export function crownDay(opts: {
   // Ashtakavarga INTERACTION (optional layer). The day's Moon-sign support meets the tara:
   //   • BOOST  — bindus above baseline lift the score (positive only; a thin sign is never docked).
   //              That same lift is what CUSHIONS an adverse-tara day out of caution (rich ground).
-  //   • VETO   — a thin sign deepens the day into caution ONLY when the tara is ALSO adverse
-  //              (both axes down). AV never vetoes alone; the veto lives in the pair.
+  //   • VETO (HARD FLOOR) — an adverse tara on a THIN sign is YOUR caution day, full stop,
+  //              whatever else lines up. The exact mirror of the crown apex-gate: convergence UP
+  //              (favorable tara + favorable chandra + high AV) is the hard ceiling; convergence
+  //              DOWN (adverse tara + thin AV) is the hard floor. AV never floors alone — the
+  //              floor lives in the pair — and the floor stands independent of the collective
+  //              muhurta (it's your day, not the sky's). The −2 also sinks the score so any
+  //              ranking consumer (e.g. the Arc apex) keeps a vetoed day at the bottom.
   let av: CrownDay["ashtakavarga"];
+  let personalVeto = false;
   if (opts.ashtakavarga) {
     const bindu = sarvaBindu(opts.ashtakavarga, dayMoonSignIdx);
     const support: "high" | "neutral" | "low" =
       bindu >= AV_BASELINE + 2 ? "high" : bindu <= AV_BASELINE - 4 ? "low" : "neutral";
     av = { moonSignBindu: bindu, support };
     score += bindu >= AV_BASELINE + 6 ? 2 : bindu >= AV_BASELINE + 2 ? 1 : 0; // boost
-    if (tb.quality === "bad" && support === "low") score -= 2;                 // interaction veto
+    personalVeto = tb.quality === "bad" && support === "low";
+    if (personalVeto) score -= 2;
   }
 
   // Crown = the daily APEX: both Moon strengths aligned (good tara AND good chandra) on a
@@ -192,7 +199,8 @@ export function crownDay(opts: {
   // unbacked → "favorable", never the apex. The slow-transit season shifts the bands (via `score`)
   // but can't erase the apex — a tough season means fewer factors line up, not that a clean day is denied.
   const crown = tb.favorable && cb.favorable && dq.score >= 0 && (!ts || ts.score > -3) && (!av || av.support === "high");
-  const rating: CrownRating = crown ? "crown" : score >= 2 ? "favorable" : score <= -3 ? "caution" : "neutral";
+  const rating: CrownRating = personalVeto ? "caution"
+    : crown ? "crown" : score >= 2 ? "favorable" : score <= -3 ? "caution" : "neutral";
   return { rating, score, universal: dq, tarabala: tb, chandrabala: cb, transit: ts, ashtakavarga: av };
 }
 

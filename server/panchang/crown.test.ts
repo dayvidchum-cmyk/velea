@@ -30,11 +30,20 @@ describe("crownDay — the Ashtakavarga interaction matrix", () => {
     expect(thin.score - no.score).toBe(0);
   });
 
-  it("VETO: an ADVERSE tara on a thin sign is the earned caution (−2 — both axes down)", () => {
+  it("VETO (HARD FLOOR): an ADVERSE tara on a thin sign IS caution, full stop — and sinks the score", () => {
     const no = crownDay({ ...base, dayNakIdxOverride: 2 });                                    // Vipat (bad, cycle 1)
     const thin = crownDay({ ...base, dayNakIdxOverride: 2, ashtakavarga: avSarva(0, 22) });
     expect(no.tarabala.quality).toBe("bad");
+    expect(thin.rating).toBe("caution"); // the floor forces the verdict regardless of the score
     expect(thin.score - no.score).toBe(-2);
+  });
+
+  it("the floor does NOT fire without both axes: adverse tara alone (no AV) isn't forced to caution", () => {
+    const adverseNoAv = crownDay({ ...base, dayNakIdxOverride: 2 });                            // bad tara, no AV
+    const adverseRich = crownDay({ ...base, dayNakIdxOverride: 2, ashtakavarga: avSarva(0, 36) }); // bad tara, rich ground
+    // Neither is force-floored (the pair never converges down), so caution can only come the normal way.
+    expect(adverseRich.rating).not.toBe("caution"); // rich ground cushions it out of the floor
+    expect(adverseRich.score).toBeGreaterThan(adverseNoAv.score);
   });
 
   it("CUSHION: an adverse tara on RICH ground is lifted, not vetoed (bindus absorb it)", () => {
