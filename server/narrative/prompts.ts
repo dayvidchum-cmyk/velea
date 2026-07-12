@@ -1333,19 +1333,12 @@ SHAPE of the read, never its vocabulary. The layers:
   combust/nodal planet (dimmed under combust or Rahu — don't lean on it now; under Ketu, a
   window to release or turn inward in that arena, not merely weak). These are the day's
   weather, not decoration: when live, they belong in the scene.
-- THE CHARACTERS (today's players): the guests walking onto the stage TODAY, named as
-  texture with their life-meaning in the same breath (never as apparatus). CRITICAL — the
-  two Moons are DIFFERENT CHARACTERS and must never be blurred:
-  * the TRANSIT Moon (moon.chalitHouse / moon.tara / moon.chandra) is TODAY's mood and
-    where the day's attention is pulled — a visitor moving through a room of the life, here
-    today and gone tomorrow. It sets the day's feeling.
-  * the NATAL Moon (natal — the standing inner self, its dignity and hardWon) is WHO IS
-    HOME — the person's own mind and heart, constant. When the natal Moon is debilitated
-    but cancelled (hardWon), it is NOT a weak self — it is hard-won steadiness, a self that
-    fell and rose; say so, never "your weak/debilitated Moon."
-  Name the day's other loud player (the tightest transit, a dasha lord that today's Moon
-  lights up, a planet stationing or gripped by an eclipse) the same way — a clause each,
-  life-meaning attached, never a paragraph.
+- THE CHARACTERS belong to THE READ, not here. The hero is the plain STORY; the personified
+  planets (who's loud, who's spent, who's hiding) live in the cast — a SEPARATE surface. So in
+  this read, do NOT name and catalogue the players. Use the sky only as the day's FEELING and
+  TILT, translated to plain life-language. The one allowed exception: today's Moon-MOOD may set
+  the day's feeling ("a settled, generous mood today") — as a mood, WITHOUT naming houses or
+  dignity, and only if it earns its words. Everything else about the planets waits for THE READ.
 
 RETROGRADE DEPENDS ON THE PLANET — never one flat "rx" meaning (David). Mercury rx = the
 review of messages, plans, contracts, the said and unsaid — revisit and re-say, don't
@@ -1362,12 +1355,19 @@ question — each PURE PROSE a person who knows no astrology reads without stumb
 "mechanics" or "why" layer and NO second dry pass: the placements live INSIDE the prose,
 named as readable texture with their life-meaning in the same breath. Say each thing ONCE.
 
-CONCISE, PRECISE, INFORMATIVE, USEFUL — THIS IS THE WHOLE BAR (David). The ENTIRE read is
-UNDER ~150 WORDS. It must be readable at a glance by a neurodivergent brain that bounces off a
-wall of text — if it's long, it fails, no matter how good the prose. Every line earns its
-place: cut anything that isn't precise AND useful. Depth from the line, never volume. Fit
-inside ~1.5 phone screens, not 5. Concise is not thin — the character/story voice stays, just
-tight.
+HARD LENGTH LIMIT — 120 WORDS TOTAL for scene + story + tilt + closeLine (the question is one
+extra short line, not counted). ENFORCED IN CODE: a read over 120 words is REJECTED and
+regenerated, no matter how good the prose. Not 150, not 130 — 120, counted. Readable at a glance
+by a neurodivergent brain that bounces off a wall of text. Every line earns its place; depth from
+the line, never volume. Concise is not thin — the voice stays, just tight.
+
+THE HERO IS THE STORY, NOT A CAST — KEEP THE PLANETS OUT. This read is the day as a PLAIN-LANGUAGE
+STORY: the mood, the tilt, and the SPECIFIC life-things it touches (income, the circle, the craft,
+rest). Do NOT roll-call the planets — do NOT name Jupiter, Venus, Mercury, Saturn and catalogue
+their conditions. That is a SEPARATE surface (THE READ — the cast). At MOST one character may
+appear — today's Moon-mood — and only if it truly serves; otherwise none. If you are naming three
+or more planets, you are writing the cast by mistake: stop, and translate each into the life-thing
+it touches. This is what keeps the hero and THE READ from repeating each other.
 
 THE PROOF IS IN THE SPECIFICS — THE MOST IMPORTANT LAW ON THIS PAGE (David). CONCISE MEANS
 FEWER WORDS, NEVER VAGUER ONES. Every sentence must point at a SPECIFIC, CHECKABLE thing in
@@ -1383,7 +1383,7 @@ lit house rules). Vague poetry is the failure state — a line that could apply 
 FAILED. If you named a real, specific, checkable life-thing in plain words, you passed; if you
 wrote a pretty mood, you stripped too much. Name the small true things.
 
-- scene (≤ ~50 words, 2–3 sentences): what TODAY is and what it asks — the day's weather (the
+- scene (≤ ~35 words, 2 sentences): what TODAY is and what it asks — the day's weather (the
   mode), where the day's light falls (the live life-territory), and the move. Name that
   territory as a SPECIFIC, CHECKABLE thing (the wider circle — allies, gains, the people who
   carry you; the craft and the work with your name on it; a sibling; a short trip; income and
@@ -1391,11 +1391,11 @@ wrote a pretty mood, you stripped too much. Name the small true things.
   live sky condition (a retrograde, a station, an eclipse, a dimmed/Ketu-windowed planet — see
   THE MANDATE) woven in ONLY if it's actually live today. As the FEELING of the territory,
   NEVER "the Moon is in your Nth house / exalted at strong degree." Opens as a scene, never a ledger.
-- story (≤ ~40 words, 2 sentences): where the long story stands and how today serves it — the
+- story (≤ ~25 words, 1–2 sentences): where the long story stands and how today serves it — the
   chapter turning (arc.journey) and/or the standing self (the natal Moon, hardWon honored), in
   the character/stage voice. Per THE SLOW LAYERS DECAY: if recentReads already carries this
   chapter, ONE clause or skip it. Do NOT re-tell the whole arc — one live thread of it.
-- tilt (≤ ~45 words, 2–3 sentences): how to CARRY the day — its lean, what it favors and
+- tilt (≤ ~35 words, 2 sentences): how to CARRY the day — its lean, what it favors and
   resists, as a posture across the whole plate (NO SINGLE MOVE — never "the one thing"). If a
   live outer condition cuts against the day (a strained year lord, a retrograde, an eclipse),
   name that friction in ONE clause — the tilt holds both the green light and its cost.
@@ -1499,54 +1499,41 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // ─────────────────────────────────────────────────────────────────────────────
 export const CAST_TAIL = `TASK: THE READ — THE CAST
 
-This is the layer BEHIND the day-story: the SAME day, told as its CHARACTERS. The story said
-WHAT today is; the cast says WHO is making it that way. Personify the planets as a cast on a
-stage — named characters with a nature, each DOING something today — in PG-PLAYFUL language:
-warm, vivid, a little funny ("three drinks in," never "drunk as fuck"; a reader smiles, never
-winces). Characters acting on a stage, never a chart reported.
+ONE paragraph. The day told as its CHARACTERS — the planets that are actually moving today's
+scene, personified, in PG-PLAYFUL language (warm, vivid, a little funny: "three drinks in," not
+"drunk as fuck"; a reader smiles, never winces). This is the WHO behind the day-story's WHAT.
 
-TWO TIERS, ALWAYS:
+HARD RULES — these are enforced in code; break one and the whole read is thrown out and rerun:
+- ONE flowing paragraph. 120 WORDS MAXIMUM. Not sections, not a card per planet, not a list.
+- 2 to 4 CHARACTERS only — whoever is genuinely loud today. Weave them into the SAME paragraph,
+  one clause or sentence each, as characters doing things ("Jupiter's parked in his favorite
+  spot, fat and happy over your money and your people; Mercury's home but three drinks in,
+  hiding in a back room").
+- ZERO chart machinery. NEVER print a house number ("9th house"), a sign name (Gemini, Scorpio,
+  any of the twelve), or a dignity/motion term (exalted, debilitated, retrograde, combust). You
+  will be REJECTED if you do. You may name the PLANETS (Jupiter, Mercury, Venus, the Moon, Ketu)
+  — they are the characters. Everything else becomes plain felt language.
 
-1. THE LOUD ONES (foreground — 2 to 4 ONLY): the planets SPEAKING UP today — grabbing the
-   spotlight, moving the scene. A planet is loud ONLY when the INPUT DATA marks it — NEVER by
-   feel. Read it straight from the transit fields: a transit with spotlight:true (its
-   spotlightReason names why — exalted / debilitated / own sign / combust / tight on a natal
-   point), or combust:true, or nodal set (node "Ketu" = a WINDOW to release/turn inward; node
-   "Rahu" = gripped, dimmed), or retrograde:true, or a live eclipse window, or a dasha lord
-   (mahā/antar) that today's transit Moon lights up. If a planet carries NONE of these flags it
-   is QUIET — it STAYS OFFSTAGE. This is the accuracy line: NEVER manufacture a condition the
-   data doesn't show — no "hungover Mercury" unless Mercury is actually combust/retrograde/
-   afflicted in the input, no depleted Venus unless her strength/affliction says so. NEVER a
-   roll-call of nine. If only one or two planets are genuinely flagged, name only those — a calm
-   day is allowed to read calm; do not invent drama to fill the stage. Name each with its planet
-   (Jupiter, Mercury, Venus, the Moon…) and let its ACTUAL flagged condition drive the vignette.
+WHO IS LOUD — decide from the DATA, never by feel. A planet earns the stage only when the input
+marks it: a transit with spotlight:true, or combust, or nodal (node "Ketu" = a window to release
+/ turn inward; "Rahu" = gripped, dimmed), or retrograde, or an eclipse window, or a dasha lord
+today's Moon lights up. KNOW these flags — but NEVER print their names. Translate every one into
+felt character language: combust → "swallowed by the Sun's glare, can't be heard"; retrograde →
+"backtracking, re-reading his own notes"; exalted → "at the top of her game." If only one or two
+planets are flagged, use only those — a calm day reads calm; never invent drama to fill the stage.
 
-   Each loud character carries its CONDITION *and* THE LESSON it points to — never status for
-   its own sake. The lesson follows the live state:
-   - a DEPLETED benefic (Venus, Jupiter, the Moon running on empty) is a MIRROR: you've
-     over-given in what it rules, and the move is RESTORATION — receive, rest, replenish, let it
-     be filled — NOT "avoid it." (Venus is wealth, comfort, love; run dry, she needs bringing
-     back to life — let someone pour into you.)
-   - a STRONG, well-placed planet is a WELL to draw on — lean into what it rules today.
-   - a HARD or heavy planet shedding (a hard transit, or a planet gripped by Ketu) is what
-     you've EARNED THE RIGHT TO SET DOWN — a window to release, let one thing go, turn inward.
-   Point EVERY vignette at the SPECIFIC life-thing the planet rules (THE PROOF IS IN THE
-   SPECIFICS): the craft, the message, income, the circle, comfort, rest — never a vague mood.
+EACH CHARACTER CARRIES ITS LESSON, not just its state:
+- a DEPLETED benefic (Venus/Jupiter/Moon running dry) → RESTORATION: receive, rest, be refilled —
+  never "avoid it." (Venus is wealth, comfort, love — bring her back to life, let someone pour
+  into you.)
+- a STRONG planet → a WELL to draw on; lean into what it rules.
+- a planet gripped by Ketu / under a hard transit → what you've EARNED THE RIGHT TO SET DOWN.
+Point each at the SPECIFIC life-thing it rules (the craft, income, the circle, comfort, rest).
 
-2. THE CHAPTER (background — ONE short paragraph): the SCENERY behind the loud ones — the
-   standing cast, always onstage but not lurching today: the natal Moon (WHO IS HOME — hard-won
-   honored when cancelled, NEVER "weak/debilitated"), the Sun, the Time Lord (the current
-   period's ruler — the stage you're on), and the dasha lords (the long season). This is the
-   slow ground the day plays on: quieter, framing, not vivid. If it's stable, SAY it's stable —
-   it steadies the loud weather; it turns over months, not today.
+This is DISTINCT from the day-story: the story is the plain WHAT; the cast is the playful WHO.
+Do not restate the story — give the characters. No preamble, no title, no closing summary.
 
-SAME LAWS AS THE DAY-STORY: DISSOLVE THE CHART INTO STORY (characters doing things, NEVER
-ordinal house numbers, NEVER "exalted/debilitated/retrograde/combust" as bare terms — translate
-to felt quality), the two Moons are DIFFERENT characters, INTERACTIONS ARE THE CORE (a condition
-MEANS something different for THIS chart). Concise: each loud vignette 2–3 sentences; the chapter
-one short paragraph. No preamble, no closing summary line — just the cast.
-
-Return your answer by calling the cast tool with loud (each a {planet, vignette}) and chapter filled in.`;
+Return your answer by calling the cast tool with a single "read" field — one paragraph, ≤120 words.`;
 
 export const MODEL = "claude-sonnet-4-6";
 
@@ -1561,6 +1548,6 @@ export const PROMPT_VERSION = "2026-07-12-story-voice-concise";
 // vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
-  day_read: "2026-07-12-hero-question",
-  cast: "2026-07-12-cast-v2-flag-anchored",
+  day_read: "2026-07-12-hero-120-planets-out",
+  cast: "2026-07-12-cast-one-paragraph",
 };

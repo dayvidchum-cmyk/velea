@@ -211,4 +211,12 @@
 // PG-playful, personified, glossary-linked. New `cast` narrative surface (own prompt CAST_TAIL +
 // surface salt), lazy — fires only when the sheet opens. SignpostSheet repurposed from the old
 // data-pill "why today" into the cast render.
-export const APP_VERSION = "1.1.393";
+// v1.1.394 = 2026-07-12 — GUARDS, not promises. The two failure modes (over-length + chart-jargon
+// leaks) are now caught in CODE and regenerated, not shipped: generate.ts guardViolation() scans
+// every day-read/cast for house numbers, sign names, "exalted/debilitated/retrograde/combust", and
+// word count, with ONE bounded corrective retry (11 unit tests prove it). max_tokens slashed
+// (day_read 800→400, cast 900→320). THE READ is now ONE paragraph — schema is a single `read`
+// string, so it CANNOT come back as per-planet cards. Prompts: hero hard-capped at 120 words with
+// the planets pulled OUT (they live in the cast, killing the repetition); cast rewritten to one
+// ≤120-word PG paragraph that knows the data flags but never prints them.
+export const APP_VERSION = "1.1.394";

@@ -96,43 +96,15 @@ export default function SignpostSheet({ open, onClose, mode, profileId, date }: 
                 Calling the cast together — this can take up to a minute the first time…
               </p>
             </div>
-          ) : !cast ? (
+          ) : !cast?.read ? (
             <p className="text-[13px]" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5 }}>
               The cast isn&rsquo;t available right now. Check back in a moment.
             </p>
           ) : (
-            <>
-              {/* THE LOUD ONES — foreground players pulling the scene */}
-              {cast.loud?.map((m: { planet: string; vignette: string }, i: number) => (
-                <div
-                  key={i}
-                  className="rounded-xl p-3.5"
-                  style={{ background: "var(--color-input)", border: "1px solid var(--color-border)" }}
-                >
-                  <p className="text-[11px] font-bold uppercase mb-1.5" style={{ letterSpacing: "0.1em", color: accentSolid }}>
-                    {m.planet}
-                  </p>
-                  <p className="text-[13.5px]" style={{ color: "var(--color-foreground)", lineHeight: 1.55 }}>
-                    <GlossaryText>{m.vignette}</GlossaryText>
-                  </p>
-                </div>
-              ))}
-
-              {/* THE CHAPTER — the quiet scenery behind them */}
-              {cast.chapter && (
-                <div
-                  className="rounded-xl p-3.5"
-                  style={{ background: `color-mix(in oklch, ${accent} 10%, transparent)`, border: `1px solid color-mix(in oklch, ${accent} 24%, transparent)` }}
-                >
-                  <p className="text-[11px] font-bold uppercase mb-1.5" style={{ letterSpacing: "0.12em", color: "var(--color-muted-foreground)" }}>
-                    The chapter
-                  </p>
-                  <p className="text-[13px]" style={{ color: "var(--color-foreground)", lineHeight: 1.55, opacity: 0.9 }}>
-                    <GlossaryText>{cast.chapter}</GlossaryText>
-                  </p>
-                </div>
-              )}
-            </>
+            /* One PG-playful paragraph — the characters moving today. Not sectioned by design. */
+            <p className="text-[15px]" style={{ color: "var(--color-foreground)", lineHeight: 1.62 }}>
+              <GlossaryText>{cast.read}</GlossaryText>
+            </p>
           )}
         </div>
       </div>

@@ -226,26 +226,73 @@ const DAY_READ_SCHEMA = {
   },
 } as const;
 
+// ── DETERMINISTIC OUTPUT GUARDS ──────────────────────────────────────────────
+// The prompt ASKS for brevity + no chart jargon, but the model doesn't always obey — so these
+// make David's two recurring failure modes catchable in CODE, not just in the prompt:
+//   (1) too long,  (2) chart-machinery leaks ("your 9th house", "exalted", "retrograde", sign
+// names). A read that trips a guard is REGENERATED ONCE with the exact violation named, rather
+// than shipped. Cost is bounded to a single extra call, and ONLY when a guard actually trips.
+
+// The banned vocabulary. Planets (Sun/Moon/Mars/Mercury/Jupiter/Venus/Saturn/Rahu/Ketu) are
+// ALLOWED — they're the characters. What's banned: house numbers, dignity/motion terms, and the
+// twelve SIGN names (a sign must appear only as its life-territory, never by name).
+const MACHINERY = /\b(\d+\s*(?:st|nd|rd|th)\s+house|(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\s+house|exalt\w*|debilitat\w*|retrograde|combust\w*|moolatrikona|nakshatra|Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces)\b/i;
+
+const wordCount = (s: string): number => (s.trim().match(/\S+/g) ?? []).length;
+
+// Returns the reason a read FAILS a guard (too long / machinery leak), or null if it's clean.
+export function guardViolation(fullText: string, maxWords: number): string | null {
+  const wc = wordCount(fullText);
+  if (wc > maxWords) return `TOO LONG: your last attempt was ${wc} words. HARD LIMIT is ${maxWords} words — cut it, do not exceed.`;
+  const m = fullText.match(MACHINERY);
+  if (m) return `BANNED CHART JARGON: your last attempt printed "${m[0]}". Rewrite with ZERO machinery — no house numbers, no sign names, no dignity/motion terms (exalted, debilitated, retrograde, combust). Translate every one into plain felt language.`;
+  return null;
+}
+
+// One tool call, validated against the guards, with a single corrective retry if it trips one.
+async function callGuarded<T>(o: {
+  c: Anthropic; tail: string; toolName: string; schema: any; input: NarrativeInput;
+  maxTokens: number; maxWords: number; complete: (x: any) => x is T; textOf: (x: T) => string;
+}): Promise<T | null> {
+  const base = [
+    { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
+    { type: "text" as const, text: o.tail },
+  ];
+  const run = async (correction?: string): Promise<T | null> => {
+    const msg = await o.c.messages.create({
+      model: MODEL, max_tokens: o.maxTokens,
+      system: correction ? [...base, { type: "text" as const, text: correction }] : base,
+      tools: [{ name: o.toolName, description: `Return the ${o.toolName}.`, input_schema: o.schema }],
+      tool_choice: { type: "tool", name: o.toolName },
+      messages: [{ role: "user", content: JSON.stringify(o.input) }],
+    });
+    const block = msg.content.find((b) => b.type === "tool_use");
+    if (!block || block.type !== "tool_use") return null;
+    return o.complete(block.input) ? (block.input as T) : null;
+  };
+  const first = await run();
+  if (!first) return null;
+  const bad = guardViolation(o.textOf(first), o.maxWords);
+  if (!bad) return first;
+  // ONE corrective retry, naming the exact violation. Bounded cost; only fires on a real miss.
+  console.warn(`[narrative] ${o.toolName} tripped a guard, regenerating once: ${bad}`);
+  const retry = await run(`CRITICAL — your previous attempt was REJECTED. ${bad} Return the ${o.toolName} tool again, corrected. This is your last attempt.`);
+  return retry ?? first; // serve the better-of-two rather than a blank day
+}
+
 export async function generateDayRead(input: NarrativeInput): Promise<DayRead | null> {
   const c = client();
   if (!c) return null;
   try {
-    const msg = await c.messages.create({
-      model: MODEL,
-      // ~150-word target (see DAY_READ_TAIL) ≈ ~220 tokens across 4 fields; 800 is a generous
-      // backstop that caps a runaway without truncating a compliant read. (Was 1800 → 5 screens.)
-      max_tokens: 800,
-      system: [
-        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
-        { type: "text" as const, text: DAY_READ_TAIL },
-      ],
-      tools: [{ name: "day_read", description: "Return the day read: scene, story, tilt, closeLine, and question.", input_schema: DAY_READ_SCHEMA as any }],
-      tool_choice: { type: "tool", name: "day_read" },
-      messages: [{ role: "user", content: JSON.stringify(input) }],
+    return await callGuarded<DayRead>({
+      c, tail: DAY_READ_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
+      // Hard token ceiling (was 800 → ~600 words). The 130-word guard is the real length enforcer;
+      // 400 just lets a slightly-over draft COMPLETE so the guard can catch and correct it.
+      maxTokens: 400, maxWords: 130,
+      complete: isCompleteDayRead,
+      // The question is one short line, excluded from the story's word budget.
+      textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
     });
-    const block = msg.content.find((b) => b.type === "tool_use");
-    if (!block || block.type !== "tool_use") return null;
-    return isCompleteDayRead(block.input) ? (block.input as DayRead) : null;
   } catch (err) {
     console.error("[narrative] generateDayRead failed, using static fallback:", (err as any)?.message ?? err);
     return null;
@@ -258,22 +305,18 @@ function isCompleteDayRead(r: any): r is DayRead {
 }
 export { isCompleteDayRead };
 
-// THE READ — THE CAST. The layer behind the day-story: today's LOUD players (foreground
-// characters, each with its live condition + the lesson) and the CHAPTER (background scenery —
-// Moon/Sun/Time Lord/dashas). Personified, PG-playful. Lazy: fires only when THE READ is tapped.
-export type CastMember = { planet: string; vignette: string };
-export type Cast = { loud: CastMember[]; chapter: string };
+// THE READ — THE CAST. The layer behind the day-story: today's loud players as CHARACTERS, in
+// ONE PG-playful paragraph (NOT sectioned cards — the schema is a single string, so it CANNOT come
+// back broken into per-planet blocks). Personified, no chart machinery, ≤120 words. Lazy: fires
+// only when THE READ is tapped.
+export type Cast = { read: string };
 
 const CAST_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["loud", "chapter"],
+  required: ["read"],
   properties: {
-    loud: {
-      type: "array", minItems: 1, maxItems: 5,
-      items: { type: "object", additionalProperties: false, required: ["planet", "vignette"], properties: { planet: { type: "string" }, vignette: { type: "string" } } },
-    },
-    chapter: { type: "string" },
+    read: { type: "string" },
   },
 } as const;
 
@@ -281,33 +324,22 @@ export async function generateCast(input: NarrativeInput): Promise<Cast | null> 
   const c = client();
   if (!c) return null;
   try {
-    const msg = await c.messages.create({
-      model: MODEL,
-      // 2–4 vignettes (~2–3 sentences each) + a one-paragraph chapter ≈ ~350 tokens; 900 caps a
-      // runaway without truncating a compliant cast.
-      max_tokens: 900,
-      system: [
-        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
-        { type: "text" as const, text: CAST_TAIL },
-      ],
-      tools: [{ name: "cast", description: "Return the cast: the loud players and the background chapter.", input_schema: CAST_SCHEMA as any }],
-      tool_choice: { type: "tool", name: "cast" },
-      messages: [{ role: "user", content: JSON.stringify(input) }],
+    return await callGuarded<Cast>({
+      c, tail: CAST_TAIL, toolName: "cast", schema: CAST_SCHEMA as any, input,
+      // One ~120-word paragraph ≈ ~165 tokens; 320 lets a slightly-long draft complete so the
+      // 130-word guard can catch + correct it. (Was 900 → ~700-word five-card wall.)
+      maxTokens: 320, maxWords: 130,
+      complete: isCompleteCast,
+      textOf: (r) => r.read,
     });
-    const block = msg.content.find((b) => b.type === "tool_use");
-    if (!block || block.type !== "tool_use") return null;
-    return isCompleteCast(block.input) ? (block.input as Cast) : null;
   } catch (err) {
     console.error("[narrative] generateCast failed, using static fallback:", (err as any)?.message ?? err);
     return null;
   }
 }
 
-// Reject a truncated cast so the caller falls back instead of rendering half the players.
+// Reject an empty/truncated cast so the caller falls back instead of rendering a blank sheet.
 function isCompleteCast(r: any): r is Cast {
-  return !!r
-    && Array.isArray(r.loud) && r.loud.length > 0
-    && r.loud.every((m: any) => m && typeof m.planet === "string" && typeof m.vignette === "string")
-    && typeof r.chapter === "string";
+  return !!r && typeof r.read === "string" && r.read.trim().length > 0;
 }
 export { isCompleteCast };
