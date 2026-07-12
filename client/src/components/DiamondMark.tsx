@@ -10,11 +10,14 @@ export default function DiamondMark({
   size = 22,
   strokeWidth = 1.8,
   color = "currentColor",
+  fill = "none",
   style,
 }: {
   size?: number;
   strokeWidth?: number;
   color?: string;
+  /** Fill color for a SOLID diamond (default "none" = outline). */
+  fill?: string;
   style?: CSSProperties;
 }) {
   return (
@@ -23,7 +26,7 @@ export default function DiamondMark({
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={fill}
       stroke={color}
       strokeWidth={strokeWidth}
       strokeLinejoin="round"
