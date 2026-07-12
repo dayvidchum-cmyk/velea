@@ -1176,7 +1176,7 @@ export default function Planner() {
                   style={{
                     aspectRatio: "1 / 1",
                     width: "100%",
-                    maxWidth: "2.5rem",
+                    maxWidth: "2rem",
                     borderRadius: 999,
                     transition: "background 150ms",
                     color: numberColor,
