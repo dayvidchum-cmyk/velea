@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -257,3 +257,57 @@ function isCompleteDayRead(r: any): r is DayRead {
   return !!r && typeof r.scene === "string" && typeof r.story === "string" && typeof r.tilt === "string" && typeof r.closeLine === "string" && typeof r.question === "string";
 }
 export { isCompleteDayRead };
+
+// THE READ — THE CAST. The layer behind the day-story: today's LOUD players (foreground
+// characters, each with its live condition + the lesson) and the CHAPTER (background scenery —
+// Moon/Sun/Time Lord/dashas). Personified, PG-playful. Lazy: fires only when THE READ is tapped.
+export type CastMember = { planet: string; vignette: string };
+export type Cast = { loud: CastMember[]; chapter: string };
+
+const CAST_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["loud", "chapter"],
+  properties: {
+    loud: {
+      type: "array", minItems: 1, maxItems: 5,
+      items: { type: "object", additionalProperties: false, required: ["planet", "vignette"], properties: { planet: { type: "string" }, vignette: { type: "string" } } },
+    },
+    chapter: { type: "string" },
+  },
+} as const;
+
+export async function generateCast(input: NarrativeInput): Promise<Cast | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      // 2–4 vignettes (~2–3 sentences each) + a one-paragraph chapter ≈ ~350 tokens; 900 caps a
+      // runaway without truncating a compliant cast.
+      max_tokens: 900,
+      system: [
+        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
+        { type: "text" as const, text: CAST_TAIL },
+      ],
+      tools: [{ name: "cast", description: "Return the cast: the loud players and the background chapter.", input_schema: CAST_SCHEMA as any }],
+      tool_choice: { type: "tool", name: "cast" },
+      messages: [{ role: "user", content: JSON.stringify(input) }],
+    });
+    const block = msg.content.find((b) => b.type === "tool_use");
+    if (!block || block.type !== "tool_use") return null;
+    return isCompleteCast(block.input) ? (block.input as Cast) : null;
+  } catch (err) {
+    console.error("[narrative] generateCast failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
+// Reject a truncated cast so the caller falls back instead of rendering half the players.
+function isCompleteCast(r: any): r is Cast {
+  return !!r
+    && Array.isArray(r.loud) && r.loud.length > 0
+    && r.loud.every((m: any) => m && typeof m.planet === "string" && typeof m.vignette === "string")
+    && typeof r.chapter === "string";
+}
+export { isCompleteCast };

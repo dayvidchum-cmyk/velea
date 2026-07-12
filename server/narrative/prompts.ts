@@ -1491,6 +1491,57 @@ Find THIS chart's scene and serve it the same way.
 
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
 
+// CAST_TAIL — THE READ. The layer BEHIND the day-story: the same day told as its CHARACTERS.
+// The story said WHAT today is; the cast says WHO is making it that way. Two tiers: the LOUD
+// ones (foreground — only the planets with a live condition pulling the scene, each carrying its
+// condition AND the lesson it points to) and THE CHAPTER (background — Moon/Sun/Time Lord/dashas
+// as the standing scenery). Rides BASE_PROMPT for the shared laws; adds only the cast shape.
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAST_TAIL = `TASK: THE READ — THE CAST
+
+This is the layer BEHIND the day-story: the SAME day, told as its CHARACTERS. The story said
+WHAT today is; the cast says WHO is making it that way. Personify the planets as a cast on a
+stage — named characters with a nature, each DOING something today — in PG-PLAYFUL language:
+warm, vivid, a little funny ("three drinks in," never "drunk as fuck"; a reader smiles, never
+winces). Characters acting on a stage, never a chart reported.
+
+TWO TIERS, ALWAYS:
+
+1. THE LOUD ONES (foreground — 2 to 4 ONLY): the planets SPEAKING UP today — grabbing the
+   spotlight, moving the scene. A planet is loud when it has a LIVE condition worth naming: the
+   tightest transit onto a natal point, a retrograde or station, a combust or nodally-gripped
+   planet, an eclipse grip, a dignity at its extreme (singing at full volume, or running on
+   empty), or a dasha lord that today's Moon lights up. A QUIET planet — nothing live, just
+   sitting in its seat — STAYS OFFSTAGE. NEVER a roll-call of nine; pick only who is actually
+   pulling the scene. Name each with its planet (Jupiter, Mercury, Venus, the Moon…).
+
+   Each loud character carries its CONDITION *and* THE LESSON it points to — never status for
+   its own sake. The lesson follows the live state:
+   - a DEPLETED benefic (Venus, Jupiter, the Moon running on empty) is a MIRROR: you've
+     over-given in what it rules, and the move is RESTORATION — receive, rest, replenish, let it
+     be filled — NOT "avoid it." (Venus is wealth, comfort, love; run dry, she needs bringing
+     back to life — let someone pour into you.)
+   - a STRONG, well-placed planet is a WELL to draw on — lean into what it rules today.
+   - a HARD or heavy planet shedding (a hard transit, or a planet gripped by Ketu) is what
+     you've EARNED THE RIGHT TO SET DOWN — a window to release, let one thing go, turn inward.
+   Point EVERY vignette at the SPECIFIC life-thing the planet rules (THE PROOF IS IN THE
+   SPECIFICS): the craft, the message, income, the circle, comfort, rest — never a vague mood.
+
+2. THE CHAPTER (background — ONE short paragraph): the SCENERY behind the loud ones — the
+   standing cast, always onstage but not lurching today: the natal Moon (WHO IS HOME — hard-won
+   honored when cancelled, NEVER "weak/debilitated"), the Sun, the Time Lord (the current
+   period's ruler — the stage you're on), and the dasha lords (the long season). This is the
+   slow ground the day plays on: quieter, framing, not vivid. If it's stable, SAY it's stable —
+   it steadies the loud weather; it turns over months, not today.
+
+SAME LAWS AS THE DAY-STORY: DISSOLVE THE CHART INTO STORY (characters doing things, NEVER
+ordinal house numbers, NEVER "exalted/debilitated/retrograde/combust" as bare terms — translate
+to felt quality), the two Moons are DIFFERENT characters, INTERACTIONS ARE THE CORE (a condition
+MEANS something different for THIS chart). Concise: each loud vignette 2–3 sentences; the chapter
+one short paragraph. No preamble, no closing summary line — just the cast.
+
+Return your answer by calling the cast tool with loud (each a {planet, vignette}) and chapter filled in.`;
+
 export const MODEL = "claude-sonnet-4-6";
 
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
@@ -1505,4 +1556,5 @@ export const PROMPT_VERSION = "2026-07-12-story-voice-concise";
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
   day_read: "2026-07-12-hero-question",
+  cast: "2026-07-12-cast-v1",
 };

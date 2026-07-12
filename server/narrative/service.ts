@@ -2,7 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, generateChapter, generateDayRead, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type GlanceContent } from "./generate.js";
+import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
 
@@ -178,4 +178,38 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
   });
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read, generatedAt: new Date(), cached: false };
+}
+
+export type CastResult = { available: boolean; cast: Cast | null; generatedAt: Date | null; cached: boolean };
+
+// THE READ — THE CAST. The layer behind the day-story (the characters moving today), for a
+// specific date. LAZY: fires only when THE READ is tapped, so only opted-in views pay for it.
+// Caches under its own ("cast", date) row, salted by SURFACE_VERSION.cast so a cast prompt
+// change busts ONLY the cast. Returns unavailable → static fallback when the key is off.
+export async function getCastCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<CastResult> {
+  if (!hasAnthropicKey()) return { available: false, cast: null, generatedAt: null, cached: false };
+  const surface = "cast";
+  const input = await buildNarrativeInput(profileId, date, { dayLoc });
+  const hash = hashInput(input, surface);
+
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, date);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const cast = JSON.parse(row.content);
+        if (isCompleteCast(cast)) {
+          return { available: true, cast, generatedAt: row.generatedAt, cached: true };
+        }
+      } catch {
+        /* fall through to regenerate on corrupt cache */
+      }
+    }
+  }
+  const cast = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+    const r = await generateCast(input);
+    if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!cast) return { available: false, cast: null, generatedAt: null, cached: false };
+  return { available: true, cast, generatedAt: new Date(), cached: false };
 }

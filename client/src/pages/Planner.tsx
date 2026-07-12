@@ -1785,8 +1785,8 @@ export default function Planner() {
 
       {/* Due Orb Sheet */}
 
-      {/* Why-this-today Signpost Sheet */}
-      <SignpostSheet open={signpostOpen} onClose={() => setSignpostOpen(false)} mode={selectedTaskModeForHero ?? undefined} />
+      {/* THE READ — the cast behind the hero day-story (opened by the hero's "The Read" button) */}
+      <SignpostSheet open={signpostOpen} onClose={() => setSignpostOpen(false)} mode={selectedTaskModeForHero ?? undefined} profileId={glanceProfileId} date={selectedDate} />
 
       {/* Add/Edit sheet */}
       <AddTaskSheet

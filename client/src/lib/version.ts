@@ -204,4 +204,11 @@
 // (5) the collapsed "The day, in full" press-line is gone (its content is the hero); (6) admin ↻
 // repointed to refresh the day-read. Prompt: THE PROOF IS IN THE SPECIFICS law + Ketu-window
 // (day_read surface salt only — glance/deep/chapter caches untouched).
-export const APP_VERSION = "1.1.392";
+// v1.1.393 = 2026-07-12 — THE READ = THE CAST (no placeholder). The hero's "The Read" button now
+// opens the cast: today's LOUD players (2–4 foreground characters, each with its live condition +
+// the lesson it points to — restore a depleted Venus, lean on a strong Jupiter, wait out a
+// hungover Mercury) over THE CHAPTER (background scenery — the natal Moon/Sun/Time Lord/dashas).
+// PG-playful, personified, glossary-linked. New `cast` narrative surface (own prompt CAST_TAIL +
+// surface salt), lazy — fires only when the sheet opens. SignpostSheet repurposed from the old
+// data-pill "why today" into the cast render.
+export const APP_VERSION = "1.1.393";

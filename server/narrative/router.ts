@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
-import { getGlanceCached, getDeepReadCached, getChapterCached, getDayReadCached } from "./service.js";
+import { getGlanceCached, getDeepReadCached, getChapterCached, getDayReadCached, getCastCached } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
 import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
 import { assertOwnsProfile } from "../routers/profiles.js";
@@ -84,6 +84,21 @@ export const narrativeRouter = router({
     } catch (e) {
       console.error("[narrative.dayRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
+    }
+  }),
+
+  // THE READ — THE CAST. The layer behind the day-story: today's loud players (each with its
+  // condition + lesson) and the background chapter (Moon/Sun/Time Lord/dashas). LAZY — fires
+  // only when THE READ is tapped. Falls back to unavailable (→ static copy) when the key is off.
+  cast: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
+    await assertOwnsProfile(ctx.user.id, input.profileId);
+    const date = input.date ?? todayUTC();
+    try {
+      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id));
+      return await getCastCached(input.profileId, date, input.refresh ?? false, dayLoc);
+    } catch (e) {
+      console.error("[narrative.cast]", e);
+      return { available: false, cast: null, generatedAt: null, cached: false } as const;
     }
   }),
 
