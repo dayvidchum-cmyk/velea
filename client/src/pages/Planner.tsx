@@ -165,7 +165,7 @@ export default function Planner() {
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
   // "Plan ahead" planning tools are collapsed by default — today-first.
-  const [planOpen, setPlanOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(true); // Calendar is its own section, open by default
   const [pinnedOpen, setPinnedOpen] = useState(false); // both task lists ship collapsed — the hero is the only open block
   const [alignedOpen, setAlignedOpen] = useState(false);
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
@@ -990,29 +990,27 @@ export default function Planner() {
         </div>
       )}
 
-      {/* ── CALENDAR & REFLECTIONS (collapsed by default — low cognitive load). The toggle also
-          gates Time Lord Movement + the reflection journal, so the label names them — "Calendar"
-          alone hid the journal. ── */}
+      {/* ── CALENDAR — its own section, OPEN by default unless the user collapses it (David). ── */}
       <button
-        onClick={() => setPlanOpen((v) => !v)}
+        onClick={() => setCalendarOpen((v) => !v)}
         className="flex items-center gap-2 w-full py-2 transition-all relative z-10"
       >
         <span
           className="text-sm font-bold uppercase"
           style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
         >
-          Calendar &amp; Reflections
+          Calendar
         </span>
         <ChevronDown
           size={13}
           style={{
             color: "var(--color-muted-foreground)",
-            transform: planOpen ? "rotate(180deg)" : "rotate(0deg)",
+            transform: calendarOpen ? "rotate(180deg)" : "rotate(0deg)",
             transition: "transform 200ms ease",
           }}
         />
       </button>
-      {planOpen && (
+      {calendarOpen && (
         <div className="space-y-5">
       {/* ── 1. CALENDAR ── */}
       <div
@@ -1319,81 +1317,6 @@ export default function Planner() {
         );
       })(), document.body)}
 
-      {/* (The per-date "Due this day" list was removed — the always-visible Due orb + its sheet are
-          the single due surface now, instead of a second one hidden inside the collapsed Calendar.) */}
-
-      {/* (Current Time Lord Movement removed from Today — it lives on the Chart page.) */}
-
-      {/* Reflections — recorder collapsed by default (no big empty box until you choose to write). */}
-      {isAuthenticated && (
-        <div className="relative z-10">
-          <button
-            onClick={() => setReflectionOpen((v) => !v)}
-            className="flex items-center gap-2 mb-2 w-full"
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}
-          >
-            <BookOpen size={12} style={{ color: "var(--color-muted-foreground)" }} />
-            <p
-              className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-            >
-              What happened on {new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}?
-            </p>
-            <ChevronDown size={13} style={{ marginLeft: "auto", flexShrink: 0, color: "var(--color-muted-foreground)", transform: reflectionOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
-          </button>
-          {reflectionOpen && (
-          <div className="glass-card p-3">
-            <textarea
-              className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed"
-              style={{ color: "var(--color-foreground)", minHeight: "80px", caretColor: "var(--foreground)" }}
-              placeholder="Write a reflection for this day…"
-              value={reflection}
-              onChange={(e) => setReflection(e.target.value)}
-            />
-            <div className="flex items-center justify-between mt-2">
-              {saveReflection.isError && (
-                <p className="text-xs" style={{ color: "oklch(0.70 0.15 25)" }}>Failed to save. Try again.</p>
-              )}
-              <div className="ml-auto">
-                <button
-                  onClick={() => saveReflection.mutate(
-                    { date: selectedDate, content: reflection },
-                    { onError: () => {} }
-                  )}
-                  disabled={saveReflection.isPending || reflection === (savedReflection?.content ?? "")}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all disabled:opacity-40"
-                  style={{
-                    letterSpacing: "0.02em",
-                    background: reflectionSaved ? "var(--secondary)" : "var(--input)",
-                    color: "var(--foreground)",
-                    border: `1px solid var(--border)`,
-                  }}
-                >
-                  {saveReflection.isPending ? "Saving…" : reflectionSaved ? "Saved ✓" : "Save"}
-                </button>
-              </div>
-            </div>
-          </div>
-          )}
-        </div>
-      )}
-
-        {/* View reflection log — bottom of Plan ahead */}
-        {isAuthenticated && (
-          <button
-            onClick={() => navigate("/reflections")}
-            className="flex items-center gap-2 w-full py-2 transition-opacity hover:opacity-70"
-          >
-            <BookOpen size={14} style={{ color: "var(--color-muted-foreground)" }} />
-            <span
-              className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-            >
-              View reflection log
-            </span>
-          </button>
-        )}
-
         </div>
       )}
 
@@ -1689,6 +1612,75 @@ export default function Planner() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* ── REFLECTIONS — its own section now, placed directly above Completed (David). ── */}
+      {isAuthenticated && (
+        <div className="relative z-10">
+          <button
+            onClick={() => setReflectionOpen((v) => !v)}
+            className="flex items-center gap-2 mb-2 w-full"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}
+          >
+            <BookOpen size={12} style={{ color: "var(--color-muted-foreground)" }} />
+            <p
+              className="text-sm font-bold uppercase"
+              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            >
+              What happened on {new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}?
+            </p>
+            <ChevronDown size={13} style={{ marginLeft: "auto", flexShrink: 0, color: "var(--color-muted-foreground)", transform: reflectionOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+          </button>
+          {reflectionOpen && (
+          <div className="glass-card p-3">
+            <textarea
+              className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed"
+              style={{ color: "var(--color-foreground)", minHeight: "80px", caretColor: "var(--foreground)" }}
+              placeholder="Write a reflection for this day…"
+              value={reflection}
+              onChange={(e) => setReflection(e.target.value)}
+            />
+            <div className="flex items-center justify-between mt-2">
+              {saveReflection.isError && (
+                <p className="text-xs" style={{ color: "oklch(0.70 0.15 25)" }}>Failed to save. Try again.</p>
+              )}
+              <div className="ml-auto">
+                <button
+                  onClick={() => saveReflection.mutate(
+                    { date: selectedDate, content: reflection },
+                    { onError: () => {} }
+                  )}
+                  disabled={saveReflection.isPending || reflection === (savedReflection?.content ?? "")}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all disabled:opacity-40"
+                  style={{
+                    letterSpacing: "0.02em",
+                    background: reflectionSaved ? "var(--secondary)" : "var(--input)",
+                    color: "var(--foreground)",
+                    border: `1px solid var(--border)`,
+                  }}
+                >
+                  {saveReflection.isPending ? "Saving…" : reflectionSaved ? "Saved ✓" : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+          )}
+        </div>
+      )}
+
+      {isAuthenticated && (
+        <button
+          onClick={() => navigate("/reflections")}
+          className="flex items-center gap-2 w-full py-2 transition-opacity hover:opacity-70"
+        >
+          <BookOpen size={14} style={{ color: "var(--color-muted-foreground)" }} />
+          <span
+            className="text-sm font-bold uppercase"
+            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+          >
+            View reflection log
+          </span>
+        </button>
       )}
 
       {/* ── COMPLETED (moved below the Planner section, per request) ── */}
