@@ -65,11 +65,11 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --background: #242526;
+  --background: #2d2d2d;
   --foreground: #FDFDFD;
-  --card: #242526;
+  --card: #2d2d2d;
   --card-foreground: #FDFDFD;
-  --popover: #242526;
+  --popover: #2d2d2d;
   --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
@@ -579,11 +579,11 @@
 
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
-  --background: #242526;
+  --background: #2d2d2d;
   --foreground: #FDFDFD;
-  --card: #242526;
+  --card: #2d2d2d;
   --card-foreground: #FDFDFD;
-  --popover: #242526;
+  --popover: #2d2d2d;
   --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
