@@ -3,14 +3,18 @@
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
 import { generateGlance, generateDeepRead, generateChapter, generateDayRead, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type GlanceContent } from "./generate.js";
-import { MODEL, PROMPT_VERSION } from "./prompts.js";
+import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
 
 // PROMPT_VERSION is part of the key so a prompt change busts the cache — otherwise a
 // stale read (generated under an older prompt) keeps being served until the chart data
-// itself changes.
-function hashInput(input: unknown): string {
-  return createHash("sha256").update(PROMPT_VERSION + "|" + JSON.stringify(input)).digest("hex");
+// itself changes. An optional per-surface salt (SURFACE_VERSION[surface]) lets a single
+// surface's prompt change bust ONLY that surface, leaving the others' caches (and cost) alone.
+// Surfaces with no salt append nothing, so their hash is byte-identical to the pre-salt formula.
+function hashInput(input: unknown, surface?: string): string {
+  const salt = surface ? SURFACE_VERSION[surface] : undefined;
+  const prefix = PROMPT_VERSION + "|" + (salt ? salt + "|" : "");
+  return createHash("sha256").update(prefix + JSON.stringify(input)).digest("hex");
 }
 
 export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };
@@ -150,7 +154,9 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = "day_read";
   const input = await buildNarrativeInput(profileId, date, { dayLoc });
-  const hash = hashInput(input);
+  // Salt the hash with the day_read surface version so a day-read prompt change busts ONLY
+  // this surface — glance/deep/chapter caches (unchanged prompts) stay valid, no re-charge.
+  const hash = hashInput(input, surface);
 
   if (!refresh) {
     const row = await getNarrativeCache(profileId, surface, date);

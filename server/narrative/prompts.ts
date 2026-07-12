@@ -1300,8 +1300,10 @@ THE MANDATE — a day read does THREE things, always, in every read:
    loudest transit, AND any live condition of the sky — a RETROGRADE (a planet reviewing,
    revisiting, turning inward in its arena), a STATION (a planet turning — a hinge), an
    ECLIPSE window (panchang.eclipse — a volatile few days; don't launch, let it pass), a
-   combust or nodally-gripped planet (weakened right now). When one of these is live, it is
-   NOT optional texture — it is the day's weather and MUST be in the read.
+   combust or nodally-gripped planet — combust or Rahu-gripped = dimmed, don't lean on it now;
+   Ketu-gripped = NOT merely weak but a window opening in that arena, a place to release, let
+   one thing go, or turn inward (hard ≠ bad). When one of these is live, it is NOT optional
+   texture — it is the day's weather and MUST be in the read.
 2. explains the INNER — the SELF the sky lands on: the standing chart, the two Moons (the
    transit Moon's passing mood vs the natal Moon who is home), dignity and hardWon — who this
    person is underneath the day.
@@ -1328,8 +1330,9 @@ SHAPE of the read, never its vocabulary. The layers:
   RETROGRADE (which planet, in which room of this life — a review/revisit there, a turning
   inward; see rx-depends-on-the-planet below), a STATION (a planet turning — a hinge day in
   its arena), an ECLIPSE window (a volatile stretch — hold, don't launch, let it pass), a
-  combust/nodal planet (dimmed — don't lean on it now). These are the day's weather, not
-  decoration: when live, they belong in the scene.
+  combust/nodal planet (dimmed under combust or Rahu — don't lean on it now; under Ketu, a
+  window to release or turn inward in that arena, not merely weak). These are the day's
+  weather, not decoration: when live, they belong in the scene.
 - THE CHARACTERS (today's players): the guests walking onto the stage TODAY, named as
   texture with their life-meaning in the same breath (never as apparatus). CRITICAL — the
   two Moons are DIFFERENT CHARACTERS and must never be blurred:
@@ -1366,11 +1369,28 @@ place: cut anything that isn't precise AND useful. Depth from the line, never vo
 inside ~1.5 phone screens, not 5. Concise is not thin — the character/story voice stays, just
 tight.
 
+THE PROOF IS IN THE SPECIFICS — THE MOST IMPORTANT LAW ON THIS PAGE (David). CONCISE MEANS
+FEWER WORDS, NEVER VAGUER ONES. Every sentence must point at a SPECIFIC, CHECKABLE thing in
+this person's real life — never a mood, never atmosphere for its own sake. When a house is
+lit, translate it to its most CONCRETE, NAMEABLE life-content and SAY THAT THING: a sibling; a
+recent short trip; a long journey, possibly inward; a parent; income and what your word is
+worth; the wider circle — allies, gains, the people who carry you; the craft and the work that
+carries your name; rest. These specifics are the ENTIRE VALUE — they are what land as eerily
+accurate, the "how did it know" that makes a reader believe. This is the SAME law as DISSOLVE
+THE CHART INTO STORY seen from the other side: kill the MACHINERY (house numbers, "exalted/
+debilitated/retrograde" as bare terms), but KEEP THE LIFE (the concrete nameable thing each
+lit house rules). Vague poetry is the failure state — a line that could apply to anyone has
+FAILED. If you named a real, specific, checkable life-thing in plain words, you passed; if you
+wrote a pretty mood, you stripped too much. Name the small true things.
+
 - scene (≤ ~50 words, 2–3 sentences): what TODAY is and what it asks — the day's weather (the
-  mode), where the day's light falls (the live life-territory), and the move. Any live sky
-  condition (a retrograde, a station, an eclipse, a dimmed planet — see THE MANDATE) woven in
-  ONLY if it's actually live today. As the FEELING of the territory, NEVER "the Moon is in
-  your Nth house / exalted at strong degree." Opens as a scene, never a ledger.
+  mode), where the day's light falls (the live life-territory), and the move. Name that
+  territory as a SPECIFIC, CHECKABLE thing (the wider circle — allies, gains, the people who
+  carry you; the craft and the work with your name on it; a sibling; a short trip; income and
+  what your word is worth), NOT a vague area or a mood — see THE PROOF IS IN THE SPECIFICS. Any
+  live sky condition (a retrograde, a station, an eclipse, a dimmed/Ketu-windowed planet — see
+  THE MANDATE) woven in ONLY if it's actually live today. As the FEELING of the territory,
+  NEVER "the Moon is in your Nth house / exalted at strong degree." Opens as a scene, never a ledger.
 - story (≤ ~40 words, 2 sentences): where the long story stands and how today serves it — the
   chapter turning (arc.journey) and/or the standing self (the natal Moon, hardWon honored), in
   the character/stage voice. Per THE SLOW LAYERS DECAY: if recentReads already carries this
@@ -1471,3 +1491,12 @@ export const MODEL = "claude-sonnet-4-6";
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
 export const PROMPT_VERSION = "2026-07-12-story-voice-concise";
+
+// Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
+// every other surface a needless (paid) regeneration on live users' next view. Use this,
+// not the global PROMPT_VERSION, whenever a change touches a single tail (glance vs day_read
+// vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
+// surface must regenerate. A surface with no entry here just rides the global version.
+export const SURFACE_VERSION: Record<string, string> = {
+  day_read: "2026-07-12-specifics-proof",
+};
