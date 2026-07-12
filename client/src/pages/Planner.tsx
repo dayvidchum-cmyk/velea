@@ -57,17 +57,21 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
   deep:   { Mercury: "#2E8B6E", Venus: "#C65A72", Mars: "#BD0039", Jupiter: "#9A7E00", Saturn: "#0E74D4" },
 };
 
+// Day-mode coin colors, ONE palette for the always-light calendar (David 2026-07-11): appearance
+// mode no longer changes the surface, so it no longer changes these. Tuned DARKER than the old
+// dark-bg dots (~0.55 lightness) so each mode reads on white AND carries a white number when the
+// coin is filled. Build is a deeper amber-gold — a bright gold couldn't hold white text on white.
 const MODE_DOT: Record<string, string> = {
-  Action:     "oklch(0.70 0.18 150)",  // clearer green
-  Build:      "oklch(0.80 0.15 92)",
-  Restraint:  "oklch(0.68 0.09 14)",
-  Selective:  "oklch(0.68 0.08 225)",  // bluer teal, distinct from green
-  Flex:       "oklch(0.72 0.10 280)",
-  Activate:   "oklch(0.70 0.18 150)",
-  ACTION:     "oklch(0.70 0.18 150)",
-  BUILD:      "oklch(0.80 0.15 92)",
-  RESTRAINT:  "oklch(0.68 0.09 14)",
-  "SELECTIVE ACTION": "oklch(0.68 0.08 225)",
+  Action:     "oklch(0.55 0.15 150)",  // green
+  Build:      "oklch(0.60 0.12 82)",   // amber-gold, deep enough for a white number
+  Restraint:  "oklch(0.55 0.15 18)",   // rose-wine
+  Selective:  "oklch(0.56 0.11 228)",  // teal-blue
+  Flex:       "oklch(0.56 0.14 285)",  // purple
+  Activate:   "oklch(0.55 0.15 150)",
+  ACTION:     "oklch(0.55 0.15 150)",
+  BUILD:      "oklch(0.60 0.12 82)",
+  RESTRAINT:  "oklch(0.55 0.15 18)",
+  "SELECTIVE ACTION": "oklch(0.56 0.11 228)",
 };
 
 /** Adds an alpha value to an oklch() color string, e.g. "oklch(0.72 0.16 145)" → "oklch(0.72 0.16 145 / 0.15)" */
@@ -1077,9 +1081,9 @@ export default function Planner() {
           </button>
         </div>
         {/* Calendar body */}
-        <div className="p-4">
+        <div className="px-4 py-5">
 
-        <div className="grid grid-cols-7 mb-2">
+        <div className="grid grid-cols-7 mb-3">
           {DAYS.map((d) => (
             <div
               key={d}
@@ -1091,7 +1095,7 @@ export default function Planner() {
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-y-1">
+        <div className="grid grid-cols-7" style={{ rowGap: "1rem" }}>
           {calendarCells.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />;
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
@@ -1167,7 +1171,7 @@ export default function Planner() {
                   style={{
                     aspectRatio: "1 / 1",
                     width: "100%",
-                    maxWidth: "3.1rem",
+                    maxWidth: "2.5rem",
                     borderRadius: 999,
                     transition: "background 150ms",
                     color: numberColor,
@@ -1221,7 +1225,7 @@ export default function Planner() {
                     inactive transparent. Stations show the glyph on the coin above; the line stays
                     lit through them for continuity. */}
                 {monthRetroPlanets.length ? (
-                  <div style={{ width: "100%", maxWidth: "3.1rem", display: "flex", flexDirection: "column", gap: 2, pointerEvents: "none" }}>
+                  <div style={{ width: "100%", maxWidth: "2.5rem", display: "flex", flexDirection: "column", gap: 2, pointerEvents: "none" }}>
                     {monthRetroPlanets.map((planet) => {
                       const st = retroToday?.find((e) => e.planet === planet)?.state;
                       const col = retroColor[planet];

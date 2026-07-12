@@ -163,4 +163,9 @@
 // color + white number; every other day is an OUTLINE — a ring in the day-mode color with the
 // number in that same color. The white today-border is retired (today is the filled coin). Retro
 // glyphs/strip pinned to the deep (light-bg) palette since the surface is always light.
-export const APP_VERSION = "1.1.349";
+// v1.1.350 = 2026-07-11 — Calendar negative space + unified coin palette. More breathing room:
+// row gap 0.25rem→1rem, coins 3.1→2.5rem, body padding opened up (inspiration: an airy month grid).
+// And since the surface is ALWAYS light now, the day-mode coin colors are ONE light-tuned palette
+// (~0.55 lightness) shared across every appearance mode — dark enough to read on white and to carry
+// a white number when filled; Build is a deeper amber-gold (a bright gold couldn't hold white text).
+export const APP_VERSION = "1.1.350";
