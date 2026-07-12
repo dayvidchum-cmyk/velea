@@ -157,4 +157,10 @@
 // v1.1.348 = 2026-07-11 — Horoscope page: the leftover Sparkles icon on the reveal ("purchase")
 // prompt is replaced with the DiamondMark — the same node/knot/point symbol as the Horoscope nav
 // icon, so the page and its icon agree (Sparkles was retired app-wide).
-export const APP_VERSION = "1.1.348";
+// v1.1.349 = 2026-07-11 — Calendar restyle (David): light-mode --background → #FDFDFD, and the
+// Planner calendar surface is now ALWAYS #FDFDFD in every appearance mode (appearance never leaks
+// in). Coins flip to a fill/outline model: TODAY and the pressed date are FILLED with the day-mode
+// color + white number; every other day is an OUTLINE — a ring in the day-mode color with the
+// number in that same color. The white today-border is retired (today is the filled coin). Retro
+// glyphs/strip pinned to the deep (light-bg) palette since the surface is always light.
+export const APP_VERSION = "1.1.349";

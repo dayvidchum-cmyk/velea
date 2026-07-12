@@ -1028,7 +1028,9 @@ export default function Planner() {
         style={{
           borderRadius: "16px",
           border: `2px solid ${calModeColor}`,
-          background: "var(--color-card)",
+          // David's law (2026-07-11): the calendar body is ALWAYS #FDFDFD — appearance mode never
+          // touches it. The coins carry all the color; the surface stays a clean light foundation.
+          background: "#FDFDFD",
         }}
       >
         {/* Colored strip header */}
@@ -1082,7 +1084,7 @@ export default function Planner() {
             <div
               key={d}
               className="text-center text-xs font-semibold tracking-wide py-1"
-              style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}
+              style={{ color: "#9a9a9a", letterSpacing: "0.04em" }}
             >
               {d}
             </div>
@@ -1118,7 +1120,9 @@ export default function Planner() {
             // Retrograde planets active this day → the bottom glyph strip (rendered below).
             const retroToday = retroByDate.get(dateStr);
             const stationsToday = retroToday?.filter((e) => e.state === "station-retro" || e.state === "station-direct") ?? [];
-            const retroColor = isDark ? PLANET_RETRO_COLOR.bright : PLANET_RETRO_COLOR.deep;
+            // The calendar surface is always light now, so the retro glyphs/strip always use the
+            // deep (light-bg) palette — the bright variant would wash out on white in dark/FS mode.
+            const retroColor = PLANET_RETRO_COLOR.deep;
             // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
@@ -1126,12 +1130,15 @@ export default function Planner() {
             // TODAY = the mode color at FULL strength (darkening gold made it read brown);
             // the number color is contrast-picked, so gold days carry a dark number and
             // teal/green/wine days keep white.
-            const todayText = hasMode ? autoTextColors(accent).primary : undefined;
-            const restingBg = hasMode
-              ? (isToday ? accent : withAlpha(accent, tintAlpha))
-              : (isSelected || isToday ? "var(--color-secondary)" : "transparent");
-            const hoverBg = hasMode ? (isToday ? darkenOklch(accent, 0.9) : darkenOklch(accent, 0.82)) : "var(--color-secondary)";
-            const pressBg = hasMode ? (isToday ? darkenOklch(accent, 0.8) : darkenOklch(accent, 0.64)) : "var(--color-border)";
+            // David's coin model (2026-07-11): the calendar is ALWAYS light, and a coin is FILLED with
+            // its day-mode color only for TODAY or the date the user presses. Every other day is an
+            // OUTLINE — a ring in the day-mode color, with the number in that same color. No more white
+            // today-border: today is simply the filled coin.
+            const filled = (isToday || isSelected) && hasMode;
+            const numberColor = filled ? "#fff" : hasMode ? accent : "var(--color-muted-foreground)";
+            const restingBg = filled ? accent : "transparent";
+            const hoverBg = hasMode ? accent : "var(--color-secondary)";
+            const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
 
             return (
               <button
@@ -1163,28 +1170,23 @@ export default function Planner() {
                     maxWidth: "3.1rem",
                     borderRadius: 999,
                     transition: "background 150ms",
-                    color: isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : undefined,
+                    color: numberColor,
                     background: restingBg,
-                    // Today = a WHITE border, kept in the border slot (not an outward box-shadow) so it
-                    // can't bleed into the neighbor. Today + golden/caution nests the second color as an
-                    // inset ring. David's law (2026-07-09): the gold border belongs to GOLDEN days only.
-                    border: isToday
-                      ? (isDark ? "2px solid #ffffff" : `2px solid ${darkenOklch(accent, 0.45)}`)
+                    // The ring carries the day-mode color on every un-filled day; golden and caution
+                    // days keep their special borders (gold / red). Today and the pressed day are
+                    // FILLED, so they no longer need a white border — the fill is the highlight.
+                    border: cautionSet.has(dateStr)
+                      ? `2px solid ${CAUTION_RED}`
                       : isGolden
                       ? `2px solid ${GOLD_BRIGHT}`
-                      : cautionSet.has(dateStr)
-                      ? `2px solid ${CAUTION_RED}`
-                      : isSelected
+                      : hasMode
                       ? `1.5px solid ${accent}`
                       : "1px solid transparent",
-                    boxShadow: isToday
-                      ? (isGolden ? `inset 0 0 0 2px ${GOLD_BRIGHT}` : cautionSet.has(dateStr) ? `inset 0 0 0 2px ${CAUTION_RED}` : undefined)
-                      : undefined,
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = isToday && todayText ? todayText : hasMode ? "var(--color-foreground)" : ""; }}
-                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
-                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = isToday && todayText ? todayText : "#fff"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = numberColor; }}
+                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
+                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = "#fff"; }}
                 >
                   {isCrown ? (
                     // The bindu — a single gold point. The day itself is the mark.
@@ -1208,7 +1210,7 @@ export default function Planner() {
                       ))}
                     </span>
                   ) : (
-                    <span className="text-xs" style={{ color: isToday ? "#ffffff" : hasMode ? "inherit" : "var(--color-muted-foreground)", fontWeight: isSelected || isToday ? 700 : 600 }}>
+                    <span className="text-xs" style={{ color: "inherit", fontWeight: filled ? 700 : 600 }}>
                       {day}
                     </span>
                   )}
