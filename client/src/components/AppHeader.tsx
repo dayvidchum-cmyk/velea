@@ -165,11 +165,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // Golden-hour readout for the brand line (private — only present when Time Master data is: golden
   // now, else a heads-up for the next golden window). Non-entitled users get no Time Master data → null.
   const golden = (tmToday as any)?.goldenNow ?? null;
-  const fmtClock = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const fmtClock = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const horaCurrent = horaToday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs)
     ?? horaYesterday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
   const stampHoraLord = horaCurrent?.lord ?? null;
-  const stampTime = stampDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const stampTime = stampDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   // The qualifier is usually the FULL 2-word label ("Restrained Build"); only append the mode
   // when the qualifier doesn't already contain it — avoids "Restrained Build Build" / "Build Build".
   const stampModeLabel = stampQualifier

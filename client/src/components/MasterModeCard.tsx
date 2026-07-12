@@ -89,7 +89,7 @@ export default function MasterModeCard() {
   const data = bracketsNow(todayData) ? todayData : bracketsNow(yestData) ? yestData : todayData;
   if (!data) return null;
 
-  const fmt = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const fmt = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const current = data.periods.find((p) => nowMs >= p.startMs && nowMs < p.endMs);
   const g = (data as any).goldenNow;
 

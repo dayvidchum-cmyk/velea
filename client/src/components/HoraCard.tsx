@@ -63,7 +63,7 @@ export default function HoraCard() {
   const data = bracketsNow(todayData) ? todayData : bracketsNow(yestData) ? yestData : todayData;
   if (!data) return null;
 
-  const fmt = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const fmt = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const current = data.horas.find((h) => nowMs >= h.startMs && nowMs < h.endMs);
 
   return (

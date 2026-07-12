@@ -162,7 +162,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
     ? (() => {
         const d = new Date(task.snoozedUntil!);
         const now = new Date();
-        const t = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        const t = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
         if (d.toDateString() === now.toDateString()) return `Snoozed until ${t}`;
         if (d.toDateString() === tomorrow.toDateString()) return `Snoozed until tomorrow, ${t}`;

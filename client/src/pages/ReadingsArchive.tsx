@@ -10,7 +10,7 @@ function formatDate(dateStr: string) {
 }
 function formatTime(ts: Date | string) {
   const d = typeof ts === "string" ? new Date(ts) : ts;
-  return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 /**
