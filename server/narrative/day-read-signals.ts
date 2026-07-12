@@ -16,7 +16,7 @@
 import { calculateBirthChart } from "../birthchart/calculator.js";
 import { computeBhavaCusps, placeInBhava } from "../vedic/bhava-chalit.js";
 import { ashtakavargaFromLongitudes, transitStrength, signOf, type Graha } from "../vedic/ashtakavarga.js";
-import { dignityOf } from "../vedic/dignity.js";
+import { dignityOf as natalDignityOf } from "../vedic/dignity.js";
 import { tarabala, chandrabala, crownDay, type CrownRating } from "../panchang/crown.js";
 import { calculateDashaTimeline, currentPratyantardasha } from "../dasha-calculator.js";
 
@@ -159,7 +159,7 @@ export async function dayReadSignalsForBirth(birth: BirthInput, date: string): P
       tara: { num: tb.taraNum, name: tb.name, quality: tb.quality, favorable: tb.favorable },
       chandra: { house: cb.house, quality: cb.quality, favorable: cb.favorable },
       dignity: (() => {
-        const md = dignityOf("Moon", natalLon, ascLon);
+        const md = natalDignityOf("Moon", natalLon, ascLon);
         const cancelled = md.neechaBhanga?.cancelled ?? false;
         return { state: md.state, debilitated: md.debilitated, cancelled, hardWon: md.debilitated && cancelled };
       })(),
