@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, LIFE_AREA_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -304,6 +304,28 @@ function isCompleteDayRead(r: any): r is DayRead {
   return !!r && typeof r.scene === "string" && typeof r.story === "string" && typeof r.tilt === "string" && typeof r.closeLine === "string" && typeof r.question === "string";
 }
 export { isCompleteDayRead };
+
+// THE HOROSCOPE — one life area, read deep through its topical varga, pointed at the picked date.
+// Same DayRead shape (so it renders like the hero and rides the same guards), a different tail
+// (LIFE_AREA_TAIL) and a life-area lens in the input. The tool is still named day_read — the shape
+// is identical; only the SCOPE (one area, gone deep) differs.
+export async function generateLifeAreaRead(input: NarrativeInput): Promise<DayRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    return await callGuarded<DayRead>({
+      c, tail: LIFE_AREA_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
+      // PREMIUM room: a paid, kept reading targets ~350 words; 450 is the hard cap the guard enforces.
+      // ~900 tokens lets a full ~450-word draft complete so the guard can catch + correct an overrun.
+      maxTokens: 900, maxWords: 450,
+      complete: isCompleteDayRead,
+      textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
+    });
+  } catch (err) {
+    console.error("[narrative] generateLifeAreaRead failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
+}
 
 // THE READ — THE CAST. The layer behind the day-story: today's loud players as CHARACTERS, in
 // ONE PG-playful paragraph (NOT sectioned cards — the schema is a single string, so it CANNOT come

@@ -2,7 +2,8 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
+import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
+import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
 
@@ -176,6 +177,20 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
     if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
     return r;
   });
+  if (!read) return { available: false, read: null, generatedAt: null, cached: false };
+  return { available: true, read, generatedAt: new Date(), cached: false };
+}
+
+// THE HOROSCOPE — one LIFE AREA, read deep through its varga, pointed at a date. Built on the
+// day-read shape + guards, with a life-area lens in the input (LIFE_AREA_TAIL). The horoscope
+// router FREEZES the result into the horoscopes table (immutable snapshot per profile+date+area),
+// so this does NOT touch narrative_cache — it only builds the input and generates, deduped by
+// single-flight so a double-reveal never fires two (paid) calls. Returns unavailable → the reveal
+// reports failure and the user can retry, exactly like the day read.
+export async function getLifeAreaRead(profileId: number, date: string, lifeArea: LifeAreaKey, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<DayReadResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const input = await buildNarrativeInput(profileId, date, { dayLoc, lifeArea });
+  const read = await singleFlight(`life_area:${profileId}:${date}:${lifeArea}`, async () => generateLifeAreaRead(input));
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read, generatedAt: new Date(), cached: false };
 }

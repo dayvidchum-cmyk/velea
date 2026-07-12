@@ -1793,67 +1793,69 @@ export const appRouter = router({
       const rows = await listHoroscopes(profile.id, 200);
       return rows.map((r) => {
         let snippet = "";
-        // Day-read snapshots lead with scene.synthesis; legacy year-read snapshots with coreTheme.
         // Day-read snapshots lead with `scene` (a prose string); legacy year-read snapshots with coreTheme.synthesis.
         try { const c = JSON.parse(r.content); snippet = String(c?.scene ?? c?.coreTheme?.synthesis ?? "").replace(/\s+/g, " ").trim().slice(0, 160); } catch { /* keep empty */ }
-        return { date: r.readingDate, createdAt: r.createdAt, snippet, hasNotes: !!(r.notes && r.notes.trim()) };
+        return { date: r.readingDate, lifeArea: r.lifeArea ?? "day", createdAt: r.createdAt, snippet, hasNotes: !!(r.notes && r.notes.trim()) };
       });
     }),
 
-    // The frozen reading + notes for one date (null if not yet purchased).
-    get: protectedProcedure.input(z.object({ date: z.string() })).query(async ({ ctx, input }) => {
+    // The frozen reading + notes for one date + life area (null if not yet purchased). lifeArea
+    // defaults to 'day' so a legacy whole-day snapshot still resolves.
+    get: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string().default("day") })).query(async ({ ctx, input }) => {
       if (!hasHoroscope(ctx.user)) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return null;
       const { getHoroscope } = await import("./db.js");
-      const row = await getHoroscope(profile.id, input.date);
+      const row = await getHoroscope(profile.id, input.date, input.lifeArea);
       if (!row) return { exists: false as const };
       let read: any = null; try { read = JSON.parse(row.content); } catch { /* corrupt snapshot */ }
-      return { exists: true as const, date: row.readingDate, read, notes: row.notes ?? "", createdAt: row.createdAt };
+      return { exists: true as const, date: row.readingDate, lifeArea: row.lifeArea ?? "day", read, notes: row.notes ?? "", createdAt: row.createdAt };
     }),
 
-    // Reveal ("purchase") a date: return the existing snapshot, or generate the date-specific
-    // full deep read once and freeze it. Costs one LLM call only on first reveal of a date.
-    reveal: protectedProcedure.input(z.object({ date: z.string() })).mutation(async ({ ctx, input }) => {
+    // Reveal ("purchase") a date + LIFE AREA: return the existing snapshot, or generate the
+    // area's varga-deep reading for that date once and freeze it. One LLM call only on first
+    // reveal of each (date, area). Each area is its own purchase (eclipse×Career ≠ eclipse×Money).
+    reveal: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string() })).mutation(async ({ ctx, input }) => {
       if (!hasHoroscope(ctx.user)) return null;
+      const { isLifeAreaKey } = await import("./vedic/life-areas.js");
+      if (!isLifeAreaKey(input.lifeArea)) return { available: false as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
       const { getHoroscope, insertHoroscope, getUserById } = await import("./db.js");
 
       // Already purchased → return the immutable snapshot, never regenerate.
-      const existing = await getHoroscope(profile.id, input.date);
+      const existing = await getHoroscope(profile.id, input.date, input.lifeArea);
       if (existing) {
         let read: any = null; try { read = JSON.parse(existing.content); } catch { /* corrupt */ }
-        return { available: true as const, date: existing.readingDate, read, notes: existing.notes ?? "", cached: true };
+        return { available: true as const, date: existing.readingDate, lifeArea: input.lifeArea, read, notes: existing.notes ?? "", cached: true };
       }
 
-      // The date-specific DAY read (this date's actual sky — outer + inner + how to move),
-      // NOT the year deep read. The old deepened path returned the same year story for every
-      // date; the day engine reads the picked day itself. (The varga topic-lens layers on later.)
+      // The varga-deep reading for THIS life area on THIS date: the area's house + lord + karakas
+      // read both natally and in its topical varga, pointed at how the date's sky activates it.
       const u = await getUserById(ctx.user.id);
       const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
       const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
         ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
         : undefined;
-      const { getDayReadCached } = await import("./narrative/service.js");
-      const res = await getDayReadCached(profile.id, input.date, false, dayLoc);
+      const { getLifeAreaRead } = await import("./narrative/service.js");
+      const res = await getLifeAreaRead(profile.id, input.date, input.lifeArea, dayLoc);
       if (!res.available || !res.read) return { available: false as const };
 
       const { PROMPT_VERSION, MODEL } = await import("./narrative/prompts.js");
-      await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, promptVersion: PROMPT_VERSION, model: MODEL, content: JSON.stringify(res.read) });
-      return { available: true as const, date: input.date, read: res.read, notes: "", cached: false };
+      await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: PROMPT_VERSION, model: MODEL, content: JSON.stringify(res.read) });
+      return { available: true as const, date: input.date, lifeArea: input.lifeArea, read: res.read, notes: "", cached: false };
     }),
 
-    // Save the user's notes under a purchased horoscope.
-    saveNotes: protectedProcedure.input(z.object({ date: z.string(), notes: z.string().max(20000) })).mutation(async ({ ctx, input }) => {
+    // Save the user's notes under a purchased horoscope (per date + area).
+    saveNotes: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string().default("day"), notes: z.string().max(20000) })).mutation(async ({ ctx, input }) => {
       if (!hasHoroscope(ctx.user)) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { saved: false as const };
       const { updateHoroscopeNotes } = await import("./db.js");
-      const saved = await updateHoroscopeNotes(profile.id, input.date, input.notes);
+      const saved = await updateHoroscopeNotes(profile.id, input.date, input.lifeArea, input.notes);
       return { saved };
     }),
   }),

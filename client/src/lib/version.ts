@@ -223,4 +223,15 @@
 // last line against the nav bar (looked cut off); now a centered modal — flex-centered overlay,
 // max-width 440 / max-height 82vh, rounded on all corners, its own scroll, pop-in scale. Tap the
 // backdrop to close. Content unchanged (the one-paragraph cast).
-export const APP_VERSION = "1.1.395";
+// v1.1.396 = 2026-07-12 — HOROSCOPE goes life-area (David's spec, method = Kurczak & Fish Appendix
+// IV). Pick a date AND a part of life (Self·Money·Career·Love·Health·Home·Children·Purpose·Siblings·
+// Parents) → the reading is routed through that area's own divisional chart (D2 wealth, D10 career,
+// D9 love, D30 health, …), reading the area's house + ruler + karakas BOTH natally and in the varga
+// (the deep lens), pointed at how the picked date's transits + dashas activate it. New deterministic
+// engine (server/vedic/life-areas.ts + vargas.ts, 26 tests) → lifeAreaLens in the narrative input →
+// LIFE_AREA_TAIL prompt (premium ~350w, same zero-machinery guards as the hero) → generateLifeAreaRead.
+// Each (date × area) is its own immutable purchase (eclipse×Career ≠ eclipse×Money), with its own
+// notes. Life-area chips on the page; scroll-back list tags each read with its area. Schema: horoscopes
+// gains a lifeArea column + widened unique key — run server/scripts/add-horoscope-lifearea.ts on prod
+// (NOT auto-applied). Inert until the Anthropic key is on + the migration is run.
+export const APP_VERSION = "1.1.396";

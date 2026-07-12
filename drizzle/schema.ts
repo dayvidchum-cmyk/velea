@@ -431,6 +431,10 @@ export const horoscopes = mysqlTable("horoscopes", {
   userId: int("userId").notNull(),
   profileId: int("profileId").notNull(),
   readingDate: varchar("readingDate", { length: 10 }).notNull(), // YYYY-MM-DD the reading is for
+  // The life area this reading is FOR (money/career/love/…; life-areas.ts keys). 'day' = a legacy
+  // whole-day snapshot from before the life-area feature. Part of the unique key so each
+  // (profile, date, area) is its own immutable purchase — eclipse×Career and eclipse×Money coexist.
+  lifeArea: varchar("lifeArea", { length: 16 }).notNull().default("day"),
   promptVersion: varchar("promptVersion", { length: 64 }).notNull(), // frozen at purchase time
   model: varchar("model", { length: 48 }).notNull(),
   content: text("content").notNull(), // the DeepRead JSON snapshot — immutable once written
@@ -438,8 +442,8 @@ export const horoscopes = mysqlTable("horoscopes", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (t) => ({
-  // One purchased horoscope per profile+date, so a re-reveal returns the same snapshot.
-  uniqHoroscope: unique("uniq_horoscope").on(t.profileId, t.readingDate),
+  // One purchased horoscope per profile+date+area, so a re-reveal returns the same snapshot.
+  uniqHoroscope: unique("uniq_horoscope").on(t.profileId, t.readingDate, t.lifeArea),
 }));
 
 export type Horoscope = typeof horoscopes.$inferSelect;

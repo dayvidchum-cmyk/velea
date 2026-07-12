@@ -1491,6 +1491,83 @@ Find THIS chart's scene and serve it the same way.
 
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
 
+// LIFE_AREA_TAIL — THE HOROSCOPE. The user picks ONE area of life + ONE date; this reads that area
+// to the bone through its topical VARGA (the deep magnifying chart), pointed at how that date lights
+// it up. Rides BASE_PROMPT (all the house doctrine, karakas, rulership chains). Produces the SAME
+// DayRead shape as the day read, so it renders like the hero and rides the same code guards
+// (120-word cap + zero-machinery). Method source: Kurczak & Fish Appendix IV (see life-areas.ts).
+// ─────────────────────────────────────────────────────────────────────────────
+export const LIFE_AREA_TAIL = `TASK: THE HOROSCOPE — ONE LIFE AREA, READ DEEP, POINTED AT A DATE
+
+The reader has chosen ONE area of their life (input.lifeAreaLens.label — money, career, love, home,
+children, health, siblings, parents, purpose, or the self) and ONE date. Give them THAT area, read
+to the bone: as it stands in their chart, and as this exact date lights it up. Not the whole day —
+this one territory, gone deep. The date is the moment they are asking about; the area is the question.
+
+THE LENS — input.lifeAreaLens is the engine of this read. It routes the area to its own magnifying
+chart (the deep view behind the birth chart) and hands you the players. Read from it; never invent
+past it:
+- domain: what this area covers, in plain nouns — the exact life-content you must name (never a
+  vague "your finances," but income, what you own, what your word is worth, meeting what you owe).
+- rasi: the area's house in the birth chart — its sign, its ruler (houseLord), who lives in it
+  (occupants). The SURFACE picture: how the area shows on the outside.
+- vargaChart + houseLord + karakas: the DEEP picture — the whole point of a horoscope over a glance.
+  The houseLord and each karaka carry TWO conditions, natal and varga (vargaSign/vargaDignity). READ
+  THEM TOGETHER, and let the deep one tell the truer story: a ruler strong on the surface but strained
+  in the deep chart PROMISES MORE THAN IT DELIVERS here; strong in the deep chart is a floor that
+  HOLDS under weight even if the surface looks plain; hard in both is where the real work of this area
+  lives. A karaka is the area's natural life-force — money's sense of ENOUGH is the Moon, career's
+  grit is Saturn, love's warmth is Venus, children and creativity are Jupiter — so its condition is
+  how ALIVE that quality is in this person right now. This surface-vs-deep reading IS the horoscope's
+  added depth; spend the read here.
+- activation: how THIS DATE touches the area — transitsOnArea (a planet moving through the territory,
+  or landing on its ruler or a significator today) and dashaBearing (a life-chapter or season lord
+  that rules, sits in, or signifies the area). This is what makes the read about THIS date, not just
+  the standing chart — weave it in as the date's live weather on the area. When activation is EMPTY,
+  say so honestly: a quiet date for this area is a real, useful answer (steady ground, nothing forcing
+  it) — never manufacture drama to fill the silence.
+- planetInVarga: the book's concrete meanings for a planet found in this deep chart — use them to
+  translate a live player into a SPECIFIC, checkable life-thing (a money-chart Mercury is commerce,
+  trade, capital gains — not "communication"). If empty, translate from the house doctrine instead.
+
+Everything else in the input (the natal chart, the dashas, the day's transits, the panchang) is
+CONTEXT — use it to set the area inside the person's larger life and larger day, but NEVER drift off
+the chosen area onto the whole day. If your read would serve any area, you have lost the area.
+
+VOICE + HARD RULES — the day read's voice, given PREMIUM ROOM (this is a paid, kept, annotated
+reading — let it breathe and go genuinely deep; the varga-depth is what they bought). Enforced in
+code; a violation is rejected and regenerated:
+- Aim for ~350 WORDS across scene + story + tilt + closeLine — deep, not thin (question is one extra
+  short line, uncounted). This is 3× the glanceable hero: use the room to go to the bone on this ONE
+  area. But NEVER a wall of text — a horoscope the reader scrolls-and-bounces has failed the "don't
+  overwhelm" bar. The HARD CAP is 450 words, enforced in code. Depth comes from specificity, not bulk.
+- ZERO chart machinery. No house numbers, no sign names, no dignity/motion terms (exalted,
+  debilitated, retrograde, combust), and NEVER the words "varga," "chart," "divisional," or a Dn code.
+  The deep chart is your method, invisible to the reader. Translate every condition into felt QUALITY
+  (strong → "at full ease," "a floor that holds"; strained → "running on fumes," "promises more than
+  it pays out"; a fall recovered → "hard-won, lost and found again").
+- Planets appear only as CHARACTERS doing something in the story, never reported at a placement. At
+  most one or two named; if you are cataloguing players, you are writing the cast, not this.
+- THE PROOF IS IN THE SPECIFICS (David's most important law): every line points at a SPECIFIC,
+  CHECKABLE thing in this area of their real life. Concise means fewer words, never vaguer ones. A
+  line that could apply to anyone has FAILED. Name the small true things this area rules.
+
+THE FIELDS (repurposed to the area — same shape, so it renders like the hero; premium lengths):
+- scene (~60 words): the area RIGHT NOW — its live condition from the deep chart, and what THIS date
+  is doing to it (the activation). Name the specific life-content, as a felt scene, never a ledger.
+- story (~170 words, the heart of the read): the deeper standing truth — what this person's chart
+  genuinely PROMISES for this area, read surface-and-deep TOGETHER (the honest floor AND ceiling of
+  it), threaded through the karakas and the house ruler as characters. This is the depth they paid
+  for; spend the read here, and keep every sentence pointed at a specific, checkable life-thing.
+- tilt (~80 words): how to carry THIS area on THIS date — the posture across the area's whole spread
+  (NO SINGLE MOVE). If a live condition cuts against it, name that cost plainly.
+- closeLine: ONE resonant plain-language line that lands this area on this date in a single breath.
+- question: ONE reflective question that opens a door into THIS area (never generic), ends in "?".
+
+Match the DEPTH and metaphor SHAPE of the day read's gold example; find THIS area's true scene and
+serve it the same way. Return your answer by calling the day_read tool with scene, story, tilt,
+closeLine, and question filled in.`;
+
 // CAST_TAIL — THE READ. The layer BEHIND the day-story: the same day told as its CHARACTERS.
 // The story said WHAT today is; the cast says WHO is making it that way. Two tiers: the LOUD
 // ones (foreground — only the planets with a live condition pulling the scene, each carrying its
@@ -1550,4 +1627,5 @@ export const PROMPT_VERSION = "2026-07-12-story-voice-concise";
 export const SURFACE_VERSION: Record<string, string> = {
   day_read: "2026-07-12-hero-120-planets-out",
   cast: "2026-07-12-cast-one-paragraph",
+  life_area: "2026-07-12-horoscope-varga-deep",
 };

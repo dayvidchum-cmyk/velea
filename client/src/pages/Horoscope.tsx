@@ -20,6 +20,23 @@ const GOLD = "#D4AF37";
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+// The life areas the reading can be pointed at — each routes server-side to its own divisional
+// chart (life-areas.ts, from Kurczak & Fish Appendix IV). Display metadata only; the server
+// validates the key. Order mirrors LIFE_AREA_ORDER.
+const LIFE_AREAS: { key: string; label: string }[] = [
+  { key: "self", label: "Self & Body" },
+  { key: "money", label: "Money" },
+  { key: "career", label: "Career" },
+  { key: "love", label: "Love" },
+  { key: "health", label: "Health" },
+  { key: "home", label: "Home" },
+  { key: "children", label: "Children" },
+  { key: "purpose", label: "Purpose" },
+  { key: "siblings", label: "Siblings" },
+  { key: "parents", label: "Parents" },
+];
+const areaLabel = (k: string) => (k === "day" ? "Full day" : LIFE_AREAS.find((a) => a.key === k)?.label ?? k);
+
 const pad = (n: number) => String(n).padStart(2, "0");
 const ymd = (y: number, m0: number, d: number) => `${y}-${pad(m0 + 1)}-${pad(d)}`;
 const todayStr = () => { const d = new Date(); return ymd(d.getFullYear(), d.getMonth(), d.getDate()); };
@@ -49,22 +66,30 @@ export default function Horoscope() {
 
   const utils = trpc.useUtils();
   const { data: purchased } = trpc.horoscope.list.useQuery(undefined, { enabled: entitled, staleTime: 1000 * 30 });
-  const purchasedSet = useMemo(() => new Set((purchased ?? []).map((r) => r.date)), [purchased]);
 
   const [view, setView] = useState(() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; });
   const [selectedDate, setSelectedDate] = useState<string>(todayStr());
+  // The life area the reading is pointed at. Each (date, area) is its own purchase, so the calendar
+  // marks and the reading both key on the selected area.
+  const [selectedArea, setSelectedArea] = useState<string>("self");
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // Calendar bullseyes mark dates purchased FOR THE SELECTED AREA — switching area re-marks the month.
+  const purchasedSet = useMemo(
+    () => new Set((purchased ?? []).filter((r) => (r.lifeArea ?? "day") === selectedArea).map((r) => r.date)),
+    [purchased, selectedArea],
+  );
+
   const { data: reading, isLoading: readingLoading } = trpc.horoscope.get.useQuery(
-    { date: selectedDate },
+    { date: selectedDate, lifeArea: selectedArea },
     { enabled: entitled && !!selectedDate, staleTime: 1000 * 60 * 5 },
   );
 
   const reveal = trpc.horoscope.reveal.useMutation({
-    onSuccess: () => { utils.horoscope.get.invalidate({ date: selectedDate }); utils.horoscope.list.invalidate(); },
+    onSuccess: () => { utils.horoscope.get.invalidate({ date: selectedDate, lifeArea: selectedArea }); utils.horoscope.list.invalidate(); },
   });
-  // Clear last-reveal state when the date changes, so a prior date's result never leaks in.
-  useEffect(() => { reveal.reset(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [selectedDate]);
+  // Clear last-reveal state when the date OR area changes, so a prior read never leaks in.
+  useEffect(() => { reveal.reset(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [selectedDate, selectedArea]);
   const saveNotes = trpc.horoscope.saveNotes.useMutation({ onSuccess: () => utils.horoscope.list.invalidate() });
 
   // Notes: local draft synced from the loaded reading, autosaved after a pause + on blur.
@@ -75,14 +100,14 @@ export default function Horoscope() {
     if (exists) { const n = (reading as any)?.notes ?? ""; setNotesDraft(n); savedNotesRef.current = n; }
     else { setNotesDraft(""); savedNotesRef.current = ""; }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate, exists]);
+  }, [selectedDate, selectedArea, exists]);
   useEffect(() => {
     if (!exists || notesDraft === savedNotesRef.current) return;
-    const t = setTimeout(() => { saveNotes.mutate({ date: selectedDate, notes: notesDraft }); savedNotesRef.current = notesDraft; }, 1000);
+    const t = setTimeout(() => { saveNotes.mutate({ date: selectedDate, lifeArea: selectedArea, notes: notesDraft }); savedNotesRef.current = notesDraft; }, 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notesDraft, exists, selectedDate]);
-  const flushNotes = () => { if (exists && notesDraft !== savedNotesRef.current) { saveNotes.mutate({ date: selectedDate, notes: notesDraft }); savedNotesRef.current = notesDraft; } };
+  }, [notesDraft, exists, selectedDate, selectedArea]);
+  const flushNotes = () => { if (exists && notesDraft !== savedNotesRef.current) { saveNotes.mutate({ date: selectedDate, lifeArea: selectedArea, notes: notesDraft }); savedNotesRef.current = notesDraft; } };
 
   const selectDate = (s: string) => {
     setSelectedDate(s);
@@ -125,7 +150,7 @@ export default function Horoscope() {
 
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <p style={{ color: "var(--color-muted-foreground)", fontSize: "0.82rem", lineHeight: 1.5, margin: "0 0 1.1rem", textAlign: "center" }}>
-          Pick any day — past or future — and receive its reading, drawn from your chart for that exact date.
+          Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
         </p>
 
         {/* ── Calendar ── */}
@@ -171,12 +196,44 @@ export default function Horoscope() {
           </div>
         </div>
 
+        {/* ── Life-area chips — which area of life this date's reading is pointed at ── */}
+        <div style={{ marginTop: "1rem" }}>
+          <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.5rem" }}>
+            Which part of life?
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+            {LIFE_AREAS.map((a) => {
+              const on = a.key === selectedArea;
+              const owned = (purchased ?? []).some((r) => r.date === selectedDate && (r.lifeArea ?? "day") === a.key);
+              return (
+                <button
+                  key={a.key}
+                  onClick={() => setSelectedArea(a.key)}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "0.3rem", cursor: "pointer",
+                    borderRadius: 999, padding: "0.34rem 0.72rem", fontSize: "0.74rem", fontWeight: on ? 700 : 500,
+                    border: on ? `1.5px solid ${modeColor}` : "1px solid var(--color-border)",
+                    background: on ? `color-mix(in srgb, ${modeColor} 15%, transparent)` : "var(--color-card)",
+                    color: on ? "var(--foreground)" : "var(--color-muted-foreground)",
+                  }}
+                >
+                  {owned && <VeleaLorMark size={8} color={GOLD} />}
+                  {a.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* ── Selected date panel ── */}
         <div ref={panelRef} style={{ marginTop: "1.1rem", scrollMarginTop: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.7rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.2rem" }}>
             {purchasedSet.has(selectedDate) && <VeleaLorMark size={15} color={GOLD} />}
             <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--foreground)", margin: 0, letterSpacing: "-0.01em" }}>{fmtLong(selectedDate)}</h2>
           </div>
+          <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.7rem", opacity: 0.85 }}>
+            {areaLabel(selectedArea)}
+          </p>
 
           {readingLoading ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
@@ -187,9 +244,10 @@ export default function Horoscope() {
           ) : (
             <RevealPanel
               date={selectedDate}
+              areaLabel={areaLabel(selectedArea)}
               pending={reveal.isPending}
               failed={reveal.data?.available === false}
-              onReveal={() => reveal.mutate({ date: selectedDate })}
+              onReveal={() => reveal.mutate({ date: selectedDate, lifeArea: selectedArea })}
               modeColor={modeColor}
             />
           )}
@@ -202,24 +260,29 @@ export default function Horoscope() {
               Your horoscopes · {purchased.length}
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {purchased.map((r) => (
+              {purchased.map((r) => {
+                const rArea = r.lifeArea ?? "day";
+                const active = r.date === selectedDate && rArea === selectedArea;
+                return (
                 <button
-                  key={r.date}
-                  onClick={() => { const [y, m] = r.date.split("-").map(Number); setView({ y, m: m - 1 }); selectDate(r.date); }}
+                  key={`${r.date}:${rArea}`}
+                  onClick={() => { const [y, m] = r.date.split("-").map(Number); setView({ y, m: m - 1 }); if (rArea !== "day") setSelectedArea(rArea); selectDate(r.date); }}
                   style={{
                     textAlign: "left", cursor: "pointer", borderRadius: 12, padding: "0.7rem 0.8rem",
-                    border: r.date === selectedDate ? `1.5px solid ${GOLD}` : "1px solid var(--color-border)",
+                    border: active ? `1.5px solid ${GOLD}` : "1px solid var(--color-border)",
                     background: "var(--color-card)", display: "flex", flexDirection: "column", gap: "0.2rem",
                   }}
                 >
-                  <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
                     <VeleaLorMark size={11} color={GOLD} />
                     <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--foreground)" }}>{fmtShort(r.date)}</span>
+                    <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, opacity: 0.9 }}>· {areaLabel(rArea)}</span>
                     {r.hasNotes && <span style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: GOLD, opacity: 0.85 }}>· noted</span>}
                   </span>
                   {r.snippet && <span style={{ fontSize: "0.72rem", color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>{r.snippet}…</span>}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -229,12 +292,12 @@ export default function Horoscope() {
 }
 
 // ── The reveal ("purchase") prompt for a not-yet-owned date ──
-function RevealPanel({ date, pending, failed, onReveal, modeColor }: { date: string; pending: boolean; failed: boolean; onReveal: () => void; modeColor: string }) {
+function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: { date: string; areaLabel: string; pending: boolean; failed: boolean; onReveal: () => void; modeColor: string }) {
   return (
     <div style={{ borderRadius: 14, border: "1px dashed var(--color-border)", background: "var(--color-card)", padding: "1.4rem 1.1rem", textAlign: "center" }}>
       <OctagramMark size={20} color={modeColor} style={{ display: "block", opacity: 0.85, margin: "0 auto 0.6rem" }} />
       <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0 0 1rem" }}>
-        No reading yet for {fmtShort(date)}. Reveal it to read your chart for this day.
+        No {areaLabel.toLowerCase()} reading yet for {fmtShort(date)}. Reveal it to read your chart for this day.
       </p>
       <button
         onClick={onReveal}

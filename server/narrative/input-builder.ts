@@ -14,6 +14,7 @@ import { combustion, nodalAffliction, eclipseNear } from "../panchang/affliction
 import { strength, dignityLabel, signLordOf } from "../panchang/dignity.js";
 import { crownDay } from "../panchang/crown.js";
 import { natalDignities } from "../vedic/dignity.js";
+import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
@@ -55,7 +56,7 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number } }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
@@ -68,10 +69,13 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   // dayLoc is part of the memo key: the day-mode depends on the viewer's location, so two
   // locations must not share a memoized input (mirrors the hero's location-aware panchang).
   const locKey = dl ? `${dl.lat},${dl.lon},${dl.utcOffset}` : "def";
-  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}`;
+  // lifeArea is part of the key: a Career lens and a Money lens are different inputs, so two
+  // life areas must never share a memoized input (they'd produce the same reading otherwise).
+  const areaKey = opts?.lifeArea ?? "none";
+  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl });
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   return value;
 }
@@ -83,7 +87,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number } }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -377,8 +381,29 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         condition: tlt.strength, combust: tlt.combust, spotlight: tlt.spotlight, spotlightReason: tlt.spotlightReason }
     : null;
 
+  // LIFE-AREA LENS — the horoscope's "pick a life area" varga-deep block. Present ONLY when a
+  // life area was requested (the Today/glance reads never carry it). Deterministic: routes the area
+  // to its varga + primary house + karakas (life-areas.ts, from Kurczak & Fish Appendix IV), reads
+  // the house lord + karakas BOTH natally and in the varga, and marks how TODAY's transits + dashas
+  // light the area up — so the reading points at THAT area on THAT date (David's spec).
+  let lifeAreaLens: ReturnType<typeof buildLifeAreaLens> | undefined;
+  if (moment?.lifeArea) {
+    const natalByPlanet = Object.fromEntries(
+      (natal.planets as any[]).filter(Boolean).map((pl) => [pl.name, { sign: pl.sign, house: pl.house ?? null, dignity: pl.dignity, rulesHouses: pl.rulesHouses ?? [] }]),
+    );
+    lifeAreaLens = buildLifeAreaLens({
+      area: moment.lifeArea,
+      lonByPlanet: lonAll,
+      ascLon: lagnaLonForDig,
+      lagnaSign: lagna,
+      natalByPlanet,
+      transits: transits as any,
+      dasha: dasha as any,
+    });
+  }
+
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(lifeAreaLens ? { lifeAreaLens } : {}) };
 }

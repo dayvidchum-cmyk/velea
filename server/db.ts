@@ -614,15 +614,15 @@ export async function isNarrativeLocked(profileId: number, cacheDate: string): P
 // Every helper degrades gracefully: if the horoscopes table doesn't exist yet (pending the
 // hand-run prod migration), reads return empty and writes no-op rather than throwing.
 
-/** One purchased horoscope for a profile+date, or undefined. */
-export async function getHoroscope(profileId: number, readingDate: string) {
+/** One purchased horoscope for a profile+date+area, or undefined. */
+export async function getHoroscope(profileId: number, readingDate: string, lifeArea = "day") {
   const db = await getDb();
   if (!db) return undefined;
   try {
     const rows = await db
       .select()
       .from(horoscopes)
-      .where(and(eq(horoscopes.profileId, profileId), eq(horoscopes.readingDate, readingDate)))
+      .where(and(eq(horoscopes.profileId, profileId), eq(horoscopes.readingDate, readingDate), eq(horoscopes.lifeArea, lifeArea)))
       .limit(1);
     return rows[0];
   } catch (e) {
@@ -631,13 +631,13 @@ export async function getHoroscope(profileId: number, readingDate: string) {
   }
 }
 
-/** Every purchased horoscope for a profile, newest reading-date first. */
+/** Every purchased horoscope for a profile, newest reading-date first (each carries its life area). */
 export async function listHoroscopes(profileId: number, limit = 180) {
   const db = await getDb();
   if (!db) return [];
   try {
     return await db
-      .select({ readingDate: horoscopes.readingDate, content: horoscopes.content, notes: horoscopes.notes, createdAt: horoscopes.createdAt })
+      .select({ readingDate: horoscopes.readingDate, lifeArea: horoscopes.lifeArea, content: horoscopes.content, notes: horoscopes.notes, createdAt: horoscopes.createdAt })
       .from(horoscopes)
       .where(eq(horoscopes.profileId, profileId))
       .orderBy(desc(horoscopes.readingDate))
@@ -648,8 +648,8 @@ export async function listHoroscopes(profileId: number, limit = 180) {
   }
 }
 
-/** Freeze a purchased horoscope. No-op if the (profile,date) already exists (immutable). */
-export async function insertHoroscope(row: { userId: number; profileId: number; readingDate: string; promptVersion: string; model: string; content: string }): Promise<boolean> {
+/** Freeze a purchased horoscope. No-op if the (profile,date,area) already exists (immutable). */
+export async function insertHoroscope(row: { userId: number; profileId: number; readingDate: string; lifeArea: string; promptVersion: string; model: string; content: string }): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
   try {
@@ -665,15 +665,15 @@ export async function insertHoroscope(row: { userId: number; profileId: number; 
   }
 }
 
-/** Update the user's notes under a purchased horoscope. */
-export async function updateHoroscopeNotes(profileId: number, readingDate: string, notes: string): Promise<boolean> {
+/** Update the user's notes under a purchased horoscope (profile+date+area). */
+export async function updateHoroscopeNotes(profileId: number, readingDate: string, lifeArea: string, notes: string): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
   try {
     await db
       .update(horoscopes)
       .set({ notes })
-      .where(and(eq(horoscopes.profileId, profileId), eq(horoscopes.readingDate, readingDate)));
+      .where(and(eq(horoscopes.profileId, profileId), eq(horoscopes.readingDate, readingDate), eq(horoscopes.lifeArea, lifeArea)));
     return true;
   } catch (e) {
     console.error("[updateHoroscopeNotes]", e);
