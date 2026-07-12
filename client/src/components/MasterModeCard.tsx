@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import VeleaLorMark from "./VeleaLorMark";
@@ -50,6 +50,15 @@ function conditionLine(g: any): string {
 
 export default function MasterModeCard() {
   const [expanded, setExpanded] = useState(false);
+  // The hourly breakdown scrolls inside a short fixed-height box (David: ~1/8 the height). When it
+  // opens, center the current window so it lands on "now", not the first pre-dawn row.
+  const listRef = useRef<HTMLDivElement>(null);
+  const nowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!expanded) return;
+    const c = listRef.current, r = nowRef.current;
+    if (c && r) c.scrollTop = r.offsetTop - c.clientHeight / 2 + r.clientHeight / 2;
+  }, [expanded]);
   const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const entitled = access?.entitled === true;
   const now = new Date();
@@ -128,13 +137,13 @@ export default function MasterModeCard() {
               </p>
             ) : null}
 
-            {/* Hourly breakdown */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+            {/* Hourly breakdown — scrolls inside a short box */}
+            <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: "1px", maxHeight: "6rem", overflowY: "auto" }}>
               {data.periods.map((p, i) => {
                 const isNow = current && p.startMs === current.startMs;
                 const past = nowMs >= p.endMs;
                 return (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.2rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${CAT_COLOR[p.category]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
+                  <div key={i} ref={isNow ? nowRef : undefined} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.2rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${CAT_COLOR[p.category]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
                     <span style={{ width: 7, height: 7, borderRadius: 999, background: CAT_COLOR[p.category], flexShrink: 0 }} />
                     <span style={{ fontSize: "0.66rem", color: "var(--color-muted-foreground)", width: "3.9rem", flexShrink: 0 }}>{fmt(p.startMs)}</span>
                     <span style={{ fontSize: "0.72rem", fontWeight: isNow ? 700 : 500, color: isNow ? CAT_COLOR[p.category] : "var(--foreground)" }}>{p.category}</span>

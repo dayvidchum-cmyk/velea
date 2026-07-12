@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import LockedFeatureCard from "./LockedFeatureCard";
@@ -25,6 +25,15 @@ const TONE_COLOR: Record<string, string> = {
 
 export default function HoraCard() {
   const [expanded, setExpanded] = useState(false);
+  // The 24-hora list scrolls inside a short fixed-height box (David: ~1/8 the height); on open,
+  // center the current hora so it lands on "now" rather than the first pre-dawn row.
+  const listRef = useRef<HTMLDivElement>(null);
+  const nowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!expanded) return;
+    const c = listRef.current, r = nowRef.current;
+    if (c && r) c.scrollTop = r.offsetTop - c.clientHeight / 2 + r.clientHeight / 2;
+  }, [expanded]);
   const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const entitled = access?.entitled === true;
   const now = new Date();
@@ -81,12 +90,12 @@ export default function HoraCard() {
         {expanded && (
           <div style={{ marginTop: "0.55rem" }}>
             {current && <p style={{ margin: "0 0 0.55rem", fontSize: "0.72rem", color: "var(--foreground)", lineHeight: 1.35 }}>{current.good}</p>}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+            <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: "1px", maxHeight: "6rem", overflowY: "auto" }}>
               {data.horas.map((h, i) => {
                 const isNow = current && h.startMs === current.startMs;
                 const past = nowMs >= h.endMs;
                 return (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.2rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${TONE_COLOR[h.tone]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
+                  <div key={i} ref={isNow ? nowRef : undefined} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.2rem", borderRadius: 8, background: isNow ? `color-mix(in srgb, ${TONE_COLOR[h.tone]} 12%, transparent)` : "transparent", opacity: past && !isNow ? 0.45 : 1 }}>
                     <span style={{ width: 7, height: 7, borderRadius: 999, background: TONE_COLOR[h.tone], flexShrink: 0 }} />
                     <span style={{ fontSize: "0.66rem", color: "var(--color-muted-foreground)", width: "3.9rem", flexShrink: 0 }}>{fmt(h.startMs)}</span>
                     <span style={{ fontSize: "0.72rem", fontWeight: isNow ? 700 : 500, color: isNow ? TONE_COLOR[h.tone] : "var(--foreground)" }}>{h.lord}</span>
