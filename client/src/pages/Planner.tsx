@@ -125,56 +125,27 @@ function toSheetTask(t: any) {
   };
 }
 
-// THE FULL DAY READ card — scene (today's outer weather) → story (the inner self + chapter)
-// → tilt (how to move), closed by the carried line; the chart mechanics (the whys) tuck
-// behind one toggle. Rendered inside a glass-card on the Today page. Glossary-linked so
-// terms in the prose open their popovers.
-type DayReadSection = { synthesis: string; why: string };
-type DayReadData = { scene: DayReadSection; story: DayReadSection; tilt: DayReadSection; closeLine: string };
+// THE FULL DAY READ card — pure prose: scene (today's outer weather) → story (the inner self
+// + chapter) → tilt (how to move), closed by the carried line. No mechanics/why layer — the
+// placements live inside the prose, glossary-linked so any term opens its popover.
+type DayReadData = { scene: string; story: string; tilt: string; closeLine: string };
 function DayReadCard({ read, modeColor }: { read: DayReadData; modeColor: string }) {
-  const [mechOpen, setMechOpen] = useState(false);
   const label = (t: string) => (
     <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: modeColor, margin: "1.2rem 0 0.35rem", opacity: 0.95 }}>{t}</p>
   );
   const body = (s: string) => (
     <p style={{ fontSize: "0.9rem", lineHeight: 1.62, color: "var(--foreground)", margin: 0 }}><GlossaryText>{s}</GlossaryText></p>
   );
-  const whys = [
-    { t: "Today's sky", w: read.scene?.why },
-    { t: "The story underneath", w: read.story?.why },
-    { t: "The lean", w: read.tilt?.why },
-  ].filter((x) => x.w);
 
   return (
     <div>
-      {read.scene?.synthesis && body(read.scene.synthesis)}
-      {read.story?.synthesis && (<>{label("The story underneath")}{body(read.story.synthesis)}</>)}
-      {read.tilt?.synthesis && (<>{label("How to carry the day")}{body(read.tilt.synthesis)}</>)}
+      {read.scene && body(read.scene)}
+      {read.story && (<>{label("The story underneath")}{body(read.story)}</>)}
+      {read.tilt && (<>{label("How to carry the day")}{body(read.tilt)}</>)}
       {read.closeLine && (
         <p style={{ fontSize: "0.95rem", lineHeight: 1.55, fontWeight: 600, fontStyle: "italic", color: modeColor, margin: "1.4rem 0 0", opacity: 0.95 }}>
           {read.closeLine}
         </p>
-      )}
-      {whys.length > 0 && (
-        <>
-          <button
-            onClick={() => setMechOpen((o) => !o)}
-            style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, margin: "1.3rem 0 0", color: "var(--color-muted-foreground)" }}
-          >
-            <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>The mechanics</span>
-            <ChevronDown size={13} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
-          </button>
-          {mechOpen && (
-            <div style={{ marginTop: "0.65rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
-              {whys.map((x, i) => (
-                <div key={i}>
-                  <p style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{x.t}</p>
-                  <p style={{ fontSize: "0.78rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", margin: 0 }}><GlossaryText>{x.w as string}</GlossaryText></p>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
       )}
     </div>
   );
@@ -215,7 +186,6 @@ export default function Planner() {
   // Edit sheets for the curated daily lists (ported from the retired Today page)
   const [heroOpen, setHeroOpen] = useState(true);
   const [signpostOpen, setSignpostOpen] = useState(false);
-  const [whyOpen, setWhyOpen] = useState(false);
   // The full day read (scene/story/tilt/closeLine) — a SEPARATE, heavier LLM read than the
   // glance, so it's LAZY: the query only fires when the user opens the section (cost-safe,
   // and collapsed-by-default per the low-cognitive-load law).
@@ -956,11 +926,13 @@ export default function Planner() {
                   ? <div style={{ marginBottom: '1.25rem' }}><ProseLoading label="Crafting today's reading — this can take up to a minute the first time…" /></div>
                   : null;
               }
+              // The glance is now a TIGHT TEASER (1–2 short paragraphs) — shown whole, no
+              // truncation and no "THE FULL READ" toggle. The full read lives in the "The day,
+              // in full" section below (the day read); the hero is the at-a-glance card.
               const paras = narrative.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-              const shown = whyOpen ? paras : paras.slice(-1);
               return (
                 <div style={{ marginBottom: '1.25rem' }}>
-                  {shown.map((para, i) => (
+                  {paras.map((para, i) => (
                     <p
                       key={i}
                       style={{
@@ -975,23 +947,6 @@ export default function Planner() {
                       <GlossaryText>{para}</GlossaryText>
                     </p>
                   ))}
-                  {paras.length > 1 && (
-                    <button
-                      onClick={() => setWhyOpen((v) => !v)}
-                      style={{
-                        background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                        fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.04em',
-                        color: 'rgba(255,255,255,0.98)', textDecoration: 'underline',
-                        textUnderlineOffset: '3px', display: 'flex', alignItems: 'center', gap: '4px',
-                      }}
-                    >
-                      {whyOpen ? 'Hide' : 'THE FULL READ'}
-                      <ChevronDown
-                        size={12}
-                        style={{ color: 'rgba(255,255,255,0.98)', transform: whyOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
-                      />
-                    </button>
-                  )}
                 </div>
               );
             })()}

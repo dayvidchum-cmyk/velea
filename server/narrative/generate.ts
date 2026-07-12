@@ -201,13 +201,14 @@ function isCompleteChapter(r: any): r is Chapter {
 export { isCompleteChapter };
 
 // THE DAY READ — the metaphor day-read: a single day rendered as a scene in the ongoing
-// story. scene = today's outer weather (mode, transit Moon, live rx/eclipse); story = the
-// inner self + chapter it lands on; tilt = how to move (the posture, no single move);
-// closeLine = one carried sentence. Distinct from the year deep read and the short glance.
+// story. Each field is PURE PROSE (no synthesis/why split, no dry mechanics layer — the
+// placements live inside the prose, glossary-linked). scene = today's outer weather (mode,
+// transit Moon, live rx/eclipse); story = the inner self + chapter it lands on; tilt = how
+// to move (the posture, no single move); closeLine = one carried sentence.
 export type DayRead = {
-  scene: Section;
-  story: Section;
-  tilt: Section;
+  scene: string;
+  story: string;
+  tilt: string;
   closeLine: string;
 };
 
@@ -216,9 +217,9 @@ const DAY_READ_SCHEMA = {
   additionalProperties: false,
   required: ["scene", "story", "tilt", "closeLine"],
   properties: {
-    scene: SECTION,
-    story: SECTION,
-    tilt: SECTION,
+    scene: { type: "string" },
+    story: { type: "string" },
+    tilt: { type: "string" },
     closeLine: { type: "string" },
   },
 } as const;
@@ -249,7 +250,6 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
 
 // Reject a truncated day read so the caller falls back instead of rendering half a read.
 function isCompleteDayRead(r: any): r is DayRead {
-  const sec = (s: any) => !!s && typeof s.synthesis === "string" && typeof s.why === "string";
-  return !!r && sec(r.scene) && sec(r.story) && sec(r.tilt) && typeof r.closeLine === "string";
+  return !!r && typeof r.scene === "string" && typeof r.story === "string" && typeof r.tilt === "string" && typeof r.closeLine === "string";
 }
 export { isCompleteDayRead };

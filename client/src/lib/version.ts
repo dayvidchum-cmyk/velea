@@ -186,4 +186,10 @@
 // gains a lazy, collapsed "The day, in full" section. Legacy year-read horoscope snapshots
 // still render. Prompt mandate: a read explains the OUTER, the INNER, and how to MOVE — as
 // interactions. (Inert until the Anthropic key is re-enabled.) Varga topic-lens layers on next.
-export const APP_VERSION = "1.1.389";
+// v1.1.390 = 2026-07-12 — Day-read refined + Today de-duplicated (David). (1) The day read is now
+// PURE PROSE — the redundant/jargony "THE MECHANICS" layer is gone; placements live inside the
+// scene/story/tilt lines, glossary-linked, said once. Prompt bans echoing raw input field names
+// (no more "personalApex isCrown true" / "chandraHouse 7"). (2) Option A: the glance is trimmed to
+// a tight at-a-glance TEASER (~70 words, no arc line) and the hero's "THE FULL READ" toggle is
+// removed — the day read ("The day, in full") is the one full read. PROMPT_VERSION bumped.
+export const APP_VERSION = "1.1.390";

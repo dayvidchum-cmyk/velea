@@ -26,9 +26,9 @@ const fmtLong = (s: string) => { const [y, m, d] = s.split("-").map(Number); ret
 const fmtShort = (s: string) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
 
 type Section = { synthesis: string; why: string };
-// The current shape: the metaphor DAY read (scene = outer weather, story = inner self +
-// chapter, tilt = how to move, closeLine = one carried line).
-type DayRead = { scene: Section; story: Section; tilt: Section; closeLine: string };
+// The current shape: the metaphor DAY read — pure prose (scene = outer weather, story = inner
+// self + chapter, tilt = how to move, closeLine = one carried line). No mechanics/why layer.
+type DayRead = { scene: string; story: string; tilt: string; closeLine: string };
 // Legacy shape: older horoscope snapshots froze a year-style deep read. Still rendered for
 // any date purchased before the day-engine switch (immutable snapshots never regenerate).
 type DeepRead = {
@@ -257,52 +257,21 @@ function RevealPanel({ date, pending, failed, onReveal, modeColor }: { date: str
 // ── The DAY read body: scene → story → tilt, each a plain-language synthesis, closed by the
 // carried line; the chart mechanics (the whys) tuck behind one toggle (low cognitive load). ──
 function DayReadBody({ read, modeColor }: { read: DayRead; modeColor: string }) {
-  const [mechOpen, setMechOpen] = useState(false);
   const label = (t: string) => (
     <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
   );
   const body = (s: string) => <p style={{ fontSize: "0.95rem", lineHeight: 1.68, color: "var(--foreground)", margin: 0 }}>{s}</p>;
-  const whys = [
-    { t: "Today's sky", w: read.scene.why },
-    { t: "The story underneath", w: read.story.why },
-    { t: "The lean", w: read.tilt.why },
-  ].filter((x) => x.w);
 
   return (
     <div style={{ borderRadius: 14, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.1rem 1.25rem" }}>
-      {/* The day itself — the scene, given room to breathe. */}
-      {body(read.scene.synthesis)}
-      {read.story?.synthesis && (<>{label("The story underneath")}{body(read.story.synthesis)}</>)}
-      {read.tilt?.synthesis && (<>{label("How to carry the day")}{body(read.tilt.synthesis)}</>)}
-
-      {/* The carried line — set apart, in the day-mode color. */}
+      {/* Pure prose — no mechanics layer; the placements live in the lines, glossary-linked. */}
+      {read.scene && body(read.scene)}
+      {read.story && (<>{label("The story underneath")}{body(read.story)}</>)}
+      {read.tilt && (<>{label("How to carry the day")}{body(read.tilt)}</>)}
       {read.closeLine && (
         <p style={{ fontSize: "1rem", lineHeight: 1.55, fontWeight: 600, fontStyle: "italic", color: modeColor, margin: "1.5rem 0 0", opacity: 0.95 }}>
           {read.closeLine}
         </p>
-      )}
-
-      {/* Mechanics — the chart reasoning, collapsed by default. */}
-      {whys.length > 0 && (
-        <>
-          <button
-            onClick={() => setMechOpen((o) => !o)}
-            style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, margin: "1.4rem 0 0", color: "var(--color-muted-foreground)" }}
-          >
-            <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>The mechanics</span>
-            <ChevronDown size={14} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
-          </button>
-          {mechOpen && (
-            <div style={{ marginTop: "0.7rem", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
-              {whys.map((x, i) => (
-                <div key={i}>
-                  <p style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.2rem", opacity: 0.7 }}>{x.t}</p>
-                  <p style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--color-muted-foreground)", margin: 0 }}>{x.w}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
       )}
     </div>
   );
