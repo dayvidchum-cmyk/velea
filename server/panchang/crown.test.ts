@@ -61,7 +61,7 @@ describe("crownDay — the Ashtakavarga interaction matrix", () => {
 });
 
 describe("crownDay — the apex gate on the real primary chart (1982-04-13)", () => {
-  it("computes natal AV from the bodies and never crowns a day without HIGH support", async () => {
+  it("computes natal AV from the bodies; crowns require favorable tara + chandra", async () => {
     const chart = await calculateBirthChart("1982-04-13", "17:20", 14.6, 120.6, "Asia/Manila", { lagnaBasis: "ascendant" });
     const bodies = ["sun","moon","mars","mercury","jupiter","venus","saturn"].map((k) => ({
       planet: k[0].toUpperCase() + k.slice(1),
@@ -80,9 +80,11 @@ describe("crownDay — the apex gate on the real primary chart (1982-04-13)", ()
       const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude) };
       const cd = crownDay({ ...anchors!, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T });
       checked++;
-      if (cd.rating === "crown") { crowns++; expect(cd.ashtakavarga?.support).toBe("high"); }
+      // Crown no longer requires high AV (David's calibration) — it requires both Moon strengths
+      // (favorable tara AND favorable chandra) on a non-negative universal day.
+      if (cd.rating === "crown") { crowns++; expect(cd.tarabala.favorable && cd.chandrabala.favorable && cd.universal.score >= 0).toBe(true); }
     }
     expect(checked).toBe(120);
-    console.log(`Real-chart 120-day scan: ${crowns} crown day(s), all on high-AV ground.`);
+    console.log(`Real-chart 120-day scan: ${crowns} crown day(s), all on favorable tara + chandra.`);
   });
 });

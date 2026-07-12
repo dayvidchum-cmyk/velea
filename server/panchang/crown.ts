@@ -194,13 +194,13 @@ export function crownDay(opts: {
   }
 
   // Crown = the daily APEX: both Moon strengths aligned (good tara AND good chandra) on a
-  // non-negative universal day, the transits aren't a malefic pileup — and, when AV is known, the
-  // Moon sits on well-stocked ground (high support). Favorable-tara on a THIN sign is golden but
-  // unbacked → "favorable", never the apex. The slow-transit season shifts the bands (via `score`)
-  // but can't erase the apex — a tough season means fewer factors line up, not that a clean day is denied.
-  const crown = tb.favorable && cb.favorable && dq.score >= 0 && (!ts || ts.score > -3) && (!av || av.support === "high");
+  // non-negative universal day where the transits aren't a malefic pileup. AV no longer GATES the
+  // crown (David's calibration 2026-07-12 — that gate halved his crowns); it still BOOSTS the score
+  // and forms the caution floor. So a favorable day on thin ground can still crown, just with less
+  // lift. The season shifts the bands (via `score`) but can't erase the apex.
+  const crown = tb.favorable && cb.favorable && dq.score >= 0 && (!ts || ts.score > -3);
   const rating: CrownRating = personalVeto ? "caution"
-    : crown ? "crown" : score >= 2 ? "favorable" : score <= -3 ? "caution" : "neutral";
+    : crown ? "crown" : score >= 2 ? "favorable" : score <= -2 ? "caution" : "neutral";
   return { rating, score, universal: dq, tarabala: tb, chandrabala: cb, transit: ts, ashtakavarga: av };
 }
 
