@@ -192,4 +192,8 @@
 // (no more "personalApex isCrown true" / "chandraHouse 7"). (2) Option A: the glance is trimmed to
 // a tight at-a-glance TEASER (~70 words, no arc line) and the hero's "THE FULL READ" toggle is
 // removed — the day read ("The day, in full") is the one full read. PROMPT_VERSION bumped.
-export const APP_VERSION = "1.1.390";
+// v1.1.391 = 2026-07-12 — Pre-test hardening of the v390 day-read (no prompt change → no cache
+// bust → no regen cost). (1) Horoscope scroll-back snippet read c?.scene?.synthesis but scene is
+// now a prose STRING → blank snippets for new day-read snapshots; fixed to c?.scene. (2) Horoscope
+// day-read prose now glossary-links its terms (GlossaryText), matching the Today card.
+export const APP_VERSION = "1.1.391";

@@ -5,6 +5,7 @@ import OctagramMark from "@/components/OctagramMark";
 import AppHeader from "@/components/AppHeader";
 import LockedFeatureCard from "@/components/LockedFeatureCard";
 import VeleaLorMark from "@/components/VeleaLorMark";
+import GlossaryText from "@/components/GlossaryText";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
@@ -260,7 +261,7 @@ function DayReadBody({ read, modeColor }: { read: DayRead; modeColor: string }) 
   const label = (t: string) => (
     <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
   );
-  const body = (s: string) => <p style={{ fontSize: "0.95rem", lineHeight: 1.68, color: "var(--foreground)", margin: 0 }}>{s}</p>;
+  const body = (s: string) => <p style={{ fontSize: "0.95rem", lineHeight: 1.68, color: "var(--foreground)", margin: 0 }}><GlossaryText>{s}</GlossaryText></p>;
 
   return (
     <div style={{ borderRadius: 14, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.1rem 1.25rem" }}>

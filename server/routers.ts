@@ -1794,7 +1794,8 @@ export const appRouter = router({
       return rows.map((r) => {
         let snippet = "";
         // Day-read snapshots lead with scene.synthesis; legacy year-read snapshots with coreTheme.
-        try { const c = JSON.parse(r.content); snippet = String(c?.scene?.synthesis ?? c?.coreTheme?.synthesis ?? "").replace(/\s+/g, " ").trim().slice(0, 160); } catch { /* keep empty */ }
+        // Day-read snapshots lead with `scene` (a prose string); legacy year-read snapshots with coreTheme.synthesis.
+        try { const c = JSON.parse(r.content); snippet = String(c?.scene ?? c?.coreTheme?.synthesis ?? "").replace(/\s+/g, " ").trim().slice(0, 160); } catch { /* keep empty */ }
         return { date: r.readingDate, createdAt: r.createdAt, snippet, hasNotes: !!(r.notes && r.notes.trim()) };
       });
     }),
