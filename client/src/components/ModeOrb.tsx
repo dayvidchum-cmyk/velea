@@ -46,12 +46,7 @@ export default function ModeOrb({ mode, count, active = false, size = "md", onCl
             <span style={{ fontSize: size === "sm" ? "0.65rem" : "0.75rem", opacity: 0.85 }}>●</span>
           ) : count === 0 ? "+" : count}
         </span>
-        {active && (
-          <span
-            className="absolute inset-0 rounded-full animate-ping"
-            style={{ background: "inherit", opacity: 0.28 }}
-          />
-        )}
+        {/* (Pulsing "ping" ring on the active orb removed — David turned off the blink.) */}
       </div>
       <span
         className={`${textSize} font-semibold tracking-wide uppercase`}
