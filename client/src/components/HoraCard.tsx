@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import LockedFeatureCard from "./LockedFeatureCard";
 import VeleaLorMark from "./VeleaLorMark";
+import { useDayModeColor } from "@/hooks/useDayModeColor";
 
 // The golden-hour gold — same hue as the crown/Veleal'or mark on the Master Mode card.
 const GOLD = "#D4AF37";
@@ -34,6 +35,7 @@ export default function HoraCard() {
     const c = listRef.current, r = nowRef.current;
     if (c && r) c.scrollTop = r.offsetTop - c.clientHeight / 2 + r.clientHeight / 2;
   }, [expanded]);
+  const modeColor = useDayModeColor(); // soft mode-color border, matching the calendar frame
   const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const entitled = access?.entitled === true;
   const now = new Date();
@@ -76,7 +78,7 @@ export default function HoraCard() {
       </button>
 
       {/* The card: collapsed = NOW only. */}
-      <div onClick={() => { if (!expanded) setExpanded(true); }} style={{ borderRadius: 14, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: expanded ? "0.7rem 0.8rem" : "0.55rem 0.8rem", flex: 1, cursor: expanded ? "default" : "pointer" }}>
+      <div onClick={() => { if (!expanded) setExpanded(true); }} style={{ borderRadius: 14, border: `1px solid color-mix(in srgb, ${modeColor} 38%, transparent)`, background: "var(--color-card)", padding: expanded ? "0.7rem 0.8rem" : "0.55rem 0.8rem", flex: 1, cursor: expanded ? "default" : "pointer" }}>
         {current ? (
           <div style={{ display: "flex", alignItems: "baseline", gap: "0.4rem", flexWrap: "wrap" }}>
             <span style={{ fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Now</span>

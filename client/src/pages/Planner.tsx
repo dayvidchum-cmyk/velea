@@ -1614,7 +1614,7 @@ export default function Planner() {
         </div>
       )}
 
-      {/* ── REFLECTIONS — its own section now, placed directly above Completed (David). ── */}
+      {/* ── REFLECTION LOG — one section: the day's recorder + "View full log" merged (David). ── */}
       {isAuthenticated && (
         <div className="relative z-10">
           <button
@@ -1627,7 +1627,7 @@ export default function Planner() {
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
             >
-              What happened on {new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}?
+              Reflection Log
             </p>
             <ChevronDown size={13} style={{ marginLeft: "auto", flexShrink: 0, color: "var(--color-muted-foreground)", transform: reflectionOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
           </button>
@@ -1636,15 +1636,22 @@ export default function Planner() {
             <textarea
               className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed"
               style={{ color: "var(--color-foreground)", minHeight: "80px", caretColor: "var(--foreground)" }}
-              placeholder="Write a reflection for this day…"
+              placeholder={`Write a reflection for ${new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}…`}
               value={reflection}
               onChange={(e) => setReflection(e.target.value)}
             />
-            <div className="flex items-center justify-between mt-2">
-              {saveReflection.isError && (
-                <p className="text-xs" style={{ color: "oklch(0.70 0.15 25)" }}>Failed to save. Try again.</p>
-              )}
-              <div className="ml-auto">
+            <div className="flex items-center justify-between mt-2 gap-2">
+              <button
+                onClick={() => navigate("/reflections")}
+                className="text-xs font-semibold transition-opacity hover:opacity-70"
+                style={{ color: "var(--color-muted-foreground)", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.02em" }}
+              >
+                View full log →
+              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {saveReflection.isError && (
+                  <span className="text-xs" style={{ color: "oklch(0.70 0.15 25)" }}>Failed to save.</span>
+                )}
                 <button
                   onClick={() => saveReflection.mutate(
                     { date: selectedDate, content: reflection },
@@ -1666,21 +1673,6 @@ export default function Planner() {
           </div>
           )}
         </div>
-      )}
-
-      {isAuthenticated && (
-        <button
-          onClick={() => navigate("/reflections")}
-          className="flex items-center gap-2 w-full py-2 transition-opacity hover:opacity-70"
-        >
-          <BookOpen size={14} style={{ color: "var(--color-muted-foreground)" }} />
-          <span
-            className="text-sm font-bold uppercase"
-            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-          >
-            View reflection log
-          </span>
-        </button>
       )}
 
       {/* ── COMPLETED (moved below the Planner section, per request) ── */}
