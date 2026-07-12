@@ -61,6 +61,7 @@ export interface DayReadSignals {
   transits: Array<{
     planet: string; sign: string;
     chalitHouse: number; wholeSignHouse: number; shifted: boolean;
+    fromMoon: number; fromSun: number; // Tripada gochar — the house counted from the natal Moon / Sun
     retrograde: boolean; combust: boolean; dignity: string | null;
     av: { bhinna: number; sarva: number; support: "high" | "neutral" | "low" } | null;
     hitsNatal: { planet: string; orbDeg: number } | null;
@@ -97,6 +98,8 @@ export async function dayReadSignalsForBirth(birth: BirthInput, date: string): P
   // ── The Moon: the day's TRIGGER ──
   const natalMoonNak = nakIdx(natal.moon.nakshatra);
   const natalMoonSignIdx = signOf(natal.moon.longitude);
+  const natalSunSignIdx = signOf(natal.sun.longitude);
+  const houseFrom = (refSignIdx: number, lon: number) => ((signOf(lon) - refSignIdx + 12) % 12) + 1;
   const dayMoonNak = nakIdx(day.moon.nakshatra);
   const dayMoonSignIdx = signOf(day.moon.longitude);
   const moonPlace = placeInBhava(cusps, day.moon.longitude, ascLon);
@@ -122,6 +125,7 @@ export async function dayReadSignalsForBirth(birth: BirthInput, date: string): P
     return {
       planet, sign,
       chalitHouse: place.bhava, wholeSignHouse: place.wholeSignHouse, shifted: place.shifted,
+      fromMoon: houseFrom(natalMoonSignIdx, lon), fromSun: houseFrom(natalSunSignIdx, lon),
       retrograde: retro, combust, dignity: dignityOf(planet, sign),
       av: t ? { bhinna: t.bhinna, sarva: t.sarva, support: support(t.sarva) } : null,
       hitsNatal: hit,
