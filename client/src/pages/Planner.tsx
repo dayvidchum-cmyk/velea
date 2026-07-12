@@ -1031,7 +1031,7 @@ export default function Planner() {
       >
         {/* Month header — the colored band is gone (David); month/year/arrows sit on the light
             surface as dark gray. The thin colored border around the whole calendar stays. */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <div className="flex items-center justify-between px-4 pt-4 pb-1">
           <button
             onClick={prevMonth}
             className="p-1 rounded-full transition-all duration-150 active:scale-95"
@@ -1071,7 +1071,7 @@ export default function Planner() {
           </button>
         </div>
         {/* Calendar body */}
-        <div className="px-4 py-5">
+        <div className="px-4 pt-1 pb-6">
 
         <div className="grid grid-cols-7 mb-3">
           {DAYS.map((d, i) => (
@@ -1085,7 +1085,7 @@ export default function Planner() {
           ))}
         </div>
 
-        <div className="grid grid-cols-7" style={{ rowGap: "1rem" }}>
+        <div className="grid grid-cols-7" style={{ rowGap: "1.3rem" }}>
           {calendarCells.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />;
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
