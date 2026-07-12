@@ -219,4 +219,8 @@
 // string, so it CANNOT come back as per-planet cards. Prompts: hero hard-capped at 120 words with
 // the planets pulled OUT (they live in the cast, killing the repetition); cast rewritten to one
 // ≤120-word PG paragraph that knows the data flags but never prints them.
-export const APP_VERSION = "1.1.394";
+// v1.1.395 = 2026-07-12 — THE READ floats centered. Was a bottom-anchored sheet that jammed the
+// last line against the nav bar (looked cut off); now a centered modal — flex-centered overlay,
+// max-width 440 / max-height 82vh, rounded on all corners, its own scroll, pop-in scale. Tap the
+// backdrop to close. Content unchanged (the one-paragraph cast).
+export const APP_VERSION = "1.1.395";

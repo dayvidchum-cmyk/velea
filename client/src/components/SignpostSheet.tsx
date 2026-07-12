@@ -37,32 +37,28 @@ export default function SignpostSheet({ open, onClose, mode, profileId, date }: 
   if (!open) return null;
 
   return (
-    <>
-      {/* Backdrop */}
+    /* Centered floating modal — sits in the middle of the screen (was a bottom-anchored sheet
+       jammed against the nav bar). Tap the dimmed backdrop to close; the card stops propagation. */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: "oklch(0 0 0 / 0.65)", backdropFilter: "blur(4px)", padding: "1.25rem" }}
+      onClick={onClose}
+    >
       <div
-        className="fixed inset-0 z-40"
-        style={{ background: "oklch(0 0 0 / 0.65)", backdropFilter: "blur(4px)" }}
-        onClick={onClose}
-      />
-
-      {/* Sheet */}
-      <div
-        className="fixed left-0 right-0 z-50 rounded-t-2xl flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+        className="rounded-2xl flex flex-col"
         style={{
-          bottom: "72px",
+          width: "100%",
+          maxWidth: "440px",
+          maxHeight: "82vh",
+          overflow: "hidden",
           background: "var(--color-card)",
-          border: "1px solid oklch(0 0 0 / 0.12)",
-          borderBottom: "none",
-          maxWidth: "480px",
-          margin: "0 auto",
-          maxHeight: "640px",
-          animation: "slideUp 220ms cubic-bezier(0.23, 1, 0.32, 1)",
+          border: "1px solid oklch(0 0 0 / 0.14)",
+          boxShadow: "0 24px 70px oklch(0 0 0 / 0.45)",
+          animation: "popIn 200ms cubic-bezier(0.23, 1, 0.32, 1)",
         }}
       >
-        <style>{`@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
-
-        {/* Handle */}
-        <div className="w-10 h-1 rounded-full mx-auto mt-3 mb-0 flex-shrink-0" style={{ background: "var(--color-border)" }} />
+        <style>{`@keyframes popIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid var(--color-border)" }}>
@@ -108,6 +104,6 @@ export default function SignpostSheet({ open, onClose, mode, profileId, date }: 
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
