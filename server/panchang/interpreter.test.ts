@@ -1,5 +1,43 @@
 import { describe, it, expect } from 'vitest';
-import { calculateFinalMode, getNakshatraModifier, getTithiPacing, moonSignToHouse } from './interpreter';
+import { calculateFinalMode, getNakshatraModifier, getTithiPacing, moonSignToHouse, interactionBaseMode } from './interpreter';
+
+// David's two-lens interaction base mode (2026-07-12). Virgo lagna (5), Scorpio natal Moon (7).
+describe('interactionBaseMode — the two-lens precision model', () => {
+  const V = 5, S = 7; // lagna Virgo, natal Moon Scorpio
+  const quiet = { moonStrong: false, moonWeak: false, outwardRx: false };
+
+  it('blends the two lenses and regresses to the middle when they disagree', () => {
+    // Day Moon in Taurus (1): 9th from Virgo (Action) + 7th from Scorpio (Selective) → blend Build.
+    const r = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 1, ...quiet });
+    expect(r.lagnaLens).toBe('Action');
+    expect(r.chandraLens).toBe('Selective');
+    expect(r.finalMode).toBe('Build');
+  });
+
+  it('a strong Moon floor-raises a contained day but NEVER manufactures Action', () => {
+    // Cancer Moon (3): 11th/Action from Virgo, 9th/Action from Scorpio → blend Action. Strong Moon
+    // must not push past Action; and on a Build blend it caps at Build.
+    const strongOnAction = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: true, moonWeak: false, outwardRx: false });
+    expect(strongOnAction.finalMode).toBe('Action'); // already both-agree Action; lift can't exceed it
+    // Sagittarius Moon (8): 4th/Restraint + 2nd/Flex → blend Selective; strong Moon lifts to Build (cap).
+    const strongOnLow = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 8, moonStrong: true, moonWeak: false, outwardRx: false });
+    expect(strongOnLow.blend).toBe('Selective');
+    expect(strongOnLow.finalMode).toBe('Build');
+  });
+
+  it('a weak Moon drags one step down', () => {
+    const weak = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 1, moonStrong: false, moonWeak: true, outwardRx: false });
+    expect(weak.blend).toBe('Build');
+    expect(weak.finalMode).toBe('Selective');
+  });
+
+  it('an outward retrograde caps at Build (no new Action) but leaves Build/Selective intact', () => {
+    // Cancer Moon → blend Action; rx ceiling knocks it to Build.
+    const rx = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: false, moonWeak: false, outwardRx: true });
+    expect(rx.blend).toBe('Action');
+    expect(rx.finalMode).toBe('Build');
+  });
+});
 
 describe('Mode Engine - calculateFinalMode (rule-based qualifier model)', () => {
   // CORE RULE: House transit = primary mode. Nakshatra and tithi never flip the mode.

@@ -63,18 +63,28 @@ import { getTimezoneOffset, getBostonOffset } from "./panchang/tz-offset.js";
 import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG, HOUSE_TO_BASE_MODE } from "./panchang/modifier-config.js";
 import { calculateFinalMode } from "./panchang/interpreter.js";
 
-/** Personal-weather rating (crown layer) for a subject on a date — null when anchors are missing.
- *  Feeds the weather gate in getDayField so a personal caution day contains the mode. */
-async function subjectPersonalRating(subject: { profileId: number; lagnaSign: string | null } | null | undefined, dateStr: string): Promise<string | null> {
+/** Personal-weather rating (crown layer) + interaction MODE for a subject on a date — null when
+ *  anchors are missing. The rating feeds the weather gate; the mode is David's two-lens precision
+ *  base mode, which supersedes getDayField's Moon-only house mode for a charted native. */
+async function subjectPersonalDay(
+  subject: { profileId: number; lagnaSign: string | null } | null | undefined,
+  dateStr: string,
+): Promise<{ rating: string | null; mode: import("./panchang/interpreter.js").FinalMode | null }> {
   try {
-    if (!subject?.lagnaSign) return null;
+    if (!subject?.lagnaSign) return { rating: null, mode: null };
     const { getProfileNatalBodies } = await import("./routers/profiles.js");
-    const { anchorsFromBodies, personalRatingForDate } = await import("./panchang/crown.js");
+    const { anchorsFromBodies, personalDayForDate } = await import("./panchang/crown.js");
     const bodies = await getProfileNatalBodies(subject.profileId);
     const anchors = anchorsFromBodies(bodies as any, subject.lagnaSign);
-    if (!anchors) return null;
-    return await personalRatingForDate(anchors, dateStr);
-  } catch { return null; }
+    if (!anchors) return { rating: null, mode: null };
+    const day = await personalDayForDate(anchors, dateStr);
+    return { rating: day?.rating ?? null, mode: day?.mode ?? null };
+  } catch { return { rating: null, mode: null }; }
+}
+
+/** Rating-only convenience for callers that don't set the mode. */
+async function subjectPersonalRating(subject: { profileId: number; lagnaSign: string | null } | null | undefined, dateStr: string): Promise<string | null> {
+  return (await subjectPersonalDay(subject, dateStr)).rating;
 }
 
 import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
@@ -1116,8 +1126,8 @@ export const appRouter = router({
       }
       // Use active profile (or owner profile) lagna — single source of truth
       const lagnaSign = opts.ctx.subject?.lagnaSign ?? undefined;
-      const pr = await subjectPersonalRating(opts.ctx.subject, dateStr);
-      return getDayField(dateStr, false, { lat, lon, utcOffset }, lagnaSign, pr);
+      const pd = await subjectPersonalDay(opts.ctx.subject, dateStr);
+      return getDayField(dateStr, false, { lat, lon, utcOffset }, lagnaSign, pd.rating, pd.mode);
     }),
 
     byDate: publicProcedure
@@ -1135,8 +1145,8 @@ export const appRouter = router({
         }
         // Use active profile (or owner profile) lagna — single source of truth
         const lagnaOverride = opts.ctx.subject?.lagnaSign ?? undefined;
-        const pr = await subjectPersonalRating(opts.ctx.subject, opts.input.date);
-        return getDayField(opts.input.date, false, locationOverride, lagnaOverride, pr);
+        const pd = await subjectPersonalDay(opts.ctx.subject, opts.input.date);
+        return getDayField(opts.input.date, false, locationOverride, lagnaOverride, pd.rating, pd.mode);
       }),
 
     byMonth: publicProcedure
@@ -1198,7 +1208,8 @@ export const appRouter = router({
           }
           locationOverride = { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), utcOffset };
         }
-        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, await subjectPersonalRating(subject, dateStr));
+        const pd = await subjectPersonalDay(subject, dateStr);
+        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, pd.rating, pd.mode);
         if (!dayField) return null;
         // Get current profection year Time Lord data from active profile
         const { calculateProfectionYear } = await import('./profection/calculator.js');
@@ -1272,7 +1283,8 @@ export const appRouter = router({
           locationOverride = { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), utcOffset };
         }
 
-        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, await subjectPersonalRating(subject, dateStr));
+        const pd = await subjectPersonalDay(subject, dateStr);
+        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, pd.rating, pd.mode);
         if (!dayField) return null;
 
         const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
@@ -1586,7 +1598,8 @@ export const appRouter = router({
         if (birthNakIdx < 0 || natalMoonSignIdx < 0 || lagnaSignIdx < 0) return null;
 
         const { calculateBirthChart } = await import("./birthchart/calculator.js");
-        const { crownDay, natalAshtakavarga } = await import("./panchang/crown.js");
+        const { crownDay, natalAshtakavarga, tarabala, chandrabala } = await import("./panchang/crown.js");
+        const { interactionBaseMode, applyWeatherGate } = await import("./panchang/interpreter.js");
         const natalSignIdx: Record<string, number> = {};
         for (const b of bodies) { const i = ZOD.indexOf(b.sign ?? ""); if (i >= 0) natalSignIdx[b.planet] = i; }
         const natalAv = natalAshtakavarga(natalSignIdx, lagnaSignIdx);
@@ -1608,7 +1621,19 @@ export const appRouter = router({
               : cd.rating === "caution"
               ? `${cd.tarabala.name} tara · Moon in your ${ORD[cd.chandrabala.house]} house — friction; keep the stakes low.`
               : "";
-            days.push({ date, rating: cd.rating, why });
+            // The interaction MODE (same as the day card) off this same chart, gated to match.
+            const dayMoonSignIdx = si(ch.moon.longitude);
+            const dayMoonNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(ch.moon.nakshatra ?? "").toLowerCase());
+            const tb = tarabala(birthNakIdx, dayMoonNakIdx);
+            const cb = chandrabala(natalMoonSignIdx, dayMoonSignIdx);
+            const rawMode = interactionBaseMode({
+              lagnaSignIdx, natalMoonSignIdx, dayMoonSignIdx,
+              moonStrong: tb.favorable && cb.favorable,
+              moonWeak: tb.quality === "bad" || !cb.favorable,
+              outwardRx: !!ch.mercury.isRetrograde || !!ch.mars.isRetrograde,
+            }).finalMode;
+            const mode = applyWeatherGate(rawMode, cd.rating).finalMode;
+            days.push({ date, rating: cd.rating, why, mode });
           } catch { days.push({ date, rating: "neutral", why: "" }); }
         }
         return { days };
@@ -2065,7 +2090,8 @@ export const appRouter = router({
           const subject = opts.ctx.subject;
           if (subject?.lagnaSign) lagnaOverride = subject.lagnaSign;
         }
-        const field = await getDayField(opts.input.date, false, locationOverride, lagnaOverride, await subjectPersonalRating(opts.ctx.subject, opts.input.date));
+        const pd2 = await subjectPersonalDay(opts.ctx.subject, opts.input.date);
+        const field = await getDayField(opts.input.date, false, locationOverride, lagnaOverride, pd2.rating, pd2.mode);
         if (!field) return null;
 
         // Calculate confidence

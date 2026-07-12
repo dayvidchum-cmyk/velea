@@ -249,6 +249,15 @@ export default function Planner() {
     return m;
   }, [crownData]);
   const cautionSet = useMemo(() => new Set(cautionByDate.keys()), [cautionByDate]);
+  // The interaction MODE per day (David's two-lens precision model, server-gated) — the SAME mode
+  // the day card/hero shows. crown.forMonth computes it off the day chart it already builds, so the
+  // calendar tile and the day sheet never disagree. Falls back to the Moon-only byMonth mode when a
+  // profile has no crown scan (no birth chart).
+  const modeByDate = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const d of (crownData?.days ?? []) as any[]) if (d.mode) m.set(d.date, d.mode);
+    return m;
+  }, [crownData]);
   // Golden days — the COLLECTIVE potential (panchang day-quality, no chart needed), brought
   // back as a golden BORDER on the calendar. Crown days = a golden day + the crown badge on top.
   const { data: goldenData } = trpc.sky.goldenDays.useQuery(
@@ -1090,7 +1099,8 @@ export default function Planner() {
             const isCrown = crownByDate.has(dateStr);
             const isGolden = goldenSet.has(dateStr);
             const isSelected = dateStr === selectedDate;
-            const modeColor = panchang ? MODE_DOT[cautionSet.has(dateStr) ? "Restraint" : panchang.mode] : undefined;
+            const dayMode = modeByDate.get(dateStr) ?? panchang?.mode;
+            const modeColor = dayMode ? MODE_DOT[cautionSet.has(dateStr) ? "Restraint" : dayMode] : undefined;
             const hasMode = !!modeColor;
             // Whole cell is tinted by the day's mode — far more legible than a tiny
             // dot, and selected/today get a stronger fill + solid border. Dark mode

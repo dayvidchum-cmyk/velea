@@ -202,7 +202,8 @@ export async function getDayField(
   forceRecalc = false,
   locationOverride?: { lat: number; lon: number; utcOffset: number },
   lagnaOverride?: string,
-  personalRating?: string | null
+  personalRating?: string | null,
+  interactionMode?: FinalMode | null
 ): Promise<DayField | null> {
   // Check cache first
   if (!forceRecalc) {
@@ -298,7 +299,7 @@ export async function getDayField(
         nakshatraTransitionTime,
         nakshatraAfterTransition,
         lagnaSign: lagnaOverride ?? null,
-      }, personalRating);
+      }, personalRating, interactionMode);
     }
   }
 
@@ -358,7 +359,7 @@ export async function getDayField(
       instruction: field.instruction,
     });
 
-    return gateDayField(field, personalRating);
+    return gateDayField(field, personalRating, interactionMode);
   } catch (err) {
     console.error('[Panchang] Calculation failed for', dateStr, err);
     return null;
@@ -366,8 +367,29 @@ export async function getDayField(
 }
 
 /** Apply the personal-weather gate to a computed DayField (see interpreter.applyWeatherGate).
- *  The qualifier keeps the original mode visible ("Contained Action") so the ledger stays honest. */
-export function gateDayField(field: DayField, personalRating?: string | null): DayField {
+ *  The qualifier keeps the original mode visible ("Contained Action") so the ledger stays honest.
+ *
+ *  `interactionMode` (David's two-lens precision model, 2026-07-12) is the authoritative base mode
+ *  for a native WITH a birth chart — it supersedes the internal Moon-only house mode. When present
+ *  it rewrites finalMode + qualifier + instruction BEFORE the weather gate, and clears the mid-day
+ *  turn note (the interaction mode is a single whole-day verdict). Absent (no chart) → the Moon-only
+ *  pipeline stands unchanged. */
+export function gateDayField(field: DayField, personalRating?: string | null, interactionMode?: FinalMode | null): DayField {
+  if (interactionMode && interactionMode !== field.finalMode) {
+    const nak = field.activeNakshatra ?? field.nakshatra;
+    const nakMod = getNakshatraModifier(nak);
+    field = {
+      ...field,
+      mode: interactionMode,
+      finalMode: interactionMode,
+      baseMode: interactionMode,
+      qualifier: generateQualifier(interactionMode, nak, field.tithi, field.tithiPaksha),
+      nakshatraModifier: nakMod,
+      instruction: composeInstructionFromParts(interactionMode, nakMod),
+      turnsAtNote: null,
+      modeStepReasons: [],
+    };
+  }
   const gate = applyWeatherGate(field.finalMode, personalRating);
   if (!gate.gated) return { ...field, weatherGated: false, weatherGateReason: null };
   return {

@@ -146,20 +146,73 @@ export function moonSignToHouse(moonSignIndex: number, lagnaSign: string): numbe
 
 // ─── House-to-mode mapping (Base Mode) ───────────────────────────────────────
 
+// David 2026-07-12: corrected the 3rd/5th/9th assignments. 3rd (effort, communication, the near
+// reach) is Selective, not Build; 5th (creation, what you make) is Build, not Selective; 9th
+// (fortune, the wide horizon) is Action, not the ambiguous Flex.
 const HOUSE_MODE: Record<number, DayMode> = {
   1: 'Action',
   2: 'Flex',
-  3: 'Build',
+  3: 'Selective',
   4: 'Restraint',
-  5: 'Selective',
+  5: 'Build',
   6: 'Build',
   7: 'Selective',
   8: 'Restraint',
-  9: 'Flex',
+  9: 'Action',
   10: 'Action',
   11: 'Action',
   12: 'Restraint',
 };
+
+// ─── The interaction base mode (David's precision model, 2026-07-12) ──────────
+// The Moon-only base mode was too thin. The day's posture reads the SAME self at two depths —
+// the Lagna (the soul manifest, moving through time) and the natal Moon (what we perceive of the
+// soul) — then the live sky modulates. See mode-scan.ts for the calibration on David's chart.
+//
+//   base   = blend(Moon's house-mode from Lagna, Moon's house-mode from natal Moon)   [regress-to-middle:
+//            full Action / full Restraint only survive when both selves agree]
+//   Moon strong (favorable tara AND chandra)  → floor-raise toward Build (never manufactures Action)
+//   Moon weak   (adverse tara OR weak chandra) → drag one step down          [the "med" calibration]
+//   Mercury/Mars retrograde                    → ceiling at Build (no NEW Action; Build/revisit is
+//                                                what a retrograde is for)
+const MODE_BLEND_SCORE: Record<DayMode, number> = { Restraint: 0, Selective: 1, Flex: 1.5, Build: 2, Action: 3 };
+const BLEND_TO_MODE = (s: number): FinalMode =>
+  (['Restraint', 'Selective', 'Build', 'Action'] as FinalMode[])[Math.max(0, Math.min(3, Math.round(s)))];
+
+export interface InteractionModeInput {
+  lagnaSignIdx: number;       // 0–11
+  natalMoonSignIdx: number;   // 0–11 (Chandra lagna reference)
+  dayMoonSignIdx: number;     // 0–11 (today's Moon)
+  moonStrong: boolean;        // favorable tara AND favorable chandra
+  moonWeak: boolean;          // adverse tara OR weak chandra (med drag)
+  outwardRx: boolean;         // Mercury or Mars retrograde
+}
+
+export interface InteractionMode {
+  finalMode: FinalMode;
+  lagnaLens: DayMode;    // Moon's house-mode from the Lagna
+  chandraLens: DayMode;  // Moon's house-mode from the natal Moon
+  blend: FinalMode;      // the structural base before live modifiers
+  reasons: string[];
+}
+
+/** Compute the day's base mode as the interaction of the two self-lenses under the live sky.
+ *  Pure: sign indices + Moon-strength/retrograde flags in, a FinalMode out. */
+export function interactionBaseMode(inp: InteractionModeInput): InteractionMode {
+  const houseFrom = (refSignIdx: number) => ((inp.dayMoonSignIdx - refSignIdx + 12) % 12) + 1;
+  const lagnaLens = HOUSE_MODE[houseFrom(inp.lagnaSignIdx)];
+  const chandraLens = HOUSE_MODE[houseFrom(inp.natalMoonSignIdx)];
+  const blendScore = (MODE_BLEND_SCORE[lagnaLens] + MODE_BLEND_SCORE[chandraLens]) / 2;
+  const blend = BLEND_TO_MODE(blendScore);
+  const reasons = [`Lagna lens ${lagnaLens}`, `Chandra lens ${chandraLens}`, `blend → ${blend}`];
+
+  let s = Math.round(blendScore);
+  if (inp.moonStrong && s < 2) { s = Math.min(2, s + 1); reasons.push('Moon strong → floor-raise to Build'); }
+  else if (inp.moonWeak) { s = s - 1; reasons.push('Moon weak → drag −1'); }
+  if (inp.outwardRx) { s = Math.min(s, 2); reasons.push('outward retrograde → ceiling at Build (no new Action)'); }
+
+  return { finalMode: BLEND_TO_MODE(s), lagnaLens, chandraLens, blend, reasons };
+}
 
 // ─── Mode base instructions ───────────────────────────────────────────────────
 

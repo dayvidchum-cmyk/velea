@@ -230,13 +230,40 @@ export function anchorsFromBodies(
 
 /** The native's crown-layer rating for a calendar date (noon UTC, same as the calendar). */
 export async function personalRatingForDate(anchors: CrownAnchors, dateStr: string): Promise<CrownRating | null> {
+  return (await personalDayForDate(anchors, dateStr))?.rating ?? null;
+}
+
+/** The native's full day verdict for a date: the crown RATING and the interaction MODE, computed off
+ *  ONE noon-UTC day chart (no double ephemeris). The mode is David's two-lens interaction model
+ *  (interpreter.interactionBaseMode) — the same math validated in mode-scan.ts. null on any failure. */
+export async function personalDayForDate(
+  anchors: CrownAnchors,
+  dateStr: string,
+): Promise<{ rating: CrownRating; mode: import("./interpreter.js").FinalMode } | null> {
   try {
     const { calculateBirthChart } = await import("../birthchart/calculator.js");
+    const { interactionBaseMode } = await import("./interpreter.js");
     const ch: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
     const majIdx = await majorityDayStarIdx(dateStr);
-    return crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined }).rating;
+    const rating = crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined }).rating;
+
+    // ── Interaction mode ── the day-Moon (noon) read through both self-lenses + the live sky.
+    const dayMoonSignIdx = si(ch.moon.longitude);
+    const dayMoonNakIdx = NAK27.findIndex((n) => n.toLowerCase() === String(ch.moon.nakshatra ?? "").toLowerCase());
+    const tb = tarabala(anchors.birthNakIdx, dayMoonNakIdx);
+    const cb = chandrabala(anchors.natalMoonSignIdx, dayMoonSignIdx);
+    const mode = interactionBaseMode({
+      lagnaSignIdx: anchors.lagnaSignIdx,
+      natalMoonSignIdx: anchors.natalMoonSignIdx,
+      dayMoonSignIdx,
+      moonStrong: tb.favorable && cb.favorable,
+      moonWeak: tb.quality === "bad" || !cb.favorable, // med drag
+      outwardRx: !!ch.mercury.isRetrograde || !!ch.mars.isRetrograde,
+    }).finalMode;
+
+    return { rating, mode };
   } catch {
     return null;
   }
