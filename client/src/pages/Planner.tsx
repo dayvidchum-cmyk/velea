@@ -1202,8 +1202,8 @@ export default function Planner() {
                     // these symbol-font glyphs (they kept sitting high).
                     <span style={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                       {stationsToday.map((e) => (
-                        <svg key={e.planet} width={stationsToday.length > 1 ? 19 : 26} height={26} viewBox="0 0 24 24" style={{ overflow: "visible" }}>
-                          <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fontFamily={PLANET_GLYPH_FONT} fontSize={stationsToday.length > 1 ? 14 : 18} fontWeight={800} fill={accent}>{PLANET_GLYPH[e.planet]}</text>
+                        <svg key={e.planet} width={stationsToday.length > 1 ? 22 : 30} height={30} viewBox="0 0 24 24" style={{ overflow: "visible" }}>
+                          <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fontFamily={PLANET_GLYPH_FONT} fontSize={stationsToday.length > 1 ? 16 : 21} fontWeight={400} fill={accent}>{PLANET_GLYPH[e.planet]}</text>
                         </svg>
                       ))}
                     </span>
