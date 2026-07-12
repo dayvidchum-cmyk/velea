@@ -1176,7 +1176,7 @@ export default function Planner() {
                   style={{
                     aspectRatio: "1 / 1",
                     width: "100%",
-                    maxWidth: "2rem",
+                    maxWidth: "2.5rem",
                     borderRadius: 999,
                     transition: "background 150ms",
                     color: numberColor,
@@ -1219,7 +1219,7 @@ export default function Planner() {
                       ))}
                     </span>
                   ) : (
-                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "0.875rem" }}>
+                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem" }}>
                       {day}
                     </span>
                   )}
