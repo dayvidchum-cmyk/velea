@@ -4,7 +4,6 @@ import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
 import KeptReadings from "@/components/KeptReadings";
 import VeleaLorMark from "@/components/VeleaLorMark";
-import DiamondMark from "@/components/DiamondMark";
 import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1195,9 +1194,8 @@ export default function Planner() {
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = darkInk; }}
                 >
                   {isCrown ? (
-                    // The bindu — a SOLID gold diamond (the node/knot mark, matching the Horoscope
-                    // icon). The day itself is the mark.
-                    <DiamondMark size={18} color={GOLD_BRIGHT} fill={GOLD_BRIGHT} strokeWidth={0} style={{ filter: "drop-shadow(0 0 5px rgba(242,194,28,0.7))", pointerEvents: "none" }} />
+                    // The bindu — a single solid gold dot. The day itself is the mark.
+                    <span style={{ width: 11, height: 11, borderRadius: 999, background: GOLD_BRIGHT, boxShadow: "0 0 6px rgba(242,194,28,0.7)", pointerEvents: "none", display: "inline-block" }} />
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />

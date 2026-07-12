@@ -7,14 +7,14 @@ import {
   Folder,
 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
-import DiamondMark from "./DiamondMark";
+import DotMark from "./DotMark";
 
 const BASE_NAV = [
   { path: "/", label: "Today", icon: VeleaMark },
   { path: "/profection", label: "Chart", icon: BookOpen },
   { path: "/projects", label: "Projects", icon: Folder },
   { path: "/glossary", label: "Glossary", icon: Library },
-  { path: "/horoscope", label: "Horoscope", icon: DiamondMark },
+  { path: "/horoscope", label: "Horoscope", icon: DotMark },
 ];
 
 export default function BottomNav() {
