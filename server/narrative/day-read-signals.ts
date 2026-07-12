@@ -16,6 +16,7 @@
 import { calculateBirthChart } from "../birthchart/calculator.js";
 import { computeBhavaCusps, placeInBhava } from "../vedic/bhava-chalit.js";
 import { ashtakavargaFromLongitudes, transitStrength, signOf, type Graha } from "../vedic/ashtakavarga.js";
+import { dignityOf } from "../vedic/dignity.js";
 import { tarabala, chandrabala, crownDay, type CrownRating } from "../panchang/crown.js";
 import { calculateDashaTimeline, currentPratyantardasha } from "../dasha-calculator.js";
 
@@ -57,6 +58,10 @@ export interface DayReadSignals {
     chalitHouse: number; wholeSignHouse: number; shifted: boolean;
     tara: { num: number; name: string; quality: string; favorable: boolean };
     chandra: { house: number; quality: string; favorable: boolean };
+    /** The natal Moon's DIGNITY — so the read never calls a debilitated-but-cancelled Moon "weak".
+     *  hardWon = debilitated AND neecha-bhanga cancelled (the fall-then-rise; carry it as its own
+     *  flavor, not a deficit). */
+    dignity: { state: string; debilitated: boolean; cancelled: boolean; hardWon: boolean };
   };
   transits: Array<{
     planet: string; sign: string;
@@ -153,6 +158,11 @@ export async function dayReadSignalsForBirth(birth: BirthInput, date: string): P
       chalitHouse: moonPlace.bhava, wholeSignHouse: moonPlace.wholeSignHouse, shifted: moonPlace.shifted,
       tara: { num: tb.taraNum, name: tb.name, quality: tb.quality, favorable: tb.favorable },
       chandra: { house: cb.house, quality: cb.quality, favorable: cb.favorable },
+      dignity: (() => {
+        const md = dignityOf("Moon", natalLon, ascLon);
+        const cancelled = md.neechaBhanga?.cancelled ?? false;
+        return { state: md.state, debilitated: md.debilitated, cancelled, hardWon: md.debilitated && cancelled };
+      })(),
     },
     transits,
     arc: { mahadasha: cur?.mahadasha ?? "?", antardasha: cur?.antardasha ?? "?", pratyantar: praty?.lord ?? null },
