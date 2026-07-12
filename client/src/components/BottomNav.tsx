@@ -51,7 +51,7 @@ export default function BottomNav() {
             >
               <Icon
                 size={22}
-                strokeWidth={active ? 2.5 : 1.8}
+                strokeWidth={active ? 1.9 : 1.4}
                 style={active ? { filter: `drop-shadow(0 0 6px ${accent}66)` } : {}}
               />
               <span

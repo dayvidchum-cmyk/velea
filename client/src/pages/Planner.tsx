@@ -17,7 +17,6 @@ import AddTaskSheet from "@/components/AddTaskSheet";
 import ModeOrb from "@/components/ModeOrb";
 import ModeOrbSheet from "@/components/ModeOrbSheet";
 import SignpostSheet from "@/components/SignpostSheet";
-import DueOrbSheet from "@/components/DueOrbSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_RGBA, autoTextColors } from "../../../shared/types";
@@ -165,7 +164,6 @@ export default function Planner() {
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
-  const [dueSheetOpen, setDueSheetOpen] = useState(false);
   // "Plan ahead" planning tools are collapsed by default — today-first.
   const [planOpen, setPlanOpen] = useState(false);
   const [pinnedOpen, setPinnedOpen] = useState(false); // both task lists ship collapsed — the hero is the only open block
@@ -587,17 +585,6 @@ export default function Planner() {
     } as Record<TaskMode, number>;
   }, [allTasks]);
 
-  const orbDueCount = useMemo(() => {
-    const now = Date.now();
-    // Due = overdue or due TODAY (matches DueOrbSheet's range) — future dues wait their turn.
-    const localToday = toDateStr(new Date());
-    return allTasks.filter((t) => {
-      if (!t.dueDate || t.isCompleted || (t.snoozedUntil && t.snoozedUntil > now)) return false;
-      const due = typeof t.dueDate === "string" ? t.dueDate.slice(0, 10) : toDateStr(new Date(t.dueDate));
-      return due <= localToday;
-    }).length;
-  }, [allTasks]);
-
   // Priority sort order (title-case to match DB enum)
   const PRIORITY_RANK: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
 
@@ -607,11 +594,20 @@ export default function Planner() {
   // Pinned for Now: explicitly pinned, not completed, sorted by priority.
   const pinnedForNow = useMemo(() => {
     const now = Date.now();
+    const localToday = toDateStr(new Date());
+    // Due tasks (overdue or due TODAY) auto-populate To Do alongside the user's pins — the ONLY
+    // thing that ever lands here automatically (the Due orb was retired). A pinned-and-due task
+    // shows once via the OR.
+    const isDueNow = (t: any) => {
+      if (!t.dueDate) return false;
+      const due = typeof t.dueDate === "string" ? t.dueDate.slice(0, 10) : toDateStr(new Date(t.dueDate));
+      return due <= localToday;
+    };
     return allTasks
       .filter((t) =>
-        t.isPinned &&
         !t.isCompleted &&
-        (!t.snoozedUntil || t.snoozedUntil <= now)
+        (!t.snoozedUntil || t.snoozedUntil <= now) &&
+        (t.isPinned || isDueNow(t))
       )
       .sort((a, b) => {
         const pa = PRIORITY_RANK[a.priority ?? "Low"] ?? 2;
@@ -1451,31 +1447,7 @@ export default function Planner() {
                 }}
               />
             ))}
-            {/* Due orb */}
-            <button
-              onClick={() => setDueSheetOpen(true)}
-              className="flex flex-col items-center gap-1.5 group transition-all duration-200 cursor-pointer"
-            >
-              <div
-                className="w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:scale-105"
-                style={{
-                  background: "oklch(0.55 0.14 250)",
-                  color: "oklch(1 0 0)",
-                }}
-              >
-                <span className="text-sm font-bold">
-                  {!settings.showOrbCounts ? (
-                    <span style={{ fontSize: "0.75rem", opacity: 0.85 }}>●</span>
-                  ) : orbDueCount === 0 ? "+" : orbDueCount}
-                </span>
-              </div>
-              <span
-                className="text-xs font-bold uppercase"
-                style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
-              >
-                Due
-              </span>
-            </button>
+            {/* (Due orb retired — due tasks now auto-populate the To Do list below.) */}
           </div>
 
           {/* All-tasks accordion — collapsible groups by mode (the old Planner view) */}
@@ -1813,7 +1785,6 @@ export default function Planner() {
       <WhyNowSheet task={whyNowTask} modeColor={todayModeColor} onClose={() => setWhyNowTask(null)} />
 
       {/* Due Orb Sheet */}
-      <DueOrbSheet open={dueSheetOpen} onClose={() => setDueSheetOpen(false)} />
 
       {/* Why-this-today Signpost Sheet */}
       <SignpostSheet open={signpostOpen} onClose={() => setSignpostOpen(false)} mode={selectedTaskModeForHero ?? undefined} />
