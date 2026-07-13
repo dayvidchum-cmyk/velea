@@ -73,17 +73,17 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --background: #2d2d2d;
+  --background: #16171A;
   --foreground: #FDFDFD;
-  --card: #2d2d2d;
+  --card: #1E2024;
   --card-foreground: #FDFDFD;
-  --popover: #2d2d2d;
+  --popover: #202227;
   --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
-  --secondary: #111111;
+  --secondary: #34363D;
   --secondary-foreground: #FDFDFD;
-  --muted: #111111;
+  --muted: #23252B;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
   --accent-foreground: #000000;
@@ -101,21 +101,21 @@
   --brand-gold: #C9A84C;
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
-  --space-deep: #000000;
-  --space-navy: #050505;
-  --space-mid: #0A0A0A;
-  --space-light: #111111;
+  --space-deep: #101216;
+  --space-navy: #131519;
+  --space-mid: #181A1E;
+  --space-light: #202227;
   --cream: #FDFDFD;
   --cream-dim: rgba(255, 255, 255, 0.60);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
-  --sidebar: #000000;
+  --sidebar: #121316;
   --sidebar-foreground: #FDFDFD;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #111111;
+  --sidebar-accent: #34363D;
   --sidebar-accent-foreground: #FDFDFD;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: oklch(0.767 0.139 91.1);
@@ -319,7 +319,7 @@
 
   /* ── GLASS UTILITIES (now dark-only, minimal) ─────────────────── */
   .glass-card {
-    background: #0A0A0A;
+    background: #1E2024;
     backdrop-filter: none;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--radius);
@@ -327,7 +327,7 @@
   }
 
   .glass-panel {
-    background: #0A0A0A;
+    background: #1E2024;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--radius);
   }
@@ -361,7 +361,7 @@
 
   /* ── CARD CELESTIAL (now charcoal) ──────────────────────────────── */
   .card-celestial {
-    background: #0A0A0A;
+    background: #1E2024;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--radius);
   }
@@ -587,17 +587,17 @@
 
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
-  --background: #2d2d2d;
+  --background: #16171A;
   --foreground: #FDFDFD;
-  --card: #2d2d2d;
+  --card: #1E2024;
   --card-foreground: #FDFDFD;
-  --popover: #2d2d2d;
+  --popover: #202227;
   --popover-foreground: #FDFDFD;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
-  --secondary: #111111;
+  --secondary: #34363D;
   --secondary-foreground: #FDFDFD;
-  --muted: #111111;
+  --muted: #23252B;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
   --accent-foreground: #000000;
@@ -609,28 +609,28 @@
   --ring: oklch(0.767 0.139 91.1);
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
-  --space-deep: #000000;
-  --space-navy: #050505;
-  --space-mid: #0A0A0A;
-  --space-light: #111111;
+  --space-deep: #101216;
+  --space-navy: #131519;
+  --space-mid: #181A1E;
+  --space-light: #202227;
   --cream: #FDFDFD;
   --cream-dim: rgba(255, 255, 255, 0.60);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
-  --sidebar: #000000;
+  --sidebar: #121316;
   --sidebar-foreground: #FDFDFD;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #111111;
+  --sidebar-accent: #34363D;
   --sidebar-accent-foreground: #FDFDFD;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: oklch(0.767 0.139 91.1);
 }
 
 .dark body {
-  background: #000000;
+  background: #16171A;
   color: #FDFDFD;
 }
 
@@ -639,14 +639,14 @@
 .app-topbar { background: var(--background); }
 
 .dark .glass-card {
-  background: #0A0A0A;
+  background: #1E2024;
   backdrop-filter: none;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: none;
 }
 
 .dark .glass-panel {
-  background: #0A0A0A;
+  background: #1E2024;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 

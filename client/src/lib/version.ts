@@ -322,4 +322,13 @@
 // sign names WHO you are at your public peak (MC) and private base (IC), grounded in its Vedic
 // ruler's dharma (Gemini→Mercury the messenger, Sagittarius→Jupiter the guru, etc.). 12-sign MC +
 // IC gloss dictionaries, deterministic, no LLM. Living doc — voice refine-able per sign.
-export const APP_VERSION = "1.1.416";
+//
+// v1.1.417 = 2026-07-13 — NEW DARK MODE (David): the #000000/#111111 "black boxes" are gone. Dark
+// mode is now a neutral grayscale ELEVATION ladder — bg #16171A, cards #1E2024, modals #202227,
+// muted #23252B, and controls (pills/buttons/rows) raised to #34363D so they read as chips, not
+// holes; the day-mode color stays the only saturated pop. Swept --background/card/popover/secondary/
+// muted/sidebar/sidebar-accent + the --space-* ramp across :root + .dark, plus .dark body & the glass
+// surfaces (were #000/#0A0A0A). Calendar = Option A: stays light but is now warm PAPER (#F4F0E8) + a
+// soft shadow, a luminous almanac page that sits harmoniously on the dark instead of glaring white.
+// (Full Spectrum per-color tuning still its own pass; this de-blackens its controls as a bonus.)
+export const APP_VERSION = "1.1.417";
