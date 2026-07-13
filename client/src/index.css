@@ -109,7 +109,7 @@
   --cream-dim: rgba(255, 255, 255, 0.60);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
-  --mode-restraint: oklch(0.54 0.14 10);
+  --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
   --sidebar: #000000;
   --sidebar-foreground: #FDFDFD;
@@ -155,11 +155,11 @@
   --velea-selective-highlight: #8AC8D0;
   --velea-selective-shadow: #1A2B4A;
   --velea-selective-gradient: linear-gradient(180deg, #8AC8D0 0%, #4A9099 30%, #357E85 60%, #123F46 100%);
-  /* RESTRAINT — blush rose brightening to petal pink, deepening to deep plum-burgundy */
-  --velea-restraint-primary: #B15F71;
-  --velea-restraint-highlight: #F0A8B8;
+  /* RESTRAINT — mulberry (hue 355, off the caution red) brightening to soft pink, deepening to plum-burgundy */
+  --velea-restraint-primary: #9A4E6E;
+  --velea-restraint-highlight: #eda6c1;
   --velea-restraint-shadow: #4A1A2E;
-  --velea-restraint-gradient: linear-gradient(180deg, #F0A8B8 0%, #D4788A 30%, #B15F71 60%, #4A1A2E 100%);
+  --velea-restraint-gradient: linear-gradient(180deg, #eda6c1 0%, #c77596 30%, #9A4E6E 60%, #4A1A2E 100%);
 
   /* Card gradients — darker variants for short accordion cards. They start at the
      mode's mid tone (never the pale highlight) so white text stays legible even
@@ -172,7 +172,7 @@
   /* Build runs primary gold → rose-ochre (#BC886F) across the diagonal. */
   --velea-build-card-gradient: linear-gradient(200deg, #c9a531 0%, #b0863a 38%, #a8775a 72%, #8a5f52 100%);
   --velea-selective-card-gradient: linear-gradient(135deg, #3c97a0 0%, #2f7d86 55%, #235e66 100%);
-  --velea-restraint-card-gradient: linear-gradient(185deg, #c2666c 0%, #9c525b 55%, #5f343b 100%);
+  --velea-restraint-card-gradient: linear-gradient(185deg, #a35475 0%, #823e5b 55%, #54263c 100%);
 }
 
 @theme inline {
@@ -421,9 +421,9 @@
   }
 
   .tag-restraint {
-    background: oklch(0.54 0.14 10 / 0.15);
-    color: oklch(0.68 0.12 10);
-    border: 1px solid oklch(0.54 0.14 10 / 0.25);
+    background: oklch(0.54 0.14 355 / 0.15);
+    color: oklch(0.68 0.12 355);
+    border: 1px solid oklch(0.54 0.14 355 / 0.25);
     border-radius: 999px;
     padding: 0.15em 0.65em;
     font-size: 0.7rem;
@@ -481,9 +481,9 @@
     border: 1px solid rgba(212,175,55,0.4);
   }
   .orb-restraint {
-    background: #B15F71;
+    background: #9A4E6E;
     box-shadow: none;
-    border: 1px solid rgba(177,95,113,0.4);
+    border: 1px solid rgba(154,78,110,0.4);
   }
   .orb-selective {
     background: #357E85;
@@ -617,7 +617,7 @@
   --cream-dim: rgba(255, 255, 255, 0.60);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
-  --mode-restraint: oklch(0.54 0.14 10);
+  --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
   --sidebar: #000000;
   --sidebar-foreground: #FDFDFD;
@@ -691,9 +691,9 @@
 }
 
 .dark .tag-restraint {
-  background: oklch(0.54 0.14 10 / 0.15);
-  color: oklch(0.68 0.12 10);
-  border: 1px solid oklch(0.54 0.14 10 / 0.25);
+  background: oklch(0.54 0.14 355 / 0.15);
+  color: oklch(0.68 0.12 355);
+  border: 1px solid oklch(0.54 0.14 355 / 0.25);
 }
 
 .dark .tag-flex {
@@ -737,9 +737,9 @@
 }
 
 .dark .orb-restraint {
-  background: oklch(0.54 0.14 10);
+  background: oklch(0.54 0.14 355);
   box-shadow: none;
-  border: 1px solid oklch(0.54 0.14 10 / 0.40);
+  border: 1px solid oklch(0.54 0.14 355 / 0.40);
 }
 
 .dark .orb-restraint.scale-110 {
@@ -791,7 +791,7 @@ html.light {
   --cream-dim: #666666;
   --mode-action: oklch(0.40 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
-  --mode-restraint: oklch(0.48 0.14 10);
+  --mode-restraint: oklch(0.48 0.14 355);
   --mode-selective: oklch(0.42 0.12 200);
   --sidebar: #FFFFFF;
   --sidebar-foreground: #2d2d2d;
@@ -885,9 +885,9 @@ html.light:not(.full-spectrum) .tag-build {
 }
 
 html.light:not(.full-spectrum) .tag-restraint {
-  background: oklch(0.48 0.14 10 / 0.10);
-  color: oklch(0.38 0.14 10);
-  border: 1px solid oklch(0.48 0.14 10 / 0.20);
+  background: oklch(0.48 0.14 355 / 0.10);
+  color: oklch(0.38 0.14 355);
+  border: 1px solid oklch(0.48 0.14 355 / 0.20);
 }
 
 html.light:not(.full-spectrum) .tag-selective {
@@ -921,9 +921,9 @@ html.light .orb-build {
   border: 1px solid rgba(212,175,55,0.4);
 }
 html.light .orb-restraint {
-  background: #B15F71;
+  background: #9A4E6E;
   box-shadow: none;
-  border: 1px solid rgba(177,95,113,0.4);
+  border: 1px solid rgba(154,78,110,0.4);
 }
 html.light .orb-selective {
   background: #357E85;

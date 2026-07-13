@@ -585,7 +585,7 @@ function CreateLoginModal({ profile, onClose, onCreated }: CreateLoginModalProps
               autoComplete="new-password"
             />
           </div>
-          {error && <p className="text-xs" style={{ color: "#B15F71" }}>{error}</p>}
+          {error && <p className="text-xs" style={{ color: "#9A4E6E" }}>{error}</p>}
           <div className="flex gap-2 pt-1">
             <Button type="submit" className="flex-1" disabled={createLoginMutation.isPending}>
               {createLoginMutation.isPending ? <Loader2 size={14} className="animate-spin mr-2" /> : null}

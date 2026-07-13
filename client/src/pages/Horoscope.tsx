@@ -391,7 +391,7 @@ function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: 
         {pending ? <><Loader2 size={15} className="animate-spin" /> Reading the sky…</> : <>Reveal this reading</>}
       </button>
       {failed && !pending && (
-        <p style={{ fontSize: "0.72rem", color: "#B15F71", margin: "0.9rem 0 0" }}>The reading couldn't be drawn just now. Please try again in a moment.</p>
+        <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The reading couldn't be drawn just now. Please try again in a moment.</p>
       )}
     </div>
   );
@@ -510,7 +510,7 @@ function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
                 {reveal.isPending ? <><Loader2 size={15} className="animate-spin" /> Reading the season…</> : <>Read this eclipse season</>}
               </button>
               {reveal.isError && (
-                <p style={{ fontSize: "0.72rem", color: "#B15F71", margin: "0.9rem 0 0" }}>The season couldn't be drawn just now. Please try again in a moment.</p>
+                <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The season couldn't be drawn just now. Please try again in a moment.</p>
               )}
             </>
           )}

@@ -63,13 +63,13 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 const MODE_DOT: Record<string, string> = {
   Action:     "oklch(0.70 0.18 150)",  // green
   Build:      "oklch(0.80 0.15 92)",   // bright gold
-  Restraint:  "oklch(0.68 0.09 14)",   // rose
+  Restraint:  "oklch(0.68 0.09 355)",   // mulberry (moved off the caution red)
   Selective:  "oklch(0.68 0.08 225)",  // teal
   Flex:       "oklch(0.72 0.10 280)",  // purple
   Activate:   "oklch(0.70 0.18 150)",
   ACTION:     "oklch(0.70 0.18 150)",
   BUILD:      "oklch(0.80 0.15 92)",
-  RESTRAINT:  "oklch(0.68 0.09 14)",
+  RESTRAINT:  "oklch(0.68 0.09 355)",
   "SELECTIVE ACTION": "oklch(0.68 0.08 225)",
 };
 

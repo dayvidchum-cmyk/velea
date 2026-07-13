@@ -79,7 +79,7 @@ export const PRIORITY_EXCLAIM: Record<TaskPriority, string> = {
 
 /** Mode solid oklch color values for inline styles — canonical tokens (match CSS vars) */
 export const MODE_OKLCH: Record<TaskMode, string> = {
-  Restraint: "oklch(0.68 0.09 14)",   // softened dusty rose — was 0.54/0.14, too vibrant on the warm FS surface
+  Restraint: "oklch(0.68 0.09 355)",   // softened mulberry (hue 355) — moved off red (hue ~10) so it stops clashing with the fire-engine caution red on the calendar (David 2026-07-13)
   Build: "oklch(0.767 0.139 91.1)",
   Selective: "oklch(0.68 0.08 225)",  // softened dusty blue — was 0.50/0.12, buzzed against the olive tint
   Action: "oklch(0.72 0.10 140)",  // #a3cd8f soft sage
@@ -87,7 +87,7 @@ export const MODE_OKLCH: Record<TaskMode, string> = {
 
 /** Mode tinted background — transparent tint that works on any bg (light or dark) */
 export const MODE_TINT: Record<TaskMode, string> = {
-  Restraint: "oklch(0.54 0.14 10 / 0.12)",
+  Restraint: "oklch(0.54 0.14 355 / 0.12)",
   Build: "oklch(0.767 0.139 91.1 / 0.12)",
   Selective: "oklch(0.50 0.12 200 / 0.12)",
   Action: "oklch(0.72 0.10 140 / 0.12)",
@@ -95,7 +95,7 @@ export const MODE_TINT: Record<TaskMode, string> = {
 
 /** Mode rgba equivalents for use in inline styles (derived from canonical oklch tokens) */
 export const MODE_RGBA: Record<TaskMode, string> = {
-  Restraint: "177, 95, 113",  // Rose #B15F71
+  Restraint: "154, 78, 110",  // Mulberry #9A4E6E
   Build: "212, 175, 55",      // Gold #D4AF37
   Selective: "53, 126, 133",  // Teal #357E85
   Action: "163, 205, 143",    // Soft sage #a3cd8f
@@ -103,13 +103,13 @@ export const MODE_RGBA: Record<TaskMode, string> = {
 
 /**
  * Mode card background — primary color at 70% opacity (solid hex for colored task cards).
- * Build: #D4AF37, Action: #4B8451, Selective: #357E85, Restraint: #B15F71
+ * Build: #D4AF37, Action: #4B8451, Selective: #357E85, Restraint: #9A4E6E
  */
 export const MODE_CARD_BG: Record<TaskMode, string> = {
   Build: "rgba(212, 175, 55, 0.70)",
   Action: "rgba(163, 205, 143, 0.70)",
   Selective: "rgba(53, 126, 133, 0.70)",
-  Restraint: "rgba(177, 95, 113, 0.70)",
+  Restraint: "rgba(154, 78, 110, 0.70)",
 };
 
 /** Mode solid hex — fully opaque primary color for borders, strips, and accents */
@@ -117,7 +117,7 @@ export const MODE_SOLID: Record<TaskMode, string> = {
   Build: "#D4AF37",
   Action: "#318a55",   // true green, matches the hero/dot family (was yellow-sage #a3cd8f)
   Selective: "#178F9E", // saturated teal — the old #357E85 read gray (low contrast on nav hover)
-  Restraint: "#B15F71",
+  Restraint: "#9A4E6E",
 };
 
 /** Mode card gradient — deeper variant of each mode family, dark enough to carry
@@ -164,14 +164,14 @@ export function subtleGradient(hex: string): string {
 
 /** Priority solid oklch color values for inline styles */
 export const PRIORITY_OKLCH: Record<TaskPriority, string> = {
-  High: "oklch(0.54 0.12 10)",    // Dusty rose for high priority
+  High: "oklch(0.54 0.12 355)",    // Dusty rose for high priority
   Medium: "oklch(0.65 0.08 85)",   // Muted gold for medium priority
   Low: "oklch(0.50 0.10 200)",     // Dusty teal for low priority
 };
 
 /** Priority tinted background — transparent tint that works on any bg (light or dark) */
 export const PRIORITY_TINT: Record<TaskPriority, string> = {
-  High: "oklch(0.54 0.12 10 / 0.12)",    // Dusty rose tint
+  High: "oklch(0.54 0.12 355 / 0.12)",    // Dusty rose tint
   Medium: "oklch(0.65 0.08 85 / 0.12)",   // Muted gold tint
   Low: "oklch(0.50 0.10 200 / 0.12)",     // Dusty teal tint
 };

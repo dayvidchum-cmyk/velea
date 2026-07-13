@@ -21,7 +21,7 @@ const GOLD = "#D4AF37";
 const TONE_COLOR: Record<string, string> = {
   benefic: "#D4AF37",
   neutral: "#7C8AA0",
-  malefic: "#B15F71",
+  malefic: "#9A4E6E",
 };
 
 export default function HoraCard() {

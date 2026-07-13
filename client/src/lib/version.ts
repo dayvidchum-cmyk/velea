@@ -291,4 +291,13 @@
 // with a single internal scroll — Time Master opens on the golden block (schedule + caveat scroll
 // below; auto-center-on-now dropped so the golden block stays put), Hora keeps its open-on-now list at
 // a taller 9rem window so both columns end at the same flat bottom. Client-only, no narrative regen.
-export const APP_VERSION = "1.1.411";
+//
+// v1.1.412 = 2026-07-13 — iCloud triage #1 (David): Restraint's red hurt to look at next to the
+// fire-engine caution red on the calendar (two reds ~10° apart, vibrating). Restraint's whole
+// family rotates off red (hue ~10-14) to MULBERRY (hue 355) — the alarm/caution red is untouched
+// (it stays unmissable by design). Solid accent #B15F71 → #9A4E6E; swept through every token: the
+// mode oklch/tint/rgba/card-bg/solid, the calendar coin (MODE_DOT), the CSS vars + tag/orb classes
+// across all three themes, the hero + card gradients, and the Time Master "Caution" / Hora "malefic"
+// / error-text uses. Deep plum-burgundy shadow (#4A1A2E) kept — it's on-hue with mulberry. Each
+// surface keeps its own tuned lightness (calendar/orbs stay light); only the hue moved. Client-only.
+export const APP_VERSION = "1.1.412";

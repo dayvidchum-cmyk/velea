@@ -27,7 +27,7 @@ import VeleaLorMark from "./VeleaLorMark";
 // Time Master hourly-category colors (mirrors MasterModeCard's CAT_COLOR) so the activity name in the
 // dateline (Restore, Action, …) reads in its own color, matching the Time Master section.
 const CAT_COLOR: Record<string, string> = {
-  Succeed: "#D4AF37", Energize: "#86C440", Action: "#318a55", Restore: "#178F9E", Caution: "#B15F71",
+  Succeed: "#D4AF37", Energize: "#86C440", Action: "#318a55", Restore: "#178F9E", Caution: "#9A4E6E",
 };
 
 interface AppHeaderProps {
