@@ -6,11 +6,14 @@
  * signature everyone carries, but a theme ACTIVATED NOW by the running periods and transits.
  *
  * This is a pure, deterministic backend flag (no LLM, no API cost). It reads the canon
- * (server/vedic/canon/*) for each theme's houses + karakas, then scores CONVERGENCE across
- * independent lines of evidence — dasha/time-lord bearing, conjunction/aspect to the theme's
- * house-lord or karaka, transit contact now, a meridian placement, a present yoga — and only
- * lights a knot when the theme is both in the active period AND reinforced. That gate is what
- * stops the naive over-fire (all four themes lighting on a plain day).
+ * (server/vedic/canon/*) for each theme's houses + karakas, then applies Appendix IV STEP 15:
+ * "when the MahaDasha lord and sub-cycle lords indicate SIMILAR events, predict that event; the
+ * more sub-cycles that agree, the better the probability." Convergence is a form of interaction —
+ * sambhanda (Vol I Ch.8): a period-lord counts only when it is ACTIVELY tied to the theme (sits in
+ * its house, is conjunct or aspects its ruler), never for merely holding TITLE to a house while
+ * interacting with nothing. A knot lights on the COUNT of converging lords (≥2, or 1 + a dated hit
+ * on the ruler), NOT a weight-sum. That count is what stops the over-fire (every quiet chart lit up
+ * because every lord rules some house — titular ownership was miscounted as a signal).
  *
  * The specific gap it closes: the life-area lens counted a dasha lord only if it ruled/sat-in/owned
  * a theme house or WAS a karaka — never if it was CONJUNCT or ASPECTED the house-lord/karaka. That
@@ -58,11 +61,14 @@ function aspectedHouses(planet: string, fromHouse: number): number[] {
 
 export type NatalPlanet = { house: number | null; sign: string; rulesHouses: number[]; dignity?: string };
 
-export type KnotSignal = { kind: "dasha" | "timelord" | "conjunction" | "aspect" | "transit" | "meridian" | "yoga"; weight: number; text: string };
+export type KnotSignal = { kind: "dasha" | "timelord" | "conjunction" | "aspect" | "transit" | "meridian" | "yoga"; text: string };
 export type KnotTier = "event" | "standing";
 export type Knot = {
   theme: KnotTheme; label: string; houses: number[]; karakas: string[];
-  score: number; lit: boolean; tier: KnotTier; signals: KnotSignal[];
+  /** Appendix IV Step 15: how many running period-lords are ACTIVELY tied to this theme (placed in
+   *  the house / conjunct or aspecting the house-lord). "The more sub cycles that indicate a certain
+   *  event, the better probability." This is the count, NOT an invented weight-sum. */
+  convergence: number; lit: boolean; tier: KnotTier; signals: KnotSignal[];
   folds?: KnotTheme[];            // other lit themes that converge on the same planet(s)
   comboProse?: { key: string; positive?: string; negative?: string } | null;
 };
@@ -78,7 +84,6 @@ export type BuildKnotsArgs = {
 };
 
 const GRAHAS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
-const LIT_THRESHOLD = 4;
 
 export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; arudhaLagnaHouse: number | null } {
   const N = args.natal;
@@ -101,11 +106,15 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
   // Moon-double-count trap: Simone's Moon is timelord AND antar), it counts ONCE at its loudest.
   // dashaWeight distinguishes the DATED dasha spine (maha/antar) from the diffuse year frame
   // (timelord ruling a house is true all year — a standing fact, not an event).
-  const rawLords: Array<{ lord: string; level: KnotSignal["kind"]; dated: boolean; w: number; name: string }> = [];
-  if (args.dashaLords.maha) rawLords.push({ lord: args.dashaLords.maha, level: "dasha", dated: true, w: 3, name: "maha-dasha" });
-  if (args.dashaLords.antar) rawLords.push({ lord: args.dashaLords.antar, level: "dasha", dated: true, w: 3, name: "sub-period" });
-  if (args.dashaLords.praty) rawLords.push({ lord: args.dashaLords.praty, level: "dasha", dated: true, w: 2, name: "sub-sub-period" });
-  if (args.timeLord) rawLords.push({ lord: args.timeLord, level: "timelord", dated: false, w: 1, name: "year-lord" });
+  // `counts` = participates in the Step-15 convergence TALLY. Only the Vimshottari spine (maha/antar/
+  // praty) counts — Step 15 is strictly Vimshottari. The annual-profection year-lord is a DIFFERENT
+  // timing system: it REINFORCES prose but must not pad the count (mixing systems is exactly the
+  // Moon-double-count trap — the Moon as both year-lord and antar would otherwise count twice).
+  const rawLords: Array<{ lord: string; level: KnotSignal["kind"]; dated: boolean; counts: boolean; name: string }> = [];
+  if (args.dashaLords.maha) rawLords.push({ lord: args.dashaLords.maha, level: "dasha", dated: true, counts: true, name: "maha-dasha" });
+  if (args.dashaLords.antar) rawLords.push({ lord: args.dashaLords.antar, level: "dasha", dated: true, counts: true, name: "sub-period" });
+  if (args.dashaLords.praty) rawLords.push({ lord: args.dashaLords.praty, level: "dasha", dated: true, counts: true, name: "sub-sub-period" });
+  if (args.timeLord) rawLords.push({ lord: args.timeLord, level: "timelord", dated: false, counts: false, name: "year-lord" });
   const seen = new Set<string>();
   const periodLords = rawLords.filter((x) => (seen.has(x.lord) ? false : (seen.add(x.lord), true)));
 
@@ -128,58 +137,68 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
     const roleOf = (p: string) => (isLord(p) ? "the ruler" : "a significator");
 
     const signals: KnotSignal[] = [];
-    let hasPeriodBearing = false;
-    let hasHouseLine = false;   // the theme's own HOUSE or HOUSE-LORD is involved → can light at all
-    let hasEventLine = false;   // the RULER got a DATED hit (transit / dasha-conjunct-lord) → event-tier
+    // Appendix IV Step 15 discipline: a period-lord "indicates" this event only when it is ACTIVELY
+    // tied to it — placed IN a theme house, CONJUNCT the house-lord, or ASPECTING the house/house-lord.
+    // Merely holding TITLE to a theme house while sitting inertly elsewhere is NOT a convergence line
+    // (every lord rules some house — counting title is exactly what over-fired every quiet chart).
+    const activeLords = new Set<string>();   // distinct period-lords with an ACTIVE tie → the convergence count
+    let datedRulerHit = false;               // a DATED hit ON THE HOUSE-LORD (dasha-conjunct-lord / transit-on-lord) → event-tier
 
-    // ── A) period bearing ── baseline dasha rulership is STANDING; a dasha lord CONJUNCT the house-lord
-    //     (the classic activation, and the Simone fix) is the loudest DATED line.
-    for (const { lord, level, dated, w, name } of periodLords) {
+    // ── A) period-lord ties ── each running lord (maha/antar/praty/year), checked for an ACTIVE line.
+    for (const { lord, level, dated, counts, name } of periodLords) {
       const nl = N[lord];
       if (!nl) continue;
-      const bearing: string[] = [];
-      if (isPlayer(lord)) { bearing.push(`is itself ${roleOf(lord)} of this`); if (isLord(lord)) hasHouseLine = true; }
-      if (nl.house != null && houses.includes(nl.house)) { bearing.push(`sits in the house of this`); hasHouseLine = true; }
-      if (bearing.length) { signals.push({ kind: level, weight: isLord(lord) ? w : Math.max(1, w - 1), text: `${name} ${lord} ${bearing.join(" and ")}` }); hasPeriodBearing = true; }
-      // conjunction: shares a natal house (whole-sign) with a theme player
-      for (const p of players.filter((q) => q !== lord && N[q]?.house != null && N[q]!.house === nl.house)) {
-        signals.push({ kind: "conjunction", weight: isLord(p) ? 3 : 2, text: `${name} ${lord} is conjunct ${p} — ${roleOf(p)} of this` });
-        hasPeriodBearing = true;
-        if (isLord(p)) { hasHouseLine = true; if (dated) hasEventLine = true; }   // dasha WITH the house-lord = dated event
+      let active = false;
+      // (i) the lord sits IN a theme house
+      if (nl.house != null && houses.includes(nl.house)) {
+        signals.push({ kind: level, text: `${name} ${lord} sits in the house of this` }); active = true;
       }
-      // drishti onto a theme player's house
-      for (const p of players.filter((q) => q !== lord && N[q]?.house != null && aspectedHouses(lord, nl.house ?? 0).includes(N[q]!.house!))) {
-        signals.push({ kind: "aspect", weight: 1, text: `${name} ${lord} aspects ${p}, ${roleOf(p)} of this` });
-        if (isLord(p)) hasHouseLine = true;
+      // (ii) the lord IS the house-lord AND is placed in / aspects a theme house (an ACTIVATED ruler,
+      //      not one holding title from afar). Bare title with no tie is deliberately skipped.
+      if (isLord(lord) && (nl.house != null && (houses.includes(nl.house) || aspectedHouses(lord, nl.house).some((h) => houses.includes(h))))) {
+        signals.push({ kind: level, text: `${name} ${lord} is the ruler of this and is tied to its house` }); active = true;
       }
-      if (aspectedHouses(lord, nl.house ?? 0).some((h) => houses.includes(h)) && !bearing.length) {
-        signals.push({ kind: "aspect", weight: 1, text: `${name} ${lord} aspects the house of this` });
-        hasHouseLine = true;
+      // (iii) conjunct a house-LORD (the classic activation, and the Simone fix: Rahu maha sits with 7th lord Mars)
+      for (const p of lords.filter((q) => q !== lord && N[q]?.house != null && N[q]!.house === nl.house)) {
+        signals.push({ kind: "conjunction", text: `${name} ${lord} is conjunct ${p}, the ruler of this` });
+        active = true;
+        if (dated) datedRulerHit = true;   // a DATED period-lord ON the ruler = a dated event
       }
+      // (iv) conjunct a KARAKA — reinforces the prose but is NOT a convergence line on its own
+      for (const p of karakas.filter((q) => q !== lord && N[q]?.house != null && N[q]!.house === nl.house && !lords.includes(q))) {
+        signals.push({ kind: "conjunction", text: `${name} ${lord} is conjunct ${p}, a significator of this` });
+      }
+      // (v) drishti onto a house-LORD → active line
+      for (const p of lords.filter((q) => q !== lord && N[q]?.house != null && aspectedHouses(lord, nl.house ?? 0).includes(N[q]!.house!))) {
+        signals.push({ kind: "aspect", text: `${name} ${lord} aspects ${p}, the ruler of this` }); active = true;
+      }
+      if (active && counts) activeLords.add(lord);   // year-lord ties reinforce prose but don't tally
     }
 
-    // ── B) transit (now) ── DATED. A transit onto the house-LORD, or through the theme house, is an
-    //     event line; onto a karaka it only reinforces (standing).
+    // ── B) transit (now) ── a slow transit ONTO the house-lord is a dated ruler-hit; a transit merely
+    //     THROUGH the theme house is standing weather (it colors, it does not by itself make an event —
+    //     this is the fix for a benefic drifting through the 7th being read as a marriage).
     for (const t of args.transitsHitting ?? []) {
       if (!t.slow) continue;
-      if (t.hitsNatalPoint && isPlayer(t.hitsNatalPoint)) {
-        const onLord = isLord(t.hitsNatalPoint);
-        signals.push({ kind: "transit", weight: onLord ? 3 : 2, text: `transiting ${t.planet} is landing on ${t.hitsNatalPoint}, ${roleOf(t.hitsNatalPoint)} of this` });
-        if (onLord) { hasHouseLine = true; hasEventLine = true; }
+      if (t.hitsNatalPoint && isLord(t.hitsNatalPoint)) {
+        signals.push({ kind: "transit", text: `transiting ${t.planet} is landing on ${t.hitsNatalPoint}, the ruler of this` });
+        datedRulerHit = true;
+      } else if (t.hitsNatalPoint && isPlayer(t.hitsNatalPoint)) {
+        signals.push({ kind: "transit", text: `transiting ${t.planet} is landing on ${t.hitsNatalPoint}, a significator of this` });
       } else if (t.houseFromLagna != null && houses.includes(t.houseFromLagna)) {
-        signals.push({ kind: "transit", weight: 2, text: `transiting ${t.planet} is moving through this territory` });
-        hasHouseLine = true; hasEventLine = true;
+        signals.push({ kind: "transit", text: `transiting ${t.planet} is moving through this territory` });
       }
     }
 
-    // ── C) meridian ── structural (true all year) → STANDING reinforcement, never dated.
+    // ── C) meridian ── structural (true all year) → reinforces prose only; the meridian is the
+    //     reference every reading hangs off, but it is a NATAL standing fact, never a convergence line.
     for (const p of args.meridianOnAxis ?? []) {
-      if (isPlayer(p)) { signals.push({ kind: "meridian", weight: isLord(p) ? 2 : 1, text: `${p}, ${roleOf(p)} here, sits on the meridian (the dharma axis)` }); if (isLord(p)) hasHouseLine = true; }
+      if (isPlayer(p)) signals.push({ kind: "meridian", text: `${p}, ${roleOf(p)} here, sits on the meridian (the dharma axis)` });
     }
 
-    // ── D) yoga (Tier-2) ──
+    // ── D) yoga (Tier-2) ── reinforces prose only.
     for (const y of args.yogasPresent ?? []) {
-      if (y.knot?.includes(key)) signals.push({ kind: "yoga", weight: 2, text: `${y.name} is present` });
+      if (y.knot?.includes(key)) signals.push({ kind: "yoga", text: `${y.name} is present` });
     }
 
     // ── combo prose: the theme's own house-lord placement, from canon ──
@@ -191,18 +210,23 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
       if (c) comboProse = { key: ckey, positive: c.positive, negative: c.negative };
     }
 
-    const score = signals.reduce((s, x) => s + x.weight, 0);
-    // A knot lights only when its own HOUSE/HOUSE-LORD is activated (not karaka-only) AND it clears
-    // the bar. Event-tier requires the RULER to have taken a DATED hit.
-    const lit = hasPeriodBearing && hasHouseLine && score >= LIT_THRESHOLD;
-    const tier: KnotTier = hasEventLine ? "event" : "standing";
-    knots.push({ theme: key, label: def.label, houses, karakas, score, lit, tier, signals, comboProse });
+    // Appendix IV Step 15 reads OUTWARD FROM THE MAHADASHA LORD: it frames the chapter, and the
+    // sub-cycles either agree with it or they don't. So a STANDING theme (the year's background) lights
+    // only when the maha lord itself is tied AND at least one more period-lord agrees (≥2 converging,
+    // maha-anchored) — sub-cycles agreeing among themselves without the maha frame is not the chapter.
+    // An ACUTE event (a DATED hit on the ruler: dasha-conjunct-lord or transit-on-lord) breaks through
+    // on its own — a single activation is enough. A transit merely through a house never lights.
+    const convergence = activeLords.size;
+    const mahaTied = args.dashaLords.maha != null && activeLords.has(args.dashaLords.maha);
+    const lit = (mahaTied && convergence >= 2) || (convergence >= 1 && datedRulerHit);
+    const tier: KnotTier = datedRulerHit ? "event" : "standing";
+    knots.push({ theme: key, label: def.label, houses, karakas, convergence, lit, tier, signals, comboProse });
   }
 
   // ── rank: event-tier (dated, specific) ALWAYS above standing-tier (diffuse year frame), then by
-  // score. This is the timescale law — a dated life event outranks a year-long background theme so it
-  // never gets buried (the original Simone failure: a Moon-year read as mood, the engagement missed).
-  const rank = (k: Knot) => (k.tier === "event" ? 1000 : 0) + k.score;
+  // convergence. This is the timescale law — a dated life event outranks a year-long background theme
+  // so it never gets buried (the original Simone failure: a Moon-year read as mood, the engagement missed).
+  const rank = (k: Knot) => (k.tier === "event" ? 1000 : 0) + k.convergence;
   const ranked = knots.filter((k) => k.lit).sort((a, b) => rank(b) - rank(a));
 
   // ── fold resolution: a lit theme folds into a STRONGER one when they share a HOUSE, or a lord of

@@ -7,7 +7,15 @@ source (book, author, page/chapter). Where a table is only partially captured, i
 ## Provenance
 - **K&F** = Kurczak, Ryan & Fish, Richard — *The Art & Science of Vedic Astrology*, **Vol I & Vol II**.
   The complete two-volume set (682pp, clean text layer) is the primary source. `server/vedic/life-areas.ts`
-  (Appendix IV) was already built from it.
+  (Appendix IV) was already built from it. **Both volumes have now been read front to back** (2026-07-13);
+  the method they document is captured in **`METHOD.md`**.
+
+## ⭐ START HERE: `METHOD.md` — the Lens Router (the spine)
+The control flow the whole engine hangs off. Every file below is **data the systems in METHOD pull**.
+The core law: the **time frame in question picks the ONE system** the canon built for it
+(day → Tara Bala + Chandra Bala · moment/question → Prasna · life-event timing → Appendix IV Step 15
+convergence · year → Varshaphala · background clock → Vimshottari). That system pulls only the data it
+names, enters the native where it says, and hands the LLM a **filtered lens, not a data dump.**
 
 ## Ingested
 | File | Source | Notes |
@@ -24,17 +32,22 @@ source (book, author, page/chapter). Where a table is only partially captured, i
 | `vol2-house-and-prasna.md` | Vol II Ch.13-14 + App I-II | Prasna house meanings, Tajika aspects + Deepthamsa orbs, prasna timing framework, directions/places. (Superseded on house meanings by `bhava-significations.json`.) |
 
 ## Pending / still needed
-- Per-pair avastha narratives (Vol II Ch.10, ~1800 lines) — pull on demand; the formulas already let the engine compute the state.
+- **Shadbala compute** (Vol II Ch.8) — `server/vedic/shadbala.ts` STARTED (tested). ✅ **Sthana Bala** (all 5: uchcha, saptavargaja, ojayugma, kendra, drekkana) + **Naisargika Bala** fully computed & pure; also exports **`compoundRelation`** (the panchadha/5-fold maitri the engine lacked). ⏳ **Dig** (needs real bhava/angle cusps — whole-sign has no MC), **Kala** (needs birth clock, sunrise/sunset, weekday/month/year lords, declination), **Drik** (aspectual), and **exact Chesta** (needs seeghra-kendra/mean anomaly) still pending. Honesty guard: `sixSourceRupas` stays **null** until all six are real — a wrong total is worse than none. This is what Appendix IV Steps 1–14 ask for ("What is the Lord's Shadbala?").
+- Per-pair avastha narratives (Vol II Ch.10, ~1800 lines) — **now read in full** (all 7 planets); pull on demand into prose. The formulas in `avashtas.json` already let the engine compute the state; the narratives are the interpretive layer for the LLM.
 
 _(Resolved: `Yogas.pdf` = a scan of Vol I pp.110-133, already captured. AL is wired into `knots.ts`. Maturity-of-planets + planetary-ages tables now in `timing.json` from the Vol I Ch.13 rescan.)_
 - **Maturity of Planets** ages + **Planetary Ages** background periods (Vol I Ch.13 — image tables, not in text layer).
 - Per-pair **avastha narratives** (Vol II Ch.10, ~1800 lines) — pull on demand; formulas already let the engine compute the state.
 - The 18 photo scans (IMG_1739-1760) in the 7:13:26 drop — not yet reviewed; likely overlap the PDF.
 
-## Next: FEED TO EVERYTHING
-Canon is stored. Per David's directive ("ingest, store, feed to everything") the open build is wiring these
-files into the live engine: the **knot detector** (life-areas × karakas × house-lord-combos × yogas, scored + resolved)
-and the **narrative prompt** (feed the lit knots + avastha states, deterministically, so the LLM reaches for them — cheap).
+## Next: FEED TO EVERYTHING — via the router, not a scorer
+Canon is stored. Per David's directive the open build is wiring these files into the live engine — but
+through **`METHOD.md`'s Lens Router**, not the invented scoring engine. The `knots.ts` THEMES-scoring is
+**retired** (David: "hubris" — the tradition researches then looks for convergence, it does not weight).
+Re-express it as **Appendix IV Steps 1–14 research** (the per-house prompt, fired 12×, pulling
+dignity × avashta × balaadi × varga × karaka it already has) **+ Step 15 convergence** (MahaDasha lord ∧
+sub-cycle lords agreeing on the same event = the "knot", timed). The narrative prompt then receives a
+**filtered lens for the specific time frame**, not a data dump.
 
 ## Drop workflow
 David drops source scans in iCloud `DCPC/FIELD NOTES/For Claude Code/<date>/`. See memory `velea-canon-source-drop`.

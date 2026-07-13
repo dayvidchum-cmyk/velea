@@ -37,11 +37,11 @@ function show(title: string, res: ReturnType<typeof buildKnots>) {
   console.log(`\n\n════════ ${title} ════════`);
   console.log("LIT (ranked):");
   for (const k of res.lit) {
-    console.log(`  ● ${k.theme.toUpperCase()} — ${k.label}  [${k.tier}, score ${k.score}]${k.folds?.length ? `  folds← ${k.folds.join(", ")}` : ""}`);
-    for (const s of k.signals) console.log(`      · (${s.kind} +${s.weight}) ${s.text}`);
+    console.log(`  ● ${k.theme.toUpperCase()} — ${k.label}  [${k.tier}, ${k.convergence} converging lord(s)]${k.folds?.length ? `  folds← ${k.folds.join(", ")}` : ""}`);
+    for (const s of k.signals) console.log(`      · (${s.kind}) ${s.text}`);
     if (k.comboProse) console.log(`      ⟢ canon ${k.comboProse.key}: ${(k.comboProse.positive ?? "").slice(0, 110)}…`);
   }
-  console.log("DARK (not lit):", res.all.filter((k) => !k.lit).map((k) => `${k.theme}(${k.score}${k.tier === "event" ? "e" : ""})`).join(", "));
+  console.log("DARK (not lit):", res.all.filter((k) => !k.lit).map((k) => `${k.theme}(${k.convergence}${k.tier === "event" ? "e" : ""})`).join(", "));
 }
 
 show("A — structure only (no transit)", buildKnots(base));
