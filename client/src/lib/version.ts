@@ -363,4 +363,11 @@
 // only the current dasha was parchment") — colored left tab + raised margin + drop shadow, so "you
 // are here" is the one paper focal point. Siblings stay chrome; the colorful gradient Mahadasha
 // headers stay chrome. Reuses the .parchment class (token remap → dark ink on paper in every mode).
-export const APP_VERSION = "1.1.422";
+//
+// v1.1.423 = 2026-07-13 — Dasha parchment, corrected framing (David: "I wanted the whole moon timeline
+// parchment and then Saturn would glow its blue color"). The ACTIVE Mahadasha card (your current era)
+// is now the whole parchment page — header + sub-period list on one paper surface — and its current
+// sub-period (Saturn now) GLOWS its own planet color on the page: a soft color wash, a solid left tab,
+// a colored halo, and its name inked in that color. Sibling Mahadasha cards stay chrome. (Replaces the
+// v422 single-chip approach.)
+export const APP_VERSION = "1.1.423";

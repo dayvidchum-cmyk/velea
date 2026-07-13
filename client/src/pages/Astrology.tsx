@@ -884,12 +884,14 @@ export function DashaSection() {
             ? { primary: "rgba(0,0,0,0.85)", muted: "rgba(0,0,0,0.6)", faint: "rgba(0,0,0,0.5)", chip: "rgba(0,0,0,0.16)", chipBorder: "rgba(0,0,0,0.3)" }
             : { primary: "rgba(255,255,255,0.95)", muted: "rgba(255,255,255,0.7)", faint: "rgba(255,255,255,0.6)", chip: "rgba(255,255,255,0.2)", chipBorder: "rgba(255,255,255,0.4)" };
           return (
-            <div key={g.mahadasha} className="rounded-xl overflow-hidden"
-              style={{ border: hasActive ? `4px solid ${color}` : `1px solid ${color}99`, boxShadow: hasActive ? `0 0 20px ${color}44` : "none" }}
+            <div key={g.mahadasha} className={`rounded-xl overflow-hidden${hasActive ? " parchment" : ""}`}
+              // The active Mahadasha — your current era — is the parchment page; its current
+              // sub-period (below) glows its own planet color on the paper (David). Others stay chrome.
+              style={{ border: hasActive ? `1px solid var(--color-border)` : `1px solid ${color}99`, boxShadow: hasActive ? "var(--parchment-shadow)" : "none" }}
             >
               <button
                 className="w-full flex items-center gap-3 px-4 py-4 text-left"
-                style={{ background: planetGradient(color) }}
+                style={{ background: hasActive ? "transparent" : planetGradient(color) }}
                 onClick={() => setExpandedMaha(isExpanded ? null : g.mahadasha)}
               >
                 <span className="flex-shrink-0 leading-none"
@@ -922,12 +924,12 @@ export function DashaSection() {
                     return (
                       <div
                         key={`${period.antardasha}-${i}`}
-                        className={`px-4 py-3${isCurrent ? " parchment" : ""}`}
-                        // The "you are here" period lifts off the dark chrome as a single luminous
-                        // parchment chip (David) — colored left tab + raised margin; siblings stay chrome.
+                        className="px-4 py-3"
+                        // On the parchment page, the current sub-period (Saturn now) GLOWS its own
+                        // planet color — a soft wash, a solid left tab, and a colored halo (David).
                         style={
                           isCurrent
-                            ? { borderLeft: `4px solid ${antColor}`, margin: "0.5rem" }
+                            ? { background: `${antColor}1C`, borderLeft: `4px solid ${antColor}`, borderRadius: 10, margin: "0.4rem 0.5rem", boxShadow: `0 0 18px ${antColor}55` }
                             : { borderBottom: i < g.periods.length - 1 ? "1px solid var(--color-border)" : "none", borderLeft: "3px solid transparent" }
                         }
                       >
@@ -936,7 +938,7 @@ export function DashaSection() {
                             {PLANET_SYMBOLS[period.antardasha] ?? "●"}
                           </span>
                           <span className="text-sm flex-shrink-0"
-                            style={{ color: isCurrent ? "var(--color-foreground)" : "var(--color-muted-foreground)", minWidth: "80px" }}>
+                            style={{ color: isCurrent ? antColor : "var(--color-muted-foreground)", fontWeight: isCurrent ? 600 : 400, minWidth: "80px" }}>
                             {period.antardasha}
                           </span>
                           {isCurrent && (
