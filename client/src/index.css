@@ -59,6 +59,14 @@
   100% { transform: scale(1.06) translateY(-1.2%); }
 }
 
+/* The current day-mode orb breathes a soft glow in its own color (var --orb-glow). */
+@keyframes veleaOrbPulse {
+  0%, 100% { box-shadow: 0 0 5px 0 var(--orb-glow, transparent); }
+  50%      { box-shadow: 0 0 16px 4px var(--orb-glow, transparent); }
+}
+.orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .orb-pulse { animation: none; } }
+
 /* ══════════════════════════════════════════════════════════════════════════════
    VELEA — LUXURY TERMINAL AESTHETIC
    Dark mode only. Pure black. High contrast. Calm. Information-dense.

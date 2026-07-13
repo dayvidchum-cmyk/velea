@@ -5,7 +5,7 @@ import ProseLoading from "@/components/ProseLoading";
 import KeptReadings from "@/components/KeptReadings";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
-import { ChevronLeft, ChevronRight, BookOpen, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
@@ -1182,15 +1182,15 @@ export default function Planner() {
                     // the days that earn one: caution (red), knot/crown (gold), golden (gold), and
                     // station (the day-mode color, around the planet glyph).
                     border: cautionSet.has(dateStr)
-                      ? `2px solid ${CAUTION_RED}`
+                      ? `1.5px solid ${CAUTION_RED}`
                       : eclipseByDate.has(dateStr)
-                      ? `2px solid ${ECLIPSE_RING}`
+                      ? `1.5px solid ${ECLIPSE_RING}`
                       : isCrown
-                      ? `2px solid ${GOLD_BRIGHT}`
+                      ? `1.5px solid ${GOLD_BRIGHT}`
                       : isGolden
-                      ? `2px solid ${GOLD_BRIGHT}`
+                      ? `1.5px solid ${GOLD_BRIGHT}`
                       : stationsToday.length
-                      ? `1.5px solid ${accent}`
+                      ? `1.25px solid ${accent}`
                       : "1px solid transparent",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
@@ -1209,11 +1209,11 @@ export default function Planner() {
                       // Bright gold with a glow everywhere else.
                       const knotOnGold = filled && modeColor === MODE_DOT.Build;
                       const knotColor = knotOnGold ? darkenOklch(accent, 0.72) : GOLD_BRIGHT;
-                      return <OctagramMark size={24} color={knotColor} strokeWidth={1.6} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))", pointerEvents: "none" }} />;
+                      return <OctagramMark size={25} color={knotColor} strokeWidth={1.15} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))", pointerEvents: "none" }} />;
                     })()
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
-                    <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.5px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
+                    <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                   ) : stationsToday.length ? (
                     // Station day: the turning planet's glyph, in the DAY-MODE color. Rendered the same
                     // proven way as the date number and the retro strip — a plain flex-centered span
@@ -1222,7 +1222,7 @@ export default function Planner() {
                     // above the 1rem number so the turning planet reads at a glance (David).
                     <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.2rem" : "1.65rem", fontWeight: 500, color: accent, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
+                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: accent, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
                   ) : (
@@ -1634,7 +1634,6 @@ export default function Planner() {
             className="flex items-center gap-2 mb-2 w-full"
             style={{ background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}
           >
-            <BookOpen size={12} style={{ color: "var(--color-muted-foreground)" }} />
             <p
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}

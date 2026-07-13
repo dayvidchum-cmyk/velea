@@ -278,4 +278,11 @@
 // exists (new read-only peek query horoscope.eclipseSeasonSaved — no cost) so it's closable and
 // communicates it's been read; it also lists in the "Your readings" log. (4) The log is now ALWAYS shown
 // when entitled (was hidden when empty → undiscoverable), with an empty-state hint + an Eclipse-season row.
-export const APP_VERSION = "1.1.409";
+//
+// v1.1.410 = 2026-07-13 — iCloud triage #2 + #3 (David). Calendar: planet/knot strokes THINNER +
+// glyphs LARGER — station glyphs 1.65→1.9rem (single) / 1.2→1.4rem (multi), octagram size 24→25 at
+// strokeWidth 1.6→1.15, coin rings 2→1.5px (caution/eclipse/crown/golden) and 1.5→1.25px (station),
+// eclipse disc rim 1.5→1.25px. Mode orbs: the CURRENT-day orb breathes again (orb-pulse keyframe +
+// --orb-glow in its own mode color, reduced-motion safe) and the active mode's NAME now matches its
+// orb color (was foreground). Reflection Log book icon removed. Client-only, no narrative regen.
+export const APP_VERSION = "1.1.410";

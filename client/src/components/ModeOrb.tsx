@@ -37,12 +37,15 @@ export default function ModeOrb({ mode, count, active = false, size = "md", onCl
     >
       <div
         className={`${sizeMap[size]} rounded-full flex items-center justify-center font-bold transition-all duration-200 ${
-          active ? "scale-110" : "group-hover:scale-105"
+          active ? "scale-110 orb-pulse" : "group-hover:scale-105"
         }`}
         style={{
           background: active ? color : "transparent",
           border: `2px solid ${color}`,
           color: active ? darken(color, 0.5) : color,
+          // The current day's orb breathes a soft glow in its own mode color (David: bring the
+          // pulse back). --orb-glow feeds the orb-pulse keyframe; reduced-motion disables it.
+          ...(active ? { ["--orb-glow" as any]: `color-mix(in srgb, ${color} 55%, transparent)` } : {}),
         }}
       >
         <span className={size === "sm" ? "text-xs font-bold" : "text-sm font-bold"}>
@@ -54,7 +57,8 @@ export default function ModeOrb({ mode, count, active = false, size = "md", onCl
       <span
         className={`${textSize} font-semibold tracking-wide uppercase`}
         style={{
-          color: active ? "var(--color-foreground)" : "var(--color-muted-foreground)",
+          // Active mode's NAME matches its orb color (David); others stay muted.
+          color: active ? color : "var(--color-muted-foreground)",
           letterSpacing: "0.04em",
         }}
       >
