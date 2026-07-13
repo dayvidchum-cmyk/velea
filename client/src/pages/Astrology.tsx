@@ -920,8 +920,17 @@ export function DashaSection() {
                     const antColor = PLANET_COLORS[period.antardasha] ?? "#888";
                     const isCurrent = !!period.isCurrent;
                     return (
-                      <div key={`${period.antardasha}-${i}`} className="px-4 py-3"
-                        style={{ borderBottom: i < g.periods.length - 1 ? "1px solid var(--color-border)" : "none", background: isCurrent ? `${antColor}2E` : "transparent", borderLeft: isCurrent ? `3px solid ${antColor}` : "3px solid transparent" }}>
+                      <div
+                        key={`${period.antardasha}-${i}`}
+                        className={`px-4 py-3${isCurrent ? " parchment" : ""}`}
+                        // The "you are here" period lifts off the dark chrome as a single luminous
+                        // parchment chip (David) — colored left tab + raised margin; siblings stay chrome.
+                        style={
+                          isCurrent
+                            ? { borderLeft: `4px solid ${antColor}`, margin: "0.5rem" }
+                            : { borderBottom: i < g.periods.length - 1 ? "1px solid var(--color-border)" : "none", borderLeft: "3px solid transparent" }
+                        }
+                      >
                         <div className="flex items-center gap-3">
                           <span className="flex-shrink-0 leading-none text-center" style={{ fontSize: "0.95rem", color: antColor, width: "1rem" }}>
                             {PLANET_SYMBOLS[period.antardasha] ?? "●"}

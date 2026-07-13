@@ -357,4 +357,10 @@
 // dark on paper; the mode-gradient header stays a colored ledger band and the subtle mode-tint zebra
 // rows read as a faint stripe on the almanac page. Parchment set now: calendar, profection wheel,
 // natal chart, natal planet table, Readings calendar + reveal box.
-export const APP_VERSION = "1.1.421";
+//
+// v1.1.422 = 2026-07-13 — Dasha stays chrome EXCEPT the current period: the active antardasha (the
+// "NOW" sub-period) now lifts off the dark list as a single luminous parchment chip (David: "what if
+// only the current dasha was parchment") — colored left tab + raised margin + drop shadow, so "you
+// are here" is the one paper focal point. Siblings stay chrome; the colorful gradient Mahadasha
+// headers stay chrome. Reuses the .parchment class (token remap → dark ink on paper in every mode).
+export const APP_VERSION = "1.1.422";
