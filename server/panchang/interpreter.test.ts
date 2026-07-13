@@ -4,7 +4,7 @@ import { calculateFinalMode, getNakshatraModifier, getTithiPacing, moonSignToHou
 // David's two-lens interaction base mode (2026-07-12). Virgo lagna (5), Scorpio natal Moon (7).
 describe('interactionBaseMode — the two-lens precision model', () => {
   const V = 5, S = 7; // lagna Virgo, natal Moon Scorpio
-  const quiet = { moonStrong: false, moonWeak: false, outwardRx: false };
+  const quiet = { moonStrong: false, moonWeak: false, mercuryRetro: false, mercuryNearStation: false };
 
   it('blends the two lenses and regresses to the middle when they disagree', () => {
     // Day Moon in Taurus (1): 9th from Virgo (Action) + 7th from Scorpio (Selective) → blend Build.
@@ -17,25 +17,37 @@ describe('interactionBaseMode — the two-lens precision model', () => {
   it('a strong Moon floor-raises a contained day but NEVER manufactures Action', () => {
     // Cancer Moon (3): 11th/Action from Virgo, 9th/Action from Scorpio → blend Action. Strong Moon
     // must not push past Action; and on a Build blend it caps at Build.
-    const strongOnAction = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: true, moonWeak: false, outwardRx: false });
+    const strongOnAction = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: true, moonWeak: false, mercuryRetro: false, mercuryNearStation: false });
     expect(strongOnAction.finalMode).toBe('Action'); // already both-agree Action; lift can't exceed it
     // Sagittarius Moon (8): 4th/Restraint + 2nd/Flex → blend Selective; strong Moon lifts to Build (cap).
-    const strongOnLow = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 8, moonStrong: true, moonWeak: false, outwardRx: false });
+    const strongOnLow = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 8, moonStrong: true, moonWeak: false, mercuryRetro: false, mercuryNearStation: false });
     expect(strongOnLow.blend).toBe('Selective');
     expect(strongOnLow.finalMode).toBe('Build');
   });
 
   it('a weak Moon drags one step down', () => {
-    const weak = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 1, moonStrong: false, moonWeak: true, outwardRx: false });
+    const weak = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 1, moonStrong: false, moonWeak: true, mercuryRetro: false, mercuryNearStation: false });
     expect(weak.blend).toBe('Build');
     expect(weak.finalMode).toBe('Selective');
   });
 
-  it('an outward retrograde caps at Build (no new Action) but leaves Build/Selective intact', () => {
-    // Cancer Moon → blend Action; rx ceiling knocks it to Build.
-    const rx = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: false, moonWeak: false, outwardRx: true });
+  it('Mercury retrograde caps Action at Build with a normal Moon (Mars no longer caps)', () => {
+    // Cancer Moon → blend Action; Mercury rx + normal Moon → ceiling knocks it to Build.
+    const rx = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: false, moonWeak: false, mercuryRetro: true, mercuryNearStation: false });
     expect(rx.blend).toBe('Action');
     expect(rx.finalMode).toBe('Build');
+  });
+
+  it('a strong Moon PUNCHES THROUGH Mercury retrograde off-station and keeps Action', () => {
+    // Cancer Moon → blend Action; Mercury rx but Moon strong and NOT at a station → Action holds.
+    const punch = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: true, moonWeak: false, mercuryRetro: true, mercuryNearStation: false });
+    expect(punch.finalMode).toBe('Action');
+  });
+
+  it('the station CORE is un-punchable — even a strong Moon yields to Build', () => {
+    // Cancer Moon → blend Action; Mercury stationing (core) → no override, back to Build.
+    const core = interactionBaseMode({ lagnaSignIdx: V, natalMoonSignIdx: S, dayMoonSignIdx: 3, moonStrong: true, moonWeak: false, mercuryRetro: true, mercuryNearStation: true });
+    expect(core.finalMode).toBe('Build');
   });
 });
 

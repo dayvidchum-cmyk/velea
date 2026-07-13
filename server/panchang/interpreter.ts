@@ -173,8 +173,15 @@ const HOUSE_MODE: Record<number, DayMode> = {
 //            full Action / full Restraint only survive when both selves agree]
 //   Moon strong (favorable tara AND chandra)  → floor-raise toward Build (never manufactures Action)
 //   Moon weak   (adverse tara OR weak chandra) → drag one step down          [the "med" calibration]
-//   Mercury/Mars retrograde                    → ceiling at Build (no NEW Action; Build/revisit is
-//                                                what a retrograde is for)
+//   Mercury retrograde (TRUE rx only)          → ceiling at Build (no NEW Action; Build/revisit is
+//                                                what a retrograde is for). But this is a CONTEST, not a
+//                                                wall (David 2026-07-13): a strong Moon PUNCHES THROUGH
+//                                                and keeps Action — EXCEPT the station core (Mercury
+//                                                near-stationary), the most charged turning point, which
+//                                                no Moon overrides. Mars retrograde no longer caps Action
+//                                                (it's drive, not messages/launches; its rx is era-length).
+//                                                Mercury's shadow (pre-shadow / retroshade) enriches the
+//                                                PROSE but never adds a mode cap — only true rx does.
 const MODE_BLEND_SCORE: Record<DayMode, number> = { Restraint: 0, Selective: 1, Flex: 1.5, Build: 2, Action: 3 };
 const BLEND_TO_MODE = (s: number): FinalMode =>
   (['Restraint', 'Selective', 'Build', 'Action'] as FinalMode[])[Math.max(0, Math.min(3, Math.round(s)))];
@@ -185,7 +192,8 @@ export interface InteractionModeInput {
   dayMoonSignIdx: number;     // 0–11 (today's Moon)
   moonStrong: boolean;        // favorable tara AND favorable chandra
   moonWeak: boolean;          // adverse tara OR weak chandra (med drag)
-  outwardRx: boolean;         // Mercury or Mars retrograde
+  mercuryRetro: boolean;      // Mercury in TRUE retrograde (shadow does NOT count here)
+  mercuryNearStation: boolean;// Mercury near-stationary (|speed| ~ 0) — the un-punchable core
 }
 
 export interface InteractionMode {
@@ -209,7 +217,12 @@ export function interactionBaseMode(inp: InteractionModeInput): InteractionMode 
   let s = Math.round(blendScore);
   if (inp.moonStrong && s < 2) { s = Math.min(2, s + 1); reasons.push('Moon strong → floor-raise to Build'); }
   else if (inp.moonWeak) { s = s - 1; reasons.push('Moon weak → drag −1'); }
-  if (inp.outwardRx) { s = Math.min(s, 2); reasons.push('outward retrograde → ceiling at Build (no new Action)'); }
+  // Mercury retrograde caps Action at Build — unless a strong Moon punches through off the station core.
+  if (inp.mercuryRetro) {
+    const punch = inp.moonStrong && !inp.mercuryNearStation;
+    if (punch) { reasons.push('Mercury retrograde, but a strong off-station Moon punches through → Action holds'); }
+    else { s = Math.min(s, 2); reasons.push(inp.mercuryNearStation ? 'Mercury stationing (core) → ceiling at Build' : 'Mercury retrograde → ceiling at Build (no new Action)'); }
+  }
 
   return { finalMode: BLEND_TO_MODE(s), lagnaLens, chandraLens, blend, reasons };
 }

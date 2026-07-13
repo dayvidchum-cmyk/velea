@@ -260,7 +260,8 @@ export async function personalDayForDate(
       dayMoonSignIdx,
       moonStrong: tb.favorable && cb.favorable,
       moonWeak: tb.quality === "bad" || !cb.favorable, // med drag
-      outwardRx: !!ch.mercury.isRetrograde || !!ch.mars.isRetrograde,
+      mercuryRetro: !!ch.mercury.isRetrograde,
+      mercuryNearStation: Math.abs(ch.mercury.longitudeSpeed ?? 99) < 0.15, // deg/day → stationing core
     }).finalMode;
 
     return { rating, mode };

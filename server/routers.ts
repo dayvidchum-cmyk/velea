@@ -1630,7 +1630,8 @@ export const appRouter = router({
               lagnaSignIdx, natalMoonSignIdx, dayMoonSignIdx,
               moonStrong: tb.favorable && cb.favorable,
               moonWeak: tb.quality === "bad" || !cb.favorable,
-              outwardRx: !!ch.mercury.isRetrograde || !!ch.mars.isRetrograde,
+              mercuryRetro: !!ch.mercury.isRetrograde,
+              mercuryNearStation: Math.abs(ch.mercury.longitudeSpeed ?? 99) < 0.15,
             }).finalMode;
             const mode = applyWeatherGate(rawMode, cd.rating).finalMode;
             days.push({ date, rating: cd.rating, why, mode });

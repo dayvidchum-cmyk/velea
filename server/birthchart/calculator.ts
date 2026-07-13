@@ -187,7 +187,7 @@ async function initSwissEph() {
   return se;
 }
 
-type PlanetData = { sign: string; degree: number; longitude: number; house: number; nakshatra: string; pada: number; isRetrograde: boolean };
+type PlanetData = { sign: string; degree: number; longitude: number; house: number; nakshatra: string; pada: number; isRetrograde: boolean; longitudeSpeed: number };
 
 export interface BirthChartResult {
   utcBirthIso: string;
@@ -327,6 +327,7 @@ export async function calculateBirthChart(
       ...nakshatraData,
       house,
       isRetrograde: speed < 0,
+      longitudeSpeed: speed, // deg/day — |speed| near 0 = stationing (the intense turning point)
     };
   }
 
@@ -342,6 +343,7 @@ export async function calculateBirthChart(
     ...ketuNakshatraData,
     house: ketuHouse,
     isRetrograde: true, // Ketu (South Node) is always retrograde
+    longitudeSpeed: -(result.rahu.longitudeSpeed ?? 0), // mirrors Rahu (opposite direction)
   };
 
   return result as BirthChartResult;
