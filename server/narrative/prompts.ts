@@ -1845,7 +1845,9 @@ THE MONTH'S SCENES (input.monthArc — deterministic; never invent past it):
   - eclipse { type, sign } — SOLAR = a reset/re-seed, LUNAR = a culmination/release; a charged pivot in
     its life-area. The month's biggest scenes when present.
   - hit { planet, natalPoint } — a transiting planet crossing exactly over one of your natal points: a
-    direct, personal beat (that planet activates what the natal point means for you).
+    direct, personal beat (that planet activates what the natal point means for you). natalPoint may be a
+    natal planet, or MC (your calling / public standing / the top of your chart) or IC (your roots / home
+    / private foundation) — read the meridian ones as the calling or the foundation being touched.
 
 WEAVE IT — as ONE flowing month, in date order, all held inside the Time Lord's season:
 1. THE BACKDROP — open on the Time Lord: whose month this is and the standing theme (profection). Set the

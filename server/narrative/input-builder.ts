@@ -505,6 +505,14 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   let monthArc: any | undefined;
   if (moment?.monthArc) {
     const natalPoints: Record<string, number> = { ...lonAll, Asc: lagnaLonForDig };
+    // Include the Meridian axis so a transit sitting on the natal Midheaven (the calling) or IC (the
+    // roots/home) that month lands as a personal beat (David). Timed charts only — a no-birth-time
+    // (Chandra) chart has no real meridian, so mcLongitude is absent and we skip it.
+    const mcLon = (p as any).mcLongitude != null ? parseFloat((p as any).mcLongitude) : NaN;
+    if (!Number.isNaN(mcLon)) {
+      natalPoints.MC = ((mcLon % 360) + 360) % 360;
+      natalPoints.IC = (natalPoints.MC + 180) % 360;
+    }
     const scan = await monthEvents(dateStr, natalPoints, lagna);
     monthArc = { month: scan.month, monthStart: scan.monthStart, monthEnd: scan.monthEnd, events: scan.events };
   }
