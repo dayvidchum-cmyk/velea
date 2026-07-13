@@ -18,6 +18,26 @@ function hashInput(input: unknown, surface?: string): string {
   return createHash("sha256").update(prefix + JSON.stringify(input)).digest("hex");
 }
 
+// The day-mode field for TODAY is computed "as of the current minute" — mode, nakshatra, tithi,
+// karana, the qualifier and the step reasons can all TURN intra-day. Folding those into the cache
+// identity meant reopening today looked like a new request and regenerated the whole (paid) read.
+// For the CACHE IDENTITY we hash only the day-STABLE layers: we strip the live-minute panchang
+// fields so a read generates ONCE per (profile, surface, date) and every reopen that day is a free
+// cache hit. The model still RECEIVES the full input (the prose is unchanged); only the hash ignores
+// the volatile fields. Anything day-anchored (eclipse phase computed at noon, asOf, the natal/dasha/
+// transit/arc layers) stays in the hash, so a prompt-version bump or a chart change still busts it.
+// Surfaces built from the slow-only (stage) input carry no `panchang`, so this is a no-op for them.
+export const VOLATILE_PANCHANG_FIELDS = ["mode", "qualifier", "activatedHouse", "nakshatra", "tithi", "karana", "turnsAtNote", "modeStepReasons", "weatherGated"] as const;
+export function dayStableHash(input: any, surface?: string): string {
+  const p = input?.panchang;
+  if (!p || typeof p !== "object") return hashInput(input, surface);
+  const stablePanchang: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(p)) {
+    if (!(VOLATILE_PANCHANG_FIELDS as readonly string[]).includes(k)) stablePanchang[k] = v;
+  }
+  return hashInput({ ...input, panchang: stablePanchang }, surface);
+}
+
 export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };
 export type DeepReadResult = { available: boolean; read: DeepRead | null; generatedAt: Date | null; cached: boolean };
 export type ChapterResult = { available: boolean; chapter: Chapter | null; generatedAt: Date | null; cached: boolean };
@@ -42,7 +62,7 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
   const isMoment = moment != null;
   // dayLoc = the viewer's location basis for the day-mode, so the read matches the hero.
   const input = await buildNarrativeInput(profileId, date, isMoment ? { ...moment, dayLoc } : { dayLoc });
-  const hash = hashInput(input);
+  const hash = dayStableHash(input);
 
   if (!refresh && !isMoment) {
     const row = await getNarrativeCache(profileId, "glance", date);
@@ -74,7 +94,7 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = deepened ? "deep_full" : "deep";
   const input = await buildNarrativeInput(profileId, date, deepened ? { dayLoc } : { slowOnly: true, dayLoc });
-  const hash = hashInput(input);
+  const hash = dayStableHash(input);
 
   if (!refresh) {
     let row = await getNarrativeCache(profileId, surface, date);
@@ -113,7 +133,7 @@ export async function getChapterCached(profileId: number, date: string, refresh 
   if (!hasAnthropicKey()) return { available: false, chapter: null, generatedAt: null, cached: false };
   const surface = "chapter";
   const input = await buildNarrativeInput(profileId, date, { slowOnly: true, dayLoc });
-  const hash = hashInput(input);
+  const hash = dayStableHash(input);
 
   if (!refresh) {
     let row = await getNarrativeCache(profileId, surface, date);
@@ -157,7 +177,7 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
   const input = await buildNarrativeInput(profileId, date, { dayLoc });
   // Salt the hash with the day_read surface version so a day-read prompt change busts ONLY
   // this surface — glance/deep/chapter caches (unchanged prompts) stay valid, no re-charge.
-  const hash = hashInput(input, surface);
+  const hash = dayStableHash(input, surface);
 
   if (!refresh) {
     const row = await getNarrativeCache(profileId, surface, date);
@@ -243,7 +263,7 @@ export async function getCastCached(profileId: number, date: string, refresh = f
   if (!hasAnthropicKey()) return { available: false, cast: null, generatedAt: null, cached: false };
   const surface = "cast";
   const input = await buildNarrativeInput(profileId, date, { dayLoc });
-  const hash = hashInput(input, surface);
+  const hash = dayStableHash(input, surface);
 
   if (!refresh) {
     const row = await getNarrativeCache(profileId, surface, date);
