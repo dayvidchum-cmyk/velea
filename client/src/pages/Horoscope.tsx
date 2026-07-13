@@ -178,7 +178,7 @@ export default function Horoscope() {
           ) : <SectionLoading label="Reading today…" />}
         </HubSection>
 
-        <HubSection title="Your year" open={yearOpen} onToggle={() => setYearOpen((o) => !o)} accent={modeColor}>
+        <HubSection title="Your year" subtitle="From your birthday to your next birthday — your solar year, not the calendar year" open={yearOpen} onToggle={() => setYearOpen((o) => !o)} accent={modeColor}>
           {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : <SectionLoading label="Reading your year…" />}
         </HubSection>
 
@@ -399,11 +399,14 @@ function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: 
 
 // ── Hub section: a collapse-default titled panel for the always-on readings (Today's read,
 // Your year, The chapter). Matches the calendar/card framing so the hub reads as one surface. ──
-function HubSection({ title, open, onToggle, accent, children }: { title: string; open: boolean; onToggle: () => void; accent: string; children: ReactNode }) {
+function HubSection({ title, subtitle, open, onToggle, accent, children }: { title: string; subtitle?: string; open: boolean; onToggle: () => void; accent: string; children: ReactNode }) {
   return (
     <div style={{ borderRadius: 16, border: `1px solid color-mix(in srgb, ${accent} 38%, transparent)`, background: "var(--color-card)", marginBottom: "0.8rem", overflow: "hidden" }}>
-      <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.85rem 1rem", background: "none", border: "none", cursor: "pointer" }}>
-        <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: accent }}>{title}</span>
+      <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", padding: "0.85rem 1rem", background: "none", border: "none", cursor: "pointer" }}>
+        <span style={{ display: "flex", flexDirection: "column", gap: "0.2rem", minWidth: 0, textAlign: "left" }}>
+          <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: accent }}>{title}</span>
+          {subtitle && <span style={{ fontSize: "0.66rem", fontWeight: 500, color: "var(--color-muted-foreground)", lineHeight: 1.35 }}>{subtitle}</span>}
+        </span>
         <ChevronDown size={16} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
       </button>
       {open && <div style={{ padding: "0 1rem 1rem" }}>{children}</div>}

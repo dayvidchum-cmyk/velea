@@ -785,7 +785,7 @@ export default function Planner() {
                     color: 'rgba(0,0,0,0.50)',
                   }}
                 >
-                  {selectedDate === toDateStr(today) ? "TODAY'S MODE" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
+                  {selectedDate === toDateStr(today) ? "TODAY'S READ" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
                 </span>
               </button>
               <button
@@ -895,8 +895,8 @@ export default function Planner() {
               );
             })()}
 
-            {/* THE READ — opens the cast: the characters moving today's story (was "Why this
-                today?"). Sits below the story: hero = what's my day, THE READ = who made it. */}
+            {/* THE CAST (labeled "The Cast"; was "The Read") — opens the cast: the characters
+                moving today's story. Sits below the story: hero = what's my day, The Cast = who made it. */}
             {dayReadContent && (
             <button
               type="button"
@@ -919,7 +919,7 @@ export default function Planner() {
                 color: 'rgba(255,255,255,0.95)',
               }}
             >
-              The Read
+              The Cast
               <ChevronDown size={12} style={{ transform: 'rotate(-90deg)', color: 'rgba(255,255,255,0.95)' }} />
             </button>
             )}
@@ -1777,7 +1777,7 @@ export default function Planner() {
 
       {/* Due Orb Sheet */}
 
-      {/* THE READ — the cast behind the hero day-story (opened by the hero's "The Read" button) */}
+      {/* THE CAST — the cast behind the hero day-story (opened by the hero's "The Cast" button) */}
       <SignpostSheet open={signpostOpen} onClose={() => setSignpostOpen(false)} mode={selectedTaskModeForHero ?? undefined} profileId={glanceProfileId} date={selectedDate} />
 
       {/* Add/Edit sheet */}

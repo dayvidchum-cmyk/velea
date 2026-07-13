@@ -255,14 +255,18 @@ export default function ProfectionYear() {
     open: boolean,
     setOpen: (v: boolean) => void,
     content: React.ReactNode,
+    subtitle?: string,
   ) => (
     <div style={{ borderRadius: "var(--radius-card)", background: "var(--card)", border: "1px solid var(--border)", marginBottom: "1.25rem", overflow: "hidden" }}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
       >
-        <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
+        <span style={{ display: "flex", flexDirection: "column", gap: "0.2rem", minWidth: 0 }}>
+          <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
+          {subtitle && <span style={{ fontSize: "0.68rem", fontWeight: 500, letterSpacing: "0.01em", color: TEXT_MUTED, lineHeight: 1.35, textTransform: "none" as const }}>{subtitle}</span>}
+        </span>
         <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
       </button>
       {open && <div style={{ padding: "0 1.25rem 1.25rem" }}>{content}</div>}
@@ -559,7 +563,7 @@ export default function ProfectionYear() {
 
       {/* LLM Deep Read — the full structured read (The Read). Sits ABOVE Current Trigger.
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
-      {panel("The Read · your year", readOpen, setReadOpen, (
+      {panel("Your year", readOpen, setReadOpen, (
         deepRead ? (
           <>
             <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: "0 0 1.1rem" }}>{deepRead.coreTheme.synthesis}</p>
@@ -578,7 +582,7 @@ export default function ProfectionYear() {
               : "Tap to read your year — the full version lives in Readings."}
           </div>
         )
-      ))}
+      ), "From your birthday to your next birthday — your solar year, not the calendar year")}
 
       {/* CURRENT TRIGGER — deterministic transit breakdown (ephemeris math, auditable) */}
       {/* ── TIME LORD MOVEMENT — merged (was Current Trigger + Current Time Lord Movement + Time

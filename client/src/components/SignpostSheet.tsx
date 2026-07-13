@@ -4,7 +4,7 @@ import GlossaryText from "@/components/GlossaryText";
 import { MODE_OKLCH, MODE_SOLID, type TaskMode } from "../../../shared/types";
 
 /**
- * THE READ — the cast behind the hero day-story.
+ * THE CAST (labeled "The Cast"; was "The Read") — the cast behind the hero day-story.
  *
  * The story on the hero says WHAT today is; this says WHO is making it that way. The planets as
  * a cast on a stage: the LOUD ones (foreground — the 2–4 pulling the scene, each with its live
@@ -64,7 +64,7 @@ export default function SignpostSheet({ open, onClose, mode, profileId, date }: 
         <div className="flex items-center justify-between px-5 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid var(--color-border)" }}>
           <div>
             <h2 className="text-base tracking-wide" style={{ color: "var(--color-foreground)", fontWeight: 300, letterSpacing: "0.04em" }}>
-              The Read
+              The Cast
             </h2>
             <p className="text-[12px]" style={{ color: "var(--color-muted-foreground)" }}>
               Who&rsquo;s moving your story today
