@@ -12,6 +12,7 @@ import { ProfectionWheel } from "@/components/ProfectionWheel";
 import { WhyNowChain } from "@/components/WhyNowChain";
 import MeridianCard from "@/components/MeridianCard";
 import GlossaryText from "@/components/GlossaryText";
+import { GlossaryLink } from "@/components/GlossaryPopover";
 import { CurrentTriggerBreakdown } from "@/components/CurrentTriggerBreakdown";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, type TaskMode } from "../../../shared/types";
 import { LIFE_AREAS } from "../../../shared/life-areas";
@@ -528,16 +529,22 @@ export default function ProfectionYear() {
       {/* This year's life areas — the houses this profection year activates ("the party") */}
       {(() => {
         const yearAreas = LIFE_AREAS.filter((a) => a.houses.includes(activatedHouse));
+        // Each pill opens the activated house's full glossary definition — every area this year
+        // is lit BY that house (a 9th-house year → tapping any pill opens the 9th house). The 1st
+        // is the only house whose glossary term isn't "Nth House".
+        const houseTerm = activatedHouse === 1 ? "1st House (Lagna)" : `${ORD[activatedHouse]} House`;
         if (yearAreas.length === 0) return null;
         return panel("This year's life areas", areasOpen, setAreasOpen, (
           <>
             <p style={{ fontSize: "0.8rem", color: TEXT_MUTED, marginBottom: "1rem", lineHeight: 1.5 }}>
-              House {activatedHouse} is lit up this year, so these are the areas of life in focus. Tasks you tag with them rise on days the year's themes are echoed.
+              House {activatedHouse} is lit up this year, so these are the areas of life in focus — tap any to open the full house. Tasks you tag with them rise on days the year's themes are echoed.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               {yearAreas.map((a) => (
-                <span
+                <GlossaryLink
                   key={a.key}
+                  term={houseTerm}
+                  underline={false}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -549,12 +556,11 @@ export default function ProfectionYear() {
                     background: `color-mix(in srgb, ${modeColor} 22%, transparent)`,
                     border: `1px solid color-mix(in srgb, ${modeColor} 45%, transparent)`,
                     color: "var(--foreground)",
-                    cursor: "default",
                   }}
                 >
                   <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: modeColor, flexShrink: 0 }} />
                   {a.label}
-                </span>
+                </GlossaryLink>
               ))}
             </div>
           </>
@@ -565,16 +571,21 @@ export default function ProfectionYear() {
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
       {panel("Your year", readOpen, setReadOpen, (
         deepRead ? (
-          <>
-            <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: "0 0 1.1rem" }}>{deepRead.coreTheme.synthesis}</p>
-            {coreTakeaway && goldTakeaway(coreTakeaway)}
-            <button
-              onClick={() => navigate("/horoscope")}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: "1rem", background: "none", border: "none", cursor: "pointer", color: modeColor, fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.02em", padding: 0 }}
-            >
-              Read your full year in Readings →
-            </button>
-          </>
+          // Wrapped in ombre: the summary is WHITE text (synthesis + gold takeaway), which was
+          // invisible on the white card in light mode. The gradient is its correct ground — and
+          // matches the Time Lord Movement panel just below.
+          ombre(
+            <>
+              <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: "0 0 1.1rem" }}>{deepRead.coreTheme.synthesis}</p>
+              {coreTakeaway && goldTakeaway(coreTakeaway)}
+              <button
+                onClick={() => navigate("/horoscope")}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: "1rem", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.95)", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.02em", padding: 0 }}
+              >
+                Read your full year in Readings →
+              </button>
+            </>
+          )
         ) : (
           <div style={{ padding: "0.5rem 0", color: TEXT_MUTED, fontSize: "0.9rem", lineHeight: 1.6 }}>
             {deepReadLoading
