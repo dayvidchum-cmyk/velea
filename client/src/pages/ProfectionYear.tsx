@@ -620,20 +620,30 @@ export default function ProfectionYear() {
                 </div>
               )}
               {(chapterGoodFor.length || chapterAvoid.length) ? (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: triggerData?.available ? "1.1rem" : 0 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem", marginBottom: triggerData?.available ? "1.1rem" : 0 }}>
                   {chapterGoodFor.length ? (
                     <div>
-                      <p style={{ margin: "0 0 0.4rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Best uses</p>
-                      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                        {chapterGoodFor.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "#FDFDFD", lineHeight: 1.4 }}>{t}</li>)}
+                      <p style={{ margin: "0 0 0.5rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Best uses</p>
+                      <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                        {chapterGoodFor.map((t: string, i: number) => (
+                          <li key={t} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start", padding: "0.55rem 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.16)" : "none" }}>
+                            <span aria-hidden style={{ flexShrink: 0, marginTop: "0.05rem", fontSize: "0.9rem", fontWeight: 800, color: "#FDFDFD" }}>✓</span>
+                            <span style={{ fontSize: "0.9rem", color: "#FDFDFD", lineHeight: 1.45 }}>{t}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   ) : null}
                   {chapterAvoid.length ? (
                     <div>
-                      <p style={{ margin: "0 0 0.4rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Ease off</p>
-                      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                        {chapterAvoid.map((t: string) => <li key={t} style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.82)", lineHeight: 1.4 }}>{t}</li>)}
+                      <p style={{ margin: "0 0 0.5rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Ease off</p>
+                      <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                        {chapterAvoid.map((t: string, i: number) => (
+                          <li key={t} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start", padding: "0.55rem 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.12)" : "none" }}>
+                            <span aria-hidden style={{ flexShrink: 0, marginTop: "0.05rem", fontSize: "0.9rem", fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>−</span>
+                            <span style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.45 }}>{t}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   ) : null}

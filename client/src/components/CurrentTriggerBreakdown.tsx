@@ -1,7 +1,7 @@
-// Deterministic CURRENT TRIGGER breakdown: each significant current transit shown as
-// planet → which of your houses it is in → what it touches → AND what that planet actually
-// does to that area (the synthesis, so it reads without prior astrology knowledge). Pure
-// chart math + fixed dictionaries, no LLM.
+// Deterministic CURRENT TRIGGER breakdown — the AUDITABLE data layer (The Cast carries the
+// narrative). Each significant transit is a scannable per-planet fact: planet · the lived place
+// it's moving through, one concise effect line, then flags (Time Lord / activated house / natal
+// hit / retrograde). Pure chart math + fixed dictionaries, no LLM, no fake-narrative prose.
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 const HOUSE_GLOSS: Record<number, string> = {
   1: "self, body, how you are seen",
@@ -21,15 +21,15 @@ const HOUSE_GLOSS: Record<number, string> = {
 // What each planet DOES when it moves through a house — its nature ("brings …") fused with
 // how to work with it ("tone"). Read as: "It brings {brings} here — {tone}"
 const PLANET_NATURE: Record<string, { brings: string; tone: string }> = {
-  Sun:     { brings: "visibility, authority, and the pull to show up as yourself", tone: "step forward here, but let the ego serve the work rather than run it" },
-  Moon:    { brings: "emotional weather, shifting needs, and sensitivity", tone: "feeling runs high and changes fast — tend it, don't act on the spike" },
-  Mars:    { brings: "drive, heat, courage, and friction", tone: "push decisively here — the same heat can spill into conflict or haste, so aim it" },
-  Mercury: { brings: "quick thinking, conversation, learning, and dealings", tone: "a good window for talk, contracts, and the details in this area" },
-  Jupiter: { brings: "growth, opportunity, grace, and meaning", tone: "say yes to what expands you here — it's a door opening" },
-  Venus:   { brings: "harmony, pleasure, connection, and a softening", tone: "relationship, beauty, and ease flow here — lean into it" },
-  Saturn:  { brings: "weight, discipline, and the slow work of maturing", tone: "it tests this area rather than rushing it; patience and structure win" },
-  Rahu:    { brings: "hunger, amplification, and obsessive, unconventional focus", tone: "ambition spikes here — powerful, but watch for overreach and illusion" },
-  Ketu:    { brings: "detachment, dissolution, and a quiet pull inward", tone: "interest here fades or turns spiritual; release rather than grip" },
+  Sun:     { brings: "visibility & authority", tone: "step forward, let it serve the work" },
+  Moon:    { brings: "shifting mood & sensitivity", tone: "tend the feeling, don't chase the spike" },
+  Mars:    { brings: "drive, heat, courage", tone: "push decisively — aim it, don't spill" },
+  Mercury: { brings: "quick thinking & dealings", tone: "good for talk, contracts, details" },
+  Jupiter: { brings: "growth & opportunity", tone: "say yes to what expands you" },
+  Venus:   { brings: "harmony, pleasure, ease", tone: "lean into connection & beauty" },
+  Saturn:  { brings: "weight & discipline", tone: "patience and structure win" },
+  Rahu:    { brings: "hunger & amplification", tone: "aim high, watch the overreach" },
+  Ketu:    { brings: "detachment & release", tone: "loosen the grip, turn inward" },
 };
 
 export function CurrentTriggerBreakdown({
@@ -57,18 +57,16 @@ export function CurrentTriggerBreakdown({
         const nature = PLANET_NATURE[t.planet];
         return (
           <div key={i} style={{ borderLeft: `3px solid ${accent}`, paddingLeft: "0.75rem" }}>
-            <p style={{ color: fg, fontSize: "1rem", lineHeight: 1.55, margin: 0 }}>
-              <strong>{t.planet}</strong> is walking through your <strong>{HOUSE_GLOSS[t.houseFromLagna] ?? "this area of life"}</strong> right now.
+            <p style={{ color: fg, fontSize: "0.98rem", lineHeight: 1.35, margin: 0, fontWeight: 700 }}>
+              {t.planet} <span style={{ fontWeight: 500, opacity: 0.82 }}>· {HOUSE_GLOSS[t.houseFromLagna] ?? "this area of life"}</span>
             </p>
             {nature && (
-              <p style={{ color: fg, fontSize: "0.9rem", lineHeight: 1.55, margin: "0.35rem 0 0", opacity: 0.9 }}>
-                It brings <strong>{nature.brings}</strong> here — {nature.tone}.
-                {t.hitsNatalPoint ? ` And because it's landing on your natal ${t.hitsNatalPoint}, the effect is personal and pointed, not background.` : ""}
-                {t.retrograde ? " Retrograde: the theme turns back for review — revisit, don't launch." : ""}
+              <p style={{ color: fg, fontSize: "0.86rem", lineHeight: 1.4, margin: "0.2rem 0 0", opacity: 0.82 }}>
+                {nature.brings} — {nature.tone}
               </p>
             )}
             {tags.length > 0 && (
-              <p style={{ color: accent, fontSize: "0.84rem", marginTop: "0.35rem", marginBottom: 0, fontWeight: 600 }}>{tags.join(" · ")}</p>
+              <p style={{ color: accent, fontSize: "0.8rem", marginTop: "0.3rem", marginBottom: 0, fontWeight: 600 }}>{tags.join(" · ")}</p>
             )}
           </div>
         );

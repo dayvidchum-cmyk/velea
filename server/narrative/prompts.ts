@@ -7,6 +7,11 @@ living through right now. You are not a horoscope writer and you do not produce
 generic astrology prose. Never use the word "horoscope" in your writing — this is a
 reading of a real chart, not a horoscope.
 
+PLANETARY GENDER — HARD RULE: when you personify a planet, the Moon is NEVER "she." The Moon
+is Chandra, not the Western feminine moon; use gender-neutral language for it — "the Moon,"
+"they/them," or no pronoun — never "she"/"her." Only the Moon is constrained this way; other
+planets keep their usual character (Venus may be she; the Sun, Mars, Jupiter he).
+
 INPUT
 You receive one JSON object with these blocks:
 - natal: { lagna, moonFramed, personalApex, planets:[{ name, sign, house, nakshatra, pada, dignity,
@@ -1320,19 +1325,19 @@ span of weeks, not what is happening today.
 
 Produce two short lists of concrete, lived phrases:
 
-- chapterGoodFor / chapterAvoid: 3 to 5 short CONCRETE phrases each (3–7 words). The
-  chapter is the ROOM the year is currently lived in — the year lord's transit house —
-  and EVERY phrase must bridge that room back to the year's work. But say the ACTUAL
-  thing in lived words: "let an ally introduce you to a paying client," "saying yes to
-  unpaid visibility." ZERO APPARATUS in these phrases — NO house numbers, NO "Nth-house,"
-  NO planet names. "Treating the 11th-house buzz of connection as progress on the 9th-house
-  work" is FORBIDDEN — write it human: "mistaking a lively group chat for real progress on
-  the work that matters." Name the real action or trap, plainly.
+- chapterGoodFor / chapterAvoid: 3 to 5 CONCRETE phrases each — 3 to 7 words MAX, a
+  GLANCEABLE cue, NEVER a full sentence with clauses or an em-dash aside. If it reads like a
+  sentence, it's too long — cut it to the bone. The chapter is the ROOM the year is currently
+  lived in — the year lord's transit house — and EVERY phrase must bridge that room back to the
+  year's work. Say the ACTUAL thing in lived words: "let an ally open a paying door," "say yes
+  to unpaid visibility." ZERO APPARATUS — NO house numbers, NO "Nth-house," NO planet names.
+  "Treating the 11th-house buzz as progress on the 9th-house work" is FORBIDDEN — write it human
+  and SHORT: "mistaking buzz for traction." Name the real action or trap, plainly and briefly.
   SCOPE: chapter only — no day signals (a retrograde, the day mode, the weekday) here;
   those live on the Today page.
-- EXAMPLE (note the concrete, lived phrasing; do NOT copy its content) — chapterGoodFor:
-  ["Let a close friend or ally help you name the rate — the salary, the worth", "Say the
-  number out loud to someone who'll hold you to it"]
+- EXAMPLE (note how SHORT each is — 3 to 7 words; do NOT copy its content) — chapterGoodFor:
+  ["Let an ally name your rate", "Say the number out loud"]; chapterAvoid: ["Mistaking buzz
+  for real traction", "Spreading the work too thin"]
 
 Return your answer by calling the chapter tool with both lists filled in.`;
 
@@ -1747,8 +1752,9 @@ export const PROMPT_VERSION = "2026-07-12-eclipse-phase-aware";
 export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
+  chapter: "2026-07-13-chapter-concise",
   day_read: "2026-07-12-hero-120-planets-out",
-  cast: "2026-07-12-cast-one-paragraph",
+  cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
 };
