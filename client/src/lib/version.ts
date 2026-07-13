@@ -300,4 +300,9 @@
 // across all three themes, the hero + card gradients, and the Time Master "Caution" / Hora "malefic"
 // / error-text uses. Deep plum-burgundy shadow (#4A1A2E) kept — it's on-hue with mulberry. Each
 // surface keeps its own tuned lightness (calendar/orbs stay light); only the hue moved. Client-only.
-export const APP_VERSION = "1.1.412";
+//
+// v1.1.413 = 2026-07-13 — Readings nav icon swapped OctagramMark → DiamondMark (David). The octagram
+// (two overlapping stroked shapes, edge-to-edge, with a solid center bindu) read visibly darker/
+// heavier than the thin lucide outlines beside it; the narrow single-outline diamond matches their
+// weight and frees the octagram to mean only "knot day" on the calendar. Client-only.
+export const APP_VERSION = "1.1.413";

@@ -7,12 +7,12 @@ import {
   Folder,
 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
-import OctagramMark from "./OctagramMark";
+import DiamondMark from "./DiamondMark";
 
 const BASE_NAV = [
   { path: "/", label: "Today", icon: VeleaMark },
   { path: "/profection", label: "Chart", icon: BookOpen },
-  { path: "/horoscope", label: "Readings", icon: OctagramMark },
+  { path: "/horoscope", label: "Readings", icon: DiamondMark },
   { path: "/projects", label: "Projects", icon: Folder },
   { path: "/glossary", label: "Glossary", icon: Library },
 ];
