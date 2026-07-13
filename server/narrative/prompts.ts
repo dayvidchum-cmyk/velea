@@ -1091,13 +1091,20 @@ Read on a phone, attention thin. Every section comes in TWO parts:
   they will read the words. (The app's glossary and guided tour explain every term, so the
   apparatus never has to live in the prose.) It reads like a sharp human paragraph, never
   a chart annotation.
-- WHY — ALL the apparatus, named and glossed (the houses, planets, rulerships, the degree,
-  the Sun on your Mars — per NAME AND GLOSS HOUSES), as plain gray DATA underneath: "your
-  year lord Venus rules your 2nd and sits in your 6th." It is the REASON, never new content,
-  never where the real point hides; the reader can skip it entirely and lose nothing of the
-  meaning — it is there to be checked, not decoded. One or two named clauses, no lecture.
-The synthesis is sharp and true; the why is short and traceable. Depth from the line,
-never from volume.
+- WHY (THE MECHANICS) — the apparatus, but told as a LIVING SCENE, in the voice of THE
+  READ: the planets are CHARACTERS in the room, each DOING what it does in the seat it holds,
+  each carrying its lesson. This is the ONE place the machinery lives, so it STAYS named and
+  glossed (the houses, planets, rulerships, the degree, the Sun on your Mars — per NAME AND
+  GLOSS HOUSES) — every claim traceable. But do NOT write it as a data shrug: not "your year
+  lord Venus rules your 2nd and sits in your 6th" — instead "Venus, who runs your money and
+  your love, has set up shop in your 6th house of daily work, so she makes you earn it."
+  Personify the players (warm, plain, a little alive), keep the houses and rulerships NAMED
+  right beside them, and let the mechanic land as a small scene the reader could picture.
+  STILL: it is the REASON, never new content, never where the real point hides — the
+  synthesis already carries the whole human truth, and a reader who skips the why loses
+  nothing of the meaning. Two or three sentences at most: a scene, never a lecture.
+The synthesis is sharp and true; the why is the mechanics brought to life — named, traceable,
+and alive. Depth from the line, never from volume.
 
 - coreTheme: { synthesis, why }. synthesis = the period's central human tension in plain
   words; why = the rulership/placement chain that creates it.
@@ -1187,9 +1194,10 @@ NEVER use "romantic" or "romance" as a loose synonym for exciting, alluring, or 
 Reserve those words for an ACTUAL love reading — the 5th/7th gate above. For Jupiter, belief,
 expansion, or "what pulls you," say idealistic, expansive, alluring, or exciting instead.
 
-NAME THE PLAYERS — but BRIEFLY, and only inside the WHY. Name each by planet and
-possessively ("your year lord, Venus, in your 8th"; "your antardasha, Saturn") so the
-reason is traceable to named guests in the room — a CLAUSE each, never a paragraph.
+NAME THE PLAYERS — and only inside the WHY (never the synthesis). Name each by planet and
+possessively ("your year lord, Venus, in your 8th"; "your antardasha, Saturn") and let them
+ACT — the guests in the room DOING what they do — so the reason is both traceable AND alive.
+A sentence or two each, never a full paragraph; the why is a small scene, not a lecture.
 
 DASHA HOUSES ARE REGISTERS, NOT TOPICS. A dasha/antardasha lord's house is never a
 standalone verdict — it is one register of the year's SAME core question, not a new
@@ -1216,44 +1224,56 @@ stands alone, while the why stays short and mechanical:
       dependent on what others think of you? You've been proving yourself to earn a good
       opinion and then accepting less than you're worth — a smaller salary, a thinner kind
       of love. Take the verdict back: your worth isn't earned or granted, it's yours.",
-    why: "Venus, your year lord, rules both your 9th house (belief, what you live by) and
-      your 2nd (worth, money, your voice) and sits in your 5th (love, pleasure) — all four
-      run on one planet." }
+    why: "It's all one player wearing three hats. Venus is your year lord, and she runs
+      three of your rooms at once: she owns your 9th (belief, what you live by) and your 2nd
+      (worth, money, your voice), and she's living in your 5th (love, pleasure). Belief,
+      worth, and love aren't three separate problems — they're one Venus, so they rise and
+      fall together." }
 - whyNow: {
     synthesis: "It's raw right now because the floor under your old 'not enough' is
       dissolving — the inherited belief that you must earn your worth is loosening at the
       root, which is why the worth-question won't stay quiet this year.",
-    why: "Your mahadasha (the long, years-long cycle), Jupiter, sits in your 2nd house
-      ruling your 4th (home, roots) and 7th (partnership); your antardasha (the current
-      sub-period), Ketu, sits in your 4th, loosening the source." }
+    why: "The timing is two players handing off. Jupiter, your mahadasha (the long,
+      years-long cycle), sits in your 2nd house (worth), reaching back to your 4th (home,
+      roots) and 7th (partnership). And Ketu, your antardasha (the current sub-period), is
+      down in your 4th quietly pulling up the floorboards — which is why the old 'not enough'
+      is coming loose right now." }
 - manifestations: [
     { area: "Money & Love",
       synthesis: "Where you're underpaid, look at where you're under-loved — it's one wound
         in two rooms. Name what you're actually worth, in salary and in how you let yourself
         be treated, and say it out loud.",
-      why: "Venus runs both your 2nd (money) and your love life from the 5th; your voice is
-        Jupiter in your 2nd (worth and speech — the throat), so the worth you swallow is
-        meant to be spoken." },
+      why: "Venus works both rooms — your 2nd (money) and, from her seat in your 5th, your
+        love life — so the two move as one. And Jupiter sits right in your 2nd (worth and
+        speech, the throat), which is why the worth you keep swallowing is exactly the thing
+        meant to be said out loud." },
     { area: "Pleasure",
       synthesis: "Let joy and affection in without proving you deserve them first — stop
         deferring delight until it's earned.",
-      why: "Venus, your year lord, sits in your 5th (pleasure, the heart) in a sign that
-        rations it." },
+      why: "Venus, your year lord, is living in your 5th (pleasure, the heart) — but in a
+        sign that keeps her on a tight budget, so she rations the joy she'd rather pour
+        out." },
     { area: "Home & Roots",
       synthesis: "Grief surfaces at the foundation — release the source of the 'not enough,'
         don't patch it back into its old shape.",
-      why: "Ketu in your 4th uproots whatever first planted the belief about your worth." } ]
+      why: "Ketu sits in your 4th (home, roots) doing what Ketu does — loosening, letting go
+        — so whatever first planted the 'not enough' is being pulled up at the root, not
+        patched." } ]
 - developmentalTask: {
     synthesis: "Stop proving what's already yours, and stop accepting the discount — when
       the pay, the love, or the respect lands under your worth, that friction isn't a verdict
       on you, it's the signal showing exactly where a boundary has to hold.",
-    why: "The 9th-house year moves worth from others' opinion to your own conviction; Venus
-      ruling the 2nd makes the boundary literal — money and love." }
+    why: "This is a 9th-house year, and the 9th moves the verdict on your worth off other
+      people's opinion and onto your own conviction. And because Venus rules your 2nd, that
+      boundary never stays abstract — it lands literally, in the money and the love you let
+      yourself accept." }
 WHAT MAKES IT GOLD (replicate the MOVES): ONE spine every section serves; the chart's own
 houses fused (9th belief ⊗ 2nd worth ⊗ 5th love) through the year lord; the wound named as a
 PATTERN (over-prove / under-receive), not a topic. The SYNTHESIS carries the whole human
 truth and names the LITERAL (salary, love, the discount) — a reader skipping every planet
-still gets it; the WHY is short and mechanical underneath. Two moves you MUST replicate:
+still gets it; the WHY is the mechanics brought to LIFE underneath — the planets named as
+players doing what they do in the rooms they hold, every house still glossed and traceable,
+told as a small scene rather than a data line. Two moves you MUST replicate:
 (1) the voice-act is ANCHORED to its player — "say it out loud" is named as Jupiter in her
 2nd; do this wherever a read lands on a boundary, a claim, or naming-worth. (2) the BODY is
 named where the chart loads it — her 2nd is the throat, the swallowed worth made speakable.
@@ -1699,6 +1719,8 @@ export const PROMPT_VERSION = "2026-07-12-eclipse-phase-aware";
 // vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
+  deep: "2026-07-12-mechanics-narrative",
+  deep_full: "2026-07-12-mechanics-narrative",
   day_read: "2026-07-12-hero-120-planets-out",
   cast: "2026-07-12-cast-one-paragraph",
   life_area: "2026-07-12-horoscope-varga-deep",
