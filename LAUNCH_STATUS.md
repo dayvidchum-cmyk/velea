@@ -12,7 +12,7 @@ Legend: ✅ done · 🟡 partial/needs config · 🟥 missing (buildable) · ⏸
 - ✅ **1.5 Sessions migration on Railway** — `sessions` table is in `schema.ts`; Railway `preDeployCommand` runs `drizzle-kit push --force`, so it auto-applies.
 
 ## Phase 2 — Onboarding completes
-- 🟥 **2.6 Geocoder → Nominatim** — currently uses Google Maps (`server/_core/map.ts`, `/maps/api/geocode/json`). This is a decided, non-pause-point CODE task → the one thing safe to build unattended. Plan: Nominatim `/search` with a required `User-Agent`, keep Google as fallback so location can't break.
+- ✅ **2.6 Geocoder → Nominatim** — DONE (verified 2026-07-13). Both geocode paths already use OpenStreetMap Nominatim with no key: birth location (`Profiles.tsx` `handleGeocode` → `/search`) and current location (`LocationSheet.tsx` forward + reverse). Timezone is fully offline (`server/geo/timezone.ts` `timezoneForCoords`). The Google proxy `server/_core/map.ts` is now DEAD CODE — nothing imports `makeRequest` — harmless, left in place per the no-cleanup-spiral rule (its `forgeApi*` env vars are still shared by storage/llm/etc., so don't remove those).
 - 🟡 **2.7 Empty-state routing** — new user, no birth data → redirect to Profiles with one banner. Needs verification of the Today entry path; likely a small addition.
 
 ## Phase 3 — Waitlist  ⏸ (schema needs review)
