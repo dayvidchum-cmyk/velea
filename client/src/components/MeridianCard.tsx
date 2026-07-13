@@ -13,6 +13,39 @@ const HOUSE_GLOSS: Record<number, string> = {
   5: "creativity & heart", 6: "work & service", 7: "partnership", 8: "depth & transformation",
   9: "belief & teachers", 10: "vocation & standing", 11: "community & gains", 12: "retreat & release",
 };
+// What the SIGN on each pole actually MEANS — so the card names WHO you are at your public peak
+// and private base, not just what the MC/IC angles are (David's benefit law). Each sign is grounded
+// in its Vedic ruler's dharma (Aries/Scorpio→Mars, Taurus/Libra→Venus, Gemini/Virgo→Mercury,
+// Cancer→Moon, Leo→Sun, Sagittarius/Pisces→Jupiter, Capricorn/Aquarius→Saturn). Living doc — refine.
+const MC_GLOSS: Record<string, string> = {
+  Aries: "The world meets you as a starter — direct, brave, first through the door. Mars, its ruler and the warrior, drives your calling through initiative and nerve: breaking new ground and acting before others dare.",
+  Taurus: "The world meets you as a builder of worth — steady, grounded, resourceful. Venus, its ruler, works your calling through value and craft: making things solid, beautiful, and built to last.",
+  Gemini: "The world meets you as a connector — quick, curious, many-voiced. Mercury, its ruler and the messenger, carries your calling through words and exchange: writing, teaching, linking people and ideas.",
+  Cancer: "The world meets you as a nurturer — protective, intuitive, deeply felt. The Moon, its ruler, works your calling through care: tending people and causes, reading the room, building what feels like home.",
+  Leo: "The world meets you as a leader — warm, expressive, made to be seen. The Sun, its ruler, works your calling through heart and dignity: taking the stage and letting the work carry your name.",
+  Virgo: "The world meets you as a craftsperson — precise, useful, discerning. Mercury, its ruler, works your calling through skill and service: refining the details and making the work genuinely good.",
+  Libra: "The world meets you as a harmonizer — fair, gracious, relational. Venus, its ruler, works your calling through balance and beauty: bringing people together and weighing what's just.",
+  Scorpio: "The world meets you as an investigator — intense, private, unafraid of the depths. Mars, its ruler, works your calling through depth and transformation: going where others won't and turning crisis into renewal.",
+  Sagittarius: "The world meets you as a teacher — expansive, honest, aiming high. Jupiter, its ruler and the guru, works your calling through meaning: teaching, publishing, and pointing people toward the bigger picture.",
+  Capricorn: "The world meets you as a builder of structures — disciplined, patient, in for the long climb. Saturn, its ruler, works your calling through mastery and time: earning authority the slow way and carrying weight others can't.",
+  Aquarius: "The world meets you as a reformer — original, principled, a step ahead of the room. Saturn, its ruler, works your calling through systems and the collective: building what serves the many with a long, impartial view.",
+  Pisces: "The world meets you as a visionary — imaginative, compassionate, porous to the whole. Jupiter, its ruler, works your calling through faith and imagination: art, healing, and devotion.",
+};
+const IC_GLOSS: Record<string, string> = {
+  Aries: "You're rooted in drive and independence. Mars, its ruler, keeps home a place you move freely and act on your own terms; the inner voice you speak from is the pioneer's.",
+  Taurus: "You're rooted in steadiness and the senses. Venus, its ruler, makes home a place of comfort and belonging; the inner voice you speak from is the calm, unhurried one.",
+  Gemini: "You're rooted in curiosity. Mercury, its ruler, keeps home alive with talk and open questions; the inner voice you speak from is the questioner's.",
+  Cancer: "You're rooted in feeling and family. The Moon, its ruler, makes home the true center of your life; the inner voice you speak from is the tender, remembering one.",
+  Leo: "You're rooted in the heart. The Sun, its ruler, makes home where you're loved for who you are; the inner voice you speak from is generous and unguarded.",
+  Virgo: "You're rooted in order and care. Mercury, its ruler, makes home a place where things work and everything has its place; the inner voice you speak from is the quiet, careful one.",
+  Libra: "You're rooted in harmony. Venus, its ruler, makes home a place of peace and good company; the inner voice you speak from is the gentle diplomat's.",
+  Scorpio: "You're rooted in depth and privacy. Mars, its ruler, makes home where you can be wholly, secretly yourself; the inner voice you speak from is fierce and unflinching.",
+  Sagittarius: "You're rooted in meaning itself. Jupiter, its ruler and the guru, draws you toward belief and room to roam — home is wherever you can keep questioning and stay true to what you hold sacred; the inner voice you speak from is the teacher's.",
+  Capricorn: "You're rooted in responsibility and the long view. Saturn, its ruler, makes home a foundation you build to last; the inner voice you speak from is the steady elder's.",
+  Aquarius: "You're rooted in principle and chosen kin. Saturn, its ruler, makes home where your values and your people are; the inner voice you speak from is the independent, principled one.",
+  Pisces: "You're rooted in imagination and compassion. Jupiter, its ruler, makes home a refuge from the world's hard edges; the inner voice you speak from is the gentle, boundless one.",
+};
+
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const fmtExact = (iso?: string) => { if (!iso) return null; const [y, m, d] = iso.split("-").map(Number); return `${MON[m - 1]} ${d}, ${y}`; };
 
@@ -155,10 +188,17 @@ export default function MeridianCard() {
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.3rem" }}>
             <GlossaryLink term="Meridian chapter" underline={false} style={{ fontSize: "0.68rem", color: accent, whiteSpace: "nowrap" }}>What's this?</GlossaryLink>
           </div>
-          <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: "0.15rem 0 0", lineHeight: 1.55 }}>
-            <strong style={{ color: accent }}>{data.mc.sign}</strong> — your Midheaven (MC): how you appear on the world's stage — career, life-calling, your <strong style={{ color: accent }}>dharma</strong> (and the outer voice that carries it). Balanced by{" "}
-            <strong style={{ color: accent }}>{data.ic.sign}</strong> — your Imum Coeli (IC): your roots, private ground, home, foundation, and the inner voice you speak from.
-          </p>
+          <div style={{ margin: "0.4rem 0 0", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+            <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: 0, lineHeight: 1.55 }}>
+              <strong style={{ color: accent }}>{data.mc.sign}</strong> on your <strong>Midheaven</strong> — your public calling, your{" "}
+              <GlossaryLink term="dharma" underline={false} style={{ color: accent, fontWeight: 700 }}>dharma</GlossaryLink>.{" "}
+              {MC_GLOSS[data.mc.sign] ?? "How you appear on the world's stage — career, calling, and the outer voice that carries it."}
+            </p>
+            <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: 0, lineHeight: 1.55 }}>
+              Balanced by <strong style={{ color: accent }}>{data.ic.sign}</strong> on your <strong>Imum Coeli</strong> — your roots and private ground.{" "}
+              {IC_GLOSS[data.ic.sign] ?? "Home, foundation, and the inner voice you speak from."}
+            </p>
+          </div>
 
           {/* WHO'S ON YOUR AXIS NOW — both poles, live */}
           <div style={{ marginTop: "1rem", padding: "0.7rem 0.85rem", borderRadius: 12, background: `color-mix(in srgb, ${accent} 6%, var(--color-card))`, border: "1px solid var(--color-border)" }}>

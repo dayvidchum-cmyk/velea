@@ -316,4 +316,10 @@
 // flagged Rx (Venus this fall read "Direct"); flag added + a self-heal rebuilds stale all-direct rows.
 // (2) CLIENT: the ribbon's literal timeline rule + notches were hardcoded #FDFDFD — invisible white-
 // on-white in light mode; now var(--foreground) at 0.55 opacity, reads on light/dark/Full Spectrum.
-export const APP_VERSION = "1.1.415";
+//
+// v1.1.416 = 2026-07-13 — The Meridian now INTERPRETS the sign on each pole (David's benefit law):
+// was generic angle definitions ("Gemini — your MC: how you appear…", same for any sign); now each
+// sign names WHO you are at your public peak (MC) and private base (IC), grounded in its Vedic
+// ruler's dharma (Gemini→Mercury the messenger, Sagittarius→Jupiter the guru, etc.). 12-sign MC +
+// IC gloss dictionaries, deterministic, no LLM. Living doc — voice refine-able per sign.
+export const APP_VERSION = "1.1.416";
