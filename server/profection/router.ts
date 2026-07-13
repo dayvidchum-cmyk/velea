@@ -248,7 +248,15 @@ export const profectionRouter = router({
         const actualSign = await timeLordCurrentSign(profection.timeLord);
         const signStale = !!(cur && actualSign && cur.sign !== actualSign);
         const missingGuests = !!(cur && (cur as any).coPresentPlanets == null);
-        if (signStale || missingGuests) {
+        // The SEFLG_SPEED bug shipped rows where NO segment was ever flagged retrograde, even
+        // when the planet visibly retrograded — a sign is LEFT and RE-ENTERED (Venus this fall:
+        // Libra → Virgo → Libra). If a sign is revisited but nothing is marked retrograde, the
+        // rows came from the broken calculator → rebuild. Self-heals: fixed rows carry the flag,
+        // so the revisit no longer coincides with an all-direct year.
+        let revisit = false; const seenSign = new Set<string>(); let prevSign = "";
+        for (const t of transits) { if (t.sign !== prevSign) { if (seenSign.has(t.sign)) { revisit = true; break; } seenSign.add(t.sign); } prevSign = t.sign; }
+        const retroDataBroken = revisit && !transits.some((t) => t.isRetrograde);
+        if (signStale || missingGuests || retroDataBroken) {
           const { deleteTimeLordTransitsForProfile } = await import("./transit-db.js");
           await deleteTimeLordTransitsForProfile(subject.profileId);
           transits = [];

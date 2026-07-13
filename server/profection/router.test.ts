@@ -84,15 +84,27 @@ vi.mock("../db", () => ({
 
 vi.mock("./db", () => ({
   getDb: vi.fn().mockResolvedValue(null),
-  getOrCreateProfectionYear: vi.fn().mockResolvedValue({ id: 1 }),
+  // Must carry timeLord + activatedSign that MATCH the computed profection (age 44 → 9th → Taurus,
+  // ruled by Venus), or the sign-staleness heal block fires and wipes the fixture every call.
+  getOrCreateProfectionYear: vi.fn().mockResolvedValue({ id: 1, timeLord: "Venus", activatedSign: "Taurus" }),
   getProfectionYearForDate: vi.fn().mockResolvedValue(null),
   getProfectionYearsInDateRange: vi.fn().mockResolvedValue([]),
+  deleteProfectionYearsForProfile: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("./transit-db", () => ({
   getTimeLordTransitsForYear: vi.fn().mockResolvedValue([]),
   createTimeLordTransits: vi.fn().mockResolvedValue([]),
+  deleteTimeLordTransitsForProfile: vi.fn().mockResolvedValue(undefined),
 }));
+
+// These are STRUCTURE tests over a hand-built fixture whose arbitrary signs (Taurus/Gemini/Cancer)
+// won't match Venus's real LIVE sign — which would trip the sign-staleness heal and wipe the fixture.
+// Return null so the heal skips (its own `actualSign && …` guard), leaving the fixture intact.
+vi.mock("./transit-calculator", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./transit-calculator")>();
+  return { ...actual, timeLordCurrentSign: vi.fn().mockResolvedValue(null) };
+});
 
 function makeAuthCtx(): TrpcContext {
   return {

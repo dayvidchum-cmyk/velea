@@ -181,7 +181,9 @@ function dateToJD(date: Date): number {
 function getPlanetState(se: any, jd: number, planetNum: number, lagnaLongitude: number, lagnaSign: string) {
   // SEFLG_SIDEREAL already returns Lahiri sidereal longitude — do NOT subtract the
   // ayanamsa again (that double-count put every Time Lord ~one sign behind).
-  const result = se.calc(jd, planetNum, se.SEFLG_SIDEREAL);
+  // SEFLG_SPEED is REQUIRED for longitudeSpeed to be populated — without it speed is 0,
+  // so `< 0` never fired and NO segment was ever flagged retrograde (Venus Rx read "direct").
+  const result = se.calc(jd, planetNum, se.SEFLG_SIDEREAL | se.SEFLG_SPEED);
   const normalizedLon = ((result.longitude % 360) + 360) % 360;
   const transitSign = getZodiacSign(normalizedLon);
   
