@@ -715,11 +715,11 @@ export default function ProfectionYear() {
                     return (
                       <div style={{ marginTop: "0.55rem" }}>
                         <div style={{ position: "relative", width: "100%", height: 30 }}>
-                          {/* the rule */}
-                          <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1.5, background: "#FDFDFD", transform: "translateY(-50%)" }} />
+                          {/* the rule — theme foreground (was hardcoded #FDFDFD → invisible white-on-white in light mode) */}
+                          <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1.5, background: "var(--foreground)", opacity: 0.55, transform: "translateY(-50%)" }} />
                           {/* notches — start · middle · end */}
                           {[0, 50, 100].map((pct) => (
-                            <div key={pct} style={{ position: "absolute", left: `${pct}%`, top: "50%", width: 1.5, height: 9, background: "#FDFDFD", transform: "translate(-50%, -50%)" }} />
+                            <div key={pct} style={{ position: "absolute", left: `${pct}%`, top: "50%", width: 1.5, height: 9, background: "var(--foreground)", opacity: 0.55, transform: "translate(-50%, -50%)" }} />
                           ))}
                           {/* Velea mark rides the line at today (flex-mirror keeps it in the true segment) */}
                           <div style={{ position: "absolute", left: 0, right: 0, top: "50%", transform: "translateY(-50%)", display: "flex", height: 0 }}>

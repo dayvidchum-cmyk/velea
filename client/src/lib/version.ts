@@ -310,4 +310,10 @@
 // (David), pulled out of the Time Lord Movement ombre summary where it was nested. Renders light
 // (mode-accent left borders + tags) with a subtitle; still the deterministic ephemeris breakdown,
 // no LLM. Sits between Time Lord Movement and the Meridian; only shows on days with a live trigger.
-export const APP_VERSION = "1.1.414";
+//
+// v1.1.415 = 2026-07-13 — Two Time Lord ribbon fixes. (1) SERVER (shipped separately): the ribbon
+// never showed retrograde — getPlanetState computed speed WITHOUT SEFLG_SPEED, so nothing was ever
+// flagged Rx (Venus this fall read "Direct"); flag added + a self-heal rebuilds stale all-direct rows.
+// (2) CLIENT: the ribbon's literal timeline rule + notches were hardcoded #FDFDFD — invisible white-
+// on-white in light mode; now var(--foreground) at 0.55 opacity, reads on light/dark/Full Spectrum.
+export const APP_VERSION = "1.1.415";
