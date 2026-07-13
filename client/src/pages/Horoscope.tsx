@@ -8,6 +8,7 @@ import VeleaLorMark from "@/components/VeleaLorMark";
 import GlossaryText from "@/components/GlossaryText";
 import MasterModeCard from "@/components/MasterModeCard";
 import HoraCard from "@/components/HoraCard";
+import LocationChip from "@/components/LocationChip";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
@@ -202,6 +203,9 @@ export default function Horoscope() {
         <p style={{ color: "var(--color-muted-foreground)", fontSize: "0.82rem", lineHeight: 1.5, margin: "1.5rem 0 0.9rem", textAlign: "center" }}>
           Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
         </p>
+
+        {/* Current location — above the calendar so it's always in view and one tap to change (David). */}
+        <LocationChip accent={modeColor} />
 
         {/* ── Calendar ── (parchment chart artifact; .parchment re-inks its token-driven text) */}
         <div className="parchment" style={{ border: "1px solid var(--color-border)", padding: "0.9rem 0.9rem 1rem" }}>

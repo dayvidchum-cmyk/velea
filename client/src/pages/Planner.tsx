@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
 import ProseLoading from "@/components/ProseLoading";
 import KeptReadings from "@/components/KeptReadings";
+import LocationChip from "@/components/LocationChip";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
@@ -1017,6 +1018,8 @@ export default function Planner() {
       </button>
       {calendarOpen && (
         <div className="space-y-5">
+      {/* Current location — above the calendar so it's always in view and one tap to change (David). */}
+      <LocationChip accent={calModeColor} />
       {/* ── 1. CALENDAR ── */}
       <div
         ref={calendarRef}

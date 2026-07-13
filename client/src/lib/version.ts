@@ -408,4 +408,10 @@
 // LORD AND TRIGGER" (PROMPT_VERSION bumped → all narrative surfaces regenerate); (4) personalDayForDate
 // now location-aware (samples the day at local noon where the body is, not fixed noon-UTC); (5) "Your
 // Year, Explained" node-aware (a node on the Time Lord flips "settle in" → release/reach + names the axis).
-export const APP_VERSION = "1.1.427";
+//
+// v1.1.428 = 2026-07-13 — LocationChip above BOTH calendars (Readings + Planner). David kept forgetting
+// to update his current location when switching profiles because the only control was in the header. The
+// chip shows "Reading from <city>" and, on tap, opens the existing LocationSheet (via the shared
+// velea-open-location event) — no schema, reuses the per-user current location. This is v1 of the fuller
+// hometown + current + per-date location model (that fuller (B) version needs a reviewed schema, TODO).
+export const APP_VERSION = "1.1.428";
