@@ -62,7 +62,7 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
   const isMoment = moment != null;
   // dayLoc = the viewer's location basis for the day-mode, so the read matches the hero.
   const input = await buildNarrativeInput(profileId, date, isMoment ? { ...moment, dayLoc } : { dayLoc });
-  const hash = dayStableHash(input);
+  const hash = dayStableHash(input, "glance");
 
   if (!refresh && !isMoment) {
     const row = await getNarrativeCache(profileId, "glance", date);
@@ -94,7 +94,7 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = deepened ? "deep_full" : "deep";
   const input = await buildNarrativeInput(profileId, date, deepened ? { dayLoc } : { slowOnly: true, dayLoc });
-  const hash = dayStableHash(input);
+  const hash = dayStableHash(input, surface);
 
   if (!refresh) {
     let row = await getNarrativeCache(profileId, surface, date);
@@ -133,7 +133,7 @@ export async function getChapterCached(profileId: number, date: string, refresh 
   if (!hasAnthropicKey()) return { available: false, chapter: null, generatedAt: null, cached: false };
   const surface = "chapter";
   const input = await buildNarrativeInput(profileId, date, { slowOnly: true, dayLoc });
-  const hash = dayStableHash(input);
+  const hash = dayStableHash(input, surface);
 
   if (!refresh) {
     let row = await getNarrativeCache(profileId, surface, date);
