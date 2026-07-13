@@ -1,9 +1,8 @@
 import { trpc } from "../lib/trpc";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
-import { ChevronDown, Users, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { createPortal } from "react-dom";
-import LockedFeatureCard from "@/components/LockedFeatureCard";
 import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
@@ -190,28 +189,11 @@ export default function ProfectionYear() {
   const chapterGoodFor = chapterResult?.chapter?.chapterGoodFor ?? [];
   const chapterAvoid = chapterResult?.chapter?.chapterAvoid ?? [];
 
-  // ADMIN-ONLY upsell preview: the "stage + guests" deepened read (current sky folded in),
-  // fetched fresh on tap so David can test it in real time. Non-admins can't obtain it —
-  // the server forces deepened=false off the admin allowlist.
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   // The Road Ahead is admin-only (David) for now — only query it for admins.
   const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false, enabled: isAdmin });
   const utils = trpc.useUtils();
-  const [guestsOpen, setGuestsOpen] = useState(false);
-  const [guestsLoading, setGuestsLoading] = useState(false);
-  const [guestsRead, setGuestsRead] = useState<any | null>(null);
-  const openGuests = async () => {
-    if (!deepProfileId) return;
-    setGuestsOpen(true);
-    setGuestsLoading(true);
-    try {
-      const res = await utils.narrative.deepRead.fetch({ profileId: deepProfileId, date: localToday, deepened: true, refresh: true });
-      setGuestsRead(res?.read ?? null);
-    } finally {
-      setGuestsLoading(false);
-    }
-  };
 
   // Where the Time Lord is transiting right now — used to name the current "chapter".
   const { data: tlTransit } = trpc.timeLordTransit.forDate.useQuery(
@@ -578,90 +560,6 @@ export default function ProfectionYear() {
 
       {/* LLM Deep Read — the full structured read (The Read). Sits ABOVE Current Trigger.
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
-      {/* "Your year, right now" — PUBLIC BUT LOCKED (same pattern as Time Master): everyone
-          sees the tile; only the entitled (admin, for now) get the live deepened read. The
-          server independently forces deepened=false off the allowlist, so nothing can leak. */}
-      {!isAdmin ? (
-        <div style={{ margin: "0 0 1rem" }}>
-          <LockedFeatureCard
-            title="Your year, right now"
-            teaser="Your year, read at this exact moment — not today's sky, this minute's."
-            detail="A live reading generated the instant you open it: your stage, plus the guests on it right now — pratyantardaśā, the transits as they stand this very moment, combustion, eclipse. Open it an hour later and it reads a different sky. A premium layer, not yet unlocked."
-          />
-        </div>
-      ) : deepRead ? (
-        <button
-          onClick={openGuests}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%",
-            margin: "0 0 1rem", padding: "0.7rem 1rem", borderRadius: 14, cursor: "pointer",
-            background: "color-mix(in srgb, #E7C766 14%, transparent)", border: "1px solid #C9A84C",
-            color: "#C9A84C", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
-          }}
-        >
-          <Users size={15} /> Your year, right now
-        </button>
-      ) : null}
-
-      {guestsOpen && createPortal(
-        <div
-          onClick={() => setGuestsOpen(false)}
-          style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--color-card)", border: "1px solid #E7C766", borderRadius: 20 }}
-          >
-            {/* pinned header — stays put so the × is always reachable; grounds the read */}
-            <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "1rem 1.3rem", borderBottom: "1px solid color-mix(in srgb, #E7C766 30%, transparent)", background: "var(--color-card)" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#C9A84C", fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                <Users size={15} /> Your year, right now
-              </span>
-              <button onClick={() => setGuestsOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: "color-mix(in srgb, #C9A84C 18%, transparent)", border: "1px solid color-mix(in srgb, #C9A84C 34%, transparent)", color: "#C9A84C", cursor: "pointer" }}>
-                <X size={16} strokeWidth={2.5} />
-              </button>
-            </div>
-
-            {/* scrolling body */}
-            <div style={{ overflowY: "auto", padding: "1rem 1.3rem 1.3rem" }}>
-              <p style={{ fontSize: "0.7rem", color: "var(--color-muted-foreground)", margin: "0 0 1rem", lineHeight: 1.5 }}>
-                Premium preview · admin and select test users only. The stage, plus the guests on it right now — pratyantardaśā, transits, combustion, eclipse. Regenerated live each open.
-              </p>
-              {guestsLoading || !guestsRead ? (
-                <div style={{ padding: "2rem 0", textAlign: "center", color: "var(--color-muted-foreground)", fontStyle: "italic", fontSize: "0.9rem" }}>
-                  Reading the current sky…
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
-                  {[
-                    { label: "Core Theme", sec: guestsRead.coreTheme },
-                    { label: "Why Now", sec: guestsRead.whyNow },
-                    { label: "The Lesson", sec: guestsRead.developmentalTask },
-                  ].filter((x) => x.sec?.synthesis).map(({ label, sec }) => (
-                    <div key={label}>
-                      <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>{label}</p>
-                      <p style={{ fontSize: "0.95rem", lineHeight: 1.65, color: "var(--color-foreground)", fontWeight: 550, margin: 0 }}>{sec.synthesis}</p>
-                      {sec.why && <p style={{ fontSize: "0.8rem", lineHeight: 1.55, margin: "0.4rem 0 0" }}>{renderWhy(sec.why, "var(--color-muted-foreground)", "var(--color-foreground)")}</p>}
-                    </div>
-                  ))}
-                  {guestsRead.manifestations?.length > 0 && (
-                    <div>
-                      <p style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", margin: "0 0 0.35rem" }}>Possible Manifestations</p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        {guestsRead.manifestations.map((m: any, i: number) => (
-                          <p key={i} style={{ fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-foreground)", fontWeight: 550, margin: 0 }}>{m.synthesis}</p>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
       {panel("The Read · your year", readOpen, setReadOpen, (
         deepRead ? (
         <>

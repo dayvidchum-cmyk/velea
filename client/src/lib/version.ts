@@ -256,3 +256,10 @@
 // HOROSCOPE→READING + BASE_PROMPT now explicitly forbids the word in generated prose. (Server cache
 // money-leak fix — dayStableHash — also shipped between 398 and 399, server-only, no client bump.)
 export const APP_VERSION = "1.1.399";
+//
+// v1.1.400 = 2026-07-12 — Removed the "Your year, right now" upsell (the locked/admin live-regenerated
+// "stage + guests" preview) from the Chart page — replaced by the Readings hub (David). Cut the locked
+// card + admin button + the live "guests" modal + their state/handlers (guestsOpen/openGuests + the
+// deepened refresh fetch) and the now-orphaned Users/LockedFeatureCard imports. The plain "The Read ·
+// your year" panel stays for now. First step toward consolidating deep readings under Readings.
+export const APP_VERSION = "1.1.400";
