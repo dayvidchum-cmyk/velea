@@ -1025,12 +1025,12 @@ export default function Planner() {
           borderRadius: "16px",
           // Soft sliver frame — a 1px hairline at low opacity of the day-mode color (David).
           border: `1px solid color-mix(in srgb, ${calModeColor} 38%, transparent)`,
-          // David's law: the calendar is ALWAYS light — appearance mode never touches it; the coins
-          // carry all the color. But a pure #FDFDFD glared as a white slab in dark mode (Option A):
-          // it's now a warm PAPER off-white + a soft shadow, so it reads as a luminous almanac page
-          // sitting harmoniously ON the dark surface, not a hole punched through it. Coins still pop.
-          background: "#F4F0E8",
-          boxShadow: "0 6px 22px rgba(0, 0, 0, 0.28)",
+          // The calendar is ALWAYS a LIGHT almanac page (coins are tuned for a light surface), but
+          // its exact tone is appearance-aware (Option A): warm PAPER + a soft shadow on dark/FS so it
+          // glows as an artifact ON the dark, and clean near-white with a whisper of shadow on light so
+          // it doesn't read dingy against the white app bg. Both defined in index.css per theme.
+          background: "var(--calendar-surface)",
+          boxShadow: "var(--calendar-shadow)",
         }}
       >
         {/* Month header — the colored band is gone (David); month/year/arrows sit on the light

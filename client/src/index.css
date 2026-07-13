@@ -96,6 +96,11 @@
   /* Editorial card radii — one family for flat cards + immersive heroes */
   --radius-card: 20px;
   --radius-hero: 24px;
+  /* Calendar — always a LIGHT almanac page, but tone is appearance-aware. Default (dark/FS): warm
+     paper + a soft shadow so it glows as an artifact on the dark. html.light overrides to clean
+     near-white + a whisper, so it doesn't read dingy on the white app bg. */
+  --calendar-surface: #F4F0E8;
+  --calendar-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
   /* Brand gold — bright on the dark bg; the light theme overrides it deeper so it
      doesn't wash out on cream. */
   --brand-gold: #C9A84C;
@@ -789,6 +794,10 @@ html.light {
   --space-light: #F0F0F0;
   --cream: #2d2d2d;
   --cream-dim: #666666;
+  /* Light mode: the calendar goes back to clean near-white + a whisper of shadow (the warm paper
+     read dingy against the white app bg). */
+  --calendar-surface: #FDFDFD;
+  --calendar-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   --mode-action: oklch(0.40 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.48 0.14 355);

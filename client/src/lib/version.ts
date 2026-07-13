@@ -338,4 +338,9 @@
 // / card-celestial hardcodes) #FDFDFD → #ECEAE4, in the dark + FS blocks. Left untouched: light-mode
 // text (#2d2d2d), the light #FDFDFD background, white-on-accent (primary/accent/destructive), and the
 // intentional crisp-white text on colored bands (ombre summaries, hero, ribbon glyphs).
-export const APP_VERSION = "1.1.418";
+//
+// v1.1.419 = 2026-07-13 — Calendar tone is now appearance-aware (David: warm paper looked dingy on
+// the white light-mode bg). Driven by --calendar-surface / --calendar-shadow: warm paper #F4F0E8 +
+// soft shadow on dark/FS (glows as an artifact), clean near-white #FDFDFD + a whisper of shadow on
+// light. (Groundwork for a shared "parchment" chart-artifact surface across calendar/wheel/natal.)
+export const APP_VERSION = "1.1.419";
