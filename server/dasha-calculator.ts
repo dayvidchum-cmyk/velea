@@ -303,6 +303,32 @@ export function calculateDashaTimeline(
  * pratyantars tile the antar exactly. Proportions the actual date span (ms), matching the
  * antar's own start/end so there is never drift. Returns null if the date is outside the span.
  */
+/**
+ * ALL nine pratyantardashas tiling a given antardasha span, in Vimshottari order from the antar lord.
+ * Same proportional tiling as currentPratyantardasha, enumerated — so callers can list the sub-periods
+ * overlapping a window without walking by date boundary (which is fragile at the day-rounded edges).
+ */
+export function pratyantardashaList(
+  antarLord: string,
+  antarStartStr: string,
+  antarEndStr: string,
+): { lord: string; startDate: string; endDate: string }[] {
+  const start = new Date(antarStartStr + "T00:00:00Z").getTime();
+  const end = new Date(antarEndStr + "T00:00:00Z").getTime();
+  const startIdx = DASHA_SEQUENCE.findIndex((d) => d.planet === antarLord);
+  if (Number.isNaN(start) || Number.isNaN(end) || startIdx < 0) return [];
+  const span = end - start;
+  const out: { lord: string; startDate: string; endDate: string }[] = [];
+  let cursor = start;
+  for (let k = 0; k < 9; k++) {
+    const p = DASHA_SEQUENCE[(startIdx + k) % 9];
+    const pEnd = k === 8 ? end : cursor + (p.years / 120) * span;
+    out.push({ lord: p.planet, startDate: toDateString(new Date(cursor)), endDate: toDateString(new Date(pEnd)) });
+    cursor = pEnd;
+  }
+  return out;
+}
+
 export function currentPratyantardasha(
   antarLord: string,
   antarStartStr: string,

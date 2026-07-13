@@ -4,7 +4,7 @@ import { getDb } from "../db.js";
 import { profiles, profileNatalBodies } from "../../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 import { calculateProfectionYear } from "../profection/calculator.js";
-import { calculateDashaTimeline, currentPratyantardasha } from "../dasha-calculator.js";
+import { calculateDashaTimeline, currentPratyantardasha, pratyantardashaList } from "../dasha-calculator.js";
 import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
 import { computeDashaJourney } from "../sky/arc.js";
 import { calcPanchang } from "../panchang/astronomy.js";
@@ -514,7 +514,20 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       natalPoints.IC = (natalPoints.MC + 180) % 360;
     }
     const scan = await monthEvents(dateStr, natalPoints, lagna);
-    monthArc = { month: scan.month, monthStart: scan.monthStart, monthEnd: scan.monthEnd, events: scan.events };
+
+    // THE STAGE'S MOVING PARTS — the dasha SUB-PERIODS (pratyantar hand-offs) that fall in the month,
+    // dated. This is David's gold-standard "Sub-periods: Mars Jun 17–Jul 20, Rahu Jul 20–Oct 15" — the
+    // Time Lord's own turns inside the month, the environment shifting under the dated events.
+    const subPeriods: { lord: string; startDate: string; endDate: string; rulesHouses: number[] }[] = [];
+    if (cur?.startDate && cur?.endDate) {
+      // Every pratyantar that OVERLAPS the month (starts before month-end AND ends after month-start).
+      for (const pp of pratyantardashaList(cur.antardasha, cur.startDate, cur.endDate)) {
+        if (pp.startDate <= scan.monthEnd && pp.endDate > scan.monthStart) {
+          subPeriods.push({ lord: pp.lord, startDate: pp.startDate, endDate: pp.endDate, rulesHouses: rulesHouses(pp.lord, lagna) });
+        }
+      }
+    }
+    monthArc = { month: scan.month, monthStart: scan.monthStart, monthEnd: scan.monthEnd, subPeriods, events: scan.events };
   }
 
   // Mercury's graded retrograde phase (David: not a binary flag — name the pre-shadow / stationing /
