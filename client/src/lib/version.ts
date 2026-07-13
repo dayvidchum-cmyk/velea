@@ -305,4 +305,9 @@
 // (two overlapping stroked shapes, edge-to-edge, with a solid center bindu) read visibly darker/
 // heavier than the thin lucide outlines beside it; the narrow single-outline diamond matches their
 // weight and frees the octagram to mean only "knot day" on the calendar. Client-only.
-export const APP_VERSION = "1.1.413";
+//
+// v1.1.414 = 2026-07-13 — Today's Trigger is now its OWN collapsible card under Time Lord Movement
+// (David), pulled out of the Time Lord Movement ombre summary where it was nested. Renders light
+// (mode-accent left borders + tags) with a subtitle; still the deterministic ephemeris breakdown,
+// no LLM. Sits between Time Lord Movement and the Meridian; only shows on days with a live trigger.
+export const APP_VERSION = "1.1.414";

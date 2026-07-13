@@ -136,6 +136,7 @@ export default function ProfectionYear() {
   const [s5, setS5] = useState(false);
   const [s6, setS6] = useState(false);
   const [tlOpen, setTlOpen] = useState(false);
+  const [triggerOpen, setTriggerOpen] = useState(false);
   const [roadOpen, setRoadOpen] = useState(false);
   const [explainerOpen, setExplainerOpen] = useState(false);
   const [wheelOpen, setWheelOpen] = useState(true); // wheel is the tab's ONE primary — stays open
@@ -610,7 +611,7 @@ export default function ProfectionYear() {
                 When the Time Lord moves, life moves. As it passes through each house, that area of your life is activated in turn — and the <strong>friction</strong> you feel there shows you what needs to be resolved.
               </p>
               {tlTransit?.house != null && (
-                <div style={{ marginBottom: (chapterGoodFor.length || chapterAvoid.length || triggerData?.available) ? "1.1rem" : 0 }}>
+                <div style={{ marginBottom: (chapterGoodFor.length || chapterAvoid.length) ? "1.1rem" : 0 }}>
                   <p style={{ color: "#FDFDFD", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
                     Right now: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"}
                   </p>
@@ -620,7 +621,7 @@ export default function ProfectionYear() {
                 </div>
               )}
               {(chapterGoodFor.length || chapterAvoid.length) ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem", marginBottom: triggerData?.available ? "1.1rem" : 0 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem", marginBottom: 0 }}>
                   {chapterGoodFor.length ? (
                     <div>
                       <p style={{ margin: "0 0 0.5rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Best uses</p>
@@ -649,18 +650,6 @@ export default function ProfectionYear() {
                   ) : null}
                 </div>
               ) : null}
-              {triggerData?.available && (
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.18)", paddingTop: "1.1rem" }}>
-                  <p style={{ margin: "0 0 0.6rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>Today's trigger</p>
-                  <CurrentTriggerBreakdown
-                    transits={triggerData.transits}
-                    activatedHouse={triggerData.activatedHouse}
-                    timeLord={triggerData.timeLord}
-                    accentColor="rgba(255,255,255,0.85)"
-                    onDark
-                  />
-                </div>
-              )}
             </>
           )}
           </div>
@@ -791,6 +780,18 @@ export default function ProfectionYear() {
           )}
         </div>
       ))}
+
+      {/* TODAY'S TRIGGER — its own collapsible card under Time Lord Movement (David). The
+          deterministic transit breakdown (ephemeris math, no LLM) that names the live planets
+          touching your chart right now — the auditable "why today" the Cast turns into story. */}
+      {triggerData?.available && panel("Today's Trigger", triggerOpen, setTriggerOpen, (
+        <CurrentTriggerBreakdown
+          transits={triggerData.transits}
+          activatedHouse={triggerData.activatedHouse}
+          timeLord={triggerData.timeLord}
+          accentColor={modeColor}
+        />
+      ), "The live transits touching your chart right now")}
 
       {/* The Meridian — MC/IC voice axis + who's activating it now. Sits UNDER Time Lord
           Movement now (David): the axis chapters read as a continuation of the movement story. */}
