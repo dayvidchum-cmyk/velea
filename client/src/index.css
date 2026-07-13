@@ -74,15 +74,15 @@
 
 :root {
   --background: #16171A;
-  --foreground: #FDFDFD;
+  --foreground: #ECEAE4;
   --card: #1E2024;
-  --card-foreground: #FDFDFD;
+  --card-foreground: #ECEAE4;
   --popover: #202227;
-  --popover-foreground: #FDFDFD;
+  --popover-foreground: #ECEAE4;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
   --secondary: #34363D;
-  --secondary-foreground: #FDFDFD;
+  --secondary-foreground: #ECEAE4;
   --muted: #23252B;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
@@ -112,11 +112,11 @@
   --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
   --sidebar: #121316;
-  --sidebar-foreground: #FDFDFD;
+  --sidebar-foreground: #ECEAE4;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #000000;
   --sidebar-accent: #34363D;
-  --sidebar-accent-foreground: #FDFDFD;
+  --sidebar-accent-foreground: #ECEAE4;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: oklch(0.767 0.139 91.1);
   /* Task card backgrounds — mode-specific tints */
@@ -345,7 +345,7 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: none;
     border-radius: calc(var(--radius) - 2px);
-    color: #FDFDFD;
+    color: #ECEAE4;
     font-size: 16px !important;
   }
 
@@ -588,15 +588,15 @@
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
   --background: #16171A;
-  --foreground: #FDFDFD;
+  --foreground: #ECEAE4;
   --card: #1E2024;
-  --card-foreground: #FDFDFD;
+  --card-foreground: #ECEAE4;
   --popover: #202227;
-  --popover-foreground: #FDFDFD;
+  --popover-foreground: #ECEAE4;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #000000;
   --secondary: #34363D;
-  --secondary-foreground: #FDFDFD;
+  --secondary-foreground: #ECEAE4;
   --muted: #23252B;
   --muted-foreground: rgba(255, 255, 255, 0.60);
   --accent: oklch(0.767 0.139 91.1);
@@ -620,18 +620,18 @@
   --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
   --sidebar: #121316;
-  --sidebar-foreground: #FDFDFD;
+  --sidebar-foreground: #ECEAE4;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #000000;
   --sidebar-accent: #34363D;
-  --sidebar-accent-foreground: #FDFDFD;
+  --sidebar-accent-foreground: #ECEAE4;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: oklch(0.767 0.139 91.1);
 }
 
 .dark body {
   background: #16171A;
-  color: #FDFDFD;
+  color: #ECEAE4;
 }
 
 /* App top bar — solid background matching the app surface (dark mode is a plain solid
@@ -658,7 +658,7 @@
 .dark .glass-input {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #FDFDFD;
+  color: #ECEAE4;
 }
 
 .dark .glass-input::placeholder {
@@ -975,18 +975,18 @@ html.full-spectrum .signature-ink { filter: invert(1); mix-blend-mode: screen; }
    dark, so cards/inputs built on them never flash white under FS. Placed last to win the
    specificity tie with html.light. */
 html.full-spectrum {
-  --foreground: #FDFDFD;
+  --foreground: #ECEAE4;
   --muted-foreground: rgba(234, 231, 225, 0.66);
   --border: rgba(234, 231, 225, 0.16);
-  --card-foreground: #FDFDFD;
-  --popover-foreground: #FDFDFD;
-  --secondary-foreground: #FDFDFD;
-  --color-foreground: #FDFDFD;
+  --card-foreground: #ECEAE4;
+  --popover-foreground: #ECEAE4;
+  --secondary-foreground: #ECEAE4;
+  --color-foreground: #ECEAE4;
   --color-muted-foreground: rgba(234, 231, 225, 0.66);
   --color-border: rgba(234, 231, 225, 0.16);
-  --color-card-foreground: #FDFDFD;
-  --color-popover-foreground: #FDFDFD;
-  --color-secondary-foreground: #FDFDFD;
+  --color-card-foreground: #ECEAE4;
+  --color-popover-foreground: #ECEAE4;
+  --color-secondary-foreground: #ECEAE4;
   --input: rgba(0, 0, 0, 0.22);
   --color-input: rgba(0, 0, 0, 0.22);
   --muted: rgba(0, 0, 0, 0.22);

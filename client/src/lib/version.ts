@@ -331,4 +331,11 @@
 // surfaces (were #000/#0A0A0A). Calendar = Option A: stays light but is now warm PAPER (#F4F0E8) + a
 // soft shadow, a luminous almanac page that sits harmoniously on the dark instead of glaring white.
 // (Full Spectrum per-color tuning still its own pass; this de-blackens its controls as a bonus.)
-export const APP_VERSION = "1.1.417";
+//
+// v1.1.418 = 2026-07-13 — Dark-mode TEXT softened to match the palette (David): body text was still
+// pure #FDFDFD, brighter than the ramp's off-white. Softened the light-on-dark foreground tokens
+// (--foreground/card/popover/secondary/sidebar + their --color-* aliases, and the .dark body / glass
+// / card-celestial hardcodes) #FDFDFD → #ECEAE4, in the dark + FS blocks. Left untouched: light-mode
+// text (#2d2d2d), the light #FDFDFD background, white-on-accent (primary/accent/destructive), and the
+// intentional crisp-white text on colored bands (ombre summaries, hero, ribbon glyphs).
+export const APP_VERSION = "1.1.418";
