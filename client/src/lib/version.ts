@@ -271,4 +271,11 @@
 // undecided). Server: year read + chapter now run through scrubMachinery (hero standard). REFINEMENT vs
 // the plan: "the chapter" stays on Chart — it's a coupled sub-part of the structural Time Lord Movement
 // panel, not a standalone reading, so moving it would have gutted that panel for no gain.
-export const APP_VERSION = "1.1.401";
+//
+// v1.1.402 = 2026-07-12 — Readings hub polish (David's QA): (1) the pick-a-date intro line moved to sit
+// right above the calendar it describes. (2) The new hub-section borders now use the day-mode color
+// (were gray). (3) Eclipse season card is now COLLAPSIBLE + shows a "Read" badge when a reading already
+// exists (new read-only peek query horoscope.eclipseSeasonSaved — no cost) so it's closable and
+// communicates it's been read; it also lists in the "Your readings" log. (4) The log is now ALWAYS shown
+// when entitled (was hidden when empty → undiscoverable), with an empty-state hint + an Eclipse-season row.
+export const APP_VERSION = "1.1.402";

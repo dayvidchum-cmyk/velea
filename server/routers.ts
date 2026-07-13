@@ -1868,6 +1868,24 @@ export const appRouter = router({
       return await getEclipseSeasonCached(profile.id, today, false, dayLoc);
     }),
 
+    // Read-only: is there ALREADY a saved eclipse-season reading for the current season? Never
+    // generates — lets the card show "already read" + the archive list it, with no charge.
+    eclipseSeasonSaved: protectedProcedure.query(async ({ ctx }) => {
+      if (!hasHoroscope(ctx.user)) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
+      const { getUserById } = await import("./db.js");
+      const u = await getUserById(ctx.user.id);
+      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
+      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
+        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
+        : undefined;
+      const { peekEclipseSeasonCached } = await import("./narrative/service.js");
+      const today = new Date().toISOString().slice(0, 10);
+      return await peekEclipseSeasonCached(profile.id, today, dayLoc);
+    }),
+
     // Save the user's notes under a purchased horoscope (per date + area).
     saveNotes: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string().default("day"), notes: z.string().max(20000) })).mutation(async ({ ctx, input }) => {
       if (!hasHoroscope(ctx.user)) return null;

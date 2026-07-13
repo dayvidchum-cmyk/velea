@@ -253,6 +253,24 @@ export async function getEclipseSeasonCached(profileId: number, date: string, re
   return { available: true, read, season: { firstDate: seasonKey, count: arc.count }, generatedAt: new Date(), cached: false };
 }
 
+// PEEK — read-only: is there ALREADY a cached eclipse-season reading for the current season? Never
+// generates (no LLM, no cost), so the card/archive can show "already read" + list it without charging.
+export async function peekEclipseSeasonCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<EclipseSeasonResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, season: null, generatedAt: null, cached: false };
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, eclipseArc: true });
+  const arc = input.eclipseSeasonArc;
+  if (!arc || !arc.eclipses?.length) return { available: false, read: null, season: null, generatedAt: null, cached: false };
+  const seasonKey: string = arc.eclipses[0].date;
+  const row = await getNarrativeCache(profileId, "eclipse_season", seasonKey);
+  if (row) {
+    try {
+      const read = JSON.parse(row.content);
+      if (isCompleteDayRead(read)) return { available: true, read, season: { firstDate: seasonKey, count: arc.count }, generatedAt: row.generatedAt, cached: true };
+    } catch { /* corrupt row — treat as not-yet-read */ }
+  }
+  return { available: false, read: null, season: null, generatedAt: null, cached: false };
+}
+
 export type CastResult = { available: boolean; cast: Cast | null; generatedAt: Date | null; cached: boolean };
 
 // THE READ — THE CAST. The layer behind the day-story (the characters moving today), for a
