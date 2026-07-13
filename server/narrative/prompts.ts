@@ -1811,6 +1811,75 @@ FIELDS (DayRead shape, repurposed to the arc):
 
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
 
+// MONTH_TAIL — the Monthly period reading (David: "the same as a single day, but expanded to the month
+// — the interactions"). The FULL layered read (Time Lord / dasha / profection / natal + the live sky)
+// scaled to a whole month: the month's big SCENES, CHARACTERS, CONVERSATIONS, and ARCS, not 30 day-reads.
+// Rides BASE_PROMPT. DayRead shape, so it renders like the hero and rides the same guards. Data:
+// input.monthArc (the month's beats) + the standing layers (input.dasha, timeLordTransit, profection).
+// ─────────────────────────────────────────────────────────────────────────────
+export const MONTH_TAIL = `TASK: THE MONTH — the whole month, read for THIS chart
+
+The reader wants the month ahead as ONE synthesis — not thirty days, but the month's big movements: its
+scenes, its loud characters, its conversations, and the arcs that run across the weeks. Read it the way
+you'd read a single day, but EXPANDED — the interactions across a month. Two data sources, both deterministic:
+
+THE STANDING GROUND (already in the input — this is the month's ruling backdrop, the SPINE of the read):
+- input.dasha + input.timeLordTransit — THE TIME LORD is the ruler of this whole chapter of life, and it
+  presides over the month. OPEN on it: whose season this is, the life-area it governs, its live condition
+  (strong = the month's work lands with backing; strained = it costs more), and where it moves this month.
+  Every scene below happens INSIDE the Time Lord's season — tie them back to it. This is the most important
+  character; never bury it.
+- input.profection — the year's activated house: the standing theme the month serves.
+- input.natal — the chart the whole month plays out on.
+
+THE MONTH'S SCENES (input.monthArc — deterministic; never invent past it):
+- month, monthStart, monthEnd — the span you narrate.
+- events: [{ kind, date, ... }], in date order — the month's big beats. Each carries house + houseGloss
+  (the CONCRETE life-area it lands on — name THIS, never a number):
+  - newmoon / fullmoon — the lunation arc: a New Moon SEEDS something in its life-area; a Full Moon brings
+    something to a HEAD / releases it. These are the month's inhale and exhale — use them as the rhythm.
+  - ingress { planet, sign } — a planet crossing into a new life-area: that character moves rooms, and a
+    new area lights up for the weeks it's there.
+  - station { planet, direction } — a planet turning retrograde (review begins) or direct (a held thing
+    frees and moves): a hinge in that planet's arena.
+  - eclipse { type, sign } — SOLAR = a reset/re-seed, LUNAR = a culmination/release; a charged pivot in
+    its life-area. The month's biggest scenes when present.
+  - hit { planet, natalPoint } — a transiting planet crossing exactly over one of your natal points: a
+    direct, personal beat (that planet activates what the natal point means for you).
+
+WEAVE IT — as ONE flowing month, in date order, all held inside the Time Lord's season:
+1. THE BACKDROP — open on the Time Lord: whose month this is and the standing theme (profection). Set the
+   season the scenes play out in.
+2. THE SCENES, in order — the lunations as the month's rhythm, the ingresses as characters changing rooms,
+   the stations as hinges, any eclipse as the charged pivot, the personal hits as your direct beats. Tie
+   the loud ones to the Time Lord and to each other (the CONVERSATIONS — how one scene sets up the next).
+3. THE ARC — the through-line: how the month opens, where it peaks (usually a lunation/eclipse/station),
+   and where it's heading by month-end. Read the close FORWARD.
+
+VOICE + HARD RULES — the horoscope's voice with premium room (a whole month; be thorough), enforced in code:
+- ZERO chart machinery: no house NUMBERS, no sign names, no motion/dignity terms (retrograde, station,
+  ingress, eclipse axis, exalted, combust, dispositor). Translate every one into felt life-language.
+  Planets appear only as characters DOING something, never reported at a placement.
+- THE PROOF IS IN THE SPECIFICS: every line points at a real, checkable life-thing (income, the wider
+  circle, the daily work, the partner, the craft, home, a sibling/close circle) — never vague "big energy."
+  A line that could apply to anyone has FAILED.
+- SELECT, don't list: a month has many beats; name the 4–6 that MATTER and let the small ones go. A read
+  that recites every event is a calendar, not a synthesis.
+- Aim ~470 words across the four prose fields; HARD CAP 650, enforced in code. Thorough, never a wall.
+
+FIELDS (DayRead shape, repurposed to the month):
+- scene (~80w): whose month this is — the Time Lord's season and the standing theme — and the overall
+  shape of what's coming. The backdrop.
+- story (~280w, the heart): the month's big scenes in order, woven — the lunation rhythm, the characters
+  moving rooms, the hinges, the eclipse/personal beats — all inside the Time Lord's season, tied to each
+  other. The clarity they came for.
+- tilt (~90w): how to move through the WHOLE month — where to lean in, where to hold, what each stretch
+  is for. A posture across the weeks, NO single move.
+- closeLine: one line that lands the whole month — the arc and where it leaves you.
+- question: one reflective door into the month's work, ends in "?".
+
+Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
+
 export const MODEL = "claude-sonnet-4-6";
 
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
@@ -1832,4 +1901,5 @@ export const SURFACE_VERSION: Record<string, string> = {
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
+  month: "2026-07-13-month-arc",
 };

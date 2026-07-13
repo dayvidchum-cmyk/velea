@@ -2,7 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateMercuryRxRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
+import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateMercuryRxRead, generateMonthRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
@@ -322,6 +322,61 @@ export async function peekMercuryRxCached(profileId: number, date: string, dayLo
     } catch { /* corrupt row — treat as not-yet-read */ }
   }
   return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+}
+
+export type MonthResult = { available: boolean; read: DayRead | null; month: string | null; generatedAt: Date | null; cached: boolean };
+
+// THE MONTH — the full layered read expanded to a whole month (scenes/characters/conversations/arcs).
+// Cached by MONTH (key = "YYYY-MM"); the hash covers the month's beats + Time Lord + this chart, so it
+// generates ONCE per month and re-views free. Always available (every month has beats + a Time Lord).
+export async function getMonthCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MonthResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, month: null, generatedAt: null, cached: false };
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, monthArc: true });
+  const arc = input.monthArc;
+  if (!arc) return { available: false, read: null, month: null, generatedAt: null, cached: false };
+
+  const surface = "month";
+  const monthKey: string = arc.month; // "YYYY-MM"
+  // Stable hash: the month's beats + the Time Lord/dasha backdrop + this chart.
+  const stable = {
+    profileId, lagna: input.natal?.lagna, m: arc.month,
+    ev: (arc.events as any[]).map((e) => ({ k: e.kind, d: e.date, p: e.planet ?? e.type ?? null, h: e.house, n: e.natalPoint ?? null })),
+    tl: input.timeLordTransit?.planet ?? input.dasha?.current?.antardasha ?? null,
+    prof: input.profection?.activatedHouse ?? null,
+  };
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
+
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, monthKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        if (isCompleteDayRead(read)) return { available: true, read, month: monthKey, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const read = await singleFlight(`${surface}:${profileId}:${monthKey}:${hash}`, async () => {
+    const r = await generateMonthRead(input);
+    if (r) await upsertNarrativeCache(profileId, surface, monthKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, month: null, generatedAt: null, cached: false };
+  return { available: true, read, month: monthKey, generatedAt: new Date(), cached: false };
+}
+
+// PEEK — read-only: is there ALREADY a cached reading for the current month? Never generates.
+export async function peekMonthCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MonthResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, month: null, generatedAt: null, cached: false };
+  const monthKey = date.slice(0, 7);
+  const row = await getNarrativeCache(profileId, "month", monthKey);
+  if (row) {
+    try {
+      const read = JSON.parse(row.content);
+      if (isCompleteDayRead(read)) return { available: true, read, month: monthKey, generatedAt: row.generatedAt, cached: true };
+    } catch { /* corrupt row — treat as not-yet-read */ }
+  }
+  return { available: false, read: null, month: null, generatedAt: null, cached: false };
 }
 
 export type CastResult = { available: boolean; cast: Cast | null; generatedAt: Date | null; cached: boolean };

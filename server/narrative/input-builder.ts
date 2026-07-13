@@ -17,6 +17,7 @@ import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
 import { mercuryRxState, mercuryRxCycle } from "../sky/retrograde-phase.js";
+import { monthEvents } from "../sky/month-events.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
@@ -58,7 +59,7 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
@@ -76,10 +77,11 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   const areaKey = opts?.lifeArea ?? "none";
   const eclKey = opts?.eclipseArc ? "ecl" : "no";
   const merKey = opts?.mercuryRxArc ? "mrx" : "no";
-  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}`;
+  const monKey = opts?.monthArc ? "mon" : "no";
+  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}|${monKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc });
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc, monthArc: opts?.monthArc });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   return value;
 }
@@ -91,7 +93,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -496,6 +498,17 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     }
   }
 
+  // MONTH ARC — the calendar month's big beats (lunations, ingresses, stations, eclipses, personal
+  // hits), each mapped into THIS chart's houses. Present ONLY when requested. Feeds the Monthly period
+  // reading, which reads them as the month's scenes/characters/conversations against the SAME layered
+  // input (Time Lord/dasha/profection/natal) a day read uses — expanded to the month. (sky/month-events.ts)
+  let monthArc: any | undefined;
+  if (moment?.monthArc) {
+    const natalPoints: Record<string, number> = { ...lonAll, Asc: lagnaLonForDig };
+    const scan = await monthEvents(dateStr, natalPoints, lagna);
+    monthArc = { month: scan.month, monthStart: scan.monthStart, monthEnd: scan.monthEnd, events: scan.events };
+  }
+
   // Mercury's graded retrograde phase (David: not a binary flag — name the pre-shadow / stationing /
   // deep retrograde / retroshade). Attached ONLY when Mercury is NOT plain-direct, so direct days keep
   // their input hash unchanged (no needless read regeneration — only the ~monthly shadow window busts).
@@ -507,5 +520,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

@@ -189,6 +189,9 @@ export default function Horoscope() {
           <HoraCard />
         </div>
 
+        {/* ── This month (the full layered read expanded to the month, spined on the Time Lord) ── */}
+        <MonthCard modeColor={modeColor} />
+
         {/* ── This eclipse season (the whole double-eclipse arc, read for your chart) ── */}
         <EclipseSeasonCard modeColor={modeColor} />
 
@@ -616,6 +619,97 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
               </button>
               {reveal.isError && (
                 <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The cycle couldn't be drawn just now. Please try again in a moment.</p>
+              )}
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// Month glyph — three moons (new → half → full): the lunation rhythm that shapes a month.
+function MonthGlyph({ size = 17, color }: { size?: number; color: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden style={{ display: "block", flexShrink: 0 }}>
+      <circle cx="5" cy="12" r="2.7" fill="none" stroke={color} strokeWidth="1.4" />
+      <path d="M12 9.3 A2.7 2.7 0 0 1 12 14.7 Z" fill={color} />
+      <circle cx="12" cy="12" r="2.7" fill="none" stroke={color} strokeWidth="1.4" />
+      <circle cx="19" cy="12" r="2.7" fill={color} />
+    </svg>
+  );
+}
+
+// ── This month: the full layered read expanded to the whole month (its season, big turns, and the arc
+// across the weeks), read once for your chart and kept. The broadest period reading — sits atop. ──
+function MonthCard({ modeColor }: { modeColor: string }) {
+  const utils = trpc.useUtils();
+  const saved = trpc.horoscope.monthSaved.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
+  const reveal = trpc.horoscope.month.useMutation({ onSuccess: () => utils.horoscope.monthSaved.invalidate() });
+  const [open, setOpen] = useState(false);
+
+  const savedRead = (saved.data as any)?.available ? ((saved.data as any).read as DayRead) : null;
+  const revealedRead = (reveal.data as any)?.available ? ((reveal.data as any).read as DayRead) : null;
+  const read = savedRead ?? revealedRead;
+  const unavailable = reveal.data && (reveal.data as any).available === false;
+
+  const accent = "#7B6FD1"; // twilight violet — the month's season, distinct from eclipse gold + Mercury blue
+  const monthLabel = new Date().toLocaleDateString("en-US", { month: "long" });
+
+  return (
+    <div
+      style={{
+        borderRadius: 16, marginBottom: "1.1rem", padding: "1rem 1.1rem 1.1rem",
+        border: `1px solid color-mix(in srgb, ${accent} 42%, var(--color-border))`,
+        background: `linear-gradient(180deg, color-mix(in srgb, ${accent} 8%, var(--color-card)), var(--color-card))`,
+      }}
+    >
+      {read ? (
+        <>
+          <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+            <MonthGlyph color={accent} />
+            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent }}>Your {monthLabel}</span>
+            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: accent, background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
+            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: accent, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+          </button>
+          {open && (
+            <div style={{ marginTop: "0.8rem" }}>
+              <p style={{ fontSize: "0.68rem", color: "var(--color-muted-foreground)", margin: "0 0 0.7rem", opacity: 0.9 }}>
+                The whole month — its season, big turns, and arc · read once, kept
+              </p>
+              <DayReadBody read={read} modeColor={modeColor} />
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+            <MonthGlyph color={accent} />
+            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent, margin: 0 }}>Your {monthLabel}</p>
+          </div>
+          {unavailable ? (
+            <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
+              This month's reading can't be drawn just now. Please try again in a moment.
+            </p>
+          ) : (
+            <>
+              <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.55, margin: "0 0 0.9rem" }}>
+                The whole month ahead as one read — whose season it is, its big turns and where they land, and the arc across the weeks. Read once for your chart, and kept.
+              </p>
+              <button
+                onClick={() => { reveal.mutate(); setOpen(true); }}
+                disabled={reveal.isPending}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: reveal.isPending ? "default" : "pointer",
+                  borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, letterSpacing: "0.01em",
+                  color: "#fff", background: `linear-gradient(180deg, ${accent}, #5a4fae)`, opacity: reveal.isPending ? 0.7 : 1,
+                  boxShadow: `0 2px 12px ${accent}3a`,
+                }}
+              >
+                {reveal.isPending ? <><Loader2 size={15} className="animate-spin" /> Reading the month…</> : <>Read this month</>}
+              </button>
+              {reveal.isError && (
+                <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The month couldn't be drawn just now. Please try again in a moment.</p>
               )}
             </>
           )}

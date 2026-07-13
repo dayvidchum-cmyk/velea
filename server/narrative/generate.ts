@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -420,6 +420,28 @@ export async function generateMercuryRxRead(input: NarrativeInput): Promise<DayR
     return r ? scrubDayRead(r) : null; // deterministic scrub — no banned term ships
   } catch (err) {
     console.error("[narrative] generateMercuryRxRead failed, using static fallback:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
+// THE MONTH — the full layered read (Time Lord / dasha / profection / natal + the sky) expanded to a
+// whole month's scenes/characters/conversations/arcs. DayRead shape + the same guards, with the widest
+// premium cap (a month legitimately holds the most). Data: input.monthArc + the standing layers.
+export async function generateMonthRead(input: NarrativeInput): Promise<DayRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const r = await callGuarded<DayRead>({
+      c, tail: MONTH_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
+      // A whole month → ~470-word target, 650 hard cap. ~1300 tokens lets a full draft complete so the
+      // guard can catch + correct an overrun.
+      maxTokens: 1300, maxWords: 650,
+      complete: isCompleteDayRead,
+      textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
+    });
+    return r ? scrubDayRead(r) : null; // deterministic scrub — no banned term ships
+  } catch (err) {
+    console.error("[narrative] generateMonthRead failed, using static fallback:", (err as any)?.message ?? err);
     return null;
   }
 }

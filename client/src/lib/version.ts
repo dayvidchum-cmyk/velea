@@ -387,4 +387,13 @@
 // → getMercuryRxCached (cached per cycle, keyed by the station-retrograde date) → horoscope.mercuryRx
 // endpoints → MercuryRxCard on the Readings page (quicksilver-blue, under the eclipse card). Gated to
 // horoscope entitlement; unavailable when Mercury is clear.
-export const APP_VERSION = "1.1.425";
+//
+// v1.1.426 = 2026-07-13 — THE MONTH period reading (David: "same as a single day, but expanded to the
+// month — the interactions"), the third period reading. ONE synthesized read of the whole month (far
+// cheaper than 30 day-reads), spined on the TIME LORD and using the full layered input, weaving the
+// month's big SCENES / CHARACTERS / CONVERSATIONS / ARCS. New engine sky/month-events.ts scans the
+// calendar month for the beats (lunations, ingresses, stations, eclipses, personal natal hits), each
+// mapped to the chart's houses → input-builder monthArc → MONTH_TAIL → generateMonthRead →
+// getMonthCached (cached per month "YYYY-MM") → horoscope.month endpoints → MonthCard (twilight violet,
+// atop the Readings period cards). Subscriber core benefit (gated to horoscope entitlement until billing).
+export const APP_VERSION = "1.1.426";
