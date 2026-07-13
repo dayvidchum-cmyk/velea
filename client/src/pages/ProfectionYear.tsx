@@ -521,9 +521,6 @@ export default function ProfectionYear() {
       ))}
       </div>
 
-      {/* The Meridian — MC/IC voice axis + who's activating it now (read-only) */}
-      <MeridianCard />
-
       {/* This year's life areas — the houses this profection year activates ("the party") */}
       {(() => {
         const yearAreas = LIFE_AREAS.filter((a) => a.houses.includes(activatedHouse));
@@ -600,7 +597,7 @@ export default function ProfectionYear() {
               {tlTransit?.house != null && (
                 <div style={{ marginBottom: (chapterGoodFor.length || chapterAvoid.length || triggerData?.available) ? "1.1rem" : 0 }}>
                   <p style={{ color: "#FDFDFD", fontSize: "0.98rem", fontWeight: 700, lineHeight: 1.5, margin: "0 0 0.35rem" }}>
-                    Right now: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"} (your {ORD[tlTransit.house]} house)
+                    Right now: {HOUSE_GLOSS[tlTransit.house] ?? "this area of life"}
                   </p>
                   <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.95rem", lineHeight: 1.6, margin: 0 }}>
                     Your Time Lord {tlTransit.timeLord} is passing through this part of your chart right now — so this is the life-area where the year's growth and friction actually play out.
@@ -769,6 +766,10 @@ export default function ProfectionYear() {
           )}
         </div>
       ))}
+
+      {/* The Meridian — MC/IC voice axis + who's activating it now. Sits UNDER Time Lord
+          Movement now (David): the axis chapters read as a continuation of the movement story. */}
+      <MeridianCard />
 
       {isAdmin && panel("The Road Ahead", roadOpen, setRoadOpen, (
         arcError ? (

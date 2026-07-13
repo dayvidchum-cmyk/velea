@@ -53,13 +53,13 @@ function readAxis(h: AxisHit): string {
 function occLine(h: AxisHit): string {
   const dgn = h.dignity && h.dignity !== "neutral" ? `, ${h.dignity}` : "";
   const motion = h.applying ? "approaching exact" : "separating";
-  const courier = h.natalHouse ? `, carrying your ${ORD[h.natalHouse]} house${HOUSE_GLOSS[h.natalHouse] ? ` (${HOUSE_GLOSS[h.natalHouse]})` : ""}` : "";
+  const courier = h.natalHouse ? `, carrying your ${HOUSE_GLOSS[h.natalHouse] ?? "chart"}` : "";
   return `${h.transitSign} ${h.transitDegree.toFixed(1)}°${dgn} · ${motion} (${h.orb.toFixed(1)}° off)${courier}`;
 }
 
 /** Frame each slow chapter as human orientation — ending / threshold / beginning. */
 function narrate(ch: Chapter): { headline: string; body: string; reflect?: boolean } {
-  const carries = ch.natalHouse ? ` carrying your ${ORD[ch.natalHouse]} house${HOUSE_GLOSS[ch.natalHouse] ? ` (${HOUSE_GLOSS[ch.natalHouse]})` : ""},` : "";
+  const carries = ch.natalHouse ? ` carrying your ${HOUSE_GLOSS[ch.natalHouse] ?? "chart"},` : "";
   const dign = ch.peakDignity !== "neutral" ? `, ${ch.peakDignity} at its height,` : "";
   const ad = ch.antardasha;
   if (ch.status === "current") {

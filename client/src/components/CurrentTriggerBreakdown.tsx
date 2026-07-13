@@ -58,7 +58,7 @@ export function CurrentTriggerBreakdown({
         return (
           <div key={i} style={{ borderLeft: `3px solid ${accent}`, paddingLeft: "0.75rem" }}>
             <p style={{ color: fg, fontSize: "1rem", lineHeight: 1.55, margin: 0 }}>
-              <strong>{t.planet}</strong> is moving through your <strong>{ORD[t.houseFromLagna]} house</strong>{t.sign ? ` (${t.sign})` : ""} — {HOUSE_GLOSS[t.houseFromLagna] ?? "this area of life"}.
+              <strong>{t.planet}</strong> is walking through your <strong>{HOUSE_GLOSS[t.houseFromLagna] ?? "this area of life"}</strong> right now.
             </p>
             {nature && (
               <p style={{ color: fg, fontSize: "0.9rem", lineHeight: 1.55, margin: "0.35rem 0 0", opacity: 0.9 }}>

@@ -12,9 +12,9 @@ import OctagramMark from "./OctagramMark";
 const BASE_NAV = [
   { path: "/", label: "Today", icon: VeleaMark },
   { path: "/profection", label: "Chart", icon: BookOpen },
+  { path: "/horoscope", label: "Readings", icon: OctagramMark },
   { path: "/projects", label: "Projects", icon: Folder },
   { path: "/glossary", label: "Glossary", icon: Library },
-  { path: "/horoscope", label: "Readings", icon: OctagramMark },
 ];
 
 export default function BottomNav() {
