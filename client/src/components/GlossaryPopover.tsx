@@ -85,14 +85,15 @@ export function GlossaryLink({
     if (r) { setAnchor(r); setOpen(true); }
   };
 
-  // Prose terms (underline=true): bold, soft gold underline, fully golden on hover/press.
-  // Styled chips (underline=false): a gentle brightness + press-in, so the chip's own
-  // color leads. Either way there's a clear "this is tappable" signal.
+  // Prose terms (underline=true): the underline is currentColor — the SAME as the font — so it
+  // reads as one with the text and is never "lost" (David: consistency; the old gold line vanished
+  // on some grounds, and white-on-dark modes is fine since it just follows the text). A gentle
+  // opacity dip on tap is the affordance. Styled chips (underline=false): brightness + press-in.
   const emphasis: React.CSSProperties = underline
     ? {
         fontWeight: 600,
-        borderBottom: "1.5px solid var(--brand-gold)",
-        color: active || open ? "var(--brand-gold)" : undefined,
+        borderBottom: "1.5px solid currentColor",
+        opacity: active || open ? 0.72 : undefined,
       }
     : {
         filter: active || open ? "brightness(1.15)" : undefined,
