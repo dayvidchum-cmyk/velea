@@ -22,13 +22,18 @@ const HOUSE_GLOSS: Record<number, string> = {
 
 export function WhyNowChain({
   age, activatedHouse, activatedSign, timeLord,
-  tlNatalHouse, tlNatalSign, tlNatalNakshatra, accentColor,
+  tlNatalHouse, tlNatalSign, tlNatalNakshatra, tlNodeConjunct, tlOppositeHouse, accentColor,
 }: {
   age: number; activatedHouse: number; activatedSign: string; timeLord: string;
   tlNatalHouse?: number | null; tlNatalSign?: string | null; tlNatalNakshatra?: string | null;
+  // A node (Rahu/Ketu) sitting with the Time Lord flips the house from "settle in" to a DIRECTION —
+  // Ketu releases the ground, Rahu reaches past it — and puts the year on an axis (the opposite pole).
+  tlNodeConjunct?: string | null; tlOppositeHouse?: number | null;
   accentColor?: string;
 }) {
   const accent = accentColor ?? "var(--foreground)";
+  const isKetu = tlNodeConjunct === "Ketu";
+  const isRahu = tlNodeConjunct === "Rahu";
 
   const steps: ReactNode[] = [
     <>You are <strong>{age}</strong> years old this year.</>,
@@ -40,7 +45,17 @@ export function WhyNowChain({
     steps.push(
       <>
         <strong>{timeLord}</strong> sits in <strong>the {ORD[tlNatalHouse]} house</strong> of your birth chart
-        {tlNatalSign ? ` (${tlNatalSign}${tlNatalNakshatra ? `, ${tlNatalNakshatra}` : ""})` : ""} — {HOUSE_GLOSS[tlNatalHouse]}.
+        {tlNatalSign ? ` (${tlNatalSign}${tlNatalNakshatra ? `, ${tlNatalNakshatra}` : ""})` : ""} — {HOUSE_GLOSS[tlNatalHouse]}
+        {isKetu ? <> — but <strong>Ketu</strong> sits here too, so this is ground being <em>released</em>, not settled into.</>
+          : isRahu ? <> — but <strong>Rahu</strong> sits here too, so this is a hunger <em>reaching</em> past the familiar, never quite filled.</>
+          : <>.</>}
+      </>
+    );
+  }
+  if (tlNodeConjunct && tlOppositeHouse) {
+    steps.push(
+      <>
+        Which puts your year on an <strong>axis</strong>: the opposite pull is <strong>the {ORD[tlOppositeHouse]} house</strong> — {HOUSE_GLOSS[tlOppositeHouse]} — {isKetu ? "the reach you grow into as these roots loosen" : "the roots that quietly loosen as you reach outward"}. The year lives between the two.
       </>
     );
   }

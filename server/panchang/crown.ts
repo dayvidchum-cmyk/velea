@@ -239,14 +239,24 @@ export async function personalRatingForDate(anchors: CrownAnchors, dateStr: stri
 export async function personalDayForDate(
   anchors: CrownAnchors,
   dateStr: string,
+  dayLoc?: { lat: number; lon: number; utcOffset: number },
 ): Promise<{ rating: CrownRating; mode: import("./interpreter.js").FinalMode } | null> {
   try {
     const { calculateBirthChart } = await import("../birthchart/calculator.js");
     const { interactionBaseMode } = await import("./interpreter.js");
-    const ch: any = await calculateBirthChart(dateStr, "12:00", 0, 0, "UTC");
+    // Sample the day at LOCAL noon where the body actually is (Seoul vs home), not a fixed noon-UTC
+    // reference — the Moon moves ~0.5°/hr, so a 9-13h offset can shift the day's nakshatra/tara and
+    // thus the mode. With no dayLoc this is exactly noon-UTC @ (0,0) — the prior behavior, unchanged.
+    const off = dayLoc?.utcOffset ?? 0;
+    const utcMs = Date.parse(dateStr + "T12:00:00Z") - off * 3600_000;
+    const dt = new Date(utcMs);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const chDate = `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+    const chTime = `${pad(dt.getUTCHours())}:${pad(dt.getUTCMinutes())}`;
+    const ch: any = await calculateBirthChart(chDate, chTime, dayLoc?.lat ?? 0, dayLoc?.lon ?? 0, "UTC");
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
-    const majIdx = await majorityDayStarIdx(dateStr);
+    const majIdx = dayLoc ? await majorityDayStarIdx(dateStr, dayLoc.lat, dayLoc.lon, dayLoc.utcOffset) : await majorityDayStarIdx(dateStr);
     const rating = crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined }).rating;
 
     // ── Interaction mode ── the day-Moon (noon) read through both self-lenses + the live sky.

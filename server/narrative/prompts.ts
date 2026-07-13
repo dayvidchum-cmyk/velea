@@ -65,7 +65,12 @@ poems, and never yesterday's page retyped.
 PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entirely).
 - profection: { age, activatedHouse, activatedSign, timeLord,
   timeLordNatal:{ sign, house, nakshatra, dignity, retrograde },
-  timeLordRulesHouses:[int] }
+  timeLordRulesHouses:[int], timeLordIsMoon:bool } — timeLordIsMoon TRUE means the Moon
+  rules the year AND is the daily trigger; see "WHEN THE MOON IS BOTH THE LORD AND THE TRIGGER".
+- meridianAxis (timed charts only; may be absent): { mc:{ sign, house, lord, onAngle:[{planet,orbDeg}] },
+  ic:{…}, nodesOnAxis:bool, lordsOnAxis:[{ role, lord, pole }] } — the dharma axis (MC = the
+  public calling/reach, IC = the roots/release). THE SPINE OF THE READ; see "THE MERIDIAN IS THE
+  SPINE". lordsOnAxis tells you which ruling lord sits on which pole right now.
 - dasha: { mahaDasha:{ lord, natal:{…}, rulesHouses:[int] },
   antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} } —
   maha is the life chapter, antar the season within it. pratyantarDasha (when present)
@@ -730,6 +735,34 @@ tending home / mother / emotional foundation, worked out through the [Moon's hou
 area of life, in the mood of [nakshatra]" — specific and actionable, not atmospheric.
 If the Moon is with a node or a malefic (e.g. Moon–Ketu), say how that bends the need
 (detachment, restlessness, a foundation that must be released rather than clung to).
+
+THE MERIDIAN IS THE SPINE — READ FROM THE DHARMA AXIS OUTWARD (input.meridianAxis)
+Every read hangs off the Meridian. The MC is the public calling — the reach, the life aimed
+outward; the IC is the roots — the private ground, the release. input.meridianAxis gives each
+pole's sign, house and lord, any NATAL planet sitting on an angle (mc.onAngle / ic.onAngle), and
+the load-bearing piece — meridianAxis.lordsOnAxis: which of today's ruling lords (the profection
+Time Lord, the mahā and antar daśā) sit on the reach pole vs the release pole. START THERE: name
+which pole is lit and by whom, then refract the day through it.
+- When lordsOnAxis puts one lord on the reach pole (MC) and another on the release pole (IC), the
+  read's spine is REACH-VS-RELEASE — reaching toward a larger, more public, often unfamiliar life
+  on one side while an old foundation is set down (not clung to) on the other. This is a DIRECTION,
+  and it is the opposite of "settle in." Say concretely what is being reached for and what is being
+  released — the work, the home, the country, the belonging.
+- When meridianAxis.nodesOnAxis is true, a node sits ON the meridian: the reach/release (Rahu/Ketu)
+  axis IS this person's dharma axis — not one theme among many but the whole read. Rahu on the MC
+  hungers outward for standing and the new; Ketu on the IC dissolves the old roots. Read the life
+  as that pull, every time.
+
+WHEN THE MOON IS BOTH THE LORD AND THE TRIGGER (profection.timeLordIsMoon = true)
+The Moon moves the most, so when it rules the year it is ALSO the daily trigger — one body in two
+jobs. Do NOT count it twice. The transiting Moon is ONLY today's trigger (panchang.activatedHouse):
+what today touches. The YEAR's slow chapter does not come from the transiting Moon at all — it comes
+from the NATAL Moon's standing need (its house, sign, nakshatra — see the block above) and from the
+daśā lords' placements (often on the Meridian, per lordsOnAxis). Hold the standing lunar need (slow,
+the year) apart from the moving lunar trigger (fast, the day); never let the read collapse into
+feeling/mood just because the Moon is everywhere. If the Moon sits on the IC with a node, the year
+is about RELEASING the old ground, not nesting in it — the daily Moon only marks where that release
+gets touched today.
 
 THE TIME LORD'S SIGN AND NAKSHATRA — THE YEAR'S METHOD AND AIM
 The activated house is the year's TOPIC, but HOW that topic is worked is set by the
@@ -1887,7 +1920,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-12-eclipse-phase-aware";
+export const PROMPT_VERSION = "2026-07-13-meridian-spine-moon-uncounted";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

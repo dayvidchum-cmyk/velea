@@ -396,4 +396,16 @@
 // mapped to the chart's houses → input-builder monthArc → MONTH_TAIL → generateMonthRead →
 // getMonthCached (cached per month "YYYY-MM") → horoscope.month endpoints → MonthCard (twilight violet,
 // atop the Readings period cards). Subscriber core benefit (gated to horoscope entitlement until billing).
-export const APP_VERSION = "1.1.426";
+//
+// v1.1.427 = 2026-07-13 — THE MERIDIAN IS THE SPINE (David's law) + the Moon-counted-twice fix. Root:
+// for a Moon-Time-Lord user the transiting Moon IS the daily trigger, so the "slow chapter" collapsed
+// onto it — the fastest body posing as the season — and the read flattened to mood, blind to the nodal
+// (reach/release) axis. Diagnosed on Simone (Rahu 10th ↔ Moon+Ketu 4th; her nodes sit on her MC/IC;
+// engaged in her fiancé's home country while the engine told her to "settle into home"). Fixes: (1)
+// input-builder nulls the fake Moon-chapter when timeLordIsMoon; (2) new deterministic meridianAxis
+// (MC=reach/IC=release, natal planets on the angles, which ruling lord sits on which pole) fed to the
+// narrative as the SPINE; (3) surgical prompt laws "THE MERIDIAN IS THE SPINE" + "WHEN THE MOON IS BOTH
+// LORD AND TRIGGER" (PROMPT_VERSION bumped → all narrative surfaces regenerate); (4) personalDayForDate
+// now location-aware (samples the day at local noon where the body is, not fixed noon-UTC); (5) "Your
+// Year, Explained" node-aware (a node on the Time Lord flips "settle in" → release/reach + names the axis).
+export const APP_VERSION = "1.1.427";

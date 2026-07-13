@@ -178,6 +178,12 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // year activates, and/or in the activated sign. A strong repetition / return.
     timeLordReturnsHome: tlb ? tlb.house === pf.activatedHouse : false,
     timeLordInActivatedSign: tlb ? tlb.sign === pf.activatedSign : false,
+    // THE MOON IS COUNTED TWICE guard: when the year lord IS the Moon, the Moon is ALSO the
+    // daily trigger (panchang.activatedHouse). The transiting-Moon "chapter" below would then
+    // collapse onto the day itself — the fastest body posing as the slow season. Flagged so the
+    // prompt keeps the Moon as trigger only and takes the slow chapter from the natal Moon's
+    // standing need + the daśā lords (David: "it's counted twice because it moves the most").
+    timeLordIsMoon: pf.timeLord === "Moon",
   };
 
   const moon = byPlanet["Moon"];
@@ -291,8 +297,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       chandraHouse: cd.chandrabala.house,
       chandraFavorable: cd.chandrabala.favorable,
     };
-    // Interaction mode off the same anchors (noon-UTC day chart) → identical to the hero's mode.
-    interactionMode = (await personalDayForDate({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, ashtakavarga: natalAv }, dateStr))?.mode ?? null;
+    // Interaction mode off the same anchors + the viewer's day-location, so the mode reflects the
+    // day as lived WHERE THE BODY IS (Seoul vs home), not a fixed noon-UTC reference (David).
+    interactionMode = (await personalDayForDate({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, ashtakavarga: natalAv }, dateStr, moment?.dayLoc))?.mode ?? null;
   }
   (natal as any).personalApex = personalApex;
 
@@ -395,13 +402,65 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // The year lord's CURRENT transit house is the active medium-term chapter (weeks),
   // distinct from the Moon's daily trigger. Surfaced first-class so the engine can
   // name its concrete life-area instead of losing it in the raw transit list.
-  const tlt = transits.find((t: any) => t.planet === pf.timeLord) || null;
+  // EXCEPT when the year lord is the Moon: the transiting Moon IS the daily trigger, so a
+  // "Moon chapter" would double-count the fastest body as a slow season. Null it — the slow
+  // chapter for a Moon year comes from the natal Moon's standing + the daśā lords, not this.
+  const tlt = pf.timeLord === "Moon" ? null : (transits.find((t: any) => t.planet === pf.timeLord) || null);
   const timeLordTransit = tlt
     ? { planet: pf.timeLord, currentSign: tlt.sign, currentHouse: tlt.houseFromLagna, retrograde: tlt.retrograde, hitsNatalPoint: tlt.hitsNatalPoint, orbDeg: tlt.orbDeg,
         // The Time Lord's LIVE condition, not just its house — its dignity RIGHT NOW decides
         // how loudly the chapter's protagonist speaks (see the prompt's spotlight rule).
         condition: tlt.strength, combust: tlt.combust, spotlight: tlt.spotlight, spotlightReason: tlt.spotlightReason }
     : null;
+
+  // ── THE MERIDIAN — the dharma axis, the SPINE every read hangs off (David's law) ──
+  // MC = the public calling / the reach; IC = the roots / the release. We surface the axis
+  // signs + lords, any NATAL planet sitting on an angle (a node on the meridian makes this axis
+  // the person's whole spine), and — load-bearing — which of TODAY's ruling lords (profection
+  // Time Lord, mahā/antar daśā) sit on the reach pole vs the release pole. That last piece is what
+  // stops the prose flattening a lord into "mood": when the Moon rules a year AND sits on the IC
+  // release pole while Rahu runs the MC reach pole, the story is reach-vs-release, never weather.
+  // Timed charts only — a no-birth-time (Chandra) chart has no real meridian (mcLongitude absent).
+  let meridianAxis: any = null;
+  {
+    const mcLonM = (p as any).mcLongitude != null ? parseFloat((p as any).mcLongitude) : NaN;
+    if (!Number.isNaN(mcLonM) && lagnaSignIdx >= 0) {
+      const norm = (x: number) => ((x % 360) + 360) % 360;
+      const sep = (x: number, y: number) => Math.abs(((norm(x) - norm(y) + 540) % 360) - 180);
+      const mcL = norm(mcLonM), icL = norm(mcL + 180);
+      const mcIdx = Math.floor(mcL / 30), icIdx = (mcIdx + 6) % 12;
+      const houseOfSign = (idx: number) => ((idx - lagnaSignIdx + 12) % 12) + 1;
+      const mcSign = ZODIAC[mcIdx], icSign = ZODIAC[icIdx];
+      // natal planets within 8° of an angle — a node here is the loudest signal
+      const onAngle = (angLon: number) =>
+        Object.entries(natalLon)
+          .filter(([, v]) => sep(v as number, angLon) <= 8)
+          .map(([k, v]) => ({ planet: k, orbDeg: +sep(v as number, angLon).toFixed(1) }))
+          .sort((x, y) => x.orbDeg - y.orbDeg);
+      const mcOn = onAngle(mcL), icOn = onAngle(icL);
+      // which of the day's ruling lords sit on a pole, by natal sign (reach = MC sign, release = IC sign)
+      const poleOf = (lord: string) => {
+        const b: any = byPlanet[lord];
+        if (!b?.sign) return null;
+        if (b.sign === mcSign) return "reach (the MC / public calling)";
+        if (b.sign === icSign) return "release (the IC / roots)";
+        return null;
+      };
+      const rulers = [
+        { role: "Time Lord", lord: pf.timeLord },
+        ...(cur ? [{ role: "mahadasha", lord: cur.mahadasha }, { role: "antardasha", lord: cur.antardasha }] : []),
+      ];
+      const lordsOnAxis = rulers.map((r) => ({ ...r, pole: poleOf(r.lord) })).filter((r) => r.pole);
+      meridianAxis = {
+        mc: { sign: mcSign, house: houseOfSign(mcIdx), lord: SIGN_RULERS[mcSign], onAngle: mcOn },
+        ic: { sign: icSign, house: houseOfSign(icIdx), lord: SIGN_RULERS[icSign], onAngle: icOn },
+        // TRUE when a node sits on the meridian → the nodal (reach/release) axis IS the dharma axis
+        nodesOnAxis: [...mcOn, ...icOn].some((o) => o.planet === "Rahu" || o.planet === "Ketu"),
+        // e.g. [{role:"mahadasha",lord:"Rahu",pole:"reach…"},{role:"antardasha",lord:"Moon",pole:"release…"}]
+        lordsOnAxis,
+      };
+    }
+  }
 
   // LIFE-AREA LENS — the horoscope's "pick a life area" varga-deep block. Present ONLY when a
   // life area was requested (the Today/glance reads never carry it). Deterministic: routes the area
@@ -541,5 +600,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(meridianAxis ? { meridianAxis } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

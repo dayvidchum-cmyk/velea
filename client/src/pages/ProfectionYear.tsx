@@ -364,6 +364,13 @@ export default function ProfectionYear() {
 
   const { age, activatedHouse, activatedSign, timeLord, lagnaSign } = profectionData.profection;
   const tlBody: any = (subject as any)?.natalBodies?.find((b: any) => b.planet === timeLord);
+  // Is a node sitting with the Time Lord natally? That flips its house from "settle in" to a
+  // DIRECTION (Ketu releases, Rahu reaches) and puts the year on an axis — the opposite house.
+  const tlNatalBodies: any[] = (subject as any)?.natalBodies ?? [];
+  const tlNodeConjunct: string | null = tlBody?.house
+    ? (tlNatalBodies.find((b: any) => (b.planet === "Rahu" || b.planet === "Ketu") && b.house === tlBody.house)?.planet ?? null)
+    : null;
+  const tlOppositeHouse: number | null = tlBody?.house ? ((tlBody.house + 5) % 12) + 1 : null;
 
   // A planet's placement as deterministic bullets (dignity + house it sits in, houses
   // it rules), under a label that names WHO it is — computed from the chart, not the LLM.
@@ -517,6 +524,8 @@ export default function ProfectionYear() {
                     tlNatalHouse={tlBody?.house}
                     tlNatalSign={tlBody?.sign}
                     tlNatalNakshatra={tlBody?.nakshatra}
+                    tlNodeConjunct={tlNodeConjunct}
+                    tlOppositeHouse={tlOppositeHouse}
                     accentColor={modeColor}
                   />
                 </div>
