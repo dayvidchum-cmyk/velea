@@ -46,8 +46,25 @@
     "veleaStance": "The book flags Sade Sati as folk lore ABSENT from the classical texts, and advises caution about over-weighting it (and Moon-referenced transits generally) in a modern Western practice. Practical rule it does keep: the impact is real mainly within 12° of an exact Saturn–Moon conjunction; outside that, it can be largely ignored."
   },
 
-  "_pending": [
-    "Maturity of Planets — the age at which each planet 'matures' (becomes truly functional, ~12-month pronounced window); the book gives a table but the numbers were an image not in the text layer. Scan needed.",
-    "Planetary Ages — the life-periods each planet backgrounds (used when a chart lacks dasha/transit info; overridden by dashas/transits/maturity). Table also image-only. Scan needed."
-  ]
+  "maturityOfPlanets": {
+    "_source": "Vol I Ch.13 (p162).",
+    "_desc": "The AGE at which each planet 'matures' — becomes truly functional. From that year, the houses it OWNS and the house it SITS in grow more pronounced for ~12 months; most noticeable for the ruling planet and the chart's strongest planet. Fires independently of dasha/transit.",
+    "ageYears": { "Jupiter": 16, "Sun": 22, "Moon": 24, "Venus": 25, "Mars": 28, "Mercury": 32, "Saturn": 36, "Rahu": 42, "Ketu": 48 },
+    "_note": "Book states each as a span (Jupiter 15→16, Sun 21→22, Moon 23→24, Venus 24→25, Mars 27→28, Mercury 31→32, Saturn 35→36, Rahu 41→42, Ketu 47→48); ageYears above is the completed year (the end of each span)."
+  },
+
+  "planetaryAges": {
+    "_source": "Vol I Ch.13 (p162).",
+    "_desc": "The life-PERIOD each planet forms a background influence over. OVERRIDDEN by dashas, transits, and the maturity years above — best used when a chart has no dasha/transit info.",
+    "periods": [
+      { "planet": "Moon", "ageFrom": 0, "ageTo": 4 },
+      { "planet": "Mercury", "ageFrom": 5, "ageTo": 14 },
+      { "planet": "Venus", "ageFrom": 15, "ageTo": 22 },
+      { "planet": "Sun", "ageFrom": 23, "ageTo": 41 },
+      { "planet": "Mars", "ageFrom": 42, "ageTo": 56 },
+      { "planet": "Jupiter", "ageFrom": 57, "ageTo": 68 },
+      { "planet": "Saturn", "ageFrom": 68, "ageTo": 108 }
+    ],
+    "_note": "Example (book): if Venus is poorly placed but the Sun is well placed, success/happiness is unlikely until age 23 (when the Sun's period opens). A weak Mars + strong Jupiter → lack of success/initiative until the late 50s (the Jupiter period)."
+  }
 }
