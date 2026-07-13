@@ -348,3 +348,27 @@ export async function calculateBirthChart(
 
   return result as BirthChartResult;
 }
+
+/**
+ * Lightweight single-planet sidereal longitude + speed at a given date (noon UT by default).
+ * Reuses the shared ephemeris instance — cheap enough to sample across a window (e.g. to trace a
+ * retrograde shadow). Speed is deg/day: negative = retrograde, |speed| near 0 = stationing.
+ */
+const SE_PLANET_KEY: Record<string, string> = {
+  sun: "SE_SUN", moon: "SE_MOON", mercury: "SE_MERCURY", venus: "SE_VENUS",
+  mars: "SE_MARS", jupiter: "SE_JUPITER", saturn: "SE_SATURN",
+};
+export async function planetLongitudeSpeed(
+  planet: string,
+  dateStr: string,
+  hourUT = 12,
+): Promise<{ longitude: number; speed: number }> {
+  const se = await initSwissEph();
+  se.set_sid_mode(se.SE_SIDM_LAHIRI, 0, 0);
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const jd = se.julday(y, m, d, hourUT);
+  const flags = se.SEFLG_SWIEPH | se.SEFLG_SIDEREAL | (se.SEFLG_SPEED ?? 256);
+  const code = (se as any)[SE_PLANET_KEY[planet.toLowerCase()]];
+  const calc = se.calc_ut(jd, code, flags);
+  return { longitude: calc[0], speed: calc[3] };
+}

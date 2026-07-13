@@ -16,6 +16,7 @@ import { crownDay } from "../panchang/crown.js";
 import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
+import { mercuryRxState } from "../sky/retrograde-phase.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
@@ -451,8 +452,16 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     }
   }
 
+  // Mercury's graded retrograde phase (David: not a binary flag — name the pre-shadow / stationing /
+  // deep retrograde / retroshade). Attached ONLY when Mercury is NOT plain-direct, so direct days keep
+  // their input hash unchanged (no needless read regeneration — only the ~monthly shadow window busts).
+  const merRx = await mercuryRxState(dateStr);
+  const mercuryRx = merRx.phase !== "direct"
+    ? { phase: merRx.phase, strength: +merRx.strength.toFixed(2), retrograde: merRx.retrograde }
+    : null;
+
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}) };
 }

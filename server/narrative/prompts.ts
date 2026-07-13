@@ -103,6 +103,13 @@ PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entire
   But the ensemble stays background — an ordinary, clear transit gets no aria, and a scene
   where everyone solos is noise: at most ONE, rarely two arias in a read. And an aria still
   answers to the story — a loud guest is never the host (the Moon) or the chapter's lead.
+- mercuryRx: { phase, strength, retrograde } — present ONLY when Mercury is in its retrograde arc
+  (absent = Mercury clear, say nothing about it). phase is where in the arc: "pre-shadow" (the
+  approach — the review isn't here yet, it's gathering), "stationing" (the hinge — a planet stock-
+  still, the most charged, pivot day), "retrograde" (the review in full — revisit, re-say, don't
+  launch new), "retroshade" (the tail — re-covering old ground, loose ends closing, releasing).
+  strength 0..1 is how deep/intense (grade the weight: a 0.2 pre-shadow is a faint early tug, a 1.0
+  station is the peak). Use this to modulate INTENSITY and framing — never a flat "Mercury retrograde."
 - panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, karana, hora, eclipse, asOf } — qualifier is
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
   karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true
@@ -1417,6 +1424,15 @@ value circling back, love and money re-weighed; relational, not a general "go sl
 outer planet (Jupiter/Saturn) rx belongs to the SLOW arc, not the day — mention only if it
 is the day's spotlight. Read the retrograde through the HOUSE it sits in for THIS chart (the
 room the review lands in) and through whether it touches a natal point — interaction, always.
+
+RETROGRADE HAS A PHASE, NOT A SWITCH (David — see mercuryRx). When mercuryRx is present, let its
+phase and strength set the WEIGHT and the framing, so the same rx reads differently across its arc:
+pre-shadow = the review is gathering, not here yet (a faint pull; name it only if it earns words);
+stationing = the hinge, a planet stock-still — the most charged, pivot-day intensity, worth a real
+beat; retrograde = the review in full swing (revisit, re-say, don't launch); retroshade = the tail,
+old ground re-covered and loose ends closing (integration/release, easing out — not the alarm of the
+core). A low strength is a whisper, a 1.0 is the peak. Never flatten the whole arc to one "Mercury
+retrograde" note — where the day sits IN the arc is the information.
 
 Read on a phone, attention thin. The read is FIVE fields — scene, story, tilt, closeLine,
 question — each PURE PROSE a person who knows no astrology reads without stumbling. There is NO separate
