@@ -1,0 +1,43 @@
+{
+  "_source": "sarvatobhadra.com/arudha-lagna-bhav-padas (web reference for the Jaimini Arudha technique). NOT from the Kurczak & Fish set — those cover only the prasna/directional Arudha, not this natal one.",
+  "_note": "ARUDHA LAGNA (AL) is the technical name for David's whole fight: IDENTITY AS RECEIVED IN THE WORLD. The Lagna is the inner self; the AL is the PUBLIC IMAGE — how the world sees, knows, and responds to you, 'the mask you wear in public.' 'Arudha' = mounted/risen = something made visible. This is the deterministic anchor for velea-dharma-is-identity-not-work: the 'identity' knot theme should ultimately be read from the AL, not defaulted to career. Renunciates transcend AL (their identity dissolves).",
+
+  "calculation": {
+    "arudhaLagna": [
+      "1. Count from the Ascendant to its lord (n signs).",
+      "2. Count the same number (n) forward again from the lord's position.",
+      "3. The sign arrived at is the Arudha Lagna.",
+      "SPECIAL RULE: if the AL lands in the 1st or 7th house from the lagna, move 10 signs further from there — these two houses are the exceptions (an image can't sit right on the self or its mirror)."
+    ],
+    "lagnaLordHouseToAL": {
+      "_desc": "Shortcut table: Ascendant lord's house → resulting AL house (the two-in-one column reflects the 1st/7th exception folding pairs together).",
+      "1": 10, "7": 10, "2": 3, "8": 3, "3": 5, "9": 5, "4": 4, "10": 4, "5": 9, "11": 9, "6": 11, "12": 11
+    },
+    "bhavaPada": "Every house (bhava) has its OWN arudha — the Bhava Pada — computed the same way but from THAT house's lord. A2 = the image of one's wealth, A3 = of one's efforts/siblings, … A12 = of one's losses. (AL itself = A1, the pada of the lagna.)"
+  },
+
+  "planetOnAL": {
+    "_desc": "What a planet lends the public image when it influences the AL — by lordship, placement, or rasi drishti (sign aspect).",
+    "Sun": "authority, dignity, leadership",
+    "Moon": "kindness, care, emotional appeal",
+    "Mars": "boldness, aggression, logic",
+    "Mercury": "wit, cleverness, communication",
+    "Jupiter": "wisdom, generosity, ethics",
+    "Venus": "charm, beauty, creativity",
+    "Saturn": "discipline, seriousness, endurance",
+    "Rahu": "mystery, controversy, manipulation",
+    "Ketu": "spirituality, detachment, eccentricity"
+  },
+  "strengthFlips": "The planet's dignity flips the image: a DEBILITATED Saturn on the AL reads as rigid, incapable, complaining; an EXALTED Saturn reads as hard-working, traditional, patient. Read the live condition, never the planet in the abstract.",
+
+  "predictiveRules": [
+    "Benefics (Jupiter, Venus, Moon, uninflicted Mercury) in the 1/2/4/5/7/8/9/10/11 FROM THE AL give positive results.",
+    "Malefics (Mars, Saturn, Rahu, Ketu, Sun) in the 3rd/6th/11th from the AL can also benefit — strength and resilience.",
+    "Guna: Sattva (Jupiter, Sun, Moon) enhances a moral/spiritual image; Rajo (Mercury, Venus) a dynamic, engaging public personality.",
+    "A STRONG 11th from the AL brings wealth, success, public admiration; if all planets sit in or rasi-aspect it, the person can rise to 'royal' status.",
+    "Jupiter, Moon or Venus in the 2nd or 7th from the AL → abundant wealth and a favorable image; an EXALTED planet in the 2nd or 7th from AL dramatically boosts status and reputation.",
+    "Many planets in the 12th from the AL → losses, criticism, image-related challenges."
+  ],
+
+  "_veleaUse": "Compute the AL (and key bhava padas) deterministically and feed the 'identity' knot from it, so 'identity as received in the world' is read from the AL sign + whatever shapes it — the true fix for reading the 10th as 'career'. NOT yet wired into server/vedic/knots.ts (identity currently keys on 1st/10th + Sun); AL computation is the next enhancement. See velea-dharma-is-identity-not-work, velea-meridian-is-the-spine."
+}

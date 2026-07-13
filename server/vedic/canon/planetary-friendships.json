@@ -1,0 +1,13 @@
+{
+  "_source": "Kurczak & Fish, Art & Science of Vedic Astrology Vol II, Ch.10 'Planetary Friendships' (naisargika/natural maitri).",
+  "_note": "NATURAL (naisargika) friendship only — permanent, from the planets' innate nature. NOT the temporal (tatkalika) or compound (panchadha) friendship, which depend on placement and are not given in this chapter (flag as a dependency if a surface needs compound maitri). This table is the KEY to dignity, dispositor strength, and every Lajjitaadi avastha (a planet is helped in a friend's sign/aspect, harmed in an enemy's). NB: the Moon has NO enemies.",
+  "friendships": {
+    "Sun":     { "friends": ["Moon", "Mars", "Jupiter"], "neutral": ["Mercury"], "enemies": ["Venus", "Saturn"] },
+    "Moon":    { "friends": ["Sun", "Mercury"], "neutral": ["Mars", "Jupiter", "Venus", "Saturn"], "enemies": [] },
+    "Mars":    { "friends": ["Moon", "Sun", "Jupiter"], "neutral": ["Venus", "Saturn"], "enemies": ["Mercury"] },
+    "Mercury": { "friends": ["Sun", "Venus"], "neutral": ["Mars", "Jupiter", "Saturn"], "enemies": ["Moon"] },
+    "Jupiter": { "friends": ["Moon", "Mars", "Sun"], "neutral": ["Saturn"], "enemies": ["Mercury", "Venus"] },
+    "Venus":   { "friends": ["Mercury", "Saturn"], "neutral": ["Mars", "Jupiter"], "enemies": ["Sun", "Moon"] },
+    "Saturn":  { "friends": ["Mercury", "Venus"], "neutral": ["Jupiter"], "enemies": ["Sun", "Moon", "Mars"] }
+  }
+}

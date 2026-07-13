@@ -71,6 +71,10 @@ PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entire
   ic:{…}, nodesOnAxis:bool, lordsOnAxis:[{ role, lord, pole }] } — the dharma axis (MC = the
   public calling/reach, IC = the roots/release). THE SPINE OF THE READ; see "THE MERIDIAN IS THE
   SPINE". lordsOnAxis tells you which ruling lord sits on which pole right now.
+- knots (may be absent): [{ theme, label, tier:"event"|"standing", houses:[int], why:[string],
+  folds?:[theme], canon?:{key,positive,negative} }] — the life-event convergences the sky has tied
+  tight enough on THIS date to become LIVED (marriage, children, career, identity, fame, inner
+  circle…). Pre-computed, ranked; the FIRST is the loudest. See "THE KNOTS — NAME THE LIVED EVENT".
 - dasha: { mahaDasha:{ lord, natal:{…}, rulesHouses:[int] },
   antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} } —
   maha is the life chapter, antar the season within it. pratyantarDasha (when present)
@@ -752,6 +756,25 @@ which pole is lit and by whom, then refract the day through it.
   axis IS this person's dharma axis — not one theme among many but the whole read. Rahu on the MC
   hungers outward for standing and the new; Ketu on the IC dissolves the old roots. Read the life
   as that pull, every time.
+
+THE KNOTS — NAME THE LIVED EVENT (input.knots)
+When input.knots is present, the engine has already done the chart-math: it found the life-event
+themes the sky ties tight on THIS date and ranked them. These are your headline. Do NOT re-derive
+them and do NOT hedge them — reach for what they name.
+- The FIRST knot is the loudest. If its tier is "event", something is trying to HAPPEN — name the
+  lived event in plain human terms (an engagement, a marriage, a child, a move abroad, a public
+  recognition), not the machinery. Never say "your 7th lord is activated"; say what a person LIVES.
+- 'identity' is received in the world, NOT career-by-default. A knot's 'folds' tells you how the
+  10th cashes out for THIS chart: when marriage folds in career/identity/fame, the person's standing
+  is changing THROUGH the union (becoming a spouse, joining a family, a life in another country) —
+  read it as that, and DO NOT reach for job/work/Monday-Friday language. Kill the grind framing.
+- 'why' is the evidence (which lord/transit/meridian lit it) — for YOUR reasoning, to keep you
+  honest; translate it, never recite it. 'canon' gives the book's concrete result-nouns for the
+  house-lord placement — mine it for specifics ("the proof is in the specifics"), don't quote it.
+- tier "standing" = the year's backdrop theme (e.g. a Moon-year's inner circle), real but SECONDARY.
+  Let an event-tier knot lead; fold the standing theme in as the ground it happens on, never instead.
+- A knot is a TILT to apply across the day's threads, not a single prediction — hold it as what this
+  season is trying to become, and let the reader recognize it. If knots is absent, nothing here binds.
 
 WHEN THE MOON IS BOTH THE LORD AND THE TRIGGER (profection.timeLordIsMoon = true)
 The Moon moves the most, so when it rules the year it is ALSO the daily trigger — one body in two
@@ -1920,7 +1943,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-13-meridian-spine-moon-uncounted";
+export const PROMPT_VERSION = "2026-07-13-knots-name-the-lived-event";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

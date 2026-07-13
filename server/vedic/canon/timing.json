@@ -1,0 +1,53 @@
+{
+  "_source": "Kurczak & Fish, Art & Science of Vedic Astrology Vol I, Ch.12 'The Vimshottari Dasha System' + Ch.13 'Transits'.",
+  "_note": "The TIMING layer — WHEN a chart's promises fire. Velea already COMPUTES dashas & transits; this canon is the READING layer (the law that dasha+transit are timing tools that never contradict the natal promise, plus the interpretive rules). This is the knot-firing bridge: a knot (life-area/karaka lit natally) manifests when its dasha/bhukti runs AND its significators are transited.",
+
+  "vimshottari": {
+    "_desc": "The 120-year Vimshottari mahadasha cycle. Sequence is fixed; the starting point is set by the natal Moon's nakshatra.",
+    "sequenceYears": [
+      { "planet": "Ketu", "years": 7 }, { "planet": "Venus", "years": 20 }, { "planet": "Sun", "years": 6 },
+      { "planet": "Moon", "years": 10 }, { "planet": "Mars", "years": 7 }, { "planet": "Rahu", "years": 18 },
+      { "planet": "Jupiter", "years": 16 }, { "planet": "Saturn", "years": 19 }, { "planet": "Mercury", "years": 17 }
+    ],
+    "totalYears": 120,
+    "bhuktiStructure": "Each mahadasha divides into 9 bhuktis (sub-periods) that run in the SAME sequence order, ALWAYS starting with the dasha lord itself (Rahu dasha → Rahu bhukti, then Jupiter, Saturn…). Bhuktis subdivide further into antardashas (same rule). Bhukti length is proportional to both planets' dasha years.",
+    "readingLaw": "\"Whatever has been described by way of planetary effects will occur in the planet's [maha]dasha, in its bhukti and in its antardasha.\" — Phaldeepika 21:1. A planet delivers its natal promise (its significations, the houses it owns/occupies, the yogas it forms) during ITS periods. A yoga/knot that never gets its planets' dasha in the relevant life-stage stays latent."
+  },
+
+  "transits": {
+    "_desc": "Gochara — the current sky read against the natal chart. Activates, it does not rewrite: a transit COLORS the natal planet/house it contacts; the natal planet never modifies the transiting planet.",
+    "referenceFrame": "This text reads transits PRIMARILY from the Ascendant (lagna), holding the Moon-sign reference in a subordinate role — it finds the classical Moon-only method less reliable. (Relevant to Velea: favour the ascendant frame; use Chandra lagna as a secondary lens.)",
+    "cannotContradictNatal": "Transits (like dashas) NEVER contradict the birth chart's basic indications — they only time when a natal potential manifests. Predicting off a transit against the natal grain is the classic beginner error.",
+    "strongestContact": "A transiting planet's effect peaks at conjunction or opposition to a natal planet, strongest within 1° of exactitude and declining once separated by 1°. Retrograde adjusts the reading; a STATIONARY planet (at its direct/retro turn) hits hardest.",
+    "durationInSign": {
+      "Moon": "just over 2¼ days", "Sun": "1 month", "Mercury": "~1 month (variable)", "Venus": "~1 month (variable)",
+      "Mars": "~55 days (nearly 2 months)", "Jupiter": "1 year", "Saturn": "~2½ years", "RahuKetu": "1 year 7 months",
+      "Uranus": "7 years", "Neptune": "~18 years", "Pluto": "just over 20 years"
+    },
+    "weightBySpeed": "Slow planets (Jupiter, Saturn) carry the long-term story and form drishti aspects on transit (as does Mars). Fast planets (Moon, Sun, Venus, Mercury) matter mainly at exact conjunction to a natal planet and for only days (Moon: hours — except a Full/New Moon conjunction, up to a week). Outer planets (Uranus/Neptune/Pluto) count ONLY at close conjunction/opposition/square to a natal planet — disregard their sign/house transits.",
+    "quickScan": "For a fast read of current influences, focus on the house positions and aspects of transiting Jupiter and Saturn — basic but practical and effective.",
+    "coordinateWithDasha": "The single most important rule: coordinate transits with the running dasha/bhukti. In Jupiter dasha–Venus bhukti, the transits of Jupiter and Venus (even the ordinarily-minor house/sign Venus transits) gain weight, because the bhukti's results depend heavily on the transit strength of the bhukti lord. But transits do NOT override the dasha's indications.",
+    "receptivity": "Weak natal planets are hurt by strong malefic transits and can't fully receive benefic transits. Strong natal benefics resist malefic transits; strong natal malefics resist benefic transits. A weak planet in its bhukti can't well protect the houses it rules regardless of its transit strength.",
+    "perPlanet": {
+      "Sun/Moon": "Use together — only the Full and New Moon phases matter. Eclipses amplify: a SOLAR eclipse (New Moon) > New Moon → dramatic new developments on the house/planet touched; a LUNAR eclipse amplifies the Full Moon. An eclipse conjunct any natal planet is ominous/disruptive (the Nodes are there); it also affects the house it falls in.",
+      "Mercury": "Rarely major — communications, meetings, journeys, undertakings; retrograde delays them.",
+      "Venus": "Harmonious, pleasant experiences; meetings with loved ones.",
+      "Mars": "Urge to action; disrupts established rhythm; energizes the planet/house it passes or aspects.",
+      "Jupiter": "Urge to expand into new experience; attunes to future possibility; abundance/good fortune (can over-inflate).",
+      "Saturn": "Stabilizes, delays, slows, constricts the planet it contacts and the house it passes through.",
+      "Rahu": "Desires and obsessions tied to the planet/house it contacts.",
+      "Ketu": "Awakens fears, phobias, obsessions — or a spiritually uplifting influence."
+    }
+  },
+
+  "sadeSati": {
+    "_desc": "The ~7½-year period of Saturn transiting the natal Moon sign plus the signs on either side.",
+    "definition": "Sade Sati = 'seven and a half' — Saturn (2½ years per sign) crossing the Moon sign and both adjacent signs. Lowers energy, slows life's pace, dampens emotional buoyancy, darkens outlook.",
+    "veleaStance": "The book flags Sade Sati as folk lore ABSENT from the classical texts, and advises caution about over-weighting it (and Moon-referenced transits generally) in a modern Western practice. Practical rule it does keep: the impact is real mainly within 12° of an exact Saturn–Moon conjunction; outside that, it can be largely ignored."
+  },
+
+  "_pending": [
+    "Maturity of Planets — the age at which each planet 'matures' (becomes truly functional, ~12-month pronounced window); the book gives a table but the numbers were an image not in the text layer. Scan needed.",
+    "Planetary Ages — the life-periods each planet backgrounds (used when a chart lacks dasha/transit info; overridden by dashas/transits/maturity). Table also image-only. Scan needed."
+  ]
+}

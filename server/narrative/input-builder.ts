@@ -15,6 +15,7 @@ import { strength, dignityLabel, signLordOf } from "../panchang/dignity.js";
 import { crownDay } from "../panchang/crown.js";
 import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
+import { buildKnots, type NatalPlanet } from "../vedic/knots.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
 import { mercuryRxState, mercuryRxCycle } from "../sky/retrograde-phase.js";
 import { monthEvents } from "../sky/month-events.js";
@@ -422,6 +423,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // release pole while Rahu runs the MC reach pole, the story is reach-vs-release, never weather.
   // Timed charts only — a no-birth-time (Chandra) chart has no real meridian (mcLongitude absent).
   let meridianAxis: any = null;
+  let meridianOnAxis: string[] = [];   // planets sitting in the MC/IC SIGN — the dharma axis, for knots
   {
     const mcLonM = (p as any).mcLongitude != null ? parseFloat((p as any).mcLongitude) : NaN;
     if (!Number.isNaN(mcLonM) && lagnaSignIdx >= 0) {
@@ -438,6 +440,8 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
           .map(([k, v]) => ({ planet: k, orbDeg: +sep(v as number, angLon).toFixed(1) }))
           .sort((x, y) => x.orbDeg - y.orbDeg);
       const mcOn = onAngle(mcL), icOn = onAngle(icL);
+      // planets in the MC or IC SIGN (by whole sign) — "on the meridian" for the knot detector
+      meridianOnAxis = PLANETS.filter((n) => { const s = (byPlanet[n] as any)?.sign; return s === mcSign || s === icSign; });
       // which of the day's ruling lords sit on a pole, by natal sign (reach = MC sign, release = IC sign)
       const poleOf = (lord: string) => {
         const b: any = byPlanet[lord];
@@ -461,6 +465,29 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       };
     }
   }
+
+  // KNOTS — the life-event convergence detector (server/vedic/knots.ts, canon-fed). Deterministic,
+  // no API. Flags the themes (marriage/children/career/identity/…) the sky has tied tight enough on
+  // THIS date to become lived, ranking a DATED event (a dasha lord conjunct a house-lord, a transit
+  // onto it) above the diffuse year backdrop, and folding the 10th-cluster into whatever it truly
+  // cashes out as (Simone: career/identity fold into the marriage). Fed to the prompt so the LLM
+  // reaches for the real event instead of defaulting to "work". Only lit knots are carried.
+  const knotNatal: Record<string, NatalPlanet> = Object.fromEntries(
+    (natal.planets as any[]).filter(Boolean).map((pl) => [pl.name, { sign: pl.sign, house: pl.house ?? null, rulesHouses: pl.rulesHouses ?? [], dignity: pl.dignity } as NatalPlanet]),
+  );
+  const SLOW_TRANSITS = new Set(["Mars", "Jupiter", "Saturn", "Rahu", "Ketu"]);
+  const knotsResult = buildKnots({
+    natal: knotNatal,
+    dashaLords: { maha: (dasha as any)?.mahaDasha?.lord ?? null, antar: (dasha as any)?.antarDasha?.lord ?? null, praty: (dasha as any)?.pratyantarDasha?.lord ?? null },
+    timeLord: pf.timeLord,
+    transitsHitting: (transits as any[]).map((t) => ({ planet: t.planet, hitsNatalPoint: t.hitsNatalPoint ?? null, houseFromLagna: t.houseFromLagna ?? null, slow: SLOW_TRANSITS.has(t.planet) })),
+    meridianOnAxis,
+    partnerGender: null,
+  });
+  // Carry only the lit knots, trimmed for the prompt (drop internal scaffolding).
+  const knots = knotsResult.lit.length
+    ? knotsResult.lit.map((k) => ({ theme: k.theme, label: k.label, tier: k.tier, houses: k.houses, why: k.signals.map((s) => s.text), ...(k.folds?.length ? { folds: k.folds } : {}), ...(k.comboProse ? { canon: k.comboProse } : {}) }))
+    : undefined;
 
   // LIFE-AREA LENS — the horoscope's "pick a life area" varga-deep block. Present ONLY when a
   // life area was requested (the Today/glance reads never carry it). Deterministic: routes the area
@@ -600,5 +627,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(meridianAxis ? { meridianAxis } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }
