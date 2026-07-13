@@ -210,14 +210,10 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
 
   return (
     <div style={{ position: "relative" }}>
-    <svg viewBox="0 0 300 300" style={{ width: "100%", aspectRatio: "1/1", display: "block", border: "1px solid rgba(168,130,52,0.55)", borderRadius: "0.75rem" }}>
-      <defs>
-        <linearGradient id="parchmentBg" x1="0" y1="0" x2="0.4" y2="1">
-          <stop offset="0%" stopColor="#FEFCF7" />
-          <stop offset="100%" stopColor="#FBF6EA" />
-        </linearGradient>
-      </defs>
-      <rect width="300" height="300" fill="url(#parchmentBg)" />
+    <svg viewBox="0 0 300 300" style={{ width: "100%", aspectRatio: "1/1", display: "block", border: "1px solid rgba(168,130,52,0.55)", borderRadius: "0.75rem", boxShadow: "var(--parchment-shadow)" }}>
+      {/* Shares the --parchment token with the calendar + wheel so the chart artifacts are cohesive
+          (was a hardcoded #FEFCF7→#FBF6EA cream). Dark ink already reads on it. */}
+      <rect width="300" height="300" style={{ fill: "var(--parchment)" }} />
 
       {CHART_HOUSES.map(({ house, points, cx, cy }) => {
         const sign = ZODIAC_SIGNS[(lagnaIndex + house - 1 + 12) % 12];

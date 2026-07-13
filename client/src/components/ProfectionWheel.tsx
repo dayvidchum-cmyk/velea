@@ -26,6 +26,10 @@ const GLYPH: Record<string, string> = {
   Aries: "♈︎", Taurus: "♉︎", Gemini: "♊︎", Cancer: "♋︎", Leo: "♌︎", Virgo: "♍︎",
   Libra: "♎︎", Scorpio: "♏︎", Sagittarius: "♐︎", Capricorn: "♑︎", Aquarius: "♒︎", Pisces: "♓︎",
 };
+// The wheel is a parchment CHART ARTIFACT (David) — it always sits on --parchment (light in every
+// appearance mode), so its hairlines + muted labels are pinned to dark ink that reads on paper.
+const INK_BORDER = "rgba(0, 0, 0, 0.12)";
+const INK_MUTED = "rgba(0, 0, 0, 0.55)";
 
 function polar(cx: number, cy: number, r: number, deg: number): [number, number] {
   const a = ((deg - 90) * Math.PI) / 180;
@@ -64,7 +68,7 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
     const a0 = h * 30, a1 = (h + 1) * 30;
     const sign = ZODIAC[(lagIdx + h) % 12];
     const signColor = SIGN_COLOR[sign] ?? "#888";
-    const base = `color-mix(in srgb, ${signColor} 38%, var(--card))`;
+    const base = `color-mix(in srgb, ${signColor} 38%, var(--parchment))`;
 
     for (let r = 0; r < rings; r++) {
       const ri = hole + r * ringW, ro = hole + (r + 1) * ringW;
@@ -72,12 +76,12 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
       const isCurrent = ageVal === age;
       const isBirth = ageVal === 0;
       // Birth cell: a more saturated fill of its own sign color, with a black bold "0".
-      const birthFill = `color-mix(in srgb, ${signColor} 75%, var(--card))`;
+      const birthFill = `color-mix(in srgb, ${signColor} 75%, var(--parchment))`;
       const cellFill = isCurrent ? currentColor : isBirth ? birthFill : base;
       const [tx, ty] = polar(cx, cy, (ri + ro) / 2, (a0 + a1) / 2);
       cells.push(
-        <path key={`c${h}-${r}`} d={annular(cx, cy, ri, ro, a0, a1)} fill={cellFill} stroke={isCurrent ? currentColor : isBirth ? birthFill : "var(--border)"} strokeWidth={0.5} />,
-        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={7} fontWeight={isCurrent || isBirth ? 800 : 400} fill={isCurrent || isBirth ? "#000" : "var(--muted-foreground)"} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
+        <path key={`c${h}-${r}`} d={annular(cx, cy, ri, ro, a0, a1)} fill={cellFill} stroke={isCurrent ? currentColor : isBirth ? birthFill : INK_BORDER} strokeWidth={0.5} />,
+        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={7} fontWeight={isCurrent || isBirth ? 800 : 400} fill={isCurrent || isBirth ? "#000" : INK_MUTED} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
       );
     }
 
@@ -107,12 +111,15 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
-      <svg viewBox={`${-M} ${-M} ${SIZE + 2 * M} ${SIZE + 2 * M}`} width="100%" style={{ display: "block" }}>
-        {cells}
-        {labels}
-        {callouts}
-        <circle cx={cx} cy={cy} r={hole} fill="var(--background)" stroke="var(--border)" strokeWidth={0.5} />
-      </svg>
+      {/* The wheel sits on a PARCHMENT card — a chart artifact, luminous on dark, clean on light. */}
+      <div style={{ width: "100%", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: 16, padding: "0.75rem 0.5rem" }}>
+        <svg viewBox={`${-M} ${-M} ${SIZE + 2 * M} ${SIZE + 2 * M}`} width="100%" style={{ display: "block" }}>
+          {cells}
+          {labels}
+          {callouts}
+          <circle cx={cx} cy={cy} r={hole} fill="var(--parchment)" stroke={INK_BORDER} strokeWidth={0.5} />
+        </svg>
+      </div>
       {/* "Your year, explained" sits here (passed in) — it states the year's house/sign/ruler in full,
           so the old "This year — house N, Sign, ruled by X" pill was removed as a duplicate. */}
       {whySlot && <div style={{ width: "100%" }}>{whySlot}</div>}

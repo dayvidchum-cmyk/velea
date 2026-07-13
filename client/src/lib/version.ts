@@ -343,4 +343,12 @@
 // the white light-mode bg). Driven by --calendar-surface / --calendar-shadow: warm paper #F4F0E8 +
 // soft shadow on dark/FS (glows as an artifact), clean near-white #FDFDFD + a whisper of shadow on
 // light. (Groundwork for a shared "parchment" chart-artifact surface across calendar/wheel/natal.)
-export const APP_VERSION = "1.1.419";
+//
+// v1.1.420 = 2026-07-13 — PARCHMENT FAMILY (David): the chart artifacts now share ONE luminous
+// almanac surface, cohesive against the dark chrome. New reusable `.parchment` class = the
+// appearance-aware --parchment tone + a local remap of the color tokens so any descendant renders as
+// dark INK on paper in every mode (no per-element retune). Applied: calendar (v419), profection wheel
+// (ink re-pinned + parchment card), natal chart (now shares --parchment vs its old hardcoded cream),
+// the Readings calendar, and the Readings reveal box. Token generalized --calendar-surface → --parchment.
+// Dasha stays chrome (it's colorful gradient period cards, not a chart-on-surface — flagged for David).
+export const APP_VERSION = "1.1.420";

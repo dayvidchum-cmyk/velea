@@ -67,6 +67,40 @@
 .orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .orb-pulse { animation: none; } }
 
+/* PARCHMENT — the shared surface for the chart ARTIFACT family (calendar, profection wheel, natal,
+   dasha, the readings calendar + reveal box). It's always a LIGHT almanac page (tone is appearance-
+   aware via --parchment / --parchment-shadow), and it ALSO remaps the color tokens LOCALLY so every
+   descendant renders as dark INK on paper in every appearance mode — no per-element re-tuning. Mode-
+   colored accents (tints, bullseyes) use their own colors and are untouched. David: charts = parchment. */
+.parchment {
+  background: var(--parchment);
+  box-shadow: var(--parchment-shadow);
+  border-radius: 16px;
+  --background: var(--parchment);
+  --card: var(--parchment);
+  --popover: var(--parchment);
+  --foreground: #2B2620;
+  --card-foreground: #2B2620;
+  --popover-foreground: #2B2620;
+  --muted: #E9E4D8;
+  --muted-foreground: #6B6355;
+  --secondary: #E9E4D8;
+  --secondary-foreground: #2B2620;
+  --border: rgba(0, 0, 0, 0.12);
+  --input: rgba(0, 0, 0, 0.05);
+  --color-background: var(--parchment);
+  --color-card: var(--parchment);
+  --color-card-foreground: #2B2620;
+  --color-popover: var(--parchment);
+  --color-popover-foreground: #2B2620;
+  --color-foreground: #2B2620;
+  --color-muted: #E9E4D8;
+  --color-muted-foreground: #6B6355;
+  --color-secondary: #E9E4D8;
+  --color-secondary-foreground: #2B2620;
+  --color-border: rgba(0, 0, 0, 0.12);
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    VELEA — LUXURY TERMINAL AESTHETIC
    Dark mode only. Pure black. High contrast. Calm. Information-dense.
@@ -99,8 +133,8 @@
   /* Calendar — always a LIGHT almanac page, but tone is appearance-aware. Default (dark/FS): warm
      paper + a soft shadow so it glows as an artifact on the dark. html.light overrides to clean
      near-white + a whisper, so it doesn't read dingy on the white app bg. */
-  --calendar-surface: #F4F0E8;
-  --calendar-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+  --parchment: #F4F0E8;
+  --parchment-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
   /* Brand gold — bright on the dark bg; the light theme overrides it deeper so it
      doesn't wash out on cream. */
   --brand-gold: #C9A84C;
@@ -796,8 +830,8 @@ html.light {
   --cream-dim: #666666;
   /* Light mode: the calendar goes back to clean near-white + a whisper of shadow (the warm paper
      read dingy against the white app bg). */
-  --calendar-surface: #FDFDFD;
-  --calendar-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --parchment: #FDFDFD;
+  --parchment-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   --mode-action: oklch(0.40 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.48 0.14 355);

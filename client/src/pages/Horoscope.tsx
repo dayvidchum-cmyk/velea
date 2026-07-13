@@ -197,8 +197,8 @@ export default function Horoscope() {
           Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
         </p>
 
-        {/* ── Calendar ── */}
-        <div style={{ borderRadius: 16, border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "0.9rem 0.9rem 1rem" }}>
+        {/* ── Calendar ── (parchment chart artifact; .parchment re-inks its token-driven text) */}
+        <div className="parchment" style={{ border: "1px solid var(--color-border)", padding: "0.9rem 0.9rem 1rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.7rem" }}>
             <button onClick={() => shiftMonth(-1)} aria-label="Previous month" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)", padding: "0.25rem", display: "flex" }}><ChevronLeft size={20} /></button>
             <span style={{ fontSize: "0.92rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--foreground)" }}>{MONTHS[view.m]} {view.y}</span>
@@ -373,7 +373,7 @@ export default function Horoscope() {
 // ── The reveal ("purchase") prompt for a not-yet-owned date ──
 function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: { date: string; areaLabel: string; pending: boolean; failed: boolean; onReveal: () => void; modeColor: string }) {
   return (
-    <div style={{ borderRadius: 14, border: "1px dashed var(--color-border)", background: "var(--color-card)", padding: "1.4rem 1.1rem", textAlign: "center" }}>
+    <div className="parchment" style={{ borderRadius: 14, border: "1px dashed var(--color-border)", padding: "1.4rem 1.1rem", textAlign: "center" }}>
       <OctagramMark size={20} color={modeColor} style={{ display: "block", opacity: 0.85, margin: "0 auto 0.6rem" }} />
       <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0 0 1rem" }}>
         No {areaLabel.toLowerCase()} reading yet for {fmtShort(date)}. Reveal it to read your chart for this day.

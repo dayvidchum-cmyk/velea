@@ -1029,8 +1029,8 @@ export default function Planner() {
           // its exact tone is appearance-aware (Option A): warm PAPER + a soft shadow on dark/FS so it
           // glows as an artifact ON the dark, and clean near-white with a whisper of shadow on light so
           // it doesn't read dingy against the white app bg. Both defined in index.css per theme.
-          background: "var(--calendar-surface)",
-          boxShadow: "var(--calendar-shadow)",
+          background: "var(--parchment)",
+          boxShadow: "var(--parchment-shadow)",
         }}
       >
         {/* Month header — the colored band is gone (David); month/year/arrows sit on the light
