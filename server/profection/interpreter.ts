@@ -32,7 +32,7 @@ const HOUSE_INTERPRETATIONS: Record<number, {
   },
   3: {
     name: "3rd House",
-    themes: "communication, learning, writing, repetition, siblings, local movement, skill-building",
+    themes: "communication, learning, writing, repetition, siblings & close circle, local movement, skill-building",
     growth: "The 3rd House brings clarity and communication. Use this year to learn, write, analyze, and trade. Your words and ideas have power.",
     friction: "Overthinking, scattered focus, or communication breakdowns can create confusion. Superficiality or nervous energy may prevent depth."
   },

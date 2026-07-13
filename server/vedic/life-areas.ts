@@ -82,9 +82,9 @@ export const LIFE_AREAS: Record<LifeAreaKey, LifeArea> = {
   },
   siblings: {
     key: "siblings", label: "Siblings & Courage", varga: "D3", primaryHouse: 3,
-    domain: "siblings, courage and initiative, effort, skill and the hands, short trips",
+    domain: "siblings and your inner circle (the closest friends, blood and chosen), courage and initiative, effort, skill and the hands, short trips",
     karakas: [
-      { planet: "Mars", role: "primary", signifies: "siblings and the strength and integrity of your views" },
+      { planet: "Mars", role: "primary", signifies: "siblings and your inner circle, and the strength and integrity of your views" },
       { planet: "Venus", role: "secondary", signifies: "the diplomacy needed to accomplish goals, managing conflict" },
       { planet: "Ketu", role: "secondary", signifies: "the growth possible from conflict, debate, and interaction" },
     ],

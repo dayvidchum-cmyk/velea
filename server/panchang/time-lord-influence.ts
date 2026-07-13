@@ -66,7 +66,7 @@ const PLANET_ARCHETYPES: Record<string, PlanetArchetype> = {
   },
   Mercury: {
     label: "Mercury Year",
-    domains: ["communication", "writing", "analysis", "learning", "commerce", "networking", "siblings", "short travel", "documentation"],
+    domains: ["communication", "writing", "analysis", "learning", "commerce", "networking", "siblings & close circle", "short travel", "documentation"],
     supportedModes: ["Build", "Selective"],
     resistedModes: [],
     qualifiers: {
@@ -238,7 +238,7 @@ const MODE_PLANET_AVOID: Record<TaskMode, Record<string, string[]>> = {
 const NATAL_HOUSE_CONTEXT: Record<number, { theme: string; bestUseAddition: string[] }> = {
   1: { theme: "self and identity", bestUseAddition: ["personal development", "identity work", "self-presentation"] },
   2: { theme: "resources and values", bestUseAddition: ["financial management", "skill monetization", "resource allocation"] },
-  3: { theme: "communication and siblings", bestUseAddition: ["writing", "short-form communication", "local connections"] },
+  3: { theme: "communication, siblings & close circle", bestUseAddition: ["writing", "short-form communication", "local connections"] },
   4: { theme: "home and foundation", bestUseAddition: ["home environment work", "foundational stability", "family matters"] },
   5: { theme: "creativity and expression", bestUseAddition: ["creative projects", "self-expression", "speculative work"] },
   6: { theme: "service and refinement", bestUseAddition: ["service work", "health routines", "skill refinement", "process improvement"] },

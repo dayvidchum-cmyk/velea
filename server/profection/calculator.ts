@@ -28,7 +28,7 @@ const SIGN_RULERS: Record<string, string> = {
 const HOUSE_THEMES: Record<number, string> = {
   1: "identity, body, visibility, self-direction, personal agency",
   2: "money, values, resources, voice, self-worth, material stability",
-  3: "communication, learning, writing, repetition, siblings, local movement, skill-building",
+  3: "communication, learning, writing, repetition, siblings & close circle, local movement, skill-building",
   4: "home, emotional foundation, family, privacy, roots, inner stability",
   5: "creativity, romance, pleasure, children, visibility through self-expression",
   6: "work, service, health routines, discipline, repair, problem-solving, daily systems",

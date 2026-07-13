@@ -6,7 +6,7 @@ const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", 
 const HOUSE_GLOSS: Record<number, string> = {
   1: "self, body, how you are seen",
   2: "money, possessions, self-worth, speech",
-  3: "communication, siblings, short trips, skill",
+  3: "communication, siblings & close circle, short trips, skill",
   4: "home, roots, mother, the inner ground",
   5: "creativity, children, romance, the heart's expression",
   6: "work, service, health, daily duty",

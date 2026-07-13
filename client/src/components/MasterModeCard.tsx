@@ -31,7 +31,7 @@ const CAT_NOTE: Record<string, string> = {
 // the natal houses it rules + occupies — colored by where it's transiting now.
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 const HOUSE_SHORT: Record<number, string> = {
-  1: "self & body", 2: "worth & money", 3: "skill & siblings", 4: "home & roots",
+  1: "self & body", 2: "worth & money", 3: "skill, siblings & circle", 4: "home & roots",
   5: "creativity & heart", 6: "work & service", 7: "partnership", 8: "depth & the hidden",
   9: "belief & travel", 10: "career & standing", 11: "gains & community", 12: "rest & release",
 };

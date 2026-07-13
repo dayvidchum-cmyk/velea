@@ -111,7 +111,7 @@ const CHART_HOUSES = [
 const HOUSE_SUMMARY: Record<number, { title: string; summary: string }> = {
   1: { title: "Self", summary: "Your body, vitality, and temperament — the lens you meet the world through, and your overall direction in life." },
   2: { title: "Wealth & Voice", summary: "What you own and value: money, resources, and possessions, your speech and self-worth, and your family of origin." },
-  3: { title: "Courage & Communication", summary: "Effort, skill, and initiative; siblings, neighbors, and short trips; writing, messaging, and the hands-on." },
+  3: { title: "Courage & Communication", summary: "Effort, skill, and initiative; siblings and your inner circle — the closest friends, blood and chosen — neighbors, and short trips; writing, messaging, and the hands-on." },
   4: { title: "Home & Roots", summary: "Mother, home, land, and inner foundation — where you come from and what gives you a sense of security." },
   5: { title: "Creativity & Children", summary: "What comes out of you: creativity, romance, and play; children; discerning intelligence and speculation." },
   6: { title: "Work, Service & Health", summary: "Daily work and service, routine and duty; health and the body; debts, obstacles, conflict, and self-sacrifice." },

@@ -21,7 +21,7 @@ const sep = (a: number, b: number) => { const d = norm(a - b); return Math.min(d
 export const HOUSE_KEYWORDS: Record<number, string> = {
   1: "the self, body, vitality, how you meet life",
   2: "money, what you own and earn, your word, family",
-  3: "siblings, courage, effort, short trips, the hands and skill",
+  3: "siblings & close circle, courage, effort, short trips, the hands and skill",
   4: "home, land, roots, the mother, inner rest",
   5: "creativity, children, romance, what you make, speculation",
   6: "work, service, health, debts, enemies, the daily grind",

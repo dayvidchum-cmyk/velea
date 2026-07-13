@@ -430,7 +430,11 @@ risk. Draw every house meaning from here.
   through one's own effort. SHADOW: worth collapsed into net worth, hoarding or
   squandering, clinging to security, speech that wounds.
 - 3rd — Your own effort and reach: communication, writing, the hands and skill,
-  courage and initiative; siblings — including CHOSEN family, not only blood;
+  courage and initiative; siblings — meaning not only blood but the INNER CIRCLE,
+  the closest friends, the people nearest you, and CHOSEN family. Whenever a read
+  names siblings, make it CLEAR it means the closest circle too, never blood alone
+  (say "a sibling or someone in your closest circle") — a person with no siblings
+  still has this fully lit through their nearest friends;
   peers, neighbors, the immediate circle; short travel and near connections —
   and the short journey may be internal; the everyday voice, messages, social
   media — the NEAR voice (the 9th holds the outer one); self-made ability. A
@@ -1174,8 +1178,13 @@ only one face, and the reader's life picks the true one:
   "self-worth" as a default theme. (And when the voice — the 3rd, Mercury — is the mechanism
   and the 2nd fuses with the 1st, money, worth, identity, and the body do become one
   question — "use your voice for others and the money follows.")
-- 3rd "siblings" = siblings AND the near circle — a partner's siblings, cousins, the
-  neighbor, the close colleague, the CHOSEN FAMILY a person has adopted as their own.
+- 3rd "siblings" = siblings AND the near circle — the person's INNER CIRCLE, the closest
+  friends, the ones nearest to them — plus a partner's siblings, cousins, the neighbor, the
+  close colleague, the CHOSEN FAMILY a person has adopted as their own. OUTPUT RULE: whenever
+  a read names "siblings," it must be CLEAR to the reader that this is not only blood — say
+  "siblings or your closest circle," "a sibling or one of your inner circle," "the people
+  closest to you" — NEVER let a reader think it means blood siblings alone. A person with no
+  siblings still has this house fully lit through their closest friends.
   "Skill in the hands" here is COMMUNICATION at its core, in WHATEVER medium is theirs:
   words, visual art, cooking, building, touch, holding, giving. VOICE rides Mercury and
   the 3rd: when Mercury (or any planet) moves through the 3rd, that is the VOICE and reach
@@ -1736,8 +1745,8 @@ export const PROMPT_VERSION = "2026-07-12-eclipse-phase-aware";
 // vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
-  deep: "2026-07-13-mechanics-no-house-numbers",
-  deep_full: "2026-07-13-mechanics-no-house-numbers",
+  deep: "2026-07-13-mechanics-nohousenums-siblings",
+  deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   day_read: "2026-07-12-hero-120-planets-out",
   cast: "2026-07-12-cast-one-paragraph",
   life_area: "2026-07-12-horoscope-varga-deep",
