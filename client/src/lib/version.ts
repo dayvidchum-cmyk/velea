@@ -377,4 +377,14 @@
 // lightness), so the mulberry↔red clash is gone. (2) Readings calendar dates now have a hover
 // affordance (soft mode-color wash + hint ring) — they were selectable but gave zero feedback, so
 // they read as a dead zone on desktop.
-export const APP_VERSION = "1.1.424";
+//
+// v1.1.425 = 2026-07-13 — THE MERCURY RETROGRADE period reading (David: "complete the mercury rx
+// reading option") — the sibling to Eclipse Season. One arc across the whole rx cycle (pre-shadow
+// build → the review through your chart's house(s) → the retroshade clearing), read once per cycle and
+// kept. Full stack: sky/retrograde-phase.ts mercuryRxCycle (finds the active/approaching cycle + its
+// four turning dates + the sign/house it reviews) → input-builder mercuryRxArc (maps into this chart:
+// house(s), dispositor condition, natal points Mercury backs over) → MERCURY_RX_TAIL → generateMercuryRxRead
+// → getMercuryRxCached (cached per cycle, keyed by the station-retrograde date) → horoscope.mercuryRx
+// endpoints → MercuryRxCard on the Readings page (quicksilver-blue, under the eclipse card). Gated to
+// horoscope entitlement; unavailable when Mercury is clear.
+export const APP_VERSION = "1.1.425";

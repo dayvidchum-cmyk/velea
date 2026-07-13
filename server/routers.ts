@@ -1887,6 +1887,42 @@ export const appRouter = router({
       return await peekEclipseSeasonCached(profile.id, today, dayLoc);
     }),
 
+    // THE MERCURY RETROGRADE — the whole-cycle arc reading (pre-shadow → review → retroshade) for the
+    // active/approaching Mercury rx, read for this chart's house(s). Generates + caches per cycle;
+    // unavailable when Mercury is clear (no cycle in range).
+    mercuryRx: protectedProcedure.mutation(async ({ ctx }) => {
+      if (!hasHoroscope(ctx.user)) return { available: false as const };
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const };
+      const { getUserById } = await import("./db.js");
+      const u = await getUserById(ctx.user.id);
+      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
+      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
+        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
+        : undefined;
+      const { getMercuryRxCached } = await import("./narrative/service.js");
+      const today = new Date().toISOString().slice(0, 10);
+      return await getMercuryRxCached(profile.id, today, false, dayLoc);
+    }),
+
+    // Read-only: is there ALREADY a saved Mercury-rx reading for the current cycle? Never generates.
+    mercuryRxSaved: protectedProcedure.query(async ({ ctx }) => {
+      if (!hasHoroscope(ctx.user)) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
+      const { getUserById } = await import("./db.js");
+      const u = await getUserById(ctx.user.id);
+      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
+      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
+        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
+        : undefined;
+      const { peekMercuryRxCached } = await import("./narrative/service.js");
+      const today = new Date().toISOString().slice(0, 10);
+      return await peekMercuryRxCached(profile.id, today, dayLoc);
+    }),
+
     // Save the user's notes under a purchased horoscope (per date + area).
     saveNotes: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string().default("day"), notes: z.string().max(20000) })).mutation(async ({ ctx, input }) => {
       if (!hasHoroscope(ctx.user)) return null;

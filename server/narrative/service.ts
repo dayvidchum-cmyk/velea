@@ -2,7 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
+import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateMercuryRxRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
@@ -269,6 +269,59 @@ export async function peekEclipseSeasonCached(profileId: number, date: string, d
     } catch { /* corrupt row — treat as not-yet-read */ }
   }
   return { available: false, read: null, season: null, generatedAt: null, cached: false };
+}
+
+export type MercuryRxResult = { available: boolean; read: DayRead | null; cycle: { stationRetro: string; phaseNow: string } | null; generatedAt: Date | null; cached: boolean };
+
+// THE MERCURY RETROGRADE — one arc reading across the whole rx cycle (pre-shadow → review →
+// retroshade), for this chart's house(s). Cached by CYCLE (key = the station-retrograde date), and the
+// hash covers the cycle's fixed astronomy + this chart (NOT today/daysAway, which drift) — so it
+// generates ONCE per cycle and re-views free. Unavailable when no cycle is active/approaching.
+export async function getMercuryRxCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, mercuryRxArc: true });
+  const arc = input.mercuryRxArc;
+  if (!arc) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+
+  const surface = "mercury_rx";
+  const cycleKey: string = arc.stationRetroDate; // stable per cycle (the review's turn-on date)
+  const stable = { profileId, lagna: input.natal?.lagna, r: arc.stationRetroDate, d: arc.stationDirectDate, h: arc.house, h2: arc.house2 ?? null, disp: arc.dispositor?.planet, hits: arc.hits };
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
+
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, cycleKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        if (isCompleteDayRead(read)) return { available: true, read, cycle: { stationRetro: cycleKey, phaseNow: arc.phaseNow }, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const read = await singleFlight(`${surface}:${profileId}:${cycleKey}:${hash}`, async () => {
+    const r = await generateMercuryRxRead(input);
+    if (r) await upsertNarrativeCache(profileId, surface, cycleKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+  return { available: true, read, cycle: { stationRetro: cycleKey, phaseNow: arc.phaseNow }, generatedAt: new Date(), cached: false };
+}
+
+// PEEK — read-only: is there ALREADY a cached Mercury-rx reading for the current cycle? Never generates.
+export async function peekMercuryRxCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, mercuryRxArc: true });
+  const arc = input.mercuryRxArc;
+  if (!arc) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+  const cycleKey: string = arc.stationRetroDate;
+  const row = await getNarrativeCache(profileId, "mercury_rx", cycleKey);
+  if (row) {
+    try {
+      const read = JSON.parse(row.content);
+      if (isCompleteDayRead(read)) return { available: true, read, cycle: { stationRetro: cycleKey, phaseNow: arc.phaseNow }, generatedAt: row.generatedAt, cached: true };
+    } catch { /* corrupt row — treat as not-yet-read */ }
+  }
+  return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
 }
 
 export type CastResult = { available: boolean; cast: Cast | null; generatedAt: Date | null; cached: boolean };

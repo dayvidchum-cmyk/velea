@@ -79,3 +79,76 @@ export async function mercuryRxState(dateStr: string): Promise<RxState> {
   // No episode covers the day → plain direct.
   return { retrograde: daySpeed < 0, speed: daySpeed, phase: "direct", strength: 0 };
 }
+
+const ZOD = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+const signOfLon = (lon: number) => ZOD[Math.floor((((lon % 360) + 360) % 360) / 30)];
+
+export interface MercuryRxCycle {
+  preShadowStart: string;
+  stationRetro: { date: string; lon: number; sign: string };
+  stationDirect: { date: string; lon: number; sign: string };
+  retroshadeEnd: string;
+  phaseNow: "approaching" | "pre-shadow" | "retrograde" | "retroshade";
+  daysToStationRetro: number;   // from `dateStr` (negative once past)
+  retroStartLon: number;        // station-retrograde longitude (band top)
+  retroEndLon: number;          // station-direct longitude (band bottom)
+  crossesSigns: boolean;        // does Mercury back over a sign boundary during the rx?
+}
+
+/**
+ * The Mercury retrograde CYCLE relevant to `dateStr` — the whole arc (pre-shadow → station R →
+ * retrograde → station D → retroshade) for the episode that is currently active OR approaching within
+ * ~45 days. Returns null when no cycle is in range (Mercury clear). The period-reading analog of
+ * nextEclipseSeason: raw astronomy only; the chart mapping (houses/hits) happens in the input-builder.
+ */
+export async function mercuryRxCycle(dateStr: string, lookaheadDays = 45): Promise<MercuryRxCycle | null> {
+  const BACK = 25, FWD = 135;
+  const dates: string[] = [];
+  for (let i = -BACK; i <= FWD; i++) dates.push(addDays(dateStr, i));
+  const raw: number[] = [];
+  for (const d of dates) raw.push((await planetLongitudeSpeed("mercury", d)).longitude);
+  let off = 0; const cum: number[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    if (i > 0) { const diff = raw[i] - raw[i - 1]; if (diff < -180) off += 360; else if (diff > 180) off -= 360; }
+    cum.push(raw[i] + off);
+  }
+  const spd = cum.map((v, i) => (i === 0 ? 0 : v - cum[i - 1]));
+  const idxOf = (iso: string) => dates.indexOf(iso);
+  const todayIdx = BACK;
+
+  for (let i = 1; i < spd.length; i++) {
+    if (spd[i - 1] >= 0 && spd[i] < 0) {                          // station retrograde
+      const stationR = i, lonR = cum[i];
+      let stationD = -1;
+      for (let j = i + 1; j < spd.length; j++) { if (spd[j - 1] < 0 && spd[j] >= 0) { stationD = j; break; } }
+      if (stationD < 0) continue;
+      const lonD = cum[stationD];
+      let preStart = stationR; while (preStart > 0 && cum[preStart - 1] >= lonD) preStart--;
+      let postEnd = stationD; while (postEnd < cum.length - 1 && cum[postEnd + 1] <= lonR) postEnd++;
+
+      // In range if the cycle hasn't fully cleared and its build is within the lookahead window.
+      const retroshadeEnd = dates[postEnd];
+      const preShadowStart = dates[preStart];
+      if (retroshadeEnd < dateStr) continue;                      // already over
+      if (preShadowStart > addDays(dateStr, lookaheadDays)) return null; // too far out — nothing to read yet
+
+      const phaseNow: MercuryRxCycle["phaseNow"] =
+        todayIdx < preStart ? "approaching"
+          : todayIdx < stationR ? "pre-shadow"
+            : todayIdx <= stationD ? "retrograde"
+              : "retroshade";
+      return {
+        preShadowStart,
+        stationRetro: { date: dates[stationR], lon: ((lonR % 360) + 360) % 360, sign: signOfLon(lonR) },
+        stationDirect: { date: dates[stationD], lon: ((lonD % 360) + 360) % 360, sign: signOfLon(lonD) },
+        retroshadeEnd,
+        phaseNow,
+        daysToStationRetro: stationR - todayIdx,
+        retroStartLon: ((lonR % 360) + 360) % 360,
+        retroEndLon: ((lonD % 360) + 360) % 360,
+        crossesSigns: signOfLon(lonR) !== signOfLon(lonD),
+      };
+    }
+  }
+  return null;
+}

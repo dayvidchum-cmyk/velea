@@ -1753,6 +1753,64 @@ FIELDS (DayRead shape, repurposed to the arc):
 
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
 
+// MERCURY_RX_TAIL — the "how will this Mercury retrograde affect me" period reading. One arc across a
+// whole Mercury rx cycle: the pre-shadow build, the review itself through THIS chart's house(s), and the
+// retroshade clearing. Rides BASE_PROMPT (house dictionary + rx-depends-on-the-planet + phase rules).
+// DayRead shape, so it renders like the hero and rides the same guards. Data: input.mercuryRxArc.
+// ─────────────────────────────────────────────────────────────────────────────
+export const MERCURY_RX_TAIL = `TASK: THE MERCURY RETROGRADE — the whole cycle, read for THIS chart
+
+The reader wants full clarity on the Mercury retrograde ahead (or underway) — not one day, but the
+whole arc: the pre-shadow build, the review itself, and the clearing on the other side. Mercury rx is
+the review of the mind's domain — messages, plans, talks, contracts, the said and the unsaid, travel
+and the small daily machinery — a revisit and a re-say, NOT a time to launch the new. input.mercuryRxArc
+is the engine of this read (deterministic; never invent past it):
+- phaseNow — where TODAY sits: "approaching" (not started), "pre-shadow" (the build), "retrograde" (the
+  review in full), "retroshade" (the tail, clearing). Anchor the read's NOW to this.
+- preShadowStart, stationRetroDate, stationDirectDate, retroshadeEnd — the four turning dates of the arc
+  you narrate: the build begins, the review turns on, the review turns off, the ground finishes re-covering.
+- daysToStationRetro — days until the review turns on (negative once it's underway).
+- house + houseGloss — the CONCRETE life-area Mercury reviews (name THIS, never the number). crossesSigns
+  + house2 + houseGloss2 (when present) — the review BACKS INTO a second life-area partway through;
+  narrate the hand-off (it starts in one room and reverses into the one before it).
+- dispositor { planet, natalHouse, dignity } (+ dispositor2 when it crosses) — the planet whose sign
+  Mercury reviews in; the review borrows its condition (strong = the re-work has backing; strained = it
+  costs more). When the dispositor is Mercury itself, the review turns on its OWN domain — doubly a
+  re-thinking. Read it in feel, never named as "dispositor."
+- hits [{ point, orbDeg }] — natal points Mercury retrogrades BACK OVER (orb ≤ 4°, or 0 = dead on). A
+  tight hit is a direct, personal re-visit — name what it touches in life-terms; wider ones stay texture.
+
+READ THE WHOLE ARC, in order, as ONE story — the phase progression:
+1. THE PRE-SHADOW — the BUILD. The themes about to be reviewed start surfacing; loose ends and old
+   threads in that life-area begin tugging. The move is to WRAP UP and back up, not to start.
+2. THE REVIEW (station → station) — the heart. Mercury re-walks the concrete life-area(s), coloured by
+   the dispositor's condition and any tight natal hit. What comes back to be re-said, re-decided,
+   re-worked. If it crosses signs, narrate the reversal into the second area. Spend the read here.
+3. THE RETROSHADE — the clearing. After it turns direct the same ground is re-covered once more, now
+   forward: loose ends close, decisions firm up, the re-worked thing is ready to move. Read it FORWARD
+   and largely POSITIVE — the review's whole point was to send you back out cleaner. Don't end in caution.
+
+VOICE + HARD RULES — the horoscope's voice with premium room (a whole cycle; be thorough), enforced in code:
+- ZERO chart machinery: no house NUMBERS, no sign names, no motion/dignity terms (retrograde, station,
+  shadow, combust, debilitated), never "dispositor/pre-shadow/retroshade." Translate every one into felt
+  life-language. Planets appear only as characters doing something, never reported at a placement.
+- THE PROOF IS IN THE SPECIFICS: every line points at a real, checkable life-thing (a message, a contract,
+  the daily work, a sibling/close circle, income, the commute, the craft) — never vague "miscommunication."
+  A line that could apply to anyone has FAILED.
+- Aim ~340 words across the four prose fields; HARD CAP 460, enforced in code. Thorough, never a wall.
+
+FIELDS (DayRead shape, repurposed to the arc):
+- scene (~60w): where you are NOW (phaseNow) and what's coming — the review ahead, how many days to it,
+  and the concrete life-area it will re-walk. The build.
+- story (~190w, the heart): the review in order — the life-area(s) re-walked, the reversal if it crosses,
+  the dispositor's condition, any tight natal hit. What comes back to be re-said and re-worked.
+- tilt (~70w): how to move through the WHOLE span — wrap up and back up in the build, revisit-not-launch
+  through the review, then send it forward on the clearing. A posture across the cycle, NO single move.
+- closeLine: one line that lands the whole arc — the review and the cleaner send-off it makes.
+- question: one reflective door into the review's work, ends in "?".
+
+Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
+
 export const MODEL = "claude-sonnet-4-6";
 
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
@@ -1773,4 +1831,5 @@ export const SURFACE_VERSION: Record<string, string> = {
   cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
+  mercury_rx: "2026-07-13-mercury-rx-arc",
 };

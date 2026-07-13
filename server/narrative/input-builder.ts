@@ -16,7 +16,7 @@ import { crownDay } from "../panchang/crown.js";
 import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
-import { mercuryRxState } from "../sky/retrograde-phase.js";
+import { mercuryRxState, mercuryRxCycle } from "../sky/retrograde-phase.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
@@ -58,7 +58,7 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
@@ -75,10 +75,11 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   // life areas must never share a memoized input (they'd produce the same reading otherwise).
   const areaKey = opts?.lifeArea ?? "none";
   const eclKey = opts?.eclipseArc ? "ecl" : "no";
-  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}`;
+  const merKey = opts?.mercuryRxArc ? "mrx" : "no";
+  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, eclipseArc: opts?.eclipseArc });
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   return value;
 }
@@ -90,7 +91,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -452,6 +453,49 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     }
   }
 
+  // MERCURY RETROGRADE ARC — the "how will this Mercury retrograde affect me" period read. Present ONLY
+  // when requested and a cycle is active/approaching. Maps the retrograde SPAN into THIS chart: which
+  // house(s) Mercury reviews (it lands on the sign it stations in, and may back-cross into a prior
+  // sign/house), the sign lord whose condition colours the review, and any natal points Mercury
+  // retrogrades back over (a direct personal re-visit). Deterministic (sky/retrograde-phase.ts).
+  let mercuryRxArc: any | undefined;
+  if (moment?.mercuryRxArc) {
+    const cyc = await mercuryRxCycle(dateStr);
+    if (cyc) {
+      const norm = (x: number) => ((x % 360) + 360) % 360;
+      const sep = (a: number, b: number) => { const d = Math.abs(norm(a) - norm(b)); return Math.min(d, 360 - d); };
+      const natByName = Object.fromEntries((natal.planets as any[]).filter(Boolean).map((pl) => [pl.name, pl]));
+      const houseR = houseFromLagna(cyc.stationRetro.sign, lagna);
+      const houseD = houseFromLagna(cyc.stationDirect.sign, lagna);
+      const dispName = (sign: string) => SIGN_RULERS[sign];
+      const dispOf = (sign: string) => {
+        const n = dispName(sign); const d = natByName[n];
+        return d ? { planet: n, natalHouse: d.house, dignity: d.dignity, rulesHouses: d.rulesHouses } : { planet: n };
+      };
+      // Natal points Mercury retrogrades back over — inside the band [retroEndLon, retroStartLon] or
+      // within 4° of a station point. A tight hit is a direct personal re-visit.
+      let lo = cyc.retroEndLon, hi = cyc.retroStartLon;
+      const hits = Object.entries(lonAll).map(([point, lon]) => {
+        let L = lo, H = hi, x = norm(lon); if (H < L) { H += 360; if (x < L) x += 360; }
+        const inBand = x >= L && x <= H;
+        return { point, orbDeg: inBand ? 0 : +Math.min(sep(lon, lo), sep(lon, hi)).toFixed(1), inBand };
+      }).filter((h) => h.inBand || h.orbDeg <= 4).sort((a, b) => a.orbDeg - b.orbDeg)
+        .map((h) => ({ point: h.point, orbDeg: h.orbDeg }));
+      mercuryRxArc = {
+        today: dateStr, phaseNow: cyc.phaseNow,
+        preShadowStart: cyc.preShadowStart, stationRetroDate: cyc.stationRetro.date,
+        stationDirectDate: cyc.stationDirect.date, retroshadeEnd: cyc.retroshadeEnd,
+        daysToStationRetro: cyc.daysToStationRetro, crossesSigns: cyc.crossesSigns,
+        house: houseR, houseGloss: HOUSE_KEYWORDS[houseR],
+        ...(cyc.crossesSigns && houseD !== houseR ? { house2: houseD, houseGloss2: HOUSE_KEYWORDS[houseD] } : {}),
+        dispositor: dispOf(cyc.stationRetro.sign),
+        ...(cyc.crossesSigns && dispName(cyc.stationDirect.sign) !== dispName(cyc.stationRetro.sign)
+          ? { dispositor2: dispOf(cyc.stationDirect.sign) } : {}),
+        hits,
+      };
+    }
+  }
+
   // Mercury's graded retrograde phase (David: not a binary flag — name the pre-shadow / stationing /
   // deep retrograde / retroshade). Attached ONLY when Mercury is NOT plain-direct, so direct days keep
   // their input hash unchanged (no needless read regeneration — only the ~monthly shadow window busts).
@@ -463,5 +507,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}) };
 }

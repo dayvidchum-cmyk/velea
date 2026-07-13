@@ -192,6 +192,9 @@ export default function Horoscope() {
         {/* ── This eclipse season (the whole double-eclipse arc, read for your chart) ── */}
         <EclipseSeasonCard modeColor={modeColor} />
 
+        {/* ── This Mercury retrograde (the whole rx cycle arc, read for your chart) ── */}
+        <MercuryRxCard modeColor={modeColor} />
+
         {/* Pick-a-date intro — sits right above the calendar it describes (David). */}
         <p style={{ color: "var(--color-muted-foreground)", fontSize: "0.82rem", lineHeight: 1.5, margin: "1.5rem 0 0.9rem", textAlign: "center" }}>
           Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
@@ -518,6 +521,101 @@ function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
               </button>
               {reveal.isError && (
                 <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The season couldn't be drawn just now. Please try again in a moment.</p>
+              )}
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// Mercury glyph ☿ — horns over a circle over a cross. Its own quicksilver mark, distinct from the
+// eclipse disc, so the two period cards never read as the same layer.
+function MercuryGlyph({ size = 17, color }: { size?: number; color: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden style={{ display: "block", flexShrink: 0 }}>
+      <path d="M8.2 3.4 A3.8 3.8 0 0 0 15.8 3.4" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      <circle cx="12" cy="10" r="3.3" fill="none" stroke={color} strokeWidth="1.6" />
+      <line x1="12" y1="13.4" x2="12" y2="20.4" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+      <line x1="8.7" y1="17.4" x2="15.3" y2="17.4" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// ── This Mercury retrograde: the whole-cycle arc (pre-shadow → review → retroshade), read once for
+// your chart and kept. Mirrors EclipseSeasonCard — a period reading, generated on tap, cached per cycle. ──
+function MercuryRxCard({ modeColor }: { modeColor: string }) {
+  const utils = trpc.useUtils();
+  const saved = trpc.horoscope.mercuryRxSaved.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
+  const reveal = trpc.horoscope.mercuryRx.useMutation({ onSuccess: () => utils.horoscope.mercuryRxSaved.invalidate() });
+  const [open, setOpen] = useState(false);
+
+  const savedRead = (saved.data as any)?.available ? ((saved.data as any).read as DayRead) : null;
+  const revealedRead = (reveal.data as any)?.available ? ((reveal.data as any).read as DayRead) : null;
+  const read = savedRead ?? revealedRead;
+  const cycle = ((saved.data as any)?.available ? (saved.data as any).cycle : null) ?? ((reveal.data as any)?.available ? (reveal.data as any).cycle : null);
+  const noCycle = reveal.data && (reveal.data as any).available === false;
+
+  const accent = "#4C86C6"; // quicksilver blue — Mercury's own cool tone, distinct from eclipse gold
+  // Phase-aware label: "ahead" while it's still approaching, "underway" once the review has turned on.
+  const phase = cycle?.phaseNow as string | undefined;
+  const eyebrow = phase === "approaching" ? "Mercury retrograde ahead" : "This Mercury retrograde";
+
+  return (
+    <div
+      style={{
+        borderRadius: 16, marginBottom: "1.1rem", padding: "1rem 1.1rem 1.1rem",
+        border: `1px solid color-mix(in srgb, ${accent} 42%, var(--color-border))`,
+        background: `linear-gradient(180deg, color-mix(in srgb, ${accent} 7%, var(--color-card)), var(--color-card))`,
+      }}
+    >
+      {read ? (
+        <>
+          <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+            <MercuryGlyph color={accent} />
+            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent }}>{eyebrow}</span>
+            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: accent, background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
+            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: accent, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+          </button>
+          {open && (
+            <div style={{ marginTop: "0.8rem" }}>
+              <p style={{ fontSize: "0.68rem", color: "var(--color-muted-foreground)", margin: "0 0 0.7rem", opacity: 0.9 }}>
+                The whole cycle — buildup, review, clearing · read once, kept
+              </p>
+              <DayReadBody read={read} modeColor={modeColor} />
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+            <MercuryGlyph color={accent} />
+            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent, margin: 0 }}>{eyebrow}</p>
+          </div>
+          {noCycle ? (
+            <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
+              Mercury is running clear right now — no retrograde to read yet. This opens again as the next one builds.
+            </p>
+          ) : (
+            <>
+              <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.55, margin: "0 0 0.9rem" }}>
+                The whole arc of the Mercury retrograde — the buildup, the review through your chart, and where it clears after — read once for your chart, and kept.
+              </p>
+              <button
+                onClick={() => { reveal.mutate(); setOpen(true); }}
+                disabled={reveal.isPending}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: reveal.isPending ? "default" : "pointer",
+                  borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, letterSpacing: "0.01em",
+                  color: "#fff", background: `linear-gradient(180deg, ${accent}, #3a6ba8)`, opacity: reveal.isPending ? 0.7 : 1,
+                  boxShadow: `0 2px 12px ${accent}3a`,
+                }}
+              >
+                {reveal.isPending ? <><Loader2 size={15} className="animate-spin" /> Reading the cycle…</> : <>Read this Mercury retrograde</>}
+              </button>
+              {reveal.isError && (
+                <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The cycle couldn't be drawn just now. Please try again in a moment.</p>
               )}
             </>
           )}
