@@ -370,4 +370,11 @@
 // sub-period (Saturn now) GLOWS its own planet color on the page: a soft color wash, a solid left tab,
 // a colored halo, and its name inked in that color. Sibling Mahadasha cards stay chrome. (Replaces the
 // v422 single-chip approach.)
-export const APP_VERSION = "1.1.423";
+//
+// v1.1.424 = 2026-07-13 — Two calendar fixes. (1) Caution day stops "vibrating" (David): today's coin
+// was stacking the fire-red caution ring/number on the mulberry Restraint fill — two close reds
+// buzzing. A caution day now resolves to ONE red family (fill / number / ring differ only in
+// lightness), so the mulberry↔red clash is gone. (2) Readings calendar dates now have a hover
+// affordance (soft mode-color wash + hint ring) — they were selectable but gave zero feedback, so
+// they read as a dead zone on desktop.
+export const APP_VERSION = "1.1.424";

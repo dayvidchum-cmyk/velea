@@ -1113,9 +1113,13 @@ export default function Planner() {
             const tintAlpha = fullSpectrum
               ? (isSelected ? 0.65 : 0.45)
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.6 : 0.62) : (isDark ? 0.34 : 0.20));
-            const accent = modeColor ?? "var(--color-foreground)";
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
             const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
+            // A caution day is ONE red family (David: today "vibrated" because the mulberry Restraint
+            // fill and the fire-red caution ring/number — two close hues — stacked on the same coin).
+            // Resolve the whole coin to red: fill, number, and ring differ only in lightness, not hue.
+            const isCautionDay = cautionSet.has(dateStr);
+            const accent = isCautionDay ? CAUTION_RED : (modeColor ?? "var(--color-foreground)");
             const ECLIPSE_RING = "#6E5AA6"; // muted violet — echoes the eclipse disc's cosmic indigo
             // Retrograde planets active this day → the bottom glyph strip (rendered below).
             const retroToday = retroByDate.get(dateStr);
@@ -1138,12 +1142,13 @@ export default function Planner() {
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
-            const darkInk = darkenOklch(accent, 0.5);
-            // A caution day is always contained to Restraint and already wears the red ring — so the
-            // number is bright red too, matching the circle (David). Applies filled or outline.
-            const isCautionDay = cautionSet.has(dateStr);
-            const numberColor = isCautionDay ? CAUTION_RED : filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
-            const activeInk = isCautionDay ? CAUTION_RED : darkInk; // number color while hovered/pressed
+            // darkenOklch can't parse the hex caution red, so a filled caution coin gets an explicit
+            // near-black-red ink — readable on the red fill, same hue, so no vibration.
+            const darkInk = isCautionDay ? "#3A0606" : darkenOklch(accent, 0.5);
+            // Caution falls out of accent(=CAUTION_RED)+darkInk with no special case: outline days get
+            // the bright red number on white, filled today/selected days get the near-black-red on red.
+            const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
+            const activeInk = darkInk; // number color while hovered/pressed
             const restingBg = filled ? accent : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";

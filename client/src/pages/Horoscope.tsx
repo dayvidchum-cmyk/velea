@@ -218,15 +218,22 @@ export default function Horoscope() {
               const isPurchased = purchasedSet.has(ds);
               const isSelected = ds === selectedDate;
               const isToday = ds === today;
+              // Resting look, restored on mouse-leave. Every day is selectable, so it needs a hover
+              // affordance (David: without one the cells read as a dead zone) — a soft mode-color wash
+              // + hint ring on hover, without disturbing the stronger selected state.
+              const restBg = isSelected ? `color-mix(in srgb, ${modeColor} 14%, transparent)` : "transparent";
+              const restBorder = isSelected ? `1.5px solid ${modeColor}` : "1.5px solid transparent";
               return (
                 <button
                   key={i}
                   onClick={() => selectDate(ds)}
+                  onMouseEnter={(e) => { if (!isSelected) { e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 9%, transparent)`; e.currentTarget.style.border = `1.5px solid color-mix(in srgb, ${modeColor} 45%, transparent)`; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = restBg; e.currentTarget.style.border = restBorder; }}
                   style={{
                     position: "relative", aspectRatio: "1 / 1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                    border: isSelected ? `1.5px solid ${modeColor}` : "1.5px solid transparent",
-                    borderRadius: 10, cursor: "pointer",
-                    background: isSelected ? `color-mix(in srgb, ${modeColor} 14%, transparent)` : "transparent",
+                    border: restBorder,
+                    borderRadius: 10, cursor: "pointer", transition: "background 120ms, border-color 120ms",
+                    background: restBg,
                     color: "var(--foreground)", padding: 0,
                   }}
                 >
