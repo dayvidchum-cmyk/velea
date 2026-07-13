@@ -22,22 +22,44 @@ const SIMONE: Record<string, NatalPlanet> = {
   Ketu:    { house: 4,  sign: "Leo",         rulesHouses: [] },
 };
 
-describe("Step 15 convergence — Simone's engagement lights marriage as an EVENT", () => {
-  const res = buildKnots({
-    natal: SIMONE,
-    dashaLords: { maha: "Rahu", antar: "Moon", praty: null },
-    timeLord: "Moon",
-    meridianOnAxis: ["Rahu", "Mars", "Moon", "Ketu"],
-    partnerGender: null,
-  });
+const SIMONE_ARGS = {
+  natal: SIMONE,
+  dashaLords: { maha: "Rahu", antar: "Moon", praty: null },
+  timeLord: "Moon",
+  meridianOnAxis: ["Rahu", "Mars", "Moon", "Ketu"],
+  partnerGender: null as null,
+};
 
-  it("marriage is lit, event-tier, and leads", () => {
+describe("Step 15 convergence — Simone's Rahu–Moon is the MARRIAGE CHAPTER (standing)", () => {
+  const res = buildKnots(SIMONE_ARGS);
+
+  it("marriage leads with ≥2 converging lords, but as a STANDING chapter — a static natal conjunction dates nothing", () => {
     const marriage = res.lit.find((k) => k.theme === "marriage");
     expect(marriage, "marriage should light").toBeTruthy();
-    expect(marriage!.tier).toBe("event");
     // Rahu (maha) conjunct 7th-lord Mars + Moon (antar) aspects Mars → two converging lords.
     expect(marriage!.convergence).toBeGreaterThanOrEqual(2);
     expect(res.lit[0].theme).toBe("marriage"); // the headline, not buried under the Moon-year
+    // CRUCIAL: without a moving trigger this is the chapter, NOT a dated event. The old code set the
+    // event tier off the natal Rahu–Mars conjunction, so marriage read as "happening now" every day
+    // for the whole 16-year Rahu dasha (the un-dated founding wound). It must be standing here.
+    expect(marriage!.tier).toBe("standing");
+  });
+
+  it("a slow transit LANDING on the 7th-lord Mars is what dates it → event tier", () => {
+    const res2 = buildKnots({
+      ...SIMONE_ARGS,
+      transitsHitting: [{ planet: "Jupiter", hitsNatalPoint: "Mars", houseFromLagna: 10, slow: true }],
+    });
+    const marriage = res2.lit.find((k) => k.theme === "marriage");
+    expect(marriage!.tier).toBe("event");
+    expect(res2.lit[0].theme).toBe("marriage");
+  });
+
+  it("the phantom is gone — in a later antardasha with no tie and no transit, marriage does NOT stay a dated event", () => {
+    const later = buildKnots({ ...SIMONE_ARGS, dashaLords: { maha: "Rahu", antar: "Venus", praty: null }, timeLord: "Venus" });
+    const marriage = later.all.find((k) => k.theme === "marriage");
+    expect(marriage!.tier).not.toBe("event");
+    expect(marriage!.lit).toBe(false); // conv=1, no maha+1 agreement, no trigger → dark
   });
 });
 
@@ -72,12 +94,22 @@ describe("over-fire is fixed — inert structure stays dark", () => {
   });
 });
 
-describe("convergence semantics", () => {
-  it("a single dated hit on the ruler (dasha conjunct house-lord) is enough for an event", () => {
-    // Contrived: maha lord Rahu conjunct the 7th lord, nothing else ties → 1 lord + dated hit.
+describe("convergence semantics — a natal conjunction is a chapter, a transit is the clock", () => {
+  it("a lone maha conjunct the house-lord, no transit, does NOT fabricate a dated event", () => {
+    // maha Rahu conjunct 7th-lord Mars, nothing else, no moving trigger → 1 lord, static.
     const res = buildKnots({
       natal: SIMONE, dashaLords: { maha: "Rahu", antar: null, praty: null }, timeLord: null,
       meridianOnAxis: [], transitsHitting: [], partnerGender: null,
+    });
+    const marriage = res.all.find((k) => k.theme === "marriage");
+    expect(marriage!.tier).not.toBe("event");   // no clock → not dated
+    expect(marriage!.lit).toBe(false);           // conv=1 alone, no agreement, no trigger → dark
+  });
+
+  it("the SAME chart + a slow transit onto the ruler → a single-lord dated event", () => {
+    const res = buildKnots({
+      natal: SIMONE, dashaLords: { maha: "Rahu", antar: null, praty: null }, timeLord: null,
+      meridianOnAxis: [], transitsHitting: [{ planet: "Saturn", hitsNatalPoint: "Mars", houseFromLagna: null, slow: true }], partnerGender: null,
     });
     const marriage = res.all.find((k) => k.theme === "marriage");
     expect(marriage!.lit).toBe(true);

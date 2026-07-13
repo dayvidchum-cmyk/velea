@@ -467,11 +467,12 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   }
 
   // KNOTS — the life-event convergence detector (server/vedic/knots.ts, canon-fed). Deterministic,
-  // no API. Flags the themes (marriage/children/career/identity/…) the sky has tied tight enough on
-  // THIS date to become lived, ranking a DATED event (a dasha lord conjunct a house-lord, a transit
-  // onto it) above the diffuse year backdrop, and folding the 10th-cluster into whatever it truly
-  // cashes out as (Simone: career/identity fold into the marriage). Fed to the prompt so the LLM
-  // reaches for the real event instead of defaulting to "work". Only lit knots are carried.
+  // no API. Flags the themes (marriage/children/career/identity/…) whose running period-lords CONVERGE
+  // (Appendix IV Step 15), separating the dasha CHAPTER (standing: the promise, true for the sub-period)
+  // from a DATED event (only a MOVING trigger — a slow transit landing on the ruler — dates it; a static
+  // natal conjunction never does), ranking the dated event above the diffuse backdrop, and folding the
+  // 10th-cluster into whatever it truly cashes out as (Simone: career/identity fold into the marriage).
+  // Fed to the prompt so the LLM reaches for the real event instead of defaulting to "work". Only lit knots carried.
   const knotNatal: Record<string, NatalPlanet> = Object.fromEntries(
     (natal.planets as any[]).filter(Boolean).map((pl) => [pl.name, { sign: pl.sign, house: pl.house ?? null, rulesHouses: pl.rulesHouses ?? [], dignity: pl.dignity } as NatalPlanet]),
   );

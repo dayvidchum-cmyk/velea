@@ -145,7 +145,7 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
     let datedRulerHit = false;               // a DATED hit ON THE HOUSE-LORD (dasha-conjunct-lord / transit-on-lord) → event-tier
 
     // ── A) period-lord ties ── each running lord (maha/antar/praty/year), checked for an ACTIVE line.
-    for (const { lord, level, dated, counts, name } of periodLords) {
+    for (const { lord, level, counts, name } of periodLords) {
       const nl = N[lord];
       if (!nl) continue;
       let active = false;
@@ -158,11 +158,14 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
       if (isLord(lord) && (nl.house != null && (houses.includes(nl.house) || aspectedHouses(lord, nl.house).some((h) => houses.includes(h))))) {
         signals.push({ kind: level, text: `${name} ${lord} is the ruler of this and is tied to its house` }); active = true;
       }
-      // (iii) conjunct a house-LORD (the classic activation, and the Simone fix: Rahu maha sits with 7th lord Mars)
+      // (iii) conjunct a house-LORD (the classic activation, and the Simone fix: Rahu maha sits with 7th lord Mars).
+      //       This is a STATIC natal fact — true for the whole dasha — so it establishes the CHAPTER
+      //       (adds to convergence) but must NOT set datedRulerHit: a natal conjunction dates nothing.
+      //       Dating comes only from a MOVING trigger (a transit onto the ruler, section B). Otherwise
+      //       the "event" would fire every day for the entire multi-year dasha (the un-dated founding wound).
       for (const p of lords.filter((q) => q !== lord && N[q]?.house != null && N[q]!.house === nl.house)) {
         signals.push({ kind: "conjunction", text: `${name} ${lord} is conjunct ${p}, the ruler of this` });
         active = true;
-        if (dated) datedRulerHit = true;   // a DATED period-lord ON the ruler = a dated event
       }
       // (iv) conjunct a KARAKA — reinforces the prose but is NOT a convergence line on its own
       for (const p of karakas.filter((q) => q !== lord && N[q]?.house != null && N[q]!.house === nl.house && !lords.includes(q))) {
@@ -214,8 +217,9 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
     // sub-cycles either agree with it or they don't. So a STANDING theme (the year's background) lights
     // only when the maha lord itself is tied AND at least one more period-lord agrees (≥2 converging,
     // maha-anchored) — sub-cycles agreeing among themselves without the maha frame is not the chapter.
-    // An ACUTE event (a DATED hit on the ruler: dasha-conjunct-lord or transit-on-lord) breaks through
-    // on its own — a single activation is enough. A transit merely through a house never lights.
+    // An ACUTE event breaks through on its own — but ONLY a MOVING trigger dates it: a slow transit
+    // landing on the ruler (section B). A static natal dasha-conjunction establishes the chapter, it
+    // does not date it. A transit merely through a house (not onto the ruler) never lights an event.
     const convergence = activeLords.size;
     const mahaTied = args.dashaLords.maha != null && activeLords.has(args.dashaLords.maha);
     const lit = (mahaTied && convergence >= 2) || (convergence >= 1 && datedRulerHit);
