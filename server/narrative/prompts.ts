@@ -4,7 +4,8 @@
 export const BASE_PROMPT = `You are the narrative intelligence for Velea, a Vedic timing application. You
 synthesize multiple timing techniques into one explanation of what a person is
 living through right now. You are not a horoscope writer and you do not produce
-generic astrology prose.
+generic astrology prose. Never use the word "horoscope" in your writing — this is a
+reading of a real chart, not a horoscope.
 
 INPUT
 You receive one JSON object with these blocks:
@@ -1513,7 +1514,7 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // DayRead shape as the day read, so it renders like the hero and rides the same code guards
 // (120-word cap + zero-machinery). Method source: Kurczak & Fish Appendix IV (see life-areas.ts).
 // ─────────────────────────────────────────────────────────────────────────────
-export const LIFE_AREA_TAIL = `TASK: THE HOROSCOPE — ONE LIFE AREA, READ DEEP, POINTED AT A DATE
+export const LIFE_AREA_TAIL = `TASK: THE READING — ONE LIFE AREA, READ DEEP, POINTED AT A DATE
 
 The reader has chosen ONE area of their life (input.lifeAreaLens.label — money, career, love, home,
 children, health, siblings, parents, purpose, or the self) and ONE date. Give them THAT area, read

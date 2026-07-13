@@ -247,4 +247,12 @@
 // cached by SEASON in narrative_cache (re-opening the same season is free). Collapsed teaser by
 // default; taps horoscope.eclipseSeason. First real season: Aug 12 solar (David's 11th, gains/income)
 // + Aug 28 lunar (his 6th, work/service/debts).
-export const APP_VERSION = "1.1.398";
+//
+// v1.1.399 = 2026-07-12 — Branding: BAN the word "horoscope" from user-facing copy (David). The
+// section is now "Readings" (nav label + page headers + locked-card title); "Reveal this horoscope"
+// → "Reveal this reading". Route stays /horoscope and internals (trpc.horoscope.*) unchanged. KEPT
+// the deliberate "This isn't horoscopes" positioning (landing meta/hero, marketing "not a horoscope",
+// and the LLM's "not a horoscope writer" guard). Server-side too: LIFE_AREA_TAIL task header
+// HOROSCOPE→READING + BASE_PROMPT now explicitly forbids the word in generated prose. (Server cache
+// money-leak fix — dayStableHash — also shipped between 398 and 399, server-only, no client bump.)
+export const APP_VERSION = "1.1.399";

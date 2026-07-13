@@ -118,10 +118,10 @@ export default function Horoscope() {
   if (access && !entitled) {
     return (
       <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "7rem" }}>
-        <div style={{ marginBottom: "1.25rem" }}><AppHeader pageTitle="Horoscope" onBack={() => navigate("/")} backLabel="Today" /></div>
+        <div style={{ marginBottom: "1.25rem" }}><AppHeader pageTitle="Readings" onBack={() => navigate("/")} backLabel="Today" /></div>
         <div style={{ maxWidth: 520, margin: "0 auto" }}>
           <LockedFeatureCard
-            title="Horoscope"
+            title="Readings"
             teaser="Pick any day — receive its personalized reading."
             detail="Choose any date, past or future, and Velea reads your chart for that exact day — the deep, layered reading, kept forever with your own notes beneath it. A premium layer, not yet unlocked."
           />
@@ -146,7 +146,7 @@ export default function Horoscope() {
 
   return (
     <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "7rem" }}>
-      <div style={{ marginBottom: "1.25rem" }}><AppHeader pageTitle="Horoscope" onBack={() => navigate("/")} backLabel="Today" /></div>
+      <div style={{ marginBottom: "1.25rem" }}><AppHeader pageTitle="Readings" onBack={() => navigate("/")} backLabel="Today" /></div>
 
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <p style={{ color: "var(--color-muted-foreground)", fontSize: "0.82rem", lineHeight: 1.5, margin: "0 0 1.1rem", textAlign: "center" }}>
@@ -312,7 +312,7 @@ function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: 
           boxShadow: `0 2px 12px ${GOLD}44`,
         }}
       >
-        {pending ? <><Loader2 size={15} className="animate-spin" /> Reading the sky…</> : <>Reveal this horoscope</>}
+        {pending ? <><Loader2 size={15} className="animate-spin" /> Reading the sky…</> : <>Reveal this reading</>}
       </button>
       {failed && !pending && (
         <p style={{ fontSize: "0.72rem", color: "#B15F71", margin: "0.9rem 0 0" }}>The reading couldn't be drawn just now. Please try again in a moment.</p>

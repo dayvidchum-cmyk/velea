@@ -14,7 +14,7 @@ const BASE_NAV = [
   { path: "/profection", label: "Chart", icon: BookOpen },
   { path: "/projects", label: "Projects", icon: Folder },
   { path: "/glossary", label: "Glossary", icon: Library },
-  { path: "/horoscope", label: "Horoscope", icon: OctagramMark },
+  { path: "/horoscope", label: "Readings", icon: OctagramMark },
 ];
 
 export default function BottomNav() {
