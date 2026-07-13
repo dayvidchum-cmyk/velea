@@ -351,4 +351,10 @@
 // (ink re-pinned + parchment card), natal chart (now shares --parchment vs its old hardcoded cream),
 // the Readings calendar, and the Readings reveal box. Token generalized --calendar-surface → --parchment.
 // Dasha stays chrome (it's colorful gradient period cards, not a chart-on-surface — flagged for David).
-export const APP_VERSION = "1.1.420";
+//
+// v1.1.421 = 2026-07-13 — Parchment family extended to the natal PLANET TABLE (David: "do the natal
+// table too"). The table container now uses `.parchment`, so the token-driven row text re-inks to
+// dark on paper; the mode-gradient header stays a colored ledger band and the subtle mode-tint zebra
+// rows read as a faint stripe on the almanac page. Parchment set now: calendar, profection wheel,
+// natal chart, natal planet table, Readings calendar + reveal box.
+export const APP_VERSION = "1.1.421";

@@ -387,7 +387,9 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
   const warmStop = isBuild ? ROSE_OCHRE : `color-mix(in srgb, ${modeColor} 62%, #000)`;
   const accentBorder = isBuild ? ROSE_OCHRE : modeColor;
   return (
-    <div style={{ borderRadius: "0.75rem", overflow: "hidden", border: `1px solid ${accentBorder}` }}>
+    // Parchment chart artifact (David): the rows re-ink to dark on paper via .parchment; the mode-
+    // gradient header stays a colored ledger band on top. Inline borderRadius keeps the 0.75rem frame.
+    <div className="parchment" style={{ borderRadius: "0.75rem", overflow: "hidden", border: `1px solid ${accentBorder}` }}>
       {/* Header — day-mode tone warming into rose-ochre on Build days, or a
           deeper shade of the day's own color otherwise. */}
       <div
