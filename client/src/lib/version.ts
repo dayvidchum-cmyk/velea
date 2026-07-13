@@ -285,4 +285,10 @@
 // eclipse disc rim 1.5→1.25px. Mode orbs: the CURRENT-day orb breathes again (orb-pulse keyframe +
 // --orb-glow in its own mode color, reduced-motion safe) and the active mode's NAME now matches its
 // orb color (was foreground). Reflection Log book icon removed. Client-only, no narrative regen.
-export const APP_VERSION = "1.1.410";
+//
+// v1.1.411 = 2026-07-13 — iCloud triage #4 (David's red line): the expanded Time Master / Hora cards
+// no longer run tall. Each gets ONE capped scroll window (~12rem, ending around the golden-block line)
+// with a single internal scroll — Time Master opens on the golden block (schedule + caveat scroll
+// below; auto-center-on-now dropped so the golden block stays put), Hora keeps its open-on-now list at
+// a taller 9rem window so both columns end at the same flat bottom. Client-only, no narrative regen.
+export const APP_VERSION = "1.1.411";

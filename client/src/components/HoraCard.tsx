@@ -92,7 +92,7 @@ export default function HoraCard() {
         {expanded && (
           <div style={{ marginTop: "0.55rem" }}>
             {current && <p style={{ margin: "0 0 0.55rem", fontSize: "0.72rem", color: "var(--foreground)", lineHeight: 1.35 }}>{current.good}</p>}
-            <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: "1px", maxHeight: "6rem", overflowY: "auto" }}>
+            <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: "1px", maxHeight: "9rem", overflowY: "auto" }}>
               {data.horas.map((h, i) => {
                 const isNow = current && h.startMs === current.startMs;
                 const past = nowMs >= h.endMs;

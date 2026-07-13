@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import VeleaLorMark from "./VeleaLorMark";
@@ -51,15 +51,10 @@ function conditionLine(g: any): string {
 
 export default function MasterModeCard() {
   const [expanded, setExpanded] = useState(false);
-  // The hourly breakdown scrolls inside a short fixed-height box (David: ~1/8 the height). When it
-  // opens, center the current window so it lands on "now", not the first pre-dawn row.
+  // The expanded card is one capped scroll window that opens on the golden block (David's red line);
+  // the hourly schedule + caveat scroll below it. The now-row is still tinted, so no auto-centering.
   const listRef = useRef<HTMLDivElement>(null);
   const nowRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!expanded) return;
-    const c = listRef.current, r = nowRef.current;
-    if (c && r) c.scrollTop = r.offsetTop - c.clientHeight / 2 + r.clientHeight / 2;
-  }, [expanded]);
   const modeColor = useDayModeColor(); // soft mode-color border, matching the calendar frame
   const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const entitled = access?.entitled === true;
@@ -117,7 +112,10 @@ export default function MasterModeCard() {
         )}
 
         {expanded && (
-          <div style={{ marginTop: "0.55rem" }}>
+          // David: expanded, the card gets ONE window that ends around the golden-block line — the
+          // schedule + caveat scroll inside it (a single scroll, not a nested one), so the two-column
+          // Time Master/Hora module keeps a compact, flat bottom instead of running tall.
+          <div style={{ marginTop: "0.55rem", maxHeight: "12rem", overflowY: "auto" }}>
             {current && <p style={{ margin: "0 0 0.5rem", fontSize: "0.7rem", color: "var(--foreground)", lineHeight: 1.35 }}>{CAT_NOTE[current.category]}</p>}
 
             {/* Next Veleal'or — the peak window inside the next golden span (or the live one). */}
@@ -139,8 +137,8 @@ export default function MasterModeCard() {
               </p>
             ) : null}
 
-            {/* Hourly breakdown — scrolls inside a short box */}
-            <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: "1px", maxHeight: "6rem", overflowY: "auto" }}>
+            {/* Hourly breakdown — flows into the card's single scroll window (the outer cap owns the scroll) */}
+            <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
               {data.periods.map((p, i) => {
                 const isNow = current && p.startMs === current.startMs;
                 const past = nowMs >= p.endMs;
