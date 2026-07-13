@@ -24,8 +24,10 @@ source (book, author, page/chapter). Where a table is only partially captured, i
 | `vol2-house-and-prasna.md` | Vol II Ch.13-14 + App I-II | Prasna house meanings, Tajika aspects + Deepthamsa orbs, prasna timing framework, directions/places. (Superseded on house meanings by `bhava-significations.json`.) |
 
 ## Pending / still needed
-- `Yogas.pdf` (25pp, 7:13:26 drop) — cross-check/merge any yoga not already in `yogas.json`; don't duplicate.
-- **Wire the AL** — compute Arudha Lagna in `knots.ts` and feed the `identity` theme from it (currently identity keys on 1st/10th + Sun). The true fix for reading the 10th as "career".
+- Planetary maturity ages + planetary-ages tables (Vol I Ch.13 — image-only, not in the text layer).
+- Per-pair avastha narratives (Vol II Ch.10, ~1800 lines) — pull on demand; the formulas already let the engine compute the state.
+
+_(Resolved: `Yogas.pdf` = a scan of Vol I pp.110-133, already captured. AL is wired into `knots.ts`.)_
 - **Maturity of Planets** ages + **Planetary Ages** background periods (Vol I Ch.13 — image tables, not in text layer).
 - Per-pair **avastha narratives** (Vol II Ch.10, ~1800 lines) — pull on demand; formulas already let the engine compute the state.
 - The 18 photo scans (IMG_1739-1760) in the 7:13:26 drop — not yet reviewed; likely overlap the PDF.
