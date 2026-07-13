@@ -39,6 +39,26 @@ const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", 
 const phaseLabel = (phase: string) =>
   phase.startsWith("preshadow") ? "pre-shadow" : phase.startsWith("retrograde") ? "retrograde ℞" : "stations direct";
 
+// Time-of-day picker (shared with the prefetch in AppHeader so the URLs never drift): try the
+// <event>-<tod>.jpg variant matching the viewer's hour; Mercury Rx is a fixed single card;
+// Mercury pre-shadow shows only its midday card. onError in the sheet falls back to the base.
+export function stageTodSrc(image: string, timeOfDay: string): string {
+  if (/mercury-rx/i.test(image)) return `/celestial/${image}`;
+  if (/mercury-preshadow/i.test(image)) return `/celestial/${image.replace(/\.(jpg|jpeg|png|webp)$/i, `-day.$1`)}`;
+  return `/celestial/${image.replace(/\.(jpg|jpeg|png|webp)$/i, `-${timeOfDay}.$1`)}`;
+}
+// Every image a Stage open will show, for warming ahead of time — the tod variant AND the base
+// fallback for the moon card + each station card. Deduped. Safe on partial/undefined sky data.
+export function stagePrefetchUrls(d: any): string[] {
+  if (!d) return [];
+  const tod: string = d.timeOfDay ?? "day";
+  const urls: string[] = [];
+  const add = (image?: string) => { if (!image) return; urls.push(stageTodSrc(image, tod), `/celestial/${image}`); };
+  add(d.image);
+  for (const s of (d.stations ?? [])) add(s.image);
+  return Array.from(new Set(urls));
+}
+
 type Hero = { image: string; kicker: string; title: string; chips: string[]; note: string; primary?: boolean; phase?: string };
 
 // The reading sits in a scrim that RIDES WITH THE TEXT — it fades in at the top (below the
@@ -75,13 +95,8 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
   const timeOfDay: string = d?.timeOfDay ?? "day";
   // Mercury Rx is a FIXED single card — no time-of-day variants. Mercury pre-shadow shows only
   // its midday card (David: dawn/dusk/night retired). Every other Stage card still breathes with
-  // the viewer's real sky.
-  const todSrc = (image: string) =>
-    /mercury-rx/i.test(image)
-      ? `/celestial/${image}`
-      : /mercury-preshadow/i.test(image)
-        ? `/celestial/${image.replace(/\.(jpg|jpeg|png|webp)$/i, `-day.$1`)}`
-        : `/celestial/${image.replace(/\.(jpg|jpeg|png|webp)$/i, `-${timeOfDay}.$1`)}`;
+  // the viewer's real sky. (URL logic lives in stageTodSrc so the header prefetch matches.)
+  const todSrc = (image: string) => stageTodSrc(image, timeOfDay);
   const onTodError = (image: string) => (e: any) => { e.currentTarget.onerror = null; e.currentTarget.src = `/celestial/${image}`; };
   const house: number | null = d?.moonHouse ?? null;
   const intent = d ? (PHASE_INTENT[d.name] ?? "") : "";

@@ -20,7 +20,7 @@ import { pickGreeting } from "@/lib/greeting";
 import { MODE_SOLID } from "../../../shared/types";
 import LocationSheet from "@/components/LocationSheet";
 import CheckInSheet from "@/components/CheckInSheet";
-import StageSheet from "@/components/StageSheet";
+import StageSheet, { stagePrefetchUrls } from "@/components/StageSheet";
 import VeleaMark from "./VeleaMark";
 import VeleaLorMark from "./VeleaLorMark";
 
@@ -73,6 +73,15 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     return () => window.removeEventListener("velea-open-checkin", openCheckIn);
   }, []);
   const [stageSheetOpen, setStageSheetOpen] = useState(false);
+  // Warm the Stage BEFORE the user taps in: the header (always mounted) fetches the sky data and
+  // prefetches every card image (the SW then cache-firsts them). Without this, the Stage's own
+  // queries only fire on open, so on a cold session the off-screen card (e.g. Mercury) is still
+  // downloading when you swipe to it — it flashed blank. React Query shares this cache with the
+  // sheet, so there's no double fetch. staleTime 30min = the same key the sheet uses.
+  const { data: stageSky } = trpc.celestial.today.useQuery(undefined, { enabled: isAuthenticated, staleTime: 30 * 60 * 1000 });
+  useEffect(() => {
+    for (const url of stagePrefetchUrls(stageSky)) { const img = new Image(); img.src = url; }
+  }, [stageSky]);
   // Live "Velea timestamp": ticks every 20s so the mode · activity · hora · clock line stays current.
   const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {

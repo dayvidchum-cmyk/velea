@@ -18,6 +18,11 @@ interface AddTaskSheetProps {
   open: boolean;
   onClose: () => void;
   initialMode?: TaskMode;
+  // When true, initialMode is a SOFT default (a starting color) that does NOT count as a
+  // manual pick — so the mode suggestion still blooms and can override it, exactly like the
+  // mode-less Projects/Tasks add. The FAB uses this (it pre-tags today's mode only as a hint).
+  // Orb-launched adds omit it: tapping an orb IS a deliberate mode choice, so it stays locked.
+  openWithSuggestion?: boolean;
   initialProjectId?: number | null;
   editTask?: {
     id: string;
@@ -243,7 +248,7 @@ function ProjectSelector({
 
 // ─── Main sheet ──────────────────────────────────────────────────────────────
 
-export default function AddTaskSheet({ open, onClose, initialMode, initialProjectId, editTask }: AddTaskSheetProps) {
+export default function AddTaskSheet({ open, onClose, initialMode, openWithSuggestion, initialProjectId, editTask }: AddTaskSheetProps) {
   const [title, setTitle] = useState("");
   const [mode, setMode] = useState<TaskMode>("Build");
   const [modeTouched, setModeTouched] = useState(false); // manual pick wins over suggestion
@@ -347,7 +352,9 @@ export default function AddTaskSheet({ open, onClose, initialMode, initialProjec
     } else {
       setTitle("");
       setMode(initialMode ?? "Build");
-      setModeTouched(!!initialMode); // an orb-launched sheet already implies the mode
+      // openWithSuggestion → the prefilled mode is a soft default, NOT a manual pick, so the
+      // suggestion still blooms (FAB). Otherwise a passed initialMode means the orb chose it.
+      setModeTouched(openWithSuggestion ? false : !!initialMode);
       setSuggestion(null);
       setIsNewVenture(null);
       setPriority("Medium");

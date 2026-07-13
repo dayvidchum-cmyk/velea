@@ -283,11 +283,14 @@ const { user, loading } = useAuth();
         )}
       </main>
 
-      {/* Global add task sheet */}
+      {/* Global add task sheet (the FAB). fabMode pre-tags today's mode as a SOFT default, but
+          openWithSuggestion lets the mode suggestion bloom and override it — so the FAB add
+          behaves like the Projects/Tasks add (suggested mode + why + tap another). */}
       <AddTaskSheet
         open={quickAddMode !== null}
         onClose={() => setQuickAddMode(null)}
         initialMode={fabMode}
+        openWithSuggestion
       />
 
       {/* FAB — floating add task button, above nav bar */}

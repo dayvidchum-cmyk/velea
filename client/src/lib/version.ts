@@ -278,4 +278,4 @@
 // exists (new read-only peek query horoscope.eclipseSeasonSaved — no cost) so it's closable and
 // communicates it's been read; it also lists in the "Your readings" log. (4) The log is now ALWAYS shown
 // when entitled (was hidden when empty → undiscoverable), with an empty-state hint + an Eclipse-season row.
-export const APP_VERSION = "1.1.403";
+export const APP_VERSION = "1.1.404";
