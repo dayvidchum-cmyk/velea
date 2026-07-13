@@ -29,8 +29,6 @@ import { GlossaryLink } from "@/components/GlossaryPopover";
 import WhyNowSheet from "@/components/WhyNowSheet";
 import { createPortal } from "react-dom";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
-import MasterModeCard from "@/components/MasterModeCard";
-import HoraCard from "@/components/HoraCard";
 import MeridianWhisper from "@/components/MeridianWhisper";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -1340,14 +1338,8 @@ export default function Planner() {
         </div>
       )}
 
-      {/* Time Master / Hora — the moment tiles, moved BELOW Calendar & Reflections so the calendar
-          and reflections sit directly under the day card (David 2026-07-11). */}
-      {isAuthenticated && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "start" }}>
-          <MasterModeCard />
-          <HoraCard />
-        </div>
-      )}
+      {/* Time Master + Hora moved to the Readings hub (2026-07-12) — the premium timing layer now
+          lives with the other readings. The app header keeps the live at-a-glance on every page. */}
 
       {/* ── MODE ORBS (reflect TODAY) ── */}
       {isAuthenticated && (

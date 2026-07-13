@@ -255,11 +255,20 @@
 // and the LLM's "not a horoscope writer" guard). Server-side too: LIFE_AREA_TAIL task header
 // HOROSCOPE→READING + BASE_PROMPT now explicitly forbids the word in generated prose. (Server cache
 // money-leak fix — dayStableHash — also shipped between 398 and 399, server-only, no client bump.)
-export const APP_VERSION = "1.1.399";
 //
 // v1.1.400 = 2026-07-12 — Removed the "Your year, right now" upsell (the locked/admin live-regenerated
 // "stage + guests" preview) from the Chart page — replaced by the Readings hub (David). Cut the locked
 // card + admin button + the live "guests" modal + their state/handlers (guestsOpen/openGuests + the
 // deepened refresh fetch) and the now-orphaned Users/LockedFeatureCard imports. The plain "The Read ·
 // your year" panel stays for now. First step toward consolidating deep readings under Readings.
-export const APP_VERSION = "1.1.400";
+//
+// v1.1.401 = 2026-07-12 — READINGS BECOMES THE HUB (David's approved IA, all 5 steps). (1) Time Master
+// + Hora moved Today→Readings (self-contained; app-header glance unaffected). (2) "Your year" deep read
+// now lives in Readings (full DeepReadBody); Chart's "The Read · your year" reduced to a summary + "Read
+// your full year in Readings →" link. (3) Today's day read MIRRORED into Readings (read-only, links to
+// Today). (4) "Your readings" archive REGROUPED BY TYPE (his pick), newest-first within each; label was
+// "Your horoscopes" (banned word) → "Your readings". (5) Road Ahead stays on Chart, admin-only (his call,
+// undecided). Server: year read + chapter now run through scrubMachinery (hero standard). REFINEMENT vs
+// the plan: "the chapter" stays on Chart — it's a coupled sub-part of the structural Time Lord Movement
+// panel, not a standalone reading, so moving it would have gutted that panel for no gain.
+export const APP_VERSION = "1.1.401";

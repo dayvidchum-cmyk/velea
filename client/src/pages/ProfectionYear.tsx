@@ -1,6 +1,7 @@
 import { trpc } from "../lib/trpc";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 import { ChevronDown, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -194,6 +195,7 @@ export default function ProfectionYear() {
   // The Road Ahead is admin-only (David) for now — only query it for admins.
   const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false, enabled: isAdmin });
   const utils = trpc.useUtils();
+  const [, navigate] = useLocation();
 
   // Where the Time Lord is transiting right now — used to name the current "chapter".
   const { data: tlTransit } = trpc.timeLordTransit.forDate.useQuery(
@@ -562,69 +564,21 @@ export default function ProfectionYear() {
           Each heading is its own accordion: closed = flat color, open = subtle gradient. */}
       {panel("The Read · your year", readOpen, setReadOpen, (
         deepRead ? (
-        <>
-          {readAccordion("Core Theme", s1, setS1, (
-            <>
-              <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: 0 }}>{deepRead.coreTheme.synthesis}</p>
-              {timeLordGroup ? (
-                <>
-                  {planetGroupBlock(timeLordGroup)}
-                  {coreTakeaway && goldTakeaway(coreTakeaway)}
-                </>
-              ) : (
-                deepRead.coreTheme.why && whyBlock(deepRead.coreTheme.why)
-              )}
-            </>
-          ))}
-
-          {readAccordion("Your Current Karmic Chapter — Dasha", s2, setS2, (
-            <>
-              <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: 0 }}>{deepRead.whyNow.synthesis}</p>
-              {dashaGroups.length > 0 ? (
-                dashaGroups.map((g) => <div key={g.label}>{planetGroupBlock(g)}</div>)
-              ) : (
-                deepRead.whyNow.why && whyBlock(deepRead.whyNow.why)
-              )}
-              {dashaGroups.length > 0 && dashaTakeaway && goldTakeaway(dashaTakeaway)}
-            </>
-          ))}
-
-          {deepRead.manifestations?.length > 0 && readAccordion("Possible Manifestations", s3, setS3, (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-              {deepRead.manifestations.map((m, i) => (
-                <div key={i} style={{ background: "rgba(0,0,0,0.18)", borderRadius: "0.7rem", padding: "0.85rem 1rem" }}>
-                  <p style={{ color: "#E7C766", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, margin: "0 0 0.4rem" }}>{m.area}</p>
-                  <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "0.95rem", lineHeight: 1.55, margin: 0 }}>{m.synthesis}</p>
-                  {m.why && whyBlock(m.why)}
-                </div>
-              ))}
-            </div>
-          ))}
-
-          {readAccordion("The Lesson", s5, setS5, sectionBody(deepRead.developmentalTask))}
-
-          {deepRead.confidence && readAccordion(`${deepRead.confidence.level} Confidence`, s6, setS6, (
-            <>
-              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                {deepRead.confidence.factors?.map((f, i) => (
-                  <li key={i} style={{ display: "flex", gap: "0.5rem", alignItems: "baseline", lineHeight: 1.55 }}>
-                    <span style={{ color: "rgba(255,255,255,0.55)", flexShrink: 0 }}>·</span>
-                    <span style={{ fontSize: "0.95rem" }}>
-                      <span style={{ color: "rgba(255,255,255,0.96)", fontWeight: 600 }}>{f.plain}</span>
-                      {f.astro && <span style={{ color: "rgba(255,255,255,0.66)" }}>{" — "}{f.astro}</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", margin: "0.75rem 0 0", fontStyle: "italic" }}>The more independent techniques point at one life area, the higher the confidence.</p>
-            </>
-          ))}
-        </>
+          <>
+            <p style={{ color: "rgba(255,255,255,0.96)", fontSize: "1rem", lineHeight: 1.7, margin: "0 0 1.1rem" }}>{deepRead.coreTheme.synthesis}</p>
+            {coreTakeaway && goldTakeaway(coreTakeaway)}
+            <button
+              onClick={() => navigate("/horoscope")}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: "1rem", background: "none", border: "none", cursor: "pointer", color: modeColor, fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.02em", padding: 0 }}
+            >
+              Read your full year in Readings →
+            </button>
+          </>
         ) : (
           <div style={{ padding: "0.5rem 0", color: TEXT_MUTED, fontSize: "0.9rem", lineHeight: 1.6 }}>
             {deepReadLoading
-              ? "Generating your reading… this can take up to a minute the first time."
-              : "Tap to generate your full year reading."}
+              ? "Reading your year… this can take up to a minute the first time."
+              : "Tap to read your year — the full version lives in Readings."}
           </div>
         )
       ))}

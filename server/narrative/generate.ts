@@ -135,7 +135,7 @@ export async function generateDeepRead(input: NarrativeInput): Promise<DeepRead 
     });
     const block = msg.content.find((b) => b.type === "tool_use");
     if (!block || block.type !== "tool_use") return null;
-    return isCompleteDeepRead(block.input) ? (block.input as DeepRead) : null;
+    return isCompleteDeepRead(block.input) ? scrubDeepRead(block.input as DeepRead) : null;
   } catch (err) {
     console.error("[narrative] generateDeepRead failed, using static fallback:", (err as any)?.message ?? err);
     return null;
@@ -185,7 +185,7 @@ export async function generateChapter(input: NarrativeInput): Promise<Chapter | 
     });
     const block = msg.content.find((b) => b.type === "tool_use");
     if (!block || block.type !== "tool_use") return null;
-    return isCompleteChapter(block.input) ? (block.input as Chapter) : null;
+    return isCompleteChapter(block.input) ? scrubChapter(block.input as Chapter) : null;
   } catch (err) {
     console.error("[narrative] generateChapter failed, using static fallback:", (err as any)?.message ?? err);
     return null;
@@ -264,6 +264,25 @@ export function scrubMachinery(s: string): string {
 const scrubDayRead = (r: DayRead): DayRead => ({
   scene: scrubMachinery(r.scene), story: scrubMachinery(r.story), tilt: scrubMachinery(r.tilt),
   closeLine: scrubMachinery(r.closeLine), question: scrubMachinery(r.question),
+});
+
+// Deep read (your year) + chapter now meet the same machinery-scrub standard as the hero — no
+// banned term can ship even if the model slips (deterministic last line of defense).
+const scrubSection = (s: any) => (s ? { ...s, synthesis: scrubMachinery(s.synthesis ?? ""), why: scrubMachinery(s.why ?? "") } : s);
+const scrubDeepRead = (r: DeepRead): DeepRead => ({
+  ...r,
+  coreTheme: scrubSection(r.coreTheme),
+  whyNow: scrubSection(r.whyNow),
+  developmentalTask: scrubSection(r.developmentalTask),
+  manifestations: (r.manifestations ?? []).map((m: any) => ({ ...m, synthesis: scrubMachinery(m.synthesis ?? ""), why: scrubMachinery(m.why ?? "") })),
+  confidence: r.confidence
+    ? { ...r.confidence, factors: (r.confidence.factors ?? []).map((f: any) => ({ ...f, plain: scrubMachinery(f.plain ?? ""), astro: scrubMachinery(f.astro ?? "") })) }
+    : r.confidence,
+});
+const scrubChapter = (c: Chapter): Chapter => ({
+  ...c,
+  chapterGoodFor: (c.chapterGoodFor ?? []).map(scrubMachinery),
+  chapterAvoid: (c.chapterAvoid ?? []).map(scrubMachinery),
 });
 
 // Returns the reason a read FAILS a guard (too long / machinery leak), or null if it's clean.

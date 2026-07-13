@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { useLocation } from "wouter";
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import OctagramMark from "@/components/OctagramMark";
@@ -6,6 +6,8 @@ import AppHeader from "@/components/AppHeader";
 import LockedFeatureCard from "@/components/LockedFeatureCard";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import GlossaryText from "@/components/GlossaryText";
+import MasterModeCard from "@/components/MasterModeCard";
+import HoraCard from "@/components/HoraCard";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
@@ -66,6 +68,20 @@ export default function Horoscope() {
 
   const utils = trpc.useUtils();
   const { data: purchased } = trpc.horoscope.list.useQuery(undefined, { enabled: entitled, staleTime: 1000 * 30 });
+
+  // ── Hub sections (Today's read mirror, Your year, The chapter) — the always-on readings that
+  // now live here alongside pick-a-date. Collapse-default (Velea UX law) + lazy: each fetches only
+  // when opened, so nothing generates until asked. All are cached day-stable, so opening is a free
+  // hit once the day's read exists (Today generates the day read; Chart/here the year + chapter). ──
+  const { data: activeProfile } = trpc.profiles.getActive.useQuery(undefined, { enabled: entitled, staleTime: 1000 * 60 * 5 });
+  const pid = activeProfile?.id;
+  const today = todayStr();
+  const [todayOpen, setTodayOpen] = useState(false);
+  const [yearOpen, setYearOpen] = useState(false);
+  const { data: todayReadRes } = trpc.narrative.dayRead.useQuery({ profileId: pid as number, date: today }, { enabled: !!pid && todayOpen, staleTime: 1000 * 60 * 30 });
+  const { data: yearReadRes } = trpc.narrative.deepRead.useQuery({ profileId: pid as number, date: today }, { enabled: !!pid && yearOpen, staleTime: 1000 * 60 * 30 });
+  const todayReadContent = (todayReadRes as any)?.read ?? null;
+  const yearReadContent = (yearReadRes as any)?.read ?? null;
 
   const [view, setView] = useState(() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; });
   const [selectedDate, setSelectedDate] = useState<string>(todayStr());
@@ -136,7 +152,6 @@ export default function Horoscope() {
   const daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
   const cells: (number | null)[] = [...Array(startPad).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   while (cells.length % 7 !== 0) cells.push(null);
-  const today = todayStr();
   const shiftMonth = (delta: number) => setView((v) => { const d = new Date(v.y, v.m + delta, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
 
   // Prefer the frozen reading from `get`; fall back to the fresh reveal response for THIS date
@@ -152,6 +167,27 @@ export default function Horoscope() {
         <p style={{ color: "var(--color-muted-foreground)", fontSize: "0.82rem", lineHeight: 1.5, margin: "0 0 1.1rem", textAlign: "center" }}>
           Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
         </p>
+
+        {/* ── Always-on readings, consolidated into the hub (collapse-default, lazy) ── */}
+        <HubSection title="Today's reading" open={todayOpen} onToggle={() => setTodayOpen((o) => !o)} accent={modeColor}>
+          {todayReadContent ? (
+            <>
+              <DayReadBody read={todayReadContent} modeColor={modeColor} />
+              <button onClick={() => navigate("/")} style={hubLinkStyle(modeColor)}>Open Today →</button>
+            </>
+          ) : <SectionLoading label="Reading today…" />}
+        </HubSection>
+
+        <HubSection title="Your year" open={yearOpen} onToggle={() => setYearOpen((o) => !o)} accent={modeColor}>
+          {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : <SectionLoading label="Reading your year…" />}
+        </HubSection>
+
+        {/* Time Master + Hora — the premium timing layer, now living in Readings. Each carries its own
+            heading + lock (masterMode.access); the app header's live glance is unaffected. */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem", margin: "0 0 1.1rem" }}>
+          <MasterModeCard />
+          <HoraCard />
+        </div>
 
         {/* ── This eclipse season (the whole double-eclipse arc, read for your chart) ── */}
         <EclipseSeasonCard modeColor={modeColor} />
@@ -256,39 +292,53 @@ export default function Horoscope() {
           )}
         </div>
 
-        {/* ── Your horoscopes (scroll back) ── */}
-        {purchased && purchased.length > 0 && (
-          <div style={{ marginTop: "1.8rem" }}>
-            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.6rem" }}>
-              Your horoscopes · {purchased.length}
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {purchased.map((r) => {
-                const rArea = r.lifeArea ?? "day";
-                const active = r.date === selectedDate && rArea === selectedArea;
-                return (
-                <button
-                  key={`${r.date}:${rArea}`}
-                  onClick={() => { const [y, m] = r.date.split("-").map(Number); setView({ y, m: m - 1 }); setSelectedArea(rArea); selectDate(r.date); }}
-                  style={{
-                    textAlign: "left", cursor: "pointer", borderRadius: 12, padding: "0.7rem 0.8rem",
-                    border: active ? `1.5px solid ${GOLD}` : "1px solid var(--color-border)",
-                    background: "var(--color-card)", display: "flex", flexDirection: "column", gap: "0.2rem",
-                  }}
-                >
-                  <span style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
-                    <VeleaLorMark size={11} color={GOLD} />
-                    <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--foreground)" }}>{fmtShort(r.date)}</span>
-                    <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, opacity: 0.9 }}>· {areaLabel(rArea)}</span>
-                    {r.hasNotes && <span style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: GOLD, opacity: 0.85 }}>· noted</span>}
-                  </span>
-                  {r.snippet && <span style={{ fontSize: "0.72rem", color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>{r.snippet}…</span>}
-                </button>
-                );
-              })}
+        {/* ── Your readings — every reveal you own, GROUPED BY TYPE, newest first within each ── */}
+        {purchased && purchased.length > 0 && (() => {
+          const byType = new Map<string, any[]>();
+          for (const r of purchased) { const k = r.lifeArea ?? "day"; if (!byType.has(k)) byType.set(k, []); byType.get(k)!.push(r); }
+          const order = [...LIFE_AREAS.map((a) => a.key), "day"];
+          const groups = order.filter((k) => byType.has(k)).map((k) => ({ key: k, items: byType.get(k)!.slice().sort((a, b) => b.date.localeCompare(a.date)) }));
+          return (
+            <div style={{ marginTop: "1.8rem" }}>
+              <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.9rem" }}>
+                Your readings · {purchased.length}
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                {groups.map((g) => (
+                  <div key={g.key}>
+                    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.5rem", opacity: 0.9 }}>
+                      {areaLabel(g.key)} · {g.items.length}
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      {g.items.map((r) => {
+                        const rArea = r.lifeArea ?? "day";
+                        const active = r.date === selectedDate && rArea === selectedArea;
+                        return (
+                          <button
+                            key={`${r.date}:${rArea}`}
+                            onClick={() => { const [y, m] = r.date.split("-").map(Number); setView({ y, m: m - 1 }); setSelectedArea(rArea); selectDate(r.date); }}
+                            style={{
+                              textAlign: "left", cursor: "pointer", borderRadius: 12, padding: "0.7rem 0.8rem",
+                              border: active ? `1.5px solid ${GOLD}` : "1px solid var(--color-border)",
+                              background: "var(--color-card)", display: "flex", flexDirection: "column", gap: "0.2rem",
+                            }}
+                          >
+                            <span style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
+                              <VeleaLorMark size={11} color={GOLD} />
+                              <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--foreground)" }}>{fmtShort(r.date)}</span>
+                              {r.hasNotes && <span style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: GOLD, opacity: 0.85 }}>· noted</span>}
+                            </span>
+                            {r.snippet && <span style={{ fontSize: "0.72rem", color: "var(--color-muted-foreground)", lineHeight: 1.4 }}>{r.snippet}…</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
@@ -320,6 +370,29 @@ function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: 
     </div>
   );
 }
+
+// ── Hub section: a collapse-default titled panel for the always-on readings (Today's read,
+// Your year, The chapter). Matches the calendar/card framing so the hub reads as one surface. ──
+function HubSection({ title, open, onToggle, accent, children }: { title: string; open: boolean; onToggle: () => void; accent: string; children: ReactNode }) {
+  return (
+    <div style={{ borderRadius: 16, border: "1px solid var(--color-border)", background: "var(--color-card)", marginBottom: "0.8rem", overflow: "hidden" }}>
+      <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.85rem 1rem", background: "none", border: "none", cursor: "pointer" }}>
+        <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: accent }}>{title}</span>
+        <ChevronDown size={16} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+      </button>
+      {open && <div style={{ padding: "0 1rem 1rem" }}>{children}</div>}
+    </div>
+  );
+}
+
+function SectionLoading({ label }: { label: string }) {
+  return <p style={{ fontSize: "0.85rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0", textAlign: "center" }}>{label}</p>;
+}
+
+const hubLinkStyle = (accent: string): CSSProperties => ({
+  display: "inline-block", marginTop: "0.9rem", background: "none", border: "none", cursor: "pointer",
+  color: accent, fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.04em", padding: 0,
+});
 
 // ── A small eclipse glyph: a corona ring around a dark disc (an annular "ring of fire"). Reads
 // on either theme because the disc stays dark. Used only on the eclipse-season card. ──
