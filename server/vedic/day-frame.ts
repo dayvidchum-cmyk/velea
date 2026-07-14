@@ -35,13 +35,20 @@ const HOUSE_FALLBACK: Record<number, { area: string; karaka: string }> = {
 // dignityLabel vocabulary (panchang/dignity.ts TIER_LABEL): supportive / strained / neutral.
 const SUPPORTIVE = new Set(["Exalted", "Moolatrikona", "Own", "Friend"]);
 const STRAINED = new Set(["Debilitated", "Enemy"]);
-function conditionFrom(digs: Array<string | null | undefined>): "supported" | "strained" | "mixed" | "unlit" {
+function classify(digs: Array<string | null | undefined>): "supported" | "strained" | "mixed" | "unlit" {
   const s = digs.filter((d) => d && SUPPORTIVE.has(d)).length;
   const x = digs.filter((d) => d && STRAINED.has(d)).length;
   if (s && x) return "mixed";
   if (s) return "supported";
   if (x) return "strained";
   return "unlit"; // all neutral — steady, nothing lit (distinct from mixed)
+}
+// The condition is the HOUSE-LORD's state (the ruler carries the affairs). Karakas only speak when
+// the ruler is neutral — they break a tie, they don't out-vote the ruler. Pooling everyone equally
+// collapsed the read to "mixed" 76% of the time and never fired "unlit" (cold-data finding).
+function conditionFrom(lordDigs: Array<string | null | undefined>, karakaDigs: Array<string | null | undefined>): "supported" | "strained" | "mixed" | "unlit" {
+  const lord = classify(lordDigs);
+  return lord !== "unlit" ? lord : classify(karakaDigs);
 }
 
 export type DayFrameReading = {
@@ -82,7 +89,8 @@ export function dayFrameReading(args: {
 
   // 2) ARENA + 3) CONDITION (D1 ∧ varga) + 4) CHAPTER convergence
   const areaKey = HOUSE_TO_AREA[moonHouse];
-  const digs: Array<string | null | undefined> = [];
+  const lordDigs: Array<string | null | undefined> = [];
+  const karakaDigs: Array<string | null | undefined> = [];
   const conditionDetail: string[] = [];
   let via: string[] = [];
   let area: string, varga: string;
@@ -95,11 +103,11 @@ export function dayFrameReading(args: {
     area = lens.domain || lens.label;
     varga = lens.varga;
     if (lens.houseLord) {
-      digs.push(lens.houseLord.natalDignity, lens.houseLord.vargaDignity);
+      lordDigs.push(lens.houseLord.natalDignity, lens.houseLord.vargaDignity);
       conditionDetail.push(`ruler ${lens.houseLord.planet}: ${lens.houseLord.natalDignity} (D1) / ${lens.houseLord.vargaDignity} (${varga})`);
     }
     for (const k of lens.karakas) if (k.state) {
-      digs.push(k.state.natalDignity, k.state.vargaDignity);
+      karakaDigs.push(k.state.natalDignity, k.state.vargaDignity);
       conditionDetail.push(`karaka ${k.planet}: ${k.state.natalDignity} (D1) / ${k.state.vargaDignity} (${varga})`);
     }
     via = lens.activation.dashaBearing.map((d) => `${d.lord} (${d.level}) — ${d.how}`);
@@ -109,7 +117,7 @@ export function dayFrameReading(args: {
     area = fb.area; varga = "—";
     const lord = SIGN_RULER[ZOD[(lagIdx + moonHouse - 1) % 12]];
     const lordDig = args.natalByPlanet[lord]?.dignity, karDig = args.natalByPlanet[fb.karaka]?.dignity;
-    digs.push(lordDig, karDig);
+    lordDigs.push(lordDig); karakaDigs.push(karDig);
     conditionDetail.push(`ruler ${lord}: ${lordDig ?? "n/a"} (D1)`, `karaka ${fb.karaka}: ${karDig ?? "n/a"} (D1)`);
     // convergence: a running dasha lord rules the house, sits in it, or is the karaka
     for (const [level, p] of [["maha", (args.dasha as any)?.mahaDasha?.lord], ["antar", (args.dasha as any)?.antarDasha?.lord]] as const) {
@@ -121,7 +129,7 @@ export function dayFrameReading(args: {
     }
   }
 
-  const condition = conditionFrom(digs);
+  const condition = conditionFrom(lordDigs, karakaDigs);
   const evidence = [
     `day-Moon ${ZOD[dayMoonSignIdx]} → house ${moonHouse} from ${args.lagnaSign} lagna`,
     `tāra #${tb.taraNum} ${tb.name} (${tb.quality}, cycle ${tb.cycle}) · chandrabala house ${cb.house} (${cb.quality})`,

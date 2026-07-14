@@ -70,9 +70,14 @@ describe("day-frame — condition classification (via the 8/11 D1-fallback, full
     expect(r.condition).toBe("supported");
   });
 
-  it("one strong + one strained → MIXED", () => {
-    const r = dayFrameReading({ ...base, natalByPlanet: natalBy({ Mars: "Exalted", Saturn: "Debilitated" }) }); // Saturn = 8th karaka
-    expect(r.condition).toBe("mixed");
+  it("a strong RULER out-votes a strained karaka → SUPPORTED (the ruler carries the house)", () => {
+    const r = dayFrameReading({ ...base, natalByPlanet: natalBy({ Mars: "Exalted", Saturn: "Debilitated" }) }); // Mars rules, Saturn = 8th karaka
+    expect(r.condition).toBe("supported");
+  });
+
+  it("a NEUTRAL ruler lets the karaka break the tie → SUPPORTED via karaka", () => {
+    const r = dayFrameReading({ ...base, natalByPlanet: natalBy({ Mars: "Neutral", Saturn: "Own" }) });
+    expect(r.condition).toBe("supported");
   });
 });
 
