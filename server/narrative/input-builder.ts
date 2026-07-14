@@ -1,7 +1,8 @@
 // Assembles the five-block Narrative input (natal / profection / dasha / transits
 // / panchang) for a profile + date. Promoted from server/scripts/narrative-input.ts.
 import { getDb } from "../db.js";
-import { profiles, profileNatalBodies } from "../../drizzle/schema.js";
+import { profiles, profileNatalBodies, users } from "../../drizzle/schema.js";
+import { dayFrameReading, type DayFrameReading } from "../vedic/day-frame.js";
 import { eq } from "drizzle-orm";
 import { calculateProfectionYear } from "../profection/calculator.js";
 import { calculateDashaTimeline, currentPratyantardasha, pratyantardashaList } from "../dasha-calculator.js";
@@ -101,6 +102,11 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const p = prows[0];
   if (!p) throw new Error(`profile ${profileId} not found`);
   if (!p.lagnaSign || !p.birthDate) throw new Error(`profile ${profileId} has no birth chart`);
+  // DAY-FRAME voice reading is GATED to admins during rollout — only an admin owner's read carries
+  // input.reading; every other user's input is byte-for-byte unchanged (the prompt's reading block
+  // is inert when input.reading is absent). Reversible: flip the gate, no schema/prompt churn.
+  const owner = await db.select({ role: users.role }).from(users).where(eq(users.id, p.userId)).limit(1);
+  const ownerIsAdmin = owner[0]?.role === "admin";
   let bodies = await db.select().from(profileNatalBodies).where(eq(profileNatalBodies.profileId, p.id));
   if (!bodies.length && p.birthDate) {
     // SELF-HEAL: a profile with birth data but no per-planet natal bodies (e.g. a friend login
@@ -490,6 +496,25 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     ? knotsResult.lit.map((k) => ({ theme: k.theme, label: k.label, tier: k.tier, houses: k.houses, why: k.signals.map((s) => s.text), ...(k.folds?.length ? { folds: k.folds } : {}), ...(k.comboProse ? { canon: k.comboProse } : {}) }))
     : undefined;
 
+  // DAY-FRAME READING (admin-gated) — the tried-and-true day read the engine PRODUCES (Lens Router's
+  // day frame → the Moon: tilt · arena · condition-in-varga · chapter · timing), for the voice model
+  // to RENDER rather than synthesize. Deterministic (server/vedic/day-frame.ts). Absent → prompt's
+  // reading block is inert and the read is generated exactly as before.
+  let reading: DayFrameReading | undefined;
+  if (ownerIsAdmin && a["Moon"] != null && birthNakIdx >= 0 && natalMoonSignIdx >= 0) {
+    const natalByPlanet = Object.fromEntries(
+      (natal.planets as any[]).filter(Boolean).map((pl) => [pl.name, { sign: pl.sign, house: pl.house ?? null, dignity: pl.dignity, rulesHouses: pl.rulesHouses ?? [] }]),
+    );
+    try {
+      reading = dayFrameReading({
+        natalLon: lonAll, ascLon: lagnaLonForDig, lagnaSign: lagna, natalByPlanet,
+        birthNakIdx, natalMoonSignIdx,
+        dayMoonLon: a["Moon"], dayNakIdx: Math.floor((((a["Moon"] % 360) + 360) % 360) / (360 / 27)),
+        transits: transits as any, dasha: dasha as any,
+      });
+    } catch (e) { console.warn(`[narrative] day-frame reading failed for profile ${p.id}:`, e); }
+  }
+
   // LIFE-AREA LENS — the horoscope's "pick a life area" varga-deep block. Present ONLY when a
   // life area was requested (the Today/glance reads never carry it). Deterministic: routes the area
   // to its varga + primary house + karakas (life-areas.ts, from Kurczak & Fish Appendix IV), reads
@@ -628,5 +653,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

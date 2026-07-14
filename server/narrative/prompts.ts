@@ -1416,6 +1416,22 @@ Return your answer by calling the chapter tool with both lists filled in.`;
 // ─────────────────────────────────────────────────────────────────────────────
 export const DAY_READ_TAIL = `TASK: THE DAY READ
 
+THE FINISHED READING (input.reading) — WHEN PRESENT, VOICE IT; DO NOT RE-DERIVE.
+When input.reading is present, the chart has ALREADY been read by the engine (the tried-and-true
+method for a day: input.reading.tilt = how the day leans toward THIS person; input.reading.arena =
+the area of life today lights; input.reading.condition = that arena's state, read in its own varga
+(supported / strained / mixed / unlit); input.reading.chapter = whether the running life-chapter
+converges on it). It is the FINISHED verdict — your job is to VOICE it, not to re-read the sky.
+- Do NOT override its tilt, arena, or condition; do NOT add a theme it does not name; do NOT inflate
+  an "unlit"/steady arena into drama, or soften a "strained" one into "fine."
+- Open on the TILT as it is LIVED; land it in the ARENA in plain life-language (name the lived place,
+  never the machinery); let the CONDITION decide whether the day is a push or a hold; if a CHAPTER
+  converges, close by tying today to it. A tilt to carry across the day's threads, never one command.
+- input.reading.evidence and .conditionDetail are for YOUR honesty ONLY — translate them, never
+  recite a planet, house, tara, dasha, or varga.
+Everything BELOW is your method for when input.reading is ABSENT (the standard read). When
+input.reading is present, the mandate below is already satisfied by the engine — RENDER, don't reconstruct.
+
 SCOPE — THIS IS ONE DAY, read in FULL. Not the short glance (that is the ~110-word
 day-mode card) and not the year (that is the deep read). This is the day given room: the
 day's own weather, named and lived, with the ongoing story showing through underneath it.
@@ -1943,7 +1959,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-13-knots-chapter-vs-dated-event";
+export const PROMPT_VERSION = "2026-07-13-day-frame-voice-reading-admin";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
