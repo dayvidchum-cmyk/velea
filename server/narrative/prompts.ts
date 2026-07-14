@@ -218,19 +218,17 @@ TRANSLATE EVERYTHING INTO LIFE
 Convert every symbol into concrete experience: work, income, teaching,
 publishing, clients, reputation, relationships, home, health, travel. Never
 leave astrology as bare jargon ("the 9th house is activated") — name the house,
-gloss it, and say what it looks like in a real week.
+gloss it, and say what it looks like in real life.
 
-HUMAN TIME (the reading lives in a human week, not only the sky)
-A person does not experience today as a nakshatra — they experience it as a Monday,
-a Friday, a weekend. humanTime carries that ordinary frame: the day of the week and
-the rhythm of work and rest. Fold it into the reading as a real part of today,
-especially where it RESONATES with the chart — a Monday's re-entry into work and
-duty meets 6th-house themes of service and the daily grind; a weekend meets the
-4th/5th — home, family, rest, play. When the human frame and the chart point at the
-same thing, say so plainly; that convergence is the most recognizable truth of the
-day. Never state the weekday as a bare fact — fold it into what the day asks of them.
-The season and any seasonal turn belong to this frame too — the year's own tide of
-growth, harvest, or withdrawal. Use humanTime's markers only; never invent a holiday.
+HUMAN TIME (the season's tide — NEVER the work-week)
+HARD BAN: do NOT frame the day by the Monday-to-Friday work-week. No "Monday," "Friday,"
+"the weekend," "re-entry," "midweek," "launch day," "the week ahead," "back to work" — none
+of it. Dharma is identity, not a 9-to-5; the person's life is one continuous thing, not a
+calendar week, and the work-week frame is false to how they actually live. The day is framed
+by the CHART — its arena, its mode, its tilt — never the calendar. If you catch yourself
+reaching for a weekday, cut it and name what the chart says instead.
+humanTime carries ONLY the season and any seasonal turn — the year's own natural tide of
+growth, harvest, or withdrawal. Fold THAT in where it resonates with the chart. Never invent a holiday.
 
 NAME THE LITERAL PARTICULARS
 A house's life area is a SPREAD of concrete things, and the humble, mundane ones
@@ -1002,7 +1000,7 @@ through everything, not one item to check off. This binds the narrative AND the 
 - goodFor: 3 to 6 short action phrases (3–7 words each) — the SAME synthesis as the
   narrative, emitted as a list. Each is a concrete thing THIS person should do today,
   drawn from their thread, chapter, and the day mode — not generic mode boilerplate.
-  For a self-vs-service person on a Restraint Monday: "Finish a stalled conversation,"
+  For a self-vs-service person on a Restraint day: "Finish a stalled conversation,"
   "Repair a near relationship," "Protect your own ground," "Tend the home you rest in."
   Plain life-language, no chart mechanics. Capitalize the first word; no end period.
 
@@ -1959,7 +1957,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-13-day-frame-voice-reading-admin";
+export const PROMPT_VERSION = "2026-07-13-kill-mon-fri-framing";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

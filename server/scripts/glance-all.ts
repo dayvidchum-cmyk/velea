@@ -16,7 +16,7 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
     try {
       const input = await buildNarrativeInput(p.id, date);
       console.log(`\n${"=".repeat(74)}`);
-      console.log(`${p.name} (#${p.id}) | ${input.natal.lagna} lagna | ${input.humanTime.dayOfWeek} | mode ${input.panchang.mode} | yr H${input.profection.activatedHouse} TL ${input.profection.timeLord} | dasha ${input.dasha?.mahaDasha.lord}-${input.dasha?.antarDasha.lord}`);
+      console.log(`${p.name} (#${p.id}) | ${input.natal.lagna} lagna | mode ${input.panchang.mode} | yr H${input.profection.activatedHouse} TL ${input.profection.timeLord} | dasha ${input.dasha?.mahaDasha.lord}-${input.dasha?.antarDasha.lord}`);
       console.log("=".repeat(74));
       const g = await generateGlance(input);
       if (!g) { console.log("  (no output)"); continue; }

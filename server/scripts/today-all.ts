@@ -20,7 +20,7 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
     const tlt = input.timeLordTransit;
     console.log(`\n${"━".repeat(80)}`);
     console.log(`${p.name}  (#${p.id})`);
-    console.log(`${input.natal.lagna} lagna · ${input.humanTime.dayOfWeek} · ${input.humanTime.season}`);
+    console.log(`${input.natal.lagna} lagna · ${input.humanTime.season}`);
     console.log(`Mode: ${input.panchang.qualifier || input.panchang.mode}  |  Year: H${input.profection.activatedHouse} ${input.profection.activatedSign}, Time Lord ${input.profection.timeLord} (natal H${input.profection.timeLordNatal?.house})  |  Dasha: ${input.dasha?.mahaDasha.lord}-${input.dasha?.antarDasha.lord}`);
     if (tlt) console.log(`Chapter: ${tlt.planet} transiting H${tlt.currentHouse} (${tlt.currentSign})`);
     console.log("━".repeat(80));

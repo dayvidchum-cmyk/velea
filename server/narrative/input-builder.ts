@@ -381,20 +381,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     }
   } catch { /* no cache access — model simply gets no history */ }
 
-  // Ordinary human time — how a person actually frames "today" (Monday, weekend),
-  // independent of the sidereal sky. Often resonates with the chart's themes.
-  const DOW = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const dowIdx = new Date(dateStr + "T12:00:00Z").getUTCDay();
-  const dayOfWeek = DOW[dowIdx];
-  const isWeekend = dowIdx === 0 || dowIdx === 6;
-  const weekFrame =
-    dowIdx === 1 ? "Monday — the weekend has just ended; re-entry into the work-week"
-    : dowIdx === 2 ? "Tuesday — early in the work-week, finding its rhythm"
-    : dowIdx === 3 ? "Wednesday — midweek, the middle of the work-week"
-    : dowIdx === 4 ? "Thursday — the back half of the work-week, the weekend coming into view"
-    : dowIdx === 5 ? "Friday — the work-week is closing; the weekend is ahead"
-    : dowIdx === 6 ? "Saturday — the weekend: rest, home, family, errands"
-    : "Sunday — the weekend's close; rest, with the work-week resuming tomorrow";
+  // KILLED (David, 2026-07-13): the Monday-to-Friday / work-week / weekend framing. Dharma is
+  // identity, not a 9-to-5 ([[velea-dharma-is-identity-not-work]]); for David — and testers living
+  // one continuous head-down build — the "re-entry into the work-week" frame is simply false. The day
+  // is framed by the CHART and the season's natural tide, never the calendar week. Only season survives.
 
   // Universal seasonal layer (hemisphere-aware). Culture-specific holidays require a
   // future profile `culture` field; only near-universal markers are inferred here.
@@ -404,7 +394,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const season = lat >= 0 ? northSeason : flip[northSeason];
   const nearTurn = [321, 621, 922, 1221].some((t) => Math.abs(md - t) <= 6) ? "near a seasonal turn (solstice/equinox)" : null;
 
-  const humanTime = { dayOfWeek, isWeekend, weekFrame, season, nearSeasonalTurn: nearTurn };
+  const humanTime = { season, nearSeasonalTurn: nearTurn };
 
   // The year lord's CURRENT transit house is the active medium-term chapter (weeks),
   // distinct from the Moon's daily trigger. Surfaced first-class so the engine can
