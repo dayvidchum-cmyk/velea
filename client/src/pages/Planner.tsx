@@ -263,6 +263,18 @@ export default function Planner() {
   const [calendarOpen, setCalendarOpen] = useState(true); // Calendar is its own section, open by default
   const [pinnedOpen, setPinnedOpen] = useState(false); // both task lists ship collapsed — the hero is the only open block
   const [alignedOpen, setAlignedOpen] = useState(false);
+  // SOFT OPEN (David 2026-07-16): the first open of a NEW day greets instead of demanding —
+  // hero + calendar + at most one aligned task; orb numbers hidden; task lists held back
+  // until one tap ("Show my day"). Once per local day; Settings can turn it off.
+  const [softOpen, setSoftOpen] = useState(false);
+  useEffect(() => {
+    if (settings.softOpen === false) return;
+    const todayStr = toDateStr(new Date());
+    if (localStorage.getItem("velea-soft-open-seen") !== todayStr) {
+      localStorage.setItem("velea-soft-open-seen", todayStr);
+      setSoftOpen(true);
+    }
+  }, [settings.softOpen]);
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());
@@ -1546,7 +1558,7 @@ export default function Planner() {
               className="text-sm font-bold uppercase"
               style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
             >
-              All Tasks{settings.showOrbCounts ? ` (${allTasks.filter((t) => !t.isCompleted).length})` : ""}
+              All Tasks{settings.showOrbCounts && !softOpen ? ` (${allTasks.filter((t) => !t.isCompleted).length})` : ""}
             </h3>
             <ChevronDown
               size={13}
@@ -1560,7 +1572,7 @@ export default function Planner() {
                 mode={m}
                 count={orbModeCounts[m] ?? 0}
                 active={todayTaskMode === m}
-                showCount={settings.showOrbCounts}
+                showCount={settings.showOrbCounts && !softOpen}
                 onClick={() => {
                   const count = orbModeCounts[m] ?? 0;
                   if (count === 0) {
@@ -1651,8 +1663,39 @@ export default function Planner() {
         </div>
       )}
 
+      {/* SOFT OPEN — the one aligned move + the door to the full day. */}
+      {isAuthenticated && softOpen && (
+        <div className="relative z-10 space-y-3">
+          {!restGate.tripped && alignedForToday.length > 0 && (
+            <div
+              className="flex items-baseline gap-3 px-4 py-3.5 rounded-xl"
+              style={{ background: "var(--color-card)", border: "1px solid var(--color-border)" }}
+            >
+              <span className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
+                {alignedForToday[0].title}
+              </span>
+              <span className="text-xs ml-auto shrink-0" style={{ color: "var(--color-muted-foreground)" }}>
+                aligned today
+              </span>
+            </div>
+          )}
+          {restGate.tripped && (
+            <div className="px-4 py-3.5 rounded-xl" style={{ background: `color-mix(in srgb, ${REST_TEAL} 12%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${REST_TEAL} 34%, transparent)` }}>
+              <p className="text-sm" style={{ color: REST_TEAL, fontWeight: 600 }}>Restore today. Water, air, a little quiet.</p>
+            </div>
+          )}
+          <button
+            onClick={() => setSoftOpen(false)}
+            className="w-full py-2.5 rounded-full text-xs font-bold uppercase"
+            style={{ letterSpacing: "0.12em", color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)", background: "transparent" }}
+          >
+            Show my day
+          </button>
+        </div>
+      )}
+
       {/* Pinned for Now — explicit user pins (ported from the retired Today page) */}
-      {isAuthenticated && (
+      {isAuthenticated && !softOpen && (
         <div className="relative z-10">
           <button
             onClick={() => setPinnedOpen((v) => !v)}
@@ -1710,7 +1753,7 @@ export default function Planner() {
       )}
 
       {/* Aligned for Today — system-ranked suggestions (ported from the retired Today page) */}
-      {isAuthenticated && !!todayTaskMode && (
+      {isAuthenticated && !softOpen && !!todayTaskMode && (
         <div className="relative z-10">
           <button
             onClick={() => setAlignedOpen((v) => !v)}
@@ -1821,7 +1864,7 @@ export default function Planner() {
       )}
 
       {/* ── REFLECTION LOG — one section: the day's recorder + "View full log" merged (David). ── */}
-      {isAuthenticated && (
+      {isAuthenticated && !softOpen && (
         <div className="relative z-10">
           <button
             onClick={() => setReflectionOpen((v) => !v)}
@@ -1881,7 +1924,7 @@ export default function Planner() {
       )}
 
       {/* ── COMPLETED (moved below the Planner section, per request) ── */}
-      {isAuthenticated && (() => {
+      {isAuthenticated && !softOpen && (() => {
         const completed = allTasks.filter((t) => t.isCompleted);
         return (
           <div className="relative z-10">

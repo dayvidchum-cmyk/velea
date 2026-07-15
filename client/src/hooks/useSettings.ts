@@ -26,6 +26,9 @@ export interface SettingsState {
   appearance: AppearanceMode;
   /** Whether to show numeric task counts on mode orbs (false = show "·" dot) */
   showOrbCounts: boolean;
+  /** Soft open (David 2026-07-16): first open of a new day greets — hero + calendar + one
+      aligned task, orb numbers hidden — until "Show my day" or this is turned off. */
+  softOpen: boolean;
   /** How many tasks to show at once in the Today view */
   todayTaskLimit: TodayTaskLimit;
   /** Let the daily go/hold verdict tilt task ordering (default off) */
@@ -47,6 +50,7 @@ export interface SettingsState {
 const DEFAULTS: SettingsState = {
   appearance: "system",
   showOrbCounts: true,
+  softOpen: true,
   todayTaskLimit: 3,
   verdictShapesRanking: false,
   meridianLift: false,

@@ -1688,6 +1688,11 @@ the natal Moon home as the inner ground); the tilt is a POSTURE across the whole
 one errand and NEVER "the one thing"; the closeLine lands the whole day in one carried line.
 Find THIS chart's scene and serve it the same way.
 
+FINAL CHECK — DO THIS BEFORE RETURNING: count the words of scene + story + tilt + closeLine
+together. If the total is over 120, CUT before you return — drop a whole beat, never sharpen
+sentences into vaguer ones. This is the single most-rejected rule (rejected reads are thrown
+away and regenerated at real cost); land under the limit on the FIRST try.
+
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
 
 // LIFE_AREA_TAIL — THE HOROSCOPE. The user picks ONE area of life + ONE date; this reads that area

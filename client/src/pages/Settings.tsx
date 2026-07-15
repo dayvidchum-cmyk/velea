@@ -361,6 +361,19 @@ export default function Settings() {
             />
           </SettingRow>
 
+          {/* Soft open — the gentle first-open-of-the-day state (David 2026-07-16) */}
+          <SettingRow
+            label="Soft open"
+            description="The first time you open Velea each day, Today greets you gently — the day's read and calendar, one aligned move, no task counts — until you tap Show my day."
+          >
+            <TogglePair
+              options={["on", "off"] as const}
+              value={draft.softOpen !== false ? "on" : "off"}
+              onChange={(v) => updateDraft("softOpen", v === "on")}
+              renderLabel={(v) => <span>{v === "on" ? "On" : "Off"}</span>}
+            />
+          </SettingRow>
+
           {/* Verdict shapes ranking */}
           <SettingRow
             label="Let the daily verdict shape my task order"
