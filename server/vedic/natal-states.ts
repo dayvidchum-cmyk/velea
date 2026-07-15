@@ -81,10 +81,10 @@ export function deepthaadiOf(
   states.push(NATURAL_BENEFIC_LORDS.has(navLord) ? "santa" : "khala");
 
   // Combustion (Vikala) vs bright rays (Sakta) — the Sun itself is neither.
+  // combustion() always returns a report for orb-bearing planets; the VERDICT is `.combust`.
   if (planet !== "Sun") {
     const c = combustion(planet, lon, lonBy.Sun, (speedBy?.[planet] ?? 0) < 0);
-    if (c) states.push("vikala");
-    else states.push("sakta");
+    states.push(c?.combust ? "vikala" : "sakta");
   }
 
   // Planetary war (Nipeedita): two taras within 1°. Without declinations the classical

@@ -997,25 +997,37 @@ export default function Planner() {
       )}
 
       {/* ── CALENDAR — its own section, OPEN by default unless the user collapses it (David). ── */}
-      <button
-        onClick={() => setCalendarOpen((v) => !v)}
-        className="flex items-center gap-2 w-full py-2 transition-all relative z-10"
-      >
-        <span
-          className="text-sm font-bold uppercase"
-          style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+      <div className="flex items-center w-full relative z-10">
+        <button
+          onClick={() => setCalendarOpen((v) => !v)}
+          className="flex items-center gap-2 flex-1 py-2 transition-all"
         >
-          Calendar
-        </span>
-        <ChevronDown
-          size={13}
-          style={{
-            color: "var(--color-muted-foreground)",
-            transform: calendarOpen ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 200ms ease",
-          }}
-        />
-      </button>
+          <span
+            className="text-sm font-bold uppercase"
+            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+          >
+            Calendar
+          </span>
+          <ChevronDown
+            size={13}
+            style={{
+              color: "var(--color-muted-foreground)",
+              transform: calendarOpen ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 200ms ease",
+            }}
+          />
+        </button>
+        {/* The ranked YEAR view (crown-day calendar, whole-year edition) — admin-gated v1. */}
+        {user?.role === "admin" && (
+          <button
+            onClick={() => navigate("/year")}
+            className="px-2 py-1 text-xs font-semibold uppercase tracking-wide"
+            style={{ color: "#a07c2e" }}
+          >
+            Year ↗
+          </button>
+        )}
+      </div>
       {calendarOpen && (
         <div className="space-y-5">
       {/* Current location — above the calendar so it's always in view and one tap to change (David). */}

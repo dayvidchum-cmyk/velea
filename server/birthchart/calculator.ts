@@ -117,7 +117,7 @@ function getHouseFromLagna(
  * @param timezone IANA timezone string, e.g. "Asia/Manila"
  * @returns UTC Date
  */
-function localToUtc(dateStr: string, timeStr: string, timezone: string): Date {
+export function localToUtc(dateStr: string, timeStr: string, timezone: string): Date {
   const [year, month, day] = dateStr.split("-").map(Number);
   const [hour, minute] = timeStr.split(":").map(Number);
 
