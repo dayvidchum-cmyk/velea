@@ -91,11 +91,13 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   const vetoes: string[] = [];
 
   // Rikta: the empty tithi keeps only severing acts — the family's own law. On a sharp or
-  // fierce day the two agree (the cut is supported); on any other nature the day empties.
+  // fierce day the two agree (the cut is supported); on any other nature the day EMPTIES —
+  // no supports at all (the old "severing only" line contradicted the gentle natures'
+  // own avoid-lists: David's July 12, "supports cutting… keep away from cutting").
   if (family === "rikta") {
     supports = nature === "sharp" || nature === "fierce"
       ? [...natDef.supports, ...famDef.supports]
-      : [...famDef.supports];
+      : [];
     vetoes.push("the day runs on empty — nothing new unless it severs");
   }
   // Vishti: no initiating, whatever else the day offers.
@@ -113,6 +115,8 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   const avoidPlain = (natDef as any).avoidPlain as string | undefined;
   const sentence = contained
     ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
+    : supports.length === 0
+    ? `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.`
     : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}`;
 
   return {
@@ -172,6 +176,11 @@ export function movementOf(
   if (tara && tara.quality === "bad" && tara.taraNum === 7 && tara.cycle === 1) return "caution";
   if (isCrown) return "golden";
   if (tara && tara.quality === "bad") return "restraint";
+  // The empty tithi rules the movement: nothing new, nothing grown — Restraint; unless the
+  // day's nature is a cutting one, where the sanctioned severing makes it Selective (finish/
+  // end something). This was the old bridge's rule that never made it into movementOf —
+  // David's hand caught it (he painted July 3 rose before the engine agreed).
+  if (c.family === "rikta") return (c.nature === "sharp" || c.nature === "fierce") ? "selective" : "restraint";
   // Selective = the day itself asks for finishing: a full current, or the blocked karana.
   // (Mercury does NOT create Selective — the shipped rx law caps Action at Build, below.)
   if (c.family === "purna" || c.vetoes.some((v) => v.includes("blocks starting"))) return "selective";
@@ -185,4 +194,14 @@ export function movementOf(
     return "action";
   }
   return "build";
+}
+
+
+/** The rx-capped sentence — when Mercury holds a GO day down to Build, the words must hold
+ *  it too (David's July 14: "Build" over "quick errands, trade and sales" read as conflict). */
+export function cappedSentence(nature: DayNature, headline: string): string {
+  const carry = nature === "swift"
+    ? "the speed wants out — spend it on revisits, follow-ups, and finishing, not on launches"
+    : "the shift wants to happen — prepare it, pack for it, don't launch it";
+  return `${headline.charAt(0).toUpperCase()}${headline.slice(1)} — but Mercury holds the launch today; ${carry}.`;
 }

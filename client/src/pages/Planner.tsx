@@ -83,6 +83,38 @@ const BUILD_DEPTH_BG: Record<string, [string, string]> = {
   thin: ["#E8C84A", "#4a3c10"],    // own-star ground — the pale top
   leaning: ["#BC886F", "#3a1f14"], // softened-hostile ground — the rose-ochre floor
 };
+// The rung-depth methodology, extended to Selective and Action (David 2026-07-16). Same
+// ladder as Build: deep = great-friend rungs (9/8) · mid = the other favorable rungs ·
+// thin = own-star ground · leaning = softened-hostile ground bleeding toward Restraint.
+// The apex (Golden) and the lowest point (Caution) stay flat — his explicit carve-out.
+const SELECTIVE_DEPTH_BG: Record<string, [string, string]> = {
+  deep: ["#00525F", "#E8F1F2"],    // richer, darker teal
+  mid: ["#00687a", "#E8F1F2"],
+  thin: ["#2E8291", "#F0F6F7"],    // paler water
+  leaning: ["#5E707C", "#EDF0F2"], // teal washed toward the rose — the slate floor
+};
+const ACTION_DEPTH_BG: Record<string, [string, string]> = {
+  deep: ["#5E9457", "#12240f"],    // great-friend ground — the richer green
+  mid: ["#77A96B", "#1d2a18"],
+  thin: ["#94BC88", "#233420"],    // (Action needs a favorable rung, so thin/leaning
+  leaning: ["#9AA579", "#282c16"], //  are completeness only — they should not occur)
+};
+const DEPTH_BG: Record<string, Record<string, [string, string]>> = {
+  build: BUILD_DEPTH_BG, selective: SELECTIVE_DEPTH_BG, action: ACTION_DEPTH_BG,
+};
+// Darken a #rrggbb toward its own shadow (RGB multiply) — the hero card descent.
+function shadeHex(hex: string, f: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (v: number) => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, "0");
+  return `#${ch(n >> 16)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+}
+// The day's coin color for a character — movement + depth, one lookup shared by the
+// calendar coins and the hero card (the card LEADS with its calendar color).
+function coinPairFor(character: any): [string, string] | undefined {
+  if (!character?.movement) return undefined;
+  const depth = character.depth ?? character.buildDepth;
+  return DEPTH_BG[character.movement]?.[depth ?? "mid"] ?? MOVEMENT_BG[character.movement];
+}
 // Legacy three-state fallback for dates outside the ranked year (cold cache, far months).
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
@@ -302,6 +334,12 @@ export default function Planner() {
     return m;
   }, [crownData]);
   const cautionSet = useMemo(() => new Set(cautionByDate.keys()), [cautionByDate]);
+  // Prosperity days — a lit WEALTH convergence window covers the date; the coin wears $
+  // at glyph size (David 2026-07-16: "$ for prosperity", sized like the other glyphs).
+  const prosperitySet = useMemo(
+    () => new Set<string>(((crownData?.days ?? []) as any[]).filter((d) => d.prosperity).map((d) => d.date)),
+    [crownData],
+  );
   // The interaction MODE per day (David's two-lens precision model, server-gated) — the SAME mode
   // the day card/hero shows. crown.forMonth computes it off the day chart it already builds, so the
   // calendar tile and the day sheet never disagree. Falls back to the Moon-only byMonth mode when a
@@ -741,7 +779,12 @@ export default function Planner() {
   const selectedTaskModeForHero = selectedPanchang
     ? PANCHANG_TO_TASK_MODE[(modeByDate.get(selectedDate) ?? selectedPanchang.mode) as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
-  const heroGradient = selectedTaskModeForHero === 'Action'
+  // THE CARD LEADS WITH ITS CALENDAR COLOR (David 2026-07-16): the hero gradient's top
+  // stop IS the day's coin (movement + depth), then it goes down into its own shadow.
+  const selectedCoin = coinPairFor(selectedCharacter)?.[0];
+  const heroGradient = selectedCoin
+    ? `linear-gradient(180deg, ${selectedCoin} 0%, ${shadeHex(selectedCoin, 0.74)} 55%, ${shadeHex(selectedCoin, 0.46)} 100%)`
+    : selectedTaskModeForHero === 'Action'
     ? 'var(--velea-action-gradient)'
     : selectedTaskModeForHero === 'Build'
     ? 'var(--velea-build-gradient)'
@@ -754,7 +797,9 @@ export default function Planner() {
     : 'var(--card)';
   // Angled card gradient — reads flatter/cleaner on short cards (e.g. the collapsed
   // Time Lord pill) than the tall 180deg hero gradient.
-  const heroCardGradient = selectedTaskModeForHero === 'Action'
+  const heroCardGradient = selectedCoin
+    ? `linear-gradient(200deg, ${shadeHex(selectedCoin, 0.92)} 0%, ${shadeHex(selectedCoin, 0.68)} 60%, ${shadeHex(selectedCoin, 0.48)} 100%)`
+    : selectedTaskModeForHero === 'Action'
     ? 'var(--velea-action-card-gradient)'
     : selectedTaskModeForHero === 'Build'
     ? 'var(--velea-build-card-gradient)'
@@ -873,14 +918,19 @@ export default function Planner() {
                 : (selectedTaskModeForHero ?? selectedPanchang.mode)}
             </h2>
 
-            {/* Build depth — the rung confessing under the word (extremes only, no noise). */}
-            {selectedCharacter?.movement === "build" && selectedCharacter.buildDepth && selectedCharacter.buildDepth !== "mid" && (
-              <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)', marginTop: '-0.5rem', marginBottom: '0.35rem' }}>
-                {selectedCharacter.buildDepth === "deep" ? "deep — the ground holds a lot today"
-                  : selectedCharacter.buildDepth === "leaning" ? "leaning restraint — tend, but keep it gentle"
-                  : "thin — tend with a lighter hand"}
-              </p>
-            )}
+            {/* Depth — the rung confessing under the word (extremes only, no noise).
+                Build, Selective and Action all carry it; Golden and Caution stay flat. */}
+            {(() => {
+              const depth = selectedCharacter?.depth ?? selectedCharacter?.buildDepth;
+              if (!depth || depth === "mid") return null;
+              return (
+                <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)', marginTop: '-0.5rem', marginBottom: '0.35rem' }}>
+                  {depth === "deep" ? "deep — the ground holds a lot today"
+                    : depth === "leaning" ? "leaning restraint — tend, but keep it gentle"
+                    : "thin — tend with a lighter hand"}
+                </p>
+              );
+            })()}
             {/* The day's character line — the classical filter's headline + tilt. */}
             {selectedCharacter && (
               <p style={{ fontSize: 'clamp(0.8rem, 3.4vw, 1rem)', fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', marginTop: '-0.35rem', marginBottom: '0.4rem' }}>
@@ -1196,15 +1246,12 @@ export default function Planner() {
             // the year view — the grouped golds-through-reds that carry meaning. The nature
             // rainbow is retired from the coins; nature speaks in the hero's words.
             const rung = rungByDate.get(dateStr);
-            const [rungBg, rungInk] = dayCharacter?.movement === "build"
-              ? (BUILD_DEPTH_BG[dayCharacter.buildDepth ?? "mid"] ?? MOVEMENT_BG.build)
-              : dayCharacter?.movement
-              ? (MOVEMENT_BG[dayCharacter.movement] ?? BETWEEN)
-              : rung
+            const [rungBg, rungInk] = coinPairFor(dayCharacter)
+              ?? (rung
               ? (rung.quality === "good" ? GO_GREEN
                 : rung.quality === "bad" ? CAUTION_ROSE
                 : BETWEEN)
-              : RUNG_NONE;
+              : RUNG_NONE);
             const modeColor = rung ? rungBg : (dayMode ? MODE_DOT[dayMode] : undefined);
             const hasMode = !!modeColor;
             // Whole cell is tinted by the day's mode — far more legible than a tiny
@@ -1250,11 +1297,11 @@ export default function Planner() {
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
-            // darkenOklch can't parse the hex caution red, so a filled caution coin gets an explicit
-            // near-black-red ink — readable on the red fill, same hue, so no vibration.
-            // Nature fills are mid-dark — a darkened ink drowns (David's screenshot, 2026-07-15).
-            // White reads on all seven; caution keeps its near-black-red on the red fill.
-            const darkInk = isCautionDay ? "#3A0606" : rung ? rungInk : darkenOklch(accent, 0.5);
+            // The movement pair carries its OWN contrast ink — Caution declares WHITE on the red
+            // fill. The old near-black-red caution override predated the six-movement red fill and
+            // left the caution number nearly invisible (David's 7/16 screenshot: black "4"/"31" on
+            // fire red while teal coins read white). The pair wins whenever one exists.
+            const darkInk = (dayCharacter?.movement || rung) ? rungInk : isCautionDay ? "#3A0606" : darkenOklch(accent, 0.5);
             // Caution falls out of accent(=CAUTION_RED)+darkInk with no special case: outline days get
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
@@ -1335,7 +1382,7 @@ export default function Planner() {
                     })()
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
-                    <span style={{ width: 13, height: 13, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
+                    <span style={{ width: 20, height: 20, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
                   ) : stationsToday.length ? (
                     // Station day: the turning planet's glyph, in the DAY-MODE color. Rendered the same
                     // proven way as the date number and the retro strip — a plain flex-centered span
@@ -1347,6 +1394,9 @@ export default function Planner() {
                         <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: numberColor, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
+                  ) : prosperitySet.has(dateStr) ? (
+                    // Prosperity day: $ in place of the number, sized with the planet glyphs.
+                    <span style={{ fontSize: "1.5rem", fontWeight: 600, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>$</span>
                   ) : (
                     <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem" }}>
                       {day}

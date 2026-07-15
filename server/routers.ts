@@ -180,7 +180,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v7`;
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v8`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 
@@ -260,7 +260,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const chains = spans.map((s) => ({ startMs: s.startMs, endMs: s.endMs, label: `${s.maha}›${s.antar}›${s.pratyantar}` }));
 
   const { rankYear } = await import("./vedic/year-rank.js");
-  const { dayFilter, movementOf, MOVEMENT_WORD } = await import("./vedic/day-filter.js");
+  const { dayFilter, movementOf, cappedSentence, MOVEMENT_WORD } = await import("./vedic/day-filter.js");
   const ranked = rankYear({ birthNakIdx, natalMoonSignIdx, days, windows, chains });
   // THE SIX MOVEMENTS on every ranked day (David 2026-07-15) — same law as the month view.
   const mercByDate = new Map(days.map((d: any) => [d.date, d.mercSpeed]));
@@ -278,9 +278,15 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
         chandraFavorable: !!d.chandra?.favorable,
       });
       d.movement = mv; d.movementWord = MOVEMENT_WORD[mv];
-      if (mv === "build") d.buildDepth = d.tara.quality === "good"
-        ? (d.tara.taraNum >= 8 ? "deep" : "mid")
-        : d.tara.taraNum === 1 ? "thin" : "leaning";
+      if (mv === "build" && merc != null && merc < 0 && d.tara.quality === "good" && (c.nature === "movable" || c.nature === "swift")) {
+        d.cappedSentence = cappedSentence(c.nature, c.headline);
+      }
+      if (mv === "build" || mv === "selective" || mv === "action") {
+        d.depth = d.tara.quality === "good"
+          ? (d.tara.taraNum >= 8 ? "deep" : "mid")
+          : d.tara.taraNum === 1 ? "thin" : "leaning";
+        if (mv === "build") d.buildDepth = d.depth;
+      }
     } catch { /* a day without movement still ranks */ }
   }
   const result = { yearStart, yearEnd, natalMoonSignIdx, birthNakIdx, ...ranked };
@@ -1778,7 +1784,7 @@ export const appRouter = router({
         const todaySolar = solarStartYear(today.getUTCFullYear(), today.getUTCMonth() + 1, today.getUTCDate());
 
         const { applyWeatherGate } = await import("./panchang/interpreter.js");
-        const { dayFilter, movementOf, MOVEMENT_WORD } = await import("./vedic/day-filter.js");
+        const { dayFilter, movementOf, cappedSentence, MOVEMENT_WORD } = await import("./vedic/day-filter.js");
         const { planetLongitudeSpeed } = await import("./birthchart/calculator.js");
         const p2 = (n: number) => String(n).padStart(2, "0");
         const daysInMonth = new Date(Date.UTC(input.year, input.month, 0)).getUTCDate();
@@ -1831,12 +1837,18 @@ export const appRouter = router({
               mercuryNearStation: Math.abs(merc.speed) < 0.15,
               chandraFavorable: !!day.chandra?.favorable,
             });
+            // When the rx cap held a GO day at Build, the sentence holds it too.
+            const capped = mv === "build" && merc.speed < 0 && day.tara.quality === "good"
+              && (c.nature === "movable" || c.nature === "swift");
+            if (capped) (c as any).sentence = cappedSentence(c.nature, c.headline);
             // Build days confess their depth (David 2026-07-15): the rung under the word.
             // deep = the great-friend rungs (9/8) · mid = the other favorable rungs · thin =
             // the softened/own-star ground. Shades come from the hero card's own gradient.
             // thin = the own-star ground (tender, personal); leaning = softened-HOSTILE ground
             // (the Builds that almost lean Restraint — David 2026-07-15, rose-ochre days).
-            const buildDepth = mv === "build"
+            // David 2026-07-16: the rung-depth methodology extends to Selective and Action.
+            // The apex (Golden) and the lowest point (Caution) stay flat — one color, one word.
+            const depth = (mv === "build" || mv === "selective" || mv === "action")
               ? (day.tara.quality === "good"
                   ? (day.tara.taraNum >= 8 ? "deep" : "mid")
                   : day.tara.taraNum === 1 ? "thin" : "leaning")
@@ -1845,7 +1857,8 @@ export const appRouter = router({
               nature: c.nature, family: c.family, headline: c.headline, sentence: c.sentence,
               supports: c.supports, avoid: c.avoid, vetoes: c.vetoes, contained: c.contained,
               movement: mv, movementWord: MOVEMENT_WORD[mv],
-              ...(buildDepth ? { buildDepth } : {}),
+              ...(depth ? { depth } : {}),
+              ...(depth && mv === "build" ? { buildDepth: depth } : {}),
             };
             // Task machinery bridge: four of the six ARE the task tags; golden covers anything,
             // caution is a hard stop. The weather gate stays as the final clamp.
@@ -1855,7 +1868,9 @@ export const appRouter = router({
           // The rung — so the month calendar can wear the SAME ladder tints as the year view
           // (David 2026-07-16: "I want the 2 calendars to blend into one").
           const rung = { num: day.tara.taraNum, quality: day.tara.quality };
-          days.push({ date, rating, why, mode, character, rung });
+          // Prosperity day — a lit WEALTH convergence window covers this date ($ mark, David 2026-07-16).
+          const prosperity = Array.isArray(day.windows) && day.windows.includes("wealth");
+          days.push({ date, rating, why, mode, character, rung, ...(prosperity ? { prosperity } : {}) });
         }
         return { days };
       }),

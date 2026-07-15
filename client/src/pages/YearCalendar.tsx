@@ -138,10 +138,19 @@ export default function YearCalendar() {
                         const ds = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const d = byDate.get(ds);
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
-                        const [bg, ink] = (d as any).movement === "build"
-                          ? (({ deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#E8C84A", "#4a3c10"], leaning: ["#BC886F", "#3a1f14"] } as Record<string, [string, string]>)[(d as any).buildDepth ?? "mid"])
-                          : (d as any).movement
-                          ? (MOVEMENT_BG[(d as any).movement] ?? BETWEEN)
+                        // Depth scales for Build/Selective/Action (same values as the month
+                        // coins); Golden and Caution stay flat — David's carve-out.
+                        const DEPTHS: Record<string, Record<string, [string, string]>> = {
+                          build: { deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#E8C84A", "#4a3c10"], leaning: ["#BC886F", "#3a1f14"] },
+                          selective: { deep: ["#00525F", "#E8F1F2"], mid: ["#00687a", "#E8F1F2"], thin: ["#2E8291", "#F0F6F7"], leaning: ["#5E707C", "#EDF0F2"] },
+                          action: { deep: ["#5E9457", "#12240f"], mid: ["#77A96B", "#1d2a18"], thin: ["#94BC88", "#233420"], leaning: ["#9AA579", "#282c16"] },
+                        };
+                        const mvKey = (d as any).movement as string | undefined;
+                        const dep = (d as any).depth ?? (d as any).buildDepth;
+                        const [bg, ink] = (mvKey && DEPTHS[mvKey])
+                          ? (DEPTHS[mvKey][dep ?? "mid"] ?? MOVEMENT_BG[mvKey])
+                          : mvKey
+                          ? (MOVEMENT_BG[mvKey] ?? BETWEEN)
                           : d.tara.quality === "good" ? GO_GREEN
                           : d.tara.quality === "bad" ? CAUTION_ROSE : BETWEEN;
                         const tip = `${(d as any).movementWord ? (d as any).movementWord + " · " : ""}#${d.rank} of ${data.days.length} · ${d.plain.day} — ${d.plain.feel} · ${d.plain.moon}${d.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}`;

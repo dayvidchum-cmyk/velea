@@ -33,10 +33,14 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
     expect(d.sentence).toMatch(/Keep away from/);
   });
 
-  it("rikta empties every nature except the cutting ones", () => {
+  it("rikta empties every nature except the cutting ones (David's July 12: no self-contradiction)", () => {
     const soft = dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 });
-    expect(soft.supports).toEqual(["cutting and severing acts only"]);
+    expect(soft.supports).toEqual([]);
     expect(soft.vetoes.join(" ")).toMatch(/runs on empty/);
+    // The old sentence advertised "cutting and severing acts only" while the tender
+    // nature's avoid said keep away from cutting — one breath, both directions.
+    expect(soft.sentence).not.toMatch(/severing/);
+    expect(soft.sentence).toMatch(/start nothing.*let it pass quietly/i);
     const sharp = dayFilter({ ...base, nakshatra: "Mula", tithiNumber: 4 });
     expect(sharp.supports.join(" ")).toMatch(/decisive cuts|endings/);
   });
@@ -96,6 +100,32 @@ describe("movementOf — the six movements under the SHIPPED rx law (interpreter
     expect(movementOf(purna, goodTara, false)).toBe("selective");
     const vishti = dayFilter({ ...base, nakshatra: "Ashlesha", tithiNumber: 2, vishti: true });
     expect(movementOf(vishti, goodTara, false)).toBe("selective");
+  });
+
+  it("the empty tithi rules the movement: Restraint on gentle natures, Selective on cutting ones (David's July 3/12)", () => {
+    // July 3's exact shape: movable nature + rikta + good tara — the old rule let the
+    // good tara say Action over a "running on empty" sentence.
+    const movableRikta = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 4 });
+    expect(movementOf(movableRikta, goodTara, false)).toBe("restraint");
+    const tenderRikta = dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 });
+    expect(movementOf(tenderRikta, goodTara, false)).toBe("restraint");
+    // The cutting natures agree with the empty tithi: the sanctioned severing = finish/end something.
+    const sharpRikta = dayFilter({ ...base, nakshatra: "Mula", tithiNumber: 4 });
+    expect(movementOf(sharpRikta, goodTara, false)).toBe("selective");
+    // The ladder still trumps: full-force loss on a rikta day is Caution, crown is Golden.
+    expect(movementOf(movableRikta, { quality: "bad", taraNum: 7, cycle: 1 }, false)).toBe("caution");
+    expect(movementOf(movableRikta, goodTara, true)).toBe("golden");
+  });
+});
+
+describe("the rx-capped sentence (David's July 14: Build word over a GO sentence)", () => {
+  it("holds the day in words when Mercury holds it in movement", async () => {
+    const { cappedSentence } = await import("./day-filter");
+    const swift = cappedSentence("swift", "a quick-wins day with joy in it");
+    expect(swift).toMatch(/Mercury holds the launch/);
+    expect(swift).toMatch(/revisits, follow-ups, and finishing/);
+    const movable = cappedSentence("movable", "a moving day built for work");
+    expect(movable).toMatch(/prepare it, pack for it/);
   });
 });
 
