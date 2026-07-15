@@ -65,6 +65,20 @@ export default function YearCalendar() {
   }, [data]);
 
   const topSet = useMemo(() => new Set(data?.summary?.topDates ?? []), [data]);
+  // A dot on EVERY day of a months-long window is noise (David's screenshot) — mark only the
+  // days a window OPENS or CLOSES; the lists below carry the standing coverage.
+  const windowEdgeSet = useMemo(() => {
+    const edges = new Set<string>();
+    const days = (data?.days ?? []) as RankedDay[];
+    for (let i = 0; i < days.length; i++) {
+      const prev = new Set(i > 0 ? days[i - 1].windows : []);
+      const curr = new Set(days[i].windows);
+      const opened = days[i].windows.some((w) => !prev.has(w));
+      const closed = i > 0 && days[i - 1].windows.some((w) => !curr.has(w));
+      if (opened || closed) edges.add(days[i].date);
+    }
+    return edges;
+  }, [data]);
   const todayStr = new Date().toISOString().slice(0, 10);
 
   return (
@@ -98,7 +112,7 @@ export default function YearCalendar() {
                   <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c }} /> {n}
                 </span>
               ))}
-              <span>★ top 12 · • window open</span>
+              <span>★ top 12 · • a window opens or closes</span>
             </div>
 
             {/* Month grids — always-light warm paper, like the almanac calendar */}
@@ -130,7 +144,7 @@ export default function YearCalendar() {
                             style={{ background: bg, color: ink }}>
                             {day}
                             {topSet.has(ds) && <span className="absolute right-[3px] top-0 text-[9px]">★</span>}
-                            {d.windows.length > 0 && <span className="absolute bottom-[2px] right-[3px] h-[5px] w-[5px] rounded-full bg-current opacity-75" />}
+                            {windowEdgeSet.has(ds) && <span className="absolute bottom-[2px] right-[3px] h-[5px] w-[5px] rounded-full bg-current opacity-75" />}
                           </div>
                         );
                       })}

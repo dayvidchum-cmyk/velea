@@ -1205,7 +1205,9 @@ export default function Planner() {
             // coin's number is the mode color itself, on white.
             // darkenOklch can't parse the hex caution red, so a filled caution coin gets an explicit
             // near-black-red ink — readable on the red fill, same hue, so no vibration.
-            const darkInk = isCautionDay ? "#3A0606" : darkenOklch(accent, 0.5);
+            // Nature fills are mid-dark — a darkened ink drowns (David's screenshot, 2026-07-15).
+            // White reads on all seven; caution keeps its near-black-red on the red fill.
+            const darkInk = isCautionDay ? "#3A0606" : dayCharacter ? "#FFFFFF" : darkenOklch(accent, 0.5);
             // Caution falls out of accent(=CAUTION_RED)+darkInk with no special case: outline days get
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";

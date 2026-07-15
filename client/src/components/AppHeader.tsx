@@ -157,7 +157,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const stampMode = (Object.keys(MODE_SOLID) as (keyof typeof MODE_SOLID)[]).find(
     (k) => MODE_SOLID[k].toLowerCase() === modeColor.trim().toLowerCase(),
   ) ?? null;
-  const stampQualifier = heroMode?.qualifier ?? (headerPanchang as any)?.qualifier ?? null;
+  const rawQualifier = heroMode?.qualifier ?? (headerPanchang as any)?.qualifier ?? null;
+  // The four modes are retired (David 2026-07-15): a qualifier that names one never renders.
+  // The moment strip keeps its real information (golden moment, hora); moment-level vocabulary
+  // for the filter era is David's to spec.
+  const stampQualifier = rawQualifier && /\b(Action|Build|Selective|Restraint)\b/.test(rawQualifier) ? null : rawQualifier;
   // PRE-DAWN FALLBACK: before today's sunrise the clock-date tables haven't started, so the
   // activity + hora segment silently vanished (David, 1:39 AM: "why doesn't the dateline say
   // the time master stuff with the hora planet anymore???"). Between midnight and sunrise we
