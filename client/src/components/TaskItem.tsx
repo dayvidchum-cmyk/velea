@@ -192,13 +192,13 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
   // No subtasks → the user's own declared percent carries the arc (David 2026-07-15:
   // "that % can be set by the user if they haven't made a subtask list").
   const manualPct = (task as any).completionPct as number | null | undefined;
+  // Drag shows live; the write happens ONCE on release (not per notch).
+  const [pctDraft, setPctDraft] = useState<number | null>(null);
   const effectivePct = derivedPct ?? (pctDraft ?? manualPct ?? null);
   const utils2 = trpc.useUtils();
   const setPctMutation = trpc.tasks.update.useMutation({
     onSuccess: () => { utils2.tasks.list.invalidate(); },
   });
-  // Drag shows live; the write happens ONCE on release (not per notch).
-  const [pctDraft, setPctDraft] = useState<number | null>(null);
 
   // Life areas + "song" highlight: a task is in focus today when one of its
   // life areas maps to the day's activated house (panchang).
