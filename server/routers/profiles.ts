@@ -325,6 +325,10 @@ async function recomputeProfileChart(
       rahuHouse: chart.rahu.house,
       ketuHouse: chart.ketu.house,
       ascendantDegree: chart.lagna.degree.toFixed(2),
+      // Meridian axis (MC/IC layer). Only a real entered time yields a true meridian — a Chandra
+      // chart's MC would be the noon representative time's, so it's stored as null. Always set
+      // (never omitted) so a timed→no-time edit can't leave a stale MC behind.
+      mcLongitude: enteredTime && chart.mc?.longitude != null ? chart.mc.longitude.toFixed(4) : null,
     })
     .where(and(eq(profiles.id, profileId), eq(profiles.userId, userId)));
 

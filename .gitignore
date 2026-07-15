@@ -115,3 +115,6 @@ client/public/__manus__/version.json
 
 # Claude Code local (per-machine) settings
 .claude/settings.local.json
+
+# Private proof/validation log — local only, never committed
+PROOF_LOG.md
