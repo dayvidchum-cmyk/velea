@@ -1071,6 +1071,36 @@ export const appRouter = router({
                   longitude: planet.data.longitude != null ? planet.data.longitude.toFixed(6) : null,
                 });
               }
+
+              // David's directives (2026-07-14): every chart compute stores the full canon
+              // research + the entire Vimshottari system. This legacy settings path is the
+              // MAIN owner flow (BirthChartSheet) and does not go through recomputeProfileChart,
+              // so it must store them itself. Best-effort: a failure never blocks the save.
+              try {
+                const { storeNatalResearch, storeDashaTree } = await import('./vedic/research-store.js');
+                const bodies: Record<string, { longitude: number; longitudeSpeed?: number; declination?: number }> = {};
+                for (const planet of planetData) {
+                  bodies[planet.name] = {
+                    longitude: planet.data.longitude,
+                    longitudeSpeed: (planet.data as any).longitudeSpeed,
+                    declination: (planet.data as any).declination,
+                  };
+                }
+                const storeInput = {
+                  profileId: activeProfile.id,
+                  bodies,
+                  lagnaLon: chart.lagna.longitude,
+                  mcLon: chart.mc?.longitude ?? null,
+                  utcBirthIso: (chart as any).utcBirthIso,
+                  latitude: input.birthLocationLat ? parseFloat(input.birthLocationLat) : 0,
+                  longitude: input.birthLocationLon ? parseFloat(input.birthLocationLon) : 0,
+                  basis: "ascendant" as const, // this path requires an exact birth time
+                };
+                const researchStatus = await storeNatalResearch(storeInput);
+                await storeDashaTree(storeInput, researchStatus);
+              } catch (researchErr) {
+                console.warn('[Birth Chart] Research/dasha store failed (chart itself saved):', researchErr);
+              }
             }
           } catch (profileSyncErr) {
             console.warn('[Birth Chart] Profile sync failed:', profileSyncErr);

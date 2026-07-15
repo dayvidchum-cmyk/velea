@@ -360,6 +360,40 @@ async function recomputeProfileChart(
     });
   }
 
+  // David's directives (2026-07-14): profile creation stores the FULL canon research layer —
+  // #1 the 12-house Appendix IV research, #2 the entire Vimshottari system birth→120y.
+  // Best-effort like the precomputes below: a failure warns, never blocks the chart save;
+  // missing tables warn once until the manual migration runs.
+  try {
+    const { storeNatalResearch, storeDashaTree } = await import('../vedic/research-store.js');
+    const bodies: Record<string, { longitude: number; longitudeSpeed?: number; declination?: number }> = {};
+    for (const [name, data] of [
+      ['Sun', chart.sun], ['Moon', chart.moon], ['Mars', chart.mars], ['Mercury', chart.mercury],
+      ['Jupiter', chart.jupiter], ['Venus', chart.venus], ['Saturn', chart.saturn],
+      ['Rahu', chart.rahu], ['Ketu', chart.ketu],
+    ] as const) {
+      bodies[name] = {
+        longitude: data.longitude,
+        longitudeSpeed: (data as any).longitudeSpeed,
+        declination: (data as any).declination,
+      };
+    }
+    const storeInput = {
+      profileId,
+      bodies,
+      lagnaLon: chart.lagna.longitude,
+      mcLon: enteredTime && chart.mc?.longitude != null ? chart.mc.longitude : null,
+      utcBirthIso: (chart as any).utcBirthIso,
+      latitude: lat,
+      longitude: lon,
+      basis: profileLagnaBasis,
+    };
+    const researchStatus = await storeNatalResearch(storeInput);
+    await storeDashaTree(storeInput, researchStatus);
+  } catch (researchErr) {
+    console.warn('[Profile Chart] Research/dasha store failed (chart itself saved):', researchErr);
+  }
+
   // Precompute the profection year + Time Lord transits (behind the caller's spinner).
   try {
     const { calculateProfectionYear } = await import('../profection/calculator.js');

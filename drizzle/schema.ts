@@ -1,11 +1,15 @@
 import {
   bigint,
   boolean,
+  datetime,
+  index,
   int,
+  mediumtext,
   mysqlEnum,
   mysqlTable,
   text,
   timestamp,
+  tinyint,
   unique,
   varchar,
 } from "drizzle-orm/mysql-core";
@@ -495,3 +499,50 @@ export const referralRedemptions = mysqlTable("referralRedemptions", {
 
 export type ReferralCodeRow = typeof referralCodes.$inferSelect;
 export type ReferralRedemptionRow = typeof referralRedemptions.$inferSelect;
+
+/**
+ * Profile Research — the full 12-house canon research object (Appendix IV Steps 1–14),
+ * computed once at profile creation / birth-data change and stored (David's directive #1,
+ * 2026-07-14). One row per profile; `research` is the NatalResearch JSON from
+ * server/vedic/house-research.ts. inputHash = sha256 of the birth inputs + engine version,
+ * so an unchanged recompute is a no-op and a birth-data edit always replaces.
+ * Created via manual migration (server/scripts/create-research-tables.ts) — never
+ * drizzle-kit push.
+ */
+export const profileResearch = mysqlTable("profile_research", {
+  id: int("id").autoincrement().primaryKey(),
+  profileId: int("profileId").notNull().unique(),
+  engineVersion: varchar("engineVersion", { length: 32 }).notNull(),
+  inputHash: varchar("inputHash", { length: 64 }).notNull(),
+  research: mediumtext("research").notNull(), // NatalResearch JSON (~40-80KB)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProfileResearchRow = typeof profileResearch.$inferSelect;
+
+/**
+ * Profile Dasha Periods — the ENTIRE Vimshottari system birth→120y, every level
+ * (David's directive #2, 2026-07-14): maha(1)/antar(2)/pratyantar(3)/sookshma(4)/prana(5).
+ * DATETIME(3) so the deep levels (a prana averages ~18h) keep the exact birth-instant
+ * precision. Honesty gate: no-time (Chandra) profiles store levels 1–3 only — a noon
+ * placeholder cannot support hour-grain periods. Timed profiles store all five
+ * (~66-75k rows: the base cycle plus the second-cycle continuation to age 120). Query shape: WHERE profileId=? AND level=? AND startAt<=? AND endAt>?.
+ * Created via manual migration (server/scripts/create-research-tables.ts).
+ */
+export const profileDashaPeriods = mysqlTable("profile_dasha_periods", {
+  id: int("id").autoincrement().primaryKey(),
+  profileId: int("profileId").notNull(),
+  level: tinyint("level").notNull(), // 1=maha … 5=prana
+  maha: varchar("maha", { length: 8 }).notNull(),
+  antar: varchar("antar", { length: 8 }),
+  pratyantar: varchar("pratyantar", { length: 8 }),
+  sookshma: varchar("sookshma", { length: 8 }),
+  prana: varchar("prana", { length: 8 }),
+  startAt: datetime("startAt", { fsp: 3 }).notNull(),
+  endAt: datetime("endAt", { fsp: 3 }).notNull(),
+}, (t) => [
+  index("idx_dasha_lookup").on(t.profileId, t.level, t.startAt),
+]);
+
+export type ProfileDashaPeriodRow = typeof profileDashaPeriods.$inferSelect;

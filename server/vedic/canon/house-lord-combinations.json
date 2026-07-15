@@ -1,10 +1,8 @@
 {
  "_source": "Kurczak & Fish, Art & Science of Vedic Astrology Vol II, Ch.12 'House Lord Combinations'.",
  "_note": "Each entry = a house LORD placed in another house -> its lived result, as the Parashara Bhava Yoga verse + Positive/Negative Influences. Key = L{lord}H{placement}. Modify by the lord's DIGNITY (good dignity -> positive list dominates; bad dignity -> negative). This is the deterministic knot fuel: a life-event theme's house lord landing in a telling house.",
- "_coverage": "143/144 combinations present in this scan.",
- "_gaps": [
-  "L11H4"
- ],
+ "_coverage": "144/144 combinations present — complete. L11H4 recovered 2026-07-14 from PDF p.569 (the book's own header has a typo: 'Ruler of the 11h in the 4th', which earlier scans missed).",
+ "_gaps": [],
  "combinations": {
   "L1H1": {
    "parashara": "Lagna lord abiding in the Lagna – gallant armed and graced with an agreeable body, one is sensible, moving to and fro and maintains two spouses or also relates to another.\" Positive Indications: Actions towards self-development. Autonomous. Strong direction towards self expression. Good at taking initiative. Overall well-being supported by personal initiative. Good at taking action towards personal fulfillment. Congruent character. Good start in life. Takes appropriate initiative. Healthy personality and body. Negative Indications: Too focused on one's own needs. Out of touch with others. Not able to understand other points of view. Poor leadership skills. Too willful. Doesn't know when to quit. Has multiple intimate relationships at once.",
@@ -620,6 +618,11 @@
    "parashara": "The lord of Gain in the Sibling – the one born is competent in all works, wealthy, having fraternal happiness, and sometimes fearing a painfully sharp disease (gout).",
    "positive": "Mult-talented. Gains titles for skills, talents or hobbies. Honored for courage and prowess. Generates financial abundance through third house affairs such as writing, communication, technology, choreography, advertising and coaching. Personal accomplishment inspire peers, younger siblings or teammates. Can persuade others to develop skills, strength, courage and natural talents. Skills are acknowledged by influential people. Adventures lead to financial increase. Good at editing the written word. Athletic skills are acknowledged and honored. Gets music, journalistic endeavors or writing published. Awards for short stories. Awards for coaching skills or instructing skills.",
    "negative": "Friends, younger siblings or teammates are jealous of honors or awards. Too political with friends or younger siblings. Problems with the ears. Egotistical about skills and talents. Wants to be acknowledged without earning it. Too distracted by desires to achieve personal goals. Will do questionable thing to achieve goals. Public disgrace dealing with skill development. Well known for disgraceful activity. Questionable coaching methods. Wants to win at all costs."
+  },
+  "L11H4": {
+   "parashara": "The lord of Gain standing in the Happy Bhava – causes gain from the mother's family and journeys to holy places; the one born is endowed with happiness from house and land.",
+   "positive": "Fourth house matters lead to profit and gain. Can assess property and vehicles well. Gains through education, land, homes, conveyances, farming, mining and building. Finds emotional contentment by fulfilling personal desires. Happy with social interactions. Happily financially supports mother. Properties and possessions increase in value over time. Gains houses or vehicles easily. Titles and awards provide emotional fulfillment.",
+   "negative": "Social desires detract from happiness and cause problems at home. Older siblings cause emotional hardship. Spends too much on luxuries and other fourth house matters. Excessive focus on finances detracts from happiness. Selfish desires disturb home and emotional peace. Mistakenly thinks titles and awards will bring contentment. Emotionally shallow."
   },
   "L11H5": {
    "parashara": "The lord of Gain standing in the Offspring Bhava – produces joy creating children and also learned and of good conduct; one is oneself devoted to Dharma and happy.",

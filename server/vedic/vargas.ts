@@ -94,7 +94,42 @@ export function trimsamsaSign(lon: number): number {
   return 7;              // Scorpio (Mars)
 }
 
-export type VargaCode = "D1" | "D2" | "D3" | "D4" | "D7" | "D9" | "D10" | "D12" | "D30";
+// ── D16 · Shodasamsha (deeper 4th-house matters: vehicles, inner emotional shaping).
+//    1°52'30" parts distributed successively; start by modality: movable → Aries,
+//    fixed → Leo, common → Sagittarius. (Vol II Ch.6, p.290.) ─────────────────────────────
+export function shodasamsaSign(lon: number): number {
+  const s = signIndexOf(lon), part = Math.floor(degInSign(lon) / (30 / 16));
+  const start = [0, 4, 8][s % 3]; // movable=Aries(0), fixed=Leo(4), dual=Sagittarius(8)
+  return (start + part) % 12;
+}
+
+// ── D20 · Vimsamsha (worship: spiritual aspiration, faith, devotion). 1°30' parts;
+//    start by modality: movable → Aries, fixed → Sagittarius, common → Leo. (Ch.6, p.290.) ──
+export function vimsamsaSign(lon: number): number {
+  const s = signIndexOf(lon), part = Math.floor(degInSign(lon) / 1.5);
+  const start = [0, 8, 4][s % 3]; // movable=Aries(0), fixed=Sagittarius(8), dual=Leo(4)
+  return (start + part) % 12;
+}
+
+// ── D24 · Siddhamsa / Chaturvimsamsha (learning: spiritual discipline, intellect).
+//    1°15' parts; odd signs start from Leo, even signs from Cancer. (Ch.6, p.291.) ─────────
+export function siddhamsaSign(lon: number): number {
+  const s = signIndexOf(lon), part = Math.floor(degInSign(lon) / 1.25);
+  const start = isOddSign(s) ? 4 : 3; // odd=Leo(4), even=Cancer(3)
+  return (start + part) % 12;
+}
+
+// ── D27 · Bhamsha / Saptavimsamsa (strengths & weaknesses). 1°06'40" parts; start by
+//    ELEMENT: fire → Aries, earth → Cancer, air → Libra, water → Capricorn. (Ch.6, p.291.) ──
+export function bhamshaSign(lon: number): number {
+  const s = signIndexOf(lon), part = Math.floor(degInSign(lon) / (30 / 27));
+  const start = [0, 3, 6, 9][s % 4]; // fire=Aries, earth=Cancer, air=Libra, water=Capricorn
+  return (start + part) % 12;
+}
+
+export type VargaCode =
+  | "D1" | "D2" | "D3" | "D4" | "D7" | "D9" | "D10" | "D12"
+  | "D16" | "D20" | "D24" | "D27" | "D30";
 
 const VARGA_FN: Record<VargaCode, (lon: number) => number> = {
   D1: signIndexOf,
@@ -105,6 +140,10 @@ const VARGA_FN: Record<VargaCode, (lon: number) => number> = {
   D9: navamsaSign,
   D10: dasamsaSign,
   D12: dwadasamsaSign,
+  D16: shodasamsaSign,
+  D20: vimsamsaSign,
+  D24: siddhamsaSign,
+  D27: bhamshaSign,
   D30: trimsamsaSign,
 };
 

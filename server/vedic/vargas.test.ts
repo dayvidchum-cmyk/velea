@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   signIndexOf, horaSign, drekkanaSign, chaturthamsaSign, saptamsaSign,
   navamsaSign, dasamsaSign, dwadasamsaSign, trimsamsaSign, vargaSignOf, signName,
+  shodasamsaSign, vimsamsaSign, siddhamsaSign, bhamshaSign,
 } from "./vargas";
 
 // Every value below is hand-computed from the BPHS rule in the function's comment, then checked
@@ -120,5 +121,28 @@ describe("vargaSignOf dispatcher", () => {
     expect(vargaSignOf(TAURUS_15, "D9")).toBe(navamsaSign(TAURUS_15));
     expect(vargaSignOf(TAURUS_15, "D10")).toBe(dasamsaSign(TAURUS_15));
     expect(vargaSignOf(TAURUS_15, "D30")).toBe(trimsamsaSign(TAURUS_15));
+  });
+});
+
+describe("subtle vargas (Vol II Ch.6, pp.290-291) — hand-computed", () => {
+  it("D16 Shodasamsha: movable→Aries, fixed→Leo, dual→Sagittarius; 1°52'30\" parts", () => {
+    expect(shodasamsaSign(10)).toBe(5);        // 10° Aries: part 5 → Aries+5 = Virgo
+    expect(shodasamsaSign(30 + 3)).toBe(5);    // 3° Taurus (fixed→Leo): part 1 → Virgo
+    expect(shodasamsaSign(60 + 29)).toBe(11);  // 29° Gemini (dual→Sag): part 15 → Pisces
+  });
+  it("D20 Vimsamsha: movable→Aries, fixed→Sagittarius, dual→Leo; 1°30' parts", () => {
+    expect(vimsamsaSign(10)).toBe(6);          // 10° Aries: part 6 → Libra
+    expect(vimsamsaSign(30 + 3)).toBe(10);     // 3° Taurus (fixed→Sag): part 2 → Aquarius
+    expect(vimsamsaSign(60 + 29)).toBe(11);    // 29° Gemini (dual→Leo): part 19 → Pisces
+  });
+  it("D24 Siddhamsa: odd→Leo, even→Cancer; 1°15' parts", () => {
+    expect(siddhamsaSign(10)).toBe(0);         // 10° Aries: part 8 → Leo+8 = Aries
+    expect(siddhamsaSign(30 + 3)).toBe(5);     // 3° Taurus: part 2 → Cancer+2 = Virgo
+  });
+  it("D27 Bhamsha: fire→Aries, earth→Cancer, air→Libra, water→Capricorn; 1°06'40\" parts", () => {
+    expect(bhamshaSign(10)).toBe(9);           // 10° Aries (fire): part 9 → Capricorn
+    expect(bhamshaSign(30 + 3)).toBe(5);       // 3° Taurus (earth): part 2 → Virgo
+    expect(bhamshaSign(90 + 0.5)).toBe(9);     // 0.5° Cancer (water): part 0 → Capricorn
+    expect(bhamshaSign(180 + 15)).toBe(6 + 13 - 12); // 15° Libra (air): part 13 → Libra+13 = Scorpio(7)
   });
 });

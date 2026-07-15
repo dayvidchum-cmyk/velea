@@ -321,6 +321,17 @@ export async function calculateBirthChart(
     const house = getHouseFromLagna(lagnaLongitude, siderealLongitude);
     const nakshatraData = getNakshatraAndPada(siderealLongitude);
 
+    // Equatorial declination (deg, north positive) — feeds Shadbala's Ayana Bala. A separate
+    // calc with SEFLG_EQUATORIAL (no sidereal flag: declination is frame-independent of
+    // ayanamsa). Optional: if the flag is unavailable the field stays undefined and Ayana
+    // honestly reports pending downstream.
+    let declination: number | undefined;
+    try {
+      const eqFlags = se.SEFLG_SWIEPH | (se.SEFLG_EQUATORIAL ?? 2048);
+      const eq = se.calc_ut(jd, planet.code, eqFlags);
+      if (typeof eq?.[1] === "number" && Number.isFinite(eq[1])) declination = eq[1];
+    } catch { /* declination optional */ }
+
     result[planet.name] = {
       ...signData,
       longitude: siderealLongitude,
@@ -328,6 +339,7 @@ export async function calculateBirthChart(
       house,
       isRetrograde: speed < 0,
       longitudeSpeed: speed, // deg/day — |speed| near 0 = stationing (the intense turning point)
+      declination,
     };
   }
 
