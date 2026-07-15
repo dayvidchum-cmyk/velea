@@ -185,6 +185,10 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
   const completedCount = expanded ? subtaskList.filter((s) => s.isCompleted).length : collapsedCompleted;
   const totalCount = expanded ? subtaskList.length : collapsedTotal;
   const hasSubtasks = totalCount > 0 || collapsedTotal > 0;
+  // Completion percent, DERIVED from subtasks (David 2026-07-15: "a percentage of
+  // completion per task that can derive it from the completion of any subtasks").
+  // A user-set percent for subtask-less tasks arrives with the effortSize migration.
+  const derivedPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : null;
 
   // Life areas + "song" highlight: a task is in focus today when one of its
   // life areas maps to the day's activated house (panchang).
@@ -248,7 +252,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
               {hasSubtasks && (
                 <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(var(--ink),0.16)", color: "rgba(var(--ink),0.96)" }}>
-                  {completedCount}/{totalCount}
+                  {completedCount}/{totalCount}{derivedPct != null ? ` · ${derivedPct}%` : ""}
                 </span>
               )}
             </div>
@@ -492,6 +496,12 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               </span>
             </div>
           )}
+        </div>
+      )}
+      {/* The task's arc — a hairline fill along the bottom edge (subtask-derived). */}
+      {derivedPct != null && !task.isCompleted && (
+        <div style={{ height: 3, background: "rgba(var(--ink),0.14)" }}>
+          <div style={{ height: "100%", width: `${derivedPct}%`, background: "rgba(var(--ink),0.85)", transition: "width 300ms ease" }} />
         </div>
       )}
     </div>
