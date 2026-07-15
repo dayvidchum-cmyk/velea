@@ -800,49 +800,51 @@
    Same structure, inverted colors. Calm, high-contrast, white foundation.
    ══════════════════════════════════════════════════════════════════════════════ */
 html.light {
-  --background: #FDFDFD;
-  --foreground: #2d2d2d;
-  --brand-gold: #C9A84C;
-  --card: #FFFFFF;
-  --card-foreground: #2d2d2d;
-  --popover: #FFFFFF;
-  --popover-foreground: #2d2d2d;
+  /* B · OAT MILK (David 2026-07-16): deep warm cream, warm ink. No pure white anywhere
+     (glare), no grey-black text; hierarchy by tint layers, day-mode colors stay the pop. */
+  --background: #F0E9DC;
+  --foreground: #3E352A;
+  --brand-gold: #A07C2E;
+  --card: #F9F4EA;
+  --card-foreground: #3E352A;
+  --popover: #F9F4EA;
+  --popover-foreground: #3E352A;
   --primary: oklch(0.767 0.139 91.1);
-  --primary-foreground: #FDFDFD;
-  --secondary: #F5F5F5;
-  --secondary-foreground: #2d2d2d;
-  --muted: #F5F5F5;
-  --muted-foreground: #666666;
+  --primary-foreground: #FBF6EC;
+  --secondary: #EAE1CF;
+  --secondary-foreground: #3E352A;
+  --muted: #EAE1CF;
+  --muted-foreground: #8D8171;
   --accent: oklch(0.767 0.139 91.1);
-  --accent-foreground: #FDFDFD;
+  --accent-foreground: #FBF6EC;
   --destructive: oklch(0.50 0.18 25);
-  --destructive-foreground: #FDFDFD;
-  --border: #E5E5E5;
-  --input: #F0F0F0;
+  --destructive-foreground: #FBF6EC;
+  --border: #E2D7C2;
+  --input: #EAE1CF;
   --ring: oklch(0.767 0.139 91.1);
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
-  --space-deep: #FAFAFA;
-  --space-navy: #F5F5F5;
-  --space-mid: #FFFFFF;
-  --space-light: #F0F0F0;
-  --cream: #2d2d2d;
-  --cream-dim: #666666;
-  /* Light mode: the calendar goes back to clean near-white + a whisper of shadow (the warm paper
-     read dingy against the white app bg). */
-  --parchment: #FDFDFD;
+  --space-deep: #EDE5D5;
+  --space-navy: #EAE1CF;
+  --space-mid: #F9F4EA;
+  --space-light: #E5DBC6;
+  --cream: #3E352A;
+  --cream-dim: #8D8171;
+  /* The calendar comes home to warm paper (David 2026-07-16: "the calendar is included") —
+     it only read dingy while the app behind it was white. */
+  --parchment: #F9F4EA;
   --parchment-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   --mode-action: oklch(0.40 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.48 0.14 355);
   --mode-selective: oklch(0.42 0.12 200);
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #2d2d2d;
+  --sidebar: #F9F4EA;
+  --sidebar-foreground: #3E352A;
   --sidebar-primary: oklch(0.767 0.139 91.1);
-  --sidebar-primary-foreground: #FDFDFD;
-  --sidebar-accent: #F5F5F5;
-  --sidebar-accent-foreground: #2d2d2d;
-  --sidebar-border: #E5E5E5;
+  --sidebar-primary-foreground: #FBF6EC;
+  --sidebar-accent: #EFE7D8;
+  --sidebar-accent-foreground: #3E352A;
+  --sidebar-border: #E2D7C2;
   --sidebar-ring: oklch(0.767 0.139 91.1);
   /* Task card backgrounds — light mode with better contrast */
   --task-bg: rgba(100, 180, 100, 0.10);

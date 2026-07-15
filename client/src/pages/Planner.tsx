@@ -115,6 +115,28 @@ function coinPairFor(character: any): [string, string] | undefined {
   const depth = character.depth ?? character.buildDepth;
   return DEPTH_BG[character.movement]?.[depth ?? "mid"] ?? MOVEMENT_BG[character.movement];
 }
+// The hero card's descent: LEAD with the day's coin color, then fall through the deeper
+// stops of the movement's own scale to its leaning FLOOR — Build ends in rose-ochre
+// (David: "the big build card should be rose ochre"), Selective in its slate, Action in
+// its khaki. A day already on the floor descends into its own shadow. Golden/Caution
+// (no scale) get the plain shadow descent.
+function heroDescentFor(character: any, angle = 180): string | undefined {
+  const pair = coinPairFor(character);
+  if (!pair) return undefined;
+  const coin = pair[0];
+  const scale = character?.movement ? DEPTH_BG[character.movement] : undefined;
+  let stops: string[];
+  if (scale) {
+    const order = ["thin", "mid", "deep", "leaning"];
+    const idx = order.indexOf(character.depth ?? character.buildDepth ?? "mid");
+    stops = order.slice(idx >= 0 ? idx : 1).map((k) => scale[k][0]);
+    while (stops.length < 3) stops.push(shadeHex(stops[stops.length - 1], 0.72));
+  } else {
+    stops = [coin, shadeHex(coin, 0.74), shadeHex(coin, 0.46)];
+  }
+  const last = stops.length - 1;
+  return `linear-gradient(${angle}deg, ${stops.map((c, i) => `${c} ${Math.round((i * 100) / last)}%`).join(", ")})`;
+}
 // Legacy three-state fallback for dates outside the ranked year (cold cache, far months).
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
@@ -781,9 +803,9 @@ export default function Planner() {
     : undefined;
   // THE CARD LEADS WITH ITS CALENDAR COLOR (David 2026-07-16): the hero gradient's top
   // stop IS the day's coin (movement + depth), then it goes down into its own shadow.
-  const selectedCoin = coinPairFor(selectedCharacter)?.[0];
-  const heroGradient = selectedCoin
-    ? `linear-gradient(180deg, ${selectedCoin} 0%, ${shadeHex(selectedCoin, 0.74)} 55%, ${shadeHex(selectedCoin, 0.46)} 100%)`
+  const selectedDescent = heroDescentFor(selectedCharacter);
+  const heroGradient = selectedDescent
+    ? selectedDescent
     : selectedTaskModeForHero === 'Action'
     ? 'var(--velea-action-gradient)'
     : selectedTaskModeForHero === 'Build'
@@ -797,8 +819,8 @@ export default function Planner() {
     : 'var(--card)';
   // Angled card gradient — reads flatter/cleaner on short cards (e.g. the collapsed
   // Time Lord pill) than the tall 180deg hero gradient.
-  const heroCardGradient = selectedCoin
-    ? `linear-gradient(200deg, ${shadeHex(selectedCoin, 0.92)} 0%, ${shadeHex(selectedCoin, 0.68)} 60%, ${shadeHex(selectedCoin, 0.48)} 100%)`
+  const heroCardGradient = selectedDescent
+    ? heroDescentFor(selectedCharacter, 200)
     : selectedTaskModeForHero === 'Action'
     ? 'var(--velea-action-card-gradient)'
     : selectedTaskModeForHero === 'Build'
