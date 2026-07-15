@@ -180,7 +180,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v6`;
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v7`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 
@@ -278,7 +278,9 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
         chandraFavorable: !!d.chandra?.favorable,
       });
       d.movement = mv; d.movementWord = MOVEMENT_WORD[mv];
-      if (mv === "build") d.buildDepth = d.tara.quality === "good" ? (d.tara.taraNum >= 8 ? "deep" : "mid") : "thin";
+      if (mv === "build") d.buildDepth = d.tara.quality === "good"
+        ? (d.tara.taraNum >= 8 ? "deep" : "mid")
+        : d.tara.taraNum === 1 ? "thin" : "leaning";
     } catch { /* a day without movement still ranks */ }
   }
   const result = { yearStart, yearEnd, natalMoonSignIdx, birthNakIdx, ...ranked };
@@ -1832,8 +1834,12 @@ export const appRouter = router({
             // Build days confess their depth (David 2026-07-15): the rung under the word.
             // deep = the great-friend rungs (9/8) · mid = the other favorable rungs · thin =
             // the softened/own-star ground. Shades come from the hero card's own gradient.
+            // thin = the own-star ground (tender, personal); leaning = softened-HOSTILE ground
+            // (the Builds that almost lean Restraint — David 2026-07-15, rose-ochre days).
             const buildDepth = mv === "build"
-              ? (day.tara.quality === "good" ? (day.tara.taraNum >= 8 ? "deep" : "mid") : "thin")
+              ? (day.tara.quality === "good"
+                  ? (day.tara.taraNum >= 8 ? "deep" : "mid")
+                  : day.tara.taraNum === 1 ? "thin" : "leaning")
               : undefined;
             character = {
               nature: c.nature, family: c.family, headline: c.headline, sentence: c.sentence,

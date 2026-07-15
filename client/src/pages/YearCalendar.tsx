@@ -139,7 +139,7 @@ export default function YearCalendar() {
                         const d = byDate.get(ds);
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
                         const [bg, ink] = (d as any).movement === "build"
-                          ? (({ deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#E8C84A", "#4a3c10"] } as Record<string, [string, string]>)[(d as any).buildDepth ?? "mid"])
+                          ? (({ deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#E8C84A", "#4a3c10"], leaning: ["#BC886F", "#3a1f14"] } as Record<string, [string, string]>)[(d as any).buildDepth ?? "mid"])
                           : (d as any).movement
                           ? (MOVEMENT_BG[(d as any).movement] ?? BETWEEN)
                           : d.tara.quality === "good" ? GO_GREEN

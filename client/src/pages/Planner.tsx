@@ -78,9 +78,10 @@ const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foregroun
 // Build depth wears the hero gradient's own golds (David 2026-07-15): deep rung = the
 // darker stop, thin ground = the palest. Same family the hero card breathes.
 const BUILD_DEPTH_BG: Record<string, [string, string]> = {
-  deep: ["#C49A2E", "#2e2408"],
+  deep: ["#C49A2E", "#2e2408"],    // great-friend ground — the rich dark gold
   mid: ["#D4AF37", "#3a2f10"],
-  thin: ["#E8C84A", "#4a3c10"],
+  thin: ["#E8C84A", "#4a3c10"],    // own-star ground — the pale top
+  leaning: ["#BC886F", "#3a1f14"], // softened-hostile ground — the rose-ochre floor
 };
 // Legacy three-state fallback for dates outside the ranked year (cold cache, far months).
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
@@ -875,7 +876,9 @@ export default function Planner() {
             {/* Build depth — the rung confessing under the word (extremes only, no noise). */}
             {selectedCharacter?.movement === "build" && selectedCharacter.buildDepth && selectedCharacter.buildDepth !== "mid" && (
               <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)', marginTop: '-0.5rem', marginBottom: '0.35rem' }}>
-                {selectedCharacter.buildDepth === "deep" ? "deep — the ground holds a lot today" : "thin — tend with a lighter hand"}
+                {selectedCharacter.buildDepth === "deep" ? "deep — the ground holds a lot today"
+                  : selectedCharacter.buildDepth === "leaning" ? "leaning restraint — tend, but keep it gentle"
+                  : "thin — tend with a lighter hand"}
               </p>
             )}
             {/* The day's character line — the classical filter's headline + tilt. */}
