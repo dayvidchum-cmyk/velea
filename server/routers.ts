@@ -1811,7 +1811,10 @@ export const appRouter = router({
             };
             mode = applyWeatherGate(bridgeMode(c), rating).finalMode;
           } catch { /* character optional — the day still marks and ranks */ }
-          days.push({ date, rating, why, mode, character });
+          // The rung — so the month calendar can wear the SAME ladder tints as the year view
+          // (David 2026-07-16: "I want the 2 calendars to blend into one").
+          const rung = { num: day.tara.taraNum, quality: day.tara.quality };
+          days.push({ date, rating, why, mode, character, rung });
         }
         return { days };
       }),

@@ -64,6 +64,18 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 // ── THE DAY CHARACTER (classical filter) — replaced the 4 modes, David 2026-07-15. ──
 // v1 palette keyed to the light almanac; ONE block, repaintable at will (David's canvas).
 // Reserved hues stay reserved: gold = crown, fire-red = caution, violet = eclipse.
+// The LADDER tints — identical pairs to the year view (one calendar, one language).
+const RUNG_GOOD: Record<number, [string, string]> = {
+  9: ["#b8860b", "#fff"], 8: ["#c69a2e", "#fff"], 6: ["#d4af55", "#3a3122"],
+  4: ["#e0c47e", "#3a3122"], 2: ["#ead6a3", "#3a3122"],
+};
+const RUNG_BAD: Record<number, [string, string]> = {
+  3: ["#d9a49b", "#40201b"], 5: ["#c97f73", "#40201b"], 7: ["#a94f42", "#fff"],
+};
+const RUNG_SOFT: [string, string] = ["#eee6d4", "#6b6455"];
+const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foreground)"];
+
+// (Retired from the coins 2026-07-16 — kept for the hero word only.)
 const NATURE_DOT: Record<string, string> = {
   fixed: "#5C7046",   // foundation — moss
   movable: "#3E7C8F", // motion — teal
@@ -221,6 +233,11 @@ export default function Planner() {
     return m;
   }, [crownData]);
   const selectedCharacter = charByDate.get(selectedDate);
+  const rungByDate = useMemo(() => {
+    const m = new Map<string, { num: number; quality: string }>();
+    for (const d of (crownData?.days ?? []) as any[]) if (d.rung) m.set(d.date, d.rung);
+    return m;
+  }, [crownData]);
   // Every retrograde planet's marks, collapsed to a per-date list for the glyph strip.
   // Each planet contributes at most one state per day; strongest wins: station > window
   // > rx > shadow. `detail` feeds the tap popup.
@@ -1154,13 +1171,16 @@ export default function Planner() {
             const isSelected = dateStr === selectedDate;
             const dayMode = modeByDate.get(dateStr) ?? panchang?.mode;
             const dayCharacter = charByDate.get(dateStr);
-            // Coins now speak the day's NATURE (the classical filter); the old mode palette is
-            // the fallback for dates the character hasn't reached (other months, cold cache).
-            const modeColor = cautionSet.has(dateStr)
-              ? MODE_DOT["Restraint"]
-              : dayCharacter
-              ? NATURE_DOT[dayCharacter.nature]
-              : dayMode ? MODE_DOT[dayMode] : undefined;
+            // ONE CALENDAR (David 2026-07-16): the month coins wear the SAME ladder tints as
+            // the year view — the grouped golds-through-reds that carry meaning. The nature
+            // rainbow is retired from the coins; nature speaks in the hero's words.
+            const rung = rungByDate.get(dateStr);
+            const [rungBg, rungInk] = rung
+              ? (rung.quality === "good" ? (RUNG_GOOD[rung.num] ?? RUNG_SOFT)
+                : rung.quality === "bad" ? (RUNG_BAD[rung.num] ?? RUNG_SOFT)
+                : RUNG_SOFT)
+              : RUNG_NONE;
+            const modeColor = rung ? rungBg : (dayMode ? MODE_DOT[dayMode] : undefined);
             const hasMode = !!modeColor;
             // Whole cell is tinted by the day's mode — far more legible than a tiny
             // dot, and selected/today get a stronger fill + solid border. Dark mode
@@ -1199,7 +1219,9 @@ export default function Planner() {
             // its day-mode color only for TODAY or the date the user presses. Every other day is an
             // OUTLINE — a ring in the day-mode color, with the number in that same color. No more white
             // today-border: today is simply the filled coin.
-            const filled = (isToday || isSelected) && hasMode;
+            // Every coin is FILLED with its rung tint (the year view's language) — today and the
+            // selected day distinguish themselves by ring + weight, not by being the only fills.
+            const filled = rung ? true : (isToday || isSelected) && hasMode;
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
@@ -1207,7 +1229,7 @@ export default function Planner() {
             // near-black-red ink — readable on the red fill, same hue, so no vibration.
             // Nature fills are mid-dark — a darkened ink drowns (David's screenshot, 2026-07-15).
             // White reads on all seven; caution keeps its near-black-red on the red fill.
-            const darkInk = isCautionDay ? "#3A0606" : dayCharacter ? "#FFFFFF" : darkenOklch(accent, 0.5);
+            const darkInk = isCautionDay ? "#3A0606" : rung ? rungInk : darkenOklch(accent, 0.5);
             // Caution falls out of accent(=CAUTION_RED)+darkInk with no special case: outline days get
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
@@ -1262,6 +1284,10 @@ export default function Planner() {
                       ? `1.5px solid ${GOLD_BRIGHT}`
                       : stationsToday.length
                       ? `1.25px solid ${accent}`
+                      : isSelected
+                      ? "2px solid var(--color-foreground)"
+                      : isToday
+                      ? "2px solid #2b2723"
                       : "1px solid transparent",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
