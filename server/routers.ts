@@ -180,7 +180,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v4`;
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v5`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 
@@ -268,12 +268,15 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   for (const d of ranked.days as any[]) {
     try {
       const merc = mercByDate.get(d.date);
-      const mercuryContest = merc != null && merc < 0 && (Math.abs(merc) < 0.15 || !d.tara.favorable);
       const c = dayFilter({
         nakshatra: d.nakshatra ?? "", tithiNumber: d.tithiNumber ?? 1,
-        varaLord: d.varaLord ?? "Sun", vishti: !!d.vishti, mercuryContest, tara: d.tara,
+        varaLord: d.varaLord ?? "Sun", vishti: !!d.vishti, tara: d.tara,
       });
-      const mv = movementOf(c, d.tara, topSet.has(d.date));
+      const mv = movementOf(c, d.tara, topSet.has(d.date), {
+        mercuryRetro: merc != null && merc < 0,
+        mercuryNearStation: merc != null && Math.abs(merc) < 0.15,
+        chandraFavorable: !!d.chandra?.favorable,
+      });
       d.movement = mv; d.movementWord = MOVEMENT_WORD[mv];
     } catch { /* a day without movement still ranks */ }
   }
@@ -1810,19 +1813,21 @@ export const appRouter = router({
           let character: any = undefined;
           try {
             const merc = await planetLongitudeSpeed("mercury", date, 12);
-            // The rx-contest law: a TRUE retrograde caps beginnings; a strong personal Moon
-            // punches through OFF the station core (velea-rx-contest-mode, 2026-07-13).
-            const mercuryContest = merc.speed < 0 && (Math.abs(merc.speed) < 0.15 || !day.tara.favorable);
             const c = dayFilter({
               nakshatra: day.nakshatra ?? "",
               tithiNumber: day.tithiNumber ?? 1,
               varaLord: day.varaLord ?? "Sun",
               vishti: !!day.vishti,
-              mercuryContest,
               tara: day.tara,
             });
-            // THE SIX MOVEMENTS (David 2026-07-15): his day-mode words, canon-derived.
-            const mv = movementOf(c, day.tara, isCrown);
+            // THE SIX MOVEMENTS (David 2026-07-15). Mercury gates the movement per the
+            // SHIPPED rx law (interpreter.ts): retrograde caps Action at Build unless a
+            // strong Moon (favorable tara AND chandra) punches through off the station core.
+            const mv = movementOf(c, day.tara, isCrown, {
+              mercuryRetro: merc.speed < 0,
+              mercuryNearStation: Math.abs(merc.speed) < 0.15,
+              chandraFavorable: !!day.chandra?.favorable,
+            });
             character = {
               nature: c.nature, family: c.family, headline: c.headline, sentence: c.sentence,
               supports: c.supports, avoid: c.avoid, vetoes: c.vetoes, contained: c.contained,

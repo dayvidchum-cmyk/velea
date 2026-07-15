@@ -54,8 +54,6 @@ export interface DayFilterInput {
   varaLord: string;
   /** Vishti (Bhadra) karana running → initiating is vetoed. */
   vishti: boolean;
-  /** A TRUE Mercury retrograde day (per the rx-contest law — station bands, not the whole course). */
-  mercuryContest?: boolean;
   /** The native's tara standing for the day (personal layer; null = collective-only read). */
   tara?: { quality: "good" | "bad" | "mixed"; taraNum: number; cycle: number } | null;
 }
@@ -105,12 +103,6 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     vetoes.push("the day's grain blocks starting — continue, don't begin");
     supports = supports.filter((s) => !/beginn|launch|starting|new /i.test(s));
   }
-  // Mercury's contest: beginnings capped, never a wall.
-  if (input.mercuryContest) {
-    vetoes.push("beginnings are contested (Mercury) — finish and revise rather than launch");
-    supports = supports.filter((s) => !/beginn|launch|starting/i.test(s));
-  }
-
   // The personal layer outranks the collective (weather-gate law, canon underneath).
   const contained = !!(input.tara && input.tara.quality === "bad" && input.tara.taraNum === 7);
   if (contained) vetoes.push("your loss-star at full force — nothing forward, nothing new, contain");
@@ -163,13 +155,31 @@ export const MOVEMENT_WORD: Record<Movement, string> = {
 
 export function movementOf(
   c: DayCharacter,
-  tara: { quality: "good" | "bad" | "mixed"; taraNum: number; cycle: number } | null,
+  tara: { quality: "good" | "bad" | "mixed"; taraNum: number; cycle: number; favorable?: boolean } | null,
   isCrown: boolean,
+  gates?: {
+    /** Mercury in TRUE retrograde (the shadow does not count) — interpreter.ts's own terms. */
+    mercuryRetro?: boolean;
+    /** Near-stationary — the un-punchable core. */
+    mercuryNearStation?: boolean;
+    /** Favorable chandra (day Moon's house from the natal Moon). */
+    chandraFavorable?: boolean;
+  },
 ): Movement {
   if (tara && tara.quality === "bad" && tara.taraNum === 7 && tara.cycle === 1) return "caution";
   if (isCrown) return "golden";
   if (tara && tara.quality === "bad") return "restraint";
-  if (c.family === "purna" || c.vetoes.length) return "selective";
-  if (tara?.quality === "good" && (c.nature === "movable" || c.nature === "swift")) return "action";
+  // Selective = the day itself asks for finishing: a full current, or the blocked karana.
+  // (Mercury does NOT create Selective — the shipped rx law caps Action at Build, below.)
+  if (c.family === "purna" || c.vetoes.some((v) => v.includes("blocks starting"))) return "selective";
+  if (tara?.quality === "good" && (c.nature === "movable" || c.nature === "swift")) {
+    // THE RX-CONTEST LAW, verbatim from interpreter.ts: Mercury retrograde caps Action at
+    // Build — unless a strong Moon (favorable tara AND chandra) punches through off the core.
+    if (gates?.mercuryRetro) {
+      const punch = !!tara?.favorable && !!gates.chandraFavorable && !gates.mercuryNearStation;
+      if (!punch) return "build";
+    }
+    return "action";
+  }
   return "build";
 }

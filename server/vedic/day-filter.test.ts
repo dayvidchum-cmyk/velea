@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { dayFilter, NATURE_LABEL } from "./day-filter";
+import { dayFilter, movementOf, NATURE_LABEL } from "./day-filter";
 
 const base = { varaLord: "Jupiter", vishti: false, tara: null };
 
@@ -40,13 +40,10 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
     expect(sharp.supports.join(" ")).toMatch(/decisive cuts|endings/);
   });
 
-  it("vishti and the Mercury contest strip beginnings without walling the day", () => {
+  it("vishti strips beginnings without walling the day; Mercury never touches the character", () => {
     const v = dayFilter({ ...base, nakshatra: "Anuradha", tithiNumber: 1, vishti: true });
     expect(v.vetoes.join(" ")).toMatch(/blocks starting/);
     expect(v.supports.join(" ")).not.toMatch(/beginnings/i);
-    const m = dayFilter({ ...base, nakshatra: "Anuradha", tithiNumber: 1, mercuryContest: true });
-    expect(m.vetoes.join(" ")).toMatch(/Mercury/);
-    expect(m.supports.length).toBeGreaterThan(0); // contest, never a wall
   });
 
   it("the personal ladder outranks the collective: a full-force loss day is contained", () => {
@@ -63,5 +60,40 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
 
   it("all seven natures carry labels", () => {
     for (const label of Object.values(NATURE_LABEL)) expect(label).toMatch(/day/);
+  });
+});
+
+describe("movementOf — the six movements under the SHIPPED rx law (interpreter.ts)", () => {
+  const goodTara = { quality: "good" as const, taraNum: 8, cycle: 1, favorable: true };
+  const actionDay = () => dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 2 }); // movable + work
+
+  it("Mercury retrograde caps Action at BUILD — never Selective", () => {
+    expect(movementOf(actionDay(), goodTara, false)).toBe("action");
+    expect(movementOf(actionDay(), goodTara, false, { mercuryRetro: true, chandraFavorable: false })).toBe("build");
+  });
+
+  it("a strong Moon (favorable tara AND chandra) punches through off the station core", () => {
+    expect(movementOf(actionDay(), goodTara, false, { mercuryRetro: true, chandraFavorable: true })).toBe("action");
+    expect(movementOf(actionDay(), goodTara, false, { mercuryRetro: true, chandraFavorable: true, mercuryNearStation: true })).toBe("build");
+  });
+
+  it("Mercury never drags a Build day to Selective (David's July 15)", () => {
+    const buildDay = dayFilter({ ...base, nakshatra: "Ashlesha", tithiNumber: 2 }); // sharp + work
+    const janma = { quality: "mixed" as const, taraNum: 1, cycle: 1, favorable: false };
+    expect(movementOf(buildDay, janma, false, { mercuryRetro: true, chandraFavorable: false })).toBe("build");
+  });
+
+  it("the ladder still rules: full-force loss = caution, hostile = restraint, crown = golden", () => {
+    const c = actionDay();
+    expect(movementOf(c, { quality: "bad", taraNum: 7, cycle: 1 }, false)).toBe("caution");
+    expect(movementOf(c, { quality: "bad", taraNum: 3, cycle: 1 }, false)).toBe("restraint");
+    expect(movementOf(c, goodTara, true)).toBe("golden");
+  });
+
+  it("selective comes only from the day itself: a full current or the blocked karana", () => {
+    const purna = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 5 });
+    expect(movementOf(purna, goodTara, false)).toBe("selective");
+    const vishti = dayFilter({ ...base, nakshatra: "Ashlesha", tithiNumber: 2, vishti: true });
+    expect(movementOf(vishti, goodTara, false)).toBe("selective");
   });
 });

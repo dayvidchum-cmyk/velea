@@ -469,7 +469,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       tithiNumber,
       varaLord: WEEKDAY_LORD_7[new Date(dateStr + "T12:00:00Z").getUTCDay()],
       vishti: !!panchang.karana?.vishti,
-      // The rx contest already reaches the read via input.mercuryRx — not doubled here.
+      // Mercury reaches the read via input.mercuryRx; the rx law gates movement, not character.
       tara: null,
     });
     dayFilterBlock = {
