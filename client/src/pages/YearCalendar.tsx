@@ -16,15 +16,10 @@ import { trpc } from "@/lib/trpc";
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 
-// David's approved palette: good rungs deepen gold; janma/softened = parchment; bad deepen red.
-const GOOD_BG: Record<number, [string, string]> = {
-  9: ["#b8860b", "#fff"], 8: ["#c69a2e", "#fff"], 6: ["#d4af55", "#3a3122"],
-  4: ["#e0c47e", "#3a3122"], 2: ["#ead6a3", "#3a3122"],
-};
-const BAD_BG: Record<number, [string, string]> = {
-  3: ["#d9a49b", "#40201b"], 5: ["#c97f73", "#40201b"], 7: ["#a94f42", "#fff"],
-};
-const MIXED_BG: [string, string] = ["#eee6d4", "#6b6455"];
+// THREE FLAT STATES (David 2026-07-15): green = go, rose = caution, bare paper between.
+const GO_GREEN: [string, string] = ["#90a989", "#243320"];
+const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
+const BETWEEN: [string, string] = ["transparent", "#6b6455"];
 
 type RankedDay = {
   date: string; rank: number;
@@ -107,7 +102,7 @@ export default function YearCalendar() {
           <>
             {/* Legend */}
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-              {[["#b8860b", "Great friend"], ["#c69a2e", "Friend"], ["#d4af55", "Achievement"], ["#e0c47e", "Well-being"], ["#ead6a3", "Prosperity"], ["#eee6d4", "Your star / softened"], ["#d9a49b", "Friction"], ["#c97f73", "Pushback"], ["#a94f42", "Loss"]].map(([c, n]) => (
+              {[["#90a989", "go"], ["#d57176", "caution"]].map(([c, n]) => (
                 <span key={n} className="inline-flex items-center gap-1">
                   <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c }} /> {n}
                 </span>
@@ -135,8 +130,8 @@ export default function YearCalendar() {
                         const ds = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const d = byDate.get(ds);
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
-                        const [bg, ink] = d.tara.quality === "good" ? GOOD_BG[d.tara.taraNum]
-                          : d.tara.quality === "bad" ? BAD_BG[d.tara.taraNum] : MIXED_BG;
+                        const [bg, ink] = d.tara.quality === "good" ? GO_GREEN
+                          : d.tara.quality === "bad" ? CAUTION_ROSE : BETWEEN;
                         const tip = `#${d.rank} of ${data.days.length} · ${d.plain.day} — ${d.plain.feel} · ${d.plain.moon}${d.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}`;
                         return (
                           <div key={ds} title={tip}

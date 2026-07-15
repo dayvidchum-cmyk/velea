@@ -64,15 +64,12 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 // ── THE DAY CHARACTER (classical filter) — replaced the 4 modes, David 2026-07-15. ──
 // v1 palette keyed to the light almanac; ONE block, repaintable at will (David's canvas).
 // Reserved hues stay reserved: gold = crown, fire-red = caution, violet = eclipse.
-// The LADDER tints — identical pairs to the year view (one calendar, one language).
-const RUNG_GOOD: Record<number, [string, string]> = {
-  9: ["#b8860b", "#fff"], 8: ["#c69a2e", "#fff"], 6: ["#d4af55", "#3a3122"],
-  4: ["#e0c47e", "#3a3122"], 2: ["#ead6a3", "#3a3122"],
-};
-const RUNG_BAD: Record<number, [string, string]> = {
-  3: ["#d9a49b", "#40201b"], 5: ["#c97f73", "#40201b"], 7: ["#a94f42", "#fff"],
-};
-const RUNG_SOFT: [string, string] = ["#eee6d4", "#6b6455"];
+// THREE FLAT STATES (David 2026-07-15: "color should answer one question — how do I move").
+// Green = go, rose = caution, bare paper = the between. No ramps, no depth — subtlety lives
+// in the hero's words. His hexes verbatim.
+const GO_GREEN: [string, string] = ["#90a989", "#243320"];
+const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
+const BETWEEN: [string, string] = ["transparent", "var(--color-muted-foreground)"];
 const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foreground)"];
 
 // (Retired from the coins 2026-07-16 — kept for the hero word only.)
@@ -1176,9 +1173,9 @@ export default function Planner() {
             // rainbow is retired from the coins; nature speaks in the hero's words.
             const rung = rungByDate.get(dateStr);
             const [rungBg, rungInk] = rung
-              ? (rung.quality === "good" ? (RUNG_GOOD[rung.num] ?? RUNG_SOFT)
-                : rung.quality === "bad" ? (RUNG_BAD[rung.num] ?? RUNG_SOFT)
-                : RUNG_SOFT)
+              ? (rung.quality === "good" ? GO_GREEN
+                : rung.quality === "bad" ? CAUTION_ROSE
+                : BETWEEN)
               : RUNG_NONE;
             const modeColor = rung ? rungBg : (dayMode ? MODE_DOT[dayMode] : undefined);
             const hasMode = !!modeColor;
@@ -1221,7 +1218,7 @@ export default function Planner() {
             // today-border: today is simply the filled coin.
             // Every coin is FILLED with its rung tint (the year view's language) — today and the
             // selected day distinguish themselves by ring + weight, not by being the only fills.
-            const filled = rung ? true : (isToday || isSelected) && hasMode;
+            const filled = rung ? rung.quality !== "mixed" : (isToday || isSelected) && hasMode;
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
