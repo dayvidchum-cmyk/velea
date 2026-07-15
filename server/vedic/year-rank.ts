@@ -29,6 +29,38 @@ export interface YearWindow {
   endMs: number;
 }
 
+// ── Plain language — the reader never gets the decoder ring (David's law: terms must mean
+// something LIVED; Sanskrit stays in the engine/glossary, not the highlight). ──────────────
+export const PLAIN_TARA: Record<number, { label: string; feel: string }> = {
+  9: { label: "Great friend", feel: "the strongest kind of day your sky gives you" },
+  8: { label: "Friend", feel: "supported — things move with you" },
+  6: { label: "Achievement", feel: "effort lands — work pays today" },
+  4: { label: "Well-being", feel: "safe and settling — a day that restores" },
+  2: { label: "Prosperity", feel: "things accrue — good for gains" },
+  1: { label: "Your own star", feel: "tender and personal — keep it close" },
+  3: { label: "Friction", feel: "guard against haste" },
+  5: { label: "Pushback", feel: "expect resistance — don't force it" },
+  7: { label: "Loss", feel: "nothing forward, nothing new" },
+};
+export const PLAIN_CHANDRA: Record<string, string> = {
+  good: "the Moon backs you",
+  neutral: "the Moon is even",
+  bad: "the Moon drags",
+};
+/** Convergence theme keys → the lived place (knots.ts labels, shortened for a day line). */
+export const PLAIN_THEME: Record<string, string> = {
+  identity: "how you're received",
+  siblings: "your inner circle",
+  marriage: "union",
+  children: "children & creativity",
+  career: "vocation",
+  fame: "recognition",
+  wealth: "income & gains",
+  parents: "parents & roots",
+  home: "home & land",
+  health: "health & vitality",
+};
+
 export interface RankedDay {
   date: string;
   rank: number;              // 1 = the year's crowning day
@@ -38,6 +70,8 @@ export interface RankedDay {
   windows: string[];
   /** maha›antar›pratyantar running that day (context). */
   chain: string;
+  /** The reader-facing words — never the machinery. */
+  plain: { day: string; feel: string; moon: string; windows: string[] };
 }
 
 export interface YearRank {
@@ -68,14 +102,25 @@ export function rankYear(opts: {
 
   const days: RankedDay[] = opts.days.map((d) => {
     const ms = noonMs(d.date);
+    const tara = tarabala(opts.birthNakIdx, d.dayNakIdx);
+    const chandra = chandrabala(opts.natalMoonSignIdx, d.dayMoonSignIdx);
+    const windows = Array.from(new Set(
+      opts.windows.filter((w) => w.startMs <= ms && ms < w.endMs).map((w) => w.theme)));
+    const softened = tara.quality === "mixed" && tara.taraNum !== 1;
+    const p = PLAIN_TARA[tara.taraNum];
     return {
       date: d.date,
       rank: 0,
-      tara: tarabala(opts.birthNakIdx, d.dayNakIdx),
-      chandra: chandrabala(opts.natalMoonSignIdx, d.dayMoonSignIdx),
-      windows: Array.from(new Set(
-        opts.windows.filter((w) => w.startMs <= ms && ms < w.endMs).map((w) => w.theme))),
+      tara,
+      chandra,
+      windows,
       chain: opts.chains.find((c) => c.startMs <= ms && ms < c.endMs)?.label ?? "",
+      plain: {
+        day: softened ? `${p.label} (softened)` : p.label,
+        feel: softened ? "an edge in the air, but blunted — proceed with care" : p.feel,
+        moon: PLAIN_CHANDRA[chandra.quality] ?? "",
+        windows: windows.map((w) => PLAIN_THEME[w] ?? w),
+      },
     };
   });
 

@@ -146,10 +146,110 @@ function nextDueDate(base: string | null, recurrence: string): string {
   return d.toISOString().split("T")[0];
 }
 
-// In-memory cache for the ranked solar year (crown.forYear) — the walk computes 366 day-stars.
+// In-memory cache for the ranked solar year — the walk computes 366 day-stars.
 // Keyed on the natal inputs themselves (profile, year, birth date, janma star, natal Moon sign),
 // so a birth-data edit misses the cache; everything else is almanac-stable for the year.
 const yearRankCache = new Map<string, any>();
+
+/**
+ * The ONE ranked solar year (birthday → birthday) for a user's active profile — the single
+ * source behind the month calendar's marks AND the /year overview, so they can never tell
+ * two stories (David: "one calendar", "i want the marks to reflect the calendar").
+ * yearOffset: 0 = the solar year containing today, ±1 = neighbours. Cached in-memory.
+ */
+async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<any | null> {
+  const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+  const profile = await getActiveProfile(userId);
+  if (!profile || !(profile as any).birthDate) return null;
+  const bodies = await getProfileNatalBodies(profile.id);
+  const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+  const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const moonBody = bodies.find((b: any) => b.planet === "Moon");
+  const birthNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(moonBody?.nakshatra ?? "").toLowerCase());
+  const natalMoonSignIdx = ZOD.indexOf(moonBody?.sign ?? "");
+  if (birthNakIdx < 0 || natalMoonSignIdx < 0) return null;
+
+  // Solar year containing today (or offset by whole years): most recent birthday → next.
+  const p2 = (n: number) => String(n).padStart(2, "0");
+  const [, bm, bd] = String((profile as any).birthDate).split("-").map(Number);
+  const today = new Date();
+  let startYear = today.getUTCFullYear();
+  if (today.getUTCMonth() + 1 < bm || (today.getUTCMonth() + 1 === bm && today.getUTCDate() < bd)) startYear -= 1;
+  startYear += yearOffset;
+  const yearStart = `${startYear}-${p2(bm)}-${p2(bd)}`;
+  const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
+
+  // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v2`;
+  const cached = yearRankCache.get(cacheKey);
+  if (cached) return cached;
+
+  // Day stars: the majority-star law (same as the month view always used), Moon sign at noon UT.
+  const { majorityDayStarIdx } = await import("./panchang/crown.js");
+  const { planetLongitudeSpeed, localToUtc } = await import("./birthchart/calculator.js");
+  const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
+  const NAKSPAN = 360 / 27;
+  const days: Array<{ date: string; dayNakIdx: number; dayMoonSignIdx: number }> = [];
+  for (let ms = Date.parse(yearStart + "T00:00:00Z"); ms < Date.parse(yearEnd + "T00:00:00Z"); ms += 86400000) {
+    const date = new Date(ms).toISOString().slice(0, 10);
+    const { longitude: moonLon } = await planetLongitudeSpeed("moon", date, 12);
+    const maj = await majorityDayStarIdx(date);
+    days.push({
+      date,
+      dayNakIdx: maj ?? Math.floor((((moonLon % 360) + 360) % 360) / NAKSPAN),
+      dayMoonSignIdx: si(moonLon),
+    });
+  }
+
+  // Windows + chains from the stored convergence timeline; live-computed when a profile
+  // hasn't stored one yet (no empty state on day one).
+  const { getDb } = await import("./db.js");
+  const { profileConvergence } = await import("../drizzle/schema.js");
+  const { eq: eqOp } = await import("drizzle-orm");
+  let spans: Array<{ startMs: number; endMs: number; maha: string; antar: string; pratyantar: string; themes: any }> = [];
+  try {
+    const db = await getDb();
+    const rows = db ? await db.select().from(profileConvergence).where(eqOp(profileConvergence.profileId, profile.id)) : [];
+    spans = rows.map((r: any) => ({
+      startMs: new Date(r.startAt).getTime(), endMs: new Date(r.endAt).getTime(),
+      maha: r.maha, antar: r.antar, pratyantar: r.pratyantar, themes: JSON.parse(r.themes),
+    }));
+  } catch { /* table may not exist yet — fall through to live compute */ }
+  if (!spans.length && moonBody && (moonBody as any).longitude != null && (profile as any).birthTime) {
+    const { computeConvergenceTimeline } = await import("./vedic/convergence.js");
+    const lonBy: Record<string, number> = {};
+    for (const b of bodies) if ((b as any).longitude != null) lonBy[b.planet] = parseFloat(String((b as any).longitude));
+    const lagIdx = ZOD.indexOf((profile as any).lagnaSign ?? "");
+    if (Object.keys(lonBy).length >= 9 && lagIdx >= 0) {
+      const birthUtc = localToUtc((profile as any).birthDate, (profile as any).birthTime, (profile as any).birthTimezone || "UTC");
+      spans = computeConvergenceTimeline({ lonBy, lagnaLon: lagIdx * 30 + parseFloat((profile as any).ascendantDegree ?? "15"), birthUtcMs: birthUtc.getTime() })
+        .map((s) => ({ startMs: s.startMs, endMs: s.endMs, maha: s.maha, antar: s.antar, pratyantar: s.pratyantar, themes: s.themes }));
+    }
+  }
+  // Merge consecutive lit spans per theme into windows (open → close).
+  const themesSeen = new Set<string>();
+  for (const s of spans) for (const [k, t] of Object.entries(s.themes)) if ((t as any).lit) themesSeen.add(k);
+  const windows: Array<{ theme: string; startMs: number; endMs: number }> = [];
+  for (const th of Array.from(themesSeen)) {
+    let open: { theme: string; startMs: number; endMs: number } | null = null;
+    for (const s of spans) {
+      const lit = (s.themes as any)[th]?.lit;
+      if (lit && !open) open = { theme: th, startMs: s.startMs, endMs: s.endMs };
+      else if (lit && open) open.endMs = s.endMs;
+      else if (!lit && open) { windows.push(open); open = null; }
+    }
+    if (open) windows.push(open);
+  }
+  const chains = spans.map((s) => ({ startMs: s.startMs, endMs: s.endMs, label: `${s.maha}›${s.antar}›${s.pratyantar}` }));
+
+  const { rankYear } = await import("./vedic/year-rank.js");
+  const result = {
+    yearStart, yearEnd, natalMoonSignIdx, birthNakIdx,
+    ...rankYear({ birthNakIdx, natalMoonSignIdx, days, windows, chains }),
+  };
+  yearRankCache.set(cacheKey, result);
+  return result;
+}
 
 export const appRouter = router({
   system: systemRouter,
@@ -1617,167 +1717,91 @@ export const appRouter = router({
 
   // ── CROWN DAYS — the personal macro layer: which days are YOURS this month ──
   crown: router({
+    /** THE calendar's marks — crown octagrams and caution rings — now sourced from the SAME
+     *  ranked solar year as everything else (David 2026-07-15: "this is the crown day calendar"
+     *  → "one calendar" → "i want the marks to reflect the calendar"). The old crownDay
+     *  composite (an invented scoring blend flagged in REBUILD_MAP) is retired from this
+     *  surface: a CROWN is one of the year's twelve crowning days; a CAUTION is a loss-star
+     *  day at full force. `why` speaks plain lived language — never the machinery. */
     forMonth: protectedProcedure
       .input(z.object({ year: z.number().int(), month: z.number().int().min(1).max(12) }))
       .query(async ({ ctx, input }) => {
-        const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+        const { getActiveProfile } = await import("./routers/profiles.js");
         const profile = await getActiveProfile(ctx.user.id);
-        if (!profile || !(profile as any).lagnaSign) return null;
-        const bodies = await getProfileNatalBodies(profile.id);
-        const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+        if (!profile || !(profile as any).lagnaSign || !(profile as any).birthDate) return null;
         const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-        let moonNak: string | null = null, natalMoonSign: string | null = null;
-        for (const b of bodies) if (b.planet === "Moon") { moonNak = b.nakshatra ?? null; natalMoonSign = b.sign ?? null; }
-        const birthNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(moonNak ?? "").toLowerCase());
-        const natalMoonSignIdx = ZOD.indexOf(natalMoonSign ?? "");
         const lagnaSignIdx = ZOD.indexOf((profile as any).lagnaSign);
-        if (birthNakIdx < 0 || natalMoonSignIdx < 0 || lagnaSignIdx < 0) return null;
+        if (lagnaSignIdx < 0) return null;
 
-        const { calculateBirthChart } = await import("./birthchart/calculator.js");
-        const { crownDay, natalAshtakavarga, tarabala, chandrabala } = await import("./panchang/crown.js");
+        // Which solar year (birthday→birthday) each viewed date belongs to, relative to today's.
+        const [, bm, bd] = String((profile as any).birthDate).split("-").map(Number);
+        const solarStartYear = (y: number, m: number, d: number) =>
+          (m < bm || (m === bm && d < bd)) ? y - 1 : y;
+        const today = new Date();
+        const todaySolar = solarStartYear(today.getUTCFullYear(), today.getUTCMonth() + 1, today.getUTCDate());
+
         const { interactionBaseMode, applyWeatherGate } = await import("./panchang/interpreter.js");
-        const natalSignIdx: Record<string, number> = {};
-        for (const b of bodies) { const i = ZOD.indexOf(b.sign ?? ""); if (i >= 0) natalSignIdx[b.planet] = i; }
-        const natalAv = natalAshtakavarga(natalSignIdx, lagnaSignIdx);
-        const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
+        const { planetLongitudeSpeed } = await import("./birthchart/calculator.js");
         const p2 = (n: number) => String(n).padStart(2, "0");
         const daysInMonth = new Date(Date.UTC(input.year, input.month, 0)).getUTCDate();
-        const ORD = ["", "1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
+
+        // The month can straddle two solar years (the birthday month) — fetch both, cached.
+        const offsets = new Set<number>();
+        for (const d of [1, daysInMonth]) offsets.add(solarStartYear(input.year, input.month, d) - todaySolar);
+        const years = new Map<number, any>();
+        for (const off of Array.from(offsets)) {
+          if (Math.abs(off) <= 1) years.set(off, await rankedSolarYearFor(ctx.user.id, off));
+        }
+
         const days: any[] = [];
         for (let d = 1; d <= daysInMonth; d++) {
           const date = `${input.year}-${p2(input.month)}-${p2(d)}`;
+          const off = solarStartYear(input.year, input.month, d) - todaySolar;
+          const yr = years.get(off);
+          const day = yr?.days?.find((x: any) => x.date === date);
+          if (!day) { days.push({ date, rating: "neutral", why: "" }); continue; }
+
+          const isCrown = yr.summary.topDates.includes(date);
+          const isQuiet = day.tara.taraNum === 7 && day.tara.cycle === 1 && day.tara.quality === "bad";
+          const rating = isCrown ? "crown" : isQuiet ? "caution" : "neutral";
+          const openLine = day.plain.windows.length ? ` Open now: ${day.plain.windows.join(", ")}.` : "";
+          const why = isCrown
+            ? `A ${day.plain.day.toLowerCase()} day — ${day.plain.feel}, and ${day.plain.moon}. One of the twelve crowning days of your year.${openLine}`
+            : isQuiet
+            ? "A loss day at full force — nothing forward, nothing new. Contain."
+            : "";
+
+          // Day mode (unchanged machinery) — its Moon inputs now come from the same ranked day,
+          // so the mode and the mark can never tell two stories.
+          let mode: string | undefined;
           try {
-            const ch: any = await calculateBirthChart(date, "12:00", 0, 0, "UTC");
-            const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
-            const { majorityDayStarIdx } = await import("./panchang/crown.js");
-            const majIdx = await majorityDayStarIdx(date);
-            const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined, ashtakavarga: natalAv });
-            const why = cd.rating === "crown"
-              ? `${cd.tarabala.name} tara · Moon in your ${ORD[cd.chandrabala.house]} house · a clean day — one of your strongest this month.`
-              : cd.rating === "caution"
-              ? `${cd.tarabala.name} tara · Moon in your ${ORD[cd.chandrabala.house]} house — friction; keep the stakes low.`
-              : "";
-            // The interaction MODE (same as the day card) off this same chart, gated to match.
-            const dayMoonSignIdx = si(ch.moon.longitude);
-            const dayMoonNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(ch.moon.nakshatra ?? "").toLowerCase());
-            const tb = tarabala(birthNakIdx, dayMoonNakIdx);
-            const cb = chandrabala(natalMoonSignIdx, dayMoonSignIdx);
+            const merc = await planetLongitudeSpeed("mercury", date, 12);
+            // The day Moon's sign falls out of the chandra house + the natal Moon (one source).
+            const dayMoonSignIdx = (yr.natalMoonSignIdx + day.chandra.house - 1) % 12;
             const rawMode = interactionBaseMode({
-              lagnaSignIdx, natalMoonSignIdx, dayMoonSignIdx,
-              moonStrong: tb.favorable && cb.favorable,
-              moonWeak: tb.quality === "bad" || !cb.favorable,
-              mercuryRetro: !!ch.mercury.isRetrograde,
-              mercuryNearStation: Math.abs(ch.mercury.longitudeSpeed ?? 99) < 0.15,
+              lagnaSignIdx,
+              natalMoonSignIdx: yr.natalMoonSignIdx,
+              dayMoonSignIdx,
+              moonStrong: day.tara.favorable && day.chandra.favorable,
+              moonWeak: day.tara.quality === "bad" || !day.chandra.favorable,
+              mercuryRetro: merc.speed < 0,
+              mercuryNearStation: Math.abs(merc.speed) < 0.15,
             }).finalMode;
-            const mode = applyWeatherGate(rawMode, cd.rating).finalMode;
-            days.push({ date, rating: cd.rating, why, mode });
-          } catch { days.push({ date, rating: "neutral", why: "" }); }
+            mode = applyWeatherGate(rawMode, rating).finalMode;
+          } catch { /* mode optional */ }
+          days.push({ date, rating, why, mode });
         }
         return { days };
       }),
 
-    /** The RANKED SOLAR YEAR — David's crown-day calendar, whole-year edition (approved
-     *  2026-07-15: "this is the crown day calendar"). Every day birthday→birthday ranked by
-     *  the book's ladder (vedic/year-rank.ts): tara class→rung (with his parihara softening),
-     *  chandra tie-break, convergence windows + dasha chain as context. ADMIN-GATED v1 —
-     *  exposure/monetization is David's later call. Cached in-memory per (profile, year,
-     *  engine) — the walk computes 366 day-stars. */
+    /** The full ranked solar year (the /year overview) — same source as forMonth. ADMIN v1. */
     forYear: protectedProcedure
       .input(z.object({ yearOffset: z.number().int().min(-1).max(1).default(0) }).optional())
       .query(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Not available yet." });
-        const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
-        const profile = await getActiveProfile(ctx.user.id);
-        if (!profile || !(profile as any).birthDate) return null;
-        const bodies = await getProfileNatalBodies(profile.id);
-        const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
-        const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-        const moonBody = bodies.find((b: any) => b.planet === "Moon");
-        const birthNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(moonBody?.nakshatra ?? "").toLowerCase());
-        const natalMoonSignIdx = ZOD.indexOf(moonBody?.sign ?? "");
-        if (birthNakIdx < 0 || natalMoonSignIdx < 0) return null;
-
-        // Solar year containing today (or offset by whole years): most recent birthday → next.
-        const p2 = (n: number) => String(n).padStart(2, "0");
-        const [, bm, bd] = String((profile as any).birthDate).split("-").map(Number);
-        const today = new Date();
-        let startYear = today.getUTCFullYear();
-        if (today.getUTCMonth() + 1 < bm || (today.getUTCMonth() + 1 === bm && today.getUTCDate() < bd)) startYear -= 1;
-        startYear += input?.yearOffset ?? 0;
-        const yearStart = `${startYear}-${p2(bm)}-${p2(bd)}`;
-        const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
-
-        // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-        const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v1`;
-        const cached = yearRankCache.get(cacheKey);
-        if (cached) return cached;
-
-        // Day stars: the majority-star law the month calendar uses, day Moon sign at noon UTC.
-        const { majorityDayStarIdx } = await import("./panchang/crown.js");
-        const { planetLongitudeSpeed, localToUtc } = await import("./birthchart/calculator.js");
-        const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
-        const NAKSPAN = 360 / 27;
-        const days: Array<{ date: string; dayNakIdx: number; dayMoonSignIdx: number }> = [];
-        for (let ms = Date.parse(yearStart + "T00:00:00Z"); ms < Date.parse(yearEnd + "T00:00:00Z"); ms += 86400000) {
-          const date = new Date(ms).toISOString().slice(0, 10);
-          const { longitude: moonLon } = await planetLongitudeSpeed("moon", date, 12);
-          const maj = await majorityDayStarIdx(date);
-          days.push({
-            date,
-            dayNakIdx: maj ?? Math.floor((((moonLon % 360) + 360) % 360) / NAKSPAN),
-            dayMoonSignIdx: si(moonLon),
-          });
-        }
-
-        // Windows + chains from the stored convergence timeline; live-computed when a profile
-        // hasn't stored one yet (no empty state on day one).
-        const { getDb } = await import("./db.js");
-        const { profileConvergence } = await import("../drizzle/schema.js");
-        const { eq } = await import("drizzle-orm");
-        let spans: Array<{ startMs: number; endMs: number; maha: string; antar: string; pratyantar: string; themes: any }> = [];
-        try {
-          const db = await getDb();
-          const rows = db ? await db.select().from(profileConvergence).where(eq(profileConvergence.profileId, profile.id)) : [];
-          spans = rows.map((r: any) => ({
-            startMs: new Date(r.startAt).getTime(), endMs: new Date(r.endAt).getTime(),
-            maha: r.maha, antar: r.antar, pratyantar: r.pratyantar, themes: JSON.parse(r.themes),
-          }));
-        } catch { /* table may not exist yet — fall through to live compute */ }
-        if (!spans.length && moonBody && (moonBody as any).longitude != null && (profile as any).birthTime) {
-          const { computeConvergenceTimeline } = await import("./vedic/convergence.js");
-          const lonBy: Record<string, number> = {};
-          for (const b of bodies) if ((b as any).longitude != null) lonBy[b.planet] = parseFloat(String((b as any).longitude));
-          const lagIdx = ZOD.indexOf((profile as any).lagnaSign ?? "");
-          if (Object.keys(lonBy).length >= 9 && lagIdx >= 0) {
-            const birthUtc = localToUtc((profile as any).birthDate, (profile as any).birthTime, (profile as any).birthTimezone || "UTC");
-            spans = computeConvergenceTimeline({ lonBy, lagnaLon: lagIdx * 30 + parseFloat((profile as any).ascendantDegree ?? "15"), birthUtcMs: birthUtc.getTime() })
-              .map((s) => ({ startMs: s.startMs, endMs: s.endMs, maha: s.maha, antar: s.antar, pratyantar: s.pratyantar, themes: s.themes }));
-          }
-        }
-        // Merge consecutive lit spans per theme into windows (open → close).
-        const themesSeen = new Set<string>();
-        for (const s of spans) for (const [k, t] of Object.entries(s.themes)) if ((t as any).lit) themesSeen.add(k);
-        const windows: Array<{ theme: string; startMs: number; endMs: number }> = [];
-        for (const th of Array.from(themesSeen)) {
-          let open: { theme: string; startMs: number; endMs: number } | null = null;
-          for (const s of spans) {
-            const lit = (s.themes as any)[th]?.lit;
-            if (lit && !open) open = { theme: th, startMs: s.startMs, endMs: s.endMs };
-            else if (lit && open) open.endMs = s.endMs;
-            else if (!lit && open) { windows.push(open); open = null; }
-          }
-          if (open) windows.push(open);
-        }
-        const chains = spans.map((s) => ({ startMs: s.startMs, endMs: s.endMs, label: `${s.maha}›${s.antar}›${s.pratyantar}` }));
-
-        const { rankYear } = await import("./vedic/year-rank.js");
-        const result = {
-          yearStart, yearEnd,
-          ...rankYear({ birthNakIdx, natalMoonSignIdx, days, windows, chains }),
-        };
-        yearRankCache.set(cacheKey, result);
-        return result;
+        return rankedSolarYearFor(ctx.user.id, input?.yearOffset ?? 0);
       }),
+
 
     /** Natal dignity of each graha for the active profile — WITH neecha-bhanga cancellation, so a
      *  debilitated-but-cancelled planet is never read as flatly weak (David 2026-07-12). */

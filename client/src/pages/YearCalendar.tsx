@@ -31,6 +31,7 @@ type RankedDay = {
   tara: { taraNum: number; cycle: number; name: string; quality: "good" | "bad" | "mixed"; favorable: boolean };
   chandra: { house: number; quality: string; favorable: boolean };
   windows: string[]; chain: string;
+  plain: { day: string; feel: string; moon: string; windows: string[] };
 };
 
 const fmtDay = (s: string) => {
@@ -76,8 +77,8 @@ export default function YearCalendar() {
         <h1 className="font-serif text-xl">Your year, ranked</h1>
         {data && (
           <p className="mt-1 text-sm text-muted-foreground">
-            {fmtDay(data.yearStart)} → {fmtDay(data.yearEnd)} · every day on the ladder from your birth star ·{" "}
-            {data.summary.favorable} favorable · {data.summary.softened} softened · {data.summary.hostile} first-round hostile
+            {fmtDay(data.yearStart)} → {fmtDay(data.yearEnd)} · every day graded from your birth star ·{" "}
+            {data.summary.favorable} favorable · {data.summary.softened} softened · {data.summary.hostile} hard days
           </p>
         )}
 
@@ -92,7 +93,7 @@ export default function YearCalendar() {
           <>
             {/* Legend */}
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-              {[["#b8860b", "Parama Mitra"], ["#c69a2e", "Mitra"], ["#d4af55", "Sadhaka"], ["#e0c47e", "Kshema"], ["#ead6a3", "Sampat"], ["#eee6d4", "Janma / softened"], ["#d9a49b", "Vipat"], ["#c97f73", "Pratyak"], ["#a94f42", "Naidhana"]].map(([c, n]) => (
+              {[["#b8860b", "Great friend"], ["#c69a2e", "Friend"], ["#d4af55", "Achievement"], ["#e0c47e", "Well-being"], ["#ead6a3", "Prosperity"], ["#eee6d4", "Your star / softened"], ["#d9a49b", "Friction"], ["#c97f73", "Pushback"], ["#a94f42", "Loss"]].map(([c, n]) => (
                 <span key={n} className="inline-flex items-center gap-1">
                   <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c }} /> {n}
                 </span>
@@ -122,8 +123,7 @@ export default function YearCalendar() {
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
                         const [bg, ink] = d.tara.quality === "good" ? GOOD_BG[d.tara.taraNum]
                           : d.tara.quality === "bad" ? BAD_BG[d.tara.taraNum] : MIXED_BG;
-                        const softened = d.tara.quality === "mixed" && d.tara.taraNum !== 1;
-                        const tip = `#${d.rank} of ${data.days.length} · ${d.tara.name}${softened ? ` (softened, round ${d.tara.cycle})` : ""} · Chandra ${d.chandra.quality} (H${d.chandra.house})${d.chain ? ` · ${d.chain}` : ""}${d.windows.length ? ` · open: ${d.windows.join(", ")}` : ""}`;
+                        const tip = `#${d.rank} of ${data.days.length} · ${d.plain.day} — ${d.plain.feel} · ${d.plain.moon}${d.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}`;
                         return (
                           <div key={ds} title={tip}
                             className={`relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums ${ds === todayStr ? "ring-2 ring-[#2b2723]" : ""}`}
@@ -150,7 +150,7 @@ export default function YearCalendar() {
                     <li key={ds} className="flex items-baseline gap-2">
                       <span className="w-8 tabular-nums text-[#9a917f]">#{i + 1}</span>
                       <span className="tabular-nums">{fmtDay(ds)}</span>
-                      <span className="text-xs text-[#9a917f]">{d?.tara.name}{d?.windows.length ? ` · ${d.windows.join(", ")}` : ""}</span>
+                      <span className="text-xs text-[#9a917f]">{d?.plain.day}{d?.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}</span>
                     </li>
                   );
                 })}
@@ -160,12 +160,13 @@ export default function YearCalendar() {
             <details className="mt-3 rounded-xl border border-[#ddd3bf] bg-[#f8f4ea] p-3 text-[#2b2723]">
               <summary className="cursor-pointer font-serif text-sm">Days to keep quiet ({(data.summary.quietDates as string[]).length})</summary>
               <p className="mt-2 text-sm">{(data.summary.quietDates as string[]).map(fmtDay).join(" · ")}</p>
-              <p className="mt-2 text-xs text-[#9a917f]">First-round Naidhana — the ladder's bottom rung at full force. Nothing forward, nothing new.</p>
+              <p className="mt-2 text-xs text-[#9a917f]">Loss-star days at full force — the bottom of your ranking. Nothing forward, nothing new.</p>
             </details>
 
             <p className="mt-4 text-xs text-muted-foreground">
-              The books' instruments only — the nine-fold Tara ladder from your birth star (ranked by class, then rung),
-              Chandra Bala as tie-break, your convergence windows as context. No weights.
+              Every day is graded by how the day's Moon-star sits from your birth star — nine kinds of day,
+              from great friend down to loss — with the Moon's position from yours breaking ties, and your
+              open windows shown for context. The tradition's own method, no invented scoring.
             </p>
           </>
         )}
