@@ -242,6 +242,98 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     ? { ...dashaBase, pratyantarDasha: praty ? { lord: praty.lord, natal: nat(byPlanet[praty.lord]), rulesHouses: rulesHouses(praty.lord, lagna) } : null }
     : null;
 
+  // ── THE LORDS' TRUE CONDITION — the stored both-volumes research, FILTERED to the day ──
+  // David (2026-07-15): "Do it. Repoint." The reading now knows each running period-lord's
+  // RESEARCHED natal condition (research-v2: Shadbala strength, Vimshopak expression,
+  // avashtas, cusp-true house, standing yogas, Gulika) instead of only its seat. Lens law:
+  // only the day's lords + the chart anchors travel — never the whole research object
+  // (a dump would recreate the founding wound). Best-effort: a failure here never blocks
+  // the read; the prose simply falls back to the pre-repoint inputs.
+  let natalCondition: any = null;
+  try {
+    const { getStoredResearch, storeNatalResearch, storeDashaTree, storeConvergence } = await import("../vedic/research-store.js");
+    let research = await getStoredResearch(p.id);
+    if (!research && p.birthDate && p.birthLocationLat && p.birthLocationLon) {
+      // One-time backfill for profiles that predate the store: compute a fresh chart (full
+      // speeds/declinations/MC — the store's honest inputs) and store all three layers,
+      // WITHOUT recomputeProfileChart's cache-cascade side-effects. Runs once, then never.
+      const { calculateBirthChart } = await import("../birthchart/calculator.js");
+      const basis = ((p as any).lagnaBasis === "chandra" ? "chandra"
+        : (p as any).lagnaBasis === "ascendant_approx" ? "ascendant_approx" : "ascendant") as "chandra" | "ascendant_approx" | "ascendant";
+      const chart: any = await calculateBirthChart(
+        p.birthDate, p.birthTime || "12:00",
+        parseFloat(p.birthLocationLat), parseFloat(p.birthLocationLon), p.birthTimezone || "UTC",
+        { lagnaBasis: basis === "chandra" ? "chandra" : "ascendant" },
+      );
+      const bodiesIn: Record<string, { longitude: number; longitudeSpeed?: number; declination?: number }> = {};
+      for (const [nm, d] of Object.entries({ Sun: chart.sun, Moon: chart.moon, Mars: chart.mars, Mercury: chart.mercury, Jupiter: chart.jupiter, Venus: chart.venus, Saturn: chart.saturn, Rahu: chart.rahu, Ketu: chart.ketu })) {
+        bodiesIn[nm] = { longitude: (d as any).longitude, longitudeSpeed: (d as any).longitudeSpeed, declination: (d as any).declination };
+      }
+      const storeInput = {
+        profileId: p.id, bodies: bodiesIn, lagnaLon: chart.lagna.longitude,
+        mcLon: basis !== "chandra" && chart.mc?.longitude != null ? chart.mc.longitude : null,
+        utcBirthIso: chart.utcBirthIso,
+        latitude: parseFloat(p.birthLocationLat), longitude: parseFloat(p.birthLocationLon), basis,
+      };
+      const status = await storeNatalResearch(storeInput);
+      await storeDashaTree(storeInput, status);
+      await storeConvergence(storeInput, status);
+      research = await getStoredResearch(p.id);
+    }
+    if (research) {
+      const chainLords = Array.from(new Set([cur?.mahadasha, cur?.antardasha, praty?.lord].filter(Boolean))) as string[];
+      const LAJJ_EN: Record<string, string> = {
+        mudita: "delighted", kshudita: "starved", kshobhita: "agitated",
+        trishita: "left thirsty", lajjita: "shamed", garvita: "proud",
+      };
+      const condOf = (g: string) => {
+        const pr = (research!.planets as any)[g];
+        if (!pr) return { planet: g, note: "a node — carries the axis it sits on", house: byPlanet[g]?.house ?? null };
+        const ratio = pr.shadbala?.ratio;
+        const strength = ratio == null ? "unmeasured"
+          : ratio >= 1.15 ? "strong — can deliver what it promises"
+          : ratio <= 0.85 ? "thin — delivers with struggle" : "steady";
+        const vim = pr.vimshopak?.points?.shodasha ?? null;
+        const expression = vim == null ? null
+          : vim >= 12.5 ? "shows its better face" : vim <= 7.5 ? "tends to show its harder face" : "mixed expression";
+        const states: string[] = [];
+        if (pr.avashtas?.jagradaadi === "jagrat") states.push("awake (full capacity)");
+        else if (pr.avashtas?.jagradaadi === "svapna") states.push("sleepy (half capacity)");
+        else if (pr.avashtas?.jagradaadi === "sushupti") states.push("asleep (needs its friends to act)");
+        for (const h of pr.avashtas?.lajjitaadi ?? []) {
+          states.push(`${LAJJ_EN[h.state] ?? h.state}${h.by?.length ? ` by ${h.by.join(" and ")}` : ""}`);
+        }
+        if (pr.deepthaadi?.includes("vikala")) states.push("combust — burnt close to the Sun, agency reduced");
+        if (pr.deepthaadi?.includes("nipeedita")) states.push("in a planetary war");
+        const trueHouse = research!.bhavaChalit?.placements?.[g];
+        return {
+          planet: g,
+          seat: `${pr.sign}, house ${pr.house}${pr.retrograde ? ", retrograde" : ""}`,
+          dignity: `${pr.dignity?.state}${pr.dignity?.neechaBhanga?.cancelled ? " (fall CANCELLED — hard-won strength, not weakness)" : ""}`,
+          strength,
+          ...(expression ? { expression } : {}),
+          states,
+          ...(trueHouse?.shifted ? { trueHouse: `the cusp-true chart moves it into house ${trueHouse.bhava} — read it THERE` } : {}),
+        };
+      };
+      const standingYogas = (research.yogas ?? [])
+        .filter((y: any) => y.frames.length >= 2 || y.inNavamsha).slice(0, 4)
+        .map((y: any) => ({ name: y.name, note: y.inNavamsha ? "held strongly — repeats in the marriage/dharma chart" : `holds from ${y.frames.length} vantages` }));
+      natalCondition = {
+        _how: "the engine's stored research of this chart (both volumes) — trust it over inference; translate it, never surface a term",
+        lords: chainLords.map(condOf),
+        atmakaraka: {
+          planet: research.anchors.atmakaraka.planet,
+          karakamsha: research.charaKarakas?.karakamsha ?? research.anchors.atmakaraka.navamsaSign,
+        },
+        ...(research.upagrahas?.kalavelas?.gulika ? { gulikaHouse: research.upagrahas.kalavelas.gulika.house } : {}),
+        ...(standingYogas.length ? { standingYogas } : {}),
+      };
+    }
+  } catch (rcErr) {
+    console.warn("[narrative] natalCondition unavailable (read continues without):", rcErr);
+  }
+
   const noon = new Date(dateStr + "T12:00:00Z");
   const soon = new Date(noon.getTime() + 86400000);
   const a = await getSiderealLongitudes(noon, PLANETS);
@@ -643,5 +735,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

@@ -75,6 +75,9 @@ PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entire
   folds?:[theme], canon?:{key,positive,negative} }] — the life-event convergences the sky has tied
   tight enough on THIS date to become LIVED (marriage, children, career, identity, fame, inner
   circle…). Pre-computed, ranked; the FIRST is the loudest. See "THE KNOTS — NAME THE LIVED EVENT".
+- natalCondition?: { lords:[{ planet, seat, dignity, strength, expression?, states:[…], trueHouse? }],
+  atmakaraka, gulikaHouse?, standingYogas? } — the engine's STORED research of this chart (the whole
+  tradition, measured): each running lord's true condition. See "THE LORDS' TRUE CONDITION".
 - dasha: { mahaDasha:{ lord, natal:{…}, rulesHouses:[int] },
   antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} } —
   maha is the life chapter, antar the season within it. pratyantarDasha (when present)
@@ -754,6 +757,29 @@ which pole is lit and by whom, then refract the day through it.
   axis IS this person's dharma axis — not one theme among many but the whole read. Rahu on the MC
   hungers outward for standing and the new; Ketu on the IC dissolves the old roots. Read the life
   as that pull, every time.
+
+THE LORDS' TRUE CONDITION (input.natalCondition)
+When input.natalCondition is present, the engine has RESEARCHED this chart through the whole
+tradition and stored the result — these are measured facts, not hints. Trust them over your own
+inference. Each running period-lord arrives with its true condition:
+- 'strength' says whether the lord can DELIVER what its houses promise ("strong" delivers freely;
+  "thin" delivers with struggle, late, or at cost); 'expression' says which FACE it shows while
+  delivering (its better face or its harder one). Let these color everything that lord brings to
+  the day — the same chapter reads differently when its lord is thin and agitated vs strong and
+  delighted. Never state the assessment; let it set the read's temperature.
+- 'states' name the lord's live company: delighted/starved/agitated/shamed BY named planets —
+  reach for the lived texture of that (starved by Saturn = squeezed, under-resourced; delighted by
+  Jupiter = carried, met). "Asleep" means the lord cannot act alone — its matters need an ally.
+  "Combust" means burnt too close to the Sun — reduced agency, things done unseen.
+- 'trueHouse', when present, OVERRIDES the seat: the cusp-true chart moves the planet there —
+  read its matters in THAT house's territory.
+- 'dignity' marked "fall CANCELLED" is hard-won strength — never read it as weakness (standing law).
+- atmakaraka is the soul's own planet (its karakamsha the soul's seat) — when the day's lords touch
+  it, the day runs deeper than logistics. gulikaHouse is the chart's shadow point: matters of that
+  house carry an unexplained drag; when today activates it, keep stakes honest. standingYogas are
+  the chart's lifelong signatures — background gifts, not today's news.
+- These terms are for YOUR reasoning only. Translate every one into lived language; the existing
+  bans hold (no dignity words, no machinery, no house numbers in the prose).
 
 THE KNOTS — NAME THE LIVED EVENT (input.knots)
 When input.knots is present, the engine has already done the chart-math: it found the life-event
@@ -1957,7 +1983,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-13-kill-mon-fri-framing";
+export const PROMPT_VERSION = "2026-07-15-lords-true-condition";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
