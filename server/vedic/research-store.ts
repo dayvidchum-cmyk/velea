@@ -247,14 +247,19 @@ export async function storeConvergence(input: StoreChartInput, researchStatus?: 
   }
 }
 
-/** The stored research for a profile (parsed), or null. */
+/** The stored research for a profile (parsed), or null. Rows stored by an OLDER engine
+ *  version are treated as a miss — the caller's backfill then recomputes at the current
+ *  version (audit 2026-07-15: v1 rows lacked Vimshopak/Deepthaadi and would otherwise
+ *  serve a thin natalCondition forever). */
 export async function getStoredResearch(profileId: number): Promise<NatalResearch | null> {
   const db = await getDb();
   if (!db) return null;
   try {
     const rows = await db.select().from(profileResearch)
       .where(eq(profileResearch.profileId, profileId)).limit(1);
-    return rows[0] ? (JSON.parse(rows[0].research) as NatalResearch) : null;
+    if (!rows[0]) return null;
+    if (rows[0].engineVersion !== RESEARCH_ENGINE_VERSION) return null; // outdated = miss
+    return JSON.parse(rows[0].research) as NatalResearch;
   } catch (err) {
     if (isMissingTable(err)) return null;
     throw err;

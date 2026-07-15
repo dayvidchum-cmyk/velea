@@ -341,7 +341,7 @@ export default function Planner() {
     };
   }, [crownTip?.date]);
   const todayTaskMode = todayPanchang
-    ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
+    ? PANCHANG_TO_TASK_MODE[(modeByDate.get(toDateStr(today)) ?? todayPanchang.mode) as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
   const { data: allTasks = [], isSuccess: tasksLoaded } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
 
@@ -577,7 +577,7 @@ export default function Planner() {
   }, [monthPanchang]);
 
   const selectedTaskMode = selectedPanchang
-    ? PANCHANG_TO_TASK_MODE[selectedPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
+    ? PANCHANG_TO_TASK_MODE[(modeByDate.get(selectedDate) ?? selectedPanchang.mode) as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
 
   const isFlexDay = (selectedPanchang?.mode as string) === "Flex" || (selectedPanchang?.mode as string) === "FLEX";
@@ -703,13 +703,13 @@ export default function Planner() {
   const nextMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
 
   const todayTaskModeForGradient = todayPanchang
-    ? PANCHANG_TO_TASK_MODE[todayPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
+    ? PANCHANG_TO_TASK_MODE[(modeByDate.get(toDateStr(today)) ?? todayPanchang.mode) as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
   const modeRgba = todayTaskModeForGradient ? MODE_RGBA[todayTaskModeForGradient] : MODE_RGBA.Build;
 
   // Hero gradient for selected date
   const selectedTaskModeForHero = selectedPanchang
-    ? PANCHANG_TO_TASK_MODE[selectedPanchang.mode as keyof typeof PANCHANG_TO_TASK_MODE]
+    ? PANCHANG_TO_TASK_MODE[(modeByDate.get(selectedDate) ?? selectedPanchang.mode) as keyof typeof PANCHANG_TO_TASK_MODE]
     : undefined;
   const heroGradient = selectedTaskModeForHero === 'Action'
     ? 'var(--velea-action-gradient)'
@@ -877,8 +877,9 @@ export default function Planner() {
               );
             })()}
 
-            {/* The day turns — literal star switch flipped (or will flip) the mode mid-day */}
-            {(selectedPanchang as any).turnsAtNote && (
+            {/* The day turns — legacy note; it names the RETIRED modes, so it only renders
+                when no character came back (audit 2026-07-15). */}
+            {!selectedCharacter && (selectedPanchang as any).turnsAtNote && (
               <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.85rem)', fontStyle: 'italic', color: 'rgba(255,255,255,0.85)', marginTop: '-0.3rem', marginBottom: '0.85rem' }}>
                 {(selectedPanchang as any).turnsAtNote}
               </p>
