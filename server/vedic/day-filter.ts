@@ -146,3 +146,30 @@ export function bridgeMode(c: DayCharacter): BridgeMode {
   if (c.nature === "fixed") return "Build";
   return "Selective"; // tender, sharp, fierce, mixed — the careful kinds
 }
+
+// ── THE SIX MOVEMENTS — David's day-mode words, canon-derived (2026-07-15) ──────────────────
+// His vocabulary returns, re-grounded: the state derives from the classical character + the
+// native's ladder, never from the retired mode tables. Order matters — the personal trumps
+// the collective, the best trumps everything but stop.
+export type Movement = "golden" | "action" | "selective" | "build" | "restraint" | "caution";
+export const MOVEMENT_WORD: Record<Movement, string> = {
+  golden: "Golden Day",   // the best — for anything
+  action: "Action",       // outward movement, full go
+  selective: "Selective", // tend, but finish something
+  build: "Build",         // tend what's already present
+  restraint: "Restraint", // tend, with extreme caution
+  caution: "Caution",     // stop. stop. stop.
+};
+
+export function movementOf(
+  c: DayCharacter,
+  tara: { quality: "good" | "bad" | "mixed"; taraNum: number; cycle: number } | null,
+  isCrown: boolean,
+): Movement {
+  if (tara && tara.quality === "bad" && tara.taraNum === 7 && tara.cycle === 1) return "caution";
+  if (isCrown) return "golden";
+  if (tara && tara.quality === "bad") return "restraint";
+  if (c.family === "purna" || c.vetoes.length) return "selective";
+  if (tara?.quality === "good" && (c.nature === "movable" || c.nature === "swift")) return "action";
+  return "build";
+}

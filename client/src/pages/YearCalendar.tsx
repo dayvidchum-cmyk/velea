@@ -16,10 +16,18 @@ import { trpc } from "@/lib/trpc";
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 
-// THREE FLAT STATES (David 2026-07-15): green = go, rose = caution, bare paper between.
+// THE SIX MOVEMENTS (David 2026-07-15) — his words, his colors, same law as the month view.
+const MOVEMENT_BG: Record<string, [string, string]> = {
+  golden:    ["oklch(0.70 0.18 150)", "#0E2A18"],
+  action:    ["#90a989", "#243320"],
+  selective: ["#00687a", "#E8F1F2"],
+  build:     ["#D4AF37", "#3a2f10"],
+  restraint: ["#d57176", "#3A1518"],
+  caution:   ["#cc2f2f", "#ffffff"],
+};
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
-const BETWEEN: [string, string] = ["#00687a", "#E8F1F2"]; // the between — David's deep teal
+const BETWEEN: [string, string] = ["#00687a", "#E8F1F2"];
 
 type RankedDay = {
   date: string; rank: number;
@@ -102,7 +110,7 @@ export default function YearCalendar() {
           <>
             {/* Legend */}
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-              {[["#90a989", "go"], ["#00687a", "between"], ["#d57176", "caution"]].map(([c, n]) => (
+              {[["oklch(0.70 0.18 150)", "Golden Day"], ["#90a989", "Action"], ["#D4AF37", "Build"], ["#00687a", "Selective"], ["#d57176", "Restraint"], ["#cc2f2f", "Caution"]].map(([c, n]) => (
                 <span key={n} className="inline-flex items-center gap-1">
                   <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c }} /> {n}
                 </span>
@@ -130,9 +138,11 @@ export default function YearCalendar() {
                         const ds = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const d = byDate.get(ds);
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
-                        const [bg, ink] = d.tara.quality === "good" ? GO_GREEN
+                        const [bg, ink] = (d as any).movement
+                          ? (MOVEMENT_BG[(d as any).movement] ?? BETWEEN)
+                          : d.tara.quality === "good" ? GO_GREEN
                           : d.tara.quality === "bad" ? CAUTION_ROSE : BETWEEN;
-                        const tip = `#${d.rank} of ${data.days.length} · ${d.plain.day} — ${d.plain.feel} · ${d.plain.moon}${d.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}`;
+                        const tip = `${(d as any).movementWord ? (d as any).movementWord + " · " : ""}#${d.rank} of ${data.days.length} · ${d.plain.day} — ${d.plain.feel} · ${d.plain.moon}${d.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}`;
                         return (
                           <div key={ds} title={tip}
                             className={`relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums ${ds === todayStr ? "ring-2 ring-[#2b2723]" : ""}`}

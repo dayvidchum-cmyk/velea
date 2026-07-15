@@ -64,13 +64,21 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 // ── THE DAY CHARACTER (classical filter) — replaced the 4 modes, David 2026-07-15. ──
 // v1 palette keyed to the light almanac; ONE block, repaintable at will (David's canvas).
 // Reserved hues stay reserved: gold = crown, fire-red = caution, violet = eclipse.
-// THREE FLAT STATES (David 2026-07-15: "color should answer one question — how do I move").
-// Green = go, rose = caution, bare paper = the between. No ramps, no depth — subtlety lives
-// in the hero's words. His hexes verbatim.
+// THE SIX MOVEMENTS (David 2026-07-15) — his day-mode words + his hand-picked colors.
+// The color compresses what the day's prose already says; the word is the hero.
+const MOVEMENT_BG: Record<string, [string, string]> = {
+  golden:    ["oklch(0.70 0.18 150)", "#0E2A18"], // Golden Day — the best, for anything
+  action:    ["#90a989", "#243320"],              // outward movement, full go
+  selective: ["#00687a", "#E8F1F2"],              // tend, but finish something
+  build:     ["#D4AF37", "#3a2f10"],              // tend what's already present
+  restraint: ["#d57176", "#3A1518"],              // tend, with extreme caution
+  caution:   ["#cc2f2f", "#ffffff"],              // stop. stop. stop.
+};
+const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foreground)"];
+// Legacy three-state fallback for dates outside the ranked year (cold cache, far months).
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
-const BETWEEN: [string, string] = ["#00687a", "#E8F1F2"]; // the between — David's deep teal (2026-07-15)
-const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foreground)"];
+const BETWEEN: [string, string] = ["#00687a", "#E8F1F2"];
 
 // (Retired from the coins 2026-07-16 — kept for the hero word only.)
 const NATURE_DOT: Record<string, string> = {
@@ -853,7 +861,7 @@ export default function Planner() {
               }}
             >
               {selectedCharacter
-                ? (selectedCharacter.contained ? "Contain" : NATURE_WORD[selectedCharacter.nature] ?? selectedCharacter.nature)
+                ? (selectedCharacter.movementWord ?? (selectedCharacter.contained ? "Caution" : NATURE_WORD[selectedCharacter.nature] ?? selectedCharacter.nature))
                 : (selectedTaskModeForHero ?? selectedPanchang.mode)}
             </h2>
 
@@ -1172,7 +1180,9 @@ export default function Planner() {
             // the year view — the grouped golds-through-reds that carry meaning. The nature
             // rainbow is retired from the coins; nature speaks in the hero's words.
             const rung = rungByDate.get(dateStr);
-            const [rungBg, rungInk] = rung
+            const [rungBg, rungInk] = dayCharacter?.movement
+              ? (MOVEMENT_BG[dayCharacter.movement] ?? BETWEEN)
+              : rung
               ? (rung.quality === "good" ? GO_GREEN
                 : rung.quality === "bad" ? CAUTION_ROSE
                 : BETWEEN)
@@ -1218,7 +1228,7 @@ export default function Planner() {
             // today-border: today is simply the filled coin.
             // Every coin is FILLED with its rung tint (the year view's language) — today and the
             // selected day distinguish themselves by ring + weight, not by being the only fills.
-            const filled = rung ? true : (isToday || isSelected) && hasMode;
+            const filled = (dayCharacter?.movement || rung) ? true : (isToday || isSelected) && hasMode;
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.

@@ -180,7 +180,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v3`;
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v4`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 
@@ -190,7 +190,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const { calcPanchang } = await import("./panchang/astronomy.js");
   const { getBostonUtcOffset } = await import("./panchang/service.js");
   const { karanaFromLongitudes } = await import("./panchang/karana.js");
-  const { localToUtc } = await import("./birthchart/calculator.js");
+  const { localToUtc, planetLongitudeSpeed } = await import("./birthchart/calculator.js");
   const NAKSPAN = 360 / 27;
   const NAK27 = NAK;
   const WEEKDAY_LORD_7 = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
@@ -202,6 +202,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
       const maj = majorityStarFromAstro(astro);
       const dayNakIdx = maj ?? astro.nakshatraIndex ?? Math.floor((((astro.moonLongitude % 360) + 360) % 360) / NAKSPAN);
       const k = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
+      const { speed: mercSpeed } = await planetLongitudeSpeed("mercury", date, 12);
       days.push({
         date,
         dayNakIdx,
@@ -210,7 +211,8 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
         tithiNumber: (astro.tithiIndex ?? 0) + 1,
         vishti: k.name === "Vishti",
         varaLord: WEEKDAY_LORD_7[new Date(ms).getUTCDay()],
-      });
+        mercSpeed,
+      } as any);
     } catch {
       // A failed almanac day ranks as its noon frame would — skip rather than fake.
     }
@@ -258,10 +260,24 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const chains = spans.map((s) => ({ startMs: s.startMs, endMs: s.endMs, label: `${s.maha}›${s.antar}›${s.pratyantar}` }));
 
   const { rankYear } = await import("./vedic/year-rank.js");
-  const result = {
-    yearStart, yearEnd, natalMoonSignIdx, birthNakIdx,
-    ...rankYear({ birthNakIdx, natalMoonSignIdx, days, windows, chains }),
-  };
+  const { dayFilter, movementOf, MOVEMENT_WORD } = await import("./vedic/day-filter.js");
+  const ranked = rankYear({ birthNakIdx, natalMoonSignIdx, days, windows, chains });
+  // THE SIX MOVEMENTS on every ranked day (David 2026-07-15) — same law as the month view.
+  const mercByDate = new Map(days.map((d: any) => [d.date, d.mercSpeed]));
+  const topSet = new Set(ranked.summary.topDates);
+  for (const d of ranked.days as any[]) {
+    try {
+      const merc = mercByDate.get(d.date);
+      const mercuryContest = merc != null && merc < 0 && (Math.abs(merc) < 0.15 || !d.tara.favorable);
+      const c = dayFilter({
+        nakshatra: d.nakshatra ?? "", tithiNumber: d.tithiNumber ?? 1,
+        varaLord: d.varaLord ?? "Sun", vishti: !!d.vishti, mercuryContest, tara: d.tara,
+      });
+      const mv = movementOf(c, d.tara, topSet.has(d.date));
+      d.movement = mv; d.movementWord = MOVEMENT_WORD[mv];
+    } catch { /* a day without movement still ranks */ }
+  }
+  const result = { yearStart, yearEnd, natalMoonSignIdx, birthNakIdx, ...ranked };
   yearRankCache.set(cacheKey, result);
   return result;
 }
@@ -1756,7 +1772,7 @@ export const appRouter = router({
         const todaySolar = solarStartYear(today.getUTCFullYear(), today.getUTCMonth() + 1, today.getUTCDate());
 
         const { applyWeatherGate } = await import("./panchang/interpreter.js");
-        const { dayFilter, bridgeMode } = await import("./vedic/day-filter.js");
+        const { dayFilter, movementOf, MOVEMENT_WORD } = await import("./vedic/day-filter.js");
         const { planetLongitudeSpeed } = await import("./birthchart/calculator.js");
         const p2 = (n: number) => String(n).padStart(2, "0");
         const daysInMonth = new Date(Date.UTC(input.year, input.month, 0)).getUTCDate();
@@ -1805,11 +1821,17 @@ export const appRouter = router({
               mercuryContest,
               tara: day.tara,
             });
+            // THE SIX MOVEMENTS (David 2026-07-15): his day-mode words, canon-derived.
+            const mv = movementOf(c, day.tara, isCrown);
             character = {
               nature: c.nature, family: c.family, headline: c.headline, sentence: c.sentence,
               supports: c.supports, avoid: c.avoid, vetoes: c.vetoes, contained: c.contained,
+              movement: mv, movementWord: MOVEMENT_WORD[mv],
             };
-            mode = applyWeatherGate(bridgeMode(c), rating).finalMode;
+            // Task machinery bridge: four of the six ARE the task tags; golden covers anything,
+            // caution is a hard stop. The weather gate stays as the final clamp.
+            const taskMode = mv === "golden" ? "Action" : mv === "caution" ? "Restraint" : MOVEMENT_WORD[mv];
+            mode = applyWeatherGate(taskMode as any, rating).finalMode;
           } catch { /* character optional — the day still marks and ranks */ }
           // The rung — so the month calendar can wear the SAME ladder tints as the year view
           // (David 2026-07-16: "I want the 2 calendars to blend into one").
