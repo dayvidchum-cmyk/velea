@@ -268,6 +268,8 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
       recurrence: tasks.recurrence,
       lifeAreas: tasks.lifeAreas,
       isNewVenture: tasks.isNewVenture,
+      completionPct: tasks.completionPct,
+      effortSize: tasks.effortSize,
       createdAt: tasks.createdAt,
       updatedAt: tasks.updatedAt,
       projectName: projects.name,
@@ -324,6 +326,8 @@ export async function createTask(data: {
   notes?: string | null;
   recurrence?: "none" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
   lifeAreas?: string | null;
+  completionPct?: number | null;
+  effortSize?: "quick" | "sitting" | "long" | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");

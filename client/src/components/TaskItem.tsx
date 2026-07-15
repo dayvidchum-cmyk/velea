@@ -189,6 +189,16 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
   // completion per task that can derive it from the completion of any subtasks").
   // A user-set percent for subtask-less tasks arrives with the effortSize migration.
   const derivedPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : null;
+  // No subtasks → the user's own declared percent carries the arc (David 2026-07-15:
+  // "that % can be set by the user if they haven't made a subtask list").
+  const manualPct = (task as any).completionPct as number | null | undefined;
+  const effectivePct = derivedPct ?? (pctDraft ?? manualPct ?? null);
+  const utils2 = trpc.useUtils();
+  const setPctMutation = trpc.tasks.update.useMutation({
+    onSuccess: () => { utils2.tasks.list.invalidate(); },
+  });
+  // Drag shows live; the write happens ONCE on release (not per notch).
+  const [pctDraft, setPctDraft] = useState<number | null>(null);
 
   // Life areas + "song" highlight: a task is in focus today when one of its
   // life areas maps to the day's activated house (panchang).
@@ -247,12 +257,21 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           </span>
           {/* Collapsed row: only the golden dots + subtask count. Everything else (mode, due,
               life-areas, project, want/need, focus) is noise here — it lives in edit/expand. */}
-          {((alignment != null && !task.isCompleted) || hasSubtasks) && (
+          {((alignment != null && !task.isCompleted) || hasSubtasks || (manualPct != null && !task.isCompleted)) && (
             <div className="flex items-center gap-2 mt-0.5">
               {alignment != null && !task.isCompleted && <AlignmentDots alignment={alignment} />}
-              {hasSubtasks && (
+              {hasSubtasks ? (
                 <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(var(--ink),0.16)", color: "rgba(var(--ink),0.96)" }}>
                   {completedCount}/{totalCount}{derivedPct != null ? ` · ${derivedPct}%` : ""}
+                </span>
+              ) : manualPct != null && !task.isCompleted ? (
+                <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(var(--ink),0.16)", color: "rgba(var(--ink),0.96)" }}>
+                  {manualPct}%
+                </span>
+              ) : null}
+              {(task as any).effortSize && !task.isCompleted && (
+                <span className="text-[11px] font-medium capitalize" style={{ color: "rgba(var(--ink),0.65)" }}>
+                  {(task as any).effortSize}
                 </span>
               )}
             </div>
@@ -486,6 +505,29 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             </div>
           )}
 
+          {/* Progress — the user's own percent, ONLY for tasks without a subtask list
+              (subtasks own the number the moment they exist). */}
+          {!hasSubtasks && !task.isCompleted && (
+            <div className="px-3 pb-3 pt-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium" style={{ color: "rgba(var(--ink),0.82)" }}>How far along?</span>
+                <span className="text-xs font-semibold" style={{ color: "rgba(var(--ink),0.95)" }}>{pctDraft ?? manualPct ?? 0}%</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={pctDraft ?? manualPct ?? 0}
+                onChange={(e) => setPctDraft(Number(e.target.value))}
+                onPointerUp={() => { if (pctDraft != null) setPctMutation.mutate({ id: task.id, completionPct: pctDraft }); }}
+                onKeyUp={() => { if (pctDraft != null) setPctMutation.mutate({ id: task.id, completionPct: pctDraft }); }}
+                className="w-full"
+                style={{ accentColor: "rgba(var(--ink),0.9)" }}
+              />
+            </div>
+          )}
+
           {/* Recurrence — the only expanded footer. Mode is the card's color; edit / pin /
               snooze / delete all live on the collapsed row now. */}
           {(task as any).recurrence && (task as any).recurrence !== "none" && (
@@ -498,10 +540,11 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           )}
         </div>
       )}
-      {/* The task's arc — a hairline fill along the bottom edge (subtask-derived). */}
-      {derivedPct != null && !task.isCompleted && (
+      {/* The task's arc — a hairline fill along the bottom edge (subtask-derived, or the
+          user's own declared percent when no subtask list exists). */}
+      {effectivePct != null && !task.isCompleted && (
         <div style={{ height: 3, background: "rgba(var(--ink),0.14)" }}>
-          <div style={{ height: "100%", width: `${derivedPct}%`, background: "rgba(var(--ink),0.85)", transition: "width 300ms ease" }} />
+          <div style={{ height: "100%", width: `${effectivePct}%`, background: "rgba(var(--ink),0.85)", transition: "width 300ms ease" }} />
         </div>
       )}
     </div>

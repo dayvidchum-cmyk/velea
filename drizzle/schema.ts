@@ -107,6 +107,11 @@ export const tasks = mysqlTable("tasks", {
   socialRequired: boolean("socialRequired").default(false),
   emotionalLoad: mysqlEnum("emotionalLoad", ["Low", "Medium", "High"]).default("Low"),
   snoozedUntil: bigint("snoozedUntil", { mode: "number" }), // Unix ms timestamp — task hidden until this time
+  // Task progress (David 2026-07-15). completionPct = user-set % for tasks WITHOUT
+  // subtasks (with subtasks the % is DERIVED and this is ignored). effortSize = how much
+  // of a day the task asks for; feeds the scorer (quick fits a low tank, long needs room).
+  completionPct: int("completionPct"),
+  effortSize: mysqlEnum("effortSize", ["quick", "sitting", "long"]),
   notes: text("notes"), // Optional free-text notes, context, or links
   // Recurrence — when set, completing the task rolls its due date forward to the
   // next occurrence and keeps it active instead of marking it done.

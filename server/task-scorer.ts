@@ -139,9 +139,19 @@ export function currentStateScore(
   // and is flagged a hard mismatch (one gold dot; the aligned list drops it entirely).
   // Only genuinely gentle, low-friction tasks survive low motivation.
   if (state.motivation <= 2) {
-    if (!demanding) {
-      delta += 18;
-      reasons.push("Fits current state: gentle, low-friction task (low motivation)");
+    // Effort size sharpens the gate (David 2026-07-15): a QUICK task fits the low tank
+    // even better; a LONG task demands drive regardless of its load tags.
+    if ((task as any).effortSize === "long") {
+      delta -= 45;
+      hardMismatch = true;
+      reasons.push("Low motivation — a long task needs more of the day than you've got");
+    } else if (!demanding) {
+      delta += (task as any).effortSize === "quick" ? 30 : 18;
+      reasons.push(
+        (task as any).effortSize === "quick"
+          ? "Quick win — fits the low tank"
+          : "Fits current state: gentle, low-friction task (low motivation)"
+      );
     } else {
       delta -= 45;
       hardMismatch = true;
@@ -255,6 +265,14 @@ export function scoreTasks(
       if (task.isPinned) {
         floor += 1000;
         reasons.push("Pinned for today");
+      }
+
+      // 9. Nearly done (soft) — a task at 70%+ wants to be carried over the line
+      //    (user-set completionPct; subtask-derived % lives on the client rows).
+      const pct = (task as any).completionPct as number | null | undefined;
+      if (pct != null && pct >= 70) {
+        soft += 40;
+        reasons.push(`Nearly done (${pct}%) — carry it over the line`);
       }
 
       // 2. Overdue / 3. Due today (floor)

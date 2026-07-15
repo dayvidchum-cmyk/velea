@@ -254,6 +254,9 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
   const [modeTouched, setModeTouched] = useState(false); // manual pick wins over suggestion
   const [suggestion, setSuggestion] = useState<{ mode: TaskMode; reason: string } | null>(null);
   const [priority, setPriority] = useState<TaskPriority>("Medium");
+  // How much of the day the task asks for (David 2026-07-15: "a spot at the top…
+  // quick, sitting, long"). Nullable — undeclared is fine.
+  const [effortSize, setEffortSize] = useState<"quick" | "sitting" | "long" | null>(null);
   const [intent, setIntent] = useState<"want" | "need">("need");
   const [dueDate, setDueDate] = useState("");
   const [isPinned, setIsPinned] = useState(false);
@@ -342,6 +345,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
       setSocialRequired(editTask.socialRequired ?? false);
       setEmotionalLoad((editTask.emotionalLoad as LoadLevel) ?? "Low");
       setNotes(editTask.notes ?? "");
+      setEffortSize(((editTask as any).effortSize as "quick" | "sitting" | "long" | null) ?? null);
       setRecurrence((editTask.recurrence as Recurrence) ?? "none");
       setLifeAreas(
         Array.isArray(editTask.lifeAreas)
@@ -351,6 +355,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
       setShowDuePicker(!!editTask.dueDate);
     } else {
       setTitle("");
+      setEffortSize(null);
       setMode(initialMode ?? "Build");
       // openWithSuggestion → the prefilled mode is a soft default, NOT a manual pick, so the
       // suggestion still blooms (FAB). Otherwise a passed initialMode means the orb chose it.
@@ -439,6 +444,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
           recurrence,
           lifeAreas,
           isNewVenture,
+          effortSize,
         });
 
         // Sync subtasks in edit mode: create the newly-added ones, delete the removed ones.
@@ -471,6 +477,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
           recurrence,
           lifeAreas,
           isNewVenture,
+          effortSize,
         });
 
         if (task && subtasks.length > 0) {
@@ -557,6 +564,34 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
             placeholder="Task title..."
             className="w-full px-4 py-3 rounded-lg bg-secondary text-foreground placeholder-muted-foreground mb-6 focus:outline-none focus:ring-2 focus:ring-accent"
           />
+
+          {/* SIZE — how much of the day this asks for (David: quick / sitting / long).
+              The spot at the top; feeds the scorer (quick fits a low tank, long needs room). */}
+          <div className="mb-6">
+            <label className="block text-[12px] font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
+              Size
+            </label>
+            <div className="flex gap-2">
+              {(["quick", "sitting", "long"] as const).map((sz) => {
+                const on = effortSize === sz;
+                return (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => setEffortSize(on ? null : sz)}
+                    className="flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors"
+                    style={{
+                      background: on ? "var(--color-accent)" : "var(--color-secondary)",
+                      color: on ? "var(--color-accent-foreground)" : "var(--color-foreground)",
+                      border: `1px solid ${on ? "var(--color-accent)" : "var(--color-border)"}`,
+                    }}
+                  >
+                    {sz}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* STATUS — the user's own declaration: new venture vs already in their story.
               Feeds the mode suggester + the day scorer (Action owns the new). */}

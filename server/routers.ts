@@ -686,6 +686,8 @@ export const appRouter = router({
           recurrence: RecurrenceEnum.optional(),
           lifeAreas: z.array(z.string()).optional(),
           isNewVenture: z.boolean().nullable().optional(),
+          completionPct: z.number().int().min(0).max(100).nullable().optional(),
+          effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -710,6 +712,8 @@ export const appRouter = router({
           notes: input.notes ?? null,
           recurrence: input.recurrence ?? "none",
           lifeAreas: input.lifeAreas && input.lifeAreas.length ? JSON.stringify(input.lifeAreas) : null,
+          completionPct: input.completionPct ?? null,
+          effortSize: input.effortSize ?? null,
         });
       }),
 
@@ -735,6 +739,8 @@ export const appRouter = router({
           recurrence: RecurrenceEnum.optional(),
           lifeAreas: z.array(z.string()).optional(),
           isNewVenture: z.boolean().nullable().optional(),
+          completionPct: z.number().int().min(0).max(100).nullable().optional(),
+          effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
           // When provided and isPinned=true, the task's mode is set to this value.
           // Ignored when isPinned is false or undefined.
           dayMode: TaskModeEnum.optional(),
