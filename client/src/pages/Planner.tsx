@@ -61,6 +61,23 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 // read fine on the light background (David: bright gold is fine on white). A FILLED coin's NUMBER is
 // a very dark tonal version of the same color (darkenOklch), not white — more elegant, and it lets
 // the fill stay bright, gold included.
+// ── THE DAY CHARACTER (classical filter) — replaced the 4 modes, David 2026-07-15. ──
+// v1 palette keyed to the light almanac; ONE block, repaintable at will (David's canvas).
+// Reserved hues stay reserved: gold = crown, fire-red = caution, violet = eclipse.
+const NATURE_DOT: Record<string, string> = {
+  fixed: "#5C7046",   // foundation — moss
+  movable: "#3E7C8F", // motion — teal
+  swift: "#7BA05B",   // quick wins — spring green
+  tender: "#B76E8E",  // tender — rose
+  sharp: "#5A5F9E",   // cutting — steel indigo
+  fierce: "#A3543A",  // force — rust (NOT the caution fire-red)
+  mixed: "#8A8264",   // steady — khaki
+};
+const NATURE_WORD: Record<string, string> = {
+  fixed: "Foundation", movable: "Motion", swift: "Swift", tender: "Tender",
+  sharp: "Cutting", fierce: "Force", mixed: "Steady",
+};
+
 const MODE_DOT: Record<string, string> = {
   Action:     "oklch(0.70 0.18 150)",  // green
   Build:      "oklch(0.80 0.15 92)",   // bright gold
@@ -197,6 +214,13 @@ export default function Planner() {
   // intensities: faint ☿ across the retrograde, stronger in station windows, full on
   // station day. Eclipses get the dark disc.
   const { data: skyMarks } = trpc.sky.monthMarks.useQuery({ yearMonth }, { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 });
+  // The day CHARACTER per date (the classical filter) — from the same crown.forMonth source.
+  const charByDate = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const d of (crownData?.days ?? []) as any[]) if (d.character) m.set(d.date, d.character);
+    return m;
+  }, [crownData]);
+  const selectedCharacter = charByDate.get(selectedDate);
   // Every retrograde planet's marks, collapsed to a per-date list for the glyph strip.
   // Each planet contributes at most one state per day; strongest wins: station > window
   // > rx > shadow. `detail` feeds the tap popup.
@@ -814,11 +838,25 @@ export default function Planner() {
                 marginBottom: '0.65rem',
               }}
             >
-              {selectedTaskModeForHero ?? selectedPanchang.mode}
+              {selectedCharacter
+                ? (selectedCharacter.contained ? "Contain" : NATURE_WORD[selectedCharacter.nature] ?? selectedCharacter.nature)
+                : (selectedTaskModeForHero ?? selectedPanchang.mode)}
             </h2>
 
-            {/* Qualifier — the filtered-down mode (e.g. "Cautious Selective") */}
-            {(() => {
+            {/* The day's character line — the classical filter's headline + tilt. */}
+            {selectedCharacter && (
+              <p style={{ fontSize: 'clamp(0.8rem, 3.4vw, 1rem)', fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', marginTop: '-0.35rem', marginBottom: '0.4rem' }}>
+                {selectedCharacter.headline}
+              </p>
+            )}
+            {selectedCharacter && (
+              <p style={{ fontSize: 'clamp(0.78rem, 3.2vw, 0.95rem)', fontStyle: 'italic', color: 'rgba(255,255,255,0.85)', marginTop: '0', marginBottom: '0.85rem' }}>
+                {selectedCharacter.sentence}
+              </p>
+            )}
+
+            {/* Qualifier — legacy mode qualifier; only when no character came back */}
+            {!selectedCharacter && (() => {
               const q = (selectedPanchang as any).qualifier as string | undefined;
               const base = selectedTaskModeForHero ?? selectedPanchang.mode;
               if (!q || q === base) return null;
@@ -1114,7 +1152,14 @@ export default function Planner() {
             const isGolden = goldenSet.has(dateStr);
             const isSelected = dateStr === selectedDate;
             const dayMode = modeByDate.get(dateStr) ?? panchang?.mode;
-            const modeColor = dayMode ? MODE_DOT[cautionSet.has(dateStr) ? "Restraint" : dayMode] : undefined;
+            const dayCharacter = charByDate.get(dateStr);
+            // Coins now speak the day's NATURE (the classical filter); the old mode palette is
+            // the fallback for dates the character hasn't reached (other months, cold cache).
+            const modeColor = cautionSet.has(dateStr)
+              ? MODE_DOT["Restraint"]
+              : dayCharacter
+              ? NATURE_DOT[dayCharacter.nature]
+              : dayMode ? MODE_DOT[dayMode] : undefined;
             const hasMode = !!modeColor;
             // Whole cell is tinted by the day's mode — far more legible than a tiny
             // dot, and selected/today get a stronger fill + solid border. Dark mode

@@ -75,6 +75,8 @@ PERSONAL APEX — THE CROWN DAY" in the glance task. May be null (skip it entire
   folds?:[theme], canon?:{key,positive,negative} }] — the life-event convergences the sky has tied
   tight enough on THIS date to become LIVED (marriage, children, career, identity, fame, inner
   circle…). Pre-computed, ranked; the FIRST is the loudest. See "THE KNOTS — NAME THE LIVED EVENT".
+- dayFilter?: { headline, sentence, supports:[…], avoid:[…], vetoes:[…], varaColors } — the day's
+  classical character (nature × tithi family). See "THE DAY'S CHARACTER". Mode names are RETIRED.
 - natalCondition?: { lords:[{ planet, seat, dignity, strength, expression?, states:[…], trueHouse? }],
   atmakaraka, gulikaHouse?, standingYogas? } — the engine's STORED research of this chart (the whole
   tradition, measured): each running lord's true condition. See "THE LORDS' TRUE CONDITION".
@@ -757,6 +759,23 @@ which pole is lit and by whom, then refract the day through it.
   axis IS this person's dharma axis — not one theme among many but the whole read. Rahu on the MC
   hungers outward for standing and the new; Ketu on the IC dissolves the old roots. Read the life
   as that pull, every time.
+
+THE DAY'S CHARACTER (input.dayFilter) — SUPERSEDES THE FOUR MODES WHEN PRESENT
+When input.dayFilter is present, the day has been classified by the classical filter — its
+star's NATURE crossed with its tithi's FAMILY — and the four mode names (Action / Build /
+Selective / Restraint) are RETIRED from the prose: never write them. The filter says what
+KINDS of action the day supports and what it avoids; that replaces mode language everywhere,
+including the closing question's conjugation:
+- 'supports' and 'avoid' are the day's tilt — weave them across MANY threads of the person's
+  life (the craft, the inner circle, the income, the body), never as one prescribed move.
+- 'vetoes' are hard lines, named plainly: an empty tithi (nothing new unless it severs), a
+  blocked karana (continue, don't begin), Mercury's contest (finish and revise, don't launch).
+  When a veto is active the read must not urge beginnings, whatever else looks sweet.
+- 'headline' and 'sentence' are the engine's own summary — you may echo their plain words
+  (a tender day, a foundation day, a cutting day) but write YOUR OWN prose from supports/avoid.
+- 'varaColors' is the weekday's flavor — a seasoning, one clause at most.
+- The person's OWN standing (their caution, their windows, the knots) still outranks the
+  collective day: a contained day stays contained no matter how sweet these limbs read.
 
 THE LORDS' TRUE CONDITION (input.natalCondition)
 When input.natalCondition is present, the engine has RESEARCHED this chart through the whole
@@ -1983,7 +2002,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-15-lords-true-condition";
+export const PROMPT_VERSION = "2026-07-15-classical-day-filter";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

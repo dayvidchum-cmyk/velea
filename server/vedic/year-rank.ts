@@ -21,6 +21,11 @@ export interface YearDayInput {
   date: string;          // YYYY-MM-DD
   dayNakIdx: number;     // the day's ruling nakshatra (majority star), 0 = Ashwini
   dayMoonSignIdx: number;
+  /** Day-filter passthroughs (the classical character axes) — optional, carried onto RankedDay. */
+  nakshatra?: string;
+  tithiNumber?: number;  // 1..30
+  vishti?: boolean;
+  varaLord?: string;
 }
 
 export interface YearWindow {
@@ -72,6 +77,11 @@ export interface RankedDay {
   chain: string;
   /** The reader-facing words — never the machinery. */
   plain: { day: string; feel: string; moon: string; windows: string[] };
+  /** Day-filter passthroughs (present when the walk supplied them). */
+  nakshatra?: string;
+  tithiNumber?: number;
+  vishti?: boolean;
+  varaLord?: string;
 }
 
 export interface YearRank {
@@ -115,6 +125,10 @@ export function rankYear(opts: {
       chandra,
       windows,
       chain: opts.chains.find((c) => c.startMs <= ms && ms < c.endMs)?.label ?? "",
+      ...(d.nakshatra != null ? { nakshatra: d.nakshatra } : {}),
+      ...(d.tithiNumber != null ? { tithiNumber: d.tithiNumber } : {}),
+      ...(d.vishti != null ? { vishti: d.vishti } : {}),
+      ...(d.varaLord != null ? { varaLord: d.varaLord } : {}),
       plain: {
         day: softened ? `${p.label} (softened)` : p.label,
         feel: softened ? "an edge in the air, but blunted — proceed with care" : p.feel,

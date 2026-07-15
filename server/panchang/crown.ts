@@ -298,15 +298,20 @@ export async function majorityDayStarIdx(dateStr: string, lat = 42.3601, lon = -
     const { calcPanchang } = await import("./astronomy.js");
     const { getBostonUtcOffset } = await import("./service.js");
     const astro: any = await calcPanchang(dateStr, lat, lon, utcOffset ?? getBostonUtcOffset(dateStr));
-    const idxOf = (n: string) => NAK27.findIndex((x) => x.toLowerCase() === String(n).toLowerCase());
-    const sunriseIdx = idxOf(astro.nakshatraAtSunrise ?? "");
-    const afterIdx = idxOf(astro.nakshatraAfterTransition ?? "");
-    const sr = parse12h(astro.sunriseLocal);
-    const tt = parse12h(astro.nakshatraTransitionTime);
-    if (afterIdx < 0 || tt == null || sr == null) return sunriseIdx >= 0 ? sunriseIdx : null;
-    const minsUntilTransition = ((tt - sr) + 1440) % 1440; // sunrise → transition, wrapping midnight
-    return minsUntilTransition > 720 ? (sunriseIdx >= 0 ? sunriseIdx : afterIdx) : afterIdx;
+    return majorityStarFromAstro(astro);
   } catch {
     return null;
   }
+}
+
+/** The majority rule applied to an already-computed panchang (one calcPanchang, many readers). */
+export function majorityStarFromAstro(astro: any): number | null {
+  const idxOf = (n: string) => NAK27.findIndex((x) => x.toLowerCase() === String(n).toLowerCase());
+  const sunriseIdx = idxOf(astro.nakshatraAtSunrise ?? "");
+  const afterIdx = idxOf(astro.nakshatraAfterTransition ?? "");
+  const sr = parse12h(astro.sunriseLocal);
+  const tt = parse12h(astro.nakshatraTransitionTime);
+  if (afterIdx < 0 || tt == null || sr == null) return sunriseIdx >= 0 ? sunriseIdx : null;
+  const minsUntilTransition = ((tt - sr) + 1440) % 1440; // sunrise → transition, wrapping midnight
+  return minsUntilTransition > 720 ? (sunriseIdx >= 0 ? sunriseIdx : afterIdx) : afterIdx;
 }

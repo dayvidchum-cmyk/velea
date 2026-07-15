@@ -453,6 +453,32 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     asOf: dateStr,
   };
 
+  // ── THE DAY'S CHARACTER (input.dayFilter) — the classical filter that replaced the four
+  // modes (David 2026-07-15: "eliminate my 4 modes and replace with how the books would
+  // filter each day"). Computed from the same panchang facts the read already carries; the
+  // Sun/Moon noon longitudes give the tithi number. Collective here — the personal layer
+  // (weather gate / caution) already travels via panchang.weatherGated + the knots.
+  let dayFilterBlock: any = null;
+  try {
+    const { dayFilter } = await import("../vedic/day-filter.js");
+    const sunLon = a.Sun, moonLon = a.Moon;
+    const tithiNumber = Math.floor(((((moonLon - sunLon) % 360) + 360) % 360) / 12) + 1;
+    const WEEKDAY_LORD_7 = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+    const c = dayFilter({
+      nakshatra: String(panchang.nakshatra ?? ""),
+      tithiNumber,
+      varaLord: WEEKDAY_LORD_7[new Date(dateStr + "T12:00:00Z").getUTCDay()],
+      vishti: !!panchang.karana?.vishti,
+      // The rx contest already reaches the read via input.mercuryRx — not doubled here.
+      tara: null,
+    });
+    dayFilterBlock = {
+      headline: c.headline, sentence: c.sentence,
+      supports: c.supports, avoid: c.avoid, vetoes: c.vetoes,
+      varaColors: c.varaColors,
+    };
+  } catch { /* the read proceeds without the filter */ }
+
   // RECENT READS — the last 3 days of glance prose, so the model can see what it already
   // said and is FORBIDDEN from re-saying. Root cause of the wallpaper era (2026-07-10):
   // no memory of yesterday → the same year-lord essay and the same "finish, don't open a
@@ -735,5 +761,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

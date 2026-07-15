@@ -180,25 +180,40 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v2`;
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v3`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 
-  // Day stars: the majority-star law (same as the month view always used), Moon sign at noon UT.
-  const { majorityDayStarIdx } = await import("./panchang/crown.js");
-  const { planetLongitudeSpeed, localToUtc } = await import("./birthchart/calculator.js");
-  const si = (lon: number) => Math.floor((((lon % 360) + 360) % 360) / 30);
+  // The day walk: ONE calcPanchang per day supplies the majority star (the month view's law),
+  // the Moon sign, the tithi, and the karana — everything the ranking AND the day filter need.
+  const { majorityStarFromAstro } = await import("./panchang/crown.js");
+  const { calcPanchang } = await import("./panchang/astronomy.js");
+  const { getBostonUtcOffset } = await import("./panchang/service.js");
+  const { karanaFromLongitudes } = await import("./panchang/karana.js");
+  const { localToUtc } = await import("./birthchart/calculator.js");
   const NAKSPAN = 360 / 27;
-  const days: Array<{ date: string; dayNakIdx: number; dayMoonSignIdx: number }> = [];
+  const NAK27 = NAK;
+  const WEEKDAY_LORD_7 = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+  const days: Array<{ date: string; dayNakIdx: number; dayMoonSignIdx: number; nakshatra: string; tithiNumber: number; vishti: boolean; varaLord: string }> = [];
   for (let ms = Date.parse(yearStart + "T00:00:00Z"); ms < Date.parse(yearEnd + "T00:00:00Z"); ms += 86400000) {
     const date = new Date(ms).toISOString().slice(0, 10);
-    const { longitude: moonLon } = await planetLongitudeSpeed("moon", date, 12);
-    const maj = await majorityDayStarIdx(date);
-    days.push({
-      date,
-      dayNakIdx: maj ?? Math.floor((((moonLon % 360) + 360) % 360) / NAKSPAN),
-      dayMoonSignIdx: si(moonLon),
-    });
+    try {
+      const astro: any = await calcPanchang(date, 42.3601, -71.0589, getBostonUtcOffset(date));
+      const maj = majorityStarFromAstro(astro);
+      const dayNakIdx = maj ?? astro.nakshatraIndex ?? Math.floor((((astro.moonLongitude % 360) + 360) % 360) / NAKSPAN);
+      const k = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
+      days.push({
+        date,
+        dayNakIdx,
+        dayMoonSignIdx: astro.moonSignIndex,
+        nakshatra: NAK27[dayNakIdx] ?? astro.nakshatra,
+        tithiNumber: (astro.tithiIndex ?? 0) + 1,
+        vishti: k.name === "Vishti",
+        varaLord: WEEKDAY_LORD_7[new Date(ms).getUTCDay()],
+      });
+    } catch {
+      // A failed almanac day ranks as its noon frame would — skip rather than fake.
+    }
   }
 
   // Windows + chains from the stored convergence timeline; live-computed when a profile
@@ -1740,7 +1755,8 @@ export const appRouter = router({
         const today = new Date();
         const todaySolar = solarStartYear(today.getUTCFullYear(), today.getUTCMonth() + 1, today.getUTCDate());
 
-        const { interactionBaseMode, applyWeatherGate } = await import("./panchang/interpreter.js");
+        const { applyWeatherGate } = await import("./panchang/interpreter.js");
+        const { dayFilter, bridgeMode } = await import("./vedic/day-filter.js");
         const { planetLongitudeSpeed } = await import("./birthchart/calculator.js");
         const p2 = (n: number) => String(n).padStart(2, "0");
         const daysInMonth = new Date(Date.UTC(input.year, input.month, 0)).getUTCDate();
@@ -1771,25 +1787,31 @@ export const appRouter = router({
             ? "A loss day at full force — nothing forward, nothing new. Contain."
             : "";
 
-          // Day mode (unchanged machinery) — its Moon inputs now come from the same ranked day,
-          // so the mode and the mark can never tell two stories.
+          // THE DAY CHARACTER — the classical filter that replaced the four modes (David
+          // 2026-07-15: "eliminate my 4 modes"). The invented interactionBaseMode is retired
+          // from this surface; the task machinery runs on the documented bridge underneath.
           let mode: string | undefined;
+          let character: any = undefined;
           try {
             const merc = await planetLongitudeSpeed("mercury", date, 12);
-            // The day Moon's sign falls out of the chandra house + the natal Moon (one source).
-            const dayMoonSignIdx = (yr.natalMoonSignIdx + day.chandra.house - 1) % 12;
-            const rawMode = interactionBaseMode({
-              lagnaSignIdx,
-              natalMoonSignIdx: yr.natalMoonSignIdx,
-              dayMoonSignIdx,
-              moonStrong: day.tara.favorable && day.chandra.favorable,
-              moonWeak: day.tara.quality === "bad" || !day.chandra.favorable,
-              mercuryRetro: merc.speed < 0,
-              mercuryNearStation: Math.abs(merc.speed) < 0.15,
-            }).finalMode;
-            mode = applyWeatherGate(rawMode, rating).finalMode;
-          } catch { /* mode optional */ }
-          days.push({ date, rating, why, mode });
+            // The rx-contest law: a TRUE retrograde caps beginnings; a strong personal Moon
+            // punches through OFF the station core (velea-rx-contest-mode, 2026-07-13).
+            const mercuryContest = merc.speed < 0 && (Math.abs(merc.speed) < 0.15 || !day.tara.favorable);
+            const c = dayFilter({
+              nakshatra: day.nakshatra ?? "",
+              tithiNumber: day.tithiNumber ?? 1,
+              varaLord: day.varaLord ?? "Sun",
+              vishti: !!day.vishti,
+              mercuryContest,
+              tara: day.tara,
+            });
+            character = {
+              nature: c.nature, family: c.family, headline: c.headline, sentence: c.sentence,
+              supports: c.supports, avoid: c.avoid, vetoes: c.vetoes, contained: c.contained,
+            };
+            mode = applyWeatherGate(bridgeMode(c), rating).finalMode;
+          } catch { /* character optional — the day still marks and ranks */ }
+          days.push({ date, rating, why, mode, character });
         }
         return { days };
       }),
