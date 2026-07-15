@@ -546,3 +546,27 @@ export const profileDashaPeriods = mysqlTable("profile_dasha_periods", {
 ]);
 
 export type ProfileDashaPeriodRow = typeof profileDashaPeriods.$inferSelect;
+
+/**
+ * Profile Convergence — Appendix IV Step 15 precomputed for the whole life (David's
+ * directive #3, 2026-07-15). One row per pratyantar span birth→120y (~700-800 rows);
+ * `themes` = compact JSON of only the themes with ≥1 actively-tied period-lord
+ * ({ marriage: { convergence, mahaTied, lit, lords } … }). `lit` is the STANDING rule
+ * (mahaTied ∧ conv≥2) — the dated event-tier arm needs the live sky and stays runtime
+ * (see server/vedic/convergence.ts). Tie law lives in knots.ts buildKnots — one law.
+ * Created via manual migration (server/scripts/create-research-tables.ts).
+ */
+export const profileConvergence = mysqlTable("profile_convergence", {
+  id: int("id").autoincrement().primaryKey(),
+  profileId: int("profileId").notNull(),
+  maha: varchar("maha", { length: 8 }).notNull(),
+  antar: varchar("antar", { length: 8 }).notNull(),
+  pratyantar: varchar("pratyantar", { length: 8 }).notNull(),
+  startAt: datetime("startAt", { fsp: 3 }).notNull(),
+  endAt: datetime("endAt", { fsp: 3 }).notNull(),
+  themes: text("themes").notNull(), // JSON, only tied themes; "{}" for quiet spans
+}, (t) => [
+  index("idx_convergence_lookup").on(t.profileId, t.startAt),
+]);
+
+export type ProfileConvergenceRow = typeof profileConvergence.$inferSelect;

@@ -16,9 +16,10 @@
 import { createHash } from "node:crypto";
 import { and, eq, gt, lte } from "drizzle-orm";
 import { getDb } from "../db.js";
-import { profileResearch, profileDashaPeriods } from "../../drizzle/schema.js";
+import { profileResearch, profileDashaPeriods, profileConvergence } from "../../drizzle/schema.js";
 import { computeNatalResearch, RESEARCH_ENGINE_VERSION, type ResearchInput, type NatalResearch } from "./house-research.js";
 import { dashaTree, type DashaLevel } from "./dasha-tree.js";
+import { computeConvergenceTimeline } from "./convergence.js";
 
 const DASHA_ENGINE_VERSION = "dasha-tree-v1";
 
@@ -62,16 +63,47 @@ export async function storeNatalResearch(input: StoreChartInput): Promise<StoreS
   const declComplete = GRAHA_KEYS.every((g) => declBy[g] != null);
 
   const timed = input.basis !== "chandra";
+  const birthMs = Date.parse(input.utcBirthIso);
+
+  // The time-anchored v2 layers (Vedic weekday, day/night, kalavelas) — timed charts only.
+  let vedicWeekday: number | null = null;
+  let isDayBirth: boolean | null = null;
+  let kalavelaLongitudes: Record<string, number> | null = null;
+  if (timed && Number.isFinite(birthMs)) {
+    try {
+      const { vedicDay } = await import("./shadbala.js");
+      const { kalavelaStarts } = await import("./natal-states.js");
+      const { ascendantAt } = await import("../birthchart/calculator.js");
+      const day = vedicDay(birthMs, input.latitude, input.longitude);
+      vedicWeekday = day.civilDate.getUTCDay();
+      isDayBirth = birthMs >= day.sunriseMs && birthMs < day.sunsetMs;
+      const starts = kalavelaStarts({
+        birthUtcMs: birthMs, sunriseMs: day.sunriseMs, sunsetMs: day.sunsetMs,
+        nextSunriseMs: day.nextSunriseMs, vedicWeekday,
+      });
+      kalavelaLongitudes = {};
+      for (const [name, atMs] of Object.entries(starts)) {
+        kalavelaLongitudes[name] = await ascendantAt(atMs, input.latitude, input.longitude);
+      }
+    } catch (err) {
+      console.warn("[Research Store] Kalavela/vedic-day resolve failed (research stays partial):", err);
+      vedicWeekday = null; isDayBirth = null; kalavelaLongitudes = null;
+    }
+  }
+
   const researchInput: ResearchInput = {
     lonBy,
     speedBy: speedBy as ResearchInput["speedBy"],
     declBy: declComplete ? (declBy as ResearchInput["declBy"]) : undefined,
     lagnaLon: input.lagnaLon,
     mcLon: timed ? input.mcLon : null,
-    birthUtcMs: timed ? Date.parse(input.utcBirthIso) : null,
+    birthUtcMs: timed ? birthMs : null,
     latitude: input.latitude,
     longitude: input.longitude,
     basis: input.basis,
+    isDayBirth,
+    vedicWeekday,
+    kalavelaLongitudes,
   };
 
   const inputHash = createHash("sha256")
@@ -156,6 +188,59 @@ export async function storeDashaTree(input: StoreChartInput, researchStatus?: St
   } catch (err) {
     if (isMissingTable(err)) {
       console.warn("[Research Store] profile_dasha_periods table missing — run server/scripts/create-research-tables.ts");
+      return 0;
+    }
+    throw err;
+  }
+}
+
+/**
+ * Compute + persist the convergence timeline (directive #3): one row per pratyantar span,
+ * birth→120y, holding the themes with ≥1 actively-tied period-lord. Same idempotence gate
+ * and transactional wholesale-replace as the dasha store — a birth-data edit must never
+ * leave a stale convergence timeline behind.
+ */
+export async function storeConvergence(input: StoreChartInput, researchStatus?: StoreStatus): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const birthUtcMs = Date.parse(input.utcBirthIso);
+  const moonLon = input.bodies.Moon?.longitude;
+  if (!Number.isFinite(birthUtcMs) || moonLon == null) return 0;
+
+  try {
+    if (researchStatus === "unchanged") {
+      const present = await db.select({ id: profileConvergence.id })
+        .from(profileConvergence)
+        .where(eq(profileConvergence.profileId, input.profileId))
+        .limit(1);
+      if (present.length) return 0;
+    }
+
+    const lonBy: Record<string, number> = {};
+    for (const [name, b] of Object.entries(input.bodies)) lonBy[name] = b.longitude;
+    const spans = computeConvergenceTimeline({ lonBy, lagnaLon: input.lagnaLon, birthUtcMs });
+
+    await db.transaction(async (tx) => {
+      await tx.delete(profileConvergence).where(eq(profileConvergence.profileId, input.profileId));
+      const CHUNK = 500;
+      for (let i = 0; i < spans.length; i += CHUNK) {
+        const rows = spans.slice(i, i + CHUNK).map((s) => ({
+          profileId: input.profileId,
+          maha: s.maha,
+          antar: s.antar,
+          pratyantar: s.pratyantar,
+          startAt: new Date(s.startMs),
+          endAt: new Date(s.endMs),
+          themes: JSON.stringify(s.themes),
+        }));
+        await tx.insert(profileConvergence).values(rows);
+      }
+    });
+    return spans.length;
+  } catch (err) {
+    if (isMissingTable(err)) {
+      console.warn("[Research Store] profile_convergence table missing — re-run server/scripts/create-research-tables.ts");
       return 0;
     }
     throw err;

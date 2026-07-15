@@ -69,6 +69,10 @@ export type Knot = {
    *  the house / conjunct or aspecting the house-lord). "The more sub cycles that indicate a certain
    *  event, the better probability." This is the count, NOT an invented weight-sum. */
   convergence: number; lit: boolean; tier: KnotTier; signals: KnotSignal[];
+  /** The distinct period-lords behind `convergence` (the tally members, deduped). */
+  activeLords: string[];
+  /** The maha lord itself is tied — Step 15's anchor (the chapter frame). */
+  mahaTied: boolean;
   folds?: KnotTheme[];            // other lit themes that converge on the same planet(s)
   comboProse?: { key: string; positive?: string; negative?: string } | null;
 };
@@ -224,7 +228,10 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
     const mahaTied = args.dashaLords.maha != null && activeLords.has(args.dashaLords.maha);
     const lit = (mahaTied && convergence >= 2) || (convergence >= 1 && datedRulerHit);
     const tier: KnotTier = datedRulerHit ? "event" : "standing";
-    knots.push({ theme: key, label: def.label, houses, karakas, convergence, lit, tier, signals, comboProse });
+    knots.push({
+      theme: key, label: def.label, houses, karakas, convergence, lit, tier, signals, comboProse,
+      activeLords: Array.from(activeLords), mahaTied,
+    });
   }
 
   // ── rank: event-tier (dated, specific) ALWAYS above standing-tier (diffuse year frame), then by

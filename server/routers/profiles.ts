@@ -365,7 +365,7 @@ async function recomputeProfileChart(
   // Best-effort like the precomputes below: a failure warns, never blocks the chart save;
   // missing tables warn once until the manual migration runs.
   try {
-    const { storeNatalResearch, storeDashaTree } = await import('../vedic/research-store.js');
+    const { storeNatalResearch, storeDashaTree, storeConvergence } = await import('../vedic/research-store.js');
     const bodies: Record<string, { longitude: number; longitudeSpeed?: number; declination?: number }> = {};
     for (const [name, data] of [
       ['Sun', chart.sun], ['Moon', chart.moon], ['Mars', chart.mars], ['Mercury', chart.mercury],
@@ -390,6 +390,7 @@ async function recomputeProfileChart(
     };
     const researchStatus = await storeNatalResearch(storeInput);
     await storeDashaTree(storeInput, researchStatus);
+    await storeConvergence(storeInput, researchStatus);
   } catch (researchErr) {
     console.warn('[Profile Chart] Research/dasha store failed (chart itself saved):', researchErr);
   }

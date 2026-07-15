@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   signIndexOf, horaSign, drekkanaSign, chaturthamsaSign, saptamsaSign,
   navamsaSign, dasamsaSign, dwadasamsaSign, trimsamsaSign, vargaSignOf, signName,
-  shodasamsaSign, vimsamsaSign, siddhamsaSign, bhamshaSign,
+  shodasamsaSign, vimsamsaSign, siddhamsaSign, bhamshaSign, khavedamsaSign, akshavedamsaSign, shashtiamsaSign,
 } from "./vargas";
 
 // Every value below is hand-computed from the BPHS rule in the function's comment, then checked
@@ -144,5 +144,21 @@ describe("subtle vargas (Vol II Ch.6, pp.290-291) — hand-computed", () => {
     expect(bhamshaSign(30 + 3)).toBe(5);       // 3° Taurus (earth): part 2 → Virgo
     expect(bhamshaSign(90 + 0.5)).toBe(9);     // 0.5° Cancer (water): part 0 → Capricorn
     expect(bhamshaSign(180 + 15)).toBe(6 + 13 - 12); // 15° Libra (air): part 13 → Libra+13 = Scorpio(7)
+  });
+});
+
+describe("final vargas (Vol II Ch.6, pp.292-293) — hand-computed", () => {
+  it("D40 Khavedamsa: odd→Aries, even→Libra; 45' parts", () => {
+    expect(khavedamsaSign(10)).toBe(1);       // 10° Aries: part 13 → Aries+13 = Taurus
+    expect(khavedamsaSign(30 + 3)).toBe(10);  // 3° Taurus (even→Libra): part 4 → Aquarius
+  });
+  it("D45 Akshavedamsa: movable→Aries, fixed→Leo, dual→Sagittarius; 40' parts", () => {
+    expect(akshavedamsaSign(10)).toBe(3);     // 10° Aries: part 15 → Aries+15 = Cancer
+    expect(akshavedamsaSign(30 + 3)).toBe(8); // 3° Taurus (fixed→Leo): part 4 → Sagittarius
+  });
+  it("D60 Shashtiamsa: the book's own example — Mars 23°35' Cancer → Gemini (p.293)", () => {
+    expect(shashtiamsaSign(90 + 23 + 35 / 60)).toBe(2); // 47 ÷ 12 rem 11 → 12th from Cancer = Gemini
+    expect(shashtiamsaSign(0)).toBe(0);                 // 0° Aries → remainder 0 → Aries itself
+    expect(shashtiamsaSign(0.5)).toBe(1);               // each 30' advances one sign
   });
 });

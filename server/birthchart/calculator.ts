@@ -370,6 +370,24 @@ const SE_PLANET_KEY: Record<string, string> = {
   sun: "SE_SUN", moon: "SE_MOON", mercury: "SE_MERCURY", venus: "SE_VENUS",
   mars: "SE_MARS", jupiter: "SE_JUPITER", saturn: "SE_SATURN",
 };
+/**
+ * Sidereal ascendant longitude at an arbitrary UTC instant/place. Used to resolve the
+ * kalavela upagrahas (Vol II Ch.5): the START of a planet's day/night part, cast as an
+ * ascendant, IS that upagraha's longitude (Gulika = Saturn's part, etc.).
+ */
+export async function ascendantAt(utcMs: number, latitude: number, longitude: number): Promise<number> {
+  const se = await initSwissEph();
+  se.set_sid_mode(se.SE_SIDM_LAHIRI, 0, 0);
+  const d = new Date(utcMs);
+  const jd = se.julday(
+    d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(),
+    d.getUTCHours() + d.getUTCMinutes() / 60 + d.getUTCSeconds() / 3600,
+  );
+  const flags = se.SEFLG_SWIEPH | se.SEFLG_SIDEREAL | (se.SEFLG_SPEED ?? 256);
+  const houseResult = se.houses_ex(jd, flags, latitude, longitude, 'P');
+  return houseResult.ascmc[0];
+}
+
 export async function planetLongitudeSpeed(
   planet: string,
   dateStr: string,

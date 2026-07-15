@@ -34,8 +34,25 @@ import {
 } from "./avashtas";
 import { shadbala, type PlanetShadbala, type ShadbalaContext } from "./shadbala";
 import { vargaSignOf } from "./vargas";
+import { vimshopak, type PlanetVimshopak } from "./vimshopak";
+import {
+  deepthaadiOf, charaKarakas, birthPanchang, dhoomaGroup,
+  type DeepthaadiState, type CharaKarakas, type BirthPanchang,
+} from "./natal-states";
+import { detectYogas, type DetectedYoga } from "./yoga-detect";
+import { bhavaChalitForChart, type BhavaPlacement } from "./bhava-chalit";
+import { signDignity } from "./avashtas";
+import yogasJson from "./canon/yogas.json";
 
-export const RESEARCH_ENGINE_VERSION = "research-v1";
+// v2 (2026-07-15): the complete both-volumes run-through — adds Vimshopak, Deepthaadi,
+// chara karakas + karakamsha, birth panchang, the named-yoga detection, upagrahas
+// (Dhooma group + kalavelas), and Bhava Chalit placements. Bumping this invalidates
+// every stored inputHash, so existing rows recompute on their next touch.
+export const RESEARCH_ENGINE_VERSION = "research-v2";
+
+const YOGA_TYPE: Record<string, string> = Object.fromEntries(
+  ((yogasJson as any).yogas as Array<{ name: string; type?: string }>).map((y) => [y.name, y.type ?? ""]),
+);
 
 // ── Appendix IV per-house varga + karaka routing (pp.665-675 + the per-varga tables) ─────
 // house → the varga its step reads, and the karaka planet(s) checked there. The 11th's
@@ -73,6 +90,13 @@ export interface ResearchInput {
   longitude: number;
   /** How house 1 is framed. */
   basis: "ascendant" | "ascendant_approx" | "chandra";
+  /** Day birth (sunrise→sunset)? From the sunrise solver; null when the time is unknown. */
+  isDayBirth?: boolean | null;
+  /** 0(Sun)..6(Sat) — the sunrise-bounded Vedic weekday; null when unknown. */
+  vedicWeekday?: number | null;
+  /** Kalavela longitudes (gulika, yamakantaka, …) resolved by the caller's ephemeris
+   *  (each part-start time cast as an ascendant); null on no-time charts. */
+  kalavelaLongitudes?: Record<string, number> | null;
 }
 
 export interface PlanetResearch {
@@ -93,6 +117,10 @@ export interface PlanetResearch {
   avashtas: PlanetAvashtas;
   /** Planets sharing the sign, with the natural relation from this planet's side. */
   conjunct: { planet: string; relation: "friend" | "neutral" | "enemy" | "node" }[];
+  /** Vimshopak (Ch.6): the 20-point varga-weighted expression quality, four groups. */
+  vimshopak: { points: PlanetVimshopak["points"]; classification: string };
+  /** Deepthaadi (Ch.3): the nine quick states — every one that applies. */
+  deepthaadi: DeepthaadiState[];
 }
 
 export interface HouseResearch {
@@ -144,6 +172,24 @@ export interface NatalResearch {
   };
   planets: Record<Graha, PlanetResearch>;
   houses: HouseResearch[];
+  /** Chara karakas (Ch.4): the seven ranked significators + the Karakamsha. */
+  charaKarakas: CharaKarakas;
+  /** The five limbs at birth (tithi/vara/yoga/karana; janma nakshatra lives in natal bodies).
+   *  Null when the birth time is unknown (a noon tithi would be a guess near a boundary). */
+  birthPanchang: BirthPanchang | null;
+  /** Named yogas (Vol I + Ch.7) — judged from lagna/Chandra/Surya + navamsha presence. */
+  yogas: DetectedYoga[];
+  upagrahas: {
+    /** The Sun-derived Dhooma group (always computable). */
+    dhooma: Record<string, { longitude: number; sign: string; house: number }>;
+    /** The kalavelas (Gulika et al.) — need the birth time; null on Chandra charts. */
+    kalavelas: Record<string, { longitude: number; sign: string; house: number }> | null;
+  };
+  /** Bhava Chalit (Ch.2): cusp-true placements — null without a real meridian. */
+  bhavaChalit: {
+    method: "sripati" | "equal";
+    placements: Record<string, Pick<BhavaPlacement, "bhava" | "shifted" | "nearSandhi">>;
+  } | null;
 }
 
 const norm = (x: number) => ((x % 360) + 360) % 360;
@@ -181,6 +227,7 @@ export function computeNatalResearch(input: ResearchInput): NatalResearch {
     declBy: input.declBy,
   } : undefined;
   const bala = shadbala(lonBy as Record<Graha, number>, lagnaLon, input.speedBy, ctx);
+  const vim = vimshopak(lonBy as Record<Graha, number>);
 
   // Per-planet research, once.
   const planets = {} as Record<Graha, PlanetResearch>;
@@ -212,6 +259,8 @@ export function computeNatalResearch(input: ResearchInput): NatalResearch {
       },
       avashtas: avashtasOf(g, lonBy, houseOf, moonBright),
       conjunct,
+      vimshopak: { points: vim[g].points, classification: vim[g].classification },
+      deepthaadi: deepthaadiOf(g, lonBy, input.speedBy, signDignity(g, gSign) === "friend"),
     };
   }
 
@@ -293,8 +342,42 @@ export function computeNatalResearch(input: ResearchInput): NatalResearch {
     });
   }
 
-  // Honest pending: union of the planets' missing sources.
-  const pending = Array.from(new Set(GRAHAS.flatMap((g) => bala[g].pending)));
+  // ── The whole-chart layers (v2) ────────────────────────────────────────────────────────
+  const timed = basis !== "chandra";
+
+  const placeOf = (lon: number) => ({
+    longitude: Math.round(lon * 10000) / 10000,
+    sign: signName(signIndexOf(lon)),
+    house: houseFrom(lagnaSignIdx, lon),
+  });
+  const dhooma = Object.fromEntries(
+    Object.entries(dhoomaGroup(lonBy.Sun)).map(([k, v]) => [k, placeOf(v)]),
+  );
+  const kalavelas = input.kalavelaLongitudes
+    ? Object.fromEntries(Object.entries(input.kalavelaLongitudes).map(([k, v]) => [k, placeOf(v)]))
+    : null;
+
+  const yogas = detectYogas({
+    lonBy, lagnaLon, speedBy: input.speedBy, isDayBirth: input.isDayBirth ?? null,
+  }).map((y) => ({ ...y, type: YOGA_TYPE[y.name] ?? y.type }));
+
+  const bhavaChalit = timed && input.mcLon != null
+    ? (() => {
+        const { cusps, placements } = bhavaChalitForChart(lagnaLon, input.mcLon, lonBy);
+        return {
+          method: cusps.method,
+          placements: Object.fromEntries(Object.entries(placements).map(([p, pl]) => [
+            p, { bhava: pl.bhava, shifted: pl.shifted, nearSandhi: pl.nearSandhi },
+          ])),
+        };
+      })()
+    : null;
+
+  // Honest pending: union of the planets' missing sources + the time-gated layers.
+  const pending: string[] = Array.from(new Set(GRAHAS.flatMap((g) => bala[g].pending)));
+  if (!kalavelas) pending.push("kalavelas");
+  if (!bhavaChalit) pending.push("bhava-chalit");
+  if (input.vedicWeekday == null) pending.push("birth-panchang");
 
   return {
     engineVersion: RESEARCH_ENGINE_VERSION,
@@ -303,6 +386,13 @@ export function computeNatalResearch(input: ResearchInput): NatalResearch {
     anchors,
     planets,
     houses,
+    charaKarakas: charaKarakas(lonBy as Record<Graha, number>),
+    birthPanchang: input.vedicWeekday != null
+      ? birthPanchang(lonBy.Sun, lonBy.Moon, input.vedicWeekday)
+      : null,
+    yogas,
+    upagrahas: { dhooma, kalavelas },
+    bhavaChalit,
   };
 }
 

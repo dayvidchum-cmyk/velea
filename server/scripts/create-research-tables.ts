@@ -52,6 +52,22 @@ async function main() {
     )
   `);
   console.log("✅ profile_dasha_periods table ready.");
+
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS profile_convergence (
+      id INT NOT NULL AUTO_INCREMENT,
+      profileId INT NOT NULL,
+      maha VARCHAR(8) NOT NULL,
+      antar VARCHAR(8) NOT NULL,
+      pratyantar VARCHAR(8) NOT NULL,
+      startAt DATETIME(3) NOT NULL,
+      endAt DATETIME(3) NOT NULL,
+      themes TEXT NOT NULL,
+      PRIMARY KEY (id),
+      KEY idx_convergence_lookup (profileId, startAt)
+    )
+  `);
+  console.log("✅ profile_convergence table ready.");
   process.exit(0);
 }
 

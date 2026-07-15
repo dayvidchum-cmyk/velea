@@ -17,6 +17,9 @@ function input(overrides: Partial<ResearchInput> = {}): ResearchInput {
     latitude: 34.05,
     longitude: -118.24,
     basis: "ascendant",
+    isDayBirth: true,
+    vedicWeekday: 5, // Friday
+    kalavelaLongitudes: { gulika: 200, yamakantaka: 95, kala: 10, paridhi: 40, ardhaprahara: 70, indrachapaK: 130, mrityu: 160 },
     ...overrides,
   };
 }
@@ -108,6 +111,7 @@ describe("house research — honesty gates", () => {
     const r = computeNatalResearch(input({
       basis: "chandra", mcLon: null, birthUtcMs: null,
       lagnaLon: 190, // Moon-as-1st
+      isDayBirth: null, vedicWeekday: null, kalavelaLongitudes: null,
     }));
     expect(r.basis).toBe("chandra");
     expect(r.pending).toEqual(expect.arrayContaining(["dig", "kala"]));
@@ -121,5 +125,66 @@ describe("house research — honesty gates", () => {
     const r = computeNatalResearch(input());
     // degInSign: Sun 10, Moon 10, Mars 10, Mercury 10, Jupiter 5, Venus 20, Saturn 5 → Venus
     expect(r.anchors.atmakaraka.planet).toBe("Venus");
+  });
+});
+
+describe("house research v2 — the both-volumes layers", () => {
+  const r = computeNatalResearch(input());
+
+  it("every planet carries Vimshopak (all four groups ≤ 20) and Deepthaadi states", () => {
+    for (const g of GRAHAS) {
+      const p = r.planets[g];
+      for (const grp of ["shad", "sapta", "dasha", "shodasha"] as const) {
+        expect(p.vimshopak.points[grp]).toBeGreaterThan(0);
+        expect(p.vimshopak.points[grp]).toBeLessThanOrEqual(20);
+      }
+      expect(p.vimshopak.classification).toBeTruthy();
+      expect(p.deepthaadi.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("chara karakas rank the seven by degrees-in-sign; karakamsha is the AK's D9 sign", () => {
+    const ck = r.charaKarakas;
+    // degInSign: Venus 20 is highest → Atma; Jupiter 5 / Saturn 5 lowest pair.
+    expect(ck.karakas.atma).toBe("Venus");
+    expect(new Set(Object.values(ck.karakas)).size).toBe(7); // all distinct
+    expect(ck.karakamsha).toBeTruthy();
+  });
+
+  it("birth panchang: tithi/paksha/yoga/karana from Sun+Moon, vara from the weekday", () => {
+    const bp = r.birthPanchang!;
+    // Sun 40, Moon 190 → elongation 150° → tithi 13 (Trayodashi), Shukla.
+    expect(bp.tithi.number).toBe(13);
+    expect(bp.tithi.paksha).toBe("Shukla");
+    expect(bp.vara).toBe("Venus"); // Friday
+    expect(bp.yoga.number).toBe(Math.floor(((40 + 190) % 360) / (360 / 27)) + 1);
+    expect(bp.karana.name).toBeTruthy();
+  });
+
+  it("upagrahas: the Dhooma five close their cycle back to the Sun; kalavelas placed", () => {
+    const d = r.upagrahas.dhooma;
+    expect(d.dhooma.longitude).toBeCloseTo((40 + 133 + 20 / 60) % 360, 3);
+    expect((d.upaketu.longitude + 30) % 360).toBeCloseTo(40, 3); // Upaketu + 30° = Sun
+    expect(r.upagrahas.kalavelas!.gulika.house).toBe(7); // 200° = Libra = 7th from Aries lagna
+  });
+
+  it("yogas: detected with frames and navamsha flags; Buddhaditya absent (Sun/Mercury apart)", () => {
+    expect(Array.isArray(r.yogas)).toBe(true);
+    for (const y of r.yogas) {
+      expect(y.frames.length).toBeGreaterThan(0);
+      expect(typeof y.inNavamsha).toBe("boolean");
+    }
+    expect(r.yogas.find((y) => y.name === "Buddhaditya")).toBeUndefined(); // Sun 40, Mercury 70
+  });
+
+  it("bhava chalit present on timed charts (sripati), absent on chandra", () => {
+    expect(r.bhavaChalit?.method).toBe("sripati");
+    expect(Object.keys(r.bhavaChalit!.placements)).toContain("Sun");
+    const chandra = computeNatalResearch(input({
+      basis: "chandra", mcLon: null, birthUtcMs: null, lagnaLon: 190,
+      isDayBirth: null, vedicWeekday: null, kalavelaLongitudes: null,
+    }));
+    expect(chandra.bhavaChalit).toBeNull();
+    expect(chandra.pending).toEqual(expect.arrayContaining(["kalavelas", "bhava-chalit", "birth-panchang"]));
   });
 });

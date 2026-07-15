@@ -127,9 +127,34 @@ export function bhamshaSign(lon: number): number {
   return (start + part) % 12;
 }
 
+// ── D40 · Khavedamsa (auspicious/inauspicious effects; emotional-psychological habits).
+//    45' parts; odd signs start from Aries, even signs from Libra. (Vol II Ch.6, p.292.) ────
+export function khavedamsaSign(lon: number): number {
+  const s = signIndexOf(lon), part = Math.floor(degInSign(lon) / 0.75);
+  const start = isOddSign(s) ? 0 : 6; // odd=Aries(0), even=Libra(6)
+  return (start + part) % 12;
+}
+
+// ── D45 · Akshavedamsa (moral/ethical nature; fine-tunes all indications). 40' parts;
+//    movable → Aries, fixed → Leo, common → Sagittarius. (Ch.6, p.292.) ────────────────────
+export function akshavedamsaSign(lon: number): number {
+  const s = signIndexOf(lon), part = Math.floor(degInSign(lon) / (2 / 3));
+  const start = [0, 4, 8][s % 3]; // movable=Aries, fixed=Leo, dual=Sagittarius
+  return (start + part) % 12;
+}
+
+// ── D60 · Shashtiamsa (fine karma; twins). 30' parts. BPHS rule (Ch.6, p.293): multiply the
+//    degrees within the sign by 2, divide by 12 — the remainder counted from the OCCUPIED
+//    sign is the shashtiamsa sign. (Book example: Mars 23°35' Cancer → 47 ÷ 12 rem 11 →
+//    12th from Cancer = Gemini.) ───────────────────────────────────────────────────────────
+export function shashtiamsaSign(lon: number): number {
+  const s = signIndexOf(lon);
+  return (s + (Math.floor(degInSign(lon) * 2) % 12)) % 12;
+}
+
 export type VargaCode =
   | "D1" | "D2" | "D3" | "D4" | "D7" | "D9" | "D10" | "D12"
-  | "D16" | "D20" | "D24" | "D27" | "D30";
+  | "D16" | "D20" | "D24" | "D27" | "D30" | "D40" | "D45" | "D60";
 
 const VARGA_FN: Record<VargaCode, (lon: number) => number> = {
   D1: signIndexOf,
@@ -145,6 +170,9 @@ const VARGA_FN: Record<VargaCode, (lon: number) => number> = {
   D24: siddhamsaSign,
   D27: bhamshaSign,
   D30: trimsamsaSign,
+  D40: khavedamsaSign,
+  D45: akshavedamsaSign,
+  D60: shashtiamsaSign,
 };
 
 /** The varga sign index (0=Aries) of a longitude in the named divisional chart. */

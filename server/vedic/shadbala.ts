@@ -213,8 +213,9 @@ interface KalaInputs {
   declBy?: Partial<Record<Graha, number>>;
 }
 
-/** Sunrise/sunset (UTC ms) bracketing the birth: the Vedic day it falls in. */
-function vedicDay(birthUtcMs: number, lat: number, lon: number): {
+/** Sunrise/sunset (UTC ms) bracketing the birth: the Vedic day it falls in.
+ *  Exported for reuse (kalavelas, birth panchang) — one sunrise law for all consumers. */
+export function vedicDay(birthUtcMs: number, lat: number, lon: number): {
   sunriseMs: number; sunsetMs: number; nextSunriseMs: number; civilDate: Date;
 } {
   // Start from the birthplace's approximate civil date (local mean time by longitude).

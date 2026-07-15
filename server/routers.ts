@@ -1077,7 +1077,7 @@ export const appRouter = router({
               // MAIN owner flow (BirthChartSheet) and does not go through recomputeProfileChart,
               // so it must store them itself. Best-effort: a failure never blocks the save.
               try {
-                const { storeNatalResearch, storeDashaTree } = await import('./vedic/research-store.js');
+                const { storeNatalResearch, storeDashaTree, storeConvergence } = await import('./vedic/research-store.js');
                 const bodies: Record<string, { longitude: number; longitudeSpeed?: number; declination?: number }> = {};
                 for (const planet of planetData) {
                   bodies[planet.name] = {
@@ -1098,6 +1098,7 @@ export const appRouter = router({
                 };
                 const researchStatus = await storeNatalResearch(storeInput);
                 await storeDashaTree(storeInput, researchStatus);
+                await storeConvergence(storeInput, researchStatus);
               } catch (researchErr) {
                 console.warn('[Birth Chart] Research/dasha store failed (chart itself saved):', researchErr);
               }
