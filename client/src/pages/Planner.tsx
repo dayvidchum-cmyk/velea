@@ -69,7 +69,7 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 // in the hero's words. His hexes verbatim.
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
-const BETWEEN: [string, string] = ["transparent", "var(--color-muted-foreground)"];
+const BETWEEN: [string, string] = ["#00687a", "#E8F1F2"]; // the between — David's deep teal (2026-07-15)
 const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foreground)"];
 
 // (Retired from the coins 2026-07-16 — kept for the hero word only.)
@@ -1218,7 +1218,7 @@ export default function Planner() {
             // today-border: today is simply the filled coin.
             // Every coin is FILLED with its rung tint (the year view's language) — today and the
             // selected day distinguish themselves by ring + weight, not by being the only fills.
-            const filled = rung ? rung.quality !== "mixed" : (isToday || isSelected) && hasMode;
+            const filled = rung ? true : (isToday || isSelected) && hasMode;
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.

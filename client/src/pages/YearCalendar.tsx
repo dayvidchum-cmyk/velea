@@ -19,7 +19,7 @@ const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio
 // THREE FLAT STATES (David 2026-07-15): green = go, rose = caution, bare paper between.
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
-const BETWEEN: [string, string] = ["transparent", "#6b6455"];
+const BETWEEN: [string, string] = ["#00687a", "#E8F1F2"]; // the between — David's deep teal
 
 type RankedDay = {
   date: string; rank: number;
@@ -102,7 +102,7 @@ export default function YearCalendar() {
           <>
             {/* Legend */}
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-              {[["#90a989", "go"], ["#d57176", "caution"]].map(([c, n]) => (
+              {[["#90a989", "go"], ["#00687a", "between"], ["#d57176", "caution"]].map(([c, n]) => (
                 <span key={n} className="inline-flex items-center gap-1">
                   <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c }} /> {n}
                 </span>
