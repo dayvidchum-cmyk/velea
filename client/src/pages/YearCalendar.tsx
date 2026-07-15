@@ -138,7 +138,9 @@ export default function YearCalendar() {
                         const ds = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const d = byDate.get(ds);
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
-                        const [bg, ink] = (d as any).movement
+                        const [bg, ink] = (d as any).movement === "build"
+                          ? (({ deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#E8C84A", "#4a3c10"] } as Record<string, [string, string]>)[(d as any).buildDepth ?? "mid"])
+                          : (d as any).movement
                           ? (MOVEMENT_BG[(d as any).movement] ?? BETWEEN)
                           : d.tara.quality === "good" ? GO_GREEN
                           : d.tara.quality === "bad" ? CAUTION_ROSE : BETWEEN;

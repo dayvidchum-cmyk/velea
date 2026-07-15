@@ -180,7 +180,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v5`;
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v6`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 
@@ -278,6 +278,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
         chandraFavorable: !!d.chandra?.favorable,
       });
       d.movement = mv; d.movementWord = MOVEMENT_WORD[mv];
+      if (mv === "build") d.buildDepth = d.tara.quality === "good" ? (d.tara.taraNum >= 8 ? "deep" : "mid") : "thin";
     } catch { /* a day without movement still ranks */ }
   }
   const result = { yearStart, yearEnd, natalMoonSignIdx, birthNakIdx, ...ranked };
@@ -1828,10 +1829,17 @@ export const appRouter = router({
               mercuryNearStation: Math.abs(merc.speed) < 0.15,
               chandraFavorable: !!day.chandra?.favorable,
             });
+            // Build days confess their depth (David 2026-07-15): the rung under the word.
+            // deep = the great-friend rungs (9/8) · mid = the other favorable rungs · thin =
+            // the softened/own-star ground. Shades come from the hero card's own gradient.
+            const buildDepth = mv === "build"
+              ? (day.tara.quality === "good" ? (day.tara.taraNum >= 8 ? "deep" : "mid") : "thin")
+              : undefined;
             character = {
               nature: c.nature, family: c.family, headline: c.headline, sentence: c.sentence,
               supports: c.supports, avoid: c.avoid, vetoes: c.vetoes, contained: c.contained,
               movement: mv, movementWord: MOVEMENT_WORD[mv],
+              ...(buildDepth ? { buildDepth } : {}),
             };
             // Task machinery bridge: four of the six ARE the task tags; golden covers anything,
             // caution is a hard stop. The weather gate stays as the final clamp.

@@ -70,11 +70,18 @@ const MOVEMENT_BG: Record<string, [string, string]> = {
   golden:    ["#2E7D4F", "#ffffff"], // Golden Day — the best, for anything
   action:    ["#77A96B", "#1d2a18"],              // outward movement, full go
   selective: ["#00687a", "#E8F1F2"],              // tend, but finish something
-  build:     ["#D4AF37", "#3a2f10"],              // tend what's already present
+  build:     ["#D4AF37", "#3a2f10"],              // tend what's already present (mid depth)
   restraint: ["#d57176", "#3A1518"],              // tend, with extreme caution
   caution:   ["#cc2f2f", "#ffffff"],              // stop. stop. stop.
 };
 const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foreground)"];
+// Build depth wears the hero gradient's own golds (David 2026-07-15): deep rung = the
+// darker stop, thin ground = the palest. Same family the hero card breathes.
+const BUILD_DEPTH_BG: Record<string, [string, string]> = {
+  deep: ["#C49A2E", "#2e2408"],
+  mid: ["#D4AF37", "#3a2f10"],
+  thin: ["#E8C84A", "#4a3c10"],
+};
 // Legacy three-state fallback for dates outside the ranked year (cold cache, far months).
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
@@ -865,6 +872,12 @@ export default function Planner() {
                 : (selectedTaskModeForHero ?? selectedPanchang.mode)}
             </h2>
 
+            {/* Build depth — the rung confessing under the word (extremes only, no noise). */}
+            {selectedCharacter?.movement === "build" && selectedCharacter.buildDepth && selectedCharacter.buildDepth !== "mid" && (
+              <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)', marginTop: '-0.5rem', marginBottom: '0.35rem' }}>
+                {selectedCharacter.buildDepth === "deep" ? "deep — the ground holds a lot today" : "thin — tend with a lighter hand"}
+              </p>
+            )}
             {/* The day's character line — the classical filter's headline + tilt. */}
             {selectedCharacter && (
               <p style={{ fontSize: 'clamp(0.8rem, 3.4vw, 1rem)', fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', marginTop: '-0.35rem', marginBottom: '0.4rem' }}>
@@ -1180,7 +1193,9 @@ export default function Planner() {
             // the year view — the grouped golds-through-reds that carry meaning. The nature
             // rainbow is retired from the coins; nature speaks in the hero's words.
             const rung = rungByDate.get(dateStr);
-            const [rungBg, rungInk] = dayCharacter?.movement
+            const [rungBg, rungInk] = dayCharacter?.movement === "build"
+              ? (BUILD_DEPTH_BG[dayCharacter.buildDepth ?? "mid"] ?? MOVEMENT_BG.build)
+              : dayCharacter?.movement
               ? (MOVEMENT_BG[dayCharacter.movement] ?? BETWEEN)
               : rung
               ? (rung.quality === "good" ? GO_GREEN
