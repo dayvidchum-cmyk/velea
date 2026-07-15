@@ -38,9 +38,11 @@ export const NATURE_LABEL: Record<DayNature, string> = {
   fixed: "a foundation day", movable: "a moving day", swift: "a quick-wins day",
   tender: "a tender day", sharp: "a cutting day", fierce: "a forceful day", mixed: "a steady day",
 };
+// Plain lived words — David 2026-07-15: "tithi in the hero headline = bad". The Sanskrit
+// stays in the canon file; the reader gets the day as it is lived.
 export const FAMILY_LABEL: Record<TithiFamily, string> = {
-  nanda: "in a joy tithi", bhadra: "in a work tithi", jaya: "in a victory tithi",
-  rikta: "in an empty tithi", purna: "in a full tithi",
+  nanda: "with joy in it", bhadra: "built for work", jaya: "built to win",
+  rikta: "running on empty", purna: "made for finishing",
 };
 
 export interface DayFilterInput {
@@ -96,11 +98,11 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     supports = nature === "sharp" || nature === "fierce"
       ? [...natDef.supports, ...famDef.supports]
       : [...famDef.supports];
-    vetoes.push("an empty tithi — nothing new unless it severs");
+    vetoes.push("the day runs on empty — nothing new unless it severs");
   }
   // Vishti: no initiating, whatever else the day offers.
   if (input.vishti) {
-    vetoes.push("initiating is blocked (the karana) — continue, don't begin");
+    vetoes.push("the day's grain blocks starting — continue, don't begin");
     supports = supports.filter((s) => !/beginn|launch|starting|new /i.test(s));
   }
   // Mercury's contest: beginnings capped, never a wall.

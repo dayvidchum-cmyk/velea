@@ -25,7 +25,7 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
 
   it("a tender day in a work tithi supports the soft and the useful, avoids the cut", () => {
     const d = dayFilter({ ...base, nakshatra: "Anuradha", tithiNumber: 7 });
-    expect(d.headline).toBe("a tender day in a work tithi");
+    expect(d.headline).toBe("a tender day built for work");
     expect(d.supports.join(" ")).toMatch(/love|friendship|art/);
     expect(d.supports.join(" ")).toMatch(/work|health|constructive/);
     expect(d.avoid.join(" ")).toMatch(/confrontation|cutting/);
@@ -35,14 +35,14 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
   it("rikta empties every nature except the cutting ones", () => {
     const soft = dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 });
     expect(soft.supports).toEqual(["cutting and severing acts only"]);
-    expect(soft.vetoes.join(" ")).toMatch(/empty tithi/);
+    expect(soft.vetoes.join(" ")).toMatch(/runs on empty/);
     const sharp = dayFilter({ ...base, nakshatra: "Mula", tithiNumber: 4 });
     expect(sharp.supports.join(" ")).toMatch(/decisive cuts|endings/);
   });
 
   it("vishti and the Mercury contest strip beginnings without walling the day", () => {
     const v = dayFilter({ ...base, nakshatra: "Anuradha", tithiNumber: 1, vishti: true });
-    expect(v.vetoes.join(" ")).toMatch(/initiating is blocked/);
+    expect(v.vetoes.join(" ")).toMatch(/blocks starting/);
     expect(v.supports.join(" ")).not.toMatch(/beginnings/i);
     const m = dayFilter({ ...base, nakshatra: "Anuradha", tithiNumber: 1, mercuryContest: true });
     expect(m.vetoes.join(" ")).toMatch(/Mercury/);

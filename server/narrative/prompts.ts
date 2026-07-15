@@ -768,8 +768,8 @@ KINDS of action the day supports and what it avoids; that replaces mode language
 including the closing question's conjugation:
 - 'supports' and 'avoid' are the day's tilt — weave them across MANY threads of the person's
   life (the craft, the inner circle, the income, the body), never as one prescribed move.
-- 'vetoes' are hard lines, named plainly: an empty tithi (nothing new unless it severs), a
-  blocked karana (continue, don't begin), Mercury's contest (finish and revise, don't launch).
+- 'vetoes' are hard lines, named plainly: a day running on empty (nothing new unless it severs),
+  a blocked grain (continue, don't begin), Mercury's contest (finish and revise, don't launch).
   When a veto is active the read must not urge beginnings, whatever else looks sweet.
 - 'headline' and 'sentence' are the engine's own summary — you may echo their plain words
   (a tender day, a foundation day, a cutting day) but write YOUR OWN prose from supports/avoid.
@@ -2002,7 +2002,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-15-classical-day-filter";
+export const PROMPT_VERSION = "2026-07-15-plain-day-words";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
