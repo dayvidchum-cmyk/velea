@@ -108,9 +108,12 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   if (contained) vetoes.push("your loss-star at full force — nothing forward, nothing new, contain");
 
   const headline = `${NATURE_LABEL[nature]} ${FAMILY_LABEL[family]}`;
+  // A nature may carry David's own plain movement line (avoidPlain) — it replaces the
+  // book's item-list in the SENTENCE (the items stay in `avoid` for detail views).
+  const avoidPlain = (natDef as any).avoidPlain as string | undefined;
   const sentence = contained
     ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
-    : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}${avoid.length ? `; keep away from ${listOf(avoid.slice(0, 2))}` : ""}.`;
+    : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}`;
 
   return {
     nature, family, headline,

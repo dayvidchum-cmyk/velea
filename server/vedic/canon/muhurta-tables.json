@@ -1,58 +1,245 @@
 {
   "_source": "The standard classical muhurta tables — Muhurta Chintamani (Nakshatra-prakarana), Brihat Samhita Ch.98 (nakshatra karma-guna), and the tithi/vara allocations common to Muhurta Chintamani and Prasna Marga. David blessed the standard tables 2026-07-15 ('use the standard classical tables') — K&F Vols I-II teach the panchang limbs and point at this tradition but do not reproduce these tables; each row below is the invariant classical allocation.",
   "_note": "THE DAY FILTER — replaces Velea's invented 4-mode taxonomy (David 2026-07-15: 'i want to eliminate my 4 modes and replace with how the books would filter each day'). Two axes classify the collective day (nakshatra NATURE × tithi FAMILY), the vara colors it, the karana can veto initiating, and the native's personal tara ladder overrides everything (a loss-star day stays quiet no matter how sweet the limbs).",
-
   "nakshatraNature": {
     "_desc": "Every nakshatra belongs to exactly ONE of seven natures (Muhurta Chintamani; Brihat Samhita 98). Index = sidereal order, 0 = Ashwini.",
-    "fixed":   { "sanskrit": "Dhruva/Sthira", "nakshatras": ["Rohini", "Uttara Phalguni", "Uttara Ashadha", "Uttara Bhadrapada"],
-                 "supports": ["foundations", "commitments meant to last", "starting construction", "planting", "vows"],
-                 "avoid": ["travel", "anything meant to move quickly"] },
-    "movable": { "sanskrit": "Chara", "nakshatras": ["Swati", "Punarvasu", "Shravana", "Dhanishtha", "Shatabhisha"],
-                 "supports": ["travel", "moves and relocations", "vehicles", "change of direction", "anything meant to shift"],
-                 "avoid": ["laying permanent foundations"] },
-    "swift":   { "sanskrit": "Kshipra/Laghu", "nakshatras": ["Ashwini", "Pushya", "Hasta"],
-                 "supports": ["quick errands", "trade and sales", "learning", "healing and remedies", "short tasks finished same-day"],
-                 "avoid": [] },
-    "tender":  { "sanskrit": "Mridu", "nakshatras": ["Mrigashira", "Chitra", "Anuradha", "Revati"],
-                 "supports": ["love and union", "friendship and reconciliation", "art and music", "new clothes and adornment", "gentle beginnings"],
-                 "avoid": ["confrontation", "cutting anything off"] },
-    "sharp":   { "sanskrit": "Tikshna/Daruna", "nakshatras": ["Ardra", "Ashlesha", "Jyeshtha", "Mula"],
-                 "supports": ["decisive cuts", "surgery and incisive procedures", "clean endings and separations", "confrontation done cleanly"],
-                 "avoid": ["weddings and gentle beginnings", "celebrations"] },
-    "fierce":  { "sanskrit": "Ugra", "nakshatras": ["Bharani", "Magha", "Purva Phalguni", "Purva Ashadha", "Purva Bhadrapada"],
-                 "supports": ["force", "demolition", "hard confrontation", "acts requiring ruthlessness"],
-                 "avoid": ["almost everything gentle", "beginnings", "journeys"] },
-    "mixed":   { "sanskrit": "Misra/Sadharana", "nakshatras": ["Krittika", "Vishakha"],
-                 "supports": ["routine and mundane work", "fire-related acts", "day-to-day duties"],
-                 "avoid": ["the extremes — neither launch nor cut"] }
+    "fixed": {
+      "sanskrit": "Dhruva/Sthira",
+      "nakshatras": [
+        "Rohini",
+        "Uttara Phalguni",
+        "Uttara Ashadha",
+        "Uttara Bhadrapada"
+      ],
+      "supports": [
+        "foundations",
+        "commitments meant to last",
+        "starting construction",
+        "planting",
+        "vows"
+      ],
+      "avoid": [
+        "travel",
+        "anything meant to move quickly"
+      ]
+    },
+    "movable": {
+      "sanskrit": "Chara",
+      "nakshatras": [
+        "Swati",
+        "Punarvasu",
+        "Shravana",
+        "Dhanishtha",
+        "Shatabhisha"
+      ],
+      "supports": [
+        "travel",
+        "moves and relocations",
+        "vehicles",
+        "change of direction",
+        "anything meant to shift"
+      ],
+      "avoid": [
+        "laying permanent foundations"
+      ]
+    },
+    "swift": {
+      "sanskrit": "Kshipra/Laghu",
+      "nakshatras": [
+        "Ashwini",
+        "Pushya",
+        "Hasta"
+      ],
+      "supports": [
+        "quick errands",
+        "trade and sales",
+        "learning",
+        "healing and remedies",
+        "short tasks finished same-day"
+      ],
+      "avoid": []
+    },
+    "tender": {
+      "sanskrit": "Mridu",
+      "nakshatras": [
+        "Mrigashira",
+        "Chitra",
+        "Anuradha",
+        "Revati"
+      ],
+      "supports": [
+        "love and union",
+        "friendship and reconciliation",
+        "art and music",
+        "new clothes and adornment",
+        "gentle beginnings"
+      ],
+      "avoid": [
+        "confrontation",
+        "cutting anything off"
+      ]
+    },
+    "sharp": {
+      "sanskrit": "Tikshna/Daruna",
+      "nakshatras": [
+        "Ardra",
+        "Ashlesha",
+        "Jyeshtha",
+        "Mula"
+      ],
+      "supports": [
+        "decisive cuts",
+        "surgery and incisive procedures",
+        "clean endings and separations",
+        "confrontation done cleanly"
+      ],
+      "avoid": [
+        "weddings and gentle beginnings",
+        "celebrations"
+      ],
+      "avoidPlain": "Don't start anything new. Today is not a day where something is completed."
+    },
+    "fierce": {
+      "sanskrit": "Ugra",
+      "nakshatras": [
+        "Bharani",
+        "Magha",
+        "Purva Phalguni",
+        "Purva Ashadha",
+        "Purva Bhadrapada"
+      ],
+      "supports": [
+        "force",
+        "demolition",
+        "hard confrontation",
+        "acts requiring ruthlessness"
+      ],
+      "avoid": [
+        "almost everything gentle",
+        "beginnings",
+        "journeys"
+      ]
+    },
+    "mixed": {
+      "sanskrit": "Misra/Sadharana",
+      "nakshatras": [
+        "Krittika",
+        "Vishakha"
+      ],
+      "supports": [
+        "routine and mundane work",
+        "fire-related acts",
+        "day-to-day duties"
+      ],
+      "avoid": [
+        "the extremes — neither launch nor cut"
+      ]
+    }
   },
-
   "tithiFamily": {
     "_desc": "Tithis repeat in five families through each paksha (1..15 in both halves). Number = tithi-in-paksha.",
-    "nanda": { "sanskrit": "Nanda (joy)", "tithisInPaksha": [1, 6, 11],
-               "supports": ["pleasure and celebration", "festivity", "the arts", "beginnings of enjoyable things"] },
-    "bhadra": { "sanskrit": "Bhadra (health)", "tithisInPaksha": [2, 7, 12],
-                "supports": ["work", "health matters", "the useful and constructive"] },
-    "jaya":  { "sanskrit": "Jaya (victory)", "tithisInPaksha": [3, 8, 13],
-               "supports": ["contests", "negotiations you must win", "launches against resistance", "disputes pressed to a finish"] },
-    "rikta": { "sanskrit": "Rikta (empty)", "tithisInPaksha": [4, 9, 14],
-               "supports": ["cutting and severing acts only"],
-               "avoid": ["anything new", "anything meant to grow"] },
-    "purna": { "sanskrit": "Purna (full)", "tithisInPaksha": [5, 10, 15],
-               "supports": ["completion and fulfilment", "ceremonies", "closings", "marriage"] }
+    "nanda": {
+      "sanskrit": "Nanda (joy)",
+      "tithisInPaksha": [
+        1,
+        6,
+        11
+      ],
+      "supports": [
+        "pleasure and celebration",
+        "festivity",
+        "the arts",
+        "beginnings of enjoyable things"
+      ]
+    },
+    "bhadra": {
+      "sanskrit": "Bhadra (health)",
+      "tithisInPaksha": [
+        2,
+        7,
+        12
+      ],
+      "supports": [
+        "work",
+        "health matters",
+        "the useful and constructive"
+      ]
+    },
+    "jaya": {
+      "sanskrit": "Jaya (victory)",
+      "tithisInPaksha": [
+        3,
+        8,
+        13
+      ],
+      "supports": [
+        "contests",
+        "negotiations you must win",
+        "launches against resistance",
+        "disputes pressed to a finish"
+      ]
+    },
+    "rikta": {
+      "sanskrit": "Rikta (empty)",
+      "tithisInPaksha": [
+        4,
+        9,
+        14
+      ],
+      "supports": [
+        "cutting and severing acts only"
+      ],
+      "avoid": [
+        "anything new",
+        "anything meant to grow"
+      ]
+    },
+    "purna": {
+      "sanskrit": "Purna (full)",
+      "tithisInPaksha": [
+        5,
+        10,
+        15
+      ],
+      "supports": [
+        "completion and fulfilment",
+        "ceremonies",
+        "closings",
+        "marriage"
+      ]
+    }
   },
-
   "vara": {
     "_desc": "The weekday lord colors the day's work (classical vara allocations).",
-    "Sun":     { "day": "Sunday", "colors": "authority, government, vitality, the father's matters" },
-    "Moon":    { "day": "Monday", "colors": "nurture, the public, water, home and mother's matters" },
-    "Mars":    { "day": "Tuesday", "colors": "courage, conflict, surgery, land and machines" },
-    "Mercury": { "day": "Wednesday", "colors": "commerce, writing, learning, messages" },
-    "Jupiter": { "day": "Thursday", "colors": "counsel, ceremony, teachers, growth and children" },
-    "Venus":   { "day": "Friday", "colors": "love, art, pleasure, partnerships" },
-    "Saturn":  { "day": "Saturday", "colors": "labor, discipline, endings, service and the old" }
+    "Sun": {
+      "day": "Sunday",
+      "colors": "authority, government, vitality, the father's matters"
+    },
+    "Moon": {
+      "day": "Monday",
+      "colors": "nurture, the public, water, home and mother's matters"
+    },
+    "Mars": {
+      "day": "Tuesday",
+      "colors": "courage, conflict, surgery, land and machines"
+    },
+    "Mercury": {
+      "day": "Wednesday",
+      "colors": "commerce, writing, learning, messages"
+    },
+    "Jupiter": {
+      "day": "Thursday",
+      "colors": "counsel, ceremony, teachers, growth and children"
+    },
+    "Venus": {
+      "day": "Friday",
+      "colors": "love, art, pleasure, partnerships"
+    },
+    "Saturn": {
+      "day": "Saturday",
+      "colors": "labor, discipline, endings, service and the old"
+    }
   },
-
   "vetoes": {
     "vishti": "The Vishti (Bhadra) karana blocks INITIATING regardless of the axes — already the app's karana law.",
     "rikta": "A Rikta tithi is a built-in nothing-new day unless the act itself is a severing.",

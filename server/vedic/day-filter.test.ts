@@ -30,6 +30,7 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
     expect(d.supports.join(" ")).toMatch(/work|health|constructive/);
     expect(d.avoid.join(" ")).toMatch(/confrontation|cutting/);
     expect(d.sentence).toMatch(/^A tender day/);
+    expect(d.sentence).toMatch(/Keep away from/);
   });
 
   it("rikta empties every nature except the cutting ones", () => {
@@ -95,5 +96,14 @@ describe("movementOf — the six movements under the SHIPPED rx law (interpreter
     expect(movementOf(purna, goodTara, false)).toBe("selective");
     const vishti = dayFilter({ ...base, nakshatra: "Ashlesha", tithiNumber: 2, vishti: true });
     expect(movementOf(vishti, goodTara, false)).toBe("selective");
+  });
+});
+
+describe("David's plain movement line on cutting days (2026-07-15)", () => {
+  it("the sharp-day sentence speaks his words, not the book's item-list", () => {
+    const d = dayFilter({ varaLord: "Mercury", vishti: false, tara: null, nakshatra: "Ashlesha", tithiNumber: 2 });
+    expect(d.sentence).toMatch(/Don't start anything new\. Today is not a day where something is completed\./);
+    expect(d.sentence).not.toMatch(/weddings/);
+    expect(d.avoid.join(" ")).toMatch(/weddings/); // the detail data keeps the book's items
   });
 });
