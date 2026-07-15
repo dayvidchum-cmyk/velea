@@ -1326,7 +1326,7 @@ export default function Planner() {
                     // above the 1rem number so the turning planet reads at a glance (David).
                     <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: accent, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
+                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: numberColor, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
                   ) : (

@@ -111,6 +111,12 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // The dateline's qualifier used to come ONLY from the Today page (via heroMode), so every other
   // page's dateline was missing it. Fetch today's panchang here so the header is correct everywhere.
   const { data: headerPanchang } = trpc.panchang.today.useQuery(undefined, { enabled: isAuthenticated, staleTime: 600000 });
+  // The dateline's day word now comes from the SAME source as the calendar and hero — the
+  // six movements (David 2026-07-15: the old pipeline's word kept leaking here as "BUILD").
+  const { data: headerCrown } = trpc.crown.forMonth.useQuery(
+    { year: new Date(nowMs).getFullYear(), month: new Date(nowMs).getMonth() + 1 },
+    { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
+  );
 
   const { data: profileList = [] } = trpc.profiles.list.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -183,13 +189,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     ?? horaYesterday?.horas?.find((h: any) => nowMs >= h.startMs && nowMs < h.endMs);
   const stampHoraLord = horaCurrent?.lord ?? null;
   const stampTime = stampDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  // The qualifier is usually the FULL 2-word label ("Restrained Build"); only append the mode
-  // when the qualifier doesn't already contain it — avoids "Restrained Build Build" / "Build Build".
-  const stampModeLabel = stampQualifier
-    ? (stampMode && !stampQualifier.toLowerCase().includes(stampMode.toLowerCase())
-        ? `${stampQualifier} ${stampMode}`
-        : stampQualifier)
-    : (stampMode ?? "");
+  // ONE SOURCE: the dateline word is today's movement (Golden Day / Action / Build /
+  // Selective / Restraint / Caution) — the retired pipeline's mode/qualifier never render.
+  const todayMovementWord = (headerCrown as any)?.days?.find((d: any) => d.date === stampDateStr)?.character?.movementWord ?? null;
+  const stampModeLabel = todayMovementWord ?? "";
+  void stampMode; void stampQualifier; // retired vocabulary — kept only so older code paths type-check
 
 
   // ── HERO LAYOUT (all pages) ────────────────────────────────────────────────

@@ -477,6 +477,12 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       supports: c.supports, avoid: c.avoid, vetoes: c.vetoes,
       varaColors: c.varaColors,
     };
+    // The retired mode vocabulary leaves the model's sight entirely (David's screenshot,
+    // 2026-07-15: the prose echoed "A Corrective Build day"). A model can't echo words it
+    // never receives; the old mode-conjugation prompt blocks go inert with the fields absent.
+    (panchang as any).mode = undefined;
+    (panchang as any).qualifier = undefined;
+    (panchang as any).modeStepReasons = undefined;
   } catch { /* the read proceeds without the filter */ }
 
   // RECENT READS — the last 3 days of glance prose, so the model can see what it already
