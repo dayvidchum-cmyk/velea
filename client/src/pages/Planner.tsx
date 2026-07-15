@@ -834,6 +834,10 @@ export default function Planner() {
 
   const prevMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
   const nextMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+  // Tap the serif "July 2026" to jump: a year stepper + 12-month grid (David 2026-07-15:
+  // "maybe it's a matter of selecting the year or the month to scroll and load").
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  const [pickerYear, setPickerYear] = useState<number | null>(null);
 
   const todayTaskModeForGradient = todayPanchang
     ? PANCHANG_TO_TASK_MODE[(modeByDate.get(toDateStr(today)) ?? todayPanchang.mode) as keyof typeof PANCHANG_TO_TASK_MODE]
@@ -1243,44 +1247,79 @@ export default function Planner() {
         {/* Month header — the colored band is gone (David); month/year/arrows sit on the light
             surface as dark gray. The thin colored border around the whole calendar stays. */}
         <div className="flex items-center justify-between px-4 pt-4 pb-1">
+          {/* Serif month, LEFT-aligned (David) — tap it to pick a month/year directly. */}
           <button
-            onClick={prevMonth}
-            className="p-1 rounded-full transition-all duration-150 active:scale-95"
-            style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
+            onClick={() => { setMonthPickerOpen((v) => !v); setPickerYear(viewDate.getFullYear()); }}
+            className="flex items-baseline gap-2 active:opacity-70 transition-opacity"
           >
-            <ChevronLeft size={15} />
-          </button>
-          <div className="flex items-baseline gap-2">
             <h2
               style={{
-                fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
-                fontSize: "1.3rem",
+                fontFamily: "'Playfair Display', Georgia, ui-serif, serif",
+                fontSize: "1.45rem",
                 fontWeight: 700,
                 color: "#2a2a2a",
                 letterSpacing: "0.01em",
               }}
             >
-              {MONTHS[viewDate.getMonth()]}
+              {MONTHS[viewDate.getMonth()]}{" "}
+              <span style={{ fontWeight: 500, fontSize: "1.05rem", letterSpacing: "0.04em" }}>
+                {viewDate.getFullYear()}
+              </span>
             </h2>
-            <span
-              style={{
-                fontSize: "0.8rem",
-                fontWeight: 500,
-                color: "#2a2a2a",
-                letterSpacing: "0.1em",
-              }}
-            >
-              {viewDate.getFullYear()}
-            </span>
-          </div>
-          <button
-            onClick={nextMonth}
-            className="p-1 rounded-full transition-all duration-150 active:scale-95"
-            style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
-          >
-            <ChevronRight size={15} />
+            <ChevronDown size={13} style={{ color: "#8a8264", transform: monthPickerOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
           </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={prevMonth}
+              className="p-1 rounded-full transition-all duration-150 active:scale-95"
+              style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
+            >
+              <ChevronLeft size={15} />
+            </button>
+            <button
+              onClick={nextMonth}
+              className="p-1 rounded-full transition-all duration-150 active:scale-95"
+              style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
+            >
+              <ChevronRight size={15} />
+            </button>
+          </div>
         </div>
+        {/* The jump picker — a year stepper + the twelve months, on the calendar's own paper. */}
+        {monthPickerOpen && (
+          <div className="px-4 pb-2">
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) - 1)} className="p-1 rounded-full" style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}>
+                <ChevronLeft size={13} />
+              </button>
+              <span style={{ fontFamily: "'Playfair Display', Georgia, ui-serif, serif", fontWeight: 700, fontSize: "1.05rem", color: "#2a2a2a" }}>
+                {pickerYear ?? viewDate.getFullYear()}
+              </span>
+              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) + 1)} className="p-1 rounded-full" style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}>
+                <ChevronRight size={13} />
+              </button>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {MONTHS.map((m, i) => {
+                const y = pickerYear ?? viewDate.getFullYear();
+                const isCurrent = i === viewDate.getMonth() && y === viewDate.getFullYear();
+                return (
+                  <button
+                    key={m}
+                    onClick={() => { setViewDate(new Date(y, i, 1)); setMonthPickerOpen(false); }}
+                    className="py-1.5 rounded-lg text-[12px] font-medium transition-colors"
+                    style={{
+                      background: isCurrent ? "#2a2a2a" : "rgba(0,0,0,0.04)",
+                      color: isCurrent ? "#f8f4ea" : "#2a2a2a",
+                    }}
+                  >
+                    {m.slice(0, 3)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {/* Calendar body */}
         <div className="px-4 pt-1 pb-6">
 
