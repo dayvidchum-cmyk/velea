@@ -19,6 +19,7 @@ import ModeOrb from "@/components/ModeOrb";
 import ModeOrbSheet from "@/components/ModeOrbSheet";
 import SignpostSheet from "@/components/SignpostSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
+import { kindOfTask, KIND_ORDER, type TaskKind } from "@/lib/taskKind";
 
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_RGBA, autoTextColors } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
@@ -72,7 +73,7 @@ const MOVEMENT_BG: Record<string, [string, string]> = {
   selective: ["#00687a", "#E8F1F2"],              // tend, but finish something
   build:     ["#D4AF37", "#3a2f10"],              // tend what's already present (mid depth)
   restraint: ["#d57176", "#3A1518"],              // tend, with extreme caution
-  caution:   ["#cc2f2f", "#ffffff"],              // stop. stop. stop.
+  caution:   ["#B3232F", "#ffffff"],              // stop. stop. stop. — RUBY (David 2026-07-15)
 };
 const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foreground)"];
 // Build depth wears the hero gradient's own golds (David 2026-07-15): deep rung = the
@@ -80,7 +81,7 @@ const RUNG_NONE: [string, string] = ["transparent", "var(--color-muted-foregroun
 const BUILD_DEPTH_BG: Record<string, [string, string]> = {
   deep: ["#C49A2E", "#2e2408"],    // great-friend ground — the rich dark gold
   mid: ["#D4AF37", "#3a2f10"],
-  thin: ["#E8C84A", "#4a3c10"],    // own-star ground — the pale top
+  thin: ["#CD9E86", "#3a1f14"],    // own-star ground — LIGHT rose-ochre (David 2026-07-15: today "should be rose ochre")
   leaning: ["#BC886F", "#3a1f14"], // softened-hostile ground — the rose-ochre floor
 };
 // The rung-depth methodology, extended to Selective and Action (David 2026-07-16). Same
@@ -127,9 +128,11 @@ function heroDescentFor(character: any, angle = 180): string | undefined {
   const scale = character?.movement ? DEPTH_BG[character.movement] : undefined;
   let stops: string[];
   if (scale) {
-    const order = ["thin", "mid", "deep", "leaning"];
-    const idx = order.indexOf(character.depth ?? character.buildDepth ?? "mid");
-    stops = order.slice(idx >= 0 ? idx : 1).map((k) => scale[k][0]);
+    // Each depth falls to the scale's leaning FLOOR by its own path: thin (own-star, now the
+    // light rose-ochre) descends WITHIN the rose family — never back through the golds.
+    const after: Record<string, string[]> = { thin: ["leaning"], mid: ["deep", "leaning"], deep: ["leaning"], leaning: [] };
+    const depth = String(character.depth ?? character.buildDepth ?? "mid");
+    stops = [coin, ...(after[depth] ?? ["deep", "leaning"]).map((k) => scale[k][0])];
     while (stops.length < 3) stops.push(shadeHex(stops[stops.length - 1], 0.72));
   } else {
     stops = [coin, shadeHex(coin, 0.74), shadeHex(coin, 0.46)];
@@ -277,7 +280,7 @@ export default function Planner() {
   }, [settings.softOpen]);
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
   const [allTasksOpen, setAllTasksOpen] = useState(false);
-  const [openModeGroups, setOpenModeGroups] = useState<Set<string>>(new Set());
+  const [openKindGroups, setOpenKindGroups] = useState<Set<string>>(new Set());
   const [completedOpen, setCompletedOpen] = useState(false);
 
   function getHouseSuffix(n: number | undefined): string {
@@ -715,6 +718,24 @@ export default function Planner() {
       Action: active.filter((t) => t.mode === "Action" && !t.isCompleted).length,
     } as Record<TaskMode, number>;
   }, [allTasks]);
+  // THE SEVEN KINDS (David 2026-07-15: "7 to be precise… funnel and organize them for me
+  // automatically"): every task LIVE-classified into the classical vocabulary — nothing
+  // stored, the four-mode tag underneath is untouched (scorer/rest-gate bridge intact).
+  const kindByTaskId = useMemo(() => {
+    const m = new Map<number, TaskKind>();
+    for (const t of allTasks) m.set(t.id, kindOfTask(t));
+    return m;
+  }, [allTasks]);
+  const orbKindCounts = useMemo(() => {
+    const now = Date.now();
+    const counts = Object.fromEntries(KIND_ORDER.map((k) => [k, 0])) as Record<TaskKind, number>;
+    for (const t of allTasks) {
+      if (t.isCompleted || (t.snoozedUntil && t.snoozedUntil > now)) continue;
+      counts[kindByTaskId.get(t.id) ?? "mixed"]++;
+    }
+    return counts;
+  }, [allTasks, kindByTaskId]);
+  const todayKind = charByDate.get(toDateStr(today))?.nature as TaskKind | undefined;
 
   // Priority sort order (title-case to match DB enum)
   const PRIORITY_RANK: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
@@ -1301,7 +1322,7 @@ export default function Planner() {
               ? (isSelected ? 0.65 : 0.45)
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.6 : 0.62) : (isDark ? 0.34 : 0.20));
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
-            const CAUTION_RED = "#FF1F1F"; // fire-engine red — unmissable on every appearance setting (David)
+            const CAUTION_RED = "#C41E3A"; // ruby — David 2026-07-15: "the fire engine red should be more ruby"
             // A caution day is ONE red family (David: today "vibrated" because the mulberry Restraint
             // fill and the fire-red caution ring/number — two close hues — stacked on the same coin).
             // Resolve the whole coin to red: fill, number, and ring differ only in lightness, not hue.
@@ -1565,48 +1586,58 @@ export default function Planner() {
               style={{ color: "var(--color-muted-foreground)", transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
             />
           </button>
-          <div className="flex justify-around items-end" data-tour="mode-orbs">
-            {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => (
-              <ModeOrb
-                key={m}
-                mode={m}
-                count={orbModeCounts[m] ?? 0}
-                active={todayTaskMode === m}
-                showCount={settings.showOrbCounts && !softOpen}
-                onClick={() => {
-                  const count = orbModeCounts[m] ?? 0;
-                  if (count === 0) {
-                    setQuickAddMode(m);
-                  } else {
-                    setOrbSheetMode(m);
-                  }
-                }}
-              />
-            ))}
-            {/* (Due orb retired — due tasks now auto-populate the To Do list below.) */}
+          {/* THE SEVEN KIND ORBS (David 2026-07-15: "7 to be precise", with names) — the
+              classical task vocabulary; today's own kind glows filled. Tap = open its group. */}
+          <div className="flex justify-between items-end" data-tour="mode-orbs">
+            {KIND_ORDER.map((k) => {
+              const kColor = NATURE_DOT[k];
+              const kCount = orbKindCounts[k] ?? 0;
+              const isToday = todayKind === k;
+              return (
+                <button
+                  key={k}
+                  onClick={() => { setAllTasksOpen(true); setOpenKindGroups((cur) => { const n = new Set(cur); n.add(k); return n; }); }}
+                  className="flex flex-col items-center gap-1.5 group transition-all duration-200 cursor-pointer"
+                >
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[11px] transition-all duration-200 ${isToday ? "scale-110 orb-pulse" : "group-hover:scale-105"}`}
+                    style={{
+                      background: isToday ? kColor : "transparent",
+                      border: `2px solid ${kColor}`,
+                      color: isToday ? "#ffffff" : kColor,
+                    }}
+                  >
+                    {settings.showOrbCounts && !softOpen ? kCount : "·"}
+                  </div>
+                  <span className="text-[9px] font-bold uppercase" style={{ letterSpacing: "0.06em", color: isToday ? kColor : "var(--color-muted-foreground)" }}>
+                    {NATURE_WORD[k]}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* All-tasks accordion — collapsible groups by mode (the old Planner view) */}
           {allTasksOpen && (
             <div className="mt-4 space-y-2">
-              {(["Restraint", "Build", "Selective", "Action"] as TaskMode[]).map((m) => {
+              {KIND_ORDER.map((m) => {
                 // Snoozed tasks are INCLUDED here (unlike the ranked "today" list) so the
                 // expanded All-Tasks view is the full picture — they sink to the bottom of
-                // their mode group and render dimmed.
+                // their kind group and render dimmed.
                 const groupTasks = allTasks
-                  .filter((t) => t.mode === m && !t.isCompleted)
+                  .filter((t) => (kindByTaskId.get(t.id) ?? "mixed") === m && !t.isCompleted)
                   .sort((a, b) => {
                     const sa = a.snoozedUntil && a.snoozedUntil > Date.now() ? 1 : 0;
                     const sb = b.snoozedUntil && b.snoozedUntil > Date.now() ? 1 : 0;
                     return sa - sb;
                   });
-                const open = openModeGroups.has(m);
-                const groupColor = PLANNER_MODE_OKLCH[m];
+                const open = openKindGroups.has(m);
+                const groupColor = NATURE_DOT[m];
                 return (
                   <div key={m} className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
                     <button
                       onClick={() =>
-                        setOpenModeGroups((cur) => {
+                        setOpenKindGroups((cur) => {
                           const n = new Set(cur);
                           n.has(m) ? n.delete(m) : n.add(m);
                           return n;
@@ -1616,7 +1647,7 @@ export default function Planner() {
                       style={{ background: "var(--color-secondary)" }}
                     >
                       <span className="text-xs font-bold uppercase" style={{ color: groupColor, letterSpacing: "0.04em" }}>
-                        {m} {settings.showOrbCounts && <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>}
+                        {NATURE_WORD[m]} {settings.showOrbCounts && <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>}
                       </span>
                       <ChevronDown
                         size={13}

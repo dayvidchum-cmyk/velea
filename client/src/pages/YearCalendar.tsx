@@ -23,7 +23,7 @@ const MOVEMENT_BG: Record<string, [string, string]> = {
   selective: ["#00687a", "#E8F1F2"],
   build:     ["#D4AF37", "#3a2f10"],
   restraint: ["#d57176", "#3A1518"],
-  caution:   ["#cc2f2f", "#ffffff"],
+  caution:   ["#B3232F", "#ffffff"],
 };
 const GO_GREEN: [string, string] = ["#90a989", "#243320"];
 const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
@@ -141,7 +141,7 @@ export default function YearCalendar() {
                         // Depth scales for Build/Selective/Action (same values as the month
                         // coins); Golden and Caution stay flat — David's carve-out.
                         const DEPTHS: Record<string, Record<string, [string, string]>> = {
-                          build: { deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#E8C84A", "#4a3c10"], leaning: ["#BC886F", "#3a1f14"] },
+                          build: { deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#CD9E86", "#3a1f14"], leaning: ["#BC886F", "#3a1f14"] },
                           selective: { deep: ["#00525F", "#E8F1F2"], mid: ["#00687a", "#E8F1F2"], thin: ["#2E8291", "#F0F6F7"], leaning: ["#5E707C", "#EDF0F2"] },
                           action: { deep: ["#5E9457", "#12240f"], mid: ["#77A96B", "#1d2a18"], thin: ["#94BC88", "#233420"], leaning: ["#9AA579", "#282c16"] },
                         };
