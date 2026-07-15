@@ -33,7 +33,8 @@ export function kindOfTask(t: { title?: string | null; description?: string | nu
   switch (t.mode) {
     case "Action": return "swift";     // outward, quick — the errand family
     case "Build": return "fixed";      // tending what lasts
-    case "Selective": return "sharp";  // finishing / clean endings
-    default: return "mixed";           // Restraint & untagged — day-to-day duties
+    // Selective's careful/finishing work is mostly day-to-day tending, not endings —
+    // Cutting is reserved for tasks whose own words say so (David: "a ton of cutting").
+    default: return "mixed";           // Selective, Restraint & untagged — day-to-day duties
   }
 }

@@ -9,6 +9,18 @@ import type { Task } from "../../../drizzle/schema";
 import ModeTag from "./ModeTag";
 import AlignmentDots from "./AlignmentDots";
 import { trpc } from "@/lib/trpc";
+import { kindOfTask } from "@/lib/taskKind";
+
+// The unified kind palette (identical hexes to the orbs/calendar — one language).
+const KIND_COLOR: Record<string, string> = {
+  fixed: "#D4AF37", movable: "#00687a", swift: "#77A96B", tender: "#d57176",
+  sharp: "#00525F", fierce: "#BC886F", mixed: "#C49A2E",
+};
+function shadeKindHex(hex: string, f: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (v: number) => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, "0");
+  return `#${ch(n >> 16)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+}
 import { PRIORITY_EXCLAIM, MODE_OKLCH, MODE_SOLID, MODE_CARD_GRADIENT, type TaskMode } from "../../../shared/types";
 import { parseLifeAreas, housesForAreas, LIFE_AREA_BY_KEY } from "../../../shared/life-areas";
 
@@ -213,7 +225,12 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
 
   // Card background: deep mode gradient (same family as the hero card) so white
   // text is always legible. --ink stays white and cascades to all children.
-  const cardBg = MODE_CARD_GRADIENT[task.mode as TaskMode] || MODE_CARD_GRADIENT.Action;
+  // ONE LANGUAGE (David 2026-07-15: "they are still what I set them"): the card wears its
+  // KIND's color — the same movement-derived palette as the orbs and calendar — not the
+  // old stored mode tag. Gradient = the kind hex descending into its own shadow.
+  const kind = kindOfTask(task);
+  const kindHex = KIND_COLOR[kind];
+  const cardBg = `linear-gradient(160deg, ${shadeKindHex(kindHex, 0.92)} 0%, ${shadeKindHex(kindHex, 0.7)} 60%, ${shadeKindHex(kindHex, 0.5)} 100%)`;
   const ink = "255, 255, 255";
   return (
     <div
