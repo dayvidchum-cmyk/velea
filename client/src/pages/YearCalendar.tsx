@@ -18,8 +18,8 @@ const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio
 
 // THE SIX MOVEMENTS (David 2026-07-15) — his words, his colors, same law as the month view.
 const MOVEMENT_BG: Record<string, [string, string]> = {
-  golden:    ["oklch(0.70 0.18 150)", "#0E2A18"],
-  action:    ["#90a989", "#243320"],
+  golden:    ["#2E7D4F", "#ffffff"],
+  action:    ["#77A96B", "#1d2a18"],
   selective: ["#00687a", "#E8F1F2"],
   build:     ["#D4AF37", "#3a2f10"],
   restraint: ["#d57176", "#3A1518"],
@@ -110,7 +110,7 @@ export default function YearCalendar() {
           <>
             {/* Legend */}
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-              {[["oklch(0.70 0.18 150)", "Golden Day"], ["#90a989", "Action"], ["#D4AF37", "Build"], ["#00687a", "Selective"], ["#d57176", "Restraint"], ["#cc2f2f", "Caution"]].map(([c, n]) => (
+              {[["#2E7D4F", "Golden Day"], ["#77A96B", "Action"], ["#D4AF37", "Build"], ["#00687a", "Selective"], ["#d57176", "Restraint"], ["#cc2f2f", "Caution"]].map(([c, n]) => (
                 <span key={n} className="inline-flex items-center gap-1">
                   <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c }} /> {n}
                 </span>

@@ -67,8 +67,8 @@ const PLANET_RETRO_COLOR: { bright: Record<string, string>; deep: Record<string,
 // THE SIX MOVEMENTS (David 2026-07-15) — his day-mode words + his hand-picked colors.
 // The color compresses what the day's prose already says; the word is the hero.
 const MOVEMENT_BG: Record<string, [string, string]> = {
-  golden:    ["oklch(0.70 0.18 150)", "#0E2A18"], // Golden Day — the best, for anything
-  action:    ["#90a989", "#243320"],              // outward movement, full go
+  golden:    ["#2E7D4F", "#ffffff"], // Golden Day — the best, for anything
+  action:    ["#77A96B", "#1d2a18"],              // outward movement, full go
   selective: ["#00687a", "#E8F1F2"],              // tend, but finish something
   build:     ["#D4AF37", "#3a2f10"],              // tend what's already present
   restraint: ["#d57176", "#3A1518"],              // tend, with extreme caution
