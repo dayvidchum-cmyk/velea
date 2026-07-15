@@ -373,6 +373,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const natalMoonSignIdx = ZODIAC.indexOf(moonBody?.sign ?? "");
   const lagnaSignIdx = ZODIAC.indexOf(lagna);
   let personalApex: { isCrown: boolean; tara: string; taraFavorable: boolean; chandraHouse: number; chandraFavorable: boolean } | null = null;
+  let personalTara: { taraNum: number; cycle: number; quality: string; favorable: boolean } | null = null;
   let personalRating: string | null = null;
   // The interaction MODE — computed by the SAME personalDayForDate the hero uses, so the prose and
   // the hero can never name different modes (a debilitated split we just fixed for the day mode).
@@ -389,6 +390,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const natalAv = natalAshtakavarga(natalSignIdx, lagnaSignIdx);
     const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined, ashtakavarga: natalAv });
     personalRating = cd.rating;
+    personalTara = cd.tarabala;
     personalApex = {
       isCrown: cd.rating === "crown",
       tara: cd.tarabala.name,
@@ -470,12 +472,17 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       varaLord: WEEKDAY_LORD_7[new Date(dateStr + "T12:00:00Z").getUTCDay()],
       vishti: !!panchang.karana?.vishti,
       // Mercury reaches the read via input.mercuryRx; the rx law gates movement, not character.
-      tara: null,
+      // The PERSONAL tara now reaches the filter (David's 7/29: the prose cheered travel on
+      // his obstacle-star day) — the sentence carries the personal turn, supports empty out.
+      tara: personalTara as any,
     });
     dayFilterBlock = {
       headline: c.headline, sentence: c.sentence,
       supports: c.supports, avoid: c.avoid, vetoes: c.vetoes,
       varaColors: c.varaColors,
+      ...(personalTara?.quality === "bad" ? {
+        personalStance: "THIS RULES THE DAY: the native's own day-star meets this day as an obstacle. However bright the collective day reads, do NOT recommend its outward supports (travel, launches, trade, beginnings) to this native — the guidance is containment: finish, tend, keep it small. The world can run with this day; this native doesn't.",
+      } : {}),
     };
     // The retired mode vocabulary leaves the model's sight entirely (David's screenshot,
     // 2026-07-15: the prose echoed "A Corrective Build day"). A model can't echo words it

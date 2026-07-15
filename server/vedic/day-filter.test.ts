@@ -118,6 +118,27 @@ describe("movementOf — the six movements under the SHIPPED rx law (interpreter
   });
 });
 
+describe("the personal turn + the handshake (David 2026-07-15, the 7/29 conflict)", () => {
+  const base = { varaLord: "Mercury", vishti: false, tara: null as any };
+  it("a hostile personal star closes the collective sentence and empties the supported kinds", () => {
+    const bad = { quality: "bad" as const, taraNum: 5, cycle: 1, favorable: false };
+    const d = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 2, tara: bad }); // moving day, personally hostile
+    expect(d.sentence).toMatch(/The wider world can run with this day — you don't\./);
+    expect(d.supportedKinds).toEqual([]);
+  });
+  it("a clean day supports its own nature's kind; contained days support nothing", () => {
+    const d = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 2 });
+    expect(d.supportedKinds).toEqual(["movable"]);
+    expect(d.sentence).not.toMatch(/wider world/);
+    const contained = dayFilter({ ...base, nakshatra: "Pushya", tithiNumber: 5, tara: { quality: "bad", taraNum: 7, cycle: 1 } });
+    expect(contained.supportedKinds).toEqual([]);
+  });
+  it("an empty tithi keeps only the cutting kinds, and only on cutting natures", () => {
+    expect(dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 }).supportedKinds).toEqual([]);
+    expect(dayFilter({ ...base, nakshatra: "Mula", tithiNumber: 4 }).supportedKinds).toEqual(["sharp"]);
+  });
+});
+
 describe("the rx-capped sentence (David's July 14: Build word over a GO sentence)", () => {
   it("holds the day in words when Mercury holds it in movement", async () => {
     const { cappedSentence } = await import("./day-filter");

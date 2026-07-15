@@ -146,14 +146,17 @@ const CAUTION_ROSE: [string, string] = ["#d57176", "#3A1518"];
 const BETWEEN: [string, string] = ["#00687a", "#E8F1F2"];
 
 // (Retired from the coins 2026-07-16 — kept for the hero word only.)
+// ONE LANGUAGE (David 2026-07-15): the kinds WEAR the movement colors on purpose —
+// "Tender is restraint. Swift is action go. Motion is selective." A kind's color says
+// which movement its acts belong to, so a reader learns ONE palette for the whole app.
 const NATURE_DOT: Record<string, string> = {
-  fixed: "#5C7046",   // foundation — moss
-  movable: "#3E7C8F", // motion — teal
-  swift: "#7BA05B",   // quick wins — spring green
-  tender: "#B76E8E",  // tender — rose
-  sharp: "#5A5F9E",   // cutting — steel indigo
-  fierce: "#A3543A",  // force — rust (NOT the caution fire-red)
-  mixed: "#8A8264",   // steady — khaki
+  fixed: "#D4AF37",   // Foundation — Build gold: tending what lasts
+  movable: "#00687a", // Motion — Selective teal (David's call)
+  swift: "#77A96B",   // Swift — Action green: the go acts (David's call)
+  tender: "#d57176",  // Tender — Restraint rose (David's call)
+  sharp: "#00525F",   // Cutting — deep Selective teal: the FINISH family (clean endings), not pink
+  fierce: "#BC886F",  // Force — rose-ochre: heavy tending that leans restraint
+  mixed: "#C49A2E",   // Steady — deep Build gold: the daily grind
 };
 const NATURE_WORD: Record<string, string> = {
   fixed: "Foundation", movable: "Motion", swift: "Swift", tender: "Tender",
@@ -736,6 +739,13 @@ export default function Planner() {
     return counts;
   }, [allTasks, kindByTaskId]);
   const todayKind = charByDate.get(toDateStr(today))?.nature as TaskKind | undefined;
+  // THE HANDSHAKE: the day's character names the kinds it supports (server-computed;
+  // empty on contained/hostile-star days — the world runs, you don't). Fallback to the
+  // day's own nature for a payload from before the field existed.
+  const todaySupportedKinds = useMemo(() => {
+    const c = charByDate.get(toDateStr(today));
+    return new Set<string>((c?.supportedKinds as string[] | undefined) ?? (c?.nature ? [c.nature] : []));
+  }, [charByDate, today]);
 
   // Priority sort order (title-case to match DB enum)
   const PRIORITY_RANK: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
@@ -1376,10 +1386,10 @@ export default function Planner() {
                   const isCaution = cautionSet.has(dateStr);
                   const isEclipseDay = eclipseByDate.has(dateStr);
                   const isRetroDay = retroByDate.has(dateStr);
-                  if (crownTip?.date === dateStr || (!isCrown && !isGolden && !isCaution && !isEclipseDay && !isRetroDay)) { setCrownTip(null); return; }
+                  if (crownTip?.date === dateStr || (!isCrown && !isCaution && !isEclipseDay && !isRetroDay)) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
-                  const kind = isCrown ? "crown" : isGolden ? "golden" : isCaution ? "caution" : isEclipseDay ? "eclipse" : "retro";
-                  let why = isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution && !isGolden ? (cautionByDate.get(dateStr) ?? "") : "";
+                  const kind = isCrown ? "crown" : isCaution ? "caution" : isEclipseDay ? "eclipse" : "retro";
+                  let why = isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution ? (cautionByDate.get(dateStr) ?? "") : "";
                   if (kind === "eclipse") why = eclipseByDate.get(dateStr) ?? "";
                   setCrownTip({ date: dateStr, kind: kind as any, why, cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: kind === "caution" ? CAUTION_RED : accent });
                 }}
@@ -1406,8 +1416,6 @@ export default function Planner() {
                       : eclipseByDate.has(dateStr)
                       ? `1.5px solid ${ECLIPSE_RING}`
                       : isCrown
-                      ? `1.5px solid ${GOLD_BRIGHT}`
-                      : isGolden
                       ? `1.5px solid ${GOLD_BRIGHT}`
                       : stationsToday.length
                       ? `1.25px solid ${accent}`
@@ -1592,7 +1600,7 @@ export default function Planner() {
             {KIND_ORDER.map((k) => {
               const kColor = NATURE_DOT[k];
               const kCount = orbKindCounts[k] ?? 0;
-              const isToday = todayKind === k;
+              const isToday = todaySupportedKinds.has(k);
               return (
                 <button
                   key={k}

@@ -61,6 +61,9 @@ export interface DayFilterInput {
 export interface DayCharacter {
   nature: DayNature;
   family: TithiFamily;
+  /** THE HANDSHAKE — which task KINDS (the seven natures as act-kinds) this day supports
+      for this native; empty on contained/hostile-star days. */
+  supportedKinds: DayNature[];
   /** e.g. "a tender day in a work tithi". */
   headline: string;
   /** What the day supports (nature + family + vara, vetoes already applied). */
@@ -113,14 +116,28 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // A nature may carry David's own plain movement line (avoidPlain) — it replaces the
   // book's item-list in the SENTENCE (the items stay in `avoid` for detail views).
   const avoidPlain = (natDef as any).avoidPlain as string | undefined;
+  // THE PERSONAL TURN (David 2026-07-15, the 7/29 golden-restraint conflict — "those
+  // tooltip hero sentence suggestions are perfect"): a hostile personal star closes the
+  // collective sentence — the world can run with the day; this native doesn't.
+  const personalTurn = !contained && input.tara && input.tara.quality === "bad"
+    ? " The wider world can run with this day — you don't. Tend what's yours, small and careful."
+    : "";
   const sentence = contained
     ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
     : supports.length === 0
-    ? `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.`
-    : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}`;
+    ? `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`
+    : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
+
+  // THE HANDSHAKE (David 2026-07-15: "just do it. We can always roll it back"): the day's
+  // supports ARE the seven kinds. The day names which KINDS of act it carries: its own
+  // nature's kind; an empty tithi keeps only the cutting kinds (on the cutting natures);
+  // a contained or personally hostile day supports NOTHING for this native.
+  let supportedKinds: DayNature[] = [nature];
+  if (family === "rikta") supportedKinds = nature === "sharp" || nature === "fierce" ? Array.from(new Set(["sharp", nature] as DayNature[])) : [];
+  if (contained || (input.tara && input.tara.quality === "bad")) supportedKinds = [];
 
   return {
-    nature, family, headline,
+    nature, family, headline, supportedKinds,
     supports: dedupe(supports), avoid: dedupe(avoid), vetoes,
     varaColors, contained, sentence,
   };

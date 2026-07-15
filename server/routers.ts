@@ -1854,6 +1854,7 @@ export const appRouter = router({
                   : day.tara.taraNum === 1 ? "thin" : "leaning")
               : undefined;
             character = {
+              supportedKinds: (c as any).supportedKinds,
               nature: c.nature, family: c.family, headline: c.headline, sentence: c.sentence,
               supports: c.supports, avoid: c.avoid, vetoes: c.vetoes, contained: c.contained,
               movement: mv, movementWord: MOVEMENT_WORD[mv],
