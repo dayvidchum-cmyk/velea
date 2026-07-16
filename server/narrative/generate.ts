@@ -360,7 +360,7 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
       c, tail: DAY_READ_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
       // Hard token ceiling (was 800 → ~600 words). The 130-word guard is the real length enforcer;
       // 400 just lets a slightly-over draft COMPLETE so the guard can catch and correct it.
-      maxTokens: 400, maxWords: 130,
+      maxTokens: 620, maxWords: 190,
       // Law 3 with teeth: the day headline may not reappear inside the prose.
       bannedPhrases: [(input as any).dayFilter?.headline].filter(Boolean) as string[],
       // The roll call with teeth: the year's guide + the running lords must appear by name.

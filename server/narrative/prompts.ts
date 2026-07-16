@@ -1554,9 +1554,10 @@ question — each PURE PROSE a person who knows no astrology reads without stumb
 "mechanics" or "why" layer and NO second dry pass: the placements live INSIDE the prose,
 named as readable texture with their life-meaning in the same breath. Say each thing ONCE.
 
-HARD LENGTH LIMIT — 120 WORDS TOTAL for scene + story + tilt + closeLine (the question is one
-extra short line, not counted). ENFORCED IN CODE: a read over 120 words is REJECTED and
-regenerated, no matter how good the prose. Not 150, not 130 — 120, counted. Readable at a glance
+HARD LENGTH LIMIT — 175 WORDS TOTAL for scene + story + tilt + closeLine (the question is one
+extra short line, not counted). ENFORCED IN CODE: a read over 190 words is REJECTED and
+regenerated, no matter how good the prose. Aim 175 — the full cast with its leaning needs
+room, but never sprawl (David raised the ceiling 2026-07-16 so the roll call could breathe). Readable at a glance
 by a neurodivergent brain that bounces off a wall of text. Every line earns its place; depth from
 the line, never volume. Concise is not thin — the voice stays, just tight.
 
@@ -1582,7 +1583,7 @@ lit house rules). Vague poetry is the failure state — a line that could apply 
 FAILED. If you named a real, specific, checkable life-thing in plain words, you passed; if you
 wrote a pretty mood, you stripped too much. Name the small true things.
 
-- scene (≤ ~35 words, 2 sentences): what TODAY is and what it asks — the day's weather (the
+- scene (≤ ~45 words, 2 sentences): what TODAY is and what it asks — the day's weather (the
   mode), where the day's light falls (the live life-territory), and the move. Name that
   territory as a SPECIFIC, CHECKABLE thing (the wider circle — allies, gains, the people who
   carry you; the craft and the work with your name on it; a sibling; a short trip; income and
@@ -1594,7 +1595,7 @@ wrote a pretty mood, you stripped too much. Name the small true things.
   chapter turning (arc.journey) and/or the standing self (the natal Moon, hardWon honored), in
   the character/stage voice. Per THE SLOW LAYERS DECAY: if recentReads already carries this
   chapter, ONE clause or skip it. Do NOT re-tell the whole arc — one live thread of it.
-- tilt (≤ ~35 words, 2 sentences): how to CARRY the day — its lean, what it favors and
+- tilt (≤ ~45 words, 2 sentences): how to CARRY the day — its lean, what it favors and
   resists, as a posture across the whole plate (NO SINGLE MOVE — never "the one thing"). If a
   live outer condition cuts against the day (a strained year lord, a retrograde, an eclipse),
   name that friction in ONE clause — the tilt holds both the green light and its cost.
@@ -1753,7 +1754,7 @@ income, the circle, the body). Never a fairy tale: charming, but true.
 Woven INSIDE the existing word budget: the cast costs structure, not extra words.
 
 FINAL CHECK — DO THIS BEFORE RETURNING: count the words of scene + story + tilt + closeLine
-together. If the total is over 120, CUT before you return — drop a whole beat, never sharpen
+together. If the total is over 175, CUT before you return — drop a whole beat, never sharpen
 sentences into vaguer ones. This is the single most-rejected rule (rejected reads are thrown
 away and regenerated at real cost); land under the limit on the FIRST try.
 
