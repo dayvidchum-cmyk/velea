@@ -130,6 +130,13 @@ function shadeHex(hex: string, f: number): string {
   const ch = (v: number) => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, "0");
   return `#${ch(n >> 16)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
 }
+// THE FIVE INKS (David 2026-07-16 experiment): numbers + rings speak only the FAMILY —
+// Green (golden/action), Teal (selective), Gold (build), Rose (restraint), Caution ruby.
+// FILLS stay depth-specific (today/selected wear the precise coin). Chrome untouched.
+const FAMILY_INK: Record<string, string> = {
+  golden: "#77A96B", action: "#77A96B", selective: "#00687a",
+  build: "#D4AF37", restraint: "#d57176", caution: "#B3232F",
+};
 // The day's coin color for a character — movement + depth, one lookup shared by the
 // calendar coins and the hero card (the card LEADS with its calendar color).
 function coinPairFor(character: any): [string, string] | undefined {
@@ -1423,6 +1430,8 @@ export default function Planner() {
             // Resolve the whole coin to red: fill, number, and ring differ only in lightness, not hue.
             const isCautionDay = cautionSet.has(dateStr);
             const accent = isCautionDay ? CAUTION_RED : (modeColor ?? "var(--color-foreground)");
+            // Five-ink law: the FAMILY color for this day's number + ring (fills stay specific).
+            const familyInk = isCautionDay ? CAUTION_RED : (dayCharacter?.movement ? (FAMILY_INK[dayCharacter.movement] ?? accent) : accent);
             const ECLIPSE_RING = "#6E5AA6"; // muted violet — echoes the eclipse disc's cosmic indigo
             // Retrograde planets active this day → the bottom glyph strip (rendered below).
             const retroToday = retroByDate.get(dateStr);
@@ -1463,7 +1472,7 @@ export default function Planner() {
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             // A FILLED coin's number is a DEEP shade of its own color (David: 7/4 & 7/31's
             // white → darker caution shade; today's near-black → darker today-color).
-            const numberColor = filled || (isSelected && hasMode) ? shadeHex(accent, 0.45) : hasMode ? accent : "var(--color-muted-foreground)";
+            const numberColor = filled || (isSelected && hasMode) ? shadeHex(accent, 0.45) : hasMode ? familyInk : "var(--color-muted-foreground)";
             const activeInk = tonalInk(accent); // hover/press preview ink — tonal, never white/black
             // Per David's mock: a FILLED coin lightens its fill toward the paper and carries
             // a DEEP number of its own hue (7/4's number was reading white-washed-pink).
@@ -1528,10 +1537,13 @@ export default function Planner() {
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : isCrown
                       ? `1.5px solid ${GOLD_BRIGHT}`
-                      // THE GLYPH DAY earns its thin ring — its own color, no fill (David 7/16);
+                      // THE GLYPH DAY earns its thin ring — the FAMILY ink (five-ink law);
                       // station days wear it too ("why doesn't station days get a ring?").
                       : (!filled && !eclipseByDate.has(dateStr) && (stationsToday.length > 0 || achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0))
-                      ? `1.5px solid color-mix(in srgb, ${accent} 62%, transparent)`
+                      ? `1.5px solid color-mix(in srgb, ${familyInk} 62%, transparent)`
+                      // SELECTED keeps its ring in the family ink; the fill beneath is the specific mode.
+                      : (isSelected && hasMode && !isCrown && !eclipseByDate.has(dateStr))
+                      ? `1.5px solid ${familyInk}`
                       : "1.5px solid transparent",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}

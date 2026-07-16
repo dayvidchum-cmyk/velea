@@ -256,10 +256,13 @@ export default function YearCalendar() {
                           action: { deep: "#5E9457", mid: "#77A96B", thin: "#94BC88", leaning: "#9AA579" },
                         };
                         const MOVE_C: Record<string, string> = { golden: "#2E7D4F", action: "#77A96B", selective: "#00687a", build: "#D4AF37", restraint: "#d57176", caution: "#B3232F" };
+                        // Five-ink law (David 2026-07-16): numbers + rings speak the FAMILY only.
+                        const FAMILY_C: Record<string, string> = { golden: "#77A96B", action: "#77A96B", selective: "#00687a", build: "#D4AF37", restraint: "#d57176", caution: "#B3232F" };
                         const mvKey = (d as any).movement as string | undefined;
                         const dep = (d as any).depth ?? (d as any).buildDepth;
                         const coin = (mvKey && DEPTH_C[mvKey]?.[dep ?? "mid"]) || (mvKey && MOVE_C[mvKey])
                           || (d.tara.quality === "good" ? "#77A96B" : d.tara.quality === "bad" ? "#d57176" : "#54787C");
+                        const familyInk = (mvKey && FAMILY_C[mvKey]) || coin;
                         const shade = (hex: string) => {
                           const n = parseInt(hex.slice(1), 16);
                           const ch = (v: number) => Math.max(0, Math.round(v * 0.45)).toString(16).padStart(2, "0");
@@ -279,13 +282,13 @@ export default function YearCalendar() {
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
                             className="relative min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center"
-                            style={{ background: isCrown ? "color-mix(in srgb, #E8D87A 38%, #f8f4ea)" : bg, color: filled || isPicked ? shade(coin) : coin,
+                            style={{ background: isCrown ? "color-mix(in srgb, #E8D87A 38%, #f8f4ea)" : bg, color: filled || isPicked ? shade(coin) : familyInk,
                               // Border laws (David 2026-07-16): crown = gold; caution = ruby;
                               // any tile carrying a glyph, $ OR a window dot = fine anchor
                               // border of its own hue. Bare days stay bare.
                               border: isCrown ? "1.5px solid #F2C21C"
                                 : isCaution ? "1px solid color-mix(in srgb, #B3232F 60%, transparent)"
-                                : (isDollar || isSummit || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${coin} 50%, transparent)`
+                                : (isDollar || isSummit || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${familyInk} 50%, transparent)`
                                 : "1px solid transparent" }}>
                             {/* THE MARKED-TILE LAW (David 2026-07-16, two rulings): a tile
                                 carrying ANY marks drops its number — the day IS its marks,
