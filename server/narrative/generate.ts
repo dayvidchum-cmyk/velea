@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -543,6 +543,28 @@ export async function generateHouseRead(input: any): Promise<HouseRead | null> {
     });
   } catch (err) {
     console.error("[narrative] generateHouseRead failed:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
+
+// ── THE CHAPTER READER (David 2026-07-16) — one mahadasha, voiced from the dossier. ──
+export type DashaRead = { read: string; question: string };
+export function isCompleteDashaRead(r: any): r is DashaRead {
+  return !!r && typeof r.read === "string" && r.read.length > 80 && typeof r.question === "string";
+}
+export async function generateDashaRead(input: any): Promise<DashaRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    return await callGuarded<DashaRead>({
+      c, tail: DASHA_READ_TAIL, toolName: "dasha_read",
+      schema: { type: "object", properties: { read: { type: "string" }, question: { type: "string" } }, required: ["read", "question"] } as any,
+      input, maxTokens: 1500, maxWords: 360, skipMachinery: true,
+      complete: isCompleteDashaRead, textOf: (r) => r.read,
+    });
+  } catch (err) {
+    console.error("[narrative] generateDashaRead failed:", (err as any)?.message ?? err);
     return null;
   }
 }

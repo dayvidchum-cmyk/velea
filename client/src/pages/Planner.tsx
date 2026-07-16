@@ -109,6 +109,10 @@ const DEPTH_BG: Record<string, Record<string, [string, string]>> = {
 const MARK_INK: Record<string, string> = {
   dollar: "#77A96B", crown: "#D4AF37", Mercury: "#3FA8A0", Saturn: "#454A8C",
 };
+// Ink-bearing corrections (em) — the astro glyph font's ink sits off-center in its em box;
+// these nudge each glyph's INK onto the true axis. Tuned against David's iPhone crops.
+const GLYPH_NUDGE: Record<string, string> = { Saturn: "-0.07em", Mercury: "0.01em" };
+const CROWN_NUDGE = "0.04em";
 // NO WHITE OR BLACK NUMBERS EVER (David 2026-07-15): a number is always its coin's hue
 // at the opposite depth — deep shade on light fills, pale tint (parchment-mixed, never
 // pure white) on dark fills.
@@ -1460,9 +1464,10 @@ export default function Planner() {
                   className="flex items-center justify-center"
                   style={{
                     position: "relative",
-                    aspectRatio: "1 / 1",
-                    width: "100%",
-                    maxWidth: "2rem",
+                    // Whole pixels (the Virgo-rising pass): a FIXED 32px box means the number
+                    // and the mark chip round their centers identically in every column.
+                    width: "32px",
+                    height: "32px",
                     borderRadius: 999,
                     transition: "background 150ms",
                     color: numberColor,
@@ -1504,7 +1509,7 @@ export default function Planner() {
                     // Saturn centers, Mercury's window ☿ perches) — the stationing planet
                     // itself is never in windowGlyphList (its state is "station").
                     for (const e of windowGlyphList) others.push(
-                      <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor }}>{PLANET_GLYPH[e.planet]}</span>
+                      <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor, transform: GLYPH_NUDGE[e.planet] ? `translateX(${GLYPH_NUDGE[e.planet]})` : undefined }}>{PLANET_GLYPH[e.planet]}</span>
                     );
                     const hasCrownMark = achievementSet.has(dateStr);
                     const mid = Math.floor(others.length / 2);
@@ -1514,7 +1519,7 @@ export default function Planner() {
                         {hasCrownMark ? (
                           <>
                             {others.slice(0, mid)}
-                            <span style={{ fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, transform: "translateY(-2px)" }}>♛</span>
+                            <span style={{ fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, transform: `translateY(-2px) translateX(${CROWN_NUDGE})` }}>♛</span>
                             {others.slice(mid)}
                           </>
                         ) : others}
@@ -1546,7 +1551,7 @@ export default function Planner() {
                     // above the 1rem number so the turning planet reads at a glance (David).
                     <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: MARK_INK[e.planet] ?? numberColor, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
+                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: MARK_INK[e.planet] ?? numberColor, lineHeight: 1, transform: GLYPH_NUDGE[e.planet] ? `translateX(${GLYPH_NUDGE[e.planet]})` : undefined }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
                   ) : (

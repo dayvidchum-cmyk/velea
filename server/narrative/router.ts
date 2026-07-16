@@ -120,6 +120,20 @@ export const narrativeRouter = router({
     }
   }),
 
+  // THE CHAPTER READER — tap a mahadasha on the timeline, the lord's dossier speaks.
+  dashaRead: protectedProcedure.input(z.object({ lord: z.string().min(2).max(12), span: z.string().optional(), refresh: z.boolean().optional() })).query(async ({ ctx, input }) => {
+    try {
+      const { getActiveProfile } = await import("../routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false, read: null, generatedAt: null, cached: false } as const;
+      const { getDashaReadCached } = await import("./service.js");
+      return await getDashaReadCached(profile.id, input.lord, input.span, input.refresh ?? false);
+    } catch (e) {
+      console.error("[narrative.dashaRead]", e);
+      return { available: false, read: null, generatedAt: null, cached: false } as const;
+    }
+  }),
+
   chapter: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();

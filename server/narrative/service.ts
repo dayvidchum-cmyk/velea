@@ -447,3 +447,40 @@ export async function getHouseReadCached(profileId: number, house: number, refre
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read: read as any, generatedAt: new Date(), cached: false };
 }
+
+
+// ── THE CHAPTER READER — one read per (profile, dasha lord); the lord's natal dossier
+// assembled from stored research (placement + every house he rules with its condition).
+export type DashaReadResult = { available: boolean; read: import("./generate.js").DashaRead | null; generatedAt: Date | null; cached: boolean };
+export async function getDashaReadCached(profileId: number, lord: string, span?: string, refresh = false): Promise<DashaReadResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const surface = "dasha_read";
+  const { getStoredResearch } = await import("../vedic/research-store.js");
+  const research: any = await getStoredResearch(profileId);
+  if (!research?.houses) return { available: false, read: null, generatedAt: null, cached: false };
+  const houses: any[] = research.houses;
+  const rules = houses.filter((h) => h?.lord?.planet === lord).map((h) => ({ house: h.house, sign: h.sign, lordPlacedHouse: h.lord.placedHouse, lordPlacedSign: h.lord.placedSign, bhavaYoga: h.lord.bhavaYoga, occupants: h.occupants, vargaCheck: h.vargaCheck }));
+  const livesIn = houses.find((h) => (h.occupants ?? []).some((o: any) => (o.planet ?? o) === lord));
+  const dossier = { lord, livesIn: livesIn ? { house: livesIn.house, sign: livesIn.sign, occupants: livesIn.occupants } : null, rules, shadbala: research?.shadbala?.[lord] ?? null, states: research?.states?.[lord] ?? research?.avashtas?.[lord] ?? null };
+  const input = { lord, span: span ?? null, engineVersion: research?.engineVersion ?? null, dossier };
+  const hash = dayStableHash(input, surface);
+  const dateKey = `dasha-${lord}`;
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, dateKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        const { isCompleteDashaRead } = await import("./generate.js");
+        if (isCompleteDashaRead(read)) return { available: true, read, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generateDashaRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileId}:${lord}:${hash}`, async () => {
+    const r = await generateDashaRead(input as any);
+    if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, generatedAt: null, cached: false };
+  return { available: true, read: read as any, generatedAt: new Date(), cached: false };
+}

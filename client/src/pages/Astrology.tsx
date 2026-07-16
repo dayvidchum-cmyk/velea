@@ -836,6 +836,12 @@ function DashaExplainer() {
 
 export function DashaSection() {
   const [expandedMaha, setExpandedMaha] = useState<string | null>(null);
+  // The Chapter Reader: which lord's chapter the user asked to hear (tap-gated, cached).
+  const [readLord, setReadLord] = useState<string | null>(null);
+  const dashaReadQ = trpc.narrative.dashaRead.useQuery(
+    { lord: readLord ?? "" },
+    { enabled: !!readLord, staleTime: Infinity, retry: false },
+  );
   const didAutoOpen = useRef(false);
   const dayLabelColor = useDayModeColor();
 
@@ -923,9 +929,12 @@ export function DashaSection() {
           const dur = MAHADASHA_DURATIONS[g.mahadasha] ?? 10;
 
           // Active card gets dark text (stands out); all others use white.
+          // Tonal (the Today law): the parchment card takes a DEEP register of its own
+          // planet color; chrome cards take the auto ramp — never flat black/white.
+          const deepOf = (p: number) => `color-mix(in srgb, color-mix(in srgb, ${color} 42%, #2A1F14) ${p}%, transparent)`;
           const t = hasActive
-            ? { primary: "rgba(0,0,0,0.85)", muted: "rgba(0,0,0,0.6)", faint: "rgba(0,0,0,0.5)", chip: "rgba(0,0,0,0.16)", chipBorder: "rgba(0,0,0,0.3)" }
-            : { primary: "rgba(255,255,255,0.95)", muted: "rgba(255,255,255,0.7)", faint: "rgba(255,255,255,0.6)", chip: "rgba(255,255,255,0.2)", chipBorder: "rgba(255,255,255,0.4)" };
+            ? { primary: deepOf(100), muted: deepOf(74), faint: deepOf(58), chip: deepOf(13), chipBorder: deepOf(30) }
+            : planetTextColors(color);
           return (
             <div key={g.mahadasha} className={`rounded-xl overflow-hidden${hasActive ? " parchment" : ""}`}
               // The active Mahadasha — your current era — is the parchment page; its current
@@ -961,6 +970,35 @@ export function DashaSection() {
 
               {isExpanded && (
                 <div style={{ background: "var(--color-card)", borderTop: `1px solid ${color}55` }}>
+                  {/* THE CHAPTER READER — the lord's dossier, voiced (tap-gated, cached). */}
+                  <div style={{ padding: "0.8rem 1rem 0.2rem" }}>
+                    {readLord !== g.mahadasha ? (
+                      <button
+                        onClick={() => setReadLord(g.mahadasha)}
+                        className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
+                        style={{ letterSpacing: "0.1em", color, border: `1px solid ${color}66`, background: "transparent" }}
+                      >
+                        Read the {g.mahadasha} chapter
+                      </button>
+                    ) : dashaReadQ.isLoading ? (
+                      <p style={{ fontSize: "0.85rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
+                        Opening the chapter…
+                      </p>
+                    ) : dashaReadQ.data?.available && dashaReadQ.data.read ? (
+                      <div>
+                        <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>
+                          {dashaReadQ.data.read.read}
+                        </p>
+                        <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.55rem 0 0.3rem" }}>
+                          {dashaReadQ.data.read.question}
+                        </p>
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
+                        The chapter is quiet right now — try again in a moment.
+                      </p>
+                    )}
+                  </div>
                   {g.periods.map((period: any, i: number) => {
                     const antColor = PLANET_COLORS[period.antardasha] ?? "var(--color-muted-foreground)";
                     const isCurrent = !!period.isCurrent;

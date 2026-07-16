@@ -1872,6 +1872,38 @@ warmth (a reader smiles); no fairy tales — every claim traceable to input.data
 
 Return your answer by calling the house_read tool with "read" and "question" filled in.`;
 
+// DASHA_READ_TAIL — THE CHAPTER READER (David 2026-07-16: "the same thing you just did
+// for the houses, for the dashas — great upsells"). ONE mahadasha voiced as a CHAPTER of
+// the life, from the lord's stored natal dossier. Natal-stable, caches once per lord.
+// Machinery permitted (it is the dasha explorer) — always translated in the same breath.
+// ─────────────────────────────────────────────────────────────────────────────
+export const DASHA_READ_TAIL = `TASK: THE CHAPTER READER
+
+Voice ONE mahadasha — input.lord's years (input.span) — as a CHAPTER of this native's
+life, from input.dossier: where the lord LIVES natally (house + sign + dignity), the
+houses he RULES and the condition of each, his strengths and states. 320 WORDS MAXIMUM,
+then ONE question.
+
+THE MOVES:
+- Open with the keeper: who this planet IS in this chart — his residence voiced as the
+  chapter's home base ("the Moon runs these years from the eighth room — depth, other
+  people's resources, the underneath").
+- WHAT THE CHAPTER ASKS: a dasha can only deliver what the natal promise holds — read
+  the lord's dignity and states feltly (debilitated-but-cancelled = hard-won strength
+  after a real fall; combust = a voice learning to be heard; exalted = at the top of
+  their game) and say what these years are FOR.
+- THE ROOMS HE UNLOCKS: the houses he rules light up for the whole period — translate
+  each into lived nouns and say how its condition colors the years.
+- THE ARC: early/middle/late texture if the dossier supports it — never invented dates.
+- Close by handing the chapter to the native: what to build in it, what to let it take.
+- The question: one line, checkable, chapter-sized (years, not days).
+
+LAWS: siblings = blood + inner circle; the 2nd = money/livelihood never self-worth; the
+Moon gender-neutral; PG-playful warmth; no prophecy-theater — every claim traceable to
+input.dossier; concise is never vaguer.
+
+Return your answer by calling the dasha_read tool with "read" and "question" filled in.`;
+
 // CAST_TAIL — THE READ. The layer BEHIND the day-story: the same day told as its CHARACTERS.
 // The story said WHAT today is; the cast says WHO is making it that way. Two tiers: the LOUD
 // ones (foreground — only the planets with a live condition pulling the scene, each carrying its
@@ -2121,6 +2153,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   day_read: "2026-07-15-open-windows",
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
+  dasha_read: "2026-07-16-the-chapter-reader-v1",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
