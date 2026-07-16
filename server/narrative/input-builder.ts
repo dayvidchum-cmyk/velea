@@ -246,6 +246,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // (a dump would recreate the founding wound). Best-effort: a failure here never blocks
   // the read; the prose simply falls back to the pre-repoint inputs.
   let natalCondition: any = null;
+  // Hoisted so the life-area lens can read the SAME stored-research conditions the
+  // House Reader speaks from (audit 2026-07-16: the paid lens read flat dignity while
+  // the free reader read Shadbala/avashtas/neecha-bhanga — shallower AND contradictable).
+  let condOfStored: ((g: string) => any) | null = null;
   try {
     const { getStoredResearch, storeNatalResearch, storeDashaTree, storeConvergence } = await import("../vedic/research-store.js");
     let research = await getStoredResearch(p.id);
@@ -312,6 +316,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
           ...(trueHouse?.shifted ? { trueHouse: `the cusp-true chart moves it into house ${trueHouse.bhava} — read it THERE` } : {}),
         };
       };
+      condOfStored = condOf;
       const standingYogas = (research.yogas ?? [])
         .filter((y: any) => y.frames.length >= 2 || y.inNavamsha).slice(0, 4)
         .map((y: any) => ({ name: y.name, note: y.inNavamsha ? "held strongly — repeats in the marriage/dharma chart" : `holds from ${y.frames.length} vantages` }));
@@ -692,7 +697,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   let reading: DayFrameReading | undefined;
   if (ownerIsAdmin && a["Moon"] != null && birthNakIdx >= 0 && natalMoonSignIdx >= 0) {
     const natalByPlanet = Object.fromEntries(
-      (natal.planets as any[]).filter(Boolean).map((pl) => [pl.name, { sign: pl.sign, house: pl.house ?? null, dignity: pl.dignity, rulesHouses: pl.rulesHouses ?? [] }]),
+      (natal.planets as any[]).filter(Boolean).map((pl) => [pl.name, { sign: pl.sign, house: pl.house ?? null, dignity: pl.dignity, rulesHouses: pl.rulesHouses ?? [], ...(pl.cancelledDebilitation ? { cancelledDebilitation: true, hardWon: pl.hardWon ?? true } : {}) }]),
     );
     try {
       reading = dayFrameReading({
@@ -723,6 +728,20 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       transits: transits as any,
       dasha: dasha as any,
     });
+    // THE DEPTH GRAFT: the area's carriers (house lord + karakas) get their stored
+    // both-volumes condition — Shadbala strength, avashtas, combustion, neecha-bhanga —
+    // so the paid lens is never shallower than the free House Reader.
+    if (lifeAreaLens && condOfStored) {
+      const carriers = Array.from(new Set([
+        (lifeAreaLens as any).rasi?.houseLord,
+        (lifeAreaLens as any).vargaChart?.houseLord,
+        ...(((lifeAreaLens as any).karakas ?? []).map((k: any) => k.planet)),
+      ].filter(Boolean))) as string[];
+      (lifeAreaLens as any).storedConditions = {
+        _how: "the stored research's TRUE condition of this area's carriers — deeper than the flat dignity fields above; when they disagree, trust THIS",
+        carriers: carriers.map(condOfStored),
+      };
+    }
   }
 
   // ECLIPSE SEASON ARC — the "how will this eclipse season affect me" period read. Present ONLY when

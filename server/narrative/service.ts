@@ -342,7 +342,7 @@ export async function getMonthCached(profileId: number, date: string, refresh = 
     profileId, lagna: input.natal?.lagna, m: arc.month,
     ev: (arc.events as any[]).map((e) => ({ k: e.kind, d: e.date, p: e.planet ?? e.type ?? null, h: e.house, n: e.natalPoint ?? null })),
     sp: (arc.subPeriods as any[] ?? []).map((s) => ({ l: s.lord, s: s.startDate, e: s.endDate })),
-    tl: input.timeLordTransit?.planet ?? input.dasha?.current?.antardasha ?? null,
+    tl: input.timeLordTransit?.planet ?? input.dasha?.antarDasha?.lord ?? null, // audit: .current.antardasha never existed — antar chapter turns now bust the month cache
     prof: input.profection?.activatedHouse ?? null,
   };
   const salt = SURFACE_VERSION[surface] ?? "";

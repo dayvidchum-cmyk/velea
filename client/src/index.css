@@ -129,13 +129,13 @@
   --popover: #1F2231;
   --popover-foreground: #DCD6C7;
   --primary: oklch(0.767 0.139 91.1);
-  --primary-foreground: #000000;
+  --primary-foreground: #1a1305;
   --secondary: #262A3D;
   --secondary-foreground: #DCD6C7;
   --muted: #1F2233;
   --muted-foreground: #898DA3;
   --accent: oklch(0.767 0.139 91.1);
-  --accent-foreground: #000000;
+  --accent-foreground: #1a1305;
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: #FDFDFD;
   --border: rgba(170, 180, 226, 0.11);
@@ -173,7 +173,7 @@
   --sidebar: #10121C;
   --sidebar-foreground: #DCD6C7;
   --sidebar-primary: oklch(0.767 0.139 91.1);
-  --sidebar-primary-foreground: #000000;
+  --sidebar-primary-foreground: #1a1305;
   --sidebar-accent: #262A3D;
   --sidebar-accent-foreground: #DCD6C7;
   --sidebar-border: rgba(170, 180, 226, 0.09);
@@ -404,7 +404,7 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: none;
     border-radius: calc(var(--radius) - 2px);
-    color: #ECEAE4;
+    color: #DCD6C7;
     font-size: 16px !important;
   }
 
@@ -654,13 +654,13 @@
   --popover: #1F2231;
   --popover-foreground: #DCD6C7;
   --primary: oklch(0.767 0.139 91.1);
-  --primary-foreground: #000000;
+  --primary-foreground: #1a1305;
   --secondary: #262A3D;
   --secondary-foreground: #DCD6C7;
   --muted: #1F2233;
   --muted-foreground: #898DA3;
   --accent: oklch(0.767 0.139 91.1);
-  --accent-foreground: #000000;
+  --accent-foreground: #1a1305;
   --destructive: oklch(0.58 0.18 25);
   --destructive-foreground: #FDFDFD;
   --border: rgba(170, 180, 226, 0.11);
@@ -682,7 +682,7 @@
   --sidebar: #10121C;
   --sidebar-foreground: #DCD6C7;
   --sidebar-primary: oklch(0.767 0.139 91.1);
-  --sidebar-primary-foreground: #000000;
+  --sidebar-primary-foreground: #1a1305;
   --sidebar-accent: #262A3D;
   --sidebar-accent-foreground: #DCD6C7;
   --sidebar-border: rgba(170, 180, 226, 0.09);
@@ -718,7 +718,7 @@
 .dark .glass-input {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #ECEAE4;
+  color: #DCD6C7;
 }
 
 .dark .glass-input::placeholder {
@@ -890,19 +890,19 @@ html.light {
 }
 
 html.light body {
-  background: #FFFFFF;
-  color: #000000;
+  background: #F0E9DC;
+  color: #3E352A;
 }
 
 html.light .glass-card {
-  background: #FFFFFF;
+  background: var(--card);
   backdrop-filter: none;
   border: 1px solid #E5E5E5;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 html.light .glass-panel {
-  background: #FFFFFF;
+  background: var(--card);
   border: 1px solid #E5E5E5;
 }
 
@@ -912,9 +912,9 @@ html.light .glass-nav {
 }
 
 html.light .glass-input {
-  background: #FFFFFF;
+  background: var(--card);
   border: 1px solid #E5E5E5;
-  color: #000000;
+  color: #3E352A;
 }
 
 html.light .glass-input::placeholder {
@@ -1000,7 +1000,7 @@ html.light .orb-selective {
 
 /* ── LIGHT MODE CARD CELESTIAL ───────────────────────────────────────── */
 html.light .card-celestial {
-  background: #FFFFFF;
+  background: var(--card);
   border: 1px solid #E5E5E5;
 }
 

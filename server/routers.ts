@@ -2486,6 +2486,11 @@ export const appRouter = router({
     yearMarks: protectedProcedure
       .input(z.object({ from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
       .query(async ({ input }) => {
+        // Span guard (audit 2026-07-16): the sweep costs one ephemeris call PER DAY, and the
+        // cache is keyed by the exact range — an unbounded span is a CPU hole. The legit
+        // client asks for one solar year (~366 days); allow a little slack, refuse the rest.
+        const spanDays = (Date.parse(input.to) - Date.parse(input.from)) / 86_400_000;
+        if (!(spanDays >= 0 && spanDays <= 400)) throw new TRPCError({ code: "BAD_REQUEST", message: "Range must be 0–400 days." });
         const { yearStationMarks } = await import("./sky/current-sky.js");
         return yearStationMarks(input.from, input.to);
       }),

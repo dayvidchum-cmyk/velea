@@ -312,7 +312,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
       {sel != null && selSign && (
         <div
           onClick={() => setSelectedHouse(null)}
-          style={{ position: "absolute", inset: 0, background: "rgba(30, 24, 16, 0.4)", borderRadius: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 5 }}
+          style={{ position: "absolute", inset: 0, background: "rgba(30, 24, 16, 0.4)", borderRadius: "0.75rem", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "2.2rem", zIndex: 5 }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -371,9 +371,18 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                   </p>
                 </div>
               ) : (
-                <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
-                  The room is quiet right now — try again in a moment.
-                </p>
+                <div>
+                  <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0 0 0.6rem" }}>
+                    The room is quiet right now.
+                  </p>
+                  <button
+                    onClick={() => houseReadQ.refetch()}
+                    className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
+                    style={{ letterSpacing: "0.1em", color: accent, border: `1px solid color-mix(in srgb, ${accent} 45%, transparent)`, background: "transparent" }}
+                  >
+                    Ask again
+                  </button>
+                </div>
               )}
             </div>
 
@@ -919,7 +928,7 @@ export function DashaSection() {
                   Active Period
                 </span>
               </span>
-              <ChevronDown size={14} style={{ color: t.muted, transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+              <ChevronDown size={17} style={{ color: t.muted, transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
             </button>
             <div className="px-5 pb-5">
               <p className="text-base" style={{ color: t.primary, fontWeight: 700 }}>{currentPeriod.mahadasha} / {currentPeriod.antardasha}</p>
@@ -1059,7 +1068,7 @@ export function DashaSection() {
 
 function ProfectionSection() {
   const modeColor = useDayModeColor();
-  const [focusOpen, setFocusOpen] = useState(true);
+  const [focusOpen, setFocusOpen] = useState(false); // collapse-is-default (audit 2026-07-16); no blessed-primary comment justified the open state
   const [growthOpen, setGrowthOpen] = useState(false);
   const [frictionOpen, setFrictionOpen] = useState(false);
   const [chainOpen, setChainOpen] = useState(false);
@@ -1113,7 +1122,7 @@ function ProfectionSection() {
             <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.55)" }}>{subtitle}</span>
           )}
         </span>
-        <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0 }} />
+        <ChevronDown size={17} style={{ color: "rgba(255,255,255,0.6)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease", flexShrink: 0 }} />
       </button>
       {open && <div className="px-5 pb-5">{content}</div>}
     </div>
@@ -1174,7 +1183,7 @@ function ProfectionSection() {
           <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.96)" }}>
             Current Time Lord Movement
           </span>
-          <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.6)", transform: tlOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+          <ChevronDown size={17} style={{ color: "rgba(255,255,255,0.6)", transform: tlOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
         </button>
         {tlOpen && (
           <div className="px-5 pb-5">
@@ -1233,9 +1242,9 @@ function ProfectionSection() {
             })}
           </div>
         ) : transitsLoading ? (
-          <p style={{ color: LIGHT_MUTED, fontSize: "0.875rem" }}>Loading...</p>
+          <VeleaLoader size={26} label="Reading the sky…" />
         ) : (
-          <p style={{ color: LIGHT_MUTED, fontSize: "0.875rem" }}>No transit data available</p>
+          <p style={{ color: LIGHT_MUTED, fontSize: "0.875rem" }}>The sky's positions aren't available right now — they'll be back in a moment</p>
         ),
         `${timeLord} transit periods`
       )}

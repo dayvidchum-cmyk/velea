@@ -1,4 +1,5 @@
 import { useState } from "react";
+import VeleaLoader from "@/components/VeleaLoader";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -122,10 +123,12 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
   // station cards, it falls back to the moon card so it's never lost.
   const firstStation = heroes.findIndex((h) => !h.primary);
   const weatherIdx = firstStation >= 0 ? firstStation : 0;
+  const skyPending = heroes.length === 0;
 
   return createPortal(
     <>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: "var(--dialog-overlay)" }} onClick={onClose}>
+      {/* Top-anchored (the card-never-moves law): centered boxes jump when async sky lands. */}
+      <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4" style={{ background: "var(--dialog-overlay)", paddingTop: "7dvh" }} onClick={onClose}>
         <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col"
           style={{ maxHeight: "min(92vh, 840px)", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1.5px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", position: "relative" }}>
 
@@ -134,6 +137,11 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
           </button>
 
           <div className="overflow-y-auto">
+            {skyPending && (
+              <div style={{ padding: "3.2rem 1rem 3.4rem" }}>
+                <VeleaLoader label="Setting the stage…" />
+              </div>
+            )}
             {heroes.length > 0 && (
               <>
                 <div className="no-scrollbar" style={{ position: "relative", display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", alignItems: "stretch" }}

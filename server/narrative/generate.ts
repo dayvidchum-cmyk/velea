@@ -364,9 +364,13 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
       // Law 3 with teeth: the day headline may not reappear inside the prose.
       bannedPhrases: [(input as any).dayFilter?.headline].filter(Boolean) as string[],
       // The roll call with teeth: the year's guide + the running lords must appear by name.
+      // Audit 2026-07-16: the ANTAR lord joined — "Venus vanished twice" could still ship
+      // when the vanished lord was the antardasha. Pratyantar stays soft (trigger-level
+      // texture; hard-requiring it made retries too brittle).
       requiredNames: Array.from(new Set([
         (input as any).profection?.timeLord,
         (input as any).dasha?.mahaDasha?.lord,
+        (input as any).dasha?.antarDasha?.lord,
       ].filter(Boolean))) as string[],
       complete: isCompleteDayRead,
       // The question is one short line, excluded from the story's word budget.

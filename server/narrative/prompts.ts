@@ -2188,6 +2188,7 @@ export const PROMPT_VERSION = "2026-07-15-mode-words-purged";
 // vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
+  glance: "2026-07-16-salted-v1", // audit: was the ONE day-surface with no independent version
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   chapter: "2026-07-13-chapter-concise",
@@ -2196,7 +2197,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-16-the-chapter-reader-v1",
   atlas_read: "2026-07-16-the-theme-reader-v1",
-  life_area: "2026-07-12-horoscope-varga-deep",
+  life_area: "2026-07-16-stored-conditions",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",

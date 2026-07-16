@@ -1259,7 +1259,7 @@ export default function Planner() {
           <button
             onClick={() => navigate("/year")}
             className="px-2 py-1 text-xs font-semibold uppercase tracking-wide"
-            style={{ color: "#a07c2e" }}
+            style={{ color: "var(--day-accent)" }}
           >
             Year ↗
           </button>

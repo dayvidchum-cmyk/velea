@@ -653,7 +653,7 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
                 style={{
                   display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: reveal.isPending ? "default" : "pointer",
                   borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, letterSpacing: "0.01em",
-                  color: "#fff", background: `linear-gradient(180deg, ${accent}, #3a6ba8)`, opacity: reveal.isPending ? 0.7 : 1,
+                  color: "#FBF7ED", background: `linear-gradient(180deg, ${accent}, #3a6ba8)`, opacity: reveal.isPending ? 0.7 : 1,
                   boxShadow: `0 2px 12px ${accent}3a`,
                 }}
               >
@@ -744,7 +744,7 @@ function MonthCard({ modeColor }: { modeColor: string }) {
                 style={{
                   display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: reveal.isPending ? "default" : "pointer",
                   borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, letterSpacing: "0.01em",
-                  color: "#fff", background: `linear-gradient(180deg, var(--day-accent), color-mix(in srgb, var(--day-accent) 70%, #2E2318))`, opacity: reveal.isPending ? 0.7 : 1,
+                  color: "#FBF7ED", background: `linear-gradient(180deg, var(--day-accent), color-mix(in srgb, var(--day-accent) 70%, #2E2318))`, opacity: reveal.isPending ? 0.7 : 1,
                   boxShadow: `0 2px 12px ${accent}3a`,
                 }}
               >
@@ -815,7 +815,7 @@ function DeepReadBody({ read, modeColor }: { read: DeepRead; modeColor: string }
         style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, margin: "1.4rem 0 0", color: "var(--color-muted-foreground)" }}
       >
         <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>The mechanics</span>
-        <ChevronDown size={14} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+        <ChevronDown size={17} style={{ transform: mechOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
       </button>
       {mechOpen && (
         <div style={{ marginTop: "0.7rem", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
