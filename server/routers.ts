@@ -122,8 +122,13 @@ const hasMasterMode = (user: { id: number; role?: string | null }) =>
 // unlocked it for them (unlike Time Master/Hora, which the tester role deliberately grants). New
 // premium features stay LOCKED for testers until he explicitly opens them. Only admins + the
 // bootstrap allowlist. To hand Horoscope to testers later, add `user.role === "tester"` here.
-const hasHoroscope = (user: { id: number; role?: string | null }) =>
-  user.role === "admin" || MASTER_MODE_USER_IDS.includes(user.id);
+// The premium reading layer: the old hard allowlist STILL wins, and the switchboard's
+// "specialReadings" flag can now open it to testers/everyone (David 2026-07-16).
+const hasHoroscope = async (user: { id: number; role?: string | null; email?: string | null }): Promise<boolean> => {
+  if (user.role === "admin" || MASTER_MODE_USER_IDS.includes(user.id)) return true;
+  const { hasFeature } = await import("./feature-flags.js");
+  return hasFeature(user, "specialReadings");
+};
 
 const TaskModeEnum = z.enum(["Restraint", "Build", "Selective", "Action"]);
 const PriorityEnum = z.enum(["High", "Medium", "Low"]);
@@ -2152,11 +2157,11 @@ export const appRouter = router({
   // calendar scrolls back through every date they've revealed. Same allowlist as Time Master.
   horoscope: router({
     // Drives the lock UI — public to every signed-in user, entitled only off the allowlist.
-    access: protectedProcedure.query(({ ctx }) => ({ entitled: hasHoroscope(ctx.user) })),
+    access: protectedProcedure.query(async ({ ctx }) => ({ entitled: await hasHoroscope(ctx.user) })),
 
     // Every date the active profile has purchased, newest first (calendar marks + scroll-back).
     list: protectedProcedure.query(async ({ ctx }) => {
-      if (!hasHoroscope(ctx.user)) return null;
+      if (!(await hasHoroscope(ctx.user))) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return [];
@@ -2173,7 +2178,7 @@ export const appRouter = router({
     // The frozen reading + notes for one date + life area (null if not yet purchased). lifeArea
     // defaults to 'day' so a legacy whole-day snapshot still resolves.
     get: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string().default("day") })).query(async ({ ctx, input }) => {
-      if (!hasHoroscope(ctx.user)) return null;
+      if (!(await hasHoroscope(ctx.user))) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return null;
@@ -2188,7 +2193,7 @@ export const appRouter = router({
     // area's varga-deep reading for that date once and freeze it. One LLM call only on first
     // reveal of each (date, area). Each area is its own purchase (eclipse×Career ≠ eclipse×Money).
     reveal: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string() })).mutation(async ({ ctx, input }) => {
-      if (!hasHoroscope(ctx.user)) return null;
+      if (!(await hasHoroscope(ctx.user))) return null;
       const { isLifeAreaKey } = await import("./vedic/life-areas.js");
       if (!isLifeAreaKey(input.lifeArea)) return { available: false as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
@@ -2224,7 +2229,7 @@ export const appRouter = router({
     // by season in narrative_cache, so re-tapping the same season is free (no re-charge). Returns
     // unavailable when there's no eclipse season in range or the key is off.
     eclipseSeason: protectedProcedure.mutation(async ({ ctx }) => {
-      if (!hasHoroscope(ctx.user)) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2242,7 +2247,7 @@ export const appRouter = router({
     // Read-only: is there ALREADY a saved eclipse-season reading for the current season? Never
     // generates — lets the card show "already read" + the archive list it, with no charge.
     eclipseSeasonSaved: protectedProcedure.query(async ({ ctx }) => {
-      if (!hasHoroscope(ctx.user)) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
@@ -2261,7 +2266,7 @@ export const appRouter = router({
     // active/approaching Mercury rx, read for this chart's house(s). Generates + caches per cycle;
     // unavailable when Mercury is clear (no cycle in range).
     mercuryRx: protectedProcedure.mutation(async ({ ctx }) => {
-      if (!hasHoroscope(ctx.user)) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2278,7 +2283,7 @@ export const appRouter = router({
 
     // Read-only: is there ALREADY a saved Mercury-rx reading for the current cycle? Never generates.
     mercuryRxSaved: protectedProcedure.query(async ({ ctx }) => {
-      if (!hasHoroscope(ctx.user)) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
@@ -2297,7 +2302,7 @@ export const appRouter = router({
     // arcs, spined on the Time Lord). Generates + caches per month. A subscriber core benefit (for now
     // gated to the horoscope entitlement until subscription billing lands).
     month: protectedProcedure.mutation(async ({ ctx }) => {
-      if (!hasHoroscope(ctx.user)) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2314,7 +2319,7 @@ export const appRouter = router({
 
     // Read-only: is there ALREADY a saved reading for the current month? Never generates.
     monthSaved: protectedProcedure.query(async ({ ctx }) => {
-      if (!hasHoroscope(ctx.user)) return { available: false as const, read: null, month: null, generatedAt: null, cached: false };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, read: null, month: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, month: null, generatedAt: null, cached: false };
@@ -2325,7 +2330,7 @@ export const appRouter = router({
 
     // Save the user's notes under a purchased horoscope (per date + area).
     saveNotes: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string().default("day"), notes: z.string().max(20000) })).mutation(async ({ ctx, input }) => {
-      if (!hasHoroscope(ctx.user)) return null;
+      if (!(await hasHoroscope(ctx.user))) return null;
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { saved: false as const };

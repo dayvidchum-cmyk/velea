@@ -136,21 +136,10 @@ export default function Horoscope() {
     setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
   };
 
-  // Locked (public-but-locked): everyone sees the page framing + the lock explainer.
-  if (access && !entitled) {
-    return (
-      <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "7rem" }}>
-        <div style={{ marginBottom: "1.25rem" }}><AppHeader pageTitle="Readings" onBack={() => navigate("/")} backLabel="Today" /></div>
-        <div style={{ maxWidth: 520, margin: "0 auto" }}>
-          <LockedFeatureCard
-            title="Readings"
-            teaser="Pick any day — receive its personalized reading."
-            detail="Choose any date, past or future, and Velea reads your chart for that exact day — the deep, layered reading, kept forever with your own notes beneath it. A premium layer, not yet unlocked."
-          />
-        </div>
-      </div>
-    );
-  }
+  // THE SUNKEN LOCK (David 2026-07-16, "go"): the page-level lock swallowed the WHOLE
+  // hub — free readings, Time Master tiles, even the Atlas doorway were invisible to
+  // non-entitled users. The hub now renders for EVERYONE; each special reading wears
+  // its OWN locked card below (public-but-locked, per feature).
 
   // Calendar grid for the viewed month.
   const first = new Date(view.y, view.m, 1);
@@ -192,13 +181,31 @@ export default function Horoscope() {
         </div>
 
         {/* ── This month (the full layered read expanded to the month, spined on the Time Lord) ── */}
-        <MonthCard modeColor={modeColor} />
+        {entitled ? <MonthCard modeColor={modeColor} /> : (
+          <div style={{ marginBottom: "0.8rem" }}><LockedFeatureCard
+            title="Read this month"
+            teaser="The month's full layered reading, spined on your Time Lord."
+            detail="The whole month as one arc — your running chapter, the sky's turns, the days that matter — in a single deep reading. A premium reading, not yet unlocked."
+          /></div>
+        )}
 
         {/* ── This eclipse season (the whole double-eclipse arc, read for your chart) ── */}
-        <EclipseSeasonCard modeColor={modeColor} />
+        {entitled ? <EclipseSeasonCard modeColor={modeColor} /> : (
+          <div style={{ marginBottom: "0.8rem" }}><LockedFeatureCard
+            title="This eclipse season"
+            teaser="The whole double-eclipse arc, read for your chart."
+            detail="Both eclipses of the season — the build, the resets, the aftermath — woven into one arc reading for your chart. A premium reading, not yet unlocked."
+          /></div>
+        )}
 
         {/* ── This Mercury retrograde (the whole rx cycle arc, read for your chart) ── */}
-        <MercuryRxCard modeColor={modeColor} />
+        {entitled ? <MercuryRxCard modeColor={modeColor} /> : (
+          <div style={{ marginBottom: "0.8rem" }}><LockedFeatureCard
+            title="This Mercury retrograde"
+            teaser="The whole retrograde cycle, read for your chart."
+            detail="The full rx arc — shadow, station, review, release — read through the rooms Mercury rules in your chart. A premium reading, not yet unlocked."
+          /></div>
+        )}
 
         {/* ── THE LIFE ATLAS doorway (David 2026-07-16: readings live under Readings).
             Shown to EVERYONE — inside, the themes and counts are real and the dates
@@ -219,6 +226,14 @@ export default function Horoscope() {
           <span className="text-xs font-bold uppercase shrink-0" style={{ letterSpacing: "0.08em", color: "var(--brand-gold)" }}>open ›</span>
         </button>
 
+        {!entitled && (
+          <div style={{ margin: "1.5rem 0 0.8rem" }}><LockedFeatureCard
+            title="Pick a day"
+            teaser="Any date, past or future — its reading, drawn from your chart."
+            detail="Choose any date and a part of life, and Velea reads your chart for that exact day — the deep, layered reading, kept forever with your own notes beneath it. A premium layer, not yet unlocked."
+          /></div>
+        )}
+        {entitled && <>
         {/* Pick-a-date intro — sits right above the calendar it describes (David). */}
         <p style={{ color: "var(--color-muted-foreground)", fontSize: "0.82rem", lineHeight: 1.5, margin: "1.5rem 0 0.9rem", textAlign: "center" }}>
           Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
@@ -335,6 +350,7 @@ export default function Horoscope() {
             />
           )}
         </div>
+        </>}
 
         {/* ── Your readings — the LOG of everything you've revealed, grouped by type. Always shown
             when entitled (even empty) so it's discoverable; eclipse season (a period reading, kept in
