@@ -993,7 +993,7 @@ export default function Planner() {
             <h2
               style={{
                 fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
-                fontSize: 'clamp(3.5rem, 16vw, 5rem)',
+                fontSize: 'clamp(2rem, 8vw, 2.75rem)', // same scale as the greeting (David)
                 fontWeight: 700,
                 lineHeight: 1,
                 color: 'rgba(255,255,255,0.95)',
