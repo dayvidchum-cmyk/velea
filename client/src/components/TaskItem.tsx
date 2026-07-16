@@ -313,6 +313,16 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           )}
         </div>
 
+        {/* Collapsed row stays QUIET (David 2026-07-16: "i cant read my task because the
+            icon buttons take up so much") — only passive whispers here; the action icons
+            (priority, pin, snooze, edit) appear when the row EXPANDS. */}
+        {!expanded && task.isPinned && <Pin size={12} fill="currentColor" className="flex-shrink-0" style={{ color: "rgba(var(--ink),0.65)" }} />}
+        {!expanded && task.priority && task.priority !== "Low" && (
+          <span className="flex-shrink-0 text-[11px] font-bold" style={{ color: "rgba(var(--ink),0.55)", letterSpacing: "-0.02em" }}>
+            {PRIORITY_EXCLAIM[(task.priority as keyof typeof PRIORITY_EXCLAIM)] ?? "!"}
+          </span>
+        )}
+        {expanded && <>
         {/* Priority — tap to cycle Low→Medium→High */}
         <button
           onClick={(e) => { e.stopPropagation(); onCyclePriority?.(task.id, NEXT_PRIORITY[task.priority ?? "Low"]); }}
@@ -411,6 +421,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
           </button>
         )}
 
+        </>}
         {/* Delete lives on swipe-right (deliberate gesture) + inside the edit sheet now —
             removed from the collapsed strip to de-clutter and prevent accidental taps. */}
 

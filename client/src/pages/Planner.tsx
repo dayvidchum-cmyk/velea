@@ -304,6 +304,7 @@ export default function Planner() {
   }, [settings.softOpen]);
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
   const [allTasksOpen, setAllTasksOpen] = useState(false);
+  const [taskSearch, setTaskSearch] = useState("");
   const [openKindGroups, setOpenKindGroups] = useState<Set<string>>(new Set());
   // Kind pop-up (David: orb tap → a dead-center pop-up of that kind's tasks, not a jump
   // into the accordion).
@@ -1810,19 +1811,31 @@ export default function Planner() {
           {/* All-tasks accordion — collapsible groups by mode (the old Planner view) */}
           {allTasksOpen && (
             <div className="mt-4 space-y-2">
+              {/* SEARCH (David 2026-07-16: 86 tasks need a finder) — filters every group live. */}
+              <input
+                type="search"
+                value={taskSearch}
+                onChange={(e) => setTaskSearch(e.target.value)}
+                placeholder="Search your tasks…"
+                className="w-full px-3 py-2 rounded-lg text-sm mb-1"
+                style={{ background: "var(--color-secondary)", border: "1px solid color-mix(in srgb, var(--day-accent) 35%, var(--color-border))", color: "var(--color-foreground)" }}
+              />
               {KIND_ORDER.map((m) => {
                 // Snoozed tasks are INCLUDED here (unlike the ranked "today" list) so the
                 // expanded All-Tasks view is the full picture — they sink to the bottom of
                 // their kind group and render dimmed.
+                const q = taskSearch.trim().toLowerCase();
                 const groupTasks = allTasks
                   .filter((t) => (kindByTaskId.get(t.id) ?? "mixed") === m && !t.isCompleted)
+                  .filter((t) => !q || (t.title ?? "").toLowerCase().includes(q) || ((t as any).description ?? "").toLowerCase().includes(q))
                   .sort((a, b) => {
                     const sa = a.snoozedUntil && a.snoozedUntil > Date.now() ? 1 : 0;
                     const sb = b.snoozedUntil && b.snoozedUntil > Date.now() ? 1 : 0;
                     return sa - sb;
                   });
-                const open = openKindGroups.has(m);
+                const open = q ? groupTasks.length > 0 : openKindGroups.has(m);
                 const groupColor = NATURE_DOT[m];
+                if (q && groupTasks.length === 0) return null;
                 return (
                   <div key={m} className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
                     <button
