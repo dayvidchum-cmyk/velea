@@ -233,10 +233,6 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // natal. Excludes every fast/daily layer (date, pratyantar, transits, panchang, eclipse,
   // hora, humanTime, timeLordTransit) so the cache hash — and thus the prose — only turns
   // when the chapter turns. The deepened ("stage + guests") read passes the full input.
-  if (moment?.slowOnly) {
-    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc } as any;
-  }
-
   const praty = cur ? currentPratyantardasha(cur.antardasha, cur.startDate, cur.endDate, dateStr) : null;
   const dasha = cur
     ? { ...dashaBase, pratyantarDasha: praty ? { lord: praty.lord, natal: nat(byPlanet[praty.lord]), rulesHouses: rulesHouses(praty.lord, lagna) } : null }
@@ -321,7 +317,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         .map((y: any) => ({ name: y.name, note: y.inNavamsha ? "held strongly — repeats in the marriage/dharma chart" : `holds from ${y.frames.length} vantages` }));
       natalCondition = {
         _how: "the engine's stored research of this chart (both volumes) — trust it over inference; translate it, never surface a term",
-        lords: chainLords.map(condOf),
+        lords: (moment?.slowOnly
+          ? Array.from(new Set([cur?.mahadasha, cur?.antardasha].filter(Boolean))) as string[]
+          : chainLords).map(condOf),
         atmakaraka: {
           planet: research.anchors.atmakaraka.planet,
           karakamsha: research.charaKarakas?.karakamsha ?? research.anchors.atmakaraka.navamsaSign,
@@ -491,6 +489,48 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     (panchang as any).qualifier = undefined;
     (panchang as any).modeStepReasons = undefined;
   } catch { /* the read proceeds without the filter */ }
+
+  if (moment?.slowOnly) {
+    // THE YEAR READ EATS PROPERLY (David 2026-07-16: "is the prose for Your Year being
+    // fed?"): the stage now carries the lords' TRUE condition (maha+antar only — the
+    // pratyantar is fast and would churn the chapter cache) and THE YEAR'S WINDOWS from
+    // stored convergence, anchored to the profection year so the hash stays chapter-stable.
+    let yearWindows: any = null;
+    try {
+      const { getDb } = await import("../db.js");
+      const { profileConvergence } = await import("../../drizzle/schema.js");
+      const { eq: eqW } = await import("drizzle-orm");
+      const dbW = await getDb();
+      if (dbW && p.birthDate) {
+        const [, bm, bd] = String(p.birthDate).split("-").map(Number);
+        const dy = Number(dateStr.slice(0, 4));
+        const dMD = dateStr.slice(5);
+        const startYear = dMD >= `${String(bm).padStart(2, "0")}-${String(bd).padStart(2, "0")}` ? dy : dy - 1;
+        const y0 = Date.parse(`${startYear}-${String(bm).padStart(2, "0")}-${String(bd).padStart(2, "0")}T00:00:00Z`);
+        const y1 = y0 + 366 * 86400000;
+        const rows = await dbW.select().from(profileConvergence).where(eqW(profileConvergence.profileId, p.id));
+        const spans = rows
+          .map((r: any) => ({ s: new Date(r.startAt).getTime(), e: new Date(r.endAt).getTime(), themes: JSON.parse(r.themes ?? "{}") }))
+          .filter((r: any) => r.e > y0 && r.s < y1)
+          .sort((a: any, b: any) => a.s - b.s);
+        const byTheme: Record<string, Array<{ from: string; to: string }>> = {};
+        for (const th of Array.from(new Set(spans.flatMap((sp: any) => Object.keys(sp.themes).filter((k) => sp.themes[k]?.lit))))) {
+          let openW: { s: number; e: number } | null = null;
+          const out: Array<{ from: string; to: string }> = [];
+          for (const sp of spans) {
+            const lit = sp.themes[th as string]?.lit;
+            if (lit && !openW) openW = { s: sp.s, e: sp.e };
+            else if (lit && openW) openW.e = sp.e;
+            else if (!lit && openW) { out.push({ from: new Date(openW.s).toISOString().slice(0, 10), to: new Date(openW.e).toISOString().slice(0, 10) }); openW = null; }
+          }
+          if (openW) out.push({ from: new Date(openW.s).toISOString().slice(0, 10), to: new Date(openW.e).toISOString().slice(0, 10) });
+          if (out.length) byTheme[th as string] = out;
+        }
+        if (Object.keys(byTheme).length) yearWindows = byTheme;
+      }
+    } catch { /* the year read proceeds without windows */ }
+    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}) } as any;
+  }
 
   // RECENT READS — the last 3 days of glance prose, so the model can see what it already
   // said and is FORBIDDEN from re-saying. Root cause of the wallpaper era (2026-07-10):

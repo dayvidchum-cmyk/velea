@@ -1127,6 +1127,14 @@ Return your answer by calling the glance tool with all four fields filled in.`;
 
 export const DEEP_READ_TAIL = `TASK: DEEP READ
 
+THE YEAR'S WINDOWS (input.yearWindows — when present): the stored life-timeline's LIT
+theme-windows across this solar year, with their open/close dates. These are the year's
+EVENTS-IN-WAITING — a marriage window, a career window, a health season. Name the two or
+three that matter in LIVED language with their season ("a union window opens as summer
+turns"), never a list of all of them, never precise dates unless a window is near. And
+input.natalCondition now carries the running lords' RESEARCHED condition — the chapter's
+keeper read from the stored both-volumes research; trust it over inference.
+
 RECENT READS — ONE CONTINUING STORY, NEVER THE SAME PAGE TWICE
 This person's days are chapters of ONE story, and you are its narrator. input.recentReads
 carries the last few days of that story, newest first — read it as YOUR OWN previous
