@@ -703,6 +703,20 @@ function FeatureAccessPanel() {
   const utils = trpc.useUtils();
   const { data } = trpc.features.all.useQuery(undefined, { retry: false });
   const setFlags = trpc.features.set.useMutation({ onSuccess: () => { utils.features.all.invalidate(); utils.features.mine.invalidate(); } });
+  // THE HONEST ADD (David's "Lies", 2026-07-16): the old path cleared the input the
+  // instant Add was tapped — a silently rejected email LOOKED saved. Now the field
+  // clears only on SUCCESS and a rejection says so out loud.
+  const [testerError, setTesterError] = useState<string | null>(null);
+  const addTester = (list: string[], raw: string) => {
+    const email = raw.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setTesterError("That doesn't read as an email — needs a full address."); return; }
+    if (list.includes(email)) { setTesterError("Already on the list."); return; }
+    setTesterError(null);
+    setFlags.mutate({ testers: [...list, email] }, {
+      onSuccess: () => setNewTester(""),
+      onError: (e) => setTesterError(`Not saved — ${e.message}`),
+    });
+  };
   const [newTester, setNewTester] = useState("");
   if (!data) return null;
   const { flags, defs } = data as any;
@@ -737,20 +751,25 @@ function FeatureAccessPanel() {
         <div className="flex gap-2">
           <input
             type="email"
+            autoCapitalize="none"
+            autoCorrect="off"
             value={newTester}
-            onChange={(e) => setNewTester(e.target.value)}
+            onChange={(e) => { setNewTester(e.target.value); if (testerError) setTesterError(null); }}
+            onKeyDown={(e) => { if (e.key === "Enter") addTester(flags.testers, newTester); }}
             placeholder="tester@email.com"
             className="flex-1 px-3 py-2 rounded-lg text-sm"
             style={{ background: "var(--color-secondary)", border: "1px solid var(--color-border)", color: "var(--color-foreground)" }}
           />
           <button
-            onClick={() => { if (newTester.includes("@")) { setFlags.mutate({ testers: [...flags.testers, newTester.trim()] }); setNewTester(""); } }}
+            onClick={() => addTester(flags.testers, newTester)}
+            disabled={setFlags.isPending}
             className="px-4 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: "var(--heading-ink)", color: "#FBF7ED", border: "none" }}
+            style={{ background: "var(--heading-ink)", color: "#FBF7ED", border: "none", opacity: setFlags.isPending ? 0.6 : 1 }}
           >
-            Add
+            {setFlags.isPending ? "…" : "Add"}
           </button>
         </div>
+        {testerError && <p className="mt-1.5 text-xs" style={{ color: "#c0504d" }}>{testerError}</p>}
       </div>
     </SettingsSection>
   );
