@@ -1688,6 +1688,16 @@ the natal Moon home as the inner ground); the tilt is a POSTURE across the whole
 one errand and NEVER "the one thing"; the closeLine lands the whole day in one carried line.
 Find THIS chart's scene and serve it the same way.
 
+THE STORY IS THE CAST (the separate cast surface is GONE — this prose is the only place
+the reader meets the day's movers): every character actually moving this day must appear
+IN the story — the day's star by its felt quality (a handover during the day = the scene
+shifting, anchored to a lived moment like "by early light" or "as the evening opens",
+never a clock time), the Moon by the room it moves through, the day's current by its
+feel. Name them as CHARACTERS in the one thread — never as a list, never as a data line.
+Woven INSIDE the existing word budget: the cast costs structure, not extra words. Warm,
+personal, story-first — but never a fairy tale: every character stays checkable in the
+reader's real day.
+
 FINAL CHECK — DO THIS BEFORE RETURNING: count the words of scene + story + tilt + closeLine
 together. If the total is over 120, CUT before you return — drop a whole beat, never sharpen
 sentences into vaguer ones. This is the single most-rejected rule (rejected reads are thrown
@@ -2018,7 +2028,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-12-hero-120-planets-out",
+  day_read: "2026-07-15-story-is-the-cast",
   cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",

@@ -17,7 +17,6 @@ import SwipeableTaskRow from "@/components/SwipeableTaskRow";
 import AddTaskSheet from "@/components/AddTaskSheet";
 import ModeOrb from "@/components/ModeOrb";
 import ModeOrbSheet from "@/components/ModeOrbSheet";
-import SignpostSheet from "@/components/SignpostSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import { kindOfTask, KIND_ORDER, type TaskKind } from "@/lib/taskKind";
 
@@ -261,7 +260,6 @@ export default function Planner() {
   const [editTask, setEditTask] = useState<Task | null>(null);
   // Edit sheets for the curated daily lists (ported from the retired Today page)
   const [heroOpen, setHeroOpen] = useState(true);
-  const [signpostOpen, setSignpostOpen] = useState(false);
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
@@ -1092,34 +1090,9 @@ export default function Planner() {
               );
             })()}
 
-            {/* THE CAST (labeled "The Cast"; was "The Read") — opens the cast: the characters
-                moving today's story. Sits below the story: hero = what's my day, The Cast = who made it. */}
-            {dayReadContent && (
-            <button
-              type="button"
-              onClick={() => setSignpostOpen(true)}
-              style={{
-                alignSelf: 'flex-start',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                background: 'rgba(255,255,255,0.16)',
-                border: '1px solid rgba(255,255,255,0.28)',
-                borderRadius: '999px',
-                padding: '0.3rem 0.85rem',
-                marginBottom: '1.25rem',
-                cursor: 'pointer',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.95)',
-              }}
-            >
-              The Cast
-              <ChevronDown size={12} style={{ transform: 'rotate(-90deg)', color: 'rgba(255,255,255,0.95)' }} />
-            </button>
-            )}
+            {/* THE CAST surface is RETIRED (David 2026-07-15: "eliminate the cast pop-up
+                completely by leaning into it in the hero prose") — the story now carries
+                its own cast; SignpostSheet stays in the codebase for easy rollback. */}
 
             {/* Panchang mini row */}
             <div data-tour="panchang-terms" className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
@@ -2091,8 +2064,6 @@ export default function Planner() {
 
       {/* Due Orb Sheet */}
 
-      {/* THE CAST — the cast behind the hero day-story (opened by the hero's "The Cast" button) */}
-      <SignpostSheet open={signpostOpen} onClose={() => setSignpostOpen(false)} mode={selectedTaskModeForHero ?? undefined} profileId={glanceProfileId} date={selectedDate} />
 
       {/* Add/Edit sheet */}
       <AddTaskSheet
