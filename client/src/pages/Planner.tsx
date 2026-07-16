@@ -1525,8 +1525,9 @@ export default function Planner() {
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : isCrown
                       ? `1.5px solid ${GOLD_BRIGHT}`
-                      // THE GLYPH DAY earns back its thin ring — its own color, no fill (David 7/16).
-                      : (!filled && !eclipseByDate.has(dateStr) && !stationsToday.length && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0))
+                      // THE GLYPH DAY earns its thin ring — its own color, no fill (David 7/16);
+                      // station days wear it too ("why doesn't station days get a ring?").
+                      : (!filled && !eclipseByDate.has(dateStr) && (stationsToday.length > 0 || achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0))
                       ? `1.5px solid color-mix(in srgb, ${accent} 62%, transparent)`
                       : "1.5px solid transparent",
                   }}
@@ -1609,16 +1610,20 @@ export default function Planner() {
                       ))}
                     </span>
                   ) : (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) ? (
-                    // THE GLYPH DAY: the marks ARE the day — large, centered inside the ring.
-                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
+                    // THE GLYPH DAY: the marks ARE the day — centered inside the ring. A solo
+                    // mark sits large; COMPANIONS SHRINK AND HUDDLE (two 16s + gap outgrew the
+                    // 32px coin — "like they are running from each other").
+                    <span style={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {(() => {
                         const phase = moonPhaseByDate.get(dateStr);
+                        const count = (phase ? 1 : 0) + (prosperitySet.has(dateStr) ? 1 : 0) + (achievementSet.has(dateStr) ? 1 : 0) + windowGlyphList.length;
+                        const g = count >= 2 ? 13 : 16;
                         return <>
-                          {phase && <span style={{ width: 11, height: 11, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />}
-                          {prosperitySet.has(dateStr) && <LotusMark size={16} strokeWidth={2} />}
-                          {achievementSet.has(dateStr) && <SummitMark size={16} strokeWidth={1.7} />}
+                          {phase && <span style={{ width: count >= 2 ? 9 : 11, height: count >= 2 ? 9 : 11, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />}
+                          {prosperitySet.has(dateStr) && <LotusMark size={g} strokeWidth={count >= 2 ? 2.3 : 2} />}
+                          {achievementSet.has(dateStr) && <SummitMark size={g} strokeWidth={count >= 2 ? 1.9 : 1.7} />}
                           {windowGlyphList.map((e) => (
-                            <PlanetMark key={e.planet} planet={e.planet} size={16} strokeWidth={1.9} color={MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? undefined} />
+                            <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} color={MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? undefined} />
                           ))}
                         </>;
                       })()}
