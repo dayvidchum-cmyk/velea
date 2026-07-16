@@ -296,6 +296,19 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   return result;
 }
 
+
+// The viewer's stored current location (the LocationChip's write) — Master Mode's clock
+// must tick where the USER is, not where the server's default is (David set Phnom Penh,
+// nothing changed — the chip wrote, the clock never read). Boston only as last resort.
+async function userLatLon(userId: number): Promise<{ lat: number; lon: number } | null> {
+  try {
+    const { getUserById } = await import("./db.js");
+    const u = await getUserById(userId);
+    if (u?.locationLat && u?.locationLon) return { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon) };
+  } catch { /* fall through */ }
+  return null;
+}
+
 export const appRouter = router({
   system: systemRouter,
   profiles: profilesRouter,
@@ -2047,7 +2060,8 @@ export const appRouter = router({
         const { pakshaFromSunMoon } = await import("./panchapakshi/tables.js");
         const birthPaksha = pakshaFromSunMoon(sunLon, moonLon);
         const [y, m, d] = input.date.split("-").map(Number);
-        const lat = input.lat ?? 42.3601, lon = input.lon ?? -71.0589;
+        const stored = await userLatLon(ctx.user.id);
+        const lat = input.lat ?? stored?.lat ?? 42.3601, lon = input.lon ?? stored?.lon ?? -71.0589;
         const { computeMasterMode } = await import("./panchapakshi/compute.js");
         const master = await computeMasterMode({ birthNakshatra: moonNak, birthPaksha, lat, lon, year: y, month: m, day: d });
         if (!master) return null;
@@ -2082,7 +2096,8 @@ export const appRouter = router({
         if (!hasMasterMode(ctx.user)) return null;
 
         const { computeHoras, HORA_TONE } = await import("./panchang/hora.js");
-        const lat = input.lat ?? 42.3601, lon = input.lon ?? -71.0589;
+        const stored = await userLatLon(ctx.user.id);
+        const lat = input.lat ?? stored?.lat ?? 42.3601, lon = input.lon ?? stored?.lon ?? -71.0589;
         const now = input.nowMs ?? Date.now();
         let [y, m, d] = input.date.split("-").map(Number);
         let horas = computeHoras(y, m, d, lat, lon);
