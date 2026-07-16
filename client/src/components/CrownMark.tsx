@@ -28,14 +28,15 @@ export default function CrownMark({
       strokeLinejoin="round"
       style={{ display: "inline-block", flexShrink: 0, ...style }}
     >
-      {/* The body: center point tallest, mids beside it, outers low; swooping valleys. */}
-      <path d="M5 19.4 L3.8 10 Q6.4 15 8.7 8.4 Q10.7 14.2 12 6.8 Q13.3 14.2 15.3 8.4 Q17.6 15 20.2 10 L19 19.4 Z" />
-      {/* The bindu balls on every point. */}
-      <circle cx="3.8" cy="8.4" r="1.25" />
-      <circle cx="8.7" cy="6.9" r="1.25" />
-      <circle cx="12" cy="5" r="1.35" />
-      <circle cx="15.3" cy="6.9" r="1.25" />
-      <circle cx="20.2" cy="8.4" r="1.25" />
+      {/* The body (v2 — "It's squished"): taller slender spikes, shallower valleys,
+          base inset from the shoulders, matching his image's proportions. */}
+      <path d="M5.6 18.8 L3.6 11 Q6.3 14.2 8.6 8.8 Q10.6 13 12 7.2 Q13.4 13 15.4 8.8 Q17.7 14.2 20.4 11 L18.4 18.8 Z" />
+      {/* The bindu balls, floating just off every point. */}
+      <circle cx="3.5" cy="9.4" r="1.45" />
+      <circle cx="8.6" cy="7.1" r="1.45" />
+      <circle cx="12" cy="5.4" r="1.55" />
+      <circle cx="15.4" cy="7.1" r="1.45" />
+      <circle cx="20.5" cy="9.4" r="1.45" />
     </svg>
   );
 }
