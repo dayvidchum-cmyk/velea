@@ -14,9 +14,10 @@ export default function FloatingAddButton({ onClick, label = "Add Task" }: Float
         width: "56px",
         height: "56px",
         bottom: "calc(72px + 1rem + env(safe-area-inset-bottom, 0px))",
-        background: "var(--card)",
-        color: "var(--foreground)",
-        border: "1px solid var(--border)",
+        // Same color as the greeting font (David) — the day-washed heading ink.
+        background: "var(--heading-ink)",
+        color: "#FBF7ED",
+        border: "none",
         boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)",
         display: "flex",
         alignItems: "center",
