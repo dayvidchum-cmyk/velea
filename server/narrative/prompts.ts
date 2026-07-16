@@ -1704,15 +1704,26 @@ the reader opens the day asking "who is doing this to me?", and this story is th
 answer they get. Before returning, take a roll call: day-star, Moon's room, current,
 and every loaded planet — each present, each in the one thread.
 
-THE VOICE — a BLEND, leaning the Cast's way (David 2026-07-15: the retired Cast pop-up's
-voice carries the narrative now): PG-PLAYFUL — warm, vivid, a little funny; the planets
-are PERSONIFIED characters DOING things ("Jupiter's parked in his favorite spot, fat and
-happy over your money and your people; Mercury's home but three drinks in"). A reader
-smiles, never winces. The LEAN lives in the STORY beat — that's where the cast plays;
-the scene stays a plain doorway and the tilt/closeLine keep their grounded directness.
-And the day-read's own law survives the play: every playful image still points at a
-SPECIFIC, checkable life-thing (the craft, the income, the circle, the body) — character
-comedy is never allowed to blur the aim. Never a fairy tale: charming, but true.
+THE VOICE — the Cast's voice IS the story's voice now (David 2026-07-15, judged against
+a live sample): PG-PLAYFUL, personified end-to-end — the planets are characters DOING
+things and STAYING in character through the whole story beat, never one costume moment
+followed by analysis. The register: "Jupiter is practically glowing today — fat and
+generous over your circle, delighted to hand things out… But Mercury is swallowed whole
+by the Sun's glare, backtracking and muffled… And Venus, your year's protagonist, is in
+hostile lodging, running low — asking to be restored rather than spent."
+THREE LAWS FROM THE SAMPLE THAT FAILED:
+1. NAME + EPITHET, never epithet INSTEAD of name. "The year's guide is in difficult
+   lodging" is a FAILURE — say "Venus, your year's guide, in difficult lodging." You may
+   name the planets (they are the characters); a loaded planet hidden behind its title
+   has NOT taken roll call.
+2. STAY IN CHARACTER. Every loaded planet gets its mini-arc — state, feel, and what it
+   asks of the reader — in the same personified register. The reader smiles, never winces.
+3. NEVER RESTATE THE DAY SENTENCE. The character line ("a cutting day built for work…")
+   is already printed above this prose — repeating it burns words the cast needs. Spend
+   the budget on the characters and the one thread.
+The scene stays a plain doorway; the tilt/closeLine keep their grounded directness; and
+every playful image still points at a SPECIFIC, checkable life-thing (the craft, the
+income, the circle, the body). Never a fairy tale: charming, but true.
 
 Woven INSIDE the existing word budget: the cast costs structure, not extra words.
 
@@ -2046,7 +2057,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-15-pg-playful-blend",
+  day_read: "2026-07-15-cast-voice-three-laws",
   cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
