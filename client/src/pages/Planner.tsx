@@ -403,7 +403,13 @@ export default function Planner() {
     [crownData],
   );
   // Achievement days — Sadhaka tara (rung 6, the accomplisher): the coin wears ✓ (David).
-  const achievementSet = useMemo(
+  // Full/new moon days — a pale disc and a dark disc in the mark cluster (David).
+  const moonPhaseByDate = useMemo(() => {
+    const m = new Map<string, "full" | "new">();
+    for (const d of ((crownData?.days ?? []) as any[])) if (d.moonPhase) m.set(d.date, d.moonPhase);
+    return m;
+  }, [crownData]);
+  const achievementSet = useMemo
     () => new Set<string>(((crownData?.days ?? []) as any[]).filter((d) => d.achievement).map((d) => d.date)),
     [crownData],
   );
@@ -1480,8 +1486,15 @@ export default function Planner() {
 
                   {/* ALL marks perch TOP-CENTER as one cluster; the crown is ALWAYS its
                       center, others flank it (David 2026-07-15 midnight experiment). */}
-                  {!isCrown && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (() => {
+                  {!isCrown && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (() => {
                     const others: React.ReactNode[] = [];
+                    const phase = moonPhaseByDate.get(dateStr);
+                    if (phase) others.push(
+                      <span key="moon" style={{ width: 9, height: 9, borderRadius: 999, alignSelf: "center",
+                        background: phase === "full" ? "#FDFBF3" : "#160f26",
+                        border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26",
+                        display: "inline-block" }} />
+                    );
                     if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontSize: "0.72rem", fontWeight: 800, color: MARK_INK.dollar }}>$</span>);
                     if (!stationsToday.length) for (const e of windowGlyphList) others.push(
                       <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor }}>{PLANET_GLYPH[e.planet]}</span>
