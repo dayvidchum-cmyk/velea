@@ -295,7 +295,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           subtract it here to avoid double-counting (that gap was the dead space above the greeting). */}
       <div aria-hidden style={{ height: `calc(${barH}px - env(safe-area-inset-top, 0px))` }} />
 
-      <div className="relative z-10" style={{ marginTop: "-0.9rem" }}>
+      <div className="relative z-10" style={{ marginTop: "-1.5rem" }}>
         {/* Large editorial greeting — the visual anchor, close under the dateline (David) */}
         <h1
           className="leading-tight"
