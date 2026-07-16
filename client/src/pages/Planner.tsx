@@ -1375,10 +1375,14 @@ export default function Planner() {
             // today-border: today is simply the filled coin.
             // Every coin is FILLED with its rung tint (the year view's language) — today and the
             // selected day distinguish themselves by ring + weight, not by being the only fills.
-            // David's coin model, restored with the movement palette (2026-07-15): TODAY is
-            // the only FILLED coin; every other date is its number in the coin's own color
-            // inside a thin fine ring of that color. Press still previews the full fill.
-            const filled = isToday && !!(dayCharacter?.movement || rung || hasMode);
+            // DAVID'S MOCK (2026-07-15, "do you seeeeeee"): a bare day is just its colored
+            // number — the RING appears only when the day carries marks, and the marks PERCH
+            // on the ring itself (paper halo breaks the line under each). Filled = weight:
+            // today and the caution days, with a deeper ring of their own shade.
+            const filled = (isToday || isCautionDay) && !!(dayCharacter?.movement || rung || hasMode);
+            const hasTaraBadge = prosperitySet.has(dateStr) || achievementSet.has(dateStr);
+            const windowGlyphList = (retroByDate.get(dateStr) ?? []).filter((e) => e.state === "window").slice(0, 2);
+            const ringForMarks = hasTaraBadge || windowGlyphList.length > 0;
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
@@ -1435,7 +1439,7 @@ export default function Planner() {
                     // the days that earn one: caution (red), knot/crown (gold), golden (gold), and
                     // station (the day-mode color, around the planet glyph).
                     border: cautionSet.has(dateStr)
-                      ? `1.5px solid ${CAUTION_RED}`
+                      ? `2px solid ${shadeHex("#B3232F", 0.6)}`
                       : eclipseByDate.has(dateStr)
                       ? `1.5px solid ${ECLIPSE_RING}`
                       : isCrown
@@ -1445,8 +1449,8 @@ export default function Planner() {
                       : isSelected
                       ? "2px solid var(--color-foreground)"
                       : isToday
-                      ? "2px solid #2b2723"
-                      : hasMode
+                      ? `2px solid ${shadeHex(accent, 0.55)}`
+                      : ringForMarks && hasMode
                       ? `1px solid ${accent}`
                       : "1px solid transparent",
                   }}
@@ -1455,21 +1459,22 @@ export default function Planner() {
                   onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
-                  {/* Station-window edge glyph (David: "little planet glyphs ride the edge of
-                      the days before and after a station") — the turn's approach/exit, small
-                      at the coin's lower edge; the station day itself keeps the full glyph. */}
-                  {!stationsToday.length && !isCrown && !eclipseByDate.has(dateStr) && (retroToday?.some((e) => e.state === "window") ?? false) && (
-                    <span style={{ position: "absolute", top: -4, left: 1, fontSize: "0.85rem", fontFamily: PLANET_GLYPH_FONT, fontWeight: 700, color: numberColor, opacity: 0.95, lineHeight: 1, pointerEvents: "none" }}>
-                      {(retroToday ?? []).filter((e) => e.state === "window").slice(0, 2).map((e) => PLANET_GLYPH[e.planet]).join("")}
+                  {/* Marks PERCH ON THE RING (David's mock): ♛ sits at the circle's crown
+                      point; $ and the station-window glyphs ride the upper-right arc. Each
+                      wears a paper halo so the ring's line visually breaks beneath it. */}
+                  {achievementSet.has(dateStr) && !isCrown && !eclipseByDate.has(dateStr) && (
+                    <span style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)", fontSize: "0.95rem", fontWeight: 800, color: filled ? accent : numberColor, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "0 2px", borderRadius: 4 }}>
+                      ♛
                     </span>
                   )}
-                  {/* Tara-day badge — $ (Sampat) / ✓ (Sadhaka) as a small corner mark so the
-                      DATE stays readable and a station glyph can share the coin (David 7/26). */}
-                  {(prosperitySet.has(dateStr) || achievementSet.has(dateStr)) && !isCrown && !eclipseByDate.has(dateStr) && (
-                    // $ = Sampat (prosperity) · ♛ = Sadhaka (achievement — something can be WON
-                    // today; a ✓ read as already-done, David 2026-07-15).
-                    <span style={{ position: "absolute", top: -1, right: 2, fontSize: prosperitySet.has(dateStr) ? "0.7rem" : "0.82rem", fontWeight: 800, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>
-                      {prosperitySet.has(dateStr) ? "$" : "♛"}
+                  {prosperitySet.has(dateStr) && !isCrown && !eclipseByDate.has(dateStr) && (
+                    <span style={{ position: "absolute", top: -8, right: -4, fontSize: "0.82rem", fontWeight: 800, color: filled ? accent : numberColor, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "0 2px", borderRadius: 4 }}>
+                      $
+                    </span>
+                  )}
+                  {!stationsToday.length && !isCrown && !eclipseByDate.has(dateStr) && windowGlyphList.length > 0 && (
+                    <span style={{ position: "absolute", top: -8, ...(prosperitySet.has(dateStr) ? { left: -4 } : { right: -4 }), fontSize: "0.9rem", fontFamily: PLANET_GLYPH_FONT, fontWeight: 700, color: filled ? accent : numberColor, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "0 2px", borderRadius: 4 }}>
+                      {windowGlyphList.map((e) => PLANET_GLYPH[e.planet]).join("")}
                     </span>
                   )}
                   {isCrown ? (
