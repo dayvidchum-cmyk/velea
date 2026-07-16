@@ -191,6 +191,17 @@ const NATURE_WORD: Record<string, string> = {
   fixed: "Ground", movable: "Motion", swift: "Swift", tender: "Tender",
   sharp: "Cutting", fierce: "Force", mixed: "Steady",
 };
+// What each kind MEANS, in lived language (David 2026-07-16: a 0-count orb tap must still
+// teach the word) — the classical natures translated: Dhruva/Chara/Kshipra/Mridu/Tikshna/Ugra/Mishra.
+const NATURE_MEANING: Record<string, string> = {
+  fixed: "Ground work — acts meant to HOLD: foundations, commitments, anything you want standing years from now.",
+  movable: "Motion work — acts meant to MOVE: travel, relocation, changes of course, starting what should flow.",
+  swift: "Swift work — the quick and light: errands, messages, short trips — done and gone by evening.",
+  tender: "Tender work — the gentle and human: love, friendship, art, beauty, care. A soft hand required.",
+  sharp: "Cutting work — clean endings: finishing, canceling, cutting away what's done, the final word.",
+  fierce: "Force work — the heavy lifts: confrontation, demolition, the hard push that takes real force.",
+  mixed: "Steady work — the daily grind: routine, upkeep, admin — the ordinary maintenance of a life.",
+};
 
 const MODE_DOT: Record<string, string> = {
   Action:     "oklch(0.70 0.18 150)",  // green
@@ -2365,10 +2376,13 @@ export default function Planner() {
                 <Plus size={18} style={{ transform: "rotate(45deg)" }} />
               </button>
             </div>
+            <p className="px-5 text-sm" style={{ margin: "0 0 0.6rem", color: "var(--color-foreground)", lineHeight: 1.55 }}>
+              {NATURE_MEANING[kindPopup]}
+            </p>
             <div className="px-4 pb-5 space-y-2 overflow-y-auto" style={{ maxHeight: "60vh" }}>
               {allTasks.filter((t) => !t.isCompleted && (kindByTaskId.get(t.id) ?? "mixed") === kindPopup).length === 0 ? (
                 <p className="text-sm text-center py-6" style={{ color: "var(--color-muted-foreground)" }}>
-                  Nothing here right now.
+                  You hold no {NATURE_WORD[kindPopup]?.toLowerCase()} tasks right now.
                 </p>
               ) : (
                 allTasks
