@@ -1461,21 +1461,13 @@ export default function Planner() {
                     // number (or, for today / the pressed day, a filled coin). A ring survives ONLY on
                     // the days that earn one: caution (red), knot/crown (gold), golden (gold), and
                     // station (the day-mode color, around the planet glyph).
+                    // THE EXPERIMENT (David 2026-07-15 midnight): rings ONLY on current,
+                    // caution and crowned days — everything else bare. Marks still perch.
                     border: cautionSet.has(dateStr)
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
-                      : eclipseByDate.has(dateStr)
-                      ? `1.5px solid ${ECLIPSE_RING}`
                       : isCrown
                       ? `1.5px solid ${GOLD_BRIGHT}`
-                      : stationsToday.length
-                      ? `1.25px solid ${accent}`
-                      : isSelected && !isToday
-                      ? "2px solid var(--color-foreground)"
-                      : isToday
-                      ? "2px solid transparent"
-                      : ringForMarks && hasMode
-                      ? `1px solid ${accent}`
-                      : "1px solid transparent",
+                      : "1.5px solid transparent",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = numberColor; }}
