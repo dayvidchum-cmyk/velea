@@ -16,7 +16,10 @@
  *
  * PLUS husband · wife (7th, named) and boss (10th — the house of superiors).
  *
- * Final roster (25): life_partner · husband · wife · boyfriend · girlfriend · lover ·
+ * PLUS 'powerful' (rājya — the 10th + the Sun's people: royalty, presidents,
+ * celebrities, officials; K&F Sun significations: "Kingship. Government. Aristocracy.")
+ *
+ * Final roster (26): life_partner · husband · wife · boyfriend · girlfriend · lover ·
  * situationship ·
  * business_partner · children · family ·
  * inner_circle · friends · acquaintances · mentors · mentees · coworkers · clients ·
@@ -27,7 +30,7 @@
 import { getDb } from "../server/db.js";
 import { sql } from "drizzle-orm";
 
-const FINAL = "'life_partner','husband','wife','boyfriend','girlfriend','lover','situationship','business_partner','children','family','inner_circle','friends','acquaintances','mentors','mentees','boss','coworkers','clients','helpers','institutions','followers','pets','enemies','self','everyone_else'";
+const FINAL = "'life_partner','husband','wife','boyfriend','girlfriend','lover','situationship','business_partner','children','family','inner_circle','friends','acquaintances','mentors','mentees','boss','coworkers','clients','helpers','institutions','powerful','followers','pets','enemies','self','everyone_else'";
 
 async function run() {
   const db = await getDb();
@@ -47,7 +50,7 @@ async function run() {
   console.log(`· migrated best_friends → inner_circle (${(upd as any)?.rowsAffected ?? (Array.isArray(upd) ? (upd[0] as any)?.affectedRows : 0) ?? 0} rows)`);
   // 2. reshape to the final fifteen (all existing values preserved except best_friends)
   await db.execute(sql.raw(`ALTER TABLE tasks MODIFY COLUMN circle ENUM(${FINAL}) NULL`));
-  console.log("✅ tasks.circle is the final twenty-five — data preserved, best_friends folded in.");
+  console.log("✅ tasks.circle is the final twenty-six — data preserved, best_friends folded in.");
   process.exit(0);
 }
 run().catch((e) => { console.error(e); process.exit(1); });
