@@ -271,14 +271,17 @@ export default function YearCalendar() {
                         const isToday = ds === todayStr, isPicked = dayPopup?.ds === ds, isCrown = topSet.has(ds);
                         const eclipse = eclipseByDate.get(ds);
                         const filled = isToday || isCrown;
+                        const isCaution = mvKey === "caution";
                         const bg = filled
                           ? `color-mix(in srgb, ${coin} 62%, #f8f4ea)`
-                          : isPicked ? `color-mix(in srgb, ${coin} 26%, #f8f4ea)` : "transparent";
+                          : isPicked ? `color-mix(in srgb, ${coin} 26%, #f8f4ea)`
+                          // Caution days carry a LIGHT ruby wash (David 2026-07-16) — the border
+                          // alone read too quiet for a stop-stop-stop day.
+                          : isCaution ? "color-mix(in srgb, #B3232F 13%, #f8f4ea)" : "transparent";
                         const marks = tileMarksByDate.get(ds) ?? [];
                         const moonPhase = (d as any).moonPhase as ("full" | "new" | undefined);
                         const isDollar = d.tara.taraNum === 2;
                         const isSummit = d.tara.taraNum === 6; // Sadhaka — the achievement peak joins the tiles (David: "There's no crowns")
-                        const isCaution = mvKey === "caution";
                         const hasDot = windowEdgeSet.has(ds);
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
