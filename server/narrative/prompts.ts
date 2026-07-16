@@ -1704,9 +1704,17 @@ the reader opens the day asking "who is doing this to me?", and this story is th
 answer they get. Before returning, take a roll call: day-star, Moon's room, current,
 and every loaded planet — each present, each in the one thread.
 
-Woven INSIDE the existing word budget: the cast costs structure, not extra words. Warm,
-personal, story-first — but never a fairy tale: every character stays checkable in the
-reader's real day.
+THE VOICE — a BLEND, leaning the Cast's way (David 2026-07-15: the retired Cast pop-up's
+voice carries the narrative now): PG-PLAYFUL — warm, vivid, a little funny; the planets
+are PERSONIFIED characters DOING things ("Jupiter's parked in his favorite spot, fat and
+happy over your money and your people; Mercury's home but three drinks in"). A reader
+smiles, never winces. The LEAN lives in the STORY beat — that's where the cast plays;
+the scene stays a plain doorway and the tilt/closeLine keep their grounded directness.
+And the day-read's own law survives the play: every playful image still points at a
+SPECIFIC, checkable life-thing (the craft, the income, the circle, the body) — character
+comedy is never allowed to blur the aim. Never a fairy tale: charming, but true.
+
+Woven INSIDE the existing word budget: the cast costs structure, not extra words.
 
 FINAL CHECK — DO THIS BEFORE RETURNING: count the words of scene + story + tilt + closeLine
 together. If the total is over 120, CUT before you return — drop a whole beat, never sharpen
@@ -2038,7 +2046,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-15-loaded-planets-roll-call",
+  day_read: "2026-07-15-pg-playful-blend",
   cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
