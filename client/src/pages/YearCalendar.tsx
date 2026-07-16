@@ -281,7 +281,7 @@ export default function YearCalendar() {
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
                             className="relative min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center"
-                            style={{ background: isCrown ? "transparent" : bg, color: filled || isPicked ? shade(coin) : coin,
+                            style={{ background: isCrown ? "color-mix(in srgb, #E8D87A 38%, #f8f4ea)" : bg, color: filled || isPicked ? shade(coin) : coin,
                               // Border laws (David 2026-07-16): crown = gold; caution = ruby;
                               // any tile carrying a glyph, $ OR a window dot = fine anchor
                               // border of its own hue. Bare days stay bare.

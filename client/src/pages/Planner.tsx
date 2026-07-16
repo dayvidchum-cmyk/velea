@@ -1473,7 +1473,12 @@ export default function Planner() {
             // soft fill (lighter than today's weight), cleared when selection returns home.
             const restingBg = filled
               ? `color-mix(in srgb, ${accent} 62%, var(--parchment))`
-              : isSelected && hasMode && !isCrown && !eclipseByDate.has(dateStr)
+              // Crown coins are FILLED with pale champagne (David 7/16: "fill that coin on
+              // 7/24 with a pale champagne gold") — the build-highlight champagne washed
+              // toward the paper, so the octagram sits on a lit coin.
+              : isCrown
+              ? "color-mix(in srgb, #E8D87A 38%, var(--parchment))"
+              : isSelected && hasMode && !eclipseByDate.has(dateStr)
               ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
               : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
