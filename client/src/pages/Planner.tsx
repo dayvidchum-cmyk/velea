@@ -1483,14 +1483,14 @@ export default function Planner() {
                       point; $ and the station-window glyphs ride the upper-right arc. Each
                       wears a paper halo so the ring's line visually breaks beneath it. */}
                   {achievementSet.has(dateStr) && !isCrown && !eclipseByDate.has(dateStr) && (
-                    <span style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", fontSize: "0.82rem", fontWeight: 800, color: MARK_INK.crown, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "1px 2px 0", borderRadius: 4 }}>
+                    <span style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", fontSize: "0.82rem", fontWeight: 800, color: MARK_INK.crown, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "3px 3px 2px", borderRadius: 8, zIndex: 1 }}>
                       ♛
                     </span>
                   )}
                   {/* Everything besides the crown rides the UPPER-RIGHT arc together (David):
                       $ first, then the station-window glyphs, one perched span. */}
                   {!isCrown && !eclipseByDate.has(dateStr) && (prosperitySet.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (
-                    <span style={{ position: "absolute", top: -8, right: -4, display: "flex", alignItems: "baseline", lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "0 2px", borderRadius: 4 }}>
+                    <span style={{ position: "absolute", top: -8, right: -4, display: "flex", alignItems: "baseline", lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "3px 3px", borderRadius: 8, zIndex: 1 }}>
                       {prosperitySet.has(dateStr) && (
                         <span style={{ fontSize: "0.72rem", fontWeight: 800, color: MARK_INK.dollar }}>$</span>
                       )}
