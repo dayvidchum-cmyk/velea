@@ -45,6 +45,9 @@ interface TaskItemProps {
   onSetIntent?: (id: number, next: "want" | "need") => void;
   /** Aligned list: hide the in-card badge row — the metadata + reasoning live in the Why-now pop-up. */
   compact?: boolean;
+  /** Paper-quiet register (David's mock): paper card + day-accent hairline + dark ink;
+      the kind speaks as a small dot beside the title, not a gradient billboard. */
+  quiet?: boolean;
 }
 
 function formatDueDate(dateStr: string): string {
@@ -75,7 +78,7 @@ function isDueToday(dateStr: string): boolean {
 
 
 
-export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment, onCyclePriority, onSetIntent, compact }: TaskItemProps) {
+export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete, onEdit, onExpandChange, taskModeColor, dayMode, alignment, onCyclePriority, onSetIntent, compact, quiet }: TaskItemProps) {
   const NEXT_PRIORITY: Record<string, "Low" | "Medium" | "High"> = { Low: "Medium", Medium: "High", High: "Low" };
   const taskIntent = ((task as any).intent as "want" | "need" | undefined) ?? "need";
   const [expanded, setExpanded] = useState(false);
@@ -230,8 +233,10 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
   // old stored mode tag. Gradient = the kind hex descending into its own shadow.
   const kind = kindOfTask(task);
   const kindHex = KIND_COLOR[kind];
-  const cardBg = `linear-gradient(160deg, ${shadeKindHex(kindHex, 0.92)} 0%, ${shadeKindHex(kindHex, 0.7)} 60%, ${shadeKindHex(kindHex, 0.5)} 100%)`;
-  const ink = "255, 255, 255";
+  const cardBg = quiet
+    ? "var(--color-card)"
+    : `linear-gradient(160deg, ${shadeKindHex(kindHex, 0.92)} 0%, ${shadeKindHex(kindHex, 0.7)} 60%, ${shadeKindHex(kindHex, 0.5)} 100%)`;
+  const ink = quiet ? "62, 53, 42" : "255, 255, 255";
   return (
     <div
       className={`overflow-hidden transition-all duration-200 rounded-lg ${task.isCompleted ? "opacity-60" : ""}`}
@@ -239,6 +244,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
         background: cardBg,
         color: "rgba(var(--ink),1)",
         ["--ink" as string]: ink,
+        ...(quiet ? { border: "1px solid color-mix(in srgb, var(--day-accent) 45%, transparent)" } : {}),
       } as React.CSSProperties}
     >
       {/* Main row */}
@@ -270,6 +276,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
             className={`text-sm font-medium leading-snug block truncate ${task.isCompleted ? "line-through" : ""}`}
             style={{ color: task.isCompleted ? "rgba(var(--ink),0.5)" : "rgba(var(--ink),1)", fontFamily: "'Inter', ui-sans-serif, sans-serif" }}
           >
+            {quiet && <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: 999, background: kindHex, marginRight: 7, verticalAlign: "1px" }} />}
             {task.title}
           </span>
           {/* Collapsed row: only the golden dots + subtask count. Everything else (mode, due,

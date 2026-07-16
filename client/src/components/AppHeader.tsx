@@ -226,8 +226,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             </div>
             {golden && (golden.isGolden ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
-                <VeleaLorMark size={14} color="#D4AF37" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.55))", flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#D4AF37", whiteSpace: "nowrap", lineHeight: 1 }}>Veleal'or • golden moment{golden.untilMs ? ` until ${fmtClock(golden.untilMs)}` : ""}</span>
+                <VeleaLorMark size={14} color="var(--brand-gold)" style={{ filter: "drop-shadow(0 0 4px rgba(212,175,55,0.55))", flexShrink: 0 }} />
+                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--brand-gold)", whiteSpace: "nowrap", lineHeight: 1 }}>Veleal'or • golden moment{golden.untilMs ? ` until ${fmtClock(golden.untilMs)}` : ""}</span>
               </div>
             ) : golden.nextGoldenMs ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>

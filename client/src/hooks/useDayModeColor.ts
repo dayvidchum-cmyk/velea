@@ -7,12 +7,10 @@ import { PANCHANG_TO_TASK_MODE, MODE_SOLID, type TaskMode } from "../../../share
  * Use this for all-caps section labels so they change color with the day.
  */
 export function useDayModeColor(): string {
-  const { data: todayPanchang } = trpc.panchang.today.useQuery();
-  const todayMode = todayPanchang?.mode;
-  const taskMode: TaskMode | undefined = todayMode
-    ? PANCHANG_TO_TASK_MODE[todayMode as keyof typeof PANCHANG_TO_TASK_MODE]
-    : undefined;
-  return taskMode ? MODE_SOLID[taskMode] : MODE_SOLID.Build;
+  // THE DAY ACCENT (David 2026-07-15): every accent follows today's coin color — one
+  // token, set from the same character the calendar runs on (AppHeader.setDayAccent).
+  // Falls back to brand gold via the CSS var default; Full Spectrum removes the var.
+  return "var(--day-accent)";
 }
 
 /**
@@ -20,11 +18,6 @@ export function useDayModeColor(): string {
  * Falls back to the Build gradient while loading.
  */
 export function useDayModeGradient(): string {
-  const { data: todayPanchang } = trpc.panchang.today.useQuery();
-  const todayMode = todayPanchang?.mode;
-  const taskMode: TaskMode | undefined = todayMode
-    ? PANCHANG_TO_TASK_MODE[todayMode as keyof typeof PANCHANG_TO_TASK_MODE]
-    : undefined;
-  const key = (taskMode ?? "Build").toLowerCase();
-  return `var(--velea-${key}-gradient)`;
+  // The day accent descending into its own shadow — one voice with the hero card.
+  return "linear-gradient(160deg, var(--day-accent) 0%, color-mix(in srgb, var(--day-accent) 72%, #2E2318) 100%)";
 }

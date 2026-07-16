@@ -1848,7 +1848,7 @@ export default function Planner() {
                   isPinned={task.isPinned}
                   modeColor={todayModeColor}
                 >
-                  <TaskItem
+                  <TaskItem quiet
                     task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
                     onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
                     onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
@@ -1911,7 +1911,7 @@ export default function Planner() {
                     isPinned={alignedForToday[0].isPinned}
                     modeColor={REST_TEAL}
                   >
-                    <TaskItem
+                    <TaskItem quiet
                       task={alignedForToday[0] as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
                       onToggleComplete={() => updateMutation.mutate({ id: alignedForToday[0].id, isCompleted: !alignedForToday[0].isCompleted })}
                       onTogglePin={() => updateMutation.mutate({ id: alignedForToday[0].id, isPinned: !alignedForToday[0].isPinned })}
@@ -1948,7 +1948,7 @@ export default function Planner() {
                   isPinned={task.isPinned}
                   modeColor={todayModeColor}
                 >
-                  <TaskItem
+                  <TaskItem quiet
                     task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
                     onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
                     onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
