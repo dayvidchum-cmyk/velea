@@ -1609,6 +1609,16 @@ export default function Planner() {
                       </span>
                     );
                   })()}
+                  {/* THE CROWN RIDES THE BORDER, ALWAYS (David 2026-07-16: "the crowns literally
+                      ride top center of the border always") — never in the interior huddle. On
+                      station/crown days the perch grid already crowns top-center; every other
+                      achievement day gets this dedicated slot, straddling the ring like a crown
+                      on the coin's head. Solo-crown days keep their number beneath it. */}
+                  {achievementSet.has(dateStr) && !eclipseByDate.has(dateStr) && !(stationsToday.length > 0 || isCrown) && (
+                    <span style={{ position: "absolute", top: -13, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
+                      <CrownMark size={17} style={{ transform: "translateY(-2px)" }} />
+                    </span>
+                  )}
                   {isCrown ? (
                     // The knot mark — an OUTLINE octagram (Star of Lakshmi), drawn in LINES, not a
                     // solid fill (David: "I want the lakshmi stars to be lines again"). The center
@@ -1634,19 +1644,18 @@ export default function Planner() {
                         <PlanetMark key={e.planet} planet={e.planet} size={stationsToday.length > 1 ? 20 : 26} strokeWidth={1.7} />
                       ))}
                     </span>
-                  ) : (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) ? (
+                  ) : (prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) ? (
                     // THE GLYPH DAY: the marks ARE the day — centered inside the ring. A solo
                     // mark sits large; COMPANIONS SHRINK AND HUDDLE (two 16s + gap outgrew the
                     // 32px coin — "like they are running from each other").
                     <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {(() => {
                         const phase = moonPhaseByDate.get(dateStr);
-                        const count = (phase ? 1 : 0) + (prosperitySet.has(dateStr) ? 1 : 0) + (achievementSet.has(dateStr) ? 1 : 0) + windowGlyphList.length;
+                        const count = (phase ? 1 : 0) + (prosperitySet.has(dateStr) ? 1 : 0) + windowGlyphList.length;
                         const g = count >= 2 ? 13 : 16;
                         return <>
                           {phase && <span style={{ width: count >= 2 ? 11 : 13, height: count >= 2 ? 11 : 13, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
                           {prosperitySet.has(dateStr) && <span style={{ fontSize: `${g}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
-                          {achievementSet.has(dateStr) && <CrownMark size={g + 5} />}
                           {windowGlyphList.map((e) => (
                             <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} />
                           ))}

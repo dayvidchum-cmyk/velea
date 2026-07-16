@@ -307,8 +307,14 @@ export default function YearCalendar() {
                                 marks render big (the Lakshmi treatment); companies share the
                                 center row. Sadhaka summits now ride the tiles too ("There's
                                 no crowns"). Window dots don't count and keep their corner. */}
+                            {/* The crown rides the tile's top border, always (same law as the month coins). */}
+                            {isSummit && !eclipse && (
+                              <span className="absolute left-0 right-0" style={{ top: -6, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 2 }}>
+                                <CrownMark size={12} />
+                              </span>
+                            )}
                             {(() => {
-                              const markCount = (isDollar ? 1 : 0) + (isSummit ? 1 : 0) + (moonPhase ? 1 : 0) + marks.length;
+                              const markCount = (isDollar ? 1 : 0) + (moonPhase ? 1 : 0) + marks.length;
                               const solo = markCount === 1;
                               // ONE size for every glyph (David: "Size of glyphs is inconsistent.
                               // Pick one and stick with it.") — 15 everywhere, solo or company.
@@ -328,7 +334,6 @@ export default function YearCalendar() {
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
                                       {moonPhase && <span style={{ width: 13, height: 13, borderRadius: 999, background: moonPhase === "full" ? "#FDFBF3" : "#160f26", border: moonPhase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
                                       {isDollar && <span style={{ fontSize: `${mSize}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
-                                      {isSummit && <CrownMark size={markCount === 1 ? 20 : mSize + 4} />}
                                       {marks.slice(0, 2).map((mk) => (
                                         <PlanetMark key={mk.planet} planet={mk.planet} size={mSize} strokeWidth={2} />
                                       ))}
