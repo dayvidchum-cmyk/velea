@@ -34,8 +34,9 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
   }, [teaserOpen]);
 
   // Sits in the reading zone of the day card, which uses light text on a saturated ground.
-  const ink = "rgba(255,255,255,0.85)";
-  const hairline = "1px solid rgba(255,255,255,0.20)";
+  // Lives in the hero's reading zone — speaks the hero's tonal ink, never raw white.
+  const ink = "color-mix(in srgb, var(--hero-ink) 85%, transparent)";
+  const hairline = "1px solid color-mix(in srgb, var(--hero-ink) 20%, transparent)";
   const rowStyle: React.CSSProperties = {
     display: "flex", alignItems: "center", gap: "0.5rem",
     marginTop: "0.5rem", paddingTop: "0.6rem",
@@ -53,7 +54,7 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
           <Lock size={12} style={{ marginLeft: "auto", opacity: 0.7 }} />
         </button>
         {teaserOpen && createPortal(
-          <div onClick={() => setTeaserOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
+          <div onClick={() => setTeaserOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(30, 24, 16, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
             <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid var(--color-border)", padding: "1.4rem", boxShadow: "0 20px 60px oklch(0 0 0 / 0.4)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.7rem" }}>
                 <Lock size={16} style={{ color: "#C9A84C" }} />

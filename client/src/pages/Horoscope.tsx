@@ -211,7 +211,7 @@ export default function Horoscope() {
         <div className="parchment" style={{ border: "1px solid var(--color-border)", padding: "0.9rem 0.9rem 1rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.7rem" }}>
             <button onClick={() => shiftMonth(-1)} aria-label="Previous month" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)", padding: "0.25rem", display: "flex" }}><ChevronLeft size={20} /></button>
-            <span style={{ fontSize: "0.92rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--foreground)" }}>{MONTHS[view.m]} {view.y}</span>
+            <span style={{ fontSize: "0.92rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--heading-ink)" }}>{MONTHS[view.m]} {view.y}</span>
             <button onClick={() => shiftMonth(1)} aria-label="Next month" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)", padding: "0.25rem", display: "flex" }}><ChevronRight size={20} /></button>
           </div>
 
@@ -342,7 +342,7 @@ export default function Horoscope() {
                       style={{ textAlign: "left", cursor: "pointer", borderRadius: 12, padding: "0.7rem 0.8rem", border: "1px solid color-mix(in srgb, #C9A227 42%, var(--color-border))", background: "var(--color-card)", display: "flex", alignItems: "center", gap: "0.4rem" }}
                     >
                       <EclipseGlyph size={13} color="#C9A227" />
-                      <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--foreground)" }}>This season</span>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--heading-ink)" }}>This season</span>
                       <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#C9A227", opacity: 0.85 }}>· open above</span>
                     </button>
                   </div>

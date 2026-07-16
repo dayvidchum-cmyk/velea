@@ -71,9 +71,9 @@ export default function ReadingsArchive() {
                 className="rounded-xl overflow-hidden"
                 style={{ border: `1.5px solid ${r.locked ? "#C9A84C" : dayLabelColor}`, background: `color-mix(in srgb, ${r.locked ? "#C9A84C" : dayLabelColor} 12%, var(--background))` }}
               >
-                <div className="flex items-center justify-between px-4 py-2" style={{ background: r.locked ? "#C9A84C" : dayLabelColor }}>
-                  <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#FDFDFD" }}>{formatDate(r.date)}</span>
-                  <span className="flex items-center gap-1.5" style={{ color: "#FDFDFD" }}>
+                <div className="flex items-center justify-between px-4 py-2" style={{ background: r.locked ? "#C9A84C" : dayLabelColor, ["--band" as any]: r.locked ? "#C9A84C" : dayLabelColor }}>
+                  <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "color-mix(in srgb, var(--band) 40%, #2A1F14)" }}>{formatDate(r.date)}</span>
+                  <span className="flex items-center gap-1.5" style={{ color: "color-mix(in srgb, var(--band) 40%, #2A1F14)" }}>
                     {r.locked && <BookmarkCheck size={13} />}
                     <span className="text-[11px] font-medium" style={{ opacity: 0.9 }}>{formatTime(r.generatedAt)}</span>
                   </span>
