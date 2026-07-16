@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import VeleaLoader from "@/components/VeleaLoader";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { X, Calendar, Clock, MapPin, Globe } from "lucide-react";
@@ -216,7 +217,7 @@ export function BirthChartSheet({ open, onClose }: BirthChartSheetProps) {
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {isLoading ? (
-            <div className="text-center text-muted-foreground py-8 text-sm">Loading...</div>
+            <VeleaLoader size={26} label="Drawing the chart…" />
           ) : (
             <div className="space-y-4">
               {/* Birth Date */}

@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import VeleaLoader from "@/components/VeleaLoader";
 import { trpc } from "@/lib/trpc";
 import GlossaryText from "@/components/GlossaryText";
 import { MODE_OKLCH, MODE_SOLID, type TaskMode } from "../../../shared/types";
@@ -88,9 +89,7 @@ export default function SignpostSheet({ open, onClose, mode, profileId, date }: 
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-24 rounded-xl animate-pulse" style={{ background: "var(--color-border)", opacity: 0.4 }} />
               ))}
-              <p className="text-[12px] text-center pt-1" style={{ color: "var(--color-muted-foreground)" }}>
-                Calling the cast together — this can take up to a minute the first time…
-              </p>
+              <VeleaLoader size={24} label="Calling the cast together — this can take up to a minute the first time…" />
             </div>
           ) : !cast?.read ? (
             <p className="text-[13px]" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5 }}>

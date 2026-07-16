@@ -1,18 +1,14 @@
-import { Loader2 } from "lucide-react";
+import VeleaLoader from "@/components/VeleaLoader";
 
 /**
- * Loading signal shown while the narrative engine is generating prose (the LLM read
- * can take a few seconds uncached). Spinner + a quiet label. `color` adapts it to
- * light-on-gradient (hero) or dark-on-card contexts.
+ * Loading signal shown while the narrative engine is generating prose. THE BEACH-BALL
+ * LAW (v546, re-broken and re-swept v587): every loading state is the sweeping
+ * VeleaMark — never a bare spinner or words alone. `color` kept for API compatibility.
  */
 export default function ProseLoading({
-  color = "rgba(255,255,255,0.92)",
+  color,
   label = "Reading your chart…",
 }: { color?: string; label?: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.4rem 0", color }}>
-      <Loader2 size={18} className="animate-spin" style={{ color }} />
-      <span style={{ fontSize: "0.85rem", fontStyle: "italic", opacity: 0.85 }}>{label}</span>
-    </div>
-  );
+  void color;
+  return <VeleaLoader size={26} label={label} />;
 }

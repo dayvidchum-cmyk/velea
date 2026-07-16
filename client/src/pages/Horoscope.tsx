@@ -542,7 +542,8 @@ function HubSection({ title, subtitle, open, onToggle, accent, children }: { tit
 }
 
 function SectionLoading({ label }: { label: string }) {
-  return <p style={{ fontSize: "0.85rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0", textAlign: "center" }}>{label}</p>;
+  // The beach-ball law: the sweeping mark, never words alone (David caught the bare text).
+  return <div style={{ padding: "0.6rem 0" }}><VeleaLoader size={26} label={`${label} — the first read can take up to a minute.`} /></div>;
 }
 
 const hubLinkStyle = (accent: string): CSSProperties => ({

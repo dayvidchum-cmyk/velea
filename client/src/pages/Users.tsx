@@ -1,4 +1,5 @@
 import { useState } from "react";
+import VeleaLoader from "@/components/VeleaLoader";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -194,7 +195,7 @@ export default function Users() {
             {llmResult && <p className="text-xs" style={{ color: "var(--color-muted-foreground)", wordBreak: "break-word" }}>{llmResult}</p>}
           </div>
           {usersList.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <VeleaLoader size={26} label="Fetching users…" />
           ) : (usersList.data ?? []).length === 0 ? (
             <p className="text-sm text-muted-foreground">No users.</p>
           ) : (

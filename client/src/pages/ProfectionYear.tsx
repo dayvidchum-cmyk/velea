@@ -1,4 +1,5 @@
 import { trpc } from "../lib/trpc";
+import VeleaLoader from "@/components/VeleaLoader";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
@@ -616,7 +617,7 @@ export default function ProfectionYear() {
         ) : (
           <div style={{ padding: "0.5rem 0", color: TEXT_MUTED, fontSize: "0.9rem", lineHeight: 1.6 }}>
             {deepReadLoading
-              ? "Reading your year… this can take up to a minute the first time."
+              ? <VeleaLoader size={26} label="Reading your year… the first read can take up to a minute." />
               : "Tap to read your year — the full version lives in Readings."}
           </div>
         )
@@ -682,7 +683,7 @@ export default function ProfectionYear() {
           {transitsError ? (
             <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Error loading transits.</p>
           ) : transitsLoading ? (
-            <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Loading...</p>
+            <VeleaLoader size={26} label="Reading the year…" />
           ) : transitsData?.transits?.length ? (
             (() => {
               const segs = transitsData.transits as any[];

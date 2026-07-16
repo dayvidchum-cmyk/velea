@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import VeleaLoader from "@/components/VeleaLoader";
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
@@ -207,7 +208,7 @@ const { user, loading } = useAuth();
   if (loading) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
+        <VeleaLoader size={26} label="Waking Velea…" />
       </div>
     );
   }

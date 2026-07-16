@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import VeleaLoader from "@/components/VeleaLoader";
 import { trpc } from '@/lib/trpc';
 
 /**
@@ -51,7 +52,7 @@ export default function Diagnostics() {
           />
         </div>
 
-        {dayQuery.isLoading && <p className="text-white/40">Loading...</p>}
+        {dayQuery.isLoading && <VeleaLoader size={22} label="Loading…" />}
         {dayQuery.data && (
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-4">
             {/* Base Calculation */}
@@ -151,7 +152,7 @@ export default function Diagnostics() {
       {/* ─── TIME LORD INFLUENCE ─── */}
       <section className="space-y-3">
         <h2 className="text-sm uppercase tracking-wider text-white/40">Time Lord Influence (Advisory)</h2>
-        {timeLordQuery.isLoading && <p className="text-white/40">Loading...</p>}
+        {timeLordQuery.isLoading && <VeleaLoader size={22} label="Loading…" />}
         {timeLordQuery.data === null && (
           <p className="text-white/40 text-sm">No birth data or lagna configured. Set up your birth chart to enable Time Lord influence.</p>
         )}
