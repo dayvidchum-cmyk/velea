@@ -1393,7 +1393,9 @@ export default function Planner() {
             const darkInk = (dayCharacter?.movement || rung) ? rungInk : isCautionDay ? "#3A0606" : darkenOklch(accent, 0.5);
             // Caution falls out of accent(=CAUTION_RED)+darkInk with no special case: outline days get
             // the bright red number on white, filled today/selected days get the near-black-red on red.
-            const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
+            // A FILLED coin's number is a DEEP shade of its own color (David: 7/4 & 7/31's
+            // white → darker caution shade; today's near-black → darker today-color).
+            const numberColor = filled ? shadeHex(accent, 0.45) : hasMode ? accent : "var(--color-muted-foreground)";
             const activeInk = darkInk; // number color while hovered/pressed
             const restingBg = filled ? accent : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
