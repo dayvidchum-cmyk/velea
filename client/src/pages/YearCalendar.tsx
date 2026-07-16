@@ -328,7 +328,7 @@ export default function YearCalendar() {
                                     </span>
                                   ) : isCrown ? (
                                     <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
-                                      <OctagramMark size={20} color="#9A7C1E" strokeWidth={1.4} />
+                                      <OctagramMark size={20} color="#F2C21C" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(242,194,28,0.5))" }} />
                                     </span>
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>

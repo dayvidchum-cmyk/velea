@@ -139,7 +139,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
       {/* Top-anchored (the card-never-moves law): centered boxes jump when async sky lands. */}
       <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4" style={{ background: "var(--dialog-overlay)", paddingTop: "7dvh" }} onClick={onClose}>
         <div onClick={(e) => e.stopPropagation()} className="parchment w-full max-w-md flex flex-col"
-          style={{ maxHeight: "min(92vh, 840px)", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1.5px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", position: "relative" }}>
+          style={{ maxHeight: "none", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1.5px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", position: "relative" }}>
 
           <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: "0.85rem", right: "0.85rem", zIndex: 6, width: 36, height: 36, borderRadius: 999, border: "none", background: "rgba(30, 24, 16, 0.55)", color: "#FBF7ED", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <X size={18} />
@@ -164,7 +164,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     const dimRx = !!h.phase?.startsWith("retrograde");
                     return (
                     <button key={i} onClick={() => setSkyIdx(i)}
-                      style={{ width: "100%", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
+                      style={{ width: "100%", position: "relative", minHeight: "86dvh", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
                       <img src={todSrc(h.image)} onError={onTodError(h.image)} alt={h.title}
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", filter: dimRx ? "brightness(1.42) contrast(1.05)" : undefined, animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
                       {/* Station cards (Mercury Rx etc.): flat even veil over the WHOLE image so white

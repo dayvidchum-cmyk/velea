@@ -6,7 +6,7 @@ import KeptReadings from "@/components/KeptReadings";
 import LocationChip from "@/components/LocationChip";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
-import PlanetMark from "@/components/PlanetMark";
+import PlanetMark, { PLANET_MARK_INK } from "@/components/PlanetMark";
 import CrownMark from "@/components/CrownMark";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -294,6 +294,9 @@ export default function Planner() {
   // at any given moment. I find myself flinching a little each time."). No per-day memory,
   // no auto-open — a bad morning must never inherit yesterday's appetite. Expand is opt-in.
   const [heroOpen, setHeroOpen] = useState(false);
+  // VELEA FIELD NOTE (David 2026-07-16: "legit like an alert. velea mail. velea voicenote.
+  // velea field notes.") — dismissed once per day, arrives quiet (a slip, never a modal).
+  const [fieldNoteDismissed, setFieldNoteDismissed] = useState(() => { try { return localStorage.getItem("velea-fieldnote") === toDateStr(new Date()); } catch { return false; } });
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
@@ -984,6 +987,36 @@ export default function Planner() {
       {isAuthenticated && <AddToHomeScreenNote />}
       {isAuthenticated && <MeridianWhisper />}
 
+      {/* ── VELEA FIELD NOTE — the timing taps you on the shoulder: a warning in the days
+          leading to a turn, and again on the day itself. Deterministic (no LLM), computed
+          from the sky data already on the page; v1 sees the VIEWED month's sky. Quiet by
+          law (the flinch): a slip of parchment above the hero, one × to dismiss for the day. */}
+      {isAuthenticated && !fieldNoteDismissed && (() => {
+        const now = new Date(); const tk = toDateStr(now);
+        const dUntil = (ds: string) => Math.round((Date.parse(ds + "T00:00:00") - Date.parse(tk + "T00:00:00")) / 86400000);
+        const notes: string[] = [];
+        for (const p of skyMarks?.retro ?? []) for (const st of p.stations) { const d = dUntil(st.date);
+          if (d === 0) notes.push(`${p.planet} ${st.type} today — the turn itself. Expect the wobble; sign nothing in the noise.`);
+          else if (d > 0 && d <= 3) notes.push(`${p.planet} ${st.type} in ${d} ${d === 1 ? "day" : "days"} — the approach is the roughest stretch. Land what matters before it.`); }
+        for (const e of skyMarks?.eclipses ?? []) { const d = dUntil(e.date);
+          if (d === 0) notes.push("An eclipse crosses today — keep the day quiet and let it pass.");
+          else if (d > 0 && d <= 7) notes.push(`An eclipse arrives in ${d} ${d === 1 ? "day" : "days"} — the season is already open. Big launches wait.`); }
+        const tmr = toDateStr(new Date(now.getTime() + 86400000));
+        if (cautionSet.has(tk)) notes.push("Today is one of your caution days — nothing forward, nothing new. Contain.");
+        else if (cautionSet.has(tmr)) notes.push("Tomorrow is a caution day — use today to land what can't wait.");
+        if (crownByDate.has(tk)) notes.push("Today is a crowned day — the skies tie together for you. What arrives carries weight.");
+        if (!notes.length) return null;
+        return (
+          <div className="parchment relative z-10" style={{ background: "var(--parchment)", border: "1px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", borderRadius: 14, padding: "0.7rem 0.9rem", marginBottom: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span className="text-[10px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)" }}>Velea · field note</span>
+              <button onClick={() => { setFieldNoteDismissed(true); try { localStorage.setItem("velea-fieldnote", tk); } catch {} }} aria-label="Dismiss" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)", fontSize: 15, lineHeight: 1, padding: "2px 4px" }}>×</button>
+            </div>
+            {notes.map((n, i) => <p key={i} className="text-sm" style={{ margin: "0.2rem 0 0", lineHeight: 1.5 }}>{n}</p>)}
+          </div>
+        );
+      })()}
+
       {/* ── HERO DAY MODE CARD — the primary read, first thing after the header ── */}
       {selectedPanchang ? (
         <div className="relative z-10">
@@ -1464,6 +1497,9 @@ export default function Planner() {
             const filled = (isToday || isCautionDay) && !!(dayCharacter?.movement || rung || hasMode);
             const hasTaraBadge = prosperitySet.has(dateStr) || achievementSet.has(dateStr);
             const windowGlyphList = (retroByDate.get(dateStr) ?? []).filter((e) => e.state === "window").slice(0, 2);
+            // RX STATION DATES (David 2026-07-16): these coins speak in the PLANET's own ink —
+            // ring + fill, faint through the approach window, full-voiced on the turn day/press.
+            const stationInk = stationsToday.length > 0 ? (PLANET_MARK_INK[stationsToday[0].planet] ?? familyInk) : windowGlyphList.length > 0 ? (PLANET_MARK_INK[windowGlyphList[0].planet] ?? familyInk) : null;
             const ringForMarks = hasTaraBadge || windowGlyphList.length > 0;
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
@@ -1490,11 +1526,17 @@ export default function Planner() {
               // scheme... branding should make it really stand out as special").
               : isCrown
               ? "color-mix(in srgb, #D4AF37 62%, var(--parchment))"
+              // Station coins are ALWAYS filled in the planet's ink — translucent and faint
+              // until the big day (30% on the turn itself, 12% through the window).
+              : stationsToday.length > 0 && stationInk
+              ? `color-mix(in srgb, ${stationInk} 30%, var(--parchment))`
+              : windowGlyphList.length > 0 && stationInk
+              ? `color-mix(in srgb, ${stationInk} 12%, var(--parchment))`
               : isSelected && hasMode && !eclipseByDate.has(dateStr)
               ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
               : "transparent";
-            const hoverBg = hasMode ? accent : "var(--color-secondary)";
-            const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
+            const hoverBg = stationInk ? `color-mix(in srgb, ${stationInk} 62%, var(--parchment))` : hasMode ? accent : "var(--color-secondary)";
+            const pressBg = stationInk ?? (hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)");
 
             return (
               <button
@@ -1544,7 +1586,13 @@ export default function Planner() {
                       ? `1.5px solid ${GOLD_BRIGHT}`
                       // THE GLYPH DAY earns its thin ring — the FAMILY ink (five-ink law);
                       // station days wear it too ("why doesn't station days get a ring?").
-                      : (!filled && !eclipseByDate.has(dateStr) && (stationsToday.length > 0 || achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0))
+                      // Station/window coins: the ring is the PLANET's color — solid on the
+                      // day of the turn, faint through the approach window.
+                      : (!filled && !eclipseByDate.has(dateStr) && stationsToday.length > 0 && stationInk)
+                      ? `1.5px solid ${stationInk}`
+                      : (!filled && !eclipseByDate.has(dateStr) && windowGlyphList.length > 0 && stationInk)
+                      ? `1.5px solid color-mix(in srgb, ${stationInk} 55%, transparent)`
+                      : (!filled && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr)))
                       ? `1.5px solid color-mix(in srgb, ${familyInk} 62%, transparent)`
                       // SELECTED keeps its ring in the family ink; the fill beneath is the specific mode.
                       : (isSelected && hasMode && !isCrown && !eclipseByDate.has(dateStr))
@@ -1624,12 +1672,10 @@ export default function Planner() {
                     // solid fill (David: "I want the lakshmi stars to be lines again"). The center
                     // bindu (a solid point in the star's heart) + a soft glow keep it reading as a
                     // luminous star, not a hollow white coin.
-                    (() => {
-                      // Crowned coins are ALWAYS gold-filled now, so the stroke is always the
-                      // engraved medium amber (0.72×L): visible on gold, not a sore thumb.
-                      const knotColor = darkenOklch("#D4AF37", 0.72);
-                      return <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color={knotColor} strokeWidth={1.15} /></span>;
-                    })()
+                    // BRIGHT GOLD star on the gold coin (David 2026-07-16: the engraved amber
+                    // was "almost disappearing with the fill color... bright gold. abundance!");
+                    // the glow lifts it off the fill.
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color={GOLD_BRIGHT} strokeWidth={1.3} style={{ filter: "drop-shadow(0 0 3px rgba(242,194,28,0.6))" }} /></span>
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 20, height: 20, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
