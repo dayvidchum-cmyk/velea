@@ -294,7 +294,7 @@ export default function YearCalendar() {
                               // Border laws (David 2026-07-16): crown = gold; caution = ruby;
                               // any tile carrying a glyph, $ OR a window dot = fine anchor
                               // border of its own hue. Bare days stay bare.
-                              border: isCrown ? "1.5px solid #F2C21C"
+                              border: isCrown ? "1.5px solid #FFD429"
                                 // Eclipse tile: GOLD border matching the disc's halo (David:
                                 // the dark border "can be confused for a new moon").
                                 : eclipse ? "1.5px solid color-mix(in srgb, #F2C21C 70%, transparent)"
@@ -328,7 +328,7 @@ export default function YearCalendar() {
                                     </span>
                                   ) : isCrown ? (
                                     <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
-                                      <OctagramMark size={20} color="#F2C21C" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(242,194,28,0.5))" }} />
+                                      <OctagramMark size={20} color="#FFD429" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(255,212,41,0.55))" }} />
                                     </span>
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>

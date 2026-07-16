@@ -1462,6 +1462,7 @@ export default function Planner() {
               ? (isSelected ? 0.65 : 0.45)
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.6 : 0.62) : (isDark ? 0.34 : 0.20));
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
+            const CROWN_YELLOW = "#FFD429"; // brighter still — the crowned coin's star + ring ("abundance!")
             const CAUTION_RED = "#C41E3A"; // ruby — David 2026-07-15: "the fire engine red should be more ruby"
             // A caution day is ONE red family (David: today "vibrated" because the mulberry Restraint
             // fill and the fire-red caution ring/number — two close hues — stacked on the same coin).
@@ -1583,7 +1584,7 @@ export default function Planner() {
                     border: cautionSet.has(dateStr)
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : isCrown
-                      ? `1.5px solid ${GOLD_BRIGHT}`
+                      ? `1.5px solid ${CROWN_YELLOW}`
                       // THE GLYPH DAY earns its thin ring — the FAMILY ink (five-ink law);
                       // station days wear it too ("why doesn't station days get a ring?").
                       // Station/window coins: the ring is the PLANET's color — solid on the
@@ -1675,7 +1676,7 @@ export default function Planner() {
                     // BRIGHT GOLD star on the gold coin (David 2026-07-16: the engraved amber
                     // was "almost disappearing with the fill color... bright gold. abundance!");
                     // the glow lifts it off the fill.
-                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color={GOLD_BRIGHT} strokeWidth={1.3} style={{ filter: "drop-shadow(0 0 3px rgba(242,194,28,0.6))" }} /></span>
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color={CROWN_YELLOW} strokeWidth={1.3} style={{ filter: "drop-shadow(0 0 3px rgba(255,212,41,0.65))" }} /></span>
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 20, height: 20, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
