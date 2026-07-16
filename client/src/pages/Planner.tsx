@@ -103,6 +103,12 @@ const DEPTH_BG: Record<string, Record<string, [string, string]>> = {
   build: BUILD_DEPTH_BG, selective: SELECTIVE_DEPTH_BG, action: ACTION_DEPTH_BG,
 };
 // Darken a #rrggbb toward its own shadow (RGB multiply) — the hero card descent.
+// MARK INKS (David 2026-07-15): each mark speaks its own symbolic color — prosperity in
+// action green, the crown in gold, Mercury in aquamarine, Saturn in the deep indigo of
+// jyotish ink (deep, never black).
+const MARK_INK: Record<string, string> = {
+  dollar: "#77A96B", crown: "#D4AF37", Mercury: "#3FA8A0", Saturn: "#454A8C",
+};
 // NO WHITE OR BLACK NUMBERS EVER (David 2026-07-15): a number is always its coin's hue
 // at the opposite depth — deep shade on light fills, pale tint (parchment-mixed, never
 // pure white) on dark fills.
@@ -1404,9 +1410,11 @@ export default function Planner() {
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             // A FILLED coin's number is a DEEP shade of its own color (David: 7/4 & 7/31's
             // white → darker caution shade; today's near-black → darker today-color).
-            const numberColor = filled ? tonalInk(accent) : hasMode ? accent : "var(--color-muted-foreground)";
+            const numberColor = filled ? shadeHex(accent, 0.45) : hasMode ? accent : "var(--color-muted-foreground)";
             const activeInk = tonalInk(accent); // hover/press preview ink — tonal, never white/black
-            const restingBg = filled ? accent : "transparent";
+            // Per David's mock: a FILLED coin lightens its fill toward the paper and carries
+            // a DEEP number of its own hue (7/4's number was reading white-washed-pink).
+            const restingBg = filled ? `color-mix(in srgb, ${accent} 62%, var(--parchment))` : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
 
@@ -1474,15 +1482,20 @@ export default function Planner() {
                       point; $ and the station-window glyphs ride the upper-right arc. Each
                       wears a paper halo so the ring's line visually breaks beneath it. */}
                   {achievementSet.has(dateStr) && !isCrown && !eclipseByDate.has(dateStr) && (
-                    <span style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", fontSize: "0.82rem", fontWeight: 800, color: filled ? accent : numberColor, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "1px 2px 0", borderRadius: 4 }}>
+                    <span style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", fontSize: "0.82rem", fontWeight: 800, color: MARK_INK.crown, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "1px 2px 0", borderRadius: 4 }}>
                       ♛
                     </span>
                   )}
                   {/* Everything besides the crown rides the UPPER-RIGHT arc together (David):
                       $ first, then the station-window glyphs, one perched span. */}
                   {!isCrown && !eclipseByDate.has(dateStr) && (prosperitySet.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (
-                    <span style={{ position: "absolute", top: -8, right: -4, fontSize: "0.82rem", fontWeight: 800, fontFamily: windowGlyphList.length ? PLANET_GLYPH_FONT : undefined, color: filled ? accent : numberColor, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "0 2px", borderRadius: 4 }}>
-                      {(prosperitySet.has(dateStr) ? "$" : "") + (!stationsToday.length ? windowGlyphList.map((e) => PLANET_GLYPH[e.planet]).join("") : "")}
+                    <span style={{ position: "absolute", top: -8, right: -4, display: "flex", alignItems: "baseline", lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "0 2px", borderRadius: 4 }}>
+                      {prosperitySet.has(dateStr) && (
+                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: MARK_INK.dollar }}>$</span>
+                      )}
+                      {!stationsToday.length && windowGlyphList.map((e) => (
+                        <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor }}>{PLANET_GLYPH[e.planet]}</span>
+                      ))}
                     </span>
                   )}
                   {isCrown ? (
@@ -1509,7 +1522,7 @@ export default function Planner() {
                     // above the 1rem number so the turning planet reads at a glance (David).
                     <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: numberColor, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
+                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: MARK_INK[e.planet] ?? numberColor, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
                   ) : (
