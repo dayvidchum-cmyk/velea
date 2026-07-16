@@ -1881,7 +1881,10 @@ export const appRouter = router({
           // prosperity — Sampat"): the 2nd rung of his ladder, wealth/prosperity by name,
           // ~every 9 days. (The old wealth-CONVERGENCE definition pointed at 2056 — retired.)
           const prosperity = day.tara?.taraNum === 2;
-          days.push({ date, rating, why, mode, character, rung, ...(prosperity ? { prosperity } : {}) });
+          // Achievement day = SADHAKA TARA (rung 6, "the accomplisher" — David picked ✓):
+          // the day for landing an aim — ship it, submit it, finish it.
+          const achievement = day.tara?.taraNum === 6;
+          days.push({ date, rating, why, mode, character, rung, ...(prosperity ? { prosperity } : {}), ...(achievement ? { achievement } : {}) });
         }
         return { days };
       }),

@@ -384,6 +384,11 @@ export default function Planner() {
     () => new Set<string>(((crownData?.days ?? []) as any[]).filter((d) => d.prosperity).map((d) => d.date)),
     [crownData],
   );
+  // Achievement days — Sadhaka tara (rung 6, the accomplisher): the coin wears ✓ (David).
+  const achievementSet = useMemo(
+    () => new Set<string>(((crownData?.days ?? []) as any[]).filter((d) => d.achievement).map((d) => d.date)),
+    [crownData],
+  );
   // The interaction MODE per day (David's two-lens precision model, server-gated) — the SAME mode
   // the day card/hero shows. crown.forMonth computes it off the day chart it already builds, so the
   // calendar tile and the day sheet never disagree. Falls back to the Moon-only byMonth mode when a
@@ -1472,6 +1477,9 @@ export default function Planner() {
                   ) : prosperitySet.has(dateStr) ? (
                     // Prosperity day: $ in place of the number, sized with the planet glyphs.
                     <span style={{ fontSize: "1.5rem", fontWeight: 600, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>$</span>
+                  ) : achievementSet.has(dateStr) ? (
+                    // Achievement day (Sadhaka): ✓ — land the aim. (⚑ is RESERVED for flagged things.)
+                    <span style={{ fontSize: "1.5rem", fontWeight: 700, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>✓</span>
                   ) : (
                     <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem" }}>
                       {day}
