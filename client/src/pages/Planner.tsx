@@ -1560,7 +1560,7 @@ export default function Planner() {
                     // Saturn centers, Mercury's window ☿ perches) — the stationing planet
                     // itself is never in windowGlyphList (its state is "station").
                     for (const e of windowGlyphList) others.push(
-                      <PlanetMark key={e.planet} planet={e.planet} size={13} strokeWidth={2.1} color={MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? undefined} />
+                      <PlanetMark key={e.planet} planet={e.planet} size={13} strokeWidth={2.1} />
                     );
                     const hasCrownMark = achievementSet.has(dateStr);
                     const mid = Math.floor(others.length / 2);
@@ -1611,7 +1611,7 @@ export default function Planner() {
                     // above the 1rem number so the turning planet reads at a glance (David).
                     <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <PlanetMark key={e.planet} planet={e.planet} size={stationsToday.length > 1 ? 20 : 26} strokeWidth={1.7} color={MARK_INK[e.planet] ?? undefined} />
+                        <PlanetMark key={e.planet} planet={e.planet} size={stationsToday.length > 1 ? 20 : 26} strokeWidth={1.7} />
                       ))}
                     </span>
                   ) : (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) ? (
@@ -1628,7 +1628,7 @@ export default function Planner() {
                           {prosperitySet.has(dateStr) && <LotusMark size={g} strokeWidth={count >= 2 ? 2.3 : 2} />}
                           {achievementSet.has(dateStr) && <SummitMark size={g} strokeWidth={count >= 2 ? 1.9 : 1.7} />}
                           {windowGlyphList.map((e) => (
-                            <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} color={MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? undefined} />
+                            <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} />
                           ))}
                         </>;
                       })()}

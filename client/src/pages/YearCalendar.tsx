@@ -317,7 +317,7 @@ export default function YearCalendar() {
                                       {isDollar && <LotusMark size={mSize} strokeWidth={2.1} />}
                                       {isSummit && <SummitMark size={mSize} strokeWidth={1.8} />}
                                       {marks.slice(0, 2).map((mk) => (
-                                        <PlanetMark key={mk.planet} planet={mk.planet} size={mSize} strokeWidth={2} color={MARK_INK[mk.planet] ?? undefined} />
+                                        <PlanetMark key={mk.planet} planet={mk.planet} size={mSize} strokeWidth={2} />
                                       ))}
                                     </span>
                                   ) : day}
@@ -384,7 +384,7 @@ export default function YearCalendar() {
                   )}
                   {popupMarks.planets.map((m) => (
                     <span key={m.planet} className="text-xs inline-flex items-center gap-1" style={{ color: "var(--color-foreground)" }}>
-                      <PlanetMark planet={m.planet} size={m.state.startsWith("station") ? 17 : 14} strokeWidth={2} color={MARK_INK[m.planet] ?? undefined} />
+                      <PlanetMark planet={m.planet} size={m.state.startsWith("station") ? 17 : 14} strokeWidth={2} />
                       {m.planet} {m.detail}
                     </span>
                   ))}
