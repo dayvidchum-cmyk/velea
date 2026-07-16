@@ -409,7 +409,7 @@ export default function Planner() {
     for (const d of ((crownData?.days ?? []) as any[])) if (d.moonPhase) m.set(d.date, d.moonPhase);
     return m;
   }, [crownData]);
-  const achievementSet = useMemo
+  const achievementSet = useMemo(
     () => new Set<string>(((crownData?.days ?? []) as any[]).filter((d) => d.achievement).map((d) => d.date)),
     [crownData],
   );
@@ -937,6 +937,7 @@ export default function Planner() {
               borderRadius: '28px',
               padding: '1.75rem 1.75rem 1.5rem',
               background: heroGradient,
+              ["--hero-ink" as any]: "color-mix(in srgb, var(--day-accent) 14%, #FBF7ED)",
               minHeight: heroOpen ? '280px' : undefined,
               display: 'flex',
               flexDirection: 'column',
@@ -948,7 +949,7 @@ export default function Planner() {
               <div
                 className="animate-pulse"
                 aria-hidden
-                style={{ position: 'absolute', inset: 0, borderRadius: '28px', border: '2px solid rgba(255,255,255,0.65)', pointerEvents: 'none', zIndex: 3 }}
+                style={{ position: 'absolute', inset: 0, borderRadius: '28px', border: '2px solid color-mix(in srgb, var(--hero-ink) 65%, transparent)', pointerEvents: 'none', zIndex: 3 }}
               />
             )}
             {/* Header row — admin "update to the moment" (LEFT corner) + DATE label (toggles) + caret
@@ -963,7 +964,7 @@ export default function Planner() {
                   disabled={refreshingRead}
                   title="Refresh today's reading"
                   aria-label="Refresh today's reading"
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
                 >
                   <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
                 </button>
@@ -979,7 +980,7 @@ export default function Planner() {
                     fontWeight: 700,
                     letterSpacing: '0.14em',
                     textTransform: 'uppercase',
-                    color: 'rgba(0,0,0,0.50)',
+                    color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)',
                   }}
                 >
                   {selectedDate === toDateStr(today) ? "TODAY'S READ" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
@@ -993,7 +994,7 @@ export default function Planner() {
               >
                 <ChevronDown
                   size={17}
-                  style={{ marginTop: -2, color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+                  style={{ marginTop: -2, color: 'color-mix(in srgb, var(--day-accent-deep) 70%, transparent)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
                 />
               </button>
             </div>
@@ -1005,7 +1006,7 @@ export default function Planner() {
                 fontSize: 'clamp(2rem, 8vw, 2.75rem)', // same scale as the greeting (David)
                 fontWeight: 700,
                 lineHeight: 1,
-                color: 'rgba(255,255,255,0.95)',
+                color: 'var(--hero-ink)',
                 letterSpacing: '-0.02em',
                 marginBottom: '0.65rem',
               }}
@@ -1021,7 +1022,7 @@ export default function Planner() {
               const depth = selectedCharacter?.depth ?? selectedCharacter?.buildDepth;
               if (!depth || depth === "mid") return null;
               return (
-                <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)', marginTop: '-0.5rem', marginBottom: '0.35rem' }}>
+                <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'color-mix(in srgb, var(--hero-ink) 90%, transparent)', marginTop: '-0.5rem', marginBottom: '0.35rem' }}>
                   {depth === "deep" ? "deep — the ground holds a lot today"
                     : depth === "leaning" ? "leaning restraint — tend, but keep it gentle"
                     : "thin — tend with a lighter hand"}
@@ -1030,12 +1031,12 @@ export default function Planner() {
             })()}
             {/* The day's character line — the classical filter's headline + tilt. */}
             {selectedCharacter && (
-              <p style={{ fontSize: 'clamp(0.8rem, 3.4vw, 1rem)', fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', marginTop: '-0.35rem', marginBottom: '0.4rem' }}>
+              <p style={{ fontSize: 'clamp(0.8rem, 3.4vw, 1rem)', fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)', marginTop: '-0.35rem', marginBottom: '0.4rem' }}>
                 {selectedCharacter.headline}
               </p>
             )}
             {selectedCharacter && (
-              <p style={{ fontSize: 'clamp(0.78rem, 3.2vw, 0.95rem)', fontStyle: 'italic', color: 'rgba(255,255,255,0.85)', marginTop: '0', marginBottom: '0.85rem' }}>
+              <p style={{ fontSize: 'clamp(0.78rem, 3.2vw, 0.95rem)', fontStyle: 'italic', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)', marginTop: '0', marginBottom: '0.85rem' }}>
                 {selectedCharacter.sentence}
               </p>
             )}
@@ -1052,7 +1053,7 @@ export default function Planner() {
                     fontWeight: 400,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.82)',
+                    color: 'color-mix(in srgb, var(--hero-ink) 82%, transparent)',
                     marginTop: '-0.35rem',
                     marginBottom: '0.85rem',
                   }}
@@ -1065,7 +1066,7 @@ export default function Planner() {
             {/* The day turns — legacy note; it names the RETIRED modes, so it only renders
                 when no character came back (audit 2026-07-15). */}
             {!selectedCharacter && (selectedPanchang as any).turnsAtNote && (
-              <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.85rem)', fontStyle: 'italic', color: 'rgba(255,255,255,0.85)', marginTop: '-0.3rem', marginBottom: '0.85rem' }}>
+              <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.85rem)', fontStyle: 'italic', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)', marginTop: '-0.3rem', marginBottom: '0.85rem' }}>
                 {(selectedPanchang as any).turnsAtNote}
               </p>
             )}
@@ -1092,7 +1093,7 @@ export default function Planner() {
                         fontFamily: "'Inter', ui-sans-serif, sans-serif",
                         fontSize: 'clamp(0.8rem, 3.2vw, 0.875rem)',
                         lineHeight: 1.65,
-                        color: 'rgba(255,255,255,0.9)',
+                        color: 'color-mix(in srgb, var(--hero-ink) 90%, transparent)',
                         fontWeight: 400,
                         marginBottom: '0.7rem',
                       }}
@@ -1108,7 +1109,7 @@ export default function Planner() {
                         lineHeight: 1.55,
                         fontStyle: 'italic',
                         fontWeight: 600,
-                        color: 'rgba(255,255,255,0.96)',
+                        color: 'var(--hero-ink)',
                         marginTop: '0.9rem',
                         marginBottom: 0,
                       }}
@@ -1127,31 +1128,31 @@ export default function Planner() {
             {/* Panchang mini row */}
             <div data-tour="panchang-terms" className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
               <div className="flex items-center gap-1.5">
-                <Moon size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />
+                <Moon size={11} style={{ color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)' }} />
                 {selectedPanchang.nakshatraTransitionTime && selectedPanchang.nakshatraAfterTransition ? (
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}>
                     <GlossaryLink term={selectedPanchang.nakshatraAtSunrise ?? ''}>{selectedPanchang.nakshatraAtSunrise}</GlossaryLink>
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }}> → </span>
+                    <span style={{ color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}> → </span>
                     <GlossaryLink term={selectedPanchang.nakshatraAfterTransition ?? ''}>{selectedPanchang.nakshatraAfterTransition}</GlossaryLink>
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }}> {selectedPanchang.nakshatraTransitionTime}</span>
+                    <span style={{ color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}> {selectedPanchang.nakshatraTransitionTime}</span>
                   </span>
                 ) : (
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={selectedPanchang.nakshatra ?? ''}>{selectedPanchang.nakshatra}</GlossaryLink></span>
+                  <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={selectedPanchang.nakshatra ?? ''}>{selectedPanchang.nakshatra}</GlossaryLink></span>
                 )}
               </div>
               <div className="flex items-center gap-1.5">
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>☽</span>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={selectedPanchang.moonSign ?? ''}>{selectedPanchang.moonSign}</GlossaryLink></span>
+                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}>☽</span>
+                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={selectedPanchang.moonSign ?? ''}>{selectedPanchang.moonSign}</GlossaryLink></span>
               </div>
               {selectedPanchang.sunriseLocal && (
                 <div className="flex items-center gap-1.5">
-                  <Sunrise size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{selectedPanchang.sunriseLocal}</span>
+                  <Sunrise size={11} style={{ color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)' }} />
+                  <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}>{selectedPanchang.sunriseLocal}</span>
                 </div>
               )}
               <div className="flex items-center gap-1.5">
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>◑</span>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}><GlossaryLink term={(selectedPanchang.tithi ?? '').replace(/^(shukla|krishna)\s+/i, '')}>{selectedPanchang.tithi}</GlossaryLink></span>
+                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}>◑</span>
+                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={(selectedPanchang.tithi ?? '').replace(/^(shukla|krishna)\s+/i, '')}>{selectedPanchang.tithi}</GlossaryLink></span>
               </div>
             </div>
 
@@ -1168,7 +1169,7 @@ export default function Planner() {
                 fontStyle: 'italic',
                 fontSize: 'clamp(0.875rem, 3.5vw, 1rem)',
                 lineHeight: 1.5,
-                color: 'rgba(255,255,255,0.8)',
+                color: 'color-mix(in srgb, var(--hero-ink) 80%, transparent)',
                 textAlign: 'center',
                 textWrap: 'balance',
               }}
@@ -1312,7 +1313,7 @@ export default function Planner() {
                     onClick={() => { setViewDate(new Date(y, i, 1)); setMonthPickerOpen(false); }}
                     className="py-1.5 rounded-lg text-[12px] font-medium transition-colors"
                     style={{
-                      background: isCurrent ? "#2a2a2a" : "rgba(0,0,0,0.04)",
+                      background: isCurrent ? "var(--heading-ink)" : "color-mix(in srgb, var(--heading-ink) 6%, transparent)",
                       color: isCurrent ? "#f8f4ea" : "#2a2a2a",
                     }}
                   >
