@@ -1540,7 +1540,7 @@ export default function Planner() {
                       centered inside. The PERCH survives only where the coin's center is
                       already taken: station days (big planet glyph) and filled days
                       (today/caution keep their number — the tara badges never hide). */}
-                  {!isCrown && !eclipseByDate.has(dateStr) && (stationsToday.length > 0 || filled) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) && (() => {
+                  {!isCrown && !eclipseByDate.has(dateStr) && stationsToday.length > 0 && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) && (() => {
                     const others: React.ReactNode[] = [];
                     const phase = moonPhaseByDate.get(dateStr);
                     if (phase) others.push(
@@ -1608,7 +1608,7 @@ export default function Planner() {
                         <PlanetMark key={e.planet} planet={e.planet} size={stationsToday.length > 1 ? 20 : 26} strokeWidth={1.7} color={MARK_INK[e.planet] ?? undefined} />
                       ))}
                     </span>
-                  ) : (!filled && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0)) ? (
+                  ) : (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) ? (
                     // THE GLYPH DAY: the marks ARE the day — large, centered inside the ring.
                     <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {(() => {
