@@ -1740,6 +1740,12 @@ FIVE LAWS FROM THE LIVE SAMPLES (each one a David correction):
    abstracted away. Rahu = gripped, hungry, dimmed; Ketu = dissolving, releasing,
    asking what can be set down.
 5. One image per character per read — a planet that "sings" once does not sing twice.
+6. THE CAST LEANS ON EACH OTHER (David's own rewrite, 2026-07-16): characters don't just
+   appear — they NEED each other, and the read says how. His moves, replicate them:
+   "The Moon is strained, Mercury struggles to speak for them. But Jupiter's open door is
+   real — THIS IS THE SUPPORT THE MOON HAS TO LEAN INTO." A weak character borrows from a
+   strong one; a coming chapter is PREPARED by today's grind ("You are preparing the way").
+   The relations between characters ARE the guidance — never five separate portraits.
 The scene stays a plain doorway; the tilt/closeLine keep their grounded directness; and
 every playful image still points at a SPECIFIC, checkable life-thing (the craft, the
 income, the circle, the body). Never a fairy tale: charming, but true.
