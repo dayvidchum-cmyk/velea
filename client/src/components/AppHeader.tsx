@@ -15,6 +15,8 @@ function StageMark({ size = 13 }: { size?: number }) {
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { setDayAccent } from "@/lib/dayAccent";
+import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { getLoginUrl } from "@/const";
 import { pickGreeting } from "@/lib/greeting";
 import { MODE_SOLID } from "../../../shared/types";
@@ -113,6 +115,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const { data: headerPanchang } = trpc.panchang.today.useQuery(undefined, { enabled: isAuthenticated, staleTime: 600000 });
   // The dateline's day word now comes from the SAME source as the calendar and hero — the
   // six movements (David 2026-07-15: the old pipeline's word kept leaking here as "BUILD").
+  // The chrome follows TODAY's coin (David). Set from the same character the calendar uses.
   const { data: headerCrown } = trpc.crown.forMonth.useQuery(
     { year: new Date(nowMs).getFullYear(), month: new Date(nowMs).getMonth() + 1 },
     { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
@@ -191,7 +194,10 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const stampTime = stampDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   // ONE SOURCE: the dateline word is today's movement (Golden Day / Action / Build /
   // Selective / Restraint / Caution) — the retired pipeline's mode/qualifier never render.
-  const todayMovementWord = (headerCrown as any)?.days?.find((d: any) => d.date === stampDateStr)?.character?.movementWord ?? null;
+  const [fullSpectrum] = useFullSpectrum();
+  const todayCharacter = (headerCrown as any)?.days?.find((d: any) => d.date === stampDateStr)?.character ?? null;
+  useEffect(() => { setDayAccent(todayCharacter, fullSpectrum); }, [todayCharacter, fullSpectrum]);
+  const todayMovementWord = todayCharacter?.movementWord ?? null;
   const stampModeLabel = todayMovementWord ?? "";
   void stampMode; void stampQualifier; // retired vocabulary — kept only so older code paths type-check
 
@@ -222,8 +228,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               </div>
             ) : golden.nextGoldenMs ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
-                <VeleaLorMark size={12} color="#C9A84C" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "#C9A84C", whiteSpace: "nowrap", lineHeight: 1 }}>Next veleal'or : {fmtClock(golden.nextGoldenPeakMs ?? golden.nextGoldenMs)}</span>
+                <VeleaLorMark size={12} color="var(--day-accent)" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--day-accent)", whiteSpace: "nowrap", lineHeight: 1 }}>Next veleal'or : {fmtClock(golden.nextGoldenPeakMs ?? golden.nextGoldenMs)}</span>
               </div>
             ) : (
               <div style={{ display: "inline-flex", alignItems: "center", flexShrink: 0 }}>
@@ -333,10 +339,10 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             className="flex items-center gap-1 text-xs font-semibold uppercase transition-colors"
             style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.06em", marginTop: "1.25rem" }}
             aria-label={`Back to ${backLabel}`}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#C9A84C"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--day-accent)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-muted-foreground)"; }}
-            onMouseDown={(e) => { e.currentTarget.style.color = "#C9A84C"; }}
-            onMouseUp={(e) => { e.currentTarget.style.color = "#C9A84C"; }}
+            onMouseDown={(e) => { e.currentTarget.style.color = "var(--day-accent)"; }}
+            onMouseUp={(e) => { e.currentTarget.style.color = "var(--day-accent)"; }}
           >
             <ChevronLeft size={14} />
             {backLabel}

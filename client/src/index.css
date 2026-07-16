@@ -138,6 +138,8 @@
   /* Brand gold — bright on the dark bg; the light theme overrides it deeper so it
      doesn't wash out on cream. */
   --brand-gold: #C9A84C;
+  /* THE DAY ACCENT — today's coin color; chrome follows the day (falls back to brand gold). */
+  --day-accent: var(--brand-gold);
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
   --space-deep: #101216;
