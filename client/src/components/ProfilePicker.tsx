@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/_core/hooks/useAuth";
+import OctagramMark from "@/components/OctagramMark";
 
 /**
  * ProfilePicker — pick which stored profile loads as the displayed Velea. Lives under Settings
@@ -73,7 +74,7 @@ export default function ProfilePicker() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate" style={{ color: "var(--color-foreground)" }}>
                   {profile.name}
-                  {profile.isOwner && <span className="ml-1.5 text-xs" style={{ color: "var(--amber-gold)" }}>★ My Chart</span>}
+                  {profile.isOwner && <span className="ml-1.5 text-xs inline-flex items-center gap-1" style={{ color: "var(--amber-gold)" }}><OctagramMark size={10} color="var(--amber-gold)" strokeWidth={1.6} />My Chart</span>}
                 </p>
                 {profile.lagnaSign && (
                   <p className="text-xs truncate" style={{ color: "var(--color-muted-foreground)" }}>{profile.lagnaSign} lagna</p>

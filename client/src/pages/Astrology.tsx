@@ -3,8 +3,6 @@ import VeleaLoader from "@/components/VeleaLoader";
 import { createPortal } from "react-dom";
 import { trpc } from "@/lib/trpc";
 import { ChevronDown, X } from "lucide-react";
-import { useLocation } from "wouter";
-import OctagramMark from "@/components/OctagramMark";
 import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
 import { ModeCard } from "@/components/ModeCard";
@@ -706,7 +704,6 @@ export function NatalSection() {
     <div className="space-y-4 pb-24">
       {/* Subject header — the person and their birth data, the anchor of the page */}
       <div>
-        <AtlasDoor />
         <h2 className="text-2xl font-bold tracking-tight" style={{ color: "var(--heading-ink)", fontFamily: "var(--font-serif)" }}>
           {subject.name}
         </h2>
@@ -1329,15 +1326,5 @@ export default function Astrology() {
 }
 
 
-/** The doorway to the Life Atlas — shown only to the entitled (flag-gated). */
-function AtlasDoor() {
-  const [, navigate] = useLocation();
-  const { data: mine } = trpc.features.mine.useQuery(undefined, { staleTime: 60_000 });
-  if (mine?.lifeAtlas !== true) return null;
-  return (
-    <button onClick={() => navigate("/atlas")} className="w-full mb-4 flex items-center justify-between px-4 py-3 rounded-xl" style={{ border: "1px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", background: "color-mix(in srgb, var(--day-accent) 7%, var(--color-card))" }}>
-      <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}><OctagramMark size={15} color="var(--brand-gold)" strokeWidth={1.2} /> The Life Atlas</span>
-      <span className="text-xs font-bold uppercase" style={{ letterSpacing: "0.08em", color: "var(--day-accent)" }}>open ›</span>
-    </button>
-  );
-}
+// (The Life Atlas doorway moved to the Readings hub — David 2026-07-16: "Life atlas
+// moved to readings." Readings live under Readings; the Chart page stays the chart.)

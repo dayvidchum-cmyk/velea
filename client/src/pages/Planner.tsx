@@ -111,7 +111,9 @@ const MARK_INK: Record<string, string> = {
 };
 // Ink-bearing corrections (em) — the astro glyph font's ink sits off-center in its em box;
 // these nudge each glyph's INK onto the true axis. Tuned against David's iPhone crops.
-const GLYPH_NUDGE: Record<string, string> = { Saturn: "-0.07em", Mercury: "0.01em" };
+// Measured from David's 7/16 screenshot (device-pixel ink centroids vs column axes):
+// Saturn's ℏ ink sits LEFT of its em box — the old -0.07em pushed it further left.
+const GLYPH_NUDGE: Record<string, string> = { Saturn: "0.03em", Mercury: "0.01em" };
 const CROWN_NUDGE = "0.04em";
 // NO WHITE OR BLACK NUMBERS EVER (David 2026-07-15): a number is always its coin's hue
 // at the opposite depth — deep shade on light fills, pale tint (parchment-mixed, never
@@ -1532,17 +1534,26 @@ export default function Planner() {
                     );
                     const hasCrownMark = achievementSet.has(dateStr);
                     const mid = Math.floor(others.length / 2);
+                    // Each mark sits in a FIXED 12px slot (flex-centered) so Apple-Symbols
+                    // advance-width noise can't drift the cluster's optical center (the
+                    // "sad alignment" audit, 7/16). Slotted marks, measured geometry.
+                    const slot = (node: React.ReactNode, key: React.Key) => (
+                      <span key={key} style={{ width: 12, display: "flex", justifyContent: "center", alignItems: "center" }}>{node}</span>
+                    );
+                    const slotted = others.map((n, i) => slot(n, i));
                     return (
                       <span style={{ position: "absolute", top: -13, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: 1, lineHeight: 1, whiteSpace: "nowrap" }}>
                         {hasCrownMark ? (
-                          <>
-                            {others.slice(0, mid)}
+                          // Crown law: ♛ ALWAYS rides the coin's center axis; others flank it.
+                          // A 3-column grid keeps the crown pinned even with an odd flank count.
+                          <span style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", width: "100%", lineHeight: 1, whiteSpace: "nowrap" }}>
+                            <span style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>{slotted.slice(0, mid)}</span>
                             <span style={{ fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, transform: `translateY(-2px) translateX(${CROWN_NUDGE})` }}>♛</span>
-                            {others.slice(mid)}
-                          </>
-                        ) : others}
-                      </span>
+                            <span style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>{slotted.slice(mid)}</span>
+                          </span>
+                        ) : (
+                          <span style={{ display: "flex", alignItems: "center", lineHeight: 1, whiteSpace: "nowrap" }}>{slotted}</span>
+                        )}
                       </span>
                     );
                   })()}

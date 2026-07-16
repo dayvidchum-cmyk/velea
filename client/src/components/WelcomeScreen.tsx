@@ -48,9 +48,12 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
   return (
     <div
       onClick={onDone}
-      className="app-shell-height"
       style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, cursor: "pointer",
+        // TRUE inset — app-shell-height left a bottom strip on the PWA, and "cover"
+        // beheaded the art's moon (David's 7/16 "still buggin"). The container pins to
+        // all four edges; the art shows WHOLE (contain), the chrome ground fills the rest —
+        // the same law as the Stage's full-screen art (v547).
+        position: "fixed", inset: 0, zIndex: 9999, cursor: "pointer",
         background: chrome,
         overflow: "hidden",
         opacity: leaving ? 0 : 1,
@@ -66,8 +69,9 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
           style={{
             position: "absolute", inset: 0,
             backgroundImage: `url(${bgSrc})`,
-            backgroundSize: "cover",
+            backgroundSize: "contain",
             backgroundPosition: "center center",
+            backgroundRepeat: "no-repeat",
             animation: "velea-sky-in 5s ease-out both",
           }}
         />

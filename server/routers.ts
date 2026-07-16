@@ -1927,14 +1927,17 @@ export const appRouter = router({
   // THE LIFE ATLAS (David 2026-07-16): every life-theme window from the stored 120-year
   // convergence — dated, weighted (BIG KARMIC KNOTS), and VOICED per theme. Gated.
   atlas: router({
+    // THE THIRST GATE (David 2026-07-16, "make it and gate it — keep them thirsty"):
+    // every signed-in user sees the REAL themes with REAL counts from their own stored
+    // timeline; the DATES and the voiced reading stay behind the veil until the flag opens.
     windows: protectedProcedure.query(async ({ ctx }) => {
       const { hasFeature } = await import("./feature-flags.js");
-      if (!(await hasFeature(ctx.user, "lifeAtlas"))) return { available: false, themes: [] as any[] };
+      const entitled = await hasFeature(ctx.user, "lifeAtlas");
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
-      if (!profile) return { available: false, themes: [] as any[] };
+      if (!profile) return { available: false, entitled, themes: [] as any[] };
       const db = await getDb();
-      if (!db) return { available: false, themes: [] as any[] };
+      if (!db) return { available: false, entitled, themes: [] as any[] };
       const { profileConvergence } = await import("../drizzle/schema.js");
       const rows = await db.select().from(profileConvergence).where(eq(profileConvergence.profileId, profile.id));
       const { mergeThemeWindows } = await import("./vedic/windows.js");
@@ -1951,8 +1954,17 @@ export const appRouter = router({
       }
       return {
         available: true,
-        themes: Array.from(byTheme.entries()).map(([theme, windows]) => ({ theme, label: LABELS[theme] ?? theme, windows }))
-          .sort((a, b) => (a.windows[0]?.from ?? "").localeCompare(b.windows[0]?.from ?? "")),
+        entitled,
+        themes: Array.from(byTheme.entries())
+          .sort((a, b) => (a[1][0]?.from ?? "").localeCompare(b[1][0]?.from ?? ""))
+          .map(([theme, windows]) => ({
+            theme,
+            label: LABELS[theme] ?? theme,
+            windowCount: windows.length,
+            knotCount: windows.filter((w) => w.bigKnot).length,
+            // The dated windows are the product — entitled eyes only.
+            windows: entitled ? windows : [],
+          })),
       };
     }),
     themeRead: protectedProcedure

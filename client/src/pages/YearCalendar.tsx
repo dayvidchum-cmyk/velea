@@ -3,6 +3,7 @@ import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
 import { ChevronLeft, ChevronDown, Loader2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
+import OctagramMark from "@/components/OctagramMark";
 import { trpc } from "@/lib/trpc";
 import AddTaskSheet from "@/components/AddTaskSheet";
 
@@ -131,7 +132,7 @@ export default function YearCalendar() {
             {/* THE TWELVE CROWNING DAYS — listed and tappable (David 2026-07-16). */}
             <div className="mt-3 rounded-xl overflow-hidden" style={{ border: "1px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", background: "var(--color-card)" }}>
               <button onClick={() => setCrownsOpen((v) => !v)} className="w-full flex items-center justify-between px-4 py-2.5">
-                <span className="text-sm font-bold" style={{ color: "var(--heading-ink)" }}>★ The twelve crowning days</span>
+                <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}><OctagramMark size={14} color="var(--brand-gold)" strokeWidth={1.2} /> The twelve crowning days</span>
                 <ChevronDown size={17} style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: crownsOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
               </button>
               {crownsOpen && (
@@ -140,7 +141,7 @@ export default function YearCalendar() {
                     const d = byDate.get(ds);
                     return (
                       <button key={ds} onClick={() => d && setDayPopup({ ds, d })} className="text-left text-xs py-0.5" style={{ color: "var(--color-foreground)" }}>
-                        <span style={{ color: "#2E7D4F", fontWeight: 700 }}>★</span> {new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                        <OctagramMark size={11} color="#2E7D4F" strokeWidth={1.4} style={{ verticalAlign: "-1px", marginRight: 2 }} /> {new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
                       </button>
                     );
                   })}
@@ -209,7 +210,7 @@ export default function YearCalendar() {
                             className={`relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums text-left ${ds === todayStr ? "ring-2 ring-[#2b2723]" : ""}`}
                             style={{ background: bg, color: tonalInkY(bg) }}>
                             {day}
-                            {topSet.has(ds) && <span className="absolute right-[3px] top-0 text-[9px]">★</span>}
+                            {topSet.has(ds) && <span className="absolute right-[2px] top-[2px]"><OctagramMark size={8} color="currentColor" strokeWidth={2} style={{ display: "block" }} /></span>}
                             {windowEdgeSet.has(ds) && <span className="absolute bottom-[2px] right-[3px] h-[5px] w-[5px] rounded-full bg-current opacity-75" />}
                           </button>
                         );
@@ -269,7 +270,7 @@ export default function YearCalendar() {
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
                 {taraNum === 2 && <span style={{ marginLeft: 8, color: "#77A96B" }}>$ prosperity</span>}
                 {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}>♛ achievement</span>}
-                {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#2E7D4F" }}>★ crowning day</span>}
+                {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#2E7D4F" }}><OctagramMark size={11} color="#2E7D4F" strokeWidth={1.4} style={{ verticalAlign: "-1px", marginRight: 3 }} />crowning day</span>}
               </p>
               <p className="mt-2 text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.55 }}>
                 #{d.rank} of {data?.days.length ?? 365} · {d.plain.day} — {d.plain.feel}; {d.plain.moon}.

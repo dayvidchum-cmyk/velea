@@ -200,6 +200,25 @@ export default function Horoscope() {
         {/* ── This Mercury retrograde (the whole rx cycle arc, read for your chart) ── */}
         <MercuryRxCard modeColor={modeColor} />
 
+        {/* ── THE LIFE ATLAS doorway (David 2026-07-16: readings live under Readings).
+            Shown to EVERYONE — inside, the themes and counts are real and the dates
+            wait behind the veil. Keep them thirsty. ── */}
+        <button
+          onClick={() => navigate("/atlas")}
+          className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl"
+          style={{ margin: "0 0 1.1rem", border: "1px solid color-mix(in srgb, var(--brand-gold) 40%, var(--color-border))", background: "linear-gradient(180deg, color-mix(in srgb, var(--brand-gold) 7%, var(--color-card)), var(--color-card))", cursor: "pointer" }}
+        >
+          <span className="flex flex-col items-start gap-0.5 text-left">
+            <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}>
+              <OctagramMark size={15} color="var(--brand-gold)" strokeWidth={1.2} /> The Life Atlas
+            </span>
+            <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
+              Every season of your life — marriage, wealth, children — dated and voiced
+            </span>
+          </span>
+          <span className="text-xs font-bold uppercase shrink-0" style={{ letterSpacing: "0.08em", color: "var(--brand-gold)" }}>open ›</span>
+        </button>
+
         {/* Pick-a-date intro — sits right above the calendar it describes (David). */}
         <p style={{ color: "var(--color-muted-foreground)", fontSize: "0.82rem", lineHeight: 1.5, margin: "1.5rem 0 0.9rem", textAlign: "center" }}>
           Pick any day — past or future — and a part of life, and receive its reading, drawn deep from your chart for that exact date.
