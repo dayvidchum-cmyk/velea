@@ -1683,14 +1683,16 @@ export default function Planner() {
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[11px] transition-all duration-200 ${isToday ? "scale-110 orb-pulse" : "group-hover:scale-105"}`}
                     style={{
-                      background: isToday ? kColor : "transparent",
-                      border: `2px solid ${kColor}`,
-                      color: isToday ? "#ffffff" : kColor,
+                      // Filled = TODAY'S color, always (David: the kind-colored fill broke
+                      // cohesion) — same recipe as today's coin: soft day fill, deep day ink.
+                      background: isToday ? "color-mix(in srgb, var(--day-accent) 62%, var(--parchment))" : "transparent",
+                      border: isToday ? "2px solid transparent" : `2px solid ${kColor}`,
+                      color: isToday ? "var(--day-accent-deep)" : kColor,
                     }}
                   >
                     {settings.showOrbCounts && !softOpen ? kCount : "·"}
                   </div>
-                  <span className="text-[9px] font-bold uppercase" style={{ letterSpacing: "0.06em", color: isToday ? kColor : "var(--color-muted-foreground)" }}>
+                  <span className="text-[9px] font-bold uppercase" style={{ letterSpacing: "0.06em", color: isToday ? "var(--day-accent-deep)" : "var(--color-muted-foreground)" }}>
                     {NATURE_WORD[k]}
                   </span>
                 </button>

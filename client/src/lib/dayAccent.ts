@@ -20,6 +20,14 @@ export function setDayAccent(character: any, fullSpectrum: boolean) {
   const root = document.documentElement;
   if (fullSpectrum) { root.style.removeProperty("--day-accent"); return; }
   const coin = coinForCharacter(character);
-  if (coin) root.style.setProperty("--day-accent", coin);
-  else root.style.removeProperty("--day-accent");
+  if (coin) {
+    root.style.setProperty("--day-accent", coin);
+    // deep self-shade of the day (same recipe as the filled coin's number)
+    const n = parseInt(coin.slice(1), 16);
+    const ch = (v: number) => Math.max(0, Math.min(255, Math.round(v * 0.45))).toString(16).padStart(2, "0");
+    root.style.setProperty("--day-accent-deep", `#${ch(n >> 16)}${ch((n >> 8) & 255)}${ch(n & 255)}`);
+  } else {
+    root.style.removeProperty("--day-accent");
+    root.style.removeProperty("--day-accent-deep");
+  }
 }
