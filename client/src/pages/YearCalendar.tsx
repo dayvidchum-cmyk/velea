@@ -273,21 +273,38 @@ export default function YearCalendar() {
                                 : isCaution ? "1px solid color-mix(in srgb, #B3232F 60%, transparent)"
                                 : (isDollar || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${coin} 50%, transparent)`
                                 : "1px solid transparent" }}>
-                            {/* Crowned tile: the green fill goes; the Lakshmi star FILLS the
-                                rectangle (the month-calendar law — the day IS the mark). */}
-                            {isCrown ? (
-                              <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
-                                <OctagramMark size={20} color="#D4AF37" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(242,194,28,0.45))" }} />
-                              </span>
-                            ) : day}
-                            {(isDollar || marks.length > 0) && (
-                              <span className="absolute right-[2px] top-[1px] flex items-center gap-[1px]" style={{ lineHeight: 1 }}>
-                                {isDollar && <LotusMark size={11} strokeWidth={2.6} style={{ display: "block" }} />}
-                                {marks.slice(0, 2).map((mk) => (
-                                  <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: mk.station ? "10px" : "8px", fontWeight: 700, color: MARK_INK[mk.planet] ?? "#6B6355" }}>{PLANET_GLYPH[mk.planet]}</span>
-                                ))}
-                              </span>
-                            )}
+                            {/* THE LAKSHMI TREATMENT (David 2026-07-16: "All glyphs larger. If it
+                                is the only one, besides the lone dots, it is like the Lakshmi
+                                star"): a tile carrying exactly ONE mark shows it BIG and centered
+                                — the day IS the mark. Multi-mark tiles keep the corner cluster,
+                                larger. Window dots don't count and stay in their corner. */}
+                            {(() => {
+                              const markCount = (isDollar ? 1 : 0) + marks.length;
+                              const solo = !isCrown && markCount === 1;
+                              return (
+                                <>
+                                  {isCrown ? (
+                                    <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
+                                      <OctagramMark size={20} color="#D4AF37" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(242,194,28,0.45))" }} />
+                                    </span>
+                                  ) : solo ? (
+                                    <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
+                                      {isDollar
+                                        ? <LotusMark size={18} strokeWidth={1.9} />
+                                        : <span style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: marks[0].station ? "17px" : "15px", fontWeight: 700, lineHeight: 1, color: MARK_INK[marks[0].planet] ?? "#6B6355" }}>{PLANET_GLYPH[marks[0].planet]}</span>}
+                                    </span>
+                                  ) : day}
+                                  {!solo && !isCrown && markCount > 0 && (
+                                    <span className="absolute right-[2px] top-[1px] flex items-center gap-[2px]" style={{ lineHeight: 1 }}>
+                                      {isDollar && <LotusMark size={14} strokeWidth={2.2} style={{ display: "block" }} />}
+                                      {marks.slice(0, 2).map((mk) => (
+                                        <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: mk.station ? "13px" : "11px", fontWeight: 700, color: MARK_INK[mk.planet] ?? "#6B6355" }}>{PLANET_GLYPH[mk.planet]}</span>
+                                      ))}
+                                    </span>
+                                  )}
+                                </>
+                              );
+                            })()}
                             {hasDot && !isCrown && <span className="absolute bottom-[2px] right-[3px] h-[5px] w-[5px] rounded-full bg-current opacity-75" />}
                           </button>
                         );
