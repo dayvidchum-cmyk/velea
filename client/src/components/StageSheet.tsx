@@ -127,9 +127,9 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
     <>
       <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: "var(--dialog-overlay)" }} onClick={onClose}>
         <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col"
-          style={{ maxHeight: "min(92vh, 840px)", background: "var(--color-card)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1px solid var(--color-border)", position: "relative" }}>
+          style={{ maxHeight: "min(92vh, 840px)", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1.5px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", position: "relative" }}>
 
-          <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: "0.85rem", right: "0.85rem", zIndex: 6, width: 36, height: 36, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.5)", color: "#FDFDFD", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: "0.85rem", right: "0.85rem", zIndex: 6, width: 36, height: 36, borderRadius: 999, border: "none", background: "rgba(30, 24, 16, 0.55)", color: "#FBF7ED", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <X size={18} />
           </button>
 
