@@ -59,7 +59,10 @@ interface AppHeaderProps {
 export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale = 1, onBack, backLabel = "Back" }: AppHeaderProps = {}) {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === "admin";
-  const modeColor = useDayModeColor();
+  // Every chrome accent follows THE DAY (David: "the original styling changed all of
+  // that across the app to match the day mode color"). Gold is reserved for the ACTIVE
+  // veleal'or and the brand mark alone.
+  const modeColor = "var(--day-accent)";
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
   // The first-run welcome opens the location picker via this event ("Set my location").
   useEffect(() => {

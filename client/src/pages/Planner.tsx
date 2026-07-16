@@ -769,7 +769,7 @@ export default function Planner() {
   const PRIORITY_RANK: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
 
   // Today's mode color for the curated daily lists (ported from Home).
-  const todayModeColor = todayTaskMode ? MODE_OKLCH[todayTaskMode] : "var(--color-border)";
+  const todayModeColor = "var(--day-accent)"; // daily list accents follow the day
 
   // Pinned for Now: explicitly pinned, not completed, sorted by priority.
   const pinnedForNow = useMemo(() => {
@@ -900,7 +900,8 @@ export default function Planner() {
   const dayCardLoading = panchangFetching || dayReadFetching;
 
   // Calendar card: use today's mode color for strip header + border
-  const calModeColor = todayTaskMode ? MODE_SOLID[todayTaskMode] : '#888';
+  // The calendar frame + location chip follow the day accent (David: no generic gold).
+  const calModeColor = "var(--day-accent)";
   const [fullSpectrum] = useFullSpectrum();
 
   return (
