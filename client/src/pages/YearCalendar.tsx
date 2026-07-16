@@ -234,7 +234,7 @@ export default function YearCalendar() {
                         const day = i + 1;
                         const ds = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const d = byDate.get(ds);
-                        if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
+                        if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] text-[11px] text-[#c9c0ad] flex items-center justify-center">{day}</div>;
                         // THE MONTH-CALENDAR LANGUAGE (David's spec 2026-07-16): every number
                         // wears its mode color BARE — a fill only for today, the picked day, or a
                         // crowned day; no ring on today; the coin palette is the one source.
@@ -264,7 +264,7 @@ export default function YearCalendar() {
                         const hasDot = windowEdgeSet.has(ds);
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
-                            className="relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums text-left font-semibold"
+                            className="relative min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center"
                             style={{ background: isCrown ? "transparent" : bg, color: filled || isPicked ? shade(coin) : coin,
                               // Border laws (David 2026-07-16): crown = gold; caution = ruby;
                               // any tile carrying a glyph, $ OR a window dot = fine anchor
