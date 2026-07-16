@@ -112,7 +112,60 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   const contained = !!(input.tara && input.tara.quality === "bad" && input.tara.taraNum === 7);
   if (contained) vetoes.push("your loss-star at full force — nothing forward, nothing new, contain");
 
-  const headline = `${NATURE_LABEL[nature]} ${FAMILY_LABEL[family]}`;
+  // THE HEADLINE MATRIX (David-blessed 2026-07-16): 35 finished lines replace the
+  // two-phrase concatenation — "efficient and elegant… not cryptic", 6-8 words each.
+  const HEADLINE_MATRIX: Record<DayNature, Record<TithiFamily, string>> = {
+    fixed: {
+      nanda: "Joyful hands on things meant to last",
+      bhadra: "Steady work on what's meant to last",
+      jaya: "Commit boldly — the foundation wants your weight",
+      rikta: "Touch nothing new; guard what already stands",
+      purna: "Set the last stone and call it done",
+    },
+    movable: {
+      nanda: "Movement feels like joy today — follow it",
+      bhadra: "Useful motion: go where the work is",
+      jaya: "Bold moves land well today — go",
+      rikta: "The road is empty; don't begin the journey",
+      purna: "Arrive, complete the crossing, unpack fully",
+    },
+    swift: {
+      nanda: "Quick joys, light errands, easy wins",
+      bhadra: "Fast hands, useful work, short loops",
+      jaya: "Speed wins today — strike while it's light",
+      rikta: "Quickness without traction; coast, don't push",
+      purna: "Finish the small things, swiftly and completely",
+    },
+    tender: {
+      nanda: "Gentleness is the day's whole strength",
+      bhadra: "Tend people and craft with soft hands",
+      jaya: "Warmth wins what force never could",
+      rikta: "A soft day with nothing to give — rest",
+      purna: "Complete the mending; close it with care",
+    },
+    sharp: {
+      nanda: "Clean cuts, made lighter by joy",
+      bhadra: "Precise work, deliberate endings, steady blade",
+      jaya: "Cut decisively — the day rewards the surgeon",
+      rikta: "Only severing succeeds; touch nothing else",
+      purna: "End it fully, cleanly, and for good",
+    },
+    fierce: {
+      nanda: "Force carried lightly — strength with a smile",
+      bhadra: "Heavy lifting hours; push what must move",
+      jaya: "Direct clarity, aimed true, wins the day",
+      rikta: "Power with no target — stand down",
+      purna: "One final push finishes the whole thing",
+    },
+    mixed: {
+      nanda: "Ordinary duties, quietly pleasant, life running",
+      bhadra: "The daily grind, done well, is enough",
+      jaya: "Routine mastered is its own quiet victory",
+      rikta: "Low tide — maintain, don't move",
+      purna: "Clear the backlog; leave the desk clean",
+    },
+  };
+  const headline = HEADLINE_MATRIX[nature]?.[family] ?? `${NATURE_LABEL[nature]} ${FAMILY_LABEL[family]}`;
   // A nature may carry David's own plain movement line (avoidPlain) — it replaces the
   // book's item-list in the SENTENCE (the items stay in `avoid` for detail views).
   const avoidPlain = (natDef as any).avoidPlain as string | undefined;
@@ -126,20 +179,17 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   const personalTurn = !contained && input.tara && input.tara.quality === "bad"
     ? " The wider world can run with this day — you don't. Tend what's yours, small and careful."
     : "";
+  // Every sentence stands ALONE now — the hero prints the finished matrix headline
+  // right above it, so no branch repeats or prefixes it (David's 7/16 matrix ship).
   const sentence = contained
     ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
     : supports.length === 0
-    // The empty current under a GOOD star = receptive winning (David 2026-07-15: "a
-    // possible win… no forceful pushing" — his words, his edit).
     ? (input.tara?.quality === "good"
-        ? `${cap(headline)} — but your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it.`
-        : `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
-    // A nature with David's plain line drops the headline echo entirely — the hero
-    // prints the headline right above the sentence (his 7/16 refinement). His fierce
-    // line carries its own avoids, so avoidPlain only appends when distinct.
+        ? "Your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it."
+        : `Start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
     : supportsPlain
     ? `${cap(supportsPlain)}${avoidPlain ? ` ${avoidPlain}` : ""}${personalTurn}`
-    : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
+    : `It supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
 
   // THE HANDSHAKE (David 2026-07-15: "just do it. We can always roll it back"): the day's
   // supports ARE the seven kinds. The day names which KINDS of act it carries: its own
@@ -229,9 +279,9 @@ export function movementOf(
 
 /** The rx-capped sentence — when Mercury holds a GO day down to Build, the words must hold
  *  it too (David's July 14: "Build" over "quick errands, trade and sales" read as conflict). */
-export function cappedSentence(nature: DayNature, headline: string): string {
+export function cappedSentence(nature: DayNature, _headline: string): string {
   const carry = nature === "swift"
     ? "the speed wants out — spend it on revisits, follow-ups, and finishing, not on launches"
     : "the shift wants to happen — prepare it, pack for it, don't launch it";
-  return `${headline.charAt(0).toUpperCase()}${headline.slice(1)} — but Mercury holds the launch today; ${carry}.`;
+  return `Mercury holds the launch today — ${carry}.`;
 }

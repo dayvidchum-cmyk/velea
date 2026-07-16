@@ -25,7 +25,7 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
 
   it("a tender day speaks David's line; the canon supports/avoids survive underneath", () => {
     const d = dayFilter({ ...base, nakshatra: "Anuradha", tithiNumber: 7 });
-    expect(d.headline).toBe("a tender day built for work");
+    expect(d.headline).toBe("Tend people and craft with soft hands"); // the blessed matrix
     expect(d.sentence).toMatch(/^Love, mending, the making of beautiful work\. A day of gentle connections\./);
     expect(d.supports.join(" ")).toMatch(/love|friendship|art/);
     expect(d.avoid.join(" ")).toMatch(/confrontation|cutting/);
