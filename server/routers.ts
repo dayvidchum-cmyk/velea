@@ -278,6 +278,8 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
         chandraFavorable: !!d.chandra?.favorable,
       });
       d.movement = mv; d.movementWord = MOVEMENT_WORD[mv];
+      // Moon discs for the year popup (same law as the month coins: tithi 15/30 only).
+      if (d.tithiNumber === 15) d.moonPhase = "full"; else if (d.tithiNumber === 30) d.moonPhase = "new";
       if (mv === "build" && merc != null && merc < 0 && d.tara.quality === "good" && (c.nature === "movable" || c.nature === "swift")) {
         d.cappedSentence = cappedSentence(c.nature, c.headline);
       }

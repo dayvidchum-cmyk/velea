@@ -369,6 +369,8 @@ export async function calculateBirthChart(
 const SE_PLANET_KEY: Record<string, string> = {
   sun: "SE_SUN", moon: "SE_MOON", mercury: "SE_MERCURY", venus: "SE_VENUS",
   mars: "SE_MARS", jupiter: "SE_JUPITER", saturn: "SE_SATURN",
+  // Mean node — same choice as the birth chart (SE_MEAN_NODE above). Ketu is derived.
+  rahu: "SE_MEAN_NODE",
 };
 /**
  * Sidereal ascendant longitude at an arbitrary UTC instant/place. Used to resolve the
@@ -398,7 +400,15 @@ export async function planetLongitudeSpeed(
   const [y, m, d] = dateStr.split("-").map(Number);
   const jd = se.julday(y, m, d, hourUT);
   const flags = se.SEFLG_SWIEPH | se.SEFLG_SIDEREAL | (se.SEFLG_SPEED ?? 256);
-  const code = (se as any)[SE_PLANET_KEY[planet.toLowerCase()]];
+  // Ketu = Rahu + 180°, speed mirrored (same derivation as the birth chart).
+  const name = planet.toLowerCase();
+  const key = SE_PLANET_KEY[name === "ketu" ? "rahu" : name];
+  // THE TRAP THAT BIT (2026-07-16 node audit): an unknown name made `code` undefined,
+  // which Swiss Ephemeris silently reads as 0 = SE_SUN — every "rahu" query returned the
+  // SUN. Unknown planets now throw instead of impersonating the Sun.
+  if (!key) throw new Error(`planetLongitudeSpeed: unknown planet "${planet}"`);
+  const code = (se as any)[key];
   const calc = se.calc_ut(jd, code, flags);
+  if (name === "ketu") return { longitude: (calc[0] + 180) % 360, speed: -calc[3] };
   return { longitude: calc[0], speed: calc[3] };
 }

@@ -7,6 +7,11 @@ import OctagramMark from "@/components/OctagramMark";
 import { trpc } from "@/lib/trpc";
 import AddTaskSheet from "@/components/AddTaskSheet";
 
+// The month calendar's mark system, mirrored for the year pop-up (Planner is the source of truth).
+const PLANET_GLYPH: Record<string, string> = { Mercury: "\u263F\uFE0E", Venus: "\u2640\uFE0E", Mars: "\u2642\uFE0E", Jupiter: "\u2643\uFE0E", Saturn: "\u2644\uFE0E" };
+const PLANET_GLYPH_FONT = '"Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols", "Noto Sans Symbols2", sans-serif';
+const MARK_INK: Record<string, string> = { dollar: "#77A96B", crown: "#D4AF37", Mercury: "#3FA8A0", Saturn: "#454A8C" };
+
 /**
  * YEAR CALENDAR — the crown-day calendar, whole-year edition (David: "this is the crown day
  * calendar", 2026-07-15). Every day of the solar year (birthday → birthday) on the book's
@@ -103,6 +108,28 @@ export default function YearCalendar() {
 
   // Day pop-up (David: "click the calendar, pop-up! Maybe even with an add task plus sign")
   const [dayPopup, setDayPopup] = useState<{ ds: string; d: any } | null>(null);
+  // Sky marks for the POPUP's month only (fetched on open; 1h stale like the month view).
+  const { data: popupSky } = trpc.sky.monthMarks.useQuery(
+    { yearMonth: dayPopup?.ds.slice(0, 7) ?? "" },
+    { enabled: !!dayPopup, staleTime: 60 * 60 * 1000 },
+  );
+  const popupMarks = useMemo(() => {
+    if (!dayPopup || !popupSky) return { planets: [] as { planet: string; state: string; detail: string }[], eclipse: null as string | null };
+    const ds = dayPopup.ds;
+    const rank: Record<string, number> = { "station-retro": 5, "station-direct": 5, window: 4 };
+    const by = new Map<string, { planet: string; state: string; detail: string }>();
+    const add = (planet: string, state: string, detail: string) => {
+      const e = by.get(planet);
+      if (!e || rank[state] > rank[e.state]) by.set(planet, { planet, state, detail });
+    };
+    for (const p of (popupSky as any).retro ?? []) {
+      for (const st of p.stations) if (st.date === ds) add(p.planet, st.type === "turns retrograde" ? "station-retro" : "station-direct", st.type === "turns retrograde" ? "stations retrograde" : "stations direct");
+      for (const w of p.windowDays) if (w === ds) add(p.planet, "window", "station window");
+    }
+    const order = ["Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
+    const eclipse = ((popupSky as any).eclipses ?? []).find((e: any) => e.date === ds)?.type ?? null;
+    return { planets: Array.from(by.values()).sort((a, b) => order.indexOf(a.planet) - order.indexOf(b.planet)), eclipse };
+  }, [dayPopup, popupSky]);
   const [crownsOpen, setCrownsOpen] = useState(false);
   const [cautionsOpen, setCautionsOpen] = useState(false);
   const [addForDate, setAddForDate] = useState<string | null>(null);
@@ -272,6 +299,30 @@ export default function YearCalendar() {
                 {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}>♛ achievement</span>}
                 {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#2E7D4F" }}><OctagramMark size={11} color="#2E7D4F" strokeWidth={1.4} style={{ verticalAlign: "-1px", marginRight: 3 }} />crowning day</span>}
               </p>
+              {/* THE DAY'S MARKS (David 2026-07-16: "planet glyphs and $ signs and moons in the
+                  year pop-up") — the same marks the month coins wear, spelled out. */}
+              {((d as any).moonPhase || popupMarks.eclipse || popupMarks.planets.length > 0) && (
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                  {popupMarks.eclipse && (
+                    <span className="text-xs inline-flex items-center gap-1.5" style={{ color: "var(--color-foreground)" }}>
+                      <span style={{ width: 11, height: 11, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 4px rgba(242,194,28,0.5)", display: "inline-block" }} />
+                      {popupMarks.eclipse === "solar" ? "Solar" : "Lunar"} eclipse
+                    </span>
+                  )}
+                  {!popupMarks.eclipse && (d as any).moonPhase && (
+                    <span className="text-xs inline-flex items-center gap-1.5" style={{ color: "var(--color-foreground)" }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 999, background: (d as any).moonPhase === "full" ? "#FDFBF3" : "#160f26", border: (d as any).moonPhase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />
+                      {(d as any).moonPhase === "full" ? "Purnima — full moon" : "Amavasya — new moon"}
+                    </span>
+                  )}
+                  {popupMarks.planets.map((m) => (
+                    <span key={m.planet} className="text-xs inline-flex items-center gap-1" style={{ color: "var(--color-foreground)" }}>
+                      <span style={{ fontFamily: PLANET_GLYPH_FONT, fontWeight: 700, fontSize: m.state.startsWith("station") ? "1.05rem" : "0.9rem", color: MARK_INK[m.planet] ?? "var(--heading-ink)", lineHeight: 1 }}>{PLANET_GLYPH[m.planet]}</span>
+                      {m.planet} {m.detail}
+                    </span>
+                  ))}
+                </div>
+              )}
               <p className="mt-2 text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.55 }}>
                 #{d.rank} of {data?.days.length ?? 365} · {d.plain.day} — {d.plain.feel}; {d.plain.moon}.
               </p>
