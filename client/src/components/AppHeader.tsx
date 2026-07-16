@@ -231,8 +231,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               </div>
             ) : golden.nextGoldenMs ? (
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
-                <VeleaLorMark size={12} color="var(--day-accent)" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--day-accent)", whiteSpace: "nowrap", lineHeight: 1 }}>Next veleal'or : {fmtClock(golden.nextGoldenPeakMs ?? golden.nextGoldenMs)}</span>
+                <VeleaLorMark size={12} color="var(--color-muted-foreground)" style={{ flexShrink: 0, opacity: 0.8 }} />
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-muted-foreground)", whiteSpace: "nowrap", lineHeight: 1, opacity: 0.85 }}>Next veleal'or : {fmtClock(golden.nextGoldenPeakMs ?? golden.nextGoldenMs)}</span>
               </div>
             ) : (
               <div style={{ display: "inline-flex", alignItems: "center", flexShrink: 0 }}>

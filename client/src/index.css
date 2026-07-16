@@ -64,7 +64,11 @@
   0%, 100% { box-shadow: 0 0 5px 0 var(--orb-glow, transparent); }
   50%      { box-shadow: 0 0 16px 4px var(--orb-glow, transparent); }
 }
-.orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite; }
+.orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite, veleaOrbGlow 2.4s ease-in-out infinite; }
+@keyframes veleaOrbGlow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--day-accent) 0%, transparent); }
+  50% { box-shadow: 0 0 14px 2px color-mix(in srgb, var(--day-accent) 45%, transparent); }
+}
 @media (prefers-reduced-motion: reduce) { .orb-pulse { animation: none; } }
 
 /* PARCHMENT — the shared surface for the chart ARTIFACT family (calendar, profection wheel, natal,
