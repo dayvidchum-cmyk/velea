@@ -297,6 +297,9 @@ export default function Planner() {
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [openKindGroups, setOpenKindGroups] = useState<Set<string>>(new Set());
+  // Kind pop-up (David: orb tap → a dead-center pop-up of that kind's tasks, not a jump
+  // into the accordion).
+  const [kindPopup, setKindPopup] = useState<TaskKind | null>(null);
   const [completedOpen, setCompletedOpen] = useState(false);
 
   function getHouseSuffix(n: number | undefined): string {
@@ -1677,7 +1680,7 @@ export default function Planner() {
               return (
                 <button
                   key={k}
-                  onClick={() => { setAllTasksOpen(true); setOpenKindGroups((cur) => { const n = new Set(cur); n.add(k); return n; }); }}
+                  onClick={() => setKindPopup(k)}
                   className="flex flex-col items-center gap-1.5 group transition-all duration-200 cursor-pointer"
                 >
                   <div
@@ -2127,6 +2130,57 @@ export default function Planner() {
 
       {/* Due Orb Sheet */}
 
+
+      {/* KIND POP-UP — dead center (David): the tapped orb's tasks on one paper card. */}
+      {kindPopup && createPortal(
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: "rgba(30, 24, 16, 0.45)" }}
+          onClick={() => setKindPopup(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl overflow-hidden"
+            style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 pt-4 pb-3">
+              <span className="text-sm font-bold uppercase" style={{ letterSpacing: "0.06em", color: NATURE_DOT[kindPopup] }}>
+                <span style={{ display: "inline-block", width: 9, height: 9, borderRadius: 999, background: NATURE_DOT[kindPopup], marginRight: 8 }} />
+                {NATURE_WORD[kindPopup]}
+                <span style={{ color: "var(--color-muted-foreground)", marginLeft: 6 }}>({orbKindCounts[kindPopup] ?? 0})</span>
+              </span>
+              <button onClick={() => setKindPopup(null)} className="p-1 rounded-full" style={{ color: "var(--color-muted-foreground)" }}>
+                <Plus size={18} style={{ transform: "rotate(45deg)" }} />
+              </button>
+            </div>
+            <div className="px-4 pb-5 space-y-2 overflow-y-auto" style={{ maxHeight: "60vh" }}>
+              {allTasks.filter((t) => !t.isCompleted && (kindByTaskId.get(t.id) ?? "mixed") === kindPopup).length === 0 ? (
+                <p className="text-sm text-center py-6" style={{ color: "var(--color-muted-foreground)" }}>
+                  Nothing here right now.
+                </p>
+              ) : (
+                allTasks
+                  .filter((t) => !t.isCompleted && (kindByTaskId.get(t.id) ?? "mixed") === kindPopup)
+                  .map((task) => (
+                    <TaskItem quiet
+                      key={task.id}
+                      task={task as Task & { subtaskTotal?: number; subtaskCompleted?: number }}
+                      onToggleComplete={() => updateMutation.mutate({ id: task.id, isCompleted: !task.isCompleted })}
+                      onTogglePin={() => updateMutation.mutate({ id: task.id, isPinned: !task.isPinned, ...(!task.isPinned && todayTaskMode ? { dayMode: todayTaskMode } : {}) })}
+                      onCyclePriority={(id, next) => updateMutation.mutate({ id, priority: next })}
+                      onSetIntent={(id, next) => updateMutation.mutate({ id, intent: next })}
+                      onDelete={() => deleteMutation.mutate({ id: task.id })}
+                      onEdit={(t: Task) => { setKindPopup(null); handleEdit(t); }}
+                      dayMode={todayTaskMode}
+                      alignment={alignmentById.get(task.id) ?? 20}
+                    />
+                  ))
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Add/Edit sheet */}
       <AddTaskSheet
