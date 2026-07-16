@@ -4,8 +4,6 @@ import { useLocation } from "wouter";
 import { ChevronLeft, ChevronDown, Loader2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import OctagramMark from "@/components/OctagramMark";
-import LotusMark from "@/components/LotusMark";
-import SummitMark from "@/components/SummitMark";
 import PlanetMark from "@/components/PlanetMark";
 import { trpc } from "@/lib/trpc";
 import AddTaskSheet from "@/components/AddTaskSheet";
@@ -314,8 +312,8 @@ export default function YearCalendar() {
                                     </span>
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
-                                      {isDollar && <LotusMark size={mSize} strokeWidth={2.1} />}
-                                      {isSummit && <SummitMark size={mSize} strokeWidth={1.8} />}
+                                      {isDollar && <span style={{ fontSize: `${mSize}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
+                                      {isSummit && <span style={{ fontSize: `${mSize}px`, fontWeight: 800, color: MARK_INK.crown, lineHeight: 1 }}>♛</span>}
                                       {marks.slice(0, 2).map((mk) => (
                                         <PlanetMark key={mk.planet} planet={mk.planet} size={mSize} strokeWidth={2} />
                                       ))}
@@ -361,8 +359,8 @@ export default function YearCalendar() {
               <p className="font-serif text-lg" style={{ color: topSet.has(ds) ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
               <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
-                {taraNum === 2 && <span style={{ marginLeft: 8, color: "#77A96B" }}><LotusMark size={13} strokeWidth={2.2} style={{ verticalAlign: "-2px", marginRight: 3 }} />prosperity</span>}
-                {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}><SummitMark size={13} strokeWidth={1.9} style={{ verticalAlign: "-2px", marginRight: 3 }} />achievement</span>}
+                {taraNum === 2 && <span style={{ marginLeft: 8, color: "#77A96B" }}><span style={{ fontWeight: 600, marginRight: 3 }}>$</span>prosperity</span>}
+                {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}><span style={{ fontWeight: 800, marginRight: 3 }}>♛</span>achievement</span>}
                 {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#B3902C" }}><OctagramMark size={13} color="#D4AF37" strokeWidth={1.5} style={{ verticalAlign: "-2px", marginRight: 3 }} />crowning day</span>}
               </p>
               {/* THE DAY'S MARKS (David 2026-07-16: "planet glyphs and $ signs and moons in the

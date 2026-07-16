@@ -6,9 +6,7 @@ import KeptReadings from "@/components/KeptReadings";
 import LocationChip from "@/components/LocationChip";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
-import LotusMark from "@/components/LotusMark";
 import PlanetMark from "@/components/PlanetMark";
-import SummitMark from "@/components/SummitMark";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1555,7 +1553,7 @@ export default function Planner() {
                         border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26",
                         display: "inline-block" }} />
                     );
-                    if (prosperitySet.has(dateStr)) others.push(<LotusMark key="$" size={13} strokeWidth={2.4} style={{ alignSelf: "center" }} />);
+                    if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontSize: "0.82rem", fontWeight: 600, color: MARK_INK.dollar, alignSelf: "center" }}>$</span>);
                     // A station day still shows OTHER planets' window glyphs (David's 7/26:
                     // Saturn centers, Mercury's window ☿ perches) — the stationing planet
                     // itself is never in windowGlyphList (its state is "station").
@@ -1578,7 +1576,7 @@ export default function Planner() {
                           // A 3-column grid keeps the crown pinned even with an odd flank count.
                           <span style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", width: "100%", lineHeight: 1, whiteSpace: "nowrap" }}>
                             <span style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>{slotted.slice(0, mid)}</span>
-                            <SummitMark size={14} strokeWidth={1.9} style={{ transform: "translateY(-1px)" }} />
+                            <span style={{ fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, transform: `translateY(-2px) translateX(${CROWN_NUDGE})` }}>♛</span>
                             <span style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>{slotted.slice(mid)}</span>
                           </span>
                         ) : (
@@ -1625,8 +1623,8 @@ export default function Planner() {
                         const g = count >= 2 ? 13 : 16;
                         return <>
                           {phase && <span style={{ width: count >= 2 ? 9 : 11, height: count >= 2 ? 9 : 11, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />}
-                          {prosperitySet.has(dateStr) && <LotusMark size={g} strokeWidth={count >= 2 ? 2.3 : 2} />}
-                          {achievementSet.has(dateStr) && <SummitMark size={g} strokeWidth={count >= 2 ? 1.9 : 1.7} />}
+                          {prosperitySet.has(dateStr) && <span style={{ fontSize: `${g}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
+                          {achievementSet.has(dateStr) && <span style={{ fontSize: `${g}px`, fontWeight: 800, color: MARK_INK.crown, lineHeight: 1 }}>♛</span>}
                           {windowGlyphList.map((e) => (
                             <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} />
                           ))}
@@ -1698,14 +1696,14 @@ export default function Planner() {
             ) : crownTip.kind === "prosperity" ? (
               <>
                 <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#8a6d1f", marginBottom: "0.25rem" }}>
-                  <LotusMark size={15} strokeWidth={2.2} /> Prosperity day
+                  <span style={{ fontWeight: 600, color: MARK_INK.dollar }}>$</span> Prosperity day
                 </span>
                 Your prosperity star &mdash; wealth, income and livelihood run with you today. Earn on your own terms.
               </>
             ) : crownTip.kind === "achievement" ? (
               <>
                 <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#8a6d1f", marginBottom: "0.25rem" }}>
-                  <SummitMark size={15} strokeWidth={1.8} /> Achievement day
+                  <span style={{ fontWeight: 800, color: MARK_INK.crown }}>♛</span> Achievement day
                 </span>
                 The accomplisher&rsquo;s star &mdash; something can be won today. Land an aim: ship it, submit it, finish it.
               </>
