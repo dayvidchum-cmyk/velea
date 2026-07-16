@@ -1430,7 +1430,7 @@ export default function Planner() {
             // soft fill (lighter than today's weight), cleared when selection returns home.
             const restingBg = filled
               ? `color-mix(in srgb, ${accent} 62%, var(--parchment))`
-              : isSelected && hasMode
+              : isSelected && hasMode && !isCrown && !eclipseByDate.has(dateStr)
               ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
               : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
