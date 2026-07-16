@@ -460,18 +460,21 @@ export const profilesRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
 
-      // Non-admin users may only ever have ONE profile — their own ("My Chart").
-      // Multi-profile management (Mom, Client A, etc.) is an admin-only feature.
+      // Non-admin users get ONE profile — their own — unless the SECOND SEAT flag is
+      // flipped for them (David 2026-07-16: "one other profile for testers. Only one.
+      // And only when I flip the switch."). Cap = 2 with the flag, 1 without.
       if (ctx.user.role !== "admin") {
+        const { hasFeature } = await import("../feature-flags.js");
+        const cap = (await hasFeature(ctx.user, "secondProfile")) ? 2 : 1;
         const owned = await db
           .select({ id: profiles.id })
           .from(profiles)
           .where(eq(profiles.userId, ctx.user.id));
         const activeCount = owned.length; // includes owner + any archived rows are rare; conservative
-        if (activeCount >= 1) {
+        if (activeCount >= cap) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "You can only have one profile — your own.",
+            message: cap === 2 ? "Both seats are taken — your chart and one more." : "You can only have one profile — your own.",
           });
         }
       }

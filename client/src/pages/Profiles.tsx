@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppHeader from "@/components/AppHeader";
+import LockedFeatureCard from "@/components/LockedFeatureCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -794,6 +795,8 @@ export default function Profiles() {
     window.history.replaceState({}, "", "/profiles");
   }, [isLoading, profileList]);
 
+  const { data: myFeatures } = trpc.features.mine.useQuery(undefined, { staleTime: 60_000 });
+  const secondSeat = myFeatures?.secondProfile === true;
   const createMutation = trpc.profiles.create.useMutation();
   const updateMutation = trpc.profiles.update.useMutation();
   const calculateMutation = trpc.profiles.calculateChart.useMutation();
@@ -1035,7 +1038,7 @@ export default function Profiles() {
                   />
                 ))}
 
-                {isAdmin && (
+                {(isAdmin || (secondSeat && profileList.length < 2)) && (
                   <div className="pt-2 pb-4">
                     <Button
                       variant="outline"
@@ -1043,8 +1046,20 @@ export default function Profiles() {
                       onClick={() => setMode("create")}
                     >
                       <Plus size={14} className="mr-1.5" />
-                      Add Profile
+                      {isAdmin ? "Add Profile" : "Add a second chart"}
                     </Button>
+                  </div>
+                )}
+
+                {/* THE SECOND SEAT — gated so they know it's coming (David 2026-07-16:
+                    "one other profile for testers. Only one. Only when I flip the switch."). */}
+                {!isAdmin && !secondSeat && (
+                  <div className="pt-2 pb-4">
+                    <LockedFeatureCard
+                      title="A second chart"
+                      teaser="One more seat at your table — coming."
+                      detail="Soon you'll be able to hold one more chart beside your own — a partner, a parent, a best friend — and read their days the way you read yours. The seat opens when the timing is right."
+                    />
                   </div>
                 )}
 

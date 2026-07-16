@@ -364,7 +364,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 : "'Playfair Display', 'Georgia', ui-serif, serif",
               fontWeight: sansTitle ? 700 : 600,
               fontSize: `calc(clamp(1.25rem, 4vw, 1.75rem) * ${titleScale})`,
-              color: "var(--foreground)",
+              color: "var(--heading-ink)",
               letterSpacing: sansTitle ? "-0.02em" : "-0.01em",
               marginTop: onBack ? "0.4rem" : "1.25rem",
               lineHeight: 1.2,
