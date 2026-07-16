@@ -571,7 +571,31 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         if (Object.keys(byTheme).length) yearWindows = byTheme;
       }
     } catch { /* the year read proceeds without windows */ }
-    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}), ...(nodalAxis ? { nodalAxis } : {}) } as any;
+    // THE YEAR'S OWN CHART (Varshaphala — road A, David: "A then B"): the solar return
+    // cast at the CURRENT residence + Tajika aspects. Deterministic, memoized per year.
+    let varshaphala: any = null;
+    try {
+      if (lonAll["Sun"] != null && p.birthDate) {
+        const [, bmV, bdV] = String(p.birthDate).split("-").map(Number);
+        const dyV = Number(dateStr.slice(0, 4));
+        const mdV = dateStr.slice(5);
+        const syV = mdV >= `${String(bmV).padStart(2, "0")}-${String(bdV).padStart(2, "0")}` ? dyV : dyV - 1;
+        const yearStartIso = `${syV}-${String(bmV).padStart(2, "0")}-${String(bdV).padStart(2, "0")}`;
+        const { getUserById: getUV } = await import("../db.js");
+        const uV = (p as any).userId ? await getUV((p as any).userId) : null;
+        const hasCur = !!(uV?.locationLat && uV?.locationLon);
+        const latV = hasCur ? parseFloat(uV!.locationLat!) : ((p as any).birthLocationLat ? parseFloat((p as any).birthLocationLat) : 42.3601);
+        const lonV = hasCur ? parseFloat(uV!.locationLon!) : ((p as any).birthLocationLon ? parseFloat((p as any).birthLocationLon) : -71.0589);
+        const srcV = hasCur ? "current" : (p as any).birthLocationLat ? "birth" : "fallback";
+        const { computeVarshaphala } = await import("../vedic/varshaphala.js");
+        varshaphala = await computeVarshaphala({
+          profileKey: `${p.id}|${yearStartIso}|${latV.toFixed(2)},${lonV.toFixed(2)}`,
+          natalSunLon: lonAll["Sun"], yearStart: yearStartIso, lat: latV, lon: lonV, locSource: srcV as any,
+        });
+      }
+    } catch (vErr) { console.warn("[narrative] varshaphala unavailable (year read continues):", vErr); }
+
+    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(varshaphala ? { varshaphala } : {}) } as any;
   }
 
   // RECENT READS — the last 3 days of glance prose, so the model can see what it already

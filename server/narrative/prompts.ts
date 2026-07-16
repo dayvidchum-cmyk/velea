@@ -1125,7 +1125,14 @@ moves the subject. Same well twice = both dry.
 
 Return your answer by calling the glance tool with all four fields filled in.`;
 
-export const DEEP_READ_TAIL = `THE SPINE, NOT THE MOOD: a Moon chapter is read from the natal Moon's
+export const DEEP_READ_TAIL = `THE YEAR'S OWN CHART: when input.varshaphala is present, it is the
+year's own sky — the ascendant there is the year's STAGE (what kind of year this is), its lord's
+seat is the year's anchor, and the tajika pairs are the year's weather: "ithasala" pairs are
+STILL FORMING (name what they promise in lived terms), "easarapha" pairs are COMPLETING or
+passing. Weave ONE OR TWO of the loudest into the year's story — never list them, never surface
+the terms. The dasha chapter remains the skeleton; this chart is the year's color.
+
+THE SPINE, NOT THE MOOD: a Moon chapter is read from the natal Moon's
 STANDING condition (input.natalCondition), never from the transiting Moon. If input.nodalAxis is
 present, the year moves along it — away from the release pole's rooms, toward the reach pole's —
 and the reading names that journey in lived terms.
@@ -2249,8 +2256,8 @@ export const PROMPT_VERSION = "2026-07-15-mode-words-purged";
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
   glance: "2026-07-16-salted-v1", // audit: was the ONE day-surface with no independent version
-  deep: "2026-07-16-the-spine-not-the-mood",
-  deep_full: "2026-07-16-the-spine-not-the-mood",
+  deep: "2026-07-16-varshaphala-a",
+  deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
   day_read: "2026-07-16-the-spine-not-the-mood",
   cast: "2026-07-13-cast-moon-neutral",
