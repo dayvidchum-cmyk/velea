@@ -1417,6 +1417,7 @@ export default function Planner() {
                 <div
                   className="flex items-center justify-center"
                   style={{
+                    position: "relative",
                     aspectRatio: "1 / 1",
                     width: "100%",
                     maxWidth: "2rem",
@@ -1447,6 +1448,13 @@ export default function Planner() {
                   onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
+                  {/* Tara-day badge — $ (Sampat) / ✓ (Sadhaka) as a small corner mark so the
+                      DATE stays readable and a station glyph can share the coin (David 7/26). */}
+                  {(prosperitySet.has(dateStr) || achievementSet.has(dateStr)) && !isCrown && !eclipseByDate.has(dateStr) && (
+                    <span style={{ position: "absolute", top: -1, right: 2, fontSize: "0.7rem", fontWeight: 800, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>
+                      {prosperitySet.has(dateStr) ? "$" : "✓"}
+                    </span>
+                  )}
                   {isCrown ? (
                     // The knot mark — an OUTLINE octagram (Star of Lakshmi), drawn in LINES, not a
                     // solid fill (David: "I want the lakshmi stars to be lines again"). The center
@@ -1474,12 +1482,6 @@ export default function Planner() {
                         <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: numberColor, lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
                     </span>
-                  ) : prosperitySet.has(dateStr) ? (
-                    // Prosperity day: $ in place of the number, sized with the planet glyphs.
-                    <span style={{ fontSize: "1.5rem", fontWeight: 600, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>$</span>
-                  ) : achievementSet.has(dateStr) ? (
-                    // Achievement day (Sadhaka): ✓ — land the aim. (⚑ is RESERVED for flagged things.)
-                    <span style={{ fontSize: "1.5rem", fontWeight: 700, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>✓</span>
                   ) : (
                     <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem" }}>
                       {day}
