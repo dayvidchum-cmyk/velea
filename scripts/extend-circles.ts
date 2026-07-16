@@ -11,7 +11,11 @@
  *        people who serve you: accountant, dentist, plumber) · institutions (10th —
  *        authority: the IRS, the bank, the landlord)
  *
- * Final roster (18): life_partner · business_partner · children · family ·
+ * PLUS the love shelf (David): boyfriend · girlfriend · lover · situationship —
+ * committed union = 7th; romance/lovers/the undefined = 5th (love affairs are 5th).
+ *
+ * Final roster (22): life_partner · boyfriend · girlfriend · lover · situationship ·
+ * business_partner · children · family ·
  * inner_circle · friends · acquaintances · mentors · mentees · coworkers · clients ·
  * helpers · institutions · followers · pets · enemies · self · everyone_else
  *
@@ -20,7 +24,7 @@
 import { getDb } from "../server/db.js";
 import { sql } from "drizzle-orm";
 
-const FINAL = "'life_partner','business_partner','children','family','inner_circle','friends','acquaintances','mentors','mentees','coworkers','clients','helpers','institutions','followers','pets','enemies','self','everyone_else'";
+const FINAL = "'life_partner','boyfriend','girlfriend','lover','situationship','business_partner','children','family','inner_circle','friends','acquaintances','mentors','mentees','coworkers','clients','helpers','institutions','followers','pets','enemies','self','everyone_else'";
 
 async function run() {
   const db = await getDb();
@@ -40,7 +44,7 @@ async function run() {
   console.log(`· migrated best_friends → inner_circle (${(upd as any)?.rowsAffected ?? (Array.isArray(upd) ? (upd[0] as any)?.affectedRows : 0) ?? 0} rows)`);
   // 2. reshape to the final fifteen (all existing values preserved except best_friends)
   await db.execute(sql.raw(`ALTER TABLE tasks MODIFY COLUMN circle ENUM(${FINAL}) NULL`));
-  console.log("✅ tasks.circle is the final eighteen — data preserved, best_friends folded in.");
+  console.log("✅ tasks.circle is the final twenty-two — data preserved, best_friends folded in.");
   process.exit(0);
 }
 run().catch((e) => { console.error(e); process.exit(1); });
