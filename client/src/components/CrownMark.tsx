@@ -20,12 +20,15 @@ export default function CrownMark({
   return (
     <span
       aria-hidden="true"
+      className="crown-gleam"
       style={{
         display: "inline-block",
         flexShrink: 0,
         width: size,
         height: size,
         backgroundColor: color,
+        // The gleam: a narrow warm-light band swept across by .crown-gleam, clipped by the mask.
+        backgroundImage: `linear-gradient(105deg, ${color} 0%, ${color} 44%, #FFF3C9 50%, ${color} 56%, ${color} 100%)`,
         WebkitMaskImage: mask,
         maskImage: mask,
         WebkitMaskSize: "contain",

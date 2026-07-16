@@ -73,6 +73,16 @@
 @keyframes veleaLoaderBreath { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .orb-pulse { animation: none; } }
 
+/* THE CROWN GLEAM (David 2026-07-16: "sparkle or gleam... but elegant and aesthetic") —
+   a narrow band of warm light sweeps across the crown's masked silhouette once per cycle,
+   then rests. The band lives in the background-image; the mask clips it to his crown. */
+@keyframes veleaCrownGleam {
+  0%, 62% { background-position: 135% 0; }
+  88%, 100% { background-position: -35% 0; }
+}
+.crown-gleam { background-size: 260% 100%; background-position: 135% 0; animation: veleaCrownGleam 5.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .crown-gleam { animation: none; background-image: none !important; } }
+
 /* PARCHMENT — the shared surface for the chart ARTIFACT family (calendar, profection wheel, natal,
    dasha, the readings calendar + reveal box). It's always a LIGHT almanac page (tone is appearance-
    aware via --parchment / --parchment-shadow), and it ALSO remaps the color tokens LOCALLY so every
