@@ -159,6 +159,13 @@ describe("the rx-capped sentence (David's July 14: Build word over a GO sentence
 });
 
 describe("David's plain movement line on cutting days (2026-07-15)", () => {
+  it("the sharp-day sentence compresses supports to his register; the canon list survives underneath", () => {
+    const d = dayFilter({ varaLord: "Mercury", vishti: false, tara: null, nakshatra: "Ashlesha", tithiNumber: 2 });
+    expect(d.sentence).toMatch(/a day for decisive cuts and clean, deliberate endings/);
+    expect(d.sentence).not.toMatch(/surgery/);
+    expect(d.supports.join(" ")).toMatch(/surgery and incisive procedures/); // the literal election stays for detail + the reading
+  });
+
   it("the sharp-day sentence speaks his words, not the book's item-list", () => {
     const d = dayFilter({ varaLord: "Mercury", vishti: false, tara: null, nakshatra: "Ashlesha", tithiNumber: 2 });
     expect(d.sentence).toMatch(/Don't start anything new\. Today is not a day where something is completed\./);

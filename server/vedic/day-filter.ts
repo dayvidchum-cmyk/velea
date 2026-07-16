@@ -116,6 +116,10 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // A nature may carry David's own plain movement line (avoidPlain) — it replaces the
   // book's item-list in the SENTENCE (the items stay in `avoid` for detail views).
   const avoidPlain = (natDef as any).avoidPlain as string | undefined;
+  // A nature may also carry David's plain SUPPORTS line (supportsPlain) — the sentence
+  // speaks his register; the canonical item-list (incl. the literal surgery election)
+  // stays in `supports` for detail views and the reading's reach (2026-07-15, his pick A).
+  const supportsPlain = (natDef as any).supportsPlain as string | undefined;
   // THE PERSONAL TURN (David 2026-07-15, the 7/29 golden-restraint conflict — "those
   // tooltip hero sentence suggestions are perfect"): a hostile personal star closes the
   // collective sentence — the world can run with the day; this native doesn't.
@@ -130,7 +134,7 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     ? (input.tara?.quality === "good"
         ? `${cap(headline)} — but your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it.`
         : `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
-    : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
+    : `${cap(headline)} — ${supportsPlain ?? `it supports ${listOf(supports.slice(0, 3))}`}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
 
   // THE HANDSHAKE (David 2026-07-15: "just do it. We can always roll it back"): the day's
   // supports ARE the seven kinds. The day names which KINDS of act it carries: its own
