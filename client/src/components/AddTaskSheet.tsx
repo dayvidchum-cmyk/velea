@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { CIRCLES, CIRCLE_LABEL, type TaskCircle } from "@shared/task-circle";
 import { createPortal } from "react-dom";
 import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown, Repeat, Layers } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -259,6 +260,8 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
   // How much of the day the task asks for (David 2026-07-15: "a spot at the top…
   // quick, sitting, long"). Nullable — undeclared is fine.
   const [effortSize, setEffortSize] = useState<"quick" | "sitting" | "long" | null>(null);
+  // WHO the task touches — David's nine circles (the engine maps them to life-theme rooms).
+  const [circle, setCircle] = useState<TaskCircle | null>(null);
   const [intent, setIntent] = useState<"want" | "need">("need");
   const [dueDate, setDueDate] = useState("");
   const [isPinned, setIsPinned] = useState(false);
@@ -348,6 +351,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
       setEmotionalLoad((editTask.emotionalLoad as LoadLevel) ?? "Low");
       setNotes(editTask.notes ?? "");
       setEffortSize(((editTask as any).effortSize as "quick" | "sitting" | "long" | null) ?? null);
+      setCircle(((editTask as any).circle as TaskCircle | null) ?? null);
       setRecurrence((editTask.recurrence as Recurrence) ?? "none");
       setLifeAreas(
         Array.isArray(editTask.lifeAreas)
@@ -358,6 +362,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
     } else {
       setTitle("");
       setEffortSize(null);
+      setCircle(null);
       setMode(initialMode ?? "Build");
       // openWithSuggestion → the prefilled mode is a soft default, NOT a manual pick, so the
       // suggestion still blooms (FAB). Otherwise a passed initialMode means the orb chose it.
@@ -448,6 +453,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
           lifeAreas,
           isNewVenture,
           effortSize,
+          circle,
         });
 
         // Sync subtasks in edit mode: create the newly-added ones, delete the removed ones.
@@ -481,6 +487,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
           lifeAreas,
           isNewVenture,
           effortSize,
+          circle,
         });
 
         if (task && subtasks.length > 0) {
@@ -597,6 +604,35 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
                   >
                     <span className="text-sm font-semibold" style={{ lineHeight: 1.1 }}>{word}</span>
                     <span className="text-[10px]" style={{ opacity: 0.75, lineHeight: 1 }}>{measure}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* WHO IS THIS FOR? — the nine circles (David 2026-07-16). Optional; the engine
+              maps each circle to its life-theme rooms so open windows lift matching tasks. */}
+          <div className="mb-6">
+            <label className="block text-[12px] font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
+              Who is this for?
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {CIRCLES.map((c) => {
+                const on = circle === c;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCircle(on ? null : c)}
+                    className="py-2 px-1 rounded-lg text-xs font-medium transition-colors"
+                    style={{
+                      background: on ? "var(--color-accent)" : "var(--color-secondary)",
+                      color: on ? "var(--color-accent-foreground)" : "var(--color-foreground)",
+                      border: `1px solid ${on ? "var(--color-accent)" : "var(--color-border)"}`,
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    {CIRCLE_LABEL[c]}
                   </button>
                 );
               })}

@@ -270,6 +270,7 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
       isNewVenture: tasks.isNewVenture,
       completionPct: tasks.completionPct,
       effortSize: tasks.effortSize,
+      circle: tasks.circle,
       createdAt: tasks.createdAt,
       updatedAt: tasks.updatedAt,
       projectName: projects.name,
@@ -328,6 +329,7 @@ export async function createTask(data: {
   lifeAreas?: string | null;
   completionPct?: number | null;
   effortSize?: "quick" | "sitting" | "long" | null;
+  circle?: "life_partner" | "family" | "best_friends" | "inner_circle" | "friends" | "coworkers" | "clients" | "self" | "everyone_else" | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");

@@ -708,6 +708,7 @@ export const appRouter = router({
           isNewVenture: z.boolean().nullable().optional(),
           completionPct: z.number().int().min(0).max(100).nullable().optional(),
           effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
+          circle: z.enum(["life_partner", "family", "best_friends", "inner_circle", "friends", "coworkers", "clients", "self", "everyone_else"]).nullable().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -734,6 +735,7 @@ export const appRouter = router({
           lifeAreas: input.lifeAreas && input.lifeAreas.length ? JSON.stringify(input.lifeAreas) : null,
           completionPct: input.completionPct ?? null,
           effortSize: input.effortSize ?? null,
+          circle: input.circle ?? null,
         });
       }),
 
@@ -761,6 +763,7 @@ export const appRouter = router({
           isNewVenture: z.boolean().nullable().optional(),
           completionPct: z.number().int().min(0).max(100).nullable().optional(),
           effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
+          circle: z.enum(["life_partner", "family", "best_friends", "inner_circle", "friends", "coworkers", "clients", "self", "everyone_else"]).nullable().optional(),
           // When provided and isPinned=true, the task's mode is set to this value.
           // Ignored when isPinned is false or undefined.
           dayMode: TaskModeEnum.optional(),
@@ -926,10 +929,29 @@ export const appRouter = router({
           } catch { /* degrade to no meridian lift */ }
         }
 
+        // THE SECOND HANDSHAKE (the nine circles): which life-theme windows are OPEN today —
+        // tasks touching a circle whose rooms are lit rise in the ranking.
+        let openThemes: string[] = [];
+        if (profileId) {
+          try {
+            const dbT = await getDb();
+            if (dbT) {
+              const { profileConvergence } = await import("../drizzle/schema.js");
+              const rowsT = await dbT.select().from(profileConvergence).where(eq(profileConvergence.profileId, profileId));
+              const { mergeThemeWindows } = await import("./vedic/windows.js");
+              openThemes = Array.from(new Set(
+                mergeThemeWindows(rowsT as any)
+                  .filter((w) => w.from <= input.todayDate && w.to >= input.todayDate && (w.peak ?? 0) >= 2)
+                  .map((w) => w.theme),
+              ));
+            }
+          } catch { /* no circle lift */ }
+        }
         return scoreTasks(allTasks, {
           todayMode: input.todayMode,
           todayDate: input.todayDate,
           supportedKinds: input.supportedKinds,
+          openThemes,
           dayHouses: input.todayHouse != null ? [input.todayHouse] : [],
           meridianHouses,
           projectAreas,

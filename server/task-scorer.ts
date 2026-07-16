@@ -26,6 +26,7 @@ import { themeMatchesTask } from "./layers/time-lord-theme";
 import { goldenMomentEffect, type GoldenMomentSignal } from "./sky/golden-moment";
 import { housesForAreas, matchedAreaLabels, parseLifeAreas } from "../shared/life-areas";
 import { kindOfTask, KIND_WORD } from "../shared/task-kind";
+import { CIRCLE_THEMES, CIRCLE_LABEL, THEME_ROOM, type TaskCircle } from "../shared/task-circle.js";
 
 /**
  * Layer 3 transit → task-mode effect map (Conflict-Q3 confirmed):
@@ -235,6 +236,7 @@ export function scoreTasks(
     /** THE HANDSHAKE — the kinds today's character supports (empty on hostile/contained
      *  days). A task whose kind the day supports gets a real lift. */
     supportedKinds?: string[];
+    openThemes?: string[];
   }
 ): ScoredTask[] {
   const { todayMode, todayDate, currentState, layers, dayHouses, projectAreas, goldenSignals } = opts;
@@ -278,6 +280,18 @@ export function scoreTasks(
         if (opts.supportedKinds.includes(kind)) {
           soft += 60;
           reasons.push(`Today carries ${KIND_WORD[kind]} acts — the day supports this`);
+        }
+      }
+
+      // 11. THE SECOND HANDSHAKE (soft) — the day's open windows light life-theme rooms;
+      //     a task touching a circle that lives in a lit room rises ("the marriage window
+      //     is open — the life-partner tasks land"). Never a filter, always a lift.
+      if (opts.openThemes?.length && (task as any).circle) {
+        const themes = CIRCLE_THEMES[(task as any).circle as TaskCircle] ?? [];
+        const lit = themes.find((t) => opts.openThemes!.includes(t));
+        if (lit) {
+          soft += 55;
+          reasons.push(`The ${THEME_ROOM[lit] ?? lit} window is open — this touches your ${CIRCLE_LABEL[(task as any).circle as TaskCircle].toLowerCase()}`);
         }
       }
 
