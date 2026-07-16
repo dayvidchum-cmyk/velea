@@ -289,7 +289,11 @@ export default function Planner() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   // Edit sheets for the curated daily lists (ported from the retired Today page)
-  const [heroOpen, setHeroOpen] = useState(true);
+  // COLLAPSED ON ARRIVAL, ALWAYS (David 2026-07-16: "it's a lot to be hit with at any
+  // time of day for a neurodivergent. you can't predict how heightened their senses are
+  // at any given moment. I find myself flinching a little each time."). No per-day memory,
+  // no auto-open — a bad morning must never inherit yesterday's appetite. Expand is opt-in.
+  const [heroOpen, setHeroOpen] = useState(false);
   // Orb sheets reflect TODAY (not the calendar-selected date).
   const [orbSheetMode, setOrbSheetMode] = useState<TaskMode | null>(null);
   const [quickAddMode, setQuickAddMode] = useState<TaskMode | null>(null);
