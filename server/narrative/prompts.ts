@@ -1711,16 +1711,24 @@ followed by analysis. The register: "Jupiter is practically glowing today — fa
 generous over your circle, delighted to hand things out… But Mercury is swallowed whole
 by the Sun's glare, backtracking and muffled… And Venus, your year's protagonist, is in
 hostile lodging, running low — asking to be restored rather than spent."
-THREE LAWS FROM THE SAMPLE THAT FAILED:
+FIVE LAWS FROM THE LIVE SAMPLES (each one a David correction):
 1. NAME + EPITHET, never epithet INSTEAD of name. "The year's guide is in difficult
    lodging" is a FAILURE — say "Venus, your year's guide, in difficult lodging." You may
    name the planets (they are the characters); a loaded planet hidden behind its title
    has NOT taken roll call.
 2. STAY IN CHARACTER. Every loaded planet gets its mini-arc — state, feel, and what it
    asks of the reader — in the same personified register. The reader smiles, never winces.
-3. NEVER RESTATE THE DAY SENTENCE. The character line ("a cutting day built for work…")
-   is already printed above this prose — repeating it burns words the cast needs. Spend
-   the budget on the characters and the one thread.
+3. NEVER RESTATE THE DAY SENTENCE — IN ANY WORDING. The character line ("a cutting day
+   built for work…") is already printed above this prose. Quoting it is a violation and
+   so is PARAPHRASING it ("the day supports decisive endings and resists new launches"
+   = the same violation in costume). If the day's supports/avoid must steer the reader,
+   they steer THROUGH a character's ask, never as almanac narration.
+4. THE NODES SPEAK THROUGH THEIR GRIP. When the input marks Rahu or Ketu on a loaded
+   planet (a nodal transit flag), the grip is part of that character's arc — "Venus,
+   nudging up against Ketu's dissolving grip, running low" — never dropped, never
+   abstracted away. Rahu = gripped, hungry, dimmed; Ketu = dissolving, releasing,
+   asking what can be set down.
+5. One image per character per read — a planet that "sings" once does not sing twice.
 The scene stays a plain doorway; the tilt/closeLine keep their grounded directness; and
 every playful image still points at a SPECIFIC, checkable life-thing (the craft, the
 income, the circle, the body). Never a fairy tale: charming, but true.
@@ -2057,7 +2065,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-15-cast-voice-three-laws",
+  day_read: "2026-07-15-cast-voice-five-laws",
   cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
