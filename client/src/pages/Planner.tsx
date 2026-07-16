@@ -158,7 +158,7 @@ const NATURE_DOT: Record<string, string> = {
   mixed: "#C49A2E",   // Steady — deep Build gold: the daily grind
 };
 const NATURE_WORD: Record<string, string> = {
-  fixed: "Foundation", movable: "Motion", swift: "Swift", tender: "Tender",
+  fixed: "Ground", movable: "Motion", swift: "Swift", tender: "Tender",
   sharp: "Cutting", fierce: "Force", mixed: "Steady",
 };
 
@@ -407,7 +407,7 @@ export default function Planner() {
   const goldenSet = useMemo(() => new Set<string>((goldenData?.potential ?? []) as string[]), [goldenData]);
   // Tapped crown day's popup — stores the cell's viewport anchor so the popup can render
   // fixed-to-viewport (never clipped by the calendar card's overflow).
-  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "golden" | "caution" | "retro" | "eclipse"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
+  const [crownTip, setCrownTip] = useState<{ date: string; kind: "crown" | "caution" | "retro" | "eclipse" | "prosperity" | "achievement"; why: string; cx: number; top: number; bottom: number; accent: string } | null>(null);
   // Scroll-anchor: selecting a date re-renders the hero card ABOVE the calendar, whose height change
   // would otherwise shove the calendar and "jump" the screen. We capture the calendar's viewport top
   // on tap and restore it in a layout effect so the tapped cell stays visually put.
@@ -1403,9 +1403,11 @@ export default function Planner() {
                   const isCaution = cautionSet.has(dateStr);
                   const isEclipseDay = eclipseByDate.has(dateStr);
                   const isRetroDay = retroByDate.has(dateStr);
-                  if (crownTip?.date === dateStr || (!isCrown && !isCaution && !isEclipseDay && !isRetroDay)) { setCrownTip(null); return; }
+                  const isProsperity = prosperitySet.has(dateStr);
+                  const isAchievement = achievementSet.has(dateStr);
+                  if (crownTip?.date === dateStr || (!isCrown && !isCaution && !isEclipseDay && !isRetroDay && !isProsperity && !isAchievement)) { setCrownTip(null); return; }
                   const r = e.currentTarget.getBoundingClientRect();
-                  const kind = isCrown ? "crown" : isCaution ? "caution" : isEclipseDay ? "eclipse" : "retro";
+                  const kind = isCrown ? "crown" : isCaution ? "caution" : isEclipseDay ? "eclipse" : isRetroDay ? "retro" : isProsperity ? "prosperity" : "achievement";
                   let why = isCrown ? (crownByDate.get(dateStr) ?? "") : isCaution ? (cautionByDate.get(dateStr) ?? "") : "";
                   if (kind === "eclipse") why = eclipseByDate.get(dateStr) ?? "";
                   setCrownTip({ date: dateStr, kind: kind as any, why, cx: r.left + r.width / 2, top: r.top, bottom: r.bottom, accent: kind === "caution" ? CAUTION_RED : accent });
@@ -1546,12 +1548,19 @@ export default function Planner() {
                   </span>
                 )}
               </>
-            ) : crownTip.kind === "golden" ? (
+            ) : crownTip.kind === "prosperity" ? (
               <>
-                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
-                  <VeleaLorMark size={14} color="#C9A84C" /> Golden day
+                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#8a6d1f", marginBottom: "0.25rem" }}>
+                  $ &nbsp;Prosperity day
                 </span>
-                A bright day in the shared sky &mdash; favorable for everyone.
+                Your prosperity star &mdash; wealth, income and livelihood run with you today. Earn on your own terms.
+              </>
+            ) : crownTip.kind === "achievement" ? (
+              <>
+                <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#8a6d1f", marginBottom: "0.25rem" }}>
+                  ♛ &nbsp;Achievement day
+                </span>
+                The accomplisher&rsquo;s star &mdash; something can be won today. Land an aim: ship it, submit it, finish it.
               </>
             ) : crownTip.kind === "eclipse" ? (
               <>

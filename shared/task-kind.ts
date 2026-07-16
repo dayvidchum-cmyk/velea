@@ -41,6 +41,6 @@ export function kindOfTask(t: { title?: string | null; description?: string | nu
 
 /** The kind's display word — one voice with the orbs. */
 export const KIND_WORD: Record<TaskKind, string> = {
-  fixed: "Foundation", movable: "Motion", swift: "Swift", tender: "Tender",
+  fixed: "Ground", movable: "Motion", swift: "Swift", tender: "Tender",
   sharp: "Cutting", fierce: "Force", mixed: "Steady",
 };
