@@ -140,6 +140,9 @@
   --brand-gold: #C9A84C;
   /* THE DAY ACCENT — today's coin color; chrome follows the day (falls back to brand gold). */
   --day-accent: var(--brand-gold);
+  /* HEADING INK — never black (David: "aesthetic as fuck"): warm espresso washed with
+     the day's hue. Redefined per theme below. */
+  --heading-ink: color-mix(in srgb, var(--day-accent) 26%, #52422F);
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
   --space-deep: #101216;
@@ -807,6 +810,7 @@ html.light {
   --background: #F0E9DC;
   --foreground: #3E352A;
   --brand-gold: #A07C2E;
+  --heading-ink: color-mix(in srgb, var(--day-accent) 26%, #4E3F2C);
   --card: #F9F4EA;
   --card-foreground: #3E352A;
   --popover: #F9F4EA;

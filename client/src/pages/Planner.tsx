@@ -1187,7 +1187,7 @@ export default function Planner() {
         >
           <span
             className="text-sm font-bold uppercase"
-            style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+            style={{ color: "var(--heading-ink)", letterSpacing: "0.04em" }}
           >
             Calendar
           </span>
@@ -1244,7 +1244,7 @@ export default function Planner() {
                 fontFamily: "'Playfair Display', Georgia, ui-serif, serif",
                 fontSize: "1.45rem",
                 fontWeight: 700,
-                color: "#2a2a2a",
+                color: "var(--heading-ink)",
                 letterSpacing: "0.01em",
               }}
             >
@@ -1279,7 +1279,7 @@ export default function Planner() {
               <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) - 1)} className="p-1 rounded-full" style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}>
                 <ChevronLeft size={13} />
               </button>
-              <span style={{ fontFamily: "'Playfair Display', Georgia, ui-serif, serif", fontWeight: 700, fontSize: "1.05rem", color: "#2a2a2a" }}>
+              <span style={{ fontFamily: "'Playfair Display', Georgia, ui-serif, serif", fontWeight: 700, fontSize: "1.05rem", color: "var(--heading-ink)" }}>
                 {pickerYear ?? viewDate.getFullYear()}
               </span>
               <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) + 1)} className="p-1 rounded-full" style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}>
@@ -1315,7 +1315,7 @@ export default function Planner() {
             <div
               key={i}
               className="text-center text-xs font-semibold tracking-wide py-1"
-              style={{ color: "#2a2a2a", letterSpacing: "0.04em" }}
+              style={{ color: "var(--heading-ink)", letterSpacing: "0.04em" }}
             >
               {d}
             </div>
@@ -1644,7 +1644,7 @@ export default function Planner() {
           >
             <h3
               className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+              style={{ color: "var(--heading-ink)", letterSpacing: "0.04em" }}
             >
               All Tasks{settings.showOrbCounts && !softOpen ? ` (${allTasks.filter((t) => !t.isCompleted).length})` : ""}
             </h3>
@@ -1801,7 +1801,7 @@ export default function Planner() {
           >
             <h3
               className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+              style={{ color: "var(--heading-ink)", letterSpacing: "0.04em" }}
             >
               To Do
             </h3>
@@ -1859,7 +1859,7 @@ export default function Planner() {
           >
             <h3
               className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+              style={{ color: "var(--heading-ink)", letterSpacing: "0.04em" }}
             >
               Aligned for today
             </h3>
@@ -1971,7 +1971,7 @@ export default function Planner() {
           >
             <p
               className="text-sm font-bold uppercase"
-              style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}
+              style={{ color: "var(--heading-ink)", letterSpacing: "0.04em" }}
             >
               Reflection Log
             </p>
@@ -2028,7 +2028,7 @@ export default function Planner() {
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <button onClick={() => setCompletedOpen((v) => !v)} className="flex items-center gap-2">
-                <h3 className="text-sm font-bold uppercase" style={{ color: "var(--foreground)", letterSpacing: "0.04em" }}>
+                <h3 className="text-sm font-bold uppercase" style={{ color: "var(--heading-ink)", letterSpacing: "0.04em" }}>
                   Completed{settings.showOrbCounts || completed.length > 0 ? ` (${completed.length})` : ""}
                 </h3>
                 <ChevronDown

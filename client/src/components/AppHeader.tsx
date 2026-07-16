@@ -299,7 +299,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
             fontWeight: 700,
             fontSize: "clamp(2rem, 8vw, 2.75rem)",
-            color: "var(--foreground)",
+            color: "var(--heading-ink)",
             letterSpacing: "-0.01em",
           }}
         >
