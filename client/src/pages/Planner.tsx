@@ -1388,7 +1388,11 @@ export default function Planner() {
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
             const activeInk = darkInk; // number color while hovered/pressed
-            const restingBg = filled ? accent : "transparent";
+            // TODAY is the ONLY fully-saturated coin (David 2026-07-15) — every other day's
+            // fill is softened toward the calendar paper, so the present moment owns the eye.
+            // Hover/press still preview the full color; marks and inks are untouched.
+            const softFill = `color-mix(in srgb, ${accent} 70%, var(--parchment))`;
+            const restingBg = filled ? (isToday ? accent : softFill) : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
 
