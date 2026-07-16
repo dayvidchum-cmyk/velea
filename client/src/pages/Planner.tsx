@@ -1336,7 +1336,7 @@ export default function Planner() {
           ))}
         </div>
 
-        <div className="grid grid-cols-7" style={{ rowGap: "1.65rem" }}>
+        <div className="grid grid-cols-7" style={{ rowGap: "1.65rem", paddingTop: "0.6rem" }}>
           {calendarCells.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />;
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
