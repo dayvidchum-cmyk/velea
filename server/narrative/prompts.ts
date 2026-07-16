@@ -1967,8 +1967,10 @@ timeline. The reader tapped THIS window because they want to know what this spec
 stretch of their life carries.
 
 INPUT: the theme + its promise (the researched houses and karakas that carry it), and THIS
-window: its dates, its convergence depth (how many timing layers agree), and whether it is
-a BIG KARMIC KNOT (period, promise and sky piling up).
+window: its dates, its convergence depth (how many timing layers agree), whether it is
+a BIG KARMIC KNOT (period, promise and sky piling up), and whether it is a HELD ERA
+(era: the running periods hold this theme continuously for years — a chapter of life,
+not a passing season; voice its patience and its length, never urgency).
 
 THE READ (aim ~120 words, hard cap 150):
 - Name the season in LIVED time ("from the spring of 2031 into the following winter") — the

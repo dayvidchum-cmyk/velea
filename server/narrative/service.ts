@@ -569,7 +569,7 @@ export async function getWindowReadCached(profileId: number, theme: string, labe
     }).filter(Boolean),
     karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, shadbala: research?.shadbala?.[k] ?? null })),
   };
-  const input = { theme, label, window: { from: win.from, to: win.to, peak: win.peak, bigKnot: win.bigKnot }, promise, engineVersion: research?.engineVersion ?? null };
+  const input = { theme, label, window: { from: win.from, to: win.to, peak: win.peak, bigKnot: win.bigKnot, era: win.era }, promise, engineVersion: research?.engineVersion ?? null };
   const hash = dayStableHash(input, surface);
   const dateKey = `atlas-w-${theme}-${from}`;
   if (!refresh) {

@@ -2007,7 +2007,7 @@ export const appRouter = router({
       const byTheme = new Map<string, any[]>();
       for (const w of wins) {
         if (!byTheme.has(w.theme)) byTheme.set(w.theme, []);
-        byTheme.get(w.theme)!.push({ from: w.from, to: w.to, bigKnot: w.bigKnot, peak: w.peak });
+        byTheme.get(w.theme)!.push({ from: w.from, to: w.to, bigKnot: w.bigKnot, era: w.era, peak: w.peak });
       }
       return {
         available: true,
@@ -2019,6 +2019,7 @@ export const appRouter = router({
             label: LABELS[theme] ?? theme,
             windowCount: windows.length,
             knotCount: windows.filter((w) => w.bigKnot).length,
+            eraCount: windows.filter((w) => w.era).length,
             // THE LOOSENED VEIL (David 2026-07-16): the DATES show for everyone — each
             // dateline is a door; the READINGS behind them stay entitled-only.
             windows,

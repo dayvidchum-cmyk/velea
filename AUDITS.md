@@ -73,6 +73,16 @@ When a bug was fixed, the whole **class** was swept, not the one failing instanc
 app-wide, mulberry across every token). **Check:** the last stretch's fixes — did any stop at the
 first instance?
 
+### 11. Threshold-honesty audit 👁 — _protects: the method's meaning surviving compression into code_
+Born 2026-07-16: the atlas ★ badge was `peak ≥ 3` — it rewarded MANY lords at once and was blind
+to a tie HELD FOR YEARS (David's 2058 wealth era, 2.5 years at peak 2, wore no mark; "another user
+would have missed this important piece"). Every place the engine compresses the method into a
+threshold, badge, gate, ranking, or score — ask: **what TRUE case does this cutoff hide?** For each
+signal, name the dimensions the method actually carries (count, duration, level/grain, which lords,
+which axis) and check the compression keeps all the decisive ones. Known thresholds to re-examine
+when touched: bigKnot/era, crown-day ladder ranks, second-handshake +55, rest-gate floors, muhurta
+vetoes, golden-hour peak pick. **Check:** any new or touched threshold in the stretch.
+
 ---
 
 ## How to run

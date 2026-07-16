@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { ChevronDown, ChevronLeft, Lock } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import OctagramMark from "@/components/OctagramMark";
+import DiamondMark from "@/components/DiamondMark";
 import { trpc } from "@/lib/trpc";
 
 /** THE LIFE ATLAS (David 2026-07-16) — every life-theme window from the stored
@@ -29,6 +30,11 @@ export default function LifeAtlas() {
   const fmt = (d: string) => new Date(d + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", year: "numeric" });
   const knotMark = (size = 14) => (
     <OctagramMark size={size} color="var(--brand-gold)" strokeWidth={1.4} style={{ display: "inline-block", verticalAlign: "-2px" }} />
+  );
+  // The ERA mark — a window HELD at the antar grain (years, not weeks). Diamond, not star:
+  // few lords for years vs many lords at once. Both can be true; both then show.
+  const eraMark = (size = 13) => (
+    <DiamondMark size={size} color="#B3902C" strokeWidth={2} style={{ display: "inline-block", verticalAlign: "-2px" }} />
   );
   // Decade shelves — a wall of datelines becomes a scannable atlas (David: "walls of words").
   const decadeOf = (from: string) => `${from.slice(0, 3)}0s`;
@@ -70,6 +76,7 @@ export default function LifeAtlas() {
                         <span className="ml-2 text-xs font-medium inline-flex items-center gap-1" style={{ color: "var(--color-muted-foreground)" }}>
                           {t.windowCount} {t.windowCount === 1 ? "window" : "windows"}
                           {t.knotCount ? <> · {t.knotCount} {knotMark(13)}</> : null}
+                          {t.eraCount ? <> · {t.eraCount} {eraMark(12)}</> : null}
                         </span>
                       </span>
                       <ChevronDown size={17} style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
@@ -109,12 +116,13 @@ export default function LifeAtlas() {
                                     onClick={() => setOpenWindow({ theme: t.theme, label: t.label, w })}
                                     className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-left text-xs"
                                     style={{
-                                      border: w.bigKnot ? "1px solid color-mix(in srgb, var(--brand-gold) 55%, transparent)" : "1px solid var(--color-border)",
-                                      background: w.bigKnot ? "color-mix(in srgb, var(--brand-gold) 7%, transparent)" : "transparent",
+                                      border: w.bigKnot ? "1px solid color-mix(in srgb, var(--brand-gold) 55%, transparent)" : w.era ? "1px solid color-mix(in srgb, var(--brand-gold) 35%, transparent)" : "1px solid var(--color-border)",
+                                      background: w.bigKnot ? "color-mix(in srgb, var(--brand-gold) 7%, transparent)" : w.era ? "color-mix(in srgb, var(--brand-gold) 4%, transparent)" : "transparent",
                                       color: "var(--color-foreground)", cursor: "pointer",
                                     }}
                                   >
                                     {w.bigKnot && <OctagramMark size={13} color="var(--brand-gold)" strokeWidth={1.5} style={{ flexShrink: 0 }} />}
+                                    {w.era && <DiamondMark size={12} color="#B3902C" strokeWidth={2} style={{ flexShrink: 0 }} />}
                                     <span style={{ lineHeight: 1.3 }}>{fmt(w.from)} → {fmt(w.to)}</span>
                                   </button>
                                 ))}
@@ -139,10 +147,14 @@ export default function LifeAtlas() {
             <p className="text-[10px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)", margin: 0 }}>{openWindow.label}</p>
             <p className="font-serif text-lg mt-0.5 flex items-center gap-2" style={{ color: openWindow.w.bigKnot ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>
               {openWindow.w.bigKnot && <OctagramMark size={17} color="#D4AF37" strokeWidth={1.5} />}
+              {openWindow.w.era && <DiamondMark size={15} color="#B3902C" strokeWidth={2} />}
               {fmt(openWindow.w.from)} → {fmt(openWindow.w.to)}
             </p>
             {openWindow.w.bigKnot && (
               <p className="text-xs mt-0.5" style={{ color: "#B3902C", fontWeight: 600 }}>A big karmic knot — period, promise and sky pile up here.</p>
+            )}
+            {openWindow.w.era && (
+              <p className="text-xs mt-0.5" style={{ color: "#B3902C", fontWeight: 600 }}>A held era — the running periods hold this theme for years, not a season.</p>
             )}
             <div className="mt-3" style={{ minHeight: 40 }}>
               {!entitled ? (
