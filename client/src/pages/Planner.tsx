@@ -1266,14 +1266,14 @@ export default function Planner() {
             <button
               onClick={prevMonth}
               className="p-1 rounded-full transition-all duration-150 active:scale-95"
-              style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
+              style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}
             >
               <ChevronLeft size={15} />
             </button>
             <button
               onClick={nextMonth}
               className="p-1 rounded-full transition-all duration-150 active:scale-95"
-              style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}
+              style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}
             >
               <ChevronRight size={15} />
             </button>
@@ -1283,13 +1283,13 @@ export default function Planner() {
         {monthPickerOpen && (
           <div className="px-4 pb-2">
             <div className="flex items-center justify-center gap-4 mb-2">
-              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) - 1)} className="p-1 rounded-full" style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}>
+              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) - 1)} className="p-1 rounded-full" style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
                 <ChevronLeft size={13} />
               </button>
               <span style={{ fontFamily: "'Playfair Display', Georgia, ui-serif, serif", fontWeight: 700, fontSize: "1.05rem", color: "var(--heading-ink)" }}>
                 {pickerYear ?? viewDate.getFullYear()}
               </span>
-              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) + 1)} className="p-1 rounded-full" style={{ color: "#555", background: "rgba(0,0,0,0.05)" }}>
+              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) + 1)} className="p-1 rounded-full" style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
                 <ChevronRight size={13} />
               </button>
             </div>
@@ -2061,7 +2061,7 @@ export default function Planner() {
                   }}
                   disabled={purgeCompleted.isPending}
                   className="text-xs font-semibold px-3 py-1.5 rounded-full transition-opacity disabled:opacity-50"
-                  style={{ color: "#c0504d", border: "1px solid var(--color-border)" }}
+                  style={{ color: "#c0504d", border: "1px solid #c0504d" }}
                 >
                   {purgeCompleted.isPending ? "Clearing…" : "Clear all"}
                 </button>

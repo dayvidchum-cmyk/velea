@@ -274,7 +274,7 @@ const { user, loading } = useAuth();
           >
             <button
               onClick={hardRefresh}
-              style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.5rem 1rem", borderRadius: 999, background: "transparent", border: "1px solid var(--color-border)", color: "var(--foreground)", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.5rem 1rem", borderRadius: 999, background: "transparent", border: "1px solid var(--heading-ink)", color: "var(--heading-ink)", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" }}
             >
               <RefreshCw size={15} /> Refresh app
             </button>
