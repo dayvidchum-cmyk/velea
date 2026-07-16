@@ -1450,6 +1450,14 @@ export default function Planner() {
                   onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
+                  {/* Station-window edge glyph (David: "little planet glyphs ride the edge of
+                      the days before and after a station") — the turn's approach/exit, small
+                      at the coin's lower edge; the station day itself keeps the full glyph. */}
+                  {!stationsToday.length && !isCrown && !eclipseByDate.has(dateStr) && (retroToday?.some((e) => e.state === "window") ?? false) && (
+                    <span style={{ position: "absolute", bottom: -2, right: 2, fontSize: "0.62rem", fontFamily: PLANET_GLYPH_FONT, fontWeight: 700, color: numberColor, opacity: 0.9, lineHeight: 1, pointerEvents: "none" }}>
+                      {(retroToday ?? []).filter((e) => e.state === "window").slice(0, 2).map((e) => PLANET_GLYPH[e.planet]).join("")}
+                    </span>
+                  )}
                   {/* Tara-day badge — $ (Sampat) / ✓ (Sadhaka) as a small corner mark so the
                       DATE stays readable and a station glyph can share the coin (David 7/26). */}
                   {(prosperitySet.has(dateStr) || achievementSet.has(dateStr)) && !isCrown && !eclipseByDate.has(dateStr) && (
