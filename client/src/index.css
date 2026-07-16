@@ -693,6 +693,12 @@
   background: #120F0C;
   color: #DCD6C7;
 }
+/* The + FAB on dark grounds: a deep day-tinted chip, never the light heading-ink disc
+   (David: "I see pure white things"). Light mode keeps espresso via the fallback. */
+.dark {
+  --fab-bg: color-mix(in srgb, var(--day-accent, var(--brand-gold)) 38%, #1C1712);
+  --orb-base: #201A14;
+}
 /* MOONLIT AURORA (David 2026-07-16: "i like Moonlight. I like Aurora.") — the night has
    physics now: the moon's pale wash at the zenith, the day-accent blooming faintly under
    it (Aurora), the ground lifting toward the horizon. A fixed ::before layer so the sky
@@ -1080,6 +1086,8 @@ html.full-spectrum {
   --color-popover-foreground: #F3EFE5;
   --color-secondary-foreground: #F3EFE5;
   --heading-ink: color-mix(in srgb, var(--brand-gold) 30%, #F3EDDC);
+  --fab-bg: color-mix(in srgb, var(--brand-gold) 42%, #221A0E);
+  --orb-base: color-mix(in srgb, var(--background) 88%, #F4F0E8);
   --parchment: color-mix(in srgb, #F4F0E8 86%, var(--background));
   --parchment-shadow: 0 5px 18px rgba(0, 0, 0, 0.22);
   --input: rgba(0, 0, 0, 0.22);

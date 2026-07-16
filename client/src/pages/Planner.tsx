@@ -1823,8 +1823,8 @@ export default function Planner() {
                       // Filled = TODAY'S color, always (David: the kind-colored fill broke
                       // cohesion) — same recipe as today's coin: soft day fill, deep day ink.
                       // The LANDING kind (handshake miss) half-lights at 26%, no pulse.
-                      background: isToday ? "color-mix(in srgb, var(--day-accent) 62%, var(--parchment))"
-                        : isLanding ? "color-mix(in srgb, var(--day-accent) 26%, var(--parchment))" : "transparent",
+                      background: isToday ? "color-mix(in srgb, var(--day-accent) 62%, var(--orb-base, var(--parchment)))"
+                        : isLanding ? "color-mix(in srgb, var(--day-accent) 26%, var(--orb-base, var(--parchment)))" : "transparent",
                       border: isToday || isLanding ? "1px solid transparent" : `1px solid ${kColor}`,
                       color: isToday || isLanding ? "var(--day-accent-deep)" : kColor,
                     }}
