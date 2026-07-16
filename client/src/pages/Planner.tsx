@@ -1486,7 +1486,7 @@ export default function Planner() {
                       point; $ and the station-window glyphs ride the upper-right arc. Each
                       wears a paper halo so the ring's line visually breaks beneath it. */}
                   {achievementSet.has(dateStr) && !isCrown && !eclipseByDate.has(dateStr) && (
-                    <span style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "3px 3px 2px", borderRadius: 8, zIndex: 1 }}>
+                    <span style={{ position: "absolute", top: -15, left: "50%", transform: "translateX(-50%)", fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "2px 3px 1px", borderRadius: 8, zIndex: 1 }}>
                       ♛
                     </span>
                   )}
