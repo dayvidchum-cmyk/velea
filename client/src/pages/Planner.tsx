@@ -1229,7 +1229,7 @@ export default function Planner() {
         style={{
           borderRadius: "16px",
           // Soft sliver frame — a 1px hairline at low opacity of the day-mode color (David).
-          border: `1px solid color-mix(in srgb, ${calModeColor} 38%, transparent)`,
+          border: `1.5px solid color-mix(in srgb, ${calModeColor} 38%, transparent)`,
           // The calendar is ALWAYS a LIGHT almanac page (coins are tuned for a light surface), but
           // its exact tone is appearance-aware (Option A): warm PAPER + a soft shadow on dark/FS so it
           // glows as an artifact ON the dark, and clean near-white with a whisper of shadow on light so
