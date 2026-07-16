@@ -275,6 +275,7 @@ export default function YearCalendar() {
                           ? `color-mix(in srgb, ${coin} 62%, #f8f4ea)`
                           : isPicked ? `color-mix(in srgb, ${coin} 26%, #f8f4ea)` : "transparent";
                         const marks = tileMarksByDate.get(ds) ?? [];
+                        const moonPhase = (d as any).moonPhase as ("full" | "new" | undefined);
                         const isDollar = d.tara.taraNum === 2;
                         const isSummit = d.tara.taraNum === 6; // Sadhaka — the achievement peak joins the tiles (David: "There's no crowns")
                         const isCaution = mvKey === "caution";
@@ -291,7 +292,7 @@ export default function YearCalendar() {
                                 // eclipse's own deep cosmic indigo (David 2026-07-16).
                                 : eclipse ? "1.5px solid #2E2447"
                                 : isCaution ? "1px solid color-mix(in srgb, #B3232F 60%, transparent)"
-                                : (isDollar || isSummit || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${familyInk} 50%, transparent)`
+                                : (isDollar || isSummit || moonPhase || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${familyInk} 50%, transparent)`
                                 : "1px solid transparent" }}>
                             {/* THE MARKED-TILE LAW (David 2026-07-16, two rulings): a tile
                                 carrying ANY marks drops its number — the day IS its marks,
@@ -300,7 +301,7 @@ export default function YearCalendar() {
                                 center row. Sadhaka summits now ride the tiles too ("There's
                                 no crowns"). Window dots don't count and keep their corner. */}
                             {(() => {
-                              const markCount = (isDollar ? 1 : 0) + (isSummit ? 1 : 0) + marks.length;
+                              const markCount = (isDollar ? 1 : 0) + (isSummit ? 1 : 0) + (moonPhase ? 1 : 0) + marks.length;
                               const solo = markCount === 1;
                               // ONE size for every glyph (David: "Size of glyphs is inconsistent.
                               // Pick one and stick with it.") — 15 everywhere, solo or company.
@@ -318,6 +319,7 @@ export default function YearCalendar() {
                                     </span>
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
+                                      {moonPhase && <span style={{ width: 12, height: 12, borderRadius: 999, background: moonPhase === "full" ? "#FDFBF3" : "#160f26", border: moonPhase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
                                       {isDollar && <span style={{ fontSize: `${mSize}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
                                       {isSummit && <span style={{ fontSize: `${mSize + 4}px`, fontWeight: 800, color: MARK_INK.crown, lineHeight: 1 }}>♛</span>}
                                       {marks.slice(0, 2).map((mk) => (
