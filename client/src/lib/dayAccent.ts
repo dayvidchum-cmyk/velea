@@ -30,8 +30,12 @@ const DARK_LIFT: Record<string, string> = {
 /** Sets --day-accent on the root. Full Spectrum is exempt (its gold is law). */
 export function setDayAccent(character: any, fullSpectrum: boolean) {
   const root = document.documentElement;
+  // The RAW coin is always published — Full Spectrum tints its ground from it
+  // (only --day-accent itself is FS-exempt; FS chrome stays gold by law).
+  const rawCoin = coinForCharacter(character);
+  if (rawCoin) root.style.setProperty("--day-coin", rawCoin); else root.style.removeProperty("--day-coin");
   if (fullSpectrum) { root.style.removeProperty("--day-accent"); return; }
-  let coin = coinForCharacter(character);
+  let coin = rawCoin;
   // Dark chrome lifts the coin toward starlight so the accent never melts into the night.
   if (coin && root.classList.contains("dark")) coin = DARK_LIFT[coin] ?? coin;
   if (coin) {

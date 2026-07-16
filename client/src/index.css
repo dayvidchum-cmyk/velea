@@ -1063,18 +1063,25 @@ html.full-spectrum .signature-ink { filter: invert(1); mix-blend-mode: screen; }
    dark, so cards/inputs built on them never flash white under FS. Placed last to win the
    specificity tie with html.light. */
 html.full-spectrum {
-  --foreground: #ECEAE4;
-  --muted-foreground: rgba(234, 231, 225, 0.66);
-  --border: rgba(234, 231, 225, 0.16);
-  --card-foreground: #ECEAE4;
-  --popover-foreground: #ECEAE4;
-  --secondary-foreground: #ECEAE4;
-  --color-foreground: #ECEAE4;
-  --color-muted-foreground: rgba(234, 231, 225, 0.66);
-  --color-border: rgba(234, 231, 225, 0.16);
-  --color-card-foreground: #ECEAE4;
-  --color-popover-foreground: #ECEAE4;
-  --color-secondary-foreground: #ECEAE4;
+  /* THE FS DANCE (David 2026-07-16: "barely legible fonts go brighter… and the cards
+     stick out like a sore thumb"): ink LIFTS, the heading ink is finally PINNED light
+     (it was inheriting light-mode espresso — dark on dark), and the paper surfaces
+     take a faint stain of the day's ground so they belong instead of glaring. */
+  --foreground: #F3EFE5;
+  --muted-foreground: rgba(240, 236, 227, 0.8);
+  --border: rgba(240, 236, 227, 0.2);
+  --card-foreground: #F3EFE5;
+  --popover-foreground: #F3EFE5;
+  --secondary-foreground: #F3EFE5;
+  --color-foreground: #F3EFE5;
+  --color-muted-foreground: rgba(240, 236, 227, 0.8);
+  --color-border: rgba(240, 236, 227, 0.2);
+  --color-card-foreground: #F3EFE5;
+  --color-popover-foreground: #F3EFE5;
+  --color-secondary-foreground: #F3EFE5;
+  --heading-ink: color-mix(in srgb, var(--brand-gold) 30%, #F3EDDC);
+  --parchment: color-mix(in srgb, #F4F0E8 86%, var(--background));
+  --parchment-shadow: 0 5px 18px rgba(0, 0, 0, 0.22);
   --input: rgba(0, 0, 0, 0.22);
   --color-input: rgba(0, 0, 0, 0.22);
   --muted: rgba(0, 0, 0, 0.22);

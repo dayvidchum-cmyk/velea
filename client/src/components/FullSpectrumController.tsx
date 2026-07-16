@@ -22,7 +22,13 @@ export default function FullSpectrumController() {
     // Surfaces share one shade (cards read by their borders); --secondary is a touch lighter so
     // inputs still lift. Build's FS background is a FIXED exact hue David chose (#6F5B1D); the cool
     // modes keep the computed mid-dark tint of their own mode color on a cool near-black base.
-    const isBuild = color.trim().toUpperCase() === "#D4AF37";
+    // useDayModeColor returns var(--day-accent) since the accent doctrine — and FS
+    // removes that var, so the old hex compare NEVER matched (every FS day fell back
+    // to brand gold). Read the RAW coin published by setDayAccent instead.
+    const rawCoin = getComputedStyle(root).getPropertyValue("--day-coin").trim().toUpperCase();
+    const BUILD_FAMILY = new Set(["#D4AF37", "#C49A2E", "#CD9E86", "#BC886F"]);
+    const isBuild = BUILD_FAMILY.has(rawCoin) || rawCoin === "";
+    const tint = rawCoin || "#D4AF37";
     let surface: string, secondary: string;
     if (isBuild) {
       // Build's FS ground — David's gold hue, but DEEP (was a mid-lightness #6F5B1D that sat at the
@@ -31,8 +37,8 @@ export default function FullSpectrumController() {
       surface = "#3F340F";
       secondary = "color-mix(in srgb, #3F340F 86%, #FDFDFD)"; // a hair lighter so inputs still lift
     } else {
-      surface = `color-mix(in srgb, ${color} 30%, #070b12)`;
-      secondary = `color-mix(in srgb, ${color} 42%, #0b1119)`;
+      surface = `color-mix(in srgb, ${tint} 30%, #070b12)`;
+      secondary = `color-mix(in srgb, ${tint} 42%, #0b1119)`;
     }
     // Set the base tokens AND their --color-* aliases. Tailwind bakes some --color-* tokens to
     // literals (e.g. --color-secondary → light #F5F5F5), so overriding only --secondary leaves any
