@@ -777,6 +777,25 @@ export default function Planner() {
     return counts;
   }, [allTasks, kindByTaskId]);
   const todayKind = charByDate.get(toDateStr(today))?.nature as TaskKind | undefined;
+  // Whole-sign rulerships from the active profile's lagna — powers the personalized
+  // retrograde lines ("for you, this reviews …"), deterministic and free.
+  const SIGN_ORDER = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const RULES: Record<string, string[]> = { Sun: ["Leo"], Moon: ["Cancer"], Mars: ["Aries","Scorpio"], Mercury: ["Gemini","Virgo"], Jupiter: ["Sagittarius","Pisces"], Venus: ["Taurus","Libra"], Saturn: ["Capricorn","Aquarius"] };
+  const HOUSE_ROOM: Record<number, string> = { 1: "how you're received", 2: "money & livelihood", 3: "your inner circle & the craft of your hands", 4: "home & roots", 5: "children & creations", 6: "health & the daily grind", 7: "the partner", 8: "shared resources & the depths", 9: "belief & the far horizon", 10: "your public name", 11: "gains & the wider circle", 12: "retreat & what you spend" };
+  const RX_POSTURE: Record<string, string> = {
+    Mercury: "The review runs strong — what you revise now holds. Re-read everything; re-sign nothing.",
+    Venus: "Old loves and old tastes resurface for re-valuing. Restore before you re-spend.",
+    Mars: "Force turns inward — train, repair, re-strategize; don't pick the fight.",
+    Jupiter: "The teacher revisits old lessons — re-study what you already believe.",
+    Saturn: "The structure re-inspects itself — tighten what stands before building higher.",
+  };
+  const rxRoomsFor = (planet: string): string | null => {
+    const lagna = (activeProfile as any)?.lagnaSign;
+    const li = lagna ? SIGN_ORDER.indexOf(lagna) : -1;
+    if (li < 0) return null;
+    const rooms = (RULES[planet] ?? []).map((sg) => HOUSE_ROOM[((SIGN_ORDER.indexOf(sg) - li + 12) % 12) + 1]).filter(Boolean);
+    return rooms.length ? rooms.join(" and ") : null;
+  };
 
   // Priority sort order (title-case to match DB enum)
   const PRIORITY_RANK: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
@@ -1422,7 +1441,7 @@ export default function Planner() {
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             // A FILLED coin's number is a DEEP shade of its own color (David: 7/4 & 7/31's
             // white → darker caution shade; today's near-black → darker today-color).
-            const numberColor = filled ? shadeHex(accent, 0.45) : hasMode ? accent : "var(--color-muted-foreground)";
+            const numberColor = filled || (isSelected && hasMode) ? shadeHex(accent, 0.45) : hasMode ? accent : "var(--color-muted-foreground)";
             const activeInk = tonalInk(accent); // hover/press preview ink — tonal, never white/black
             // Per David's mock: a FILLED coin lightens its fill toward the paper and carries
             // a DEEP number of its own hue (7/4's number was reading white-washed-pink).
@@ -1515,7 +1534,7 @@ export default function Planner() {
                     const mid = Math.floor(others.length / 2);
                     return (
                       <span style={{ position: "absolute", top: -13, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: 1, lineHeight: 1, background: "var(--parchment)", padding: "2px 3px 1px", borderRadius: 8, whiteSpace: "nowrap" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 1, lineHeight: 1, whiteSpace: "nowrap" }}>
                         {hasCrownMark ? (
                           <>
                             {others.slice(0, mid)}
@@ -1648,7 +1667,15 @@ export default function Planner() {
                     return (
                       <span key={e.planet} style={{ display: "flex", gap: 6, alignItems: "baseline" }}>
                         <span style={{ color: col, fontFamily: PLANET_GLYPH_FONT, fontWeight: 800, fontSize: "0.95rem", lineHeight: 1 }}>{PLANET_GLYPH[e.planet]}</span>
-                        <span><b style={{ color: col }}>{e.planet}</b> {e.detail}.</span>
+                        <span>
+                          <b style={{ color: col }}>{e.planet}</b> {e.detail}.
+                          {rxRoomsFor(e.planet) && (
+                            <span style={{ display: "block", marginTop: 2, fontSize: "0.78rem", color: "var(--color-foreground)" }}>
+                              For you, this moves through <b>{rxRoomsFor(e.planet)}</b>.
+                              {RX_POSTURE[e.planet] ? ` ${RX_POSTURE[e.planet]}` : ""}
+                            </span>
+                          )}
+                        </span>
                       </span>
                     );
                   })}
