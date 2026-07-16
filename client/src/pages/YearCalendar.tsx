@@ -225,7 +225,7 @@ export default function YearCalendar() {
                     </h3>
                     <div className="grid grid-cols-7 gap-[3px]">
                       {WEEKDAYS.map((w, i) => (
-                        <div key={i} className="text-center text-[9px] tracking-wide text-[#9a917f]">{w}</div>
+                        <div key={i} className="text-center text-[9px] tracking-wide font-semibold text-[#6B6355]">{w}</div>
                       ))}
                       {Array.from({ length: firstDow }).map((_, i) => <div key={`b${i}`} />)}
                       {Array.from({ length: nDays }).map((_, i) => {
@@ -261,7 +261,7 @@ export default function YearCalendar() {
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
                             className="relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums text-left font-semibold"
-                            style={{ background: bg, color: filled || isPicked ? shade(coin) : coin }}>
+                            style={{ background: bg, color: filled || isPicked ? shade(coin) : coin, border: isCrown ? "1.5px solid #F2C21C" : "1.5px solid transparent" }}>
                             {day}
                             {(isDollar || marks.length > 0 || isCrown) && (
                               <span className="absolute right-[2px] top-[1px] flex items-center gap-[1px]" style={{ lineHeight: 1 }}>

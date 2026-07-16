@@ -233,8 +233,11 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
   // old stored mode tag. Gradient = the kind hex descending into its own shadow.
   const kind = kindOfTask(task);
   const kindHex = KIND_COLOR[kind];
+  // Quiet cards are PAPER OBJECTS (the comment above always said so) — var(--color-card)
+  // followed the theme into the indigo night and left the espresso ink invisible (David's
+  // 4:23 AM ghost cards). Paper never follows the theme; the ink can stay espresso forever.
   const cardBg = quiet
-    ? "var(--color-card)"
+    ? "var(--parchment)"
     : `linear-gradient(160deg, ${shadeKindHex(kindHex, 0.92)} 0%, ${shadeKindHex(kindHex, 0.7)} 60%, ${shadeKindHex(kindHex, 0.5)} 100%)`;
   const ink = quiet ? "62, 53, 42" : "255, 255, 255";
   return (
