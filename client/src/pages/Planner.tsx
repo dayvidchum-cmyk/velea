@@ -1714,7 +1714,7 @@ export default function Planner() {
                       // Filled = TODAY'S color, always (David: the kind-colored fill broke
                       // cohesion) — same recipe as today's coin: soft day fill, deep day ink.
                       background: isToday ? "color-mix(in srgb, var(--day-accent) 62%, var(--parchment))" : "transparent",
-                      border: isToday ? "2px solid transparent" : `2px solid ${kColor}`,
+                      border: isToday ? "1px solid transparent" : `1px solid ${kColor}`,
                       color: isToday ? "var(--day-accent-deep)" : kColor,
                     }}
                   >
