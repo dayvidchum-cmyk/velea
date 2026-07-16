@@ -868,6 +868,16 @@ export default function Planner() {
   // Alignment-with-today per task (from the scored list), so Do Now / pinned tasks
   // can show their fit even though the floor forces them to the top. Off-mode tasks
   // aren't scored today → low alignment (20 ≈ 1 dot).
+  // THE HANDSHAKE MISS: every day-supported kind sits at zero tasks → name where the
+  // ranking actually lands (the top aligned task's kind). Sky stays lit; truth gets a voice.
+  const handshakeMissKind = useMemo(() => {
+    if (todaySupportedKinds.size === 0) return null;
+    const allEmpty = Array.from(todaySupportedKinds).every((k) => (orbKindCounts[k as TaskKind] ?? 0) === 0);
+    if (!allEmpty || alignedForToday.length === 0) return null;
+    const lead = kindOfTask(alignedForToday[0]);
+    return todaySupportedKinds.has(lead) ? null : lead;
+  }, [todaySupportedKinds, orbKindCounts, alignedForToday]);
+
   const alignmentById = useMemo(() => {
     const m = new Map<number, number>();
     (rankedTasks ?? []).forEach((t: any) => { if (typeof t.alignment === "number") m.set(t.id, t.alignment); });
@@ -1735,11 +1745,15 @@ export default function Planner() {
           </button>
           {/* THE SEVEN KIND ORBS (David 2026-07-15: "7 to be precise", with names) — the
               classical task vocabulary; today's own kind glows filled. Tap = open its group. */}
+          {/* THE HANDSHAKE MISS (David 2026-07-16): the day can carry a kind you hold none
+              of — the sky's orb stays lit (truth), the kind your ranking ACTUALLY leans on
+              gets a half-light, and a whisper narrates the seam. */}
           <div className="flex justify-between items-end" data-tour="mode-orbs">
             {KIND_ORDER.map((k) => {
               const kColor = NATURE_DOT[k];
               const kCount = orbKindCounts[k] ?? 0;
               const isToday = todaySupportedKinds.has(k);
+              const isLanding = k === handshakeMissKind;
               return (
                 <button
                   key={k}
@@ -1751,9 +1765,11 @@ export default function Planner() {
                     style={{
                       // Filled = TODAY'S color, always (David: the kind-colored fill broke
                       // cohesion) — same recipe as today's coin: soft day fill, deep day ink.
-                      background: isToday ? "color-mix(in srgb, var(--day-accent) 62%, var(--parchment))" : "transparent",
-                      border: isToday ? "1px solid transparent" : `1px solid ${kColor}`,
-                      color: isToday ? "var(--day-accent-deep)" : kColor,
+                      // The LANDING kind (handshake miss) half-lights at 26%, no pulse.
+                      background: isToday ? "color-mix(in srgb, var(--day-accent) 62%, var(--parchment))"
+                        : isLanding ? "color-mix(in srgb, var(--day-accent) 26%, var(--parchment))" : "transparent",
+                      border: isToday || isLanding ? "1px solid transparent" : `1px solid ${kColor}`,
+                      color: isToday || isLanding ? "var(--day-accent-deep)" : kColor,
                     }}
                   >
                     {settings.showOrbCounts && !softOpen ? kCount : "·"}
@@ -1765,6 +1781,12 @@ export default function Planner() {
               );
             })}
           </div>
+          {handshakeMissKind && (
+            <p className="mt-2 text-xs italic" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5 }}>
+              The day carries {Array.from(todaySupportedKinds).map((k) => NATURE_WORD[k]).join(" and ")} acts — you're
+              holding none. It can also spend on what you have; {NATURE_WORD[handshakeMissKind]} leads your day.
+            </p>
+          )}
 
           {/* All-tasks accordion — collapsible groups by mode (the old Planner view) */}
           {allTasksOpen && (
