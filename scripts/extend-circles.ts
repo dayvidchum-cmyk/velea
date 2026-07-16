@@ -1,5 +1,5 @@
 /**
- * EXTEND CIRCLE ENUM: + 'children', 'pets', 'mentors', 'mentees', 'followers' (David 2026-07-16).
+ * EXTEND CIRCLE ENUM: + 'children', 'pets', 'mentors', 'mentees', 'followers', 'enemies' (David 2026-07-16).
  * Hand-run against prod (Railway MYSQL_PUBLIC_URL). MODIFY COLUMN keeps every existing
  * value and all data — additive values only. Idempotent — skips if already extended.
  *
@@ -9,6 +9,7 @@
  *   mentors  → the 9th (the guru), riding the parents & roots theme
  *   pets     → the 6th (small animals), riding the health & vitality theme
  *   followers→ the 11th (the audience, gains, large networks), riding recognition
+ *   enemies  → the 6th (shatru — rivals, contests), riding the 6th's rooms
  *
  * Run:  DATABASE_URL=<railway MYSQL_PUBLIC_URL> npx tsx scripts/extend-circles.ts
  */
@@ -25,14 +26,14 @@ async function run() {
   const rows: any[] = Array.isArray(res[0]) ? (res[0] as any[]) : ((res as any).rows ?? []);
   const type = rows[0]?.COLUMN_TYPE ?? "";
   if (!type) { console.error("tasks.circle not found — run add-task-circle-column.ts first"); process.exit(1); }
-  if (["'children'", "'pets'", "'mentors'", "'mentees'", "'followers'"].every((v) => type.includes(v))) {
+  if (["'children'", "'pets'", "'mentors'", "'mentees'", "'followers'", "'enemies'"].every((v) => type.includes(v))) {
     console.log("· all four already in the enum — skipped"); process.exit(0);
   }
   await db.execute(sql`
     ALTER TABLE tasks MODIFY COLUMN circle
-    ENUM('life_partner','children','family','best_friends','inner_circle','friends','mentors','mentees','coworkers','clients','followers','pets','self','everyone_else') NULL
+    ENUM('life_partner','children','family','best_friends','inner_circle','friends','mentors','mentees','coworkers','clients','followers','pets','enemies','self','everyone_else') NULL
   `);
-  console.log("✅ tasks.circle now includes children, pets, mentors, mentees, followers — all existing values and data preserved.");
+  console.log("✅ tasks.circle now includes children, pets, mentors, mentees, followers, enemies — all existing values and data preserved.");
   process.exit(0);
 }
 run().catch((e) => { console.error(e); process.exit(1); });
