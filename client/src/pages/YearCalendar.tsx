@@ -145,7 +145,7 @@ export default function YearCalendar() {
                         // coins); Golden and Caution stay flat — David's carve-out.
                         const DEPTHS: Record<string, Record<string, [string, string]>> = {
                           build: { deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#CD9E86", "#3a1f14"], leaning: ["#BC886F", "#3a1f14"] },
-                          selective: { deep: ["#00525F", "#E8F1F2"], mid: ["#00687a", "#E8F1F2"], thin: ["#2E8291", "#F0F6F7"], leaning: ["#5E707C", "#EDF0F2"] },
+                          selective: { deep: ["#00525F", "#E8F1F2"], mid: ["#00687a", "#E8F1F2"], thin: ["#2E8291", "#F0F6F7"], leaning: ["#54787C", "#EDF3F2"] },
                           action: { deep: ["#5E9457", "#12240f"], mid: ["#77A96B", "#1d2a18"], thin: ["#94BC88", "#233420"], leaning: ["#9AA579", "#282c16"] },
                         };
                         const mvKey = (d as any).movement as string | undefined;

@@ -91,7 +91,7 @@ const SELECTIVE_DEPTH_BG: Record<string, [string, string]> = {
   deep: ["#00525F", "#E8F1F2"],    // richer, darker teal
   mid: ["#00687a", "#E8F1F2"],
   thin: ["#2E8291", "#F0F6F7"],    // paler water
-  leaning: ["#5E707C", "#EDF0F2"], // teal washed toward the rose — the slate floor
+  leaning: ["#54787C", "#EDF3F2"], // gray-TEAL (David: the slate read too gray)
 };
 const ACTION_DEPTH_BG: Record<string, [string, string]> = {
   deep: ["#5E9457", "#12240f"],    // great-friend ground — the richer green
@@ -103,6 +103,15 @@ const DEPTH_BG: Record<string, Record<string, [string, string]>> = {
   build: BUILD_DEPTH_BG, selective: SELECTIVE_DEPTH_BG, action: ACTION_DEPTH_BG,
 };
 // Darken a #rrggbb toward its own shadow (RGB multiply) — the hero card descent.
+// NO WHITE OR BLACK NUMBERS EVER (David 2026-07-15): a number is always its coin's hue
+// at the opposite depth — deep shade on light fills, pale tint (parchment-mixed, never
+// pure white) on dark fills.
+function tonalInk(hex: string): string {
+  if (!hex.startsWith("#") || hex.length < 7) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  const lum = 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
+  return lum > 120 ? shadeHex(hex, 0.42) : `color-mix(in srgb, ${hex} 28%, #F8F4EA)`;
+}
 function shadeHex(hex: string, f: number): string {
   const n = parseInt(hex.slice(1), 16);
   const ch = (v: number) => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, "0");
@@ -1395,8 +1404,8 @@ export default function Planner() {
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             // A FILLED coin's number is a DEEP shade of its own color (David: 7/4 & 7/31's
             // white → darker caution shade; today's near-black → darker today-color).
-            const numberColor = filled ? shadeHex(accent, 0.45) : hasMode ? accent : "var(--color-muted-foreground)";
-            const activeInk = darkInk; // number color while hovered/pressed
+            const numberColor = filled ? tonalInk(accent) : hasMode ? accent : "var(--color-muted-foreground)";
+            const activeInk = tonalInk(accent); // hover/press preview ink — tonal, never white/black
             const restingBg = filled ? accent : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
