@@ -118,12 +118,21 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
       });
     }
   }
-  const idx = Math.min(activeIdx, Math.max(0, heroes.length - 1));
-  // Slow-planet weather rides on the first station card (e.g. Mercury Rx); if there are no
-  // station cards, it falls back to the moon card so it's never lost.
-  const firstStation = heroes.findIndex((h) => !h.primary);
-  const weatherIdx = firstStation >= 0 ? firstStation : 0;
+  // ONE SPLASH CARD (David 2026-07-16: "moon cards are the default images... unless a
+  // character is having a fit"): no carousel. The Moon's phase art is the stage — unless
+  // a planet is mid-fit, and then the LOUDEST fit takes the wall. Severity: the station
+  // window (turn imminent or just turned) outranks mid-review outranks shadow.
+  const FIT_RANK: Record<string, number> = { "retrograde-1": 5, "direct-1": 4, "retrograde-2": 3, "preshadow-3": 2, "preshadow-2": 1, "preshadow-1": 0 };
+  let heroIdx = 0;
+  let best = -1;
+  heroes.forEach((h, i) => {
+    if (h.primary) return;
+    const r = FIT_RANK[h.phase ?? ""] ?? 0;
+    if (r > best) { best = r; heroIdx = i; }
+  });
+  if (best < 0) heroIdx = Math.max(0, heroes.findIndex((h) => h.primary));
   const skyPending = heroes.length === 0;
+  void activeIdx;
 
   return createPortal(
     <>
@@ -144,9 +153,9 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
             )}
             {heroes.length > 0 && (
               <>
-                <div className="no-scrollbar" style={{ position: "relative", display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", alignItems: "stretch" }}
-                  onScroll={(e) => setActiveIdx(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
-                  {heroes.map((h, i) => {
+                <div style={{ position: "relative" }}>
+                  {[heroes[heroIdx]].map((h, _i) => {
+                    const i = heroIdx;
                     // Station cards ride the flat veil → no text halo (matches the mockup).
                     // The moon card keeps its gradient scrim, so it keeps the halo.
                     const ts = "none"; // no shadow behind words on any card; the moon card leans on TEXT_SCRIM
@@ -155,7 +164,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     const dimRx = !!h.phase?.startsWith("retrograde");
                     return (
                     <button key={i} onClick={() => setSkyIdx(i)}
-                      style={{ flex: "0 0 100%", scrollSnapAlign: "center", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
+                      style={{ width: "100%", position: "relative", minHeight: "min(70vh, 600px)", border: "none", padding: 0, cursor: "pointer", overflow: "hidden", display: "block", textAlign: "left", background: "#05060a" }}>
                       <img src={todSrc(h.image)} onError={onTodError(h.image)} alt={h.title}
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transformOrigin: "center", filter: dimRx ? "brightness(1.42) contrast(1.05)" : undefined, animation: "velea-kenburns 18s ease-in-out infinite alternate" }} />
                       {/* Station cards (Mercury Rx etc.): flat even veil over the WHOLE image so white
@@ -169,7 +178,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                         <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: ts }}>{h.note}</p>
 
                         {/* Moon card carries Today's call */}
-                        {h.primary && stage?.verdict && (
+                        {stage?.verdict && (
                           <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
                             <p style={{ margin: 0, fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", textShadow: ts }}>Today's call</p>
                             <p style={{ margin: "0.1rem 0 0", fontSize: "1.15rem", fontWeight: 800, color: "#FDFDFD", textShadow: ts, lineHeight: 1.15 }}>{stage.verdict.call}</p>
@@ -188,7 +197,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                         )}
 
                         {/* Slow-planet weather rides on the station (Mercury Rx) card — separate for clarity */}
-                        {i === weatherIdx && stage && stage.signals.length > 0 && (
+                        {stage && stage.signals.length > 0 && (
                           <div style={{ marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
                             <p style={{ margin: "0 0 0.4rem", fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)", textShadow: ts }}>Slow-planet weather</p>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
@@ -205,7 +214,6 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
 
                         <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.9rem", alignItems: "center" }}>
                           {h.chips.map((c, j) => <span key={j} style={{ fontSize: "0.62rem", fontWeight: 700, color: "#FDFDFD", background: "rgba(255,255,255,0.2)", padding: "0.15rem 0.55rem", borderRadius: 999 }}>{c}</span>)}
-                          {i === 0 && heroes.length > 1 && <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.75)", textShadow: ts }}>swipe →</span>}
                           <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.65)", textShadow: ts }}>tap to expand ↗</span>
                         </div>
                       </div>
@@ -213,11 +221,6 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                     );
                   })}
                 </div>
-                {heroes.length > 1 && (
-                  <div style={{ display: "flex", justifyContent: "center", gap: 6, padding: "9px 0 3px" }}>
-                    {heroes.map((_, i) => <span key={i} style={{ width: i === idx ? 16 : 6, height: 6, borderRadius: 999, background: i === idx ? accent : "var(--color-border)", transition: "width 0.2s" }} />)}
-                  </div>
-                )}
               </>
             )}
 
