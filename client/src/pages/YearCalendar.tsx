@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { trpc } from "@/lib/trpc";
+import AddTaskSheet from "@/components/AddTaskSheet";
 
 /**
  * YEAR CALENDAR — the crown-day calendar, whole-year edition (David: "this is the crown day
@@ -41,6 +42,17 @@ const fmtDay = (s: string) => {
   const [y, m, d] = s.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
 };
+
+// Tonal ink (the Today law): never white/black — deep self-hue on light fills, pale
+// cream-tint on dark fills.
+function tonalInkY(hex: string): string {
+  if (!hex.startsWith("#") || hex.length < 7) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  const lum = 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
+  return lum > 120
+    ? `color-mix(in srgb, ${hex} 42%, #2A1F14)`
+    : `color-mix(in srgb, ${hex} 24%, #FBF7ED)`;
+}
 
 export default function YearCalendar() {
   const [, navigate] = useLocation();
@@ -87,6 +99,10 @@ export default function YearCalendar() {
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
+  // Day pop-up (David: "click the calendar, pop-up! Maybe even with an add task plus sign")
+  const [dayPopup, setDayPopup] = useState<{ ds: string; d: any } | null>(null);
+  const [addForDate, setAddForDate] = useState<string | null>(null);
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <AppHeader />
@@ -111,15 +127,8 @@ export default function YearCalendar() {
 
         {data && (
           <>
-            {/* Legend */}
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-              {[["#2E7D4F", "Golden Day"], ["#77A96B", "Action"], ["#D4AF37", "Build"], ["#00687a", "Selective"], ["#d57176", "Restraint"], ["#cc2f2f", "Caution"]].map(([c, n]) => (
-                <span key={n} className="inline-flex items-center gap-1">
-                  <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c }} /> {n}
-                </span>
-              ))}
-              <span>★ top 12 · • a window opens or closes</span>
-            </div>
+            {/* Legend RETIRED (David's ruling: pop-ups teach, legends are decoder rings) —
+                tap any day and it explains itself. */}
 
             {/* Month grids — always-light warm paper, like the almanac calendar */}
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -156,15 +165,15 @@ export default function YearCalendar() {
                           ? (MOVEMENT_BG[mvKey] ?? BETWEEN)
                           : d.tara.quality === "good" ? GO_GREEN
                           : d.tara.quality === "bad" ? CAUTION_ROSE : BETWEEN;
-                        const tip = `${(d as any).movementWord ? (d as any).movementWord + " · " : ""}#${d.rank} of ${data.days.length} · ${d.plain.day} — ${d.plain.feel} · ${d.plain.moon}${d.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}`;
+                        void ink; // pair inks retired — tonal law below
                         return (
-                          <div key={ds} title={tip}
-                            className={`relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums ${ds === todayStr ? "ring-2 ring-[#2b2723]" : ""}`}
-                            style={{ background: bg, color: ink }}>
+                          <button key={ds} onClick={() => setDayPopup({ ds, d })}
+                            className={`relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums text-left ${ds === todayStr ? "ring-2 ring-[#2b2723]" : ""}`}
+                            style={{ background: bg, color: tonalInkY(bg) }}>
                             {day}
                             {topSet.has(ds) && <span className="absolute right-[3px] top-0 text-[9px]">★</span>}
                             {windowEdgeSet.has(ds) && <span className="absolute bottom-[2px] right-[3px] h-[5px] w-[5px] rounded-full bg-current opacity-75" />}
-                          </div>
+                          </button>
                         );
                       })}
                     </div>
@@ -204,6 +213,48 @@ export default function YearCalendar() {
           </>
         )}
       </main>
+
+      {/* DAY POP-UP — dead center: the day explains itself, and the + adds a task due then. */}
+      {dayPopup && (() => {
+        const { ds, d } = dayPopup;
+        const mvKey = (d as any).movement as string | undefined;
+        const word = (d as any).movementWord ?? "";
+        const dep = (d as any).depth ?? (d as any).buildDepth;
+        const wordColor = mvKey ? (({ golden: "#2E7D4F", action: "#77A96B", selective: "#00687a", build: "#D4AF37", restraint: "#d57176", caution: "#B3232F" } as Record<string, string>)[mvKey] ?? "var(--heading-ink)") : "var(--heading-ink)";
+        const taraNum = d.tara?.taraNum;
+        const dateNice = new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: "rgba(30, 24, 16, 0.45)" }} onClick={() => setDayPopup(null)}>
+            <div className="w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)" }} onClick={(e) => e.stopPropagation()}>
+              <p className="font-serif text-lg" style={{ color: "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
+              <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
+                {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
+                {taraNum === 2 && <span style={{ marginLeft: 8, color: "#77A96B" }}>$ prosperity</span>}
+                {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}>♛ achievement</span>}
+                {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#2E7D4F" }}>★ crowning day</span>}
+              </p>
+              <p className="mt-2 text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.55 }}>
+                #{d.rank} of {data?.days.length ?? 365} · {d.plain.day} — {d.plain.feel}; {d.plain.moon}.
+              </p>
+              {d.plain.windows.length > 0 && (
+                <p className="mt-1.5 text-xs" style={{ color: "var(--color-muted-foreground)" }}>Open: {d.plain.windows.join(", ")}</p>
+              )}
+              <div className="mt-4 flex gap-2">
+                <button onClick={() => { setAddForDate(ds); setDayPopup(null); }}
+                  className="flex-1 py-2 rounded-full text-[11px] font-bold uppercase"
+                  style={{ letterSpacing: "0.1em", color: "#FBF7ED", background: "var(--heading-ink)", border: "none" }}>
+                  + Task this day
+                </button>
+                <button onClick={() => setDayPopup(null)} className="px-4 py-2 rounded-full text-[11px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)", background: "transparent" }}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      <AddTaskSheet open={!!addForDate} onClose={() => setAddForDate(null)} initialDueDate={addForDate ?? undefined} openWithSuggestion />
     </div>
   );
 }

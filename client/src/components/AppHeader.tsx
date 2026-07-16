@@ -293,9 +293,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           The page's <main class="content-safe-area"> ALREADY offsets content by the top safe-area
           inset, and the fixed bar's own paddingTop reserves that same inset again inside barH — so
           subtract it here to avoid double-counting (that gap was the dead space above the greeting). */}
-      <div aria-hidden style={{ height: `calc(${barH}px - env(safe-area-inset-top, 0px))` }} />
+      {/* The greeting's lift lives HERE (shrink the spacer) — a negative margin was
+          pulling it UNDER the fixed bar on some pages (David: "look at that greeting"). */}
+      <div aria-hidden style={{ height: `calc(${barH}px - env(safe-area-inset-top, 0px) - 10px)` }} />
 
-      <div className="relative z-10" style={{ marginTop: "-1.5rem" }}>
+      <div className="relative z-10" style={{ marginTop: "-0.35rem" }}>
         {/* Large editorial greeting — the visual anchor, close under the dateline (David) */}
         <h1
           className="leading-tight"
