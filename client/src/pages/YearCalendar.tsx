@@ -130,6 +130,23 @@ export default function YearCalendar() {
     const eclipse = ((popupSky as any).eclipses ?? []).find((e: any) => e.date === ds)?.type ?? null;
     return { planets: Array.from(by.values()).sort((a, b) => order.indexOf(a.planet) - order.indexOf(b.planet)), eclipse };
   }, [dayPopup, popupSky]);
+  // Station/window planet glyphs for EVERY tile (David 2026-07-16 mock: "planet glyphs
+  // and $ added") — one collective-sky sweep for the whole solar year.
+  const { data: yearSky } = trpc.sky.yearMarks.useQuery(
+    { from: data?.yearStart ?? "", to: data?.yearEnd ?? "" },
+    { enabled: !!data, staleTime: 60 * 60 * 1000 },
+  );
+  const tileMarksByDate = useMemo(() => {
+    const m = new Map<string, { planet: string; station: boolean }[]>();
+    for (const mk of yearSky ?? []) {
+      let arr = m.get(mk.date);
+      if (!arr) { arr = []; m.set(mk.date, arr); }
+      const ex = arr.find((e) => e.planet === mk.planet);
+      const station = mk.kind !== "window";
+      if (ex) ex.station = ex.station || station; else arr.push({ planet: mk.planet, station });
+    }
+    return m;
+  }, [yearSky]);
   const [crownsOpen, setCrownsOpen] = useState(false);
   const [cautionsOpen, setCautionsOpen] = useState(false);
   const [addForDate, setAddForDate] = useState<string | null>(null);
@@ -202,8 +219,8 @@ export default function YearCalendar() {
                 const firstDow = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
                 const nDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
                 return (
-                  <div key={`${y}-${m}`} className="rounded-xl border border-[#ddd3bf] bg-[#f8f4ea] p-3 text-[#2b2723]">
-                    <h3 className="mb-2 font-serif text-sm">
+                  <div key={`${y}-${m}`} className="parchment rounded-xl border border-[#ddd3bf] bg-[#f8f4ea] p-3 text-[#2b2723]" style={{ boxShadow: "none" }}>
+                    <h3 className="mb-2 font-serif text-sm" style={{ color: "#4b4034" }}>
                       {new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
                     </h3>
                     <div className="grid grid-cols-7 gap-[3px]">
@@ -216,28 +233,45 @@ export default function YearCalendar() {
                         const ds = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const d = byDate.get(ds);
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] text-[#c9c0ad]">{day}</div>;
-                        // Depth scales for Build/Selective/Action (same values as the month
-                        // coins); Golden and Caution stay flat — David's carve-out.
-                        const DEPTHS: Record<string, Record<string, [string, string]>> = {
-                          build: { deep: ["#C49A2E", "#2e2408"], mid: ["#D4AF37", "#3a2f10"], thin: ["#CD9E86", "#3a1f14"], leaning: ["#BC886F", "#3a1f14"] },
-                          selective: { deep: ["#00525F", "#E8F1F2"], mid: ["#00687a", "#E8F1F2"], thin: ["#2E8291", "#F0F6F7"], leaning: ["#54787C", "#EDF3F2"] },
-                          action: { deep: ["#5E9457", "#12240f"], mid: ["#77A96B", "#1d2a18"], thin: ["#94BC88", "#233420"], leaning: ["#9AA579", "#282c16"] },
+                        // THE MONTH-CALENDAR LANGUAGE (David's spec 2026-07-16): every number
+                        // wears its mode color BARE — a fill only for today, the picked day, or a
+                        // crowned day; no ring on today; the coin palette is the one source.
+                        const DEPTH_C: Record<string, Record<string, string>> = {
+                          build: { deep: "#C49A2E", mid: "#D4AF37", thin: "#CD9E86", leaning: "#BC886F" },
+                          selective: { deep: "#00525F", mid: "#00687a", thin: "#2E8291", leaning: "#54787C" },
+                          action: { deep: "#5E9457", mid: "#77A96B", thin: "#94BC88", leaning: "#9AA579" },
                         };
+                        const MOVE_C: Record<string, string> = { golden: "#2E7D4F", action: "#77A96B", selective: "#00687a", build: "#D4AF37", restraint: "#d57176", caution: "#B3232F" };
                         const mvKey = (d as any).movement as string | undefined;
                         const dep = (d as any).depth ?? (d as any).buildDepth;
-                        const [bg, ink] = (mvKey && DEPTHS[mvKey])
-                          ? (DEPTHS[mvKey][dep ?? "mid"] ?? MOVEMENT_BG[mvKey])
-                          : mvKey
-                          ? (MOVEMENT_BG[mvKey] ?? BETWEEN)
-                          : d.tara.quality === "good" ? GO_GREEN
-                          : d.tara.quality === "bad" ? CAUTION_ROSE : BETWEEN;
-                        void ink; // pair inks retired — tonal law below
+                        const coin = (mvKey && DEPTH_C[mvKey]?.[dep ?? "mid"]) || (mvKey && MOVE_C[mvKey])
+                          || (d.tara.quality === "good" ? "#77A96B" : d.tara.quality === "bad" ? "#d57176" : "#54787C");
+                        const shade = (hex: string) => {
+                          const n = parseInt(hex.slice(1), 16);
+                          const ch = (v: number) => Math.max(0, Math.round(v * 0.45)).toString(16).padStart(2, "0");
+                          return `#${ch(n >> 16)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+                        };
+                        const isToday = ds === todayStr, isPicked = dayPopup?.ds === ds, isCrown = topSet.has(ds);
+                        const filled = isToday || isCrown;
+                        const bg = filled
+                          ? `color-mix(in srgb, ${coin} 62%, #f8f4ea)`
+                          : isPicked ? `color-mix(in srgb, ${coin} 26%, #f8f4ea)` : "transparent";
+                        const marks = tileMarksByDate.get(ds) ?? [];
+                        const isDollar = d.tara.taraNum === 2;
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
-                            className={`relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums text-left ${ds === todayStr ? "ring-2 ring-[#2b2723]" : ""}`}
-                            style={{ background: bg, color: tonalInkY(bg) }}>
+                            className="relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums text-left font-semibold"
+                            style={{ background: bg, color: filled || isPicked ? shade(coin) : coin }}>
                             {day}
-                            {topSet.has(ds) && <span className="absolute right-[2px] top-[2px]"><OctagramMark size={8} color="currentColor" strokeWidth={2} style={{ display: "block" }} /></span>}
+                            {(isDollar || marks.length > 0 || isCrown) && (
+                              <span className="absolute right-[2px] top-[1px] flex items-center gap-[1px]" style={{ lineHeight: 1 }}>
+                                {isDollar && <span className="text-[8px] font-extrabold" style={{ color: MARK_INK.dollar }}>$</span>}
+                                {marks.slice(0, 2).map((mk) => (
+                                  <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: mk.station ? "10px" : "8px", fontWeight: 700, color: MARK_INK[mk.planet] ?? "#6B6355" }}>{PLANET_GLYPH[mk.planet]}</span>
+                                ))}
+                                {isCrown && <OctagramMark size={8} color="#B3902C" strokeWidth={2} style={{ display: "block" }} />}
+                              </span>
+                            )}
                             {windowEdgeSet.has(ds) && <span className="absolute bottom-[2px] right-[3px] h-[5px] w-[5px] rounded-full bg-current opacity-75" />}
                           </button>
                         );
@@ -291,7 +325,7 @@ export default function YearCalendar() {
         const dateNice = new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: "rgba(30, 24, 16, 0.45)" }} onClick={() => setDayPopup(null)}>
-            <div className="w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", maxHeight: "80dvh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div className="parchment w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", maxHeight: "80dvh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
               <p className="font-serif text-lg" style={{ color: "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
               <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}

@@ -84,6 +84,10 @@
   background: var(--parchment);
   box-shadow: var(--parchment-shadow);
   border-radius: 16px;
+  /* PAPER PINS ITS OWN INK (David 2026-07-16: "dark mode calendar headings everywhere
+     are too pale") — the almanac is ALWAYS light paper, so its heading ink must never
+     follow the app theme to cream. Espresso + the day's hue, same recipe as html.light. */
+  --heading-ink: color-mix(in srgb, var(--day-accent) 26%, #4E3F2C);
   --background: var(--parchment);
   --card: var(--parchment);
   --popover: var(--parchment);

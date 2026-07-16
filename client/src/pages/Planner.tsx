@@ -1260,7 +1260,7 @@ export default function Planner() {
       {/* ── 1. CALENDAR ── */}
       <div
         ref={calendarRef}
-        className="relative z-10 overflow-hidden"
+        className="parchment relative z-10 overflow-hidden"
         style={{
           borderRadius: "16px",
           // Soft sliver frame — a 1px hairline at low opacity of the day-mode color (David).

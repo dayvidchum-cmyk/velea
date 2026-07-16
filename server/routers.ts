@@ -2461,6 +2461,14 @@ export const appRouter = router({
         const { monthSkyMarks } = await import("./sky/current-sky.js");
         return monthSkyMarks(input.yearMonth);
       }),
+    /** Station days + ±3-day windows across a whole span (the /year tiles' planet
+     *  glyphs) — one sweep, collective sky, cached 12h. */
+    yearMarks: protectedProcedure
+      .input(z.object({ from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
+      .query(async ({ input }) => {
+        const { yearStationMarks } = await import("./sky/current-sky.js");
+        return yearStationMarks(input.from, input.to);
+      }),
     /** Live sky for the active profile: every planet's position/motion, the houses
      *  it transits from this Lagna, hits to natal points, stations, eclipses. */
     current: protectedProcedure.query(async ({ ctx }) => {

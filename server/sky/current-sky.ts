@@ -296,6 +296,54 @@ export interface MonthSkyMarks {
   eclipses: { date: string; type: "solar" | "lunar" }[];
 }
 
+// ── YEAR STATION MARKS (David 2026-07-16: planet glyphs on the /year tiles) ──
+// Stations + ±3-day windows for the whole solar year in ONE daily sweep (~380 ephemeris
+// days) instead of 13 padded monthSkyMarks sweeps (~13k). Tiles only need station/window;
+// rx spans and shadows stay a month-view affair.
+export interface YearStationMark { date: string; planet: string; kind: "station-retro" | "station-direct" | "window" }
+const YEAR_STATIONS_CACHE = new Map<string, { at: number; value: YearStationMark[] }>();
+const YEAR_STATIONS_TTL_MS = 12 * 60 * 60 * 1000;
+
+export async function yearStationMarks(from: string, to: string): Promise<YearStationMark[]> {
+  const key = `${from}|${to}`;
+  const hit = YEAR_STATIONS_CACHE.get(key);
+  if (hit && Date.now() - hit.at < YEAR_STATIONS_TTL_MS) return hit.value;
+
+  const PAD = 4; // windows are ±3 days; pad so an edge station's window still paints
+  const startMs = Date.parse(from + "T12:00:00Z") - PAD * DAY_MS;
+  const endMs = Date.parse(to + "T12:00:00Z") + PAD * DAY_MS;
+  const planetNames = RETRO_PLANETS.map((p) => p.planet);
+  const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+  const inRange = (d: string) => d >= from && d <= to;
+
+  const speeds: { ms: number; spd: Record<string, number> }[] = [];
+  for (let ms = startMs; ms <= endMs; ms += DAY_MS) {
+    const pos = await getSiderealLongitudesWithSpeed(new Date(ms), planetNames);
+    const spd: Record<string, number> = {};
+    for (const n of planetNames) spd[n] = pos[n]?.speed ?? 0;
+    speeds.push({ ms, spd });
+  }
+
+  const marks: YearStationMark[] = [];
+  for (const planet of planetNames) {
+    for (let i = 1; i < speeds.length; i++) {
+      const a = speeds[i - 1].spd[planet], b = speeds[i].spd[planet];
+      if ((a >= 0 && b < 0) || (a < 0 && b >= 0)) {
+        const stationMs = speeds[i].ms;
+        const kind = b < 0 ? "station-retro" as const : "station-direct" as const;
+        if (inRange(iso(stationMs))) marks.push({ date: iso(stationMs), planet, kind });
+        for (let off = -3; off <= 3; off++) {
+          if (off === 0) continue;
+          const d = iso(stationMs + off * DAY_MS);
+          if (inRange(d)) marks.push({ date: d, planet, kind: "window" });
+        }
+      }
+    }
+  }
+  YEAR_STATIONS_CACHE.set(key, { at: Date.now(), value: marks });
+  return marks;
+}
+
 export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
   const hit = MONTH_MARKS_CACHE.get(yearMonth);
   if (hit && Date.now() - hit.at < MONTH_MARKS_TTL_MS) return hit.value;
