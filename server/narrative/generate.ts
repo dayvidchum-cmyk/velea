@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -286,7 +286,7 @@ const scrubChapter = (c: Chapter): Chapter => ({
 });
 
 // Returns the reason a read FAILS a guard (too long / machinery leak), or null if it's clean.
-export function guardViolation(fullText: string, maxWords: number, bannedPhrases?: string[]): string | null {
+export function guardViolation(fullText: string, maxWords: number, bannedPhrases?: string[], skipMachinery = false): string | null {
   const wc = wordCount(fullText);
   if (wc > maxWords) return `TOO LONG: your last attempt was ${wc} words. HARD LIMIT is ${maxWords} words — cut it, do not exceed.`;
   // David's law 3, ENFORCED (three generations restated it): the day's character line is
@@ -296,6 +296,7 @@ export function guardViolation(fullText: string, maxWords: number, bannedPhrases
       return `RESTATED THE DAY SENTENCE: your prose contains "${p}", which is already printed above your story. Remove it — steer through a character's ask instead, and spend the words on the cast.`;
     }
   }
+  if (skipMachinery) return null;
   const mm = fullText.match(MACHINERY);
   if (mm) return `BANNED CHART JARGON: your last attempt printed "${mm[0]}". Rewrite with ZERO machinery — no house numbers, no sign names, no dignity/motion terms (exalted, debilitated, retrograde, combust). Translate every one into plain felt language.`;
   return null;
@@ -317,6 +318,7 @@ async function callGuarded<T>(o: {
   maxTokens: number; maxWords: number; complete: (x: any) => x is T; textOf: (x: T) => string;
   bannedPhrases?: string[];
   requiredNames?: string[];
+  skipMachinery?: boolean;
 }): Promise<T | null> {
   const base = [
     { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
@@ -336,7 +338,7 @@ async function callGuarded<T>(o: {
   };
   let best = await run();
   if (!best) return null;
-  let bad = guardViolation(o.textOf(best), o.maxWords, o.bannedPhrases) ?? missingCast(o.textOf(best), o.requiredNames);
+  let bad = guardViolation(o.textOf(best), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(best), o.requiredNames);
   if (!bad) return best;
   // Up to TWO corrective retries (3 attempts total), each naming the exact violation. Return the
   // first CLEAN result; if none comes back clean, serve the last best-effort rather than a blank
@@ -345,7 +347,7 @@ async function callGuarded<T>(o: {
   for (let attempt = 1; attempt <= 2 && bad; attempt++) {
     console.warn(`[narrative] ${o.toolName} tripped a guard (attempt ${attempt}), regenerating: ${bad}`);
     const next = await run(`CRITICAL — your previous attempt was REJECTED. ${bad} Return the ${o.toolName} tool again, fully corrected.`);
-    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords, o.bannedPhrases) ?? missingCast(o.textOf(next), o.requiredNames); }
+    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(next), o.requiredNames); }
   }
   return best;
 }
@@ -511,3 +513,36 @@ function isCompleteCast(r: any): r is Cast {
   return !!r && typeof r.read === "string" && r.read.trim().length > 0;
 }
 export { isCompleteCast };
+
+
+// ── THE HOUSE READER (David 2026-07-16) — one stored-research house, voiced. ──────────
+const HOUSE_READ_SCHEMA = {
+  type: "object",
+  properties: {
+    read: { type: "string", description: "The house voiced as a room, ≤320 words." },
+    question: { type: "string", description: "One specific, checkable question." },
+  },
+  required: ["read", "question"],
+} as const;
+
+export type HouseRead = { read: string; question: string };
+export function isCompleteHouseRead(r: any): r is HouseRead {
+  return !!r && typeof r.read === "string" && r.read.length > 80 && typeof r.question === "string";
+}
+
+export async function generateHouseRead(input: any): Promise<HouseRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    return await callGuarded<HouseRead>({
+      c, tail: HOUSE_READ_TAIL, toolName: "house_read", schema: HOUSE_READ_SCHEMA as any, input,
+      maxTokens: 1500, maxWords: 360,
+      skipMachinery: true, // the house explorer names planets/signs by design
+      complete: isCompleteHouseRead,
+      textOf: (r) => r.read,
+    });
+  } catch (err) {
+    console.error("[narrative] generateHouseRead failed:", (err as any)?.message ?? err);
+    return null;
+  }
+}

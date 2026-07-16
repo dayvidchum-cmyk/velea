@@ -105,6 +105,21 @@ export const narrativeRouter = router({
   // Chapter good-for/avoid bullets — a small, cheap, AUTO-FIRING read (the year lord's
   // transit-house room), split out of the big deep read so it shows on the Chart page
   // without tapping "The Read". Falls back to unavailable on any error.
+  // THE HOUSE READER — tap a house on the chart, the stored research speaks. Natal-
+  // stable + cached; fires only on explicit open (cost law).
+  houseRead: protectedProcedure.input(z.object({ house: z.number().int().min(1).max(12), refresh: z.boolean().optional() })).query(async ({ ctx, input }) => {
+    try {
+      const { getActiveProfile } = await import("../routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false, read: null, generatedAt: null, cached: false } as const;
+      const { getHouseReadCached } = await import("./service.js");
+      return await getHouseReadCached(profile.id, input.house, input.refresh ?? false);
+    } catch (e) {
+      console.error("[narrative.houseRead]", e);
+      return { available: false, read: null, generatedAt: null, cached: false } as const;
+    }
+  }),
+
   chapter: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();

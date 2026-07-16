@@ -413,3 +413,37 @@ export async function getCastCached(profileId: number, date: string, refresh = f
   if (!cast) return { available: false, cast: null, generatedAt: null, cached: false };
   return { available: true, cast, generatedAt: new Date(), cached: false };
 }
+
+
+// ── THE HOUSE READER — natal-stable cache: one read per (profile, house, research
+// version); regenerates only when the research engine moves or David salts the surface.
+export type HouseReadResult = { available: boolean; read: import("./generate.js").HouseRead | null; generatedAt: Date | null; cached: boolean };
+export async function getHouseReadCached(profileId: number, house: number, refresh = false): Promise<HouseReadResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const surface = "house_read";
+  const { getStoredResearch } = await import("../vedic/research-store.js");
+  const research: any = await getStoredResearch(profileId);
+  const data = research?.houses?.[house - 1];
+  if (!data) return { available: false, read: null, generatedAt: null, cached: false };
+  const input = { house, lagnaSign: research?.lagnaSign ?? research?.meta?.lagnaSign ?? null, engineVersion: research?.engineVersion ?? null, data };
+  const hash = dayStableHash(input, surface);
+  const dateKey = `natal-h${house}`;
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, dateKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        const { isCompleteHouseRead } = await import("./generate.js");
+        if (isCompleteHouseRead(read)) return { available: true, read, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generateHouseRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileId}:${house}:${hash}`, async () => {
+    const r = await generateHouseRead(input as any);
+    if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, generatedAt: null, cached: false };
+  return { available: true, read: read as any, generatedAt: new Date(), cached: false };
+}

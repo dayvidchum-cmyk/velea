@@ -44,11 +44,14 @@ function luminance(hex: string): number {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
 
-/** Auto-pick dark vs white text for legibility on a given planet color. */
+/** TONAL inks (the Today-page law: never white, never black) — a light fill carries a
+ *  DEEP register of its own hue; a dark fill carries a PALE cream-tinted register. */
 function planetTextColors(hex: string) {
+  const deep = (p: number) => `color-mix(in srgb, color-mix(in srgb, ${hex} 45%, #2A1F14) ${p}%, transparent)`;
+  const pale = (p: number) => `color-mix(in srgb, color-mix(in srgb, ${hex} 22%, #FBF7ED) ${p}%, transparent)`;
   return luminance(hex) > 150
-    ? { primary: "rgba(0,0,0,0.85)", muted: "rgba(0,0,0,0.6)", faint: "rgba(0,0,0,0.5)", chip: "rgba(0,0,0,0.16)", chipBorder: "rgba(0,0,0,0.3)" }
-    : { primary: "rgba(255,255,255,0.95)", muted: "rgba(255,255,255,0.7)", faint: "rgba(255,255,255,0.6)", chip: "rgba(255,255,255,0.2)", chipBorder: "rgba(255,255,255,0.4)" };
+    ? { primary: deep(100), muted: deep(72), faint: deep(58), chip: deep(14), chipBorder: deep(30) }
+    : { primary: pale(100), muted: pale(78), faint: pale(64), chip: pale(20), chipBorder: pale(40) };
 }
 
 /** Subtle ±12% vertical gradient so cards read as one family with gentle depth. */
@@ -186,6 +189,12 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
   const lagnaIndex = ZODIAC_SIGNS.indexOf(lagnaSign ?? "Aries");
   const accent = useDayModeColor();
   const [selectedHouse, setSelectedHouse] = useState<number | null>(null);
+  // The House Reader: which house the user asked to hear (tap-gated LLM, cached natal-stable).
+  const [voicedHouse, setVoicedHouse] = useState<number | null>(null);
+  const houseReadQ = trpc.narrative.houseRead.useQuery(
+    { house: voicedHouse ?? 1 },
+    { enabled: voicedHouse != null && voicedHouse === selectedHouse, staleTime: Infinity, retry: false },
+  );
   const [hoveredHouse, setHoveredHouse] = useState<number | null>(null);
 
   const planetsByHouse = useMemo(() => {
@@ -301,7 +310,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
       {sel != null && selSign && (
         <div
           onClick={() => setSelectedHouse(null)}
-          style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)", borderRadius: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 5 }}
+          style={{ position: "absolute", inset: 0, background: "rgba(30, 24, 16, 0.4)", borderRadius: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 5 }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -312,7 +321,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                 <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accent, margin: 0 }}>
                   House {sel} · {selSign}{sel === 1 ? " Lagna" : ""}
                 </p>
-                <p style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0.15rem 0 0" }}>
+                <p style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--heading-ink)", margin: "0.15rem 0 0" }}>
                   {HOUSE_SUMMARY[sel].title}
                 </p>
               </div>
@@ -336,6 +345,40 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
               <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: 0 }}>
                 <GlossaryText>{composeHouseSynthesis(sel, selSign, selPlanets, natalBodies).join(" ")}</GlossaryText>
               </p>
+            </div>
+
+            {/* THE HOUSE READER — the stored research, voiced (David 2026-07-16). Fires
+                only on tap; natal-stable + cached, so each house generates once. */}
+            <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
+              {voicedHouse !== sel ? (
+                <button
+                  onClick={() => setVoicedHouse(sel)}
+                  className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
+                  style={{ letterSpacing: "0.1em", color: accent, border: `1px solid color-mix(in srgb, ${accent} 45%, transparent)`, background: "transparent" }}
+                >
+                  Read this room
+                </button>
+              ) : houseReadQ.isLoading ? (
+                <p style={{ fontSize: "0.85rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
+                  Listening to the room…
+                </p>
+              ) : houseReadQ.data?.available && houseReadQ.data.read ? (
+                <div>
+                  <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
+                    The room, voiced
+                  </p>
+                  <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>
+                    {houseReadQ.data.read.read}
+                  </p>
+                  <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.6rem 0 0" }}>
+                    {houseReadQ.data.read.question}
+                  </p>
+                </div>
+              ) : (
+                <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
+                  The room is quiet right now — try again in a moment.
+                </p>
+              )}
             </div>
 
             <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
@@ -402,7 +445,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
         }}
       >
         {headers.map((label) => (
-          <span key={label} style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#FDFDFD", textAlign: "center" }}>
+          <span key={label} style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#FBF7ED", textAlign: "center" }}>
             {label}
           </span>
         ))}
@@ -484,7 +527,7 @@ function ExplainerPanel({ title, children }: { title: string; children: React.Re
       {open && createPortal(
         <div
           onClick={() => setOpen(false)}
-          style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+          style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(30, 24, 16, 0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -651,7 +694,7 @@ export function NatalSection() {
     <div className="space-y-4 pb-24">
       {/* Subject header — the person and their birth data, the anchor of the page */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight" style={{ color: "var(--color-foreground)", fontFamily: "var(--font-serif)" }}>
+        <h2 className="text-2xl font-bold tracking-tight" style={{ color: "var(--heading-ink)", fontFamily: "var(--font-serif)" }}>
           {subject.name}
         </h2>
         <p className="text-sm mt-1" style={{ color: "var(--color-muted-foreground)" }}>
@@ -838,7 +881,7 @@ export function DashaSection() {
       {currentPeriod && (() => {
         // Immersive gradient card matching the Today page's Time Lord Movement card,
         // tinted with the active mahadasha's planet color.
-        const activeColor = PLANET_COLORS[currentPeriod.mahadasha] ?? "#888";
+        const activeColor = PLANET_COLORS[currentPeriod.mahadasha] ?? "var(--color-muted-foreground)";
         // Text color follows the planet's luminance — Saturn's dark banner takes white,
         // the Sun's bright one takes ink. (Hardcoded dark text was the old clarity bug.)
         const t = autoTextColors(activeColor);
@@ -874,7 +917,7 @@ export function DashaSection() {
 
       <div className="space-y-2">
         {groups.map((g) => {
-          const color = PLANET_COLORS[g.mahadasha] ?? "#888";
+          const color = PLANET_COLORS[g.mahadasha] ?? "var(--color-muted-foreground)";
           const isExpanded = expandedMaha === g.mahadasha;
           const hasActive = g.periods.some((p: any) => p.isCurrent);
           const dur = MAHADASHA_DURATIONS[g.mahadasha] ?? 10;
@@ -919,7 +962,7 @@ export function DashaSection() {
               {isExpanded && (
                 <div style={{ background: "var(--color-card)", borderTop: `1px solid ${color}55` }}>
                   {g.periods.map((period: any, i: number) => {
-                    const antColor = PLANET_COLORS[period.antardasha] ?? "#888";
+                    const antColor = PLANET_COLORS[period.antardasha] ?? "var(--color-muted-foreground)";
                     const isCurrent = !!period.isCurrent;
                     return (
                       <div

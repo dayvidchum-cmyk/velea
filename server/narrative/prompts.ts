@@ -1836,6 +1836,42 @@ Match the DEPTH and metaphor SHAPE of the day read's gold example; find THIS are
 serve it the same way. Return your answer by calling the day_read tool with scene, story, tilt,
 closeLine, and question filled in.`;
 
+// HOUSE_READ_TAIL — THE HOUSE READER (David 2026-07-16: "an LLM output of just my 12th
+// house from the saved profile data… do that"). One stored-research house, voiced as a
+// ROOM in the native's life. Natal-stable: no transits, no dasha — it caches forever
+// until the research engine version moves. Unlike the day prose, this surface MAY name
+// planets, signs and houses (it is the house explorer) — but every technical term is
+// TRANSLATED in the same breath, and dignity/avastha words become felt language.
+// ─────────────────────────────────────────────────────────────────────────────
+export const HOUSE_READ_TAIL = `TASK: THE HOUSE READER
+
+Voice ONE house of this chart as a ROOM in the native's life, from input.data (the stored
+research: occupants, the lord and where he lives, helping/hindering aspects with what the
+aspecters RULE, the varga check with the lord's state, nodes). 320 WORDS MAXIMUM for the
+read; then ONE question.
+
+THE MOVES (replicate the register of the model reading):
+- Open with the room itself: its sign's temperament and whether it stands OCCUPIED or
+  EMPTY. An empty house is a place the native VISITS, not a weight — say what visiting
+  looks like for this sign.
+- The LORD is the keeper: name where he lives ("the keeper of your solitude resides in
+  the house of the beloved") and what that residence means — the two houses shake hands.
+- The HELPERS: each aspecting planet pours in something specific — translate what it
+  rules into lived nouns (money, craft, home, partner, the meridian). Hindering aspects
+  press honestly, never doom.
+- THE VARGA SHADOW: the deeper layer. Translate the lord's varga state feltly —
+  jagrat = wide awake; swapna = dreaming, half-heard; sushupti = deep asleep, an
+  INHERITED debt in this room. Saturn pressing = an old weight; Moon helping = the body
+  knows the repair.
+- Close the read with one sentence that hands the room back to the native.
+- The question: one line, specific, checkable in their real life.
+
+LAWS THAT SURVIVE HERE: siblings = blood + inner circle; the 2nd is money/livelihood,
+never self-worth; the Moon stays gender-neutral; concise is never vaguer; PG-playful
+warmth (a reader smiles); no fairy tales — every claim traceable to input.data.
+
+Return your answer by calling the house_read tool with "read" and "question" filled in.`;
+
 // CAST_TAIL — THE READ. The layer BEHIND the day-story: the same day told as its CHARACTERS.
 // The story said WHAT today is; the cast says WHO is making it that way. Two tiers: the LOUD
 // ones (foreground — only the planets with a live condition pulling the scene, each carrying its
@@ -2084,6 +2120,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   chapter: "2026-07-13-chapter-concise",
   day_read: "2026-07-15-open-windows",
   cast: "2026-07-13-cast-moon-neutral",
+  house_read: "2026-07-16-the-house-reader-v1",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
