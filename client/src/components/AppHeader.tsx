@@ -214,7 +214,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           page scroll (mirrors the fixed bottom-nav pattern; the body is the scroll container).
           The spacer below reserves the height it vacates so content isn't hidden underneath. */}
       <div ref={barRef} className="app-topbar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 45, paddingTop: "env(safe-area-inset-top, 0px)" }}>
-        <div className="container" style={{ paddingTop: "0.9rem", paddingBottom: "0.6rem" }}>
+        <div className="container" style={{ paddingTop: "0.9rem", paddingBottom: "0.25rem" }}>
           {/* Brand mark (left) + golden-hour readout (right, for balance). The golden chip is always
               on the logo line so the current/next golden window is visible from every page. */}
           <div className="flex items-center justify-between gap-2 mb-3">
@@ -293,11 +293,11 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           The page's <main class="content-safe-area"> ALREADY offsets content by the top safe-area
           inset, and the fixed bar's own paddingTop reserves that same inset again inside barH — so
           subtract it here to avoid double-counting (that gap was the dead space above the greeting). */}
-      {/* The greeting's lift lives HERE (shrink the spacer) — a negative margin was
-          pulling it UNDER the fixed bar on some pages (David: "look at that greeting"). */}
-      <div aria-hidden style={{ height: `calc(${barH}px - env(safe-area-inset-top, 0px) - 10px)` }} />
+      {/* The spacer is EXACT — never shaved. Tightness comes from the bar's own real
+          padding above, so the greeting can never slide under it (David's 2:21 AM clip). */}
+      <div aria-hidden style={{ height: `calc(${barH}px - env(safe-area-inset-top, 0px))` }} />
 
-      <div className="relative z-10" style={{ marginTop: "-0.35rem" }}>
+      <div className="relative z-10" style={{ marginTop: "0.1rem" }}>
         {/* Large editorial greeting — the visual anchor, close under the dateline (David) */}
         <h1
           className="leading-tight"
