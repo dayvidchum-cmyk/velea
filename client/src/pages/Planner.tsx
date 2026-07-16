@@ -873,13 +873,21 @@ export default function Planner() {
   // aren't scored today → low alignment (20 ≈ 1 dot).
   // THE HANDSHAKE MISS: every day-supported kind sits at zero tasks → name where the
   // ranking actually lands (the top aligned task's kind). Sky stays lit; truth gets a voice.
+  // THE LEADING KIND (David 2026-07-16 "half-light on the kind orbs. do it."): the top
+  // aligned task's kind ALWAYS wears the half-light when it isn't the sky's lit kind —
+  // the row always shows where your alignment actually leans.
+  const leadingKind = useMemo(() => {
+    if (alignedForToday.length === 0) return null;
+    const lead = kindOfTask(alignedForToday[0]);
+    return todaySupportedKinds.has(lead) ? null : lead;
+  }, [todaySupportedKinds, alignedForToday]);
+  // The whisper still narrates only the TRUE miss (every supported kind at zero).
   const handshakeMissKind = useMemo(() => {
     if (todaySupportedKinds.size === 0) return null;
     const allEmpty = Array.from(todaySupportedKinds).every((k) => (orbKindCounts[k as TaskKind] ?? 0) === 0);
-    if (!allEmpty || alignedForToday.length === 0) return null;
-    const lead = kindOfTask(alignedForToday[0]);
-    return todaySupportedKinds.has(lead) ? null : lead;
-  }, [todaySupportedKinds, orbKindCounts, alignedForToday]);
+    if (!allEmpty) return null;
+    return leadingKind;
+  }, [todaySupportedKinds, orbKindCounts, leadingKind]);
 
   const alignmentById = useMemo(() => {
     const m = new Map<number, number>();
@@ -1773,7 +1781,7 @@ export default function Planner() {
               const kColor = NATURE_DOT[k];
               const kCount = orbKindCounts[k] ?? 0;
               const isToday = todaySupportedKinds.has(k);
-              const isLanding = k === handshakeMissKind;
+              const isLanding = k === leadingKind;
               return (
                 <button
                   key={k}

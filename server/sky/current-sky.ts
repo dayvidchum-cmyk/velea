@@ -342,7 +342,12 @@ export async function yearStationMarks(from: string, to: string): Promise<YearSk
       if (crossedNew || crossedFull) {
         const nodeDist = Math.min(Math.abs(diffTo(sun, rahu)), Math.abs(diffTo(sun, (rahu + 180) % 360)));
         const limit = crossedNew ? 18.5 : 12.2;
-        const d = iso(ms);
+        // INTERPOLATE the crossing instant between the two noon samples — assigning the
+        // eclipse to the sample date put Aug 12's eclipse on the 13th (David caught it).
+        const prevVal = crossedNew ? prevElong - 360 : prevElong;
+        const target = crossedNew ? 0 : 180;
+        const f = Math.max(0, Math.min(1, (target - prevVal) / (elong - prevVal)));
+        const d = iso(ms - DAY_MS + f * DAY_MS);
         if (nodeDist <= limit && inRange(d)) eclipses.push({ date: d, type: crossedNew ? "solar" : "lunar" });
       }
     }
@@ -488,7 +493,11 @@ export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
       if (crossedNew || crossedFull) {
         const nodeDist = Math.min(Math.abs(diffTo(sun, rahu)), Math.abs(diffTo(sun, (rahu + 180) % 360)));
         const limit = crossedNew ? 18.5 : 12.2;
-        if (nodeDist <= limit) eclipses.push({ date: iso(d.getTime()), type: crossedNew ? "solar" : "lunar" });
+        // Interpolated crossing instant (same class fix as the year sweep — off-by-one).
+        const prevVal = crossedNew ? prevElong - 360 : prevElong;
+        const target = crossedNew ? 0 : 180;
+        const f = Math.max(0, Math.min(1, (target - prevVal) / (elong - prevVal)));
+        if (nodeDist <= limit) eclipses.push({ date: iso(d.getTime() - DAY_MS + f * DAY_MS), type: crossedNew ? "solar" : "lunar" });
       }
     }
     prevElong = elong;

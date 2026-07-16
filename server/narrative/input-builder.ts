@@ -495,6 +495,43 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     (panchang as any).modeStepReasons = undefined;
   } catch { /* the read proceeds without the filter */ }
 
+  // THE NODAL AXIS — the incarnational spine (Simone's fix, piece 2 of the Moon
+  // double-count spec): Rahu's house = the REACH (hunger, new territory), Ketu's = the
+  // RELEASE (done-with, dissolving). Computed for every chart; carried only when a
+  // running lord sits on a pole or a node IS a running lord — then the axis IS the
+  // chapter and the read must move along it, never collapse into mood.
+  let nodalAxis: any = null;
+  try {
+    const rahuB: any = byPlanet["Rahu"], ketuB: any = byPlanet["Ketu"];
+    if (rahuB?.sign && ketuB?.sign) {
+      const rulersN = [
+        { role: "Time Lord", lord: pf.timeLord },
+        ...(cur ? [{ role: "mahadasha", lord: cur.mahadasha }, { role: "antardasha", lord: cur.antardasha }] : []),
+      ];
+      const signOf = (lord: string) => (byPlanet[lord] as any)?.sign;
+      const lordsOnPoles = rulersN
+        .filter((r) => r.lord && r.lord !== "Rahu" && r.lord !== "Ketu")
+        .map((r) => ({
+          ...r,
+          pole: signOf(r.lord) === rahuB.sign ? "REACH — sits with Rahu (the hunger pole)"
+            : signOf(r.lord) === ketuB.sign ? "RELEASE — sits with Ketu (the done-with pole)" : null,
+        }))
+        .filter((r) => r.pole);
+      const nodalDashaLords = rulersN.filter((r) => r.lord === "Rahu" || r.lord === "Ketu").map((r) => ({ role: r.role, node: r.lord }));
+      if (lordsOnPoles.length || nodalDashaLords.length) {
+        nodalAxis = {
+          _how: "THE SPINE: the day's/year's events are MOVEMENT along this axis — away from the release pole's rooms, toward the reach pole's rooms. Name the concrete rooms. A read that collapses this into mood/feelings/rest is WRONG.",
+          reach: { node: "Rahu", sign: rahuB.sign, house: rahuB.house ?? null },
+          release: { node: "Ketu", sign: ketuB.sign, house: ketuB.house ?? null },
+          lordsOnPoles,
+          nodalDashaLords,
+        };
+      }
+    }
+  } catch { /* the spine is optional, never fatal */ }
+
+
+
   if (moment?.slowOnly) {
     // THE YEAR READ EATS PROPERLY (David 2026-07-16: "is the prose for Your Year being
     // fed?"): the stage now carries the lords' TRUE condition (maha+antar only — the
@@ -534,7 +571,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         if (Object.keys(byTheme).length) yearWindows = byTheme;
       }
     } catch { /* the year read proceeds without windows */ }
-    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}) } as any;
+    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}), ...(nodalAxis ? { nodalAxis } : {}) } as any;
   }
 
   // RECENT READS — the last 3 days of glance prose, so the model can see what it already
@@ -861,5 +898,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

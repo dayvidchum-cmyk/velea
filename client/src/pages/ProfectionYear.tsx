@@ -396,6 +396,23 @@ export default function ProfectionYear() {
       // signature). Its own gold bullet so the eye doesn't stop at "debilitated".
       if (cancelled) bullets.push({ head: "Hard-won strength — neecha bhanga", gloss: "it fell, and rose", tone: "hardWon" });
     }
+    // THE NODAL AXIS bullets (the Moon double-count fix, piece 3): a node sitting WITH
+    // this lord — or this lord BEING a node — makes the whole axis the story; the old
+    // explainer read Simone's Moon as "home, roots, mother" with Ketu right on top of it.
+    const rahuB = bodies.find((x) => x.planet === "Rahu");
+    const ketuB = bodies.find((x) => x.planet === "Ketu");
+    if (b && rahuB && ketuB && lord !== "Rahu" && lord !== "Ketu") {
+      if (b.sign === rahuB.sign) {
+        bullets.push({ head: "Sits with Rahu — the reach pole", gloss: `the whole axis is live: the hunger here spends toward the ${ORD[ketuB.house]} house (${HOUSE_GLOSS[ketuB.house] ?? ""})` });
+      } else if (b.sign === ketuB.sign) {
+        bullets.push({ head: "Sits with Ketu — the release pole", gloss: `what dissolves here feeds the reach opposite, in the ${ORD[rahuB.house]} house (${HOUSE_GLOSS[rahuB.house] ?? ""})` });
+      }
+    }
+    if ((lord === "Rahu" || lord === "Ketu") && rahuB && ketuB) {
+      const other = lord === "Rahu" ? ketuB : rahuB;
+      const otherName = lord === "Rahu" ? "Ketu" : "Rahu";
+      bullets.push({ head: "One pole of an axis", gloss: `${lord} in the ${ORD[(lord === "Rahu" ? rahuB : ketuB).house]} house always works WITH ${otherName} in the ${ORD[other.house]} (${HOUSE_GLOSS[other.house] ?? ""}) — read them together, never alone` });
+    }
     for (const h of housesRuledFromLagna(lord, lagnaSign)) {
       bullets.push({ head: `Rules the ${ORD[h]} house`, gloss: HOUSE_GLOSS[h] ?? "" });
     }

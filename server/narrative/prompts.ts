@@ -1125,7 +1125,12 @@ moves the subject. Same well twice = both dry.
 
 Return your answer by calling the glance tool with all four fields filled in.`;
 
-export const DEEP_READ_TAIL = `TASK: DEEP READ
+export const DEEP_READ_TAIL = `THE SPINE, NOT THE MOOD: a Moon chapter is read from the natal Moon's
+STANDING condition (input.natalCondition), never from the transiting Moon. If input.nodalAxis is
+present, the year moves along it — away from the release pole's rooms, toward the reach pole's —
+and the reading names that journey in lived terms.
+
+TASK: DEEP READ
 
 THE YEAR'S WINDOWS (input.yearWindows — when present): the stored life-timeline's LIT
 theme-windows across this solar year, with their open/close dates. These are the year's
@@ -1465,7 +1470,15 @@ Return your answer by calling the chapter tool with both lists filled in.`;
 // shared laws (NAME THE LITERAL PARTICULARS, the house doctrines, NAME THE AXIS AND ITS
 // RISK, neecha-bhanga/hardWon, SIGNS ARE HOUSES). It only adds the day-read shape below.
 // ─────────────────────────────────────────────────────────────────────────────
-export const DAY_READ_TAIL = `TASK: THE DAY READ
+export const DAY_READ_TAIL = `THE SPINE, NOT THE MOOD (the Moon-chapter law): when a running lord is
+the Moon, the CHAPTER speaks from the natal Moon's standing condition (input.natalCondition) —
+the transiting Moon is only today's trigger, never the season. And when input.nodalAxis is
+present, the axis IS the story: the day's events are movement AWAY from the release pole's
+rooms and TOWARD the reach pole's rooms — name those rooms concretely (the roots left, the
+territory reached, the partnership made public). A read that collapses such a day into
+feelings, mood, or "rest at home" is WRONG.
+
+TASK: THE DAY READ
 
 THE FINISHED READING (input.reading) — WHEN PRESENT, VOICE IT; DO NOT RE-DERIVE.
 When input.reading is present, the chart has ALREADY been read by the engine (the tried-and-true
@@ -2214,10 +2227,10 @@ export const PROMPT_VERSION = "2026-07-15-mode-words-purged";
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
   glance: "2026-07-16-salted-v1", // audit: was the ONE day-surface with no independent version
-  deep: "2026-07-13-mechanics-nohousenums-siblings",
-  deep_full: "2026-07-13-mechanics-nohousenums-siblings",
+  deep: "2026-07-16-the-spine-not-the-mood",
+  deep_full: "2026-07-16-the-spine-not-the-mood",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-15-open-windows",
+  day_read: "2026-07-16-the-spine-not-the-mood",
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-16-the-chapter-reader-v1",
