@@ -249,7 +249,7 @@ export default function Horoscope() {
                 >
                   <span style={{ fontSize: "0.82rem", fontWeight: isToday ? 800 : 500, color: isPurchased ? GOLD : "var(--foreground)", lineHeight: 1 }}>{day}</span>
                   <span style={{ height: 9, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>
-                    {isPurchased ? <VeleaLorMark size={9} color={GOLD} /> : isToday ? <span style={{ width: 3, height: 3, borderRadius: 999, background: modeColor }} /> : null}
+                    {isPurchased ? <OctagramMark size={10} color={GOLD} strokeWidth={1.2} /> : isToday ? <span style={{ width: 3, height: 3, borderRadius: 999, background: modeColor }} /> : null}
                   </span>
                 </button>
               );
@@ -278,7 +278,7 @@ export default function Horoscope() {
                     color: on ? "var(--foreground)" : "var(--color-muted-foreground)",
                   }}
                 >
-                  {owned && <VeleaLorMark size={8} color={GOLD} />}
+                  {owned && <OctagramMark size={9} color={GOLD} strokeWidth={1.2} />}
                   {a.label}
                 </button>
               );
@@ -289,7 +289,7 @@ export default function Horoscope() {
         {/* ── Selected date panel ── */}
         <div ref={panelRef} style={{ marginTop: "1.1rem", scrollMarginTop: "1rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.2rem" }}>
-            {purchasedSet.has(selectedDate) && <VeleaLorMark size={15} color={GOLD} />}
+            {purchasedSet.has(selectedDate) && <OctagramMark size={16} color={GOLD} strokeWidth={1.2} />}
             <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--foreground)", margin: 0, letterSpacing: "-0.01em" }}>{fmtLong(selectedDate)}</h2>
           </div>
           <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.7rem", opacity: 0.85 }}>
@@ -367,7 +367,7 @@ export default function Horoscope() {
                             }}
                           >
                             <span style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
-                              <VeleaLorMark size={11} color={GOLD} />
+                              <OctagramMark size={12} color={GOLD} strokeWidth={1.2} />
                               <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--foreground)" }}>{fmtShort(r.date)}</span>
                               {r.hasNotes && <span style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: GOLD, opacity: 0.85 }}>· noted</span>}
                             </span>
@@ -405,7 +405,7 @@ function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: 
           boxShadow: `0 2px 12px ${GOLD}44`,
         }}
       >
-        {pending ? <><Loader2 size={15} className="animate-spin" /> Reading the sky…</> : <>Reveal this reading</>}
+        {pending ? <><Loader2 size={15} className="animate-spin" /> Reading the sky…</> : <><OctagramMark size={15} color="#1a1305" strokeWidth={1.3} /> Reveal this reading</>}
       </button>
       {failed && !pending && (
         <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The reading couldn't be drawn just now. Please try again in a moment.</p>
