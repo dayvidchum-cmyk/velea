@@ -1887,7 +1887,7 @@ export default function Planner() {
                   className="flex flex-col items-center gap-1.5 group transition-all duration-200 cursor-pointer"
                 >
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[11px] transition-all duration-200 ${isToday ? "scale-110 orb-pulse" : "group-hover:scale-105"}`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[11px] transition-all duration-200 ${isToday ? "scale-110 orb-pulse" : isLanding ? "orb-pulse" : "group-hover:scale-105"}`}
                     style={{
                       // Filled = TODAY'S color, always (David: the kind-colored fill broke
                       // cohesion) — same recipe as today's coin: soft day fill, deep day ink.

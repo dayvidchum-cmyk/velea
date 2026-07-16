@@ -59,20 +59,18 @@
   100% { transform: scale(1.06) translateY(-1.2%); }
 }
 
-/* The current day-mode orb breathes a soft glow in its own color (var --orb-glow). */
+/* The current-kind orb PULSATES (the Kala-era breath, restored 2026-07-16 — it had died
+   of a double box-shadow animation + a dead --orb-glow var, and FS removes --day-accent
+   so the glow needs the gold fallback). One animation: glow swells, the orb breathes. */
 @keyframes veleaOrbPulse {
-  0%, 100% { box-shadow: 0 0 5px 0 var(--orb-glow, transparent); }
-  50%      { box-shadow: 0 0 16px 4px var(--orb-glow, transparent); }
+  0%, 100% { box-shadow: 0 0 4px 0 color-mix(in srgb, var(--day-accent, var(--brand-gold)) 30%, transparent); }
+  50%      { box-shadow: 0 0 18px 5px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 55%, transparent); }
 }
-.orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite, veleaOrbGlow 2.4s ease-in-out infinite; }
+.orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite; }
 .velea-loader { animation: veleaSweep 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; transform-origin: center; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--day-accent) 35%, transparent)); }
 @keyframes veleaSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .velea-loader { animation: veleaLoaderBreath 2.2s ease-in-out infinite; } }
 @keyframes veleaLoaderBreath { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
-@keyframes veleaOrbGlow {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--day-accent) 0%, transparent); }
-  50% { box-shadow: 0 0 14px 2px color-mix(in srgb, var(--day-accent) 45%, transparent); }
-}
 @media (prefers-reduced-motion: reduce) { .orb-pulse { animation: none; } }
 
 /* PARCHMENT — the shared surface for the chart ARTIFACT family (calendar, profection wheel, natal,
