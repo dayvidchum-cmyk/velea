@@ -1486,7 +1486,7 @@ export default function Planner() {
 
                   {/* ALL marks perch TOP-CENTER as one cluster; the crown is ALWAYS its
                       center, others flank it (David 2026-07-15 midnight experiment). */}
-                  {!isCrown && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (() => {
+                  {!isCrown && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) && (() => {
                     const others: React.ReactNode[] = [];
                     const phase = moonPhaseByDate.get(dateStr);
                     if (phase) others.push(
@@ -1496,7 +1496,10 @@ export default function Planner() {
                         display: "inline-block" }} />
                     );
                     if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontSize: "0.72rem", fontWeight: 800, color: MARK_INK.dollar }}>$</span>);
-                    if (!stationsToday.length) for (const e of windowGlyphList) others.push(
+                    // A station day still shows OTHER planets' window glyphs (David's 7/26:
+                    // Saturn centers, Mercury's window ☿ perches) — the stationing planet
+                    // itself is never in windowGlyphList (its state is "station").
+                    for (const e of windowGlyphList) others.push(
                       <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor }}>{PLANET_GLYPH[e.planet]}</span>
                     );
                     const hasCrownMark = achievementSet.has(dateStr);
