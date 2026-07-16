@@ -1454,7 +1454,7 @@ export default function Planner() {
                       the days before and after a station") — the turn's approach/exit, small
                       at the coin's lower edge; the station day itself keeps the full glyph. */}
                   {!stationsToday.length && !isCrown && !eclipseByDate.has(dateStr) && (retroToday?.some((e) => e.state === "window") ?? false) && (
-                    <span style={{ position: "absolute", bottom: -2, right: 2, fontSize: "0.62rem", fontFamily: PLANET_GLYPH_FONT, fontWeight: 700, color: numberColor, opacity: 0.9, lineHeight: 1, pointerEvents: "none" }}>
+                    <span style={{ position: "absolute", top: -4, left: 1, fontSize: "0.85rem", fontFamily: PLANET_GLYPH_FONT, fontWeight: 700, color: numberColor, opacity: 0.95, lineHeight: 1, pointerEvents: "none" }}>
                       {(retroToday ?? []).filter((e) => e.state === "window").slice(0, 2).map((e) => PLANET_GLYPH[e.planet]).join("")}
                     </span>
                   )}
@@ -1463,7 +1463,7 @@ export default function Planner() {
                   {(prosperitySet.has(dateStr) || achievementSet.has(dateStr)) && !isCrown && !eclipseByDate.has(dateStr) && (
                     // $ = Sampat (prosperity) · ♛ = Sadhaka (achievement — something can be WON
                     // today; a ✓ read as already-done, David 2026-07-15).
-                    <span style={{ position: "absolute", top: -1, right: 2, fontSize: prosperitySet.has(dateStr) ? "0.7rem" : "0.62rem", fontWeight: 800, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>
+                    <span style={{ position: "absolute", top: -1, right: 2, fontSize: prosperitySet.has(dateStr) ? "0.7rem" : "0.82rem", fontWeight: 800, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>
                       {prosperitySet.has(dateStr) ? "$" : "♛"}
                     </span>
                   )}
