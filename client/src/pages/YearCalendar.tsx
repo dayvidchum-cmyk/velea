@@ -108,7 +108,7 @@ export default function YearCalendar() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <AppHeader />
+      <div className="container py-6"><AppHeader /></div>
       <main className="mx-auto max-w-3xl px-3 pt-3">
         <button onClick={() => navigate("/")} className="mb-2 flex items-center gap-1 text-sm text-muted-foreground">
           <ChevronLeft className="h-4 w-4" /> Back

@@ -567,7 +567,7 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
   const cycle = ((saved.data as any)?.available ? (saved.data as any).cycle : null) ?? ((reveal.data as any)?.available ? (reveal.data as any).cycle : null);
   const noCycle = reveal.data && (reveal.data as any).available === false;
 
-  const accent = "#4C86C6"; // quicksilver blue — Mercury's own cool tone, distinct from eclipse gold
+  const accent = "#3FA8A0"; // AQUAMARINE — Mercury's gem family (emerald/aquamarine/peridot — David), one ☿ color everywhere
   // Phase-aware label: "ahead" while it's still approaching, "underway" once the review has turned on.
   const phase = cycle?.phaseNow as string | undefined;
   const eyebrow = phase === "approaching" ? "Mercury retrograde ahead" : "This Mercury retrograde";
@@ -660,7 +660,7 @@ function MonthCard({ modeColor }: { modeColor: string }) {
   const read = savedRead ?? revealedRead;
   const unavailable = reveal.data && (reveal.data as any).available === false;
 
-  const accent = "#7B6FD1"; // twilight violet — the month's season, distinct from eclipse gold + Mercury blue
+  const accent = "var(--day-accent)"; // the month follows the day (David: "why is read this month purple?")
   const monthLabel = new Date().toLocaleDateString("en-US", { month: "long" });
 
   return (
@@ -709,7 +709,7 @@ function MonthCard({ modeColor }: { modeColor: string }) {
                 style={{
                   display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: reveal.isPending ? "default" : "pointer",
                   borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, letterSpacing: "0.01em",
-                  color: "#fff", background: `linear-gradient(180deg, ${accent}, #5a4fae)`, opacity: reveal.isPending ? 0.7 : 1,
+                  color: "#fff", background: `linear-gradient(180deg, var(--day-accent), color-mix(in srgb, var(--day-accent) 70%, #2E2318))`, opacity: reveal.isPending ? 0.7 : 1,
                   boxShadow: `0 2px 12px ${accent}3a`,
                 }}
               >

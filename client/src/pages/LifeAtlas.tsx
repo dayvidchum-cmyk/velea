@@ -23,7 +23,7 @@ export default function LifeAtlas() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <AppHeader pageTitle="The Life Atlas" />
+      <div className="container py-6"><AppHeader pageTitle="The Life Atlas" /></div>
       <main className="mx-auto max-w-lg px-4 pt-2">
         <button onClick={() => navigate("/astrology")} className="mb-3 flex items-center gap-1 text-sm text-muted-foreground">
           <ChevronLeft className="h-4 w-4" /> Chart

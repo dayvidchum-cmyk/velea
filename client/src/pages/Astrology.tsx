@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { trpc } from "@/lib/trpc";
 import { ChevronDown, X } from "lucide-react";
 import { useLocation } from "wouter";
+import OctagramMark from "@/components/OctagramMark";
 import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
 import { ModeCard } from "@/components/ModeCard";
@@ -1335,7 +1336,7 @@ function AtlasDoor() {
   if (mine?.lifeAtlas !== true) return null;
   return (
     <button onClick={() => navigate("/atlas")} className="w-full mb-4 flex items-center justify-between px-4 py-3 rounded-xl" style={{ border: "1px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", background: "color-mix(in srgb, var(--day-accent) 7%, var(--color-card))" }}>
-      <span className="text-sm font-bold" style={{ color: "var(--heading-ink)" }}>★ The Life Atlas</span>
+      <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}><OctagramMark size={15} color="var(--brand-gold)" strokeWidth={1.2} /> The Life Atlas</span>
       <span className="text-xs font-bold uppercase" style={{ letterSpacing: "0.08em", color: "var(--day-accent)" }}>open ›</span>
     </button>
   );

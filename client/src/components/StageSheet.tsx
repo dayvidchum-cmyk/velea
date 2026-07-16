@@ -234,8 +234,8 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
 
       {/* Full-screen immersive art — tap ANYWHERE to close (a corner X is unreachable here) */}
       {skyIdx >= 0 && heroes[skyIdx] && (
-        <div className="app-shell-height" onClick={() => setSkyIdx(-1)} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10000, background: "#05060a", cursor: "pointer" }}>
-          <img src={todSrc(heroes[skyIdx].image)} onError={onTodError(heroes[skyIdx].image)} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: heroes[skyIdx].phase?.startsWith("retrograde") ? "brightness(1.42) contrast(1.05)" : undefined, animation: "velea-signal-in 0.9s ease both" }} />
+        <div onClick={() => setSkyIdx(-1)} style={{ position: "fixed", inset: 0, zIndex: 10000, background: "#05060a", cursor: "pointer" }}>
+          <img src={todSrc(heroes[skyIdx].image)} onError={onTodError(heroes[skyIdx].image)} alt={heroes[skyIdx].title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", filter: heroes[skyIdx].phase?.startsWith("retrograde") ? "brightness(1.42) contrast(1.05)" : undefined, animation: "velea-signal-in 0.9s ease both" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent 44%)" }} />
           <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top,0px) + 1rem)", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
             <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.82)", background: "rgba(0,0,0,0.45)", padding: "0.3rem 0.8rem", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: "0.35rem" }}><X size={13} /> tap anywhere to close</span>
