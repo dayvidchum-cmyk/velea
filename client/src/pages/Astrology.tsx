@@ -191,6 +191,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
   const [selectedHouse, setSelectedHouse] = useState<number | null>(null);
   // The House Reader: which house the user asked to hear (tap-gated LLM, cached natal-stable).
   const [voicedHouse, setVoicedHouse] = useState<number | null>(null);
+  const [canonOpen, setCanonOpen] = useState(false);
   const houseReadQ = trpc.narrative.houseRead.useQuery(
     { house: voicedHouse ?? 1 },
     { enabled: voicedHouse != null && voicedHouse === selectedHouse, staleTime: Infinity, retry: false },
@@ -334,11 +335,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
               </button>
             </div>
 
-            <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.7rem 0 0" }}>
-              {HOUSE_SUMMARY[sel].summary}
-            </p>
-
-            <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
+            <div style={{ marginTop: "0.7rem" }}>
               <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
                 In your chart
               </p>
@@ -377,6 +374,20 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
               ) : (
                 <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
                   The room is quiet right now — try again in a moment.
+                </p>
+              )}
+            </div>
+
+            {/* The canon brick, COLLAPSED (David: "so little and somehow loud") — one tap
+                when curiosity asks; silence otherwise. */}
+            <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.6rem" }}>
+              <button onClick={() => setCanonOpen((v) => !v)} className="w-full flex items-center justify-between" style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>The house itself</span>
+                <ChevronDown size={15} style={{ color: "var(--color-muted-foreground)", transform: canonOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+              </button>
+              {canonOpen && (
+                <p style={{ fontSize: "0.82rem", lineHeight: 1.55, color: "var(--color-muted-foreground)", margin: "0.55rem 0 0" }}>
+                  {HOUSE_SUMMARY[sel].summary}
                 </p>
               )}
             </div>
