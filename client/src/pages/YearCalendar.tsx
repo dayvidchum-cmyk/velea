@@ -138,9 +138,14 @@ export default function YearCalendar() {
     { from: data?.yearStart ?? "", to: data?.yearEnd ?? "" },
     { enabled: !!data, staleTime: 60 * 60 * 1000 },
   );
+  const eclipseByDate = useMemo(() => {
+    const m = new Map<string, "solar" | "lunar">();
+    for (const e of (yearSky as any)?.eclipses ?? []) m.set(e.date, e.type);
+    return m;
+  }, [yearSky]);
   const tileMarksByDate = useMemo(() => {
     const m = new Map<string, { planet: string; station: boolean }[]>();
-    for (const mk of yearSky ?? []) {
+    for (const mk of (yearSky as any)?.stations ?? []) {
       let arr = m.get(mk.date);
       if (!arr) { arr = []; m.set(mk.date, arr); }
       const ex = arr.find((e) => e.planet === mk.planet);
@@ -254,12 +259,14 @@ export default function YearCalendar() {
                           return `#${ch(n >> 16)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
                         };
                         const isToday = ds === todayStr, isPicked = dayPopup?.ds === ds, isCrown = topSet.has(ds);
+                        const eclipse = eclipseByDate.get(ds);
                         const filled = isToday || isCrown;
                         const bg = filled
                           ? `color-mix(in srgb, ${coin} 62%, #f8f4ea)`
                           : isPicked ? `color-mix(in srgb, ${coin} 26%, #f8f4ea)` : "transparent";
                         const marks = tileMarksByDate.get(ds) ?? [];
                         const isDollar = d.tara.taraNum === 2;
+                        const isSummit = d.tara.taraNum === 6; // Sadhaka — the achievement peak joins the tiles (David: "There's no crowns")
                         const isCaution = mvKey === "caution";
                         const hasDot = windowEdgeSet.has(ds);
                         return (
@@ -271,37 +278,39 @@ export default function YearCalendar() {
                               // border of its own hue. Bare days stay bare.
                               border: isCrown ? "1.5px solid #F2C21C"
                                 : isCaution ? "1px solid color-mix(in srgb, #B3232F 60%, transparent)"
-                                : (isDollar || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${coin} 50%, transparent)`
+                                : (isDollar || isSummit || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${coin} 50%, transparent)`
                                 : "1px solid transparent" }}>
-                            {/* THE LAKSHMI TREATMENT (David 2026-07-16: "All glyphs larger. If it
-                                is the only one, besides the lone dots, it is like the Lakshmi
-                                star"): a tile carrying exactly ONE mark shows it BIG and centered
-                                — the day IS the mark. Multi-mark tiles keep the corner cluster,
-                                larger. Window dots don't count and stay in their corner. */}
+                            {/* THE MARKED-TILE LAW (David 2026-07-16, two rulings): a tile
+                                carrying ANY marks drops its number — the day IS its marks,
+                                centered ("either no numbers here or glyphs coronate"). Solo
+                                marks render big (the Lakshmi treatment); companies share the
+                                center row. Sadhaka summits now ride the tiles too ("There's
+                                no crowns"). Window dots don't count and keep their corner. */}
                             {(() => {
-                              const markCount = (isDollar ? 1 : 0) + marks.length;
-                              const solo = !isCrown && markCount === 1;
+                              const markCount = (isDollar ? 1 : 0) + (isSummit ? 1 : 0) + marks.length;
+                              const solo = markCount === 1;
+                              const mSize = solo ? 18 : 13;
+                              const gSize = (station: boolean) => (solo ? (station ? "17px" : "15px") : (station ? "13px" : "11px"));
                               return (
                                 <>
-                                  {isCrown ? (
+                                  {eclipse ? (
+                                    /* Eclipse day: the dark gold-rimmed disc IS the day (month-coin law). */
+                                    <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
+                                      <span style={{ width: 14, height: 14, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 5px rgba(242,194,28,0.5)", display: "inline-block" }} />
+                                    </span>
+                                  ) : isCrown ? (
                                     <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
                                       <OctagramMark size={20} color="#D4AF37" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(242,194,28,0.45))" }} />
                                     </span>
-                                  ) : solo ? (
-                                    <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
-                                      {isDollar
-                                        ? <LotusMark size={18} strokeWidth={1.9} />
-                                        : <span style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: marks[0].station ? "17px" : "15px", fontWeight: 700, lineHeight: 1, color: MARK_INK[marks[0].planet] ?? "#6B6355" }}>{PLANET_GLYPH[marks[0].planet]}</span>}
-                                    </span>
-                                  ) : day}
-                                  {!solo && !isCrown && markCount > 0 && (
-                                    <span className="absolute right-[2px] top-[1px] flex items-center gap-[2px]" style={{ lineHeight: 1 }}>
-                                      {isDollar && <LotusMark size={14} strokeWidth={2.2} style={{ display: "block" }} />}
+                                  ) : markCount > 0 ? (
+                                    <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
+                                      {isDollar && <LotusMark size={mSize} strokeWidth={solo ? 1.9 : 2.2} />}
+                                      {isSummit && <SummitMark size={mSize} strokeWidth={solo ? 1.6 : 1.9} />}
                                       {marks.slice(0, 2).map((mk) => (
-                                        <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: mk.station ? "13px" : "11px", fontWeight: 700, color: MARK_INK[mk.planet] ?? "#6B6355" }}>{PLANET_GLYPH[mk.planet]}</span>
+                                        <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: gSize(mk.station), fontWeight: 700, color: MARK_INK[mk.planet] ?? "#6B6355" }}>{PLANET_GLYPH[mk.planet]}</span>
                                       ))}
                                     </span>
-                                  )}
+                                  ) : day}
                                 </>
                               );
                             })()}

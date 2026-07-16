@@ -301,10 +301,11 @@ export interface MonthSkyMarks {
 // days) instead of 13 padded monthSkyMarks sweeps (~13k). Tiles only need station/window;
 // rx spans and shadows stay a month-view affair.
 export interface YearStationMark { date: string; planet: string; kind: "station-retro" | "station-direct" | "window" }
-const YEAR_STATIONS_CACHE = new Map<string, { at: number; value: YearStationMark[] }>();
+export interface YearSkyMarks { stations: YearStationMark[]; eclipses: { date: string; type: "solar" | "lunar" }[] }
+const YEAR_STATIONS_CACHE = new Map<string, { at: number; value: YearSkyMarks }>();
 const YEAR_STATIONS_TTL_MS = 12 * 60 * 60 * 1000;
 
-export async function yearStationMarks(from: string, to: string): Promise<YearStationMark[]> {
+export async function yearStationMarks(from: string, to: string): Promise<YearSkyMarks> {
   const key = `${from}|${to}`;
   const hit = YEAR_STATIONS_CACHE.get(key);
   if (hit && Date.now() - hit.at < YEAR_STATIONS_TTL_MS) return hit.value;
@@ -316,12 +317,32 @@ export async function yearStationMarks(from: string, to: string): Promise<YearSt
   const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
   const inRange = (d: string) => d >= from && d <= to;
 
+  // One daily sweep carries BOTH signals: the five retro planets' speeds (stations)
+  // and Sun/Moon/Rahu (eclipses — David 2026-07-16: "Where's the eclipses?").
   const speeds: { ms: number; spd: Record<string, number> }[] = [];
+  const eclipses: { date: string; type: "solar" | "lunar" }[] = [];
+  let prevElong: number | null = null;
   for (let ms = startMs; ms <= endMs; ms += DAY_MS) {
-    const pos = await getSiderealLongitudesWithSpeed(new Date(ms), planetNames);
+    const pos = await getSiderealLongitudesWithSpeed(new Date(ms), [...planetNames, "Sun", "Moon", "Rahu"]);
     const spd: Record<string, number> = {};
     for (const n of planetNames) spd[n] = pos[n]?.speed ?? 0;
     speeds.push({ ms, spd });
+    // Same syzygy + node-proximity geometry as monthSkyMarks.
+    const sun = ((pos.Sun?.longitude ?? 0) % 360 + 360) % 360;
+    const moon = ((pos.Moon?.longitude ?? 0) % 360 + 360) % 360;
+    const rahu = ((pos.Rahu?.longitude ?? 0) % 360 + 360) % 360;
+    const elong = ((moon - sun) % 360 + 360) % 360;
+    if (prevElong != null) {
+      const crossedNew = prevElong > 300 && elong < 60;
+      const crossedFull = prevElong < 180 && elong >= 180;
+      if (crossedNew || crossedFull) {
+        const nodeDist = Math.min(Math.abs(diffTo(sun, rahu)), Math.abs(diffTo(sun, (rahu + 180) % 360)));
+        const limit = crossedNew ? 18.5 : 12.2;
+        const d = iso(ms);
+        if (nodeDist <= limit && inRange(d)) eclipses.push({ date: d, type: crossedNew ? "solar" : "lunar" });
+      }
+    }
+    prevElong = elong;
   }
 
   const marks: YearStationMark[] = [];
@@ -340,8 +361,9 @@ export async function yearStationMarks(from: string, to: string): Promise<YearSt
       }
     }
   }
-  YEAR_STATIONS_CACHE.set(key, { at: Date.now(), value: marks });
-  return marks;
+  const value: YearSkyMarks = { stations: marks, eclipses };
+  YEAR_STATIONS_CACHE.set(key, { at: Date.now(), value });
+  return value;
 }
 
 export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
