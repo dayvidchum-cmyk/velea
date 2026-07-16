@@ -1510,7 +1510,7 @@ export default function Planner() {
                       // Bright gold with a glow everywhere else.
                       const knotOnGold = filled && modeColor === MODE_DOT.Build;
                       const knotColor = knotOnGold ? darkenOklch(accent, 0.72) : GOLD_BRIGHT;
-                      return <OctagramMark size={25} color={knotColor} strokeWidth={1.15} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))", pointerEvents: "none" }} />;
+                      return <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color={knotColor} strokeWidth={1.15} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))" }} /></span>;
                     })()
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
@@ -1527,7 +1527,7 @@ export default function Planner() {
                       ))}
                     </span>
                   ) : (
-                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem" }}>
+                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {day}
                     </span>
                   )}
