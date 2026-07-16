@@ -184,8 +184,23 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearStart = `${startYear}-${p2(bm)}-${p2(bd)}`;
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
+  // LOCATION-TRUE ALMANAC (David 2026-07-16 "do it"): the panchang belongs to a PLACE —
+  // the day walk runs at the user's STORED current location (the chip's stable choice,
+  // never live GPS wobble), falling back to Boston. DST-aware offsets per date.
+  const { getUserById: getU } = await import("./db.js");
+  const u = await getU(userId);
+  const hasLoc = !!(u?.locationLat && u?.locationLon && u?.locationTimezone);
+  const locLat = hasLoc ? parseFloat(u!.locationLat!) : 42.3601;
+  const locLon = hasLoc ? parseFloat(u!.locationLon!) : -71.0589;
+  const locTz = hasLoc ? u!.locationTimezone! : null;
+  const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
+  const { getBostonUtcOffset: bosOff } = await import("./panchang/service.js");
+  const offsetFor = (date: string) => locTz ? getTimezoneOffset(locTz, new Date(date + "T12:00:00Z")) : bosOff(date);
+  // Rounded to ~1km so a re-geocode of the same town never busts the year (time-stable law).
+  const locKey = `${locLat.toFixed(2)},${locLon.toFixed(2)},${locTz ?? "boston"}`;
+
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|yr-v8`;
+  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|${locKey}|yr-v9`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 
@@ -203,7 +218,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   for (let ms = Date.parse(yearStart + "T00:00:00Z"); ms < Date.parse(yearEnd + "T00:00:00Z"); ms += 86400000) {
     const date = new Date(ms).toISOString().slice(0, 10);
     try {
-      const astro: any = await calcPanchang(date, 42.3601, -71.0589, getBostonUtcOffset(date));
+      const astro: any = await calcPanchang(date, locLat, locLon, offsetFor(date));
       const maj = majorityStarFromAstro(astro);
       const dayNakIdx = maj ?? astro.nakshatraIndex ?? Math.floor((((astro.moonLongitude % 360) + 360) % 360) / NAKSPAN);
       const k = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
