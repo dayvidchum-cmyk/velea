@@ -1466,7 +1466,7 @@ export default function Planner() {
                       ? `1.5px solid ${GOLD_BRIGHT}`
                       : stationsToday.length
                       ? `1.25px solid ${accent}`
-                      : isSelected
+                      : isSelected && !isToday
                       ? "2px solid var(--color-foreground)"
                       : isToday
                       ? "2px solid transparent"
@@ -1490,7 +1490,7 @@ export default function Planner() {
                   {/* Everything besides the crown rides the UPPER-RIGHT arc together (David):
                       $ first, then the station-window glyphs, one perched span. */}
                   {!isCrown && !eclipseByDate.has(dateStr) && (prosperitySet.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (
-                    <span style={{ position: "absolute", top: -8, right: -4, display: "flex", alignItems: "baseline", lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "3px 3px", borderRadius: 8, zIndex: 1 }}>
+                    <span style={{ position: "absolute", top: -10, right: -7, display: "flex", alignItems: "baseline", lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "3px 3px", borderRadius: 8, zIndex: 1 }}>
                       {prosperitySet.has(dateStr) && (
                         <span style={{ fontSize: "0.72rem", fontWeight: 800, color: MARK_INK.dollar }}>$</span>
                       )}
@@ -1527,7 +1527,7 @@ export default function Planner() {
                       ))}
                     </span>
                   ) : (
-                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
                       {day}
                     </span>
                   )}
