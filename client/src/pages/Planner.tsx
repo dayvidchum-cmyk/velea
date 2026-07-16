@@ -1530,7 +1530,7 @@ export default function Planner() {
                       ))}
                     </span>
                   ) : (
-                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
+                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1.15rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
                       {day}
                     </span>
                   )}
