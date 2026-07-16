@@ -125,7 +125,11 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   const sentence = contained
     ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
     : supports.length === 0
-    ? `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`
+    // The empty current under a GOOD star = receptive winning (David 2026-07-15: "a
+    // possible win… no forceful pushing" — his words, his edit).
+    ? (input.tara?.quality === "good"
+        ? `${cap(headline)} — but your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it.`
+        : `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
     : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
 
   // THE HANDSHAKE (David 2026-07-15: "just do it. We can always roll it back"): the day's

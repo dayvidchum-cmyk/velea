@@ -133,6 +133,14 @@ describe("the personal turn + the handshake (David 2026-07-15, the 7/29 conflict
     const contained = dayFilter({ ...base, nakshatra: "Pushya", tithiNumber: 5, tara: { quality: "bad", taraNum: 7, cycle: 1 } });
     expect(contained.supportedKinds).toEqual([]);
   });
+  it("an empty current under a GOOD star promises the receptive win (David's line)", () => {
+    const good = { quality: "good" as const, taraNum: 6, cycle: 1, favorable: true }; // Sadhaka
+    const d = dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4, tara: good });
+    expect(d.sentence).toMatch(/a win is possible\. No forceful pushing\. Let it come; don't chase it\./);
+    const plain = dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 });
+    expect(plain.sentence).toMatch(/start nothing.*let it pass quietly/i);
+  });
+
   it("an empty tithi keeps only the cutting kinds, and only on cutting natures", () => {
     expect(dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 }).supportedKinds).toEqual([]);
     expect(dayFilter({ ...base, nakshatra: "Mula", tithiNumber: 4 }).supportedKinds).toEqual(["sharp"]);
