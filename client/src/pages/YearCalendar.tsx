@@ -82,7 +82,10 @@ export default function YearCalendar() {
     }
     return edges;
   }, [data]);
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // LOCAL date, not UTC — toISOString rolls to tomorrow after 8pm Boston (David caught
+  // the ring on 7/16 while living 7/15). Same local frame as the month calendar.
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
   return (
     <div className="min-h-screen bg-background pb-24">
