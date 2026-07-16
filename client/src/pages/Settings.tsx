@@ -518,6 +518,9 @@ export default function Settings() {
           </SettingsSection>
         )}
 
+        {/* ── Feature access (admin) — the tester switchboard (David 2026-07-16) ── */}
+        {user?.role === "admin" && <FeatureAccessPanel />}
+
         {/* ── Users (admin) — create tester logins, set roles, repair blank charts, delete cleanly ── */}
         {user?.role === "admin" && (
           <SettingsSection title="Users">
@@ -690,5 +693,65 @@ export default function Settings() {
       {/* Edit birth details in place — a bottom sheet, so we never leave Settings. */}
       <BirthDetailsSheet open={birthSheetOpen} onClose={() => setBirthSheetOpen(false)} />
     </div>
+  );
+}
+
+
+/** FEATURE ACCESS — per-feature audience switches + the tester email list. Flags live in
+ *  the system_prompts kv row "feature_flags"; admins always see everything. */
+function FeatureAccessPanel() {
+  const utils = trpc.useUtils();
+  const { data } = trpc.features.all.useQuery(undefined, { retry: false });
+  const setFlags = trpc.features.set.useMutation({ onSuccess: () => { utils.features.all.invalidate(); utils.features.mine.invalidate(); } });
+  const [newTester, setNewTester] = useState("");
+  if (!data) return null;
+  const { flags, defs } = data as any;
+  return (
+    <SettingsSection title="Feature access">
+      <p className="text-xs mb-3" style={{ color: "var(--color-muted-foreground)" }}>
+        Who sees what. Admins always see everything; testers are the emails below.
+      </p>
+      {Object.entries(defs).map(([key, def]: any) => (
+        <SettingRow key={key} label={def.label} description={def.blurb}>
+          <TogglePair
+            options={["admins", "testers", "everyone"] as const}
+            value={flags.features[key] ?? "admins"}
+            onChange={(v) => setFlags.mutate({ features: { [key]: v } })}
+            renderLabel={(v) => <span className="capitalize">{v}</span>}
+          />
+        </SettingRow>
+      ))}
+      <div className="mt-4">
+        <p className="text-[12px] font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
+          Testers
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {flags.testers.length === 0 && <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>No testers yet.</span>}
+          {flags.testers.map((t: string) => (
+            <span key={t} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}>
+              {t}
+              <button onClick={() => setFlags.mutate({ testers: flags.testers.filter((x: string) => x !== t) })} style={{ color: "var(--color-muted-foreground)" }}>×</button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="email"
+            value={newTester}
+            onChange={(e) => setNewTester(e.target.value)}
+            placeholder="tester@email.com"
+            className="flex-1 px-3 py-2 rounded-lg text-sm"
+            style={{ background: "var(--color-secondary)", border: "1px solid var(--color-border)", color: "var(--color-foreground)" }}
+          />
+          <button
+            onClick={() => { if (newTester.includes("@")) { setFlags.mutate({ testers: [...flags.testers, newTester.trim()] }); setNewTester(""); } }}
+            className="px-4 py-2 rounded-lg text-sm font-semibold"
+            style={{ background: "var(--heading-ink)", color: "#FBF7ED", border: "none" }}
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </SettingsSection>
   );
 }

@@ -109,6 +109,8 @@ export const narrativeRouter = router({
   // stable + cached; fires only on explicit open (cost law).
   houseRead: protectedProcedure.input(z.object({ house: z.number().int().min(1).max(12), refresh: z.boolean().optional() })).query(async ({ ctx, input }) => {
     try {
+      const { hasFeature } = await import("../feature-flags.js");
+      if (!(await hasFeature(ctx.user, "houseReader"))) return { available: false, read: null, generatedAt: null, cached: false } as const;
       const { getActiveProfile } = await import("../routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false, read: null, generatedAt: null, cached: false } as const;
@@ -123,6 +125,8 @@ export const narrativeRouter = router({
   // THE CHAPTER READER — tap a mahadasha on the timeline, the lord's dossier speaks.
   dashaRead: protectedProcedure.input(z.object({ lord: z.string().min(2).max(12), span: z.string().optional(), refresh: z.boolean().optional() })).query(async ({ ctx, input }) => {
     try {
+      const { hasFeature } = await import("../feature-flags.js");
+      if (!(await hasFeature(ctx.user, "chapterReader"))) return { available: false, read: null, generatedAt: null, cached: false } as const;
       const { getActiveProfile } = await import("../routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false, read: null, generatedAt: null, cached: false } as const;

@@ -1895,7 +1895,8 @@ export const appRouter = router({
     forYear: protectedProcedure
       .input(z.object({ yearOffset: z.number().int().min(-1).max(1).default(0) }).optional())
       .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Not available yet." });
+        const { hasFeature } = await import("./feature-flags.js");
+        if (!(await hasFeature(ctx.user, "yearPage"))) throw new TRPCError({ code: "FORBIDDEN", message: "Not available yet." });
         return rankedSolarYearFor(ctx.user.id, input?.yearOffset ?? 0);
       }),
 
@@ -1923,6 +1924,37 @@ export const appRouter = router({
   }),
 
   // ── MASTER MODE (Pancha Pakshi hourly timing) — GATED to an allowlist (private) ──
+  // FEATURE FLAGS — the tester switchboard (David 2026-07-16). Buttons live in Settings
+  // (admin section); audiences: admins | testers | everyone; testers = email allowlist.
+  features: router({
+    mine: protectedProcedure.query(async ({ ctx }) => {
+      const { FEATURE_DEFS, hasFeature } = await import("./feature-flags.js");
+      const keys = Object.keys(FEATURE_DEFS) as (keyof typeof FEATURE_DEFS)[];
+      const entries = await Promise.all(keys.map(async (k) => [k, await hasFeature(ctx.user, k)] as const));
+      return Object.fromEntries(entries) as Record<string, boolean>;
+    }),
+    all: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+      const { getFlags, FEATURE_DEFS } = await import("./feature-flags.js");
+      return { flags: await getFlags(), defs: FEATURE_DEFS };
+    }),
+    set: protectedProcedure
+      .input(z.object({
+        features: z.record(z.string(), z.enum(["admins", "testers", "everyone"])).optional(),
+        testers: z.array(z.string().email()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+        const { getFlags, saveFlags } = await import("./feature-flags.js");
+        const cur = await getFlags();
+        await saveFlags({
+          features: { ...cur.features, ...(input.features as any ?? {}) },
+          testers: input.testers ?? cur.testers,
+        });
+        return { ok: true };
+      }),
+  }),
+
   masterMode: router({
     // Entitlement check — drives the locked/unlocked UI. Public to every signed-in user (they all
     // SEE the feature), but `entitled` is false unless it's turned on for them, which shows the lock.
