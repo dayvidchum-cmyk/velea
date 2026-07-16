@@ -287,6 +287,9 @@ export default function YearCalendar() {
                               // any tile carrying a glyph, $ OR a window dot = fine anchor
                               // border of its own hue. Bare days stay bare.
                               border: isCrown ? "1.5px solid #F2C21C"
+                                // Eclipse tile: a DARK border — not black (tonal law), the
+                                // eclipse's own deep cosmic indigo (David 2026-07-16).
+                                : eclipse ? "1.5px solid #2E2447"
                                 : isCaution ? "1px solid color-mix(in srgb, #B3232F 60%, transparent)"
                                 : (isDollar || isSummit || marks.length > 0 || hasDot) ? `1px solid color-mix(in srgb, ${familyInk} 50%, transparent)`
                                 : "1px solid transparent" }}>
