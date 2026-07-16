@@ -1711,6 +1711,17 @@ followed by analysis. The register: "Jupiter is practically glowing today — fa
 generous over your circle, delighted to hand things out… But Mercury is swallowed whole
 by the Sun's glare, backtracking and muffled… And Venus, your year's protagonist, is in
 hostile lodging, running low — asking to be restored rather than spent."
+THE OPEN WINDOWS (input.openWindows) — THE READ'S DEEPEST DUTY: when present, the stored
+life-timeline says a THEME stands lit today by full convergence — natal promise, running
+period and sky agreeing. These are the days life EVENTS land. The reader should wake up,
+read this, and receive a real HINT of what may find them by nightfall: a marriage window
+open = the proposal, the union step, the relationship turning formal — say the life-thing
+in warm plain words ("a union question may find its moment today — let it"), never coy,
+never prophecy-theater, never machinery. A lit window OUTRANKS every other thread: it IS
+the story's spine that day. (input.knots carries today's live signals; openWindows is the
+standing season — when both agree, be direct.) Themes: marriage/children/career/identity/
+fame/wealth/siblings=inner circle/parents/home/health.
+
 FIVE LAWS FROM THE LIVE SAMPLES (each one a David correction):
 1. NAME + EPITHET, never epithet INSTEAD of name. "The year's guide is in difficult
    lodging" is a FAILURE — say "Venus, your year's guide, in difficult lodging." You may
@@ -2065,7 +2076,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-15-cast-voice-five-laws",
+  day_read: "2026-07-15-open-windows",
   cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",

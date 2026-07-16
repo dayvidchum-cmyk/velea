@@ -612,6 +612,34 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     meridianOnAxis,
     partnerGender: null,
   });
+  // THE OPEN WINDOWS (David 2026-07-15: "how would someone like Simone wake up… and get a
+  // hint she may be engaged by the end of the day"): the STORED Step-15 convergence
+  // timeline — natal promise + dasha + transit agreeing — carries which life-themes stand
+  // LIT today. The live knots above see today's sky; the stored windows see the LIFE.
+  let openWindows: Array<{ theme: string; convergence: number; runsUntil: string }> | null = null;
+  try {
+    const { getDb } = await import("../db.js");
+    const { profileConvergence } = await import("../../drizzle/schema.js");
+    const { eq: eqOp2 } = await import("drizzle-orm");
+    const db2 = await getDb();
+    if (db2) {
+      const rows = await db2.select().from(profileConvergence).where(eqOp2(profileConvergence.profileId, p.id));
+      const dayMs = Date.parse(dateStr + "T12:00:00Z");
+      const span = rows.find((r: any) => new Date(r.startAt).getTime() <= dayMs && dayMs < new Date(r.endAt).getTime());
+      if (span) {
+        const themes = JSON.parse((span as any).themes ?? "{}");
+        const lit = Object.entries(themes).filter(([, t]: any) => t?.lit);
+        if (lit.length) {
+          openWindows = lit.map(([theme, t]: any) => ({
+            theme,
+            convergence: t.convergence ?? 1,
+            runsUntil: new Date((span as any).endAt).toISOString().slice(0, 10),
+          }));
+        }
+      }
+    }
+  } catch { /* no stored timeline — the live knots still speak */ }
+
   // Carry only the lit knots, trimmed for the prompt (drop internal scaffolding).
   const knots = knotsResult.lit.length
     ? knotsResult.lit.map((k) => ({ theme: k.theme, label: k.label, tier: k.tier, houses: k.houses, why: k.signals.map((s) => s.text), ...(k.folds?.length ? { folds: k.folds } : {}), ...(k.comboProse ? { canon: k.comboProse } : {}) }))
@@ -774,5 +802,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(knots ? { knots } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }
