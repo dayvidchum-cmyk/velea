@@ -101,6 +101,10 @@ const FRAGMENT_STARTS = new Set([
   "is", "are", "was", "were", "be", "been", "being", "and", "but", "or", "nor",
   "which", "that", "who", "whom", "whose", "where", "when", "while", "because",
   "though", "although", "yet", "if", "as",
+  // verbs that begin the TAIL of a subject the peel cut away (David's "broken thought":
+  // "Have to be worked through that craft floor…")
+  "have", "has", "had", "having", "means", "meaning", "makes", "making",
+  "needs", "needing", "wants", "gets", "getting", "comes", "coming", "goes", "going",
 ]);
 
 /**
@@ -117,9 +121,15 @@ function peelTakeaway(text: string): { data: string; takeaway: string } {
   }
   const idx = text.lastIndexOf("—");
   if (idx > text.length * 0.4) {
+    // APPOSITIVE-PAIR GUARD: if another em dash sits shortly before this one with no
+    // sentence break between them, this dash CLOSES an aside ("— priced pieces,
+    // retainers —") — peeling here beheads the sentence (David's broken thought).
+    const opener = text.lastIndexOf("—", idx - 1);
+    const between = opener >= 0 ? text.slice(opener + 1, idx) : "";
+    const isPairClose = opener >= 0 && between.length < 140 && !/[.!?]/.test(between);
     const tail = text.slice(idx + 1).trim();
     const first = (tail.split(/\s+/)[0] || "").toLowerCase().replace(/[^a-z]/g, "");
-    if (tail && !FRAGMENT_STARTS.has(first)) {
+    if (tail && !isPairClose && !FRAGMENT_STARTS.has(first)) {
       return { data: text.slice(0, idx).trim().replace(/[,;]\s*$/, ""), takeaway: tail };
     }
   }
