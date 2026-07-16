@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import OctagramMark from "@/components/OctagramMark";
 import LotusMark from "@/components/LotusMark";
 import SummitMark from "@/components/SummitMark";
+import PlanetMark from "@/components/PlanetMark";
 import { trpc } from "@/lib/trpc";
 import AddTaskSheet from "@/components/AddTaskSheet";
 
@@ -316,7 +317,7 @@ export default function YearCalendar() {
                                       {isDollar && <LotusMark size={mSize} strokeWidth={2.1} />}
                                       {isSummit && <SummitMark size={mSize} strokeWidth={1.8} />}
                                       {marks.slice(0, 2).map((mk) => (
-                                        <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: `${mSize}px`, fontWeight: 700, lineHeight: 1, color: MARK_INK[mk.planet] ?? "var(--heading-ink)", transform: GLYPH_NUDGE[mk.planet] ? `translateX(${GLYPH_NUDGE[mk.planet]})` : undefined, display: "inline-block" }}>{PLANET_GLYPH[mk.planet]}</span>
+                                        <PlanetMark key={mk.planet} planet={mk.planet} size={mSize} strokeWidth={2} color={MARK_INK[mk.planet] ?? undefined} />
                                       ))}
                                     </span>
                                   ) : day}
@@ -383,7 +384,7 @@ export default function YearCalendar() {
                   )}
                   {popupMarks.planets.map((m) => (
                     <span key={m.planet} className="text-xs inline-flex items-center gap-1" style={{ color: "var(--color-foreground)" }}>
-                      <span style={{ fontFamily: PLANET_GLYPH_FONT, fontWeight: 700, fontSize: m.state.startsWith("station") ? "1.05rem" : "0.9rem", color: MARK_INK[m.planet] ?? "var(--heading-ink)", lineHeight: 1 }}>{PLANET_GLYPH[m.planet]}</span>
+                      <PlanetMark planet={m.planet} size={m.state.startsWith("station") ? 17 : 14} strokeWidth={2} color={MARK_INK[m.planet] ?? undefined} />
                       {m.planet} {m.detail}
                     </span>
                   ))}

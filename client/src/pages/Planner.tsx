@@ -7,6 +7,7 @@ import LocationChip from "@/components/LocationChip";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
 import LotusMark from "@/components/LotusMark";
+import PlanetMark from "@/components/PlanetMark";
 import SummitMark from "@/components/SummitMark";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -1553,7 +1554,7 @@ export default function Planner() {
                     // Saturn centers, Mercury's window ☿ perches) — the stationing planet
                     // itself is never in windowGlyphList (its state is "station").
                     for (const e of windowGlyphList) others.push(
-                      <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor, transform: GLYPH_NUDGE[e.planet] ? `translateX(${GLYPH_NUDGE[e.planet]})` : undefined }}>{PLANET_GLYPH[e.planet]}</span>
+                      <PlanetMark key={e.planet} planet={e.planet} size={13} strokeWidth={2.1} color={MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? undefined} />
                     );
                     const hasCrownMark = achievementSet.has(dateStr);
                     const mid = Math.floor(others.length / 2);
@@ -1604,7 +1605,7 @@ export default function Planner() {
                     // above the 1rem number so the turning planet reads at a glance (David).
                     <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {stationsToday.map((e) => (
-                        <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: MARK_INK[e.planet] ?? numberColor, lineHeight: 1, transform: GLYPH_NUDGE[e.planet] ? `translateX(${GLYPH_NUDGE[e.planet]})` : undefined }}>{PLANET_GLYPH[e.planet]}</span>
+                        <PlanetMark key={e.planet} planet={e.planet} size={stationsToday.length > 1 ? 20 : 26} strokeWidth={1.7} color={MARK_INK[e.planet] ?? undefined} />
                       ))}
                     </span>
                   ) : (!filled && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0)) ? (
@@ -1617,7 +1618,7 @@ export default function Planner() {
                           {prosperitySet.has(dateStr) && <LotusMark size={16} strokeWidth={2} />}
                           {achievementSet.has(dateStr) && <SummitMark size={16} strokeWidth={1.7} />}
                           {windowGlyphList.map((e) => (
-                            <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: "16px", fontWeight: 700, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor, lineHeight: 1, display: "inline-block", transform: GLYPH_NUDGE[e.planet] ? `translateX(${GLYPH_NUDGE[e.planet]})` : undefined }}>{PLANET_GLYPH[e.planet]}</span>
+                            <PlanetMark key={e.planet} planet={e.planet} size={16} strokeWidth={1.9} color={MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? undefined} />
                           ))}
                         </>;
                       })()}
