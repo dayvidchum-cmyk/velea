@@ -1591,7 +1591,7 @@ export default function Planner() {
             {crownTip.kind === "crown" ? (
               <>
                 <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#C9A84C", marginBottom: "0.25rem" }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 999, background: "#F2C21C", boxShadow: "0 0 5px rgba(242,194,28,0.75)", display: "inline-block" }} /> Knot Day
+                  <span style={{ width: 8, height: 8, borderRadius: 999, background: "#F2C21C", boxShadow: "0 0 5px rgba(242,194,28,0.75)", display: "inline-block" }} /> Crowning day
                 </span>
                 These are days when the universal sky and your chart line up with unusual force. What arrives may look like a gift or a rupture &mdash; but it carries weight, and it moves you where you&rsquo;re meant to go.
                 {goldenSet.has(crownTip.date) && (
