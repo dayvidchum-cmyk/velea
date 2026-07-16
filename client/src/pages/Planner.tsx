@@ -1626,7 +1626,7 @@ export default function Planner() {
                         border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26",
                         display: "inline-block" }} />
                     );
-                    if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontSize: "0.82rem", fontWeight: 600, color: MARK_INK.dollar, alignSelf: "center" }}>$</span>);
+                    if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontSize: "0.82rem", fontWeight: 600, color: MARK_INK.dollar, alignSelf: "center" }}>€</span>);
                     // A station day still shows OTHER planets' window glyphs (David's 7/26:
                     // Saturn centers, Mercury's window ☿ perches) — the stationing planet
                     // itself is never in windowGlyphList (its state is "station").
@@ -1702,7 +1702,7 @@ export default function Planner() {
                         const g = count >= 2 ? 13 : 16;
                         return <>
                           {phase && <span style={{ width: count >= 2 ? 11 : 13, height: count >= 2 ? 11 : 13, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
-                          {prosperitySet.has(dateStr) && <span style={{ fontSize: `${g}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
+                          {prosperitySet.has(dateStr) && <span style={{ fontSize: `${g}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>€</span>}
                           {windowGlyphList.map((e) => (
                             <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} />
                           ))}
@@ -1774,7 +1774,7 @@ export default function Planner() {
             ) : crownTip.kind === "prosperity" ? (
               <>
                 <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#8a6d1f", marginBottom: "0.25rem" }}>
-                  <span style={{ fontWeight: 600, color: MARK_INK.dollar }}>$</span> Prosperity day
+                  <span style={{ fontWeight: 600, color: MARK_INK.dollar }}>€</span> Prosperity day
                 </span>
                 Your prosperity star &mdash; wealth, income and livelihood run with you today. Earn on your own terms.
               </>
