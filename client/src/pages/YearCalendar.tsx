@@ -291,7 +291,7 @@ export default function YearCalendar() {
         const dateNice = new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: "rgba(30, 24, 16, 0.45)" }} onClick={() => setDayPopup(null)}>
-            <div className="w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", maxHeight: "80dvh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
               <p className="font-serif text-lg" style={{ color: "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
               <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
@@ -300,9 +300,10 @@ export default function YearCalendar() {
                 {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#2E7D4F" }}><OctagramMark size={11} color="#2E7D4F" strokeWidth={1.4} style={{ verticalAlign: "-1px", marginRight: 3 }} />crowning day</span>}
               </p>
               {/* THE DAY'S MARKS (David 2026-07-16: "planet glyphs and $ signs and moons in the
-                  year pop-up") — the same marks the month coins wear, spelled out. */}
-              {((d as any).moonPhase || popupMarks.eclipse || popupMarks.planets.length > 0) && (
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                  year pop-up") — the same marks the month coins wear, spelled out. The slot is
+                  ALWAYS rendered at a reserved height so the async sky fetch can't grow the card
+                  under the thumb (David: "the bottom is running away from me"). */}
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1" style={{ minHeight: 18 }}>
                   {popupMarks.eclipse && (
                     <span className="text-xs inline-flex items-center gap-1.5" style={{ color: "var(--color-foreground)" }}>
                       <span style={{ width: 11, height: 11, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 4px rgba(242,194,28,0.5)", display: "inline-block" }} />
@@ -322,7 +323,6 @@ export default function YearCalendar() {
                     </span>
                   ))}
                 </div>
-              )}
               <p className="mt-2 text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.55 }}>
                 #{d.rank} of {data?.days.length ?? 365} · {d.plain.day} — {d.plain.feel}; {d.plain.moon}.
               </p>
