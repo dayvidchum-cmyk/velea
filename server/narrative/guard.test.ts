@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { guardViolation, scrubMachinery } from "./generate";
+import { guardViolation } from "./generate";
 
 // These prove — deterministically, no LLM, no spend — that the two failure modes David kept
 // hitting (chart-machinery leaks and over-length reads) are CAUGHT in code and regenerated,
@@ -67,5 +68,14 @@ describe("guardViolation — over-length reads are rejected", () => {
   it("passes a read at the cap", () => {
     const okText = Array.from({ length: 118 }, (_, i) => `word${i}`).join(" ");
     expect(guardViolation(okText, 120)).toBeNull();
+  });
+});
+
+describe("guardViolation — the day-sentence restatement ban (David's law 3, enforced)", () => {
+  it("rejects prose containing the day headline; passes clean prose", () => {
+    const headline = "a cutting day built for work";
+    expect(guardViolation("This is a cutting day built for work, not warmth.", 200, [headline])).toMatch(/RESTATED THE DAY SENTENCE/);
+    expect(guardViolation("Jupiter is glowing over your circle today.", 200, [headline])).toBeNull();
+    expect(guardViolation("Any prose at all.", 200, [])).toBeNull();
   });
 });

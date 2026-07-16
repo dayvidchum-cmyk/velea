@@ -286,9 +286,16 @@ const scrubChapter = (c: Chapter): Chapter => ({
 });
 
 // Returns the reason a read FAILS a guard (too long / machinery leak), or null if it's clean.
-export function guardViolation(fullText: string, maxWords: number): string | null {
+export function guardViolation(fullText: string, maxWords: number, bannedPhrases?: string[]): string | null {
   const wc = wordCount(fullText);
   if (wc > maxWords) return `TOO LONG: your last attempt was ${wc} words. HARD LIMIT is ${maxWords} words — cut it, do not exceed.`;
+  // David's law 3, ENFORCED (three generations restated it): the day's character line is
+  // printed above the prose — a story that repeats it is rejected like one that runs long.
+  for (const p of bannedPhrases ?? []) {
+    if (p && p.length > 10 && fullText.toLowerCase().includes(p.toLowerCase())) {
+      return `RESTATED THE DAY SENTENCE: your prose contains "${p}", which is already printed above your story. Remove it — steer through a character's ask instead, and spend the words on the cast.`;
+    }
+  }
   const m = fullText.match(MACHINERY);
   if (m) return `BANNED CHART JARGON: your last attempt printed "${m[0]}". Rewrite with ZERO machinery — no house numbers, no sign names, no dignity/motion terms (exalted, debilitated, retrograde, combust). Translate every one into plain felt language.`;
   return null;
@@ -298,6 +305,7 @@ export function guardViolation(fullText: string, maxWords: number): string | nul
 async function callGuarded<T>(o: {
   c: Anthropic; tail: string; toolName: string; schema: any; input: NarrativeInput;
   maxTokens: number; maxWords: number; complete: (x: any) => x is T; textOf: (x: T) => string;
+  bannedPhrases?: string[];
 }): Promise<T | null> {
   const base = [
     { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
@@ -317,7 +325,7 @@ async function callGuarded<T>(o: {
   };
   let best = await run();
   if (!best) return null;
-  let bad = guardViolation(o.textOf(best), o.maxWords);
+  let bad = guardViolation(o.textOf(best), o.maxWords, o.bannedPhrases);
   if (!bad) return best;
   // Up to TWO corrective retries (3 attempts total), each naming the exact violation. Return the
   // first CLEAN result; if none comes back clean, serve the last best-effort rather than a blank
@@ -326,7 +334,7 @@ async function callGuarded<T>(o: {
   for (let attempt = 1; attempt <= 2 && bad; attempt++) {
     console.warn(`[narrative] ${o.toolName} tripped a guard (attempt ${attempt}), regenerating: ${bad}`);
     const next = await run(`CRITICAL — your previous attempt was REJECTED. ${bad} Return the ${o.toolName} tool again, fully corrected.`);
-    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords); }
+    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords, o.bannedPhrases); }
   }
   return best;
 }
@@ -340,6 +348,8 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
       // Hard token ceiling (was 800 → ~600 words). The 130-word guard is the real length enforcer;
       // 400 just lets a slightly-over draft COMPLETE so the guard can catch and correct it.
       maxTokens: 400, maxWords: 130,
+      // Law 3 with teeth: the day headline may not reappear inside the prose.
+      bannedPhrases: [(input as any).dayFilter?.headline].filter(Boolean) as string[],
       complete: isCompleteDayRead,
       // The question is one short line, excluded from the story's word budget.
       textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),

@@ -1375,7 +1375,10 @@ export default function Planner() {
             // today-border: today is simply the filled coin.
             // Every coin is FILLED with its rung tint (the year view's language) — today and the
             // selected day distinguish themselves by ring + weight, not by being the only fills.
-            const filled = (dayCharacter?.movement || rung) ? true : (isToday || isSelected) && hasMode;
+            // David's coin model, restored with the movement palette (2026-07-15): TODAY is
+            // the only FILLED coin; every other date is its number in the coin's own color
+            // inside a thin fine ring of that color. Press still previews the full fill.
+            const filled = isToday && !!(dayCharacter?.movement || rung || hasMode);
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
@@ -1388,11 +1391,7 @@ export default function Planner() {
             // the bright red number on white, filled today/selected days get the near-black-red on red.
             const numberColor = filled ? darkInk : hasMode ? accent : "var(--color-muted-foreground)";
             const activeInk = darkInk; // number color while hovered/pressed
-            // TODAY is the ONLY fully-saturated coin (David 2026-07-15) — every other day's
-            // fill is softened toward the calendar paper, so the present moment owns the eye.
-            // Hover/press still preview the full color; marks and inks are untouched.
-            const softFill = `color-mix(in srgb, ${accent} 70%, var(--parchment))`;
-            const restingBg = filled ? (isToday ? accent : softFill) : "transparent";
+            const restingBg = filled ? accent : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
 
@@ -1447,6 +1446,8 @@ export default function Planner() {
                       ? "2px solid var(--color-foreground)"
                       : isToday
                       ? "2px solid #2b2723"
+                      : hasMode
+                      ? `1px solid ${accent}`
                       : "1px solid transparent",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
