@@ -273,7 +273,10 @@ export default function YearCalendar() {
                         const eclipse = eclipseByDate.get(ds);
                         const filled = isToday || isCrown;
                         const isCaution = mvKey === "caution";
-                        const bg = filled
+                        const bg = isCrown
+                          // Crowned tiles wear GOLD always (David: golden branding — special)
+                          ? "color-mix(in srgb, #D4AF37 62%, #f8f4ea)"
+                          : filled
                           ? `color-mix(in srgb, ${coin} 62%, #f8f4ea)`
                           : isPicked ? `color-mix(in srgb, ${coin} 26%, #f8f4ea)`
                           // Caution days carry a LIGHT ruby wash (David 2026-07-16) — the border
@@ -319,7 +322,7 @@ export default function YearCalendar() {
                                     </span>
                                   ) : isCrown ? (
                                     <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
-                                      <OctagramMark size={20} color="#D4AF37" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(242,194,28,0.45))" }} />
+                                      <OctagramMark size={20} color="#9A7C1E" strokeWidth={1.4} />
                                     </span>
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>

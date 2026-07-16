@@ -1481,11 +1481,11 @@ export default function Planner() {
             // soft fill (lighter than today's weight), cleared when selection returns home.
             const restingBg = filled
               ? `color-mix(in srgb, ${accent} 62%, var(--parchment))`
-              // Crown coins wear TODAY's fill weight (David 7/16: "match today's fill.
-              // It'll look clearer") — the day's own coin at full strength, so the
-              // octagram sits on a solid lit coin instead of a fuzzy champagne wash.
+              // Crown coins wear GOLD, always — the exact fill of a Build-gold today
+              // (David 7/16: "crowned days should follow some sort of golden color
+              // scheme... branding should make it really stand out as special").
               : isCrown
-              ? `color-mix(in srgb, ${accent} 62%, var(--parchment))`
+              ? "color-mix(in srgb, #D4AF37 62%, var(--parchment))"
               : isSelected && hasMode && !eclipseByDate.has(dateStr)
               ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
               : "transparent";
@@ -1611,12 +1611,10 @@ export default function Planner() {
                     // bindu (a solid point in the star's heart) + a soft glow keep it reading as a
                     // luminous star, not a hollow white coin.
                     (() => {
-                      // On a bright-gold Build coin a GOLD line would vanish — so the stroke takes a
-                      // softer medium amber (0.72×L) there: visible, engraved, not a sore thumb.
-                      // Bright gold with a glow everywhere else.
-                      const knotOnGold = filled && modeColor === MODE_DOT.Build;
-                      const knotColor = knotOnGold ? darkenOklch(accent, 0.72) : GOLD_BRIGHT;
-                      return <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color={knotColor} strokeWidth={1.15} style={{ filter: knotOnGold ? "none" : "drop-shadow(0 0 3px rgba(242,194,28,0.55))" }} /></span>;
+                      // Crowned coins are ALWAYS gold-filled now, so the stroke is always the
+                      // engraved medium amber (0.72×L): visible on gold, not a sore thumb.
+                      const knotColor = darkenOklch("#D4AF37", 0.72);
+                      return <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color={knotColor} strokeWidth={1.15} /></span>;
                     })()
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
