@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import VeleaLoader from "@/components/VeleaLoader";
 import { createPortal } from "react-dom";
 import { trpc } from "@/lib/trpc";
 import { ChevronDown, X } from "lucide-react";
@@ -357,9 +358,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                   Read this room
                 </button>
               ) : houseReadQ.isLoading ? (
-                <p style={{ fontSize: "0.85rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
-                  Listening to the room…
-                </p>
+                <VeleaLoader size={24} label="Listening to the room…" />
               ) : houseReadQ.data?.available && houseReadQ.data.read ? (
                 <div>
                   <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
@@ -994,9 +993,7 @@ export function DashaSection() {
                         Read the {g.mahadasha} chapter
                       </button>
                     ) : dashaReadQ.isLoading ? (
-                      <p style={{ fontSize: "0.85rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
-                        Opening the chapter…
-                      </p>
+                      <VeleaLoader size={24} label="Opening the chapter…" />
                     ) : dashaReadQ.data?.available && dashaReadQ.data.read ? (
                       <div>
                         <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -37,9 +38,7 @@ export default function LifeAtlas() {
         )}
 
         {entitled && !data && (
-          <div className="mt-10 flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Unrolling the atlas…
-          </div>
+          <div className="mt-10"><VeleaLoader label="Unrolling the atlas…" /></div>
         )}
 
         {entitled && data?.available && (
@@ -66,7 +65,7 @@ export default function LifeAtlas() {
                     {open && (
                       <div className="px-4 pb-4">
                         {readQ.isLoading ? (
-                          <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)" }}>Reading the seasons…</p>
+                          <VeleaLoader size={24} label="Reading the seasons…" />
                         ) : readQ.data?.available && readQ.data.read ? (
                           <>
                             <p className="text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{readQ.data.read.read}</p>

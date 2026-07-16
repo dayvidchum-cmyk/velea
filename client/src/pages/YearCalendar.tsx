@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
 import { ChevronLeft, ChevronDown, Loader2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -121,9 +122,7 @@ export default function YearCalendar() {
         )}
 
         {isLoading && (
-          <div className="mt-10 flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Walking the year…
-          </div>
+          <div className="mt-10"><VeleaLoader label="Walking the year…" /></div>
         )}
         {error && <p className="mt-6 text-sm text-muted-foreground">Not available.</p>}
 

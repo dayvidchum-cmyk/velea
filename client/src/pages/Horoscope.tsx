@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSPropertie
 import { useLocation } from "wouter";
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import OctagramMark from "@/components/OctagramMark";
+import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
 import LockedFeatureCard from "@/components/LockedFeatureCard";
 import VeleaLorMark from "@/components/VeleaLorMark";
@@ -407,7 +408,7 @@ function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: 
           boxShadow: `0 2px 12px ${GOLD}44`,
         }}
       >
-        {pending ? <><Loader2 size={15} className="animate-spin" /> Reading the sky…</> : <><OctagramMark size={15} color="#1a1305" strokeWidth={1.3} /> Reveal this reading</>}
+        {pending ? <><span className="velea-loader" style={{ display: "inline-flex", lineHeight: 0 }}><VeleaMark size={15} color="currentColor" /></span> Reading the sky…</> : <><OctagramMark size={15} color="#1a1305" strokeWidth={1.3} /> Reveal this reading</>}
       </button>
       {failed && !pending && (
         <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The reading couldn't be drawn just now. Please try again in a moment.</p>
@@ -526,7 +527,7 @@ function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
                   boxShadow: `0 2px 12px ${accent}3a`,
                 }}
               >
-                {reveal.isPending ? <><Loader2 size={15} className="animate-spin" /> Reading the season…</> : <>Read this eclipse season</>}
+                {reveal.isPending ? <><span className="velea-loader" style={{ display: "inline-flex", lineHeight: 0 }}><VeleaMark size={15} color="currentColor" /></span> Reading the season…</> : <>Read this eclipse season</>}
               </button>
               {reveal.isError && (
                 <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The season couldn't be drawn just now. Please try again in a moment.</p>
@@ -621,7 +622,7 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
                   boxShadow: `0 2px 12px ${accent}3a`,
                 }}
               >
-                {reveal.isPending ? <><Loader2 size={15} className="animate-spin" /> Reading the cycle…</> : <>Read this Mercury retrograde</>}
+                {reveal.isPending ? <><span className="velea-loader" style={{ display: "inline-flex", lineHeight: 0 }}><VeleaMark size={15} color="currentColor" /></span> Reading the cycle…</> : <>Read this Mercury retrograde</>}
               </button>
               {reveal.isError && (
                 <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The cycle couldn't be drawn just now. Please try again in a moment.</p>
@@ -712,7 +713,7 @@ function MonthCard({ modeColor }: { modeColor: string }) {
                   boxShadow: `0 2px 12px ${accent}3a`,
                 }}
               >
-                {reveal.isPending ? <><Loader2 size={15} className="animate-spin" /> Reading the month…</> : <>Read this month</>}
+                {reveal.isPending ? <><span className="velea-loader" style={{ display: "inline-flex", lineHeight: 0 }}><VeleaMark size={15} color="currentColor" /></span> Reading the month…</> : <>Read this month</>}
               </button>
               {reveal.isError && (
                 <p style={{ fontSize: "0.72rem", color: "#9A4E6E", margin: "0.9rem 0 0" }}>The month couldn't be drawn just now. Please try again in a moment.</p>
