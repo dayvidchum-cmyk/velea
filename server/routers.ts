@@ -1877,8 +1877,10 @@ export const appRouter = router({
           // The rung — so the month calendar can wear the SAME ladder tints as the year view
           // (David 2026-07-16: "I want the 2 calendars to blend into one").
           const rung = { num: day.tara.taraNum, quality: day.tara.quality };
-          // Prosperity day — a lit WEALTH convergence window covers this date ($ mark, David 2026-07-16).
-          const prosperity = Array.isArray(day.windows) && day.windows.includes("wealth");
+          // Prosperity day = SAMPAT TARA (David 2026-07-15: "one of these literally said
+          // prosperity — Sampat"): the 2nd rung of his ladder, wealth/prosperity by name,
+          // ~every 9 days. (The old wealth-CONVERGENCE definition pointed at 2056 — retired.)
+          const prosperity = day.tara?.taraNum === 2;
           days.push({ date, rating, why, mode, character, rung, ...(prosperity ? { prosperity } : {}) });
         }
         return { days };
