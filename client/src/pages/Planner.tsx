@@ -1314,8 +1314,8 @@ export default function Planner() {
             </div>
           </div>
         )}
-        {/* Calendar body */}
-        <div className="px-4 pt-1 pb-6">
+        {/* Calendar body — tighter side margins so the month can breathe wider (David). */}
+        <div className="px-2 pt-1 pb-6">
 
         <div className="grid grid-cols-7 mb-3">
           {DAYS.map((d, i) => (
@@ -1329,7 +1329,7 @@ export default function Planner() {
           ))}
         </div>
 
-        <div className="grid grid-cols-7" style={{ rowGap: "1.3rem" }}>
+        <div className="grid grid-cols-7" style={{ rowGap: "1.65rem" }}>
           {calendarCells.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />;
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
