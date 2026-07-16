@@ -356,10 +356,10 @@ export default function YearCalendar() {
         const wordColor = mvKey ? (({ golden: "#2E7D4F", action: "#77A96B", selective: "#00687a", build: "#D4AF37", restraint: "#d57176", caution: "#B3232F" } as Record<string, string>)[mvKey] ?? "var(--heading-ink)") : "var(--heading-ink)";
         const taraNum = d.tara?.taraNum;
         const dateNice = new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+        // ANCHORED, not centered (David: "the bottom is riding up") — a centered card
+        // grows BOTH ways when the async marks land, so the date line lifted under his
+        // eyes. Top-anchored, growth only extends downward. The card never moves once open.
         return (
-          {/* ANCHORED, not centered (David: "the bottom is riding up") — a centered card
-              grows BOTH ways when the async marks land, so the date line lifted under his
-              eyes. Top-anchored, growth only extends downward. */}
           <div className="fixed inset-0 z-50 flex items-start justify-center p-6" style={{ background: "rgba(30, 24, 16, 0.45)", paddingTop: "16dvh" }} onClick={() => setDayPopup(null)}>
             <div className="parchment w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", maxHeight: "80dvh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
               <p className="font-serif text-lg" style={{ color: "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
