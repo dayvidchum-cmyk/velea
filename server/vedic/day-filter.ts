@@ -138,7 +138,7 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     // prints the headline right above the sentence (his 7/16 refinement). His fierce
     // line carries its own avoids, so avoidPlain only appends when distinct.
     : supportsPlain
-    ? `${supportsPlain}${avoidPlain ? ` ${avoidPlain}` : ""}${personalTurn}`
+    ? `${cap(supportsPlain)}${avoidPlain ? ` ${avoidPlain}` : ""}${personalTurn}`
     : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
 
   // THE HANDSHAKE (David 2026-07-15: "just do it. We can always roll it back"): the day's

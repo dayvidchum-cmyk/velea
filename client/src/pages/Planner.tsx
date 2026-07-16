@@ -1422,7 +1422,13 @@ export default function Planner() {
             const activeInk = tonalInk(accent); // hover/press preview ink — tonal, never white/black
             // Per David's mock: a FILLED coin lightens its fill toward the paper and carries
             // a DEEP number of its own hue (7/4's number was reading white-washed-pink).
-            const restingBg = filled ? `color-mix(in srgb, ${accent} 62%, var(--parchment))` : "transparent";
+            // AUDIT (David's gate): a PICKED day must show — the selected coin holds a
+            // soft fill (lighter than today's weight), cleared when selection returns home.
+            const restingBg = filled
+              ? `color-mix(in srgb, ${accent} 62%, var(--parchment))`
+              : isSelected && hasMode
+              ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
+              : "transparent";
             const hoverBg = hasMode ? accent : "var(--color-secondary)";
             const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
 

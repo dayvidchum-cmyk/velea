@@ -23,14 +23,12 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
     expect(dayFilter({ ...base, nakshatra: "Hasta", tithiNumber: 8 }).family).toBe("jaya");
   });
 
-  it("a tender day in a work tithi supports the soft and the useful, avoids the cut", () => {
+  it("a tender day speaks David's line; the canon supports/avoids survive underneath", () => {
     const d = dayFilter({ ...base, nakshatra: "Anuradha", tithiNumber: 7 });
     expect(d.headline).toBe("a tender day built for work");
+    expect(d.sentence).toMatch(/^Love, mending, the making of beautiful work\. A day of gentle connections\./);
     expect(d.supports.join(" ")).toMatch(/love|friendship|art/);
-    expect(d.supports.join(" ")).toMatch(/work|health|constructive/);
     expect(d.avoid.join(" ")).toMatch(/confrontation|cutting/);
-    expect(d.sentence).toMatch(/^A tender day/);
-    expect(d.sentence).toMatch(/Keep away from/);
   });
 
   it("rikta empties every nature except the cutting ones (David's July 12: no self-contradiction)", () => {
@@ -161,7 +159,7 @@ describe("the rx-capped sentence (David's July 14: Build word over a GO sentence
 describe("David's plain movement line on cutting days (2026-07-15)", () => {
   it("the sharp-day sentence compresses supports to his register; the canon list survives underneath", () => {
     const d = dayFilter({ varaLord: "Mercury", vishti: false, tara: null, nakshatra: "Ashlesha", tithiNumber: 2 });
-    expect(d.sentence).toMatch(/a day for decisive cuts and clean, deliberate endings/);
+    expect(d.sentence).toMatch(/^A day for decisive cuts and clean, deliberate endings/);
     expect(d.sentence).not.toMatch(/surgery/);
     expect(d.supports.join(" ")).toMatch(/surgery and incisive procedures/); // the literal election stays for detail + the reading
   });

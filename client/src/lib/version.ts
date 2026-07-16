@@ -414,4 +414,4 @@
 // chip shows "Reading from <city>" and, on tap, opens the existing LocationSheet (via the shared
 // velea-open-location event) — no schema, reuses the per-user current location. This is v1 of the fuller
 // hometown + current + per-date location model (that fuller (B) version needs a reviewed schema, TODO).
-export const APP_VERSION = "1.1.526";
+export const APP_VERSION = "1.1.527";
