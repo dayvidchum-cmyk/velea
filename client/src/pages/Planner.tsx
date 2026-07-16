@@ -983,8 +983,8 @@ export default function Planner() {
                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0 }}
               >
                 <ChevronDown
-                  size={13}
-                  style={{ color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+                  size={17}
+                  style={{ marginTop: -2, color: 'rgba(0,0,0,0.45)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
                 />
               </button>
             </div>
@@ -1199,7 +1199,7 @@ export default function Planner() {
             Calendar
           </span>
           <ChevronDown
-            size={13}
+            size={17}
             style={{
               color: "var(--color-muted-foreground)",
               transform: calendarOpen ? "rotate(180deg)" : "rotate(0deg)",
@@ -1260,7 +1260,7 @@ export default function Planner() {
                 {viewDate.getFullYear()}
               </span>
             </h2>
-            <ChevronDown size={13} style={{ color: "#8a8264", transform: monthPickerOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+            <ChevronDown size={16} style={{ marginTop: -2, color: "#8a8264", transform: monthPickerOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
           </button>
           <div className="flex items-center gap-1.5">
             <button
@@ -1663,8 +1663,8 @@ export default function Planner() {
               All Tasks{settings.showOrbCounts && !softOpen ? ` (${allTasks.filter((t) => !t.isCompleted).length})` : ""}
             </h3>
             <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+              size={17}
+              style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: allTasksOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
             />
           </button>
           {/* THE SEVEN KIND ORBS (David 2026-07-15: "7 to be precise", with names) — the
@@ -1733,8 +1733,8 @@ export default function Planner() {
                         {NATURE_WORD[m]} {settings.showOrbCounts && <span style={{ color: "var(--color-muted-foreground)" }}>({groupTasks.length})</span>}
                       </span>
                       <ChevronDown
-                        size={13}
-                        style={{ color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+                        size={17}
+                        style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
                       />
                     </button>
                     {open &&
@@ -1822,8 +1822,8 @@ export default function Planner() {
               To Do
             </h3>
             <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: pinnedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+              size={17}
+              style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: pinnedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
             />
           </button>
 
@@ -1880,8 +1880,8 @@ export default function Planner() {
               Aligned for today
             </h3>
             <ChevronDown
-              size={13}
-              style={{ color: "var(--color-muted-foreground)", transform: alignedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+              size={17}
+              style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: alignedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
             />
           </button>
 
@@ -1991,7 +1991,7 @@ export default function Planner() {
             >
               Reflection Log
             </p>
-            <ChevronDown size={13} style={{ marginLeft: "auto", flexShrink: 0, color: "var(--color-muted-foreground)", transform: reflectionOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+            <ChevronDown size={17} style={{ flexShrink: 0, color: "var(--color-muted-foreground)", marginTop: -2, transform: reflectionOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
           </button>
           {reflectionOpen && (
           <div className="glass-card p-3">
@@ -2048,8 +2048,8 @@ export default function Planner() {
                   Completed{settings.showOrbCounts || completed.length > 0 ? ` (${completed.length})` : ""}
                 </h3>
                 <ChevronDown
-                  size={13}
-                  style={{ color: "var(--color-muted-foreground)", transform: completedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
+                  size={17}
+                  style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: completedOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }}
                 />
               </button>
               {completed.length > 0 && (
