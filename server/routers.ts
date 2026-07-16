@@ -2457,7 +2457,15 @@ export const appRouter = router({
               else if (ph === "preshadow-2" && st.type === "turns retrograde") courseLine = `Station in ${d} days.`;
               else if (ph === "direct-1" && st.type === "turns direct") courseLine = -d <= 3 ? `Turned ${-d === 0 ? "today" : `${-d} day${-d === 1 ? "" : "s"} ago`} — still in the station window; let it settle.` : `Turned ${-d} days ago — momentum rebuilding.`;
             }
-            return { planet: p.planet, phase: ph, image, title: c.title.replace("{P}", p.planet), note: c.note, courseLine, sign: p.sign, house: p.house };
+            // The rx-1 phase bookends the review (first week AND last week). The copy was
+            // written for the opening; in the CLOSING week the title must speak to the
+            // coming turn (David's 7/16 card said "Mercury turns retrograde" mid-review).
+            const closing = ph === "retrograde-1" && st?.type === "turns direct";
+            const title = (closing ? "{P} nears the turn" : c.title).replace("{P}", p.planet);
+            const note = closing
+              ? "The review's last stretch — finish the revisions, tie off what you reopened. Clarity is days away; don't start a new launch before the turn."
+              : c.note;
+            return { planet: p.planet, phase: ph, image, title, note, courseLine, sign: p.sign, house: p.house };
           }).filter(Boolean);
           const ecl = (sky.eclipses ?? []).find((e) => e.daysAway === 0);
           if (ecl?.type === "lunar") return { name: "Lunar Eclipse", image: "lunar-eclipse.jpg", isEvent: true, isEclipse: true, mercuryRetro: false, timeOfDay, stations, ...base };

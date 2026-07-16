@@ -248,7 +248,11 @@ export async function getCurrentSky(subject: AstrologySubject, when: Date = new 
   const value: CurrentSky = {
     computedAt: when.toISOString(),
     planets,
-    retrogrades: planets.filter((p) => p.isRetrograde).map((p) => p.planet),
+    // Rahu/Ketu are EXCLUDED: the nodes' retrograde motion is their permanent, normal
+    // state (mean node, −0.053°/day always) — announcing it is noise, and classically
+    // the nodes are never listed among "planets turned retrograde." (Surfaced by the
+    // 2026-07-16 node fix: before it, node queries silently returned the Sun.)
+    retrogrades: planets.filter((p) => p.isRetrograde && p.planet !== "Rahu" && p.planet !== "Ketu").map((p) => p.planet),
     eclipses,
   };
   CACHE.set(cacheKey, { at: Date.now(), value });
