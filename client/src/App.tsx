@@ -46,6 +46,8 @@ function AppLayoutContent() {
 const { user, loading } = useAuth();
   const { quickAddMode, setQuickAddMode } = useAddTask();
   // Post-login brand splash — the grand etymology, shown once when "velea_splash" is set by login.
+  // Beach-ball law: even the Refresh-app button sweeps while it clears caches ("where is my spinning velea mark?").
+  const [refreshing, setRefreshing] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
   // Welcome moment on EVERY app open (any time of day): the sunset shell image + the viewer's own
   // personalized greeting. Fresh login gets the etymology splash instead; every other open gets this.
@@ -230,6 +232,7 @@ const { user, loading } = useAuth();
   }
 
   const hardRefresh = async () => {
+    setRefreshing(true);
     try {
       if ("caches" in window) { const keys = await caches.keys(); await Promise.all(keys.map((k) => caches.delete(k))); }
       if ("serviceWorker" in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map((r) => r.update())); }
@@ -277,9 +280,10 @@ const { user, loading } = useAuth();
           >
             <button
               onClick={hardRefresh}
-              style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.5rem 1rem", borderRadius: 999, background: "transparent", border: "1px solid var(--heading-ink)", color: "var(--heading-ink)", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" }}
+              disabled={refreshing}
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.5rem 1rem", borderRadius: 999, background: "transparent", border: "1px solid var(--heading-ink)", color: "var(--heading-ink)", fontSize: "0.9rem", fontWeight: 700, cursor: refreshing ? "default" : "pointer" }}
             >
-              <RefreshCw size={15} /> Refresh app
+              {refreshing ? <><VeleaLoader size={15} /> Refreshing…</> : <><RefreshCw size={15} /> Refresh app</>}
             </button>
             <span style={{ fontSize: "0.66rem", letterSpacing: "0.1em", color: "var(--color-muted-foreground)", opacity: 0.6 }}>
               Velea v{APP_VERSION}
