@@ -34,6 +34,11 @@ into the key (the bug that quietly cost money). **Check:** new surfaces use `day
 **surface threaded into the hash**, and `SURFACE_VERSION` salts are consulted.
 
 ### 4. Reading-voice audit 🤖👁 — _protects: the craft laws_
+**Includes DISPLAY-SIDE prose surgery** (learned 2026-07-16, the "broken thought"): any client
+code that splits, peels, truncates, or re-bullets LLM prose (takeaway peelers, sentence
+splitters, teaser trims) can behead a sentence the model wrote whole. Audit the seam, not just
+the generation guards — grep for `.split(` / `lastIndexOf("—")` / slice-on-prose in pages, and
+read each transformer against an appositive-bearing sample.
 The reading laws hold everywhere: **no house numbers** in user prose (name the lived place);
 **siblings = blood + inner circle**; **no "self-worth" lean** for the 2nd house (money/livelihood);
 **Moon stays gender-neutral** (never "she"); **concise ≠ vaguer** (proof is in the specifics);
