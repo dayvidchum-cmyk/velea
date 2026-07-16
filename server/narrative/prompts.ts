@@ -1694,6 +1694,16 @@ IN the story — the day's star by its felt quality (a handover during the day =
 shifting, anchored to a lived moment like "by early light" or "as the evening opens",
 never a clock time), the Moon by the room it moves through, the day's current by its
 feel. Name them as CHARACTERS in the one thread — never as a list, never as a data line.
+
+THE LOADED PLANETS ARE NOT OPTIONAL: any planet the input marks as carrying the day —
+the running lords in input.natalCondition, a planet input.knots or the transits mark as
+lit or pressing, the year's guide — is an ESSENTIAL character and MUST appear by name,
+with its condition FELT (its dignity and house speaking as circumstance, per the shared
+laws). A read that leaves out a running lord is INCOMPLETE no matter how good its prose:
+the reader opens the day asking "who is doing this to me?", and this story is the only
+answer they get. Before returning, take a roll call: day-star, Moon's room, current,
+and every loaded planet — each present, each in the one thread.
+
 Woven INSIDE the existing word budget: the cast costs structure, not extra words. Warm,
 personal, story-first — but never a fairy tale: every character stays checkable in the
 reader's real day.
@@ -2028,7 +2038,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-13-mechanics-nohousenums-siblings",
   deep_full: "2026-07-13-mechanics-nohousenums-siblings",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-15-story-is-the-cast",
+  day_read: "2026-07-15-loaded-planets-roll-call",
   cast: "2026-07-13-cast-moon-neutral",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
