@@ -576,6 +576,27 @@ export async function generateDashaRead(input: any): Promise<DashaRead | null> {
 
 // ── THE THEME READER (the Life Atlas voice — David 2026-07-16) ────────────────────────
 export type AtlasRead = { read: string; question: string };
+export interface YogaRead { read: string }
+export function isCompleteYogaRead(r: any): r is YogaRead {
+  return !!r && typeof r.read === "string" && r.read.length > 60;
+}
+export async function generateYogaRead(input: any): Promise<YogaRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const { YOGA_READ_TAIL } = await import("./prompts.js");
+    return await callGuarded<YogaRead>({
+      c, tail: YOGA_READ_TAIL, toolName: "yoga_read",
+      schema: { type: "object", properties: { read: { type: "string" } }, required: ["read"] } as any,
+      input, maxTokens: 900, maxWords: 210, skipMachinery: true,
+      complete: isCompleteYogaRead, textOf: (r) => r.read,
+    });
+  } catch (err) {
+    console.error("[narrative] generateYogaRead failed:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
 export interface WindowRead { read: string }
 export function isCompleteWindowRead(r: any): r is WindowRead {
   return !!r && typeof r.read === "string" && r.read.length > 40;

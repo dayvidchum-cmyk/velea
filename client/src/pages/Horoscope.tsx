@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { useLocation } from "wouter";
-import { ChevronLeft, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Lock } from "lucide-react";
 import OctagramMark from "@/components/OctagramMark";
 import VeleaMark from "@/components/VeleaMark";
+import VeleaLoader from "@/components/VeleaLoader";
 import AppHeader from "@/components/AppHeader";
 import LockedFeatureCard from "@/components/LockedFeatureCard";
 import VeleaLorMark from "@/components/VeleaLorMark";
@@ -87,6 +88,15 @@ export default function Horoscope() {
   // Eclipse season is a period reading (narrative_cache, not the frozen reveals table), so it lists
   // separately in the log. Peek (read-only) tells us if one's already saved.
   const { data: eclipseSaved } = trpc.horoscope.eclipseSeasonSaved.useQuery(undefined, { enabled: entitled, staleTime: 1000 * 60 * 5 });
+  // THE YOGAS (David 2026-07-16): the LIST is free — real names, real strength (thirst);
+  // each reading is premium. Collapsed by default, NOT locked at the section level.
+  const [yogasOpen, setYogasOpen] = useState(false);
+  const [openYoga, setOpenYoga] = useState<string | null>(null);
+  const { data: yogasData } = trpc.horoscope.yogasList.useQuery(undefined, { enabled: yogasOpen, staleTime: 30 * 60_000 });
+  const yogaReadQ = trpc.horoscope.yogaRead.useQuery(
+    { name: openYoga ?? "" },
+    { enabled: !!openYoga && entitled, staleTime: Infinity, retry: false },
+  );
   const hasEclipseSaved = (eclipseSaved as any)?.available === true;
 
   const [view, setView] = useState(() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; });
@@ -225,6 +235,68 @@ export default function Horoscope() {
           </span>
           <span className="text-xs font-bold uppercase shrink-0" style={{ letterSpacing: "0.08em", color: "var(--brand-gold)" }}>open ›</span>
         </button>
+
+        {/* ── THE YOGAS — the chart's standing gifts. Shell unlocked (collapse-default);
+            every row is real; the READINGS wear the locks. ── */}
+        <div className="rounded-2xl overflow-hidden" style={{ margin: "0 0 1.1rem", border: "1px solid color-mix(in srgb, var(--brand-gold) 35%, var(--color-border))", background: "var(--color-card)" }}>
+          <button onClick={() => setYogasOpen((v) => !v)} className="w-full flex items-center justify-between px-4 py-3.5">
+            <span className="flex flex-col items-start gap-0.5 text-left">
+              <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}>
+                <OctagramMark size={15} color="var(--brand-gold)" strokeWidth={1.2} /> Yogas — the chart's standing gifts
+              </span>
+              <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
+                The combinations your birth sky locked in place, each with its own reading
+              </span>
+            </span>
+            <ChevronDown size={17} style={{ color: "var(--color-muted-foreground)", transform: yogasOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+          </button>
+          {yogasOpen && (
+            <div className="px-4 pb-4">
+              {!yogasData ? (
+                <VeleaLoader size={24} label="Reading the birth sky…" />
+              ) : !yogasData.available || yogasData.yogas.length === 0 ? (
+                <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>No standing yogas detected in this chart's research yet.</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {yogasData.yogas.map((y: any) => {
+                    const open = openYoga === y.name;
+                    return (
+                      <div key={y.name} className="rounded-lg overflow-hidden" style={{ border: open ? "1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)" : "1px solid var(--color-border)" }}>
+                        <button onClick={() => setOpenYoga(open ? null : y.name)} className="w-full flex items-center justify-between px-3 py-2.5 text-left">
+                          <span className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
+                            {y.name}
+                            <span className="ml-2 text-[11px] font-medium" style={{ color: "var(--color-muted-foreground)" }}>
+                              {y.vantages > 1 ? `holds from ${y.vantages} vantages` : "held"}{y.repeatsInNavamsha ? " · repeats in the navamsha" : ""}
+                            </span>
+                          </span>
+                          {!entitled && <Lock size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
+                        </button>
+                        {open && (
+                          <div className="px-3 pb-3">
+                            {!entitled ? (
+                              <div className="flex items-start gap-2.5 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
+                                <Lock size={13} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                                <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
+                                  This yoga is written into your chart — its reading (what it gives, how strongly you hold it, when it ripens) opens with the premium layer. Soon.
+                                </p>
+                              </div>
+                            ) : yogaReadQ.isLoading ? (
+                              <VeleaLoader size={22} label="Voicing the yoga…" />
+                            ) : yogaReadQ.data?.available && yogaReadQ.data.read ? (
+                              <p className="text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.6, whiteSpace: "pre-wrap", margin: 0 }}>{yogaReadQ.data.read.read}</p>
+                            ) : (
+                              <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>The yoga is quiet — try again in a moment.</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {!entitled && (
           <div style={{ margin: "1.5rem 0 0.8rem" }}><LockedFeatureCard

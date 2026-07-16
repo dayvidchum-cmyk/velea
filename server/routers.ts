@@ -2197,6 +2197,30 @@ export const appRouter = router({
   horoscope: router({
     // Drives the lock UI — public to every signed-in user, entitled only off the allowlist.
     access: protectedProcedure.query(async ({ ctx }) => ({ entitled: await hasHoroscope(ctx.user) })),
+    /** THE CHART'S YOGAS — the list is FREE (thirst: real names, real strength), the
+     *  readings are premium. From the stored both-volumes research. */
+    yogasList: protectedProcedure.query(async ({ ctx }) => {
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const, yogas: [] as any[] };
+      const { getStoredResearch } = await import("./vedic/research-store.js");
+      const research: any = await getStoredResearch(profile.id);
+      const yogas = (research?.yogas ?? []).map((y: any) => ({
+        name: y.name, type: y.type, vantages: y.frames?.length ?? 1, repeatsInNavamsha: !!y.inNavamsha,
+      }));
+      return { available: true as const, yogas };
+    }),
+    yogaRead: protectedProcedure
+      .input(z.object({ name: z.string().min(2).max(64), refresh: z.boolean().optional() }))
+      .query(async ({ ctx, input }) => {
+        if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
+        const { getActiveProfile } = await import("./routers/profiles.js");
+        const profile = await getActiveProfile(ctx.user.id);
+        if (!profile) return { available: false as const, locked: false as const, read: null, generatedAt: null, cached: false };
+        const { getYogaReadCached } = await import("./narrative/service.js");
+        return getYogaReadCached(profile.id, input.name, input.refresh ?? false);
+      }),
+
 
     // Every date the active profile has purchased, newest first (calendar marks + scroll-back).
     list: protectedProcedure.query(async ({ ctx }) => {

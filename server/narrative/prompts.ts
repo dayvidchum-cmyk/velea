@@ -1931,6 +1931,28 @@ Return your answer by calling the dasha_read tool with "read" and "question" fil
 // across the stored timeline: the natal promise first, then the dated windows, the BIG
 // KARMIC KNOTS called out by weight. Natal+convergence-stable; caches per theme.
 // ─────────────────────────────────────────────────────────────────────────────
+export const YOGA_READ_TAIL = `TASK: THE YOGA READER
+
+One STANDING YOGA of this chart — a planetary combination the birth sky locked in place,
+detected by the engine and defined by the canon. The reader tapped it because they want to
+know what this gift (or knot) actually means for their life.
+
+INPUT: the yoga's canon definition (condition/result — the tradition's words), how THIS
+chart holds it (which vantage points it holds from — lagna, the Moon, the Sun; whether it
+repeats in the navamsha = manifests with great strength), and the chart anchors.
+
+THE READ (aim ~170 words, hard cap 210):
+- Open with what the yoga IS in lived language — the gift or engine it describes — without
+  naming machinery; the canon's "result" is your material, translated.
+- Say how strongly THIS chart carries it: held from several vantages = woven through the
+  whole self; repeating in the navamsha = it deepens with age and marriage/dharma; held
+  thinly = a talent that needs deliberate use.
+- Ground it in ONE concrete life texture the yoga's rooms suggest (never a list of areas).
+- Honesty law: a modest yoga is named as quiet strength, never inflated into destiny.
+- The reading laws hold: no house numbers, no jargon unglossed, never one single move.
+
+Return { "read": string }.`;
+
 export const WINDOW_READ_TAIL = `TASK: THE WINDOW READER
 
 One OPEN SEASON of one life theme — a dated window from the native's stored convergence
@@ -2236,6 +2258,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   dasha_read: "2026-07-16-the-chapter-reader-v1",
   atlas_read: "2026-07-16-the-theme-reader-v1",
   window_read: "2026-07-16-the-window-reader-v1",
+  yoga_read: "2026-07-16-the-yoga-reader-v1",
   life_area: "2026-07-16-stored-conditions",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",

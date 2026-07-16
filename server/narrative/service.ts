@@ -498,6 +498,52 @@ const THEME_KARAKAS: Record<string, string[]> = {
   parents: ["Moon", "Sun", "Jupiter"], home: ["Moon", "Mercury"], health: ["Sun", "Mars"],
 };
 export type AtlasReadResult = { available: boolean; read: import("./generate.js").AtlasRead | null; windows: any[]; generatedAt: Date | null; cached: boolean };
+export interface YogaReadResult { available: boolean; read: { read: string } | null; generatedAt: Date | string | null; cached: boolean }
+/** One standing yoga, voiced — natal-stable (the chart doesn't move), cached forever
+ *  per yoga name; canon definition + this chart's hold strength feed the prompt. */
+export async function getYogaReadCached(profileId: number, yogaName: string, refresh = false): Promise<YogaReadResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const surface = "yoga_read";
+  const { getStoredResearch } = await import("../vedic/research-store.js");
+  const research: any = await getStoredResearch(profileId);
+  const yoga = (research?.yogas ?? []).find((y: any) => y.name === yogaName);
+  if (!yoga) return { available: false, read: null, generatedAt: null, cached: false };
+  let canonDef: any = null;
+  try {
+    const { readFileSync } = await import("fs");
+    const { fileURLToPath } = await import("url");
+    const { dirname, join } = await import("path");
+    const here = dirname(fileURLToPath(import.meta.url));
+    const canon = JSON.parse(readFileSync(join(here, "../vedic/canon/yogas.json"), "utf8"));
+    canonDef = (canon.yogas ?? []).find((y: any) => y.name === yogaName) ?? null;
+  } catch { /* canon optional */ }
+  const input = {
+    yoga: { name: yoga.name, type: yoga.type, heldFrom: yoga.frames, vantages: yoga.frames?.length ?? 1, repeatsInNavamsha: !!yoga.inNavamsha, note: yoga.note ?? null },
+    canon: canonDef ? { condition: canonDef.condition, result: canonDef.result, note: canonDef.note ?? null, rooms: canonDef.knot ?? [] } : null,
+    anchors: { lagnaSign: research?.anchors?.lagnaSign ?? null, atmakaraka: research?.anchors?.atmakaraka?.planet ?? null },
+    engineVersion: research?.engineVersion ?? null,
+  };
+  const hash = dayStableHash(input, surface);
+  const dateKey = `yoga-${yogaName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48)}`;
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, dateKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        const { isCompleteYogaRead } = await import("./generate.js");
+        if (isCompleteYogaRead(read)) return { available: true, read, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generateYogaRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
+    const r = await generateYogaRead(input as any);
+    if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  return read ? { available: true, read, generatedAt: new Date(), cached: false } : { available: false, read: null, generatedAt: null, cached: false };
+}
+
 export interface WindowReadResult { available: boolean; locked?: boolean; read: { read: string } | null; generatedAt: Date | string | null; cached: boolean }
 /** One window of one theme, voiced. Cache key = theme+from (a window's identity); the
  *  hash carries the window's substance so a re-stored timeline regenerates honestly. */
