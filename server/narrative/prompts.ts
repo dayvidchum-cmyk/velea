@@ -1913,6 +1913,38 @@ input.dossier; concise is never vaguer.
 
 Return your answer by calling the dasha_read tool with "read" and "question" filled in.`;
 
+// ATLAS_READ_TAIL — THE THEME READER (David 2026-07-16: "When do I meet my soulmate?
+// When will I be wealthy? Tell me about my children… LLM prose"). ONE life-theme voiced
+// across the stored timeline: the natal promise first, then the dated windows, the BIG
+// KARMIC KNOTS called out by weight. Natal+convergence-stable; caches per theme.
+// ─────────────────────────────────────────────────────────────────────────────
+export const ATLAS_READ_TAIL = `TASK: THE THEME READER
+
+Answer the native's real question about ONE life-theme (input.label — marriage, wealth,
+children…) from input.promise (the natal ground: the theme's houses, karaka condition,
+research verdicts) and input.windows (the stored timeline's LIT spans, each with from/to
+dates and a peak weight; bigKnot: true marks the heaviest — the BIG KARMIC KNOTS where
+period, promise and sky all pile up). 340 WORDS MAXIMUM, then ONE question.
+
+THE MOVES:
+- THE PROMISE FIRST: what this chart actually holds for the theme — a dasha can only
+  deliver what the natal promise carries. Read the karaka and houses feltly. If the
+  promise is thin, say so with warmth (the theme lives through its OTHER branch: e.g.
+  a 5th of creations more than children) — never doom, never false comfort.
+- THE SEASONS: walk the windows in LIVED time ("a long union window opens in your early
+  forties, the strongest of your life") — name month+year for NEAR windows (within ~3
+  years), name only the season+year further out, and the AGE for the far decades.
+- THE BIG KNOTS: each bigKnot window is a life-event alignment — say what tends to
+  ARRIVE in such a knot for this theme, plainly ("this is proposal weather", "an
+  inheritance or a shared-resource turn"). Two or three knots at most — the heaviest.
+- HONESTY LAWS: never promise an event, only the weather that carries it; the native's
+  choices walk through the windows. No fatalism, no prophecy-theater. PG-playful warmth.
+- Machinery may be NAMED (this is the atlas) but always translated in the same breath.
+- Close by handing the theme back: what to do in the open seasons, what to let rest.
+- The question: one line, specific to their nearest window.
+
+Return your answer by calling the atlas_read tool with "read" and "question" filled in.`;
+
 // CAST_TAIL — THE READ. The layer BEHIND the day-story: the same day told as its CHARACTERS.
 // The story said WHAT today is; the cast says WHO is making it that way. Two tiers: the LOUD
 // ones (foreground — only the planets with a live condition pulling the scene, each carrying its
@@ -2163,6 +2195,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-16-the-chapter-reader-v1",
+  atlas_read: "2026-07-16-the-theme-reader-v1",
   life_area: "2026-07-12-horoscope-varga-deep",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",

@@ -484,3 +484,61 @@ export async function getDashaReadCached(profileId: number, lord: string, span?:
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read: read as any, generatedAt: new Date(), cached: false };
 }
+
+
+// ── THE THEME READER — the Life Atlas voice: one read per (profile, theme), stable
+// until the stored research or convergence change under it.
+const THEME_HOUSES: Record<string, number[]> = {
+  marriage: [7], children: [5], career: [10], identity: [1, 10], fame: [10, 1],
+  wealth: [2, 11], siblings: [3, 11], parents: [4, 9], home: [4], health: [6, 1],
+};
+const THEME_KARAKAS: Record<string, string[]> = {
+  marriage: ["Venus"], children: ["Jupiter"], career: ["Saturn", "Sun", "Mercury"],
+  identity: ["Sun"], fame: ["Sun"], wealth: ["Jupiter"], siblings: ["Mars"],
+  parents: ["Moon", "Sun", "Jupiter"], home: ["Moon", "Mercury"], health: ["Sun", "Mars"],
+};
+export type AtlasReadResult = { available: boolean; read: import("./generate.js").AtlasRead | null; windows: any[]; generatedAt: Date | null; cached: boolean };
+export async function getAtlasReadCached(profileId: number, theme: string, label: string, refresh = false): Promise<AtlasReadResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, windows: [], generatedAt: null, cached: false };
+  const surface = "atlas_read";
+  const { getDb } = await import("../db.js");
+  const { profileConvergence } = await import("../../drizzle/schema.js");
+  const { eq: eqA } = await import("drizzle-orm");
+  const db = await getDb();
+  if (!db) return { available: false, read: null, windows: [], generatedAt: null, cached: false };
+  const rows = await db.select().from(profileConvergence).where(eqA(profileConvergence.profileId, profileId));
+  const { mergeThemeWindows } = await import("../vedic/windows.js");
+  const windows = mergeThemeWindows(rows as any).filter((w) => w.theme === theme);
+  const { getStoredResearch } = await import("../vedic/research-store.js");
+  const research: any = await getStoredResearch(profileId);
+  const houses: any[] = research?.houses ?? [];
+  const promise = {
+    houses: (THEME_HOUSES[theme] ?? []).map((h) => {
+      const d = houses[h - 1];
+      return d ? { house: h, sign: d.sign, occupants: d.occupants, lord: d.lord, vargaCheck: d.vargaCheck } : null;
+    }).filter(Boolean),
+    karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, shadbala: research?.shadbala?.[k] ?? null })),
+    birthDate: null as string | null,
+  };
+  const input = { theme, label, engineVersion: research?.engineVersion ?? null, promise, windows };
+  const hash = dayStableHash(input, surface);
+  const dateKey = `atlas-${theme}`;
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, dateKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        const { isCompleteAtlasRead } = await import("./generate.js");
+        if (isCompleteAtlasRead(read)) return { available: true, read, windows, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generateAtlasRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileId}:${theme}:${hash}`, async () => {
+    const r = await generateAtlasRead(input as any);
+    if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, windows, generatedAt: null, cached: false };
+  return { available: true, read: read as any, windows, generatedAt: new Date(), cached: false };
+}

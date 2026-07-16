@@ -270,12 +270,14 @@ export default function Horoscope() {
                 <button
                   key={a.key}
                   onClick={() => setSelectedArea(a.key)}
+                  // The blessed pill language (David's Refresh/Clear-all refs): OUTLINE,
+                  // border the same color as the font, no tint fill.
                   style={{
                     display: "inline-flex", alignItems: "center", gap: "0.3rem", cursor: "pointer",
                     borderRadius: 999, padding: "0.34rem 0.72rem", fontSize: "0.74rem", fontWeight: on ? 700 : 500,
-                    border: on ? `1.5px solid ${modeColor}` : "1px solid var(--color-border)",
-                    background: on ? `color-mix(in srgb, ${modeColor} 15%, transparent)` : "var(--color-card)",
-                    color: on ? "var(--foreground)" : "var(--color-muted-foreground)",
+                    border: on ? "1.5px solid var(--heading-ink)" : "1px solid var(--color-muted-foreground)",
+                    background: "transparent",
+                    color: on ? "var(--heading-ink)" : "var(--color-muted-foreground)",
                   }}
                 >
                   {owned && <OctagramMark size={9} color={GOLD} strokeWidth={1.2} />}

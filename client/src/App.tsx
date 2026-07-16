@@ -26,6 +26,7 @@ import Settings from "./pages/Settings";
 import About from "./pages/About";
 import AdminPrompts from "./pages/AdminPrompts";
 import ReflectionHistory from "./pages/ReflectionHistory";
+import LifeAtlas from "@/pages/LifeAtlas";
 import ReadingsArchive from "./pages/ReadingsArchive";
 import Horoscope from "./pages/Horoscope";
 import YearCalendar from "./pages/YearCalendar";
@@ -253,6 +254,7 @@ const { user, loading } = useAuth();
           <Route path="/glossary" component={Glossary} />
           <Route path="/reflections" component={ReflectionHistory} />
           <Route path="/readings" component={ReadingsArchive} />
+          <Route path="/atlas" component={LifeAtlas} />
         <Route path="/horoscope" component={Horoscope} />
           <Route path="/year" component={YearCalendar} />
           <Route path="/admin/prompts" component={AdminPrompts} />

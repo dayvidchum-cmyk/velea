@@ -1924,6 +1924,55 @@ export const appRouter = router({
   }),
 
   // ── MASTER MODE (Pancha Pakshi hourly timing) — GATED to an allowlist (private) ──
+  // THE LIFE ATLAS (David 2026-07-16): every life-theme window from the stored 120-year
+  // convergence — dated, weighted (BIG KARMIC KNOTS), and VOICED per theme. Gated.
+  atlas: router({
+    windows: protectedProcedure.query(async ({ ctx }) => {
+      const { hasFeature } = await import("./feature-flags.js");
+      if (!(await hasFeature(ctx.user, "lifeAtlas"))) return { available: false, themes: [] as any[] };
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false, themes: [] as any[] };
+      const db = await getDb();
+      if (!db) return { available: false, themes: [] as any[] };
+      const { profileConvergence } = await import("../drizzle/schema.js");
+      const rows = await db.select().from(profileConvergence).where(eq(profileConvergence.profileId, profile.id));
+      const { mergeThemeWindows } = await import("./vedic/windows.js");
+      const wins = mergeThemeWindows(rows as any);
+      const LABELS: Record<string, string> = {
+        marriage: "Marriage & union", children: "Children & creations", career: "Career & vocation",
+        identity: "How you're received", fame: "Recognition", wealth: "Wealth & income",
+        siblings: "Inner circle", parents: "Parents & roots", home: "Home & land", health: "Health & vitality",
+      };
+      const byTheme = new Map<string, any[]>();
+      for (const w of wins) {
+        if (!byTheme.has(w.theme)) byTheme.set(w.theme, []);
+        byTheme.get(w.theme)!.push({ from: w.from, to: w.to, bigKnot: w.bigKnot, peak: w.peak });
+      }
+      return {
+        available: true,
+        themes: Array.from(byTheme.entries()).map(([theme, windows]) => ({ theme, label: LABELS[theme] ?? theme, windows }))
+          .sort((a, b) => (a.windows[0]?.from ?? "").localeCompare(b.windows[0]?.from ?? "")),
+      };
+    }),
+    themeRead: protectedProcedure
+      .input(z.object({ theme: z.string().min(2).max(20), refresh: z.boolean().optional() }))
+      .query(async ({ ctx, input }) => {
+        const { hasFeature } = await import("./feature-flags.js");
+        if (!(await hasFeature(ctx.user, "lifeAtlas"))) return { available: false, read: null, windows: [], generatedAt: null, cached: false } as const;
+        const { getActiveProfile } = await import("./routers/profiles.js");
+        const profile = await getActiveProfile(ctx.user.id);
+        if (!profile) return { available: false, read: null, windows: [], generatedAt: null, cached: false } as const;
+        const LABELS: Record<string, string> = {
+          marriage: "Marriage & union", children: "Children & creations", career: "Career & vocation",
+          identity: "How you're received", fame: "Recognition", wealth: "Wealth & income",
+          siblings: "Inner circle", parents: "Parents & roots", home: "Home & land", health: "Health & vitality",
+        };
+        const { getAtlasReadCached } = await import("./narrative/service.js");
+        return await getAtlasReadCached(profile.id, input.theme, LABELS[input.theme] ?? input.theme, input.refresh ?? false);
+      }),
+  }),
+
   // FEATURE FLAGS — the tester switchboard (David 2026-07-16). Buttons live in Settings
   // (admin section); audiences: admins | testers | everyone; testers = email allowlist.
   features: router({

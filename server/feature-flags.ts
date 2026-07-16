@@ -9,7 +9,7 @@ import { systemPrompts } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 export type Audience = "admins" | "testers" | "everyone";
-export type FeatureKey = "yearPage" | "houseReader" | "chapterReader" | "momentRefresh" | "secondProfile";
+export type FeatureKey = "yearPage" | "houseReader" | "chapterReader" | "momentRefresh" | "secondProfile" | "lifeAtlas";
 
 export const FEATURE_DEFS: Record<FeatureKey, { label: string; blurb: string }> = {
   yearPage: { label: "Year page", blurb: "The ranked solar year with day pop-ups" },
@@ -17,11 +17,12 @@ export const FEATURE_DEFS: Record<FeatureKey, { label: string; blurb: string }> 
   chapterReader: { label: "Chapter Reader", blurb: "Tap a mahadasha, the lord's dossier speaks" },
   momentRefresh: { label: "Moment refresh", blurb: "The hero's ↻ update-to-the-moment" },
   secondProfile: { label: "Second chart", blurb: "One additional profile beyond their own" },
+  lifeAtlas: { label: "Life Atlas", blurb: "Every life-theme window, dated and voiced, decades out" },
 };
 
 export type FeatureFlags = { features: Record<FeatureKey, Audience>; testers: string[] };
 const DEFAULTS: FeatureFlags = {
-  features: { yearPage: "admins", houseReader: "everyone", chapterReader: "everyone", momentRefresh: "admins", secondProfile: "admins" },
+  features: { yearPage: "admins", houseReader: "everyone", chapterReader: "everyone", momentRefresh: "admins", secondProfile: "admins", lifeAtlas: "admins" },
   testers: [],
 };
 

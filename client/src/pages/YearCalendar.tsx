@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronDown, Loader2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { trpc } from "@/lib/trpc";
 import AddTaskSheet from "@/components/AddTaskSheet";
@@ -101,6 +101,8 @@ export default function YearCalendar() {
 
   // Day pop-up (David: "click the calendar, pop-up! Maybe even with an add task plus sign")
   const [dayPopup, setDayPopup] = useState<{ ds: string; d: any } | null>(null);
+  const [crownsOpen, setCrownsOpen] = useState(false);
+  const [cautionsOpen, setCautionsOpen] = useState(false);
   const [addForDate, setAddForDate] = useState<string | null>(null);
 
   return (
@@ -127,6 +129,43 @@ export default function YearCalendar() {
 
         {data && (
           <>
+            {/* THE TWELVE CROWNING DAYS — listed and tappable (David 2026-07-16). */}
+            <div className="mt-3 rounded-xl overflow-hidden" style={{ border: "1px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", background: "var(--color-card)" }}>
+              <button onClick={() => setCrownsOpen((v) => !v)} className="w-full flex items-center justify-between px-4 py-2.5">
+                <span className="text-sm font-bold" style={{ color: "var(--heading-ink)" }}>★ The twelve crowning days</span>
+                <ChevronDown size={17} style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: crownsOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+              </button>
+              {crownsOpen && (
+                <div className="px-4 pb-3 grid grid-cols-2 gap-x-3 gap-y-1">
+                  {(Array.from(topSet) as string[]).sort().map((ds: string) => {
+                    const d = byDate.get(ds);
+                    return (
+                      <button key={ds} onClick={() => d && setDayPopup({ ds, d })} className="text-left text-xs py-0.5" style={{ color: "var(--color-foreground)" }}>
+                        <span style={{ color: "#2E7D4F", fontWeight: 700 }}>★</span> {new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* THE CAUTION DAYS — listed and accessible too (David 2026-07-16). */}
+            <div className="mt-2 rounded-xl overflow-hidden" style={{ border: "1px solid color-mix(in srgb, #B3232F 40%, transparent)", background: "var(--color-card)" }}>
+              <button onClick={() => setCautionsOpen((v) => !v)} className="w-full flex items-center justify-between px-4 py-2.5">
+                <span className="text-sm font-bold" style={{ color: "color-mix(in srgb, #B3232F 70%, var(--heading-ink))" }}>■ The caution days — stop, stop, stop</span>
+                <ChevronDown size={17} style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: cautionsOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+              </button>
+              {cautionsOpen && (
+                <div className="px-4 pb-3 grid grid-cols-2 gap-x-3 gap-y-1">
+                  {(data?.days ?? []).filter((d: any) => d.tara?.quality === "bad" && d.tara?.taraNum === 7 && d.tara?.cycle === 1).map((d: any) => (
+                    <button key={d.date} onClick={() => setDayPopup({ ds: d.date, d })} className="text-left text-xs py-0.5" style={{ color: "var(--color-foreground)" }}>
+                      <span style={{ color: "#B3232F", fontWeight: 700 }}>■</span> {new Date(d.date + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Legend RETIRED (David's ruling: pop-ups teach, legends are decoder rings) —
                 tap any day and it explains itself. */}
 

@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, ATLAS_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -565,6 +565,28 @@ export async function generateDashaRead(input: any): Promise<DashaRead | null> {
     });
   } catch (err) {
     console.error("[narrative] generateDashaRead failed:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
+
+// ── THE THEME READER (the Life Atlas voice — David 2026-07-16) ────────────────────────
+export type AtlasRead = { read: string; question: string };
+export function isCompleteAtlasRead(r: any): r is AtlasRead {
+  return !!r && typeof r.read === "string" && r.read.length > 80 && typeof r.question === "string";
+}
+export async function generateAtlasRead(input: any): Promise<AtlasRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    return await callGuarded<AtlasRead>({
+      c, tail: ATLAS_READ_TAIL, toolName: "atlas_read",
+      schema: { type: "object", properties: { read: { type: "string" }, question: { type: "string" } }, required: ["read", "question"] } as any,
+      input, maxTokens: 1600, maxWords: 380, skipMachinery: true,
+      complete: isCompleteAtlasRead, textOf: (r) => r.read,
+    });
+  } catch (err) {
+    console.error("[narrative] generateAtlasRead failed:", (err as any)?.message ?? err);
     return null;
   }
 }
