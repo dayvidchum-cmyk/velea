@@ -261,7 +261,12 @@ export default function YearCalendar() {
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
                             className="relative min-h-[26px] rounded-[5px] pl-1 pt-[2px] text-[11px] tabular-nums text-left font-semibold"
-                            style={{ background: bg, color: filled || isPicked ? shade(coin) : coin, border: isCrown ? "1.5px solid #F2C21C" : "1.5px solid transparent" }}>
+                            style={{ background: bg, color: filled || isPicked ? shade(coin) : coin,
+                              // Anchor law (David): a tile CARRYING a mark gets a fine border of
+                              // its own hue so the glyph reads as THIS day's; crowns stay gold.
+                              border: isCrown ? "1.5px solid #F2C21C"
+                                : (isDollar || marks.length > 0) ? `1px solid color-mix(in srgb, ${coin} 50%, transparent)`
+                                : "1px solid transparent" }}>
                             {day}
                             {(isDollar || marks.length > 0 || isCrown) && (
                               <span className="absolute right-[2px] top-[1px] flex items-center gap-[1px]" style={{ lineHeight: 1 }}>
@@ -269,7 +274,7 @@ export default function YearCalendar() {
                                 {marks.slice(0, 2).map((mk) => (
                                   <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: mk.station ? "10px" : "8px", fontWeight: 700, color: MARK_INK[mk.planet] ?? "#6B6355" }}>{PLANET_GLYPH[mk.planet]}</span>
                                 ))}
-                                {isCrown && <OctagramMark size={8} color="#B3902C" strokeWidth={2} style={{ display: "block" }} />}
+                                {isCrown && <OctagramMark size={12} color="#B3902C" strokeWidth={1.8} style={{ display: "block" }} />}
                               </span>
                             )}
                             {windowEdgeSet.has(ds) && <span className="absolute bottom-[2px] right-[3px] h-[5px] w-[5px] rounded-full bg-current opacity-75" />}
