@@ -690,8 +690,29 @@
 }
 
 .dark body {
-  background: #14161F;
+  background: #0D0F19;
   color: #DCD6C7;
+}
+/* MOONLIT AURORA (David 2026-07-16: "i like Moonlight. I like Aurora.") — the night has
+   physics now: the moon's pale wash at the zenith, the day-accent blooming faintly under
+   it (Aurora), the ground lifting toward the horizon. A fixed ::before layer so the sky
+   holds still while the page scrolls (iOS-safe; background-attachment:fixed is not). */
+.dark body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 220px at 50% -40px, rgba(220, 214, 199, 0.075), transparent 72%),
+    radial-gradient(70% 280px at 50% 80px, color-mix(in srgb, var(--day-accent) 9%, transparent), transparent 75%),
+    linear-gradient(180deg, #0D0F19 0%, #14161F 48%, #191C29 100%);
+}
+/* The pinned top bar goes lightly translucent so the moon wash breathes through it. */
+.dark .app-topbar {
+  background: color-mix(in srgb, #0D0F19 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 /* App top bar — solid background matching the app surface (dark mode is a plain solid
