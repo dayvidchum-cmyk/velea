@@ -7,6 +7,7 @@ import LocationChip from "@/components/LocationChip";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
 import PlanetMark from "@/components/PlanetMark";
+import CrownMark from "@/components/CrownMark";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1595,7 +1596,7 @@ export default function Planner() {
                           // A 3-column grid keeps the crown pinned even with an odd flank count.
                           <span style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", width: "100%", lineHeight: 1, whiteSpace: "nowrap" }}>
                             <span style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>{slotted.slice(0, mid)}</span>
-                            <span style={{ fontSize: "1.2rem", fontWeight: 800, color: MARK_INK.crown, transform: `translateY(-2px) translateX(${CROWN_NUDGE})` }}>♛</span>
+                            <CrownMark size={17} style={{ transform: "translateY(-2px)" }} />
                             <span style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>{slotted.slice(mid)}</span>
                           </span>
                         ) : (
@@ -1643,7 +1644,7 @@ export default function Planner() {
                         return <>
                           {phase && <span style={{ width: count >= 2 ? 9 : 11, height: count >= 2 ? 9 : 11, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />}
                           {prosperitySet.has(dateStr) && <span style={{ fontSize: `${g}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
-                          {achievementSet.has(dateStr) && <span style={{ fontSize: `${g + 4}px`, fontWeight: 800, color: MARK_INK.crown, lineHeight: 1 }}>♛</span>}
+                          {achievementSet.has(dateStr) && <CrownMark size={g + 5} />}
                           {windowGlyphList.map((e) => (
                             <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} />
                           ))}
@@ -1722,7 +1723,7 @@ export default function Planner() {
             ) : crownTip.kind === "achievement" ? (
               <>
                 <span style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 700, color: "#8a6d1f", marginBottom: "0.25rem" }}>
-                  <span style={{ fontWeight: 800, fontSize: "1.15rem", color: MARK_INK.crown }}>♛</span> Achievement day
+                  <CrownMark size={18} /> Achievement day
                 </span>
                 The accomplisher&rsquo;s star &mdash; something can be won today. Land an aim: ship it, submit it, finish it.
               </>

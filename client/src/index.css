@@ -119,27 +119,27 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* C · JYOTISH INDIGO (David 2026-07-16: "Night is cinematic! It's astrology!") —
-     dark mode is the night sky the celestial art lives on. Deep indigo-navy elevation
-     ramp, starlight-cream ink (warm, so text never goes blue-on-blue). No #000000. */
-  --background: #14161F;
+  /* ESPRESSO NIGHT (David 2026-07-16 evening: "So I don't like indigo. I decided.") —
+     Oat Milk's true sibling: warm brown-black elevation ramp, bone-cream ink, the
+     Moonlit-Aurora physics riding a lamplit room. Cozy low contrast. No #000000. */
+  --background: #171310;
   --foreground: #DCD6C7;
-  --card: #1B1D29;
+  --card: #201A14;
   --card-foreground: #DCD6C7;
-  --popover: #1F2231;
+  --popover: #251E17;
   --popover-foreground: #DCD6C7;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #1a1305;
-  --secondary: #262A3D;
+  --secondary: #2B241C;
   --secondary-foreground: #DCD6C7;
-  --muted: #1F2233;
-  --muted-foreground: #898DA3;
+  --muted: #221C15;
+  --muted-foreground: #A2988A;
   --accent: oklch(0.767 0.139 91.1);
   --accent-foreground: #1a1305;
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: #FDFDFD;
-  --border: rgba(170, 180, 226, 0.11);
-  --input: rgba(170, 180, 226, 0.09);
+  --border: rgba(226, 205, 166, 0.11);
+  --input: rgba(226, 205, 166, 0.09);
   --ring: oklch(0.767 0.139 91.1);
   --radius: 0.75rem;
   /* Editorial card radii — one family for flat cards + immersive heroes */
@@ -160,23 +160,23 @@
   --heading-ink: color-mix(in srgb, var(--day-accent) 26%, #D5CFBE);
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
-  --space-deep: #0D0F19;
-  --space-navy: #12141F;
-  --space-mid: #171A28;
-  --space-light: #1E2236;
+  --space-deep: #120F0C;
+  --space-navy: #171310;
+  --space-mid: #1D1812;
+  --space-light: #251E17;
   --cream: #FDFDFD;
   --cream-dim: rgba(220, 214, 199, 0.6);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
-  --sidebar: #10121C;
+  --sidebar: #14100C;
   --sidebar-foreground: #DCD6C7;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #1a1305;
-  --sidebar-accent: #262A3D;
+  --sidebar-accent: #2B241C;
   --sidebar-accent-foreground: #DCD6C7;
-  --sidebar-border: rgba(170, 180, 226, 0.09);
+  --sidebar-border: rgba(226, 205, 166, 0.09);
   --sidebar-ring: oklch(0.767 0.139 91.1);
   /* Task card backgrounds — mode-specific tints */
   --task-bg: rgba(25, 50, 25, 0.08);
@@ -646,51 +646,51 @@
 
 /* ── DARK MODE CLASS (kept for compatibility — always active) ─────── */
 .dark {
-  /* C · JYOTISH INDIGO — the night-sky ramp (mirrors :root; see note there). */
-  --background: #14161F;
+  /* ESPRESSO NIGHT — the warm ramp (mirrors :root; see note there). */
+  --background: #171310;
   --foreground: #DCD6C7;
-  --card: #1B1D29;
+  --card: #201A14;
   --card-foreground: #DCD6C7;
-  --popover: #1F2231;
+  --popover: #251E17;
   --popover-foreground: #DCD6C7;
   --primary: oklch(0.767 0.139 91.1);
   --primary-foreground: #1a1305;
-  --secondary: #262A3D;
+  --secondary: #2B241C;
   --secondary-foreground: #DCD6C7;
-  --muted: #1F2233;
-  --muted-foreground: #898DA3;
+  --muted: #221C15;
+  --muted-foreground: #A2988A;
   --accent: oklch(0.767 0.139 91.1);
   --accent-foreground: #1a1305;
   --destructive: oklch(0.58 0.18 25);
   --destructive-foreground: #FDFDFD;
-  --border: rgba(170, 180, 226, 0.11);
+  --border: rgba(226, 205, 166, 0.11);
   /* Inputs need a visible edge in dark mode — low alpha vanished into the background. */
-  --input: rgba(170, 180, 226, 0.18);
+  --input: rgba(226, 205, 166, 0.18);
   --ring: oklch(0.767 0.139 91.1);
   --amber-gold: oklch(0.767 0.139 91.1);
   --amber-dim: oklch(0.65 0.10 91.1);
-  --space-deep: #0D0F19;
-  --space-navy: #12141F;
-  --space-mid: #171A28;
-  --space-light: #1E2236;
+  --space-deep: #120F0C;
+  --space-navy: #171310;
+  --space-mid: #1D1812;
+  --space-light: #251E17;
   --cream: #FDFDFD;
   --cream-dim: rgba(220, 214, 199, 0.6);
   --mode-action: oklch(0.48 0.28 152);
   --mode-build: oklch(0.767 0.139 91.1);
   --mode-restraint: oklch(0.54 0.14 355);
   --mode-selective: oklch(0.50 0.12 200);
-  --sidebar: #10121C;
+  --sidebar: #14100C;
   --sidebar-foreground: #DCD6C7;
   --sidebar-primary: oklch(0.767 0.139 91.1);
   --sidebar-primary-foreground: #1a1305;
-  --sidebar-accent: #262A3D;
+  --sidebar-accent: #2B241C;
   --sidebar-accent-foreground: #DCD6C7;
-  --sidebar-border: rgba(170, 180, 226, 0.09);
+  --sidebar-border: rgba(226, 205, 166, 0.09);
   --sidebar-ring: oklch(0.767 0.139 91.1);
 }
 
 .dark body {
-  background: #0D0F19;
+  background: #120F0C;
   color: #DCD6C7;
 }
 /* MOONLIT AURORA (David 2026-07-16: "i like Moonlight. I like Aurora.") — the night has
@@ -704,13 +704,13 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(58% 220px at 50% -40px, rgba(220, 214, 199, 0.075), transparent 72%),
+    radial-gradient(58% 220px at 50% -40px, rgba(232, 220, 196, 0.07), transparent 72%),
     radial-gradient(70% 280px at 50% 80px, color-mix(in srgb, var(--day-accent) 9%, transparent), transparent 75%),
-    linear-gradient(180deg, #0D0F19 0%, #14161F 48%, #191C29 100%);
+    linear-gradient(180deg, #120F0C 0%, #171310 48%, #1F1913 100%);
 }
 /* The pinned top bar goes lightly translucent so the moon wash breathes through it. */
 .dark .app-topbar {
-  background: color-mix(in srgb, #0D0F19 82%, transparent);
+  background: color-mix(in srgb, #120F0C 82%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }

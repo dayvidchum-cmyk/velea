@@ -114,7 +114,7 @@ export function ThemeProvider({
     // Update Safari theme-color meta tag
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute("content", theme === "dark" ? "#14161F" : "#F0E9DC");
+      meta.setAttribute("content", theme === "dark" ? "#171310" : "#F0E9DC");
     }
   }, [theme]);
 
