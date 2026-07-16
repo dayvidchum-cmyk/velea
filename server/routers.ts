@@ -843,6 +843,7 @@ export const appRouter = router({
           todayHouse: z.number().optional(), // the day's domain (activated house)
           verdictShapesRanking: z.boolean().default(false), // opt-in: verdict tilts order
           meridianLift: z.boolean().default(false), // opt-in: MC/IC chapter lifts its pole's areas
+          supportedKinds: z.array(z.string()).optional(), // the handshake — today's supported kinds
         })
       )
       .query(async ({ ctx, input }) => {
@@ -908,6 +909,7 @@ export const appRouter = router({
         return scoreTasks(allTasks, {
           todayMode: input.todayMode,
           todayDate: input.todayDate,
+          supportedKinds: input.supportedKinds,
           dayHouses: input.todayHouse != null ? [input.todayHouse] : [],
           meridianHouses,
           projectAreas,

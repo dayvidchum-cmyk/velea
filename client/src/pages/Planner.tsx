@@ -318,6 +318,12 @@ export default function Planner() {
     return m;
   }, [crownData]);
   const selectedCharacter = charByDate.get(selectedDate);
+  // THE HANDSHAKE (hoisted above the ranking query, which feeds on it): the kinds
+  // today's character supports — empty on hostile/contained days.
+  const todaySupportedKinds = useMemo(() => {
+    const c = charByDate.get(toDateStr(new Date()));
+    return new Set<string>((c?.supportedKinds as string[] | undefined) ?? (c?.nature ? [c.nature] : []));
+  }, [charByDate]);
   const rungByDate = useMemo(() => {
     const m = new Map<string, { num: number; quality: string }>();
     for (const d of (crownData?.days ?? []) as any[]) if (d.rung) m.set(d.date, d.rung);
@@ -473,6 +479,7 @@ export default function Planner() {
       todayHouse: todayPanchang?.houseActivated ?? undefined,
       verdictShapesRanking: settings.verdictShapesRanking,
       meridianLift: settings.meridianLift,
+      supportedKinds: Array.from(todaySupportedKinds),
     },
     { enabled: isAuthenticated && !!todayTaskMode }
   );
@@ -739,13 +746,6 @@ export default function Planner() {
     return counts;
   }, [allTasks, kindByTaskId]);
   const todayKind = charByDate.get(toDateStr(today))?.nature as TaskKind | undefined;
-  // THE HANDSHAKE: the day's character names the kinds it supports (server-computed;
-  // empty on contained/hostile-star days — the world runs, you don't). Fallback to the
-  // day's own nature for a payload from before the field existed.
-  const todaySupportedKinds = useMemo(() => {
-    const c = charByDate.get(toDateStr(today));
-    return new Set<string>((c?.supportedKinds as string[] | undefined) ?? (c?.nature ? [c.nature] : []));
-  }, [charByDate, today]);
 
   // Priority sort order (title-case to match DB enum)
   const PRIORITY_RANK: Record<string, number> = { High: 0, Medium: 1, Low: 2 };

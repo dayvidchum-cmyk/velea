@@ -25,6 +25,7 @@ import type { CurrentLayers, TransitingPlanet } from "./layers/types";
 import { themeMatchesTask } from "./layers/time-lord-theme";
 import { goldenMomentEffect, type GoldenMomentSignal } from "./sky/golden-moment";
 import { housesForAreas, matchedAreaLabels, parseLifeAreas } from "../shared/life-areas";
+import { kindOfTask, KIND_WORD } from "../shared/task-kind";
 
 /**
  * Layer 3 transit → task-mode effect map (Conflict-Q3 confirmed):
@@ -231,6 +232,9 @@ export function scoreTasks(
     /** Meridian lift (opt-in): pole house(s) of a live MC/IC chapter — the pole's
      *  life-areas get a gentle, persistent soft lift (the "song at the party"). */
     meridianHouses?: number[];
+    /** THE HANDSHAKE — the kinds today's character supports (empty on hostile/contained
+     *  days). A task whose kind the day supports gets a real lift. */
+    supportedKinds?: string[];
   }
 ): ScoredTask[] {
   const { todayMode, todayDate, currentState, layers, dayHouses, projectAreas, goldenSignals } = opts;
@@ -265,6 +269,16 @@ export function scoreTasks(
       if (task.isPinned) {
         floor += 1000;
         reasons.push("Pinned for today");
+      }
+
+      // 10. THE HANDSHAKE (soft) — the day names the kinds it supports; a task of a
+      //     supported kind rises ("a moving day floats the Motion tasks").
+      if (opts.supportedKinds?.length) {
+        const kind = kindOfTask(task as any);
+        if (opts.supportedKinds.includes(kind)) {
+          soft += 60;
+          reasons.push(`Today carries ${KIND_WORD[kind]} acts — the day supports this`);
+        }
       }
 
       // 9. Nearly done (soft) — a task at 70%+ wants to be carried over the line
