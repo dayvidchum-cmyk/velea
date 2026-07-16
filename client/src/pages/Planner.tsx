@@ -1515,6 +1515,9 @@ export default function Planner() {
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : isCrown
                       ? `1.5px solid ${GOLD_BRIGHT}`
+                      // THE GLYPH DAY earns back its thin ring — its own color, no fill (David 7/16).
+                      : (!filled && !eclipseByDate.has(dateStr) && !stationsToday.length && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0))
+                      ? `1.5px solid color-mix(in srgb, ${accent} 62%, transparent)`
                       : "1.5px solid transparent",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
@@ -1522,13 +1525,12 @@ export default function Planner() {
                   onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
-                  {/* Marks PERCH ON THE RING (David's mock): ♛ sits at the circle's crown
-                      point; $ and the station-window glyphs ride the upper-right arc. Each
-                      wears a paper halo so the ring's line visually breaks beneath it. */}
-
-                  {/* ALL marks perch TOP-CENTER as one cluster; the crown is ALWAYS its
-                      center, others flank it (David 2026-07-15 midnight experiment). */}
-                  {!isCrown && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) && (() => {
+                  {/* THE GLYPH-COIN LAW (David 2026-07-16): a bare day carrying marks drops
+                      its number — thin ring of its own color, no fill, the glyphs LARGE and
+                      centered inside. The PERCH survives only where the coin's center is
+                      already taken: station days (big planet glyph) and filled days
+                      (today/caution keep their number — the tara badges never hide). */}
+                  {!isCrown && !eclipseByDate.has(dateStr) && (stationsToday.length > 0 || filled) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) && (() => {
                     const others: React.ReactNode[] = [];
                     const phase = moonPhaseByDate.get(dateStr);
                     if (phase) others.push(
@@ -1595,6 +1597,21 @@ export default function Planner() {
                       {stationsToday.map((e) => (
                         <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: stationsToday.length > 1 ? "1.4rem" : "1.9rem", fontWeight: 500, color: MARK_INK[e.planet] ?? numberColor, lineHeight: 1, transform: GLYPH_NUDGE[e.planet] ? `translateX(${GLYPH_NUDGE[e.planet]})` : undefined }}>{PLANET_GLYPH[e.planet]}</span>
                       ))}
+                    </span>
+                  ) : (!filled && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0)) ? (
+                    // THE GLYPH DAY: the marks ARE the day — large, centered inside the ring.
+                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
+                      {(() => {
+                        const phase = moonPhaseByDate.get(dateStr);
+                        return <>
+                          {phase && <span style={{ width: 11, height: 11, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />}
+                          {prosperitySet.has(dateStr) && <LotusMark size={16} strokeWidth={2} />}
+                          {achievementSet.has(dateStr) && <SummitMark size={16} strokeWidth={1.7} />}
+                          {windowGlyphList.map((e) => (
+                            <span key={e.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: "16px", fontWeight: 700, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor, lineHeight: 1, display: "inline-block", transform: GLYPH_NUDGE[e.planet] ? `translateX(${GLYPH_NUDGE[e.planet]})` : undefined }}>{PLANET_GLYPH[e.planet]}</span>
+                          ))}
+                        </>;
+                      })()}
                     </span>
                   ) : (
                     <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1.15rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>

@@ -498,6 +498,53 @@ const THEME_KARAKAS: Record<string, string[]> = {
   parents: ["Moon", "Sun", "Jupiter"], home: ["Moon", "Mercury"], health: ["Sun", "Mars"],
 };
 export type AtlasReadResult = { available: boolean; read: import("./generate.js").AtlasRead | null; windows: any[]; generatedAt: Date | null; cached: boolean };
+export interface WindowReadResult { available: boolean; locked?: boolean; read: { read: string } | null; generatedAt: Date | string | null; cached: boolean }
+/** One window of one theme, voiced. Cache key = theme+from (a window's identity); the
+ *  hash carries the window's substance so a re-stored timeline regenerates honestly. */
+export async function getWindowReadCached(profileId: number, theme: string, label: string, from: string, refresh = false): Promise<WindowReadResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const surface = "window_read";
+  const { getDb } = await import("../db.js");
+  const { profileConvergence } = await import("../../drizzle/schema.js");
+  const { eq: eqW } = await import("drizzle-orm");
+  const db = await getDb();
+  if (!db) return { available: false, read: null, generatedAt: null, cached: false };
+  const rows = await db.select().from(profileConvergence).where(eqW(profileConvergence.profileId, profileId));
+  const { mergeThemeWindows } = await import("../vedic/windows.js");
+  const win = mergeThemeWindows(rows as any).find((w) => w.theme === theme && w.from === from);
+  if (!win) return { available: false, read: null, generatedAt: null, cached: false };
+  const { getStoredResearch } = await import("../vedic/research-store.js");
+  const research: any = await getStoredResearch(profileId);
+  const houses: any[] = research?.houses ?? [];
+  const promise = {
+    houses: (THEME_HOUSES[theme] ?? []).map((h) => {
+      const d = houses[h - 1];
+      return d ? { house: h, sign: d.sign, occupants: d.occupants, lord: d.lord, vargaCheck: d.vargaCheck } : null;
+    }).filter(Boolean),
+    karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, shadbala: research?.shadbala?.[k] ?? null })),
+  };
+  const input = { theme, label, window: { from: win.from, to: win.to, peak: win.peak, bigKnot: win.bigKnot }, promise, engineVersion: research?.engineVersion ?? null };
+  const hash = dayStableHash(input, surface);
+  const dateKey = `atlas-w-${theme}-${from}`;
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, dateKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        const { isCompleteWindowRead } = await import("./generate.js");
+        if (isCompleteWindowRead(read)) return { available: true, read, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generateWindowRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileId}:${theme}:${from}:${hash}`, async () => {
+    const r = await generateWindowRead(input as any);
+    if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  return read ? { available: true, read, generatedAt: new Date(), cached: false } : { available: false, read: null, generatedAt: null, cached: false };
+}
+
 export async function getAtlasReadCached(profileId: number, theme: string, label: string, refresh = false): Promise<AtlasReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, windows: [], generatedAt: null, cached: false };
   const surface = "atlas_read";

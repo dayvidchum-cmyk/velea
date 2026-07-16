@@ -1918,6 +1918,31 @@ Return your answer by calling the dasha_read tool with "read" and "question" fil
 // across the stored timeline: the natal promise first, then the dated windows, the BIG
 // KARMIC KNOTS called out by weight. Natal+convergence-stable; caches per theme.
 // ─────────────────────────────────────────────────────────────────────────────
+export const WINDOW_READ_TAIL = `TASK: THE WINDOW READER
+
+One OPEN SEASON of one life theme — a dated window from the native's stored convergence
+timeline. The reader tapped THIS window because they want to know what this specific
+stretch of their life carries.
+
+INPUT: the theme + its promise (the researched houses and karakas that carry it), and THIS
+window: its dates, its convergence depth (how many timing layers agree), and whether it is
+a BIG KARMIC KNOT (period, promise and sky piling up).
+
+THE READ (aim ~120 words, hard cap 150):
+- Name the season in LIVED time ("from the spring of 2031 into the following winter") — the
+  dates ground it, the prose humanizes it.
+- Say what THIS window carries for THIS theme, from the promise: what ripens, what asks to
+  be done, what may arrive. Specific, not generic — the researched houses/karakas are the
+  material.
+- If it is a big karmic knot, say so in plain words: this is one of the stretches where the
+  timing layers pile up — what arrives carries weight and moves the native where they are
+  meant to go.
+- Honesty law: a thin window is named gently as a lighter season, never inflated.
+- The reading laws hold: no house numbers, no jargon unglossed, siblings = blood + inner
+  circle, never one single move.
+
+Return { "read": string }.`;
+
 export const ATLAS_READ_TAIL = `TASK: THE THEME READER
 
 Answer the native's real question about ONE life-theme (input.label — marriage, wealth,
@@ -2197,6 +2222,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-16-the-chapter-reader-v1",
   atlas_read: "2026-07-16-the-theme-reader-v1",
+  window_read: "2026-07-16-the-window-reader-v1",
   life_area: "2026-07-16-stored-conditions",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",

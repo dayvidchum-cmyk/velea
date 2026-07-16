@@ -576,6 +576,27 @@ export async function generateDashaRead(input: any): Promise<DashaRead | null> {
 
 // ── THE THEME READER (the Life Atlas voice — David 2026-07-16) ────────────────────────
 export type AtlasRead = { read: string; question: string };
+export interface WindowRead { read: string }
+export function isCompleteWindowRead(r: any): r is WindowRead {
+  return !!r && typeof r.read === "string" && r.read.length > 40;
+}
+export async function generateWindowRead(input: any): Promise<WindowRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const { WINDOW_READ_TAIL } = await import("./prompts.js");
+    return await callGuarded<WindowRead>({
+      c, tail: WINDOW_READ_TAIL, toolName: "window_read",
+      schema: { type: "object", properties: { read: { type: "string" } }, required: ["read"] } as any,
+      input, maxTokens: 700, maxWords: 150, skipMachinery: true,
+      complete: isCompleteWindowRead, textOf: (r) => r.read,
+    });
+  } catch (err) {
+    console.error("[narrative] generateWindowRead failed:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
 export function isCompleteAtlasRead(r: any): r is AtlasRead {
   return !!r && typeof r.read === "string" && r.read.length > 80 && typeof r.question === "string";
 }

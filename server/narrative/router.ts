@@ -114,6 +114,18 @@ export const narrativeRouter = router({
       const { getActiveProfile } = await import("../routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false, read: null, generatedAt: null, cached: false } as const;
+      // THE ROOM GATE (David 2026-07-16): three rooms read free — the 1st (the rising
+      // self), the Sun's house, and the Moon's house. The other nine wear the lock.
+      // Admins bypass; server enforces what the client shows.
+      if (ctx.user.role !== "admin") {
+        try {
+          const { getStoredResearch } = await import("../vedic/research-store.js");
+          const research: any = await getStoredResearch(profile.id);
+          const houseOf = (planet: string) => (research?.houses ?? []).find((h: any) => (h.occupants ?? []).some((o: any) => (o.planet ?? o) === planet))?.house ?? null;
+          const open = new Set([1, houseOf("Sun"), houseOf("Moon")].filter(Boolean));
+          if (!open.has(input.house)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+        } catch { return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const; }
+      }
       const { getHouseReadCached } = await import("./service.js");
       return await getHouseReadCached(profile.id, input.house, input.refresh ?? false);
     } catch (e) {
@@ -127,9 +139,24 @@ export const narrativeRouter = router({
     try {
       const { hasFeature } = await import("../feature-flags.js");
       if (!(await hasFeature(ctx.user, "chapterReader"))) return { available: false, read: null, generatedAt: null, cached: false } as const;
-      const { getActiveProfile } = await import("../routers/profiles.js");
+      const { getActiveProfile, getProfileNatalBodies } = await import("../routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false, read: null, generatedAt: null, cached: false } as const;
+      // THE CHAPTER GATE (David 2026-07-16): only the RUNNING chapter reads freely —
+      // the current mahadasha and antardasha lords. Every other chapter stays locked
+      // (the tease). Admins bypass.
+      if (ctx.user.role !== "admin") {
+        try {
+          const bodies = await getProfileNatalBodies(profile.id);
+          const moon: any = bodies.find((b: any) => b.planet === "Moon");
+          const { calculateDashaTimeline } = await import("../dasha-calculator.js");
+          const today = new Date().toISOString().slice(0, 10);
+          const tl = calculateDashaTimeline((profile as any).birthDate, moon?.nakshatra || "", moon?.sign ?? "", String(moon?.degree ?? ""), today, moon?.longitude != null ? String(moon.longitude) : null);
+          const cur: any = tl.entries.find((e: any) => e.isCurrent);
+          const allowed = new Set([cur?.mahadasha, cur?.antardasha].filter(Boolean));
+          if (!allowed.has(input.lord)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+        } catch { return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const; }
+      }
       const { getDashaReadCached } = await import("./service.js");
       return await getDashaReadCached(profile.id, input.lord, input.span, input.refresh ?? false);
     } catch (e) {

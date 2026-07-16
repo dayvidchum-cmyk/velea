@@ -1982,11 +1982,28 @@ export const appRouter = router({
             label: LABELS[theme] ?? theme,
             windowCount: windows.length,
             knotCount: windows.filter((w) => w.bigKnot).length,
-            // The dated windows are the product — entitled eyes only.
-            windows: entitled ? windows : [],
+            // THE LOOSENED VEIL (David 2026-07-16): the DATES show for everyone — each
+            // dateline is a door; the READINGS behind them stay entitled-only.
+            windows,
           })),
       };
     }),
+    windowRead: protectedProcedure
+      .input(z.object({ theme: z.string().min(2).max(20), from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), refresh: z.boolean().optional() }))
+      .query(async ({ ctx, input }) => {
+        const { hasFeature } = await import("./feature-flags.js");
+        if (!(await hasFeature(ctx.user, "lifeAtlas"))) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
+        const { getActiveProfile } = await import("./routers/profiles.js");
+        const profile = await getActiveProfile(ctx.user.id);
+        if (!profile) return { available: false as const, locked: false as const, read: null, generatedAt: null, cached: false };
+        const LABELS: Record<string, string> = {
+          marriage: "Marriage & union", children: "Children & creations", career: "Career & vocation",
+          identity: "How you're received", fame: "Recognition", wealth: "Wealth & income",
+          siblings: "Inner circle", parents: "Parents & roots", home: "Home & land", health: "Health & vitality",
+        };
+        const { getWindowReadCached } = await import("./narrative/service.js");
+        return getWindowReadCached(profile.id, input.theme, LABELS[input.theme] ?? input.theme, input.from, input.refresh ?? false);
+      }),
     themeRead: protectedProcedure
       .input(z.object({ theme: z.string().min(2).max(20), refresh: z.boolean().optional() }))
       .query(async ({ ctx, input }) => {

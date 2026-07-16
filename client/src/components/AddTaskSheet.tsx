@@ -572,24 +572,31 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
               The spot at the top; feeds the scorer (quick fits a low tank, long needs room). */}
           <div className="mb-6">
             <label className="block text-[12px] font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
-              Size
+              How much of the day does this ask?
             </label>
+            {/* Each pill says WHAT IT MEANS (David: "SIZE & the three options doesn't
+                communicate clearly at all") — the word + its lived measure. */}
             <div className="flex gap-2">
-              {(["quick", "sitting", "long"] as const).map((sz) => {
+              {([
+                { key: "quick", word: "Quick", measure: "minutes" },
+                { key: "sitting", word: "A sitting", measure: "an hour or so" },
+                { key: "long", word: "Long", measure: "days of work" },
+              ] as const).map(({ key: sz, word, measure }) => {
                 const on = effortSize === sz;
                 return (
                   <button
                     key={sz}
                     type="button"
                     onClick={() => setEffortSize(on ? null : sz)}
-                    className="flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors"
+                    className="flex-1 py-2 rounded-lg transition-colors flex flex-col items-center gap-0.5"
                     style={{
                       background: on ? "var(--color-accent)" : "var(--color-secondary)",
                       color: on ? "var(--color-accent-foreground)" : "var(--color-foreground)",
                       border: `1px solid ${on ? "var(--color-accent)" : "var(--color-border)"}`,
                     }}
                   >
-                    {sz}
+                    <span className="text-sm font-semibold" style={{ lineHeight: 1.1 }}>{word}</span>
+                    <span className="text-[10px]" style={{ opacity: 0.75, lineHeight: 1 }}>{measure}</span>
                   </button>
                 );
               })}

@@ -703,6 +703,13 @@ function FeatureAccessPanel() {
   const utils = trpc.useUtils();
   const { data } = trpc.features.all.useQuery(undefined, { retry: false });
   const setFlags = trpc.features.set.useMutation({ onSuccess: () => { utils.features.all.invalidate(); utils.features.mine.invalidate(); } });
+  // THE SAVE BUTTON (David 2026-07-16: "I have no idea if it's being saved as I update") —
+  // audience toggles edit LOCAL state; one explicit Save commits them and says so.
+  const [draft, setDraft] = useState<Record<string, string> | null>(null);
+  const [savedFlash, setSavedFlash] = useState(false);
+  // THE TWO LISTS SPEAK: testers are real accounts — offer the user list as one-tap
+  // add chips, and flag tester emails that match no account.
+  const { data: usersList } = trpc.auth.listUsers.useQuery(undefined, { retry: false });
   // THE HONEST ADD (David's "Lies", 2026-07-16): the old path cleared the input the
   // instant Add was tapped — a silently rejected email LOOKED saved. Now the field
   // clears only on SUCCESS and a rejection says so out loud.
@@ -720,6 +727,10 @@ function FeatureAccessPanel() {
   const [newTester, setNewTester] = useState("");
   if (!data) return null;
   const { flags, defs } = data as any;
+  const effective = (key: string) => draft?.[key] ?? flags.features[key] ?? "admins";
+  const dirty = draft != null && Object.entries(draft).some(([k, v]) => (flags.features[k] ?? "admins") !== v);
+  const accountEmails = new Set(((usersList as any[]) ?? []).map((u: any) => (u.email ?? "").toLowerCase()).filter(Boolean));
+  const addableUsers = ((usersList as any[]) ?? []).filter((u: any) => u.email && !flags.testers.map((t: string) => t.toLowerCase()).includes(u.email.toLowerCase()));
   return (
     <SettingsSection title="Feature access">
       <p className="text-xs mb-3" style={{ color: "var(--color-muted-foreground)" }}>
@@ -729,25 +740,55 @@ function FeatureAccessPanel() {
         <SettingRow key={key} label={def.label} description={def.blurb}>
           <TogglePair
             options={["admins", "testers", "everyone"] as const}
-            value={flags.features[key] ?? "admins"}
-            onChange={(v) => setFlags.mutate({ features: { [key]: v } })}
+            value={effective(key)}
+            onChange={(v) => { setDraft((d) => ({ ...(d ?? {}), [key]: v })); setSavedFlash(false); }}
             renderLabel={(v) => <span className="capitalize">{v}</span>}
           />
         </SettingRow>
       ))}
+      <button
+        onClick={() => {
+          if (!dirty) return;
+          setFlags.mutate({ features: draft as any }, { onSuccess: () => { setDraft(null); setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2500); } });
+        }}
+        disabled={!dirty || setFlags.isPending}
+        className="w-full mt-3 py-2.5 rounded-full text-[11px] font-bold uppercase"
+        style={{ letterSpacing: "0.1em", border: "none",
+          background: dirty ? "var(--heading-ink)" : "color-mix(in srgb, var(--heading-ink) 18%, transparent)",
+          color: dirty ? "#FBF7ED" : "var(--color-muted-foreground)", opacity: setFlags.isPending ? 0.6 : 1 }}
+      >
+        {setFlags.isPending ? "Saving…" : savedFlash ? "Saved ✓" : dirty ? "Save access changes" : "Saved — no changes"}
+      </button>
       <div className="mt-4">
         <p className="text-[12px] font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
           Testers
         </p>
         <div className="flex flex-wrap gap-1.5 mb-2">
           {flags.testers.length === 0 && <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>No testers yet.</span>}
-          {flags.testers.map((t: string) => (
-            <span key={t} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: "1px solid var(--color-border)" }}>
-              {t}
-              <button onClick={() => setFlags.mutate({ testers: flags.testers.filter((x: string) => x !== t) })} style={{ color: "var(--color-muted-foreground)" }}>×</button>
-            </span>
-          ))}
+          {flags.testers.map((t: string) => {
+            const hasAccount = accountEmails.size === 0 || accountEmails.has(t.toLowerCase());
+            return (
+              <span key={t} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style={{ background: "var(--color-secondary)", color: "var(--color-foreground)", border: hasAccount ? "1px solid var(--color-border)" : "1px solid #c0504d" }}>
+                {t}{!hasAccount && <span style={{ color: "#c0504d", fontSize: "0.65rem" }}>no account</span>}
+                <button onClick={() => setFlags.mutate({ testers: flags.testers.filter((x: string) => x !== t) })} style={{ color: "var(--color-muted-foreground)" }}>×</button>
+              </span>
+            );
+          })}
         </div>
+        {addableUsers.length > 0 && (
+          <div className="mb-2">
+            <p className="text-[10px] uppercase font-semibold mb-1" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.05em" }}>Add from your users</p>
+            <div className="flex flex-wrap gap-1.5">
+              {addableUsers.slice(0, 8).map((u: any) => (
+                <button key={u.id} onClick={() => setFlags.mutate({ testers: [...flags.testers, u.email.toLowerCase()] })}
+                  className="px-2.5 py-1 rounded-full text-xs"
+                  style={{ background: "transparent", color: "var(--color-foreground)", border: "1px dashed var(--color-border)", cursor: "pointer" }}>
+                  + {u.name || u.email}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex gap-2">
           <input
             type="email"

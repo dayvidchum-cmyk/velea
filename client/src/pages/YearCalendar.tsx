@@ -12,7 +12,15 @@ import AddTaskSheet from "@/components/AddTaskSheet";
 // The month calendar's mark system, mirrored for the year pop-up (Planner is the source of truth).
 const PLANET_GLYPH: Record<string, string> = { Mercury: "\u263F\uFE0E", Venus: "\u2640\uFE0E", Mars: "\u2642\uFE0E", Jupiter: "\u2643\uFE0E", Saturn: "\u2644\uFE0E" };
 const PLANET_GLYPH_FONT = '"Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols", "Noto Sans Symbols2", sans-serif';
-const MARK_INK: Record<string, string> = { dollar: "#77A96B", crown: "#D4AF37", Mercury: "#3FA8A0", Saturn: "#454A8C" };
+// Planet inks match the dasha table's parchment set (David: "grey/brown Venus and mars? Why?").
+// Mercury aquamarine + Saturn jyotish indigo stay HIS blessed mark inks.
+const MARK_INK: Record<string, string> = {
+  dollar: "#77A96B", crown: "#D4AF37",
+  Mercury: "#3FA8A0", Saturn: "#454A8C",
+  Venus: "#CE5F6E", Mars: "#A8002C", Jupiter: "#A2850A",
+};
+// Ink-bearing corrections (em) — same map as the month coins; Apple Symbols ink sits off-center.
+const GLYPH_NUDGE: Record<string, string> = { Saturn: "0.03em", Mercury: "0.01em" };
 
 /**
  * YEAR CALENDAR — the crown-day calendar, whole-year edition (David: "this is the crown day
@@ -183,7 +191,7 @@ export default function YearCalendar() {
             {/* THE TWELVE CROWNING DAYS — listed and tappable (David 2026-07-16). */}
             <div className="mt-3 rounded-xl overflow-hidden" style={{ border: "1px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", background: "var(--color-card)" }}>
               <button onClick={() => setCrownsOpen((v) => !v)} className="w-full flex items-center justify-between px-4 py-2.5">
-                <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}><OctagramMark size={14} color="var(--brand-gold)" strokeWidth={1.2} /> The twelve crowning days</span>
+                <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}><OctagramMark size={19} color="var(--brand-gold)" strokeWidth={1.3} /> The twelve crowning days</span>
                 <ChevronDown size={17} style={{ marginTop: -2, color: "var(--color-muted-foreground)", transform: crownsOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
               </button>
               {crownsOpen && (
@@ -192,7 +200,7 @@ export default function YearCalendar() {
                     const d = byDate.get(ds);
                     return (
                       <button key={ds} onClick={() => d && setDayPopup({ ds, d })} className="text-left text-xs py-0.5" style={{ color: "var(--color-foreground)" }}>
-                        <OctagramMark size={11} color="#2E7D4F" strokeWidth={1.4} style={{ verticalAlign: "-1px", marginRight: 2 }} /> {new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                        <OctagramMark size={14} color="#D4AF37" strokeWidth={1.5} style={{ verticalAlign: "-2px", marginRight: 3 }} /> {new Date(ds + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
                       </button>
                     );
                   })}
@@ -289,8 +297,9 @@ export default function YearCalendar() {
                             {(() => {
                               const markCount = (isDollar ? 1 : 0) + (isSummit ? 1 : 0) + marks.length;
                               const solo = markCount === 1;
-                              const mSize = solo ? 18 : 13;
-                              const gSize = (station: boolean) => (solo ? (station ? "17px" : "15px") : (station ? "13px" : "11px"));
+                              // ONE size for every glyph (David: "Size of glyphs is inconsistent.
+                              // Pick one and stick with it.") — 15 everywhere, solo or company.
+                              const mSize = 15;
                               return (
                                 <>
                                   {eclipse ? (
@@ -304,10 +313,10 @@ export default function YearCalendar() {
                                     </span>
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
-                                      {isDollar && <LotusMark size={mSize} strokeWidth={solo ? 1.9 : 2.2} />}
-                                      {isSummit && <SummitMark size={mSize} strokeWidth={solo ? 1.6 : 1.9} />}
+                                      {isDollar && <LotusMark size={mSize} strokeWidth={2.1} />}
+                                      {isSummit && <SummitMark size={mSize} strokeWidth={1.8} />}
                                       {marks.slice(0, 2).map((mk) => (
-                                        <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: gSize(mk.station), fontWeight: 700, color: MARK_INK[mk.planet] ?? "#6B6355" }}>{PLANET_GLYPH[mk.planet]}</span>
+                                        <span key={mk.planet} style={{ fontFamily: PLANET_GLYPH_FONT, fontSize: `${mSize}px`, fontWeight: 700, lineHeight: 1, color: MARK_INK[mk.planet] ?? "var(--heading-ink)", transform: GLYPH_NUDGE[mk.planet] ? `translateX(${GLYPH_NUDGE[mk.planet]})` : undefined, display: "inline-block" }}>{PLANET_GLYPH[mk.planet]}</span>
                                       ))}
                                     </span>
                                   ) : day}
@@ -323,29 +332,6 @@ export default function YearCalendar() {
                 );
               })}
             </div>
-
-            {/* Crowning days — collapsed by default (the app's law) */}
-            <details className="mt-4 rounded-xl border border-[#ddd3bf] bg-[#f8f4ea] p-3 text-[#2b2723]">
-              <summary className="cursor-pointer font-serif text-sm">The twelve crowning days</summary>
-              <ul className="mt-2 space-y-1 text-sm">
-                {(data.summary.topDates as string[]).map((ds, i) => {
-                  const d = byDate.get(ds);
-                  return (
-                    <li key={ds} className="flex items-baseline gap-2">
-                      <span className="w-8 tabular-nums text-[#9a917f]">#{i + 1}</span>
-                      <span className="tabular-nums">{fmtDay(ds)}</span>
-                      <span className="text-xs text-[#9a917f]">{d?.plain.day}{d?.plain.windows.length ? ` · open: ${d.plain.windows.join(", ")}` : ""}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </details>
-
-            <details className="mt-3 rounded-xl border border-[#ddd3bf] bg-[#f8f4ea] p-3 text-[#2b2723]">
-              <summary className="cursor-pointer font-serif text-sm">Days to keep quiet ({(data.summary.quietDates as string[]).length})</summary>
-              <p className="mt-2 text-sm">{(data.summary.quietDates as string[]).map(fmtDay).join(" · ")}</p>
-              <p className="mt-2 text-xs text-[#9a917f]">Loss-star days at full force — the bottom of your ranking. Nothing forward, nothing new.</p>
-            </details>
 
             <p className="mt-4 text-xs text-muted-foreground">
               Every day is graded by how the day's Moon-star sits from your birth star — nine kinds of day,
@@ -371,12 +357,12 @@ export default function YearCalendar() {
         return (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-6" style={{ background: "rgba(30, 24, 16, 0.45)", paddingTop: "16dvh" }} onClick={() => setDayPopup(null)}>
             <div className="parchment w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", maxHeight: "80dvh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
-              <p className="font-serif text-lg" style={{ color: "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
+              <p className="font-serif text-lg" style={{ color: topSet.has(ds) ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
               <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
                 {taraNum === 2 && <span style={{ marginLeft: 8, color: "#77A96B" }}><LotusMark size={13} strokeWidth={2.2} style={{ verticalAlign: "-2px", marginRight: 3 }} />prosperity</span>}
                 {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}><SummitMark size={13} strokeWidth={1.9} style={{ verticalAlign: "-2px", marginRight: 3 }} />achievement</span>}
-                {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#2E7D4F" }}><OctagramMark size={11} color="#2E7D4F" strokeWidth={1.4} style={{ verticalAlign: "-1px", marginRight: 3 }} />crowning day</span>}
+                {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#B3902C" }}><OctagramMark size={13} color="#D4AF37" strokeWidth={1.5} style={{ verticalAlign: "-2px", marginRight: 3 }} />crowning day</span>}
               </p>
               {/* THE DAY'S MARKS (David 2026-07-16: "planet glyphs and $ signs and moons in the
                   year pop-up") — the same marks the month coins wear, spelled out. The slot is

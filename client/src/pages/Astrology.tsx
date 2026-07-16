@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
 import { createPortal } from "react-dom";
 import { trpc } from "@/lib/trpc";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, X, Lock } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
 import { ModeCard } from "@/components/ModeCard";
@@ -346,9 +346,22 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
             </div>
 
             {/* THE HOUSE READER — the stored research, voiced (David 2026-07-16). Fires
-                only on tap; natal-stable + cached, so each house generates once. */}
+                only on tap; natal-stable + cached, so each house generates once.
+                THE ROOM GATE: three rooms read free — the 1st, the Sun's, the Moon's.
+                The other nine wear the lock (server enforces too). */}
             <div style={{ marginTop: "0.9rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
-              {voicedHouse !== sel ? (
+              {(() => {
+                const houseOfBody = (name: string) => (natalBodies ?? []).find((b: any) => b.planet === name)?.house ?? null;
+                const roomOpen = sel === 1 || sel === houseOfBody("Sun") || sel === houseOfBody("Moon");
+                if (!roomOpen) return (
+                  <div className="flex items-center gap-2 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
+                    <Lock size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
+                    <p className="text-xs" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
+                      This room's reading waits with the full library. Your rising, your Sun's room and your Moon's room read free.
+                    </p>
+                  </div>
+                );
+                return voicedHouse !== sel ? (
                 <button
                   onClick={() => setVoicedHouse(sel)}
                   className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
@@ -383,7 +396,8 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                     Ask again
                   </button>
                 </div>
-              )}
+              );
+              })()}
             </div>
 
             {/* The canon brick, COLLAPSED (David: "so little and somehow loud") — one tap
@@ -989,9 +1003,18 @@ export function DashaSection() {
 
               {isExpanded && (
                 <div style={{ background: "var(--color-card)", borderTop: `1px solid ${color}55` }}>
-                  {/* THE CHAPTER READER — the lord's dossier, voiced (tap-gated, cached). */}
+                  {/* THE CHAPTER READER — the lord's dossier, voiced (tap-gated, cached).
+                      THE CHAPTER GATE (David 2026-07-16): only the RUNNING chapter reads —
+                      other mahadashas wear the lock (the tease; server enforces too). */}
                   <div style={{ padding: "0.8rem 1rem 0.2rem" }}>
-                    {readLord !== g.mahadasha ? (
+                    {!hasActive ? (
+                      <div className="flex items-center gap-2 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
+                        <Lock size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
+                        <p className="text-xs" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
+                          The {g.mahadasha} chapter is written and waiting. Your running chapter reads free — the others open with the full library. Soon.
+                        </p>
+                      </div>
+                    ) : readLord !== g.mahadasha ? (
                       <button
                         onClick={() => setReadLord(g.mahadasha)}
                         className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
