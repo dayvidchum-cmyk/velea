@@ -1265,10 +1265,7 @@ export default function Planner() {
                 letterSpacing: "0.01em",
               }}
             >
-              {MONTHS[viewDate.getMonth()]}{" "}
-              <span style={{ fontWeight: 500, fontSize: "1.05rem", letterSpacing: "0.04em" }}>
-                {viewDate.getFullYear()}
-              </span>
+              {MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}
             </h2>
             <ChevronDown size={16} style={{ marginTop: -2, color: "#8a8264", transform: monthPickerOpen ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
           </button>
