@@ -1477,23 +1477,29 @@ export default function Planner() {
                   {/* Marks PERCH ON THE RING (David's mock): ♛ sits at the circle's crown
                       point; $ and the station-window glyphs ride the upper-right arc. Each
                       wears a paper halo so the ring's line visually breaks beneath it. */}
-                  {achievementSet.has(dateStr) && !isCrown && !eclipseByDate.has(dateStr) && (
-                    <span style={{ position: "absolute", top: -15, left: "50%", transform: "translateX(-50%)", fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "2px 3px 1px", borderRadius: 8, zIndex: 1 }}>
-                      ♛
-                    </span>
-                  )}
-                  {/* Everything besides the crown rides the UPPER-RIGHT arc together (David):
-                      $ first, then the station-window glyphs, one perched span. */}
-                  {!isCrown && !eclipseByDate.has(dateStr) && (prosperitySet.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (
-                    <span style={{ position: "absolute", top: -10, right: -7, display: "flex", alignItems: "baseline", lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "3px 3px", borderRadius: 8, zIndex: 1 }}>
-                      {prosperitySet.has(dateStr) && (
-                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: MARK_INK.dollar }}>$</span>
-                      )}
-                      {!stationsToday.length && windowGlyphList.map((e) => (
-                        <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor }}>{PLANET_GLYPH[e.planet]}</span>
-                      ))}
-                    </span>
-                  )}
+
+                  {/* ALL marks perch TOP-CENTER as one cluster; the crown is ALWAYS its
+                      center, others flank it (David 2026-07-15 midnight experiment). */}
+                  {!isCrown && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || (!stationsToday.length && windowGlyphList.length > 0)) && (() => {
+                    const others: React.ReactNode[] = [];
+                    if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontSize: "0.72rem", fontWeight: 800, color: MARK_INK.dollar }}>$</span>);
+                    if (!stationsToday.length) for (const e of windowGlyphList) others.push(
+                      <span key={e.planet} style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: PLANET_GLYPH_FONT, color: MARK_INK[e.planet] ?? PLANET_RETRO_COLOR.deep[e.planet] ?? numberColor }}>{PLANET_GLYPH[e.planet]}</span>
+                    );
+                    const hasCrownMark = achievementSet.has(dateStr);
+                    const mid = Math.floor(others.length / 2);
+                    return (
+                      <span style={{ position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "baseline", gap: 1, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "2px 3px 1px", borderRadius: 8, zIndex: 1, whiteSpace: "nowrap" }}>
+                        {hasCrownMark ? (
+                          <>
+                            {others.slice(0, mid)}
+                            <span style={{ fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown }}>♛</span>
+                            {others.slice(mid)}
+                          </>
+                        ) : others}
+                      </span>
+                    );
+                  })()}
                   {isCrown ? (
                     // The knot mark — an OUTLINE octagram (Star of Lakshmi), drawn in LINES, not a
                     // solid fill (David: "I want the lakshmi stars to be lines again"). The center

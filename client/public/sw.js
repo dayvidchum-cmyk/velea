@@ -1,7 +1,7 @@
 /* Velea service worker — enables desktop/mobile install and light offline.
    Deliberately conservative: never touches API/tRPC traffic, always prefers
    fresh HTML, and only cache-firsts Vite's content-hashed static assets. */
-const CACHE = "velea-cache-v511";
+const CACHE = "velea-cache-v512";
 const ASSET_RE = /\.(?:js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico|webmanifest)$/;
 
 self.addEventListener("install", () => {
