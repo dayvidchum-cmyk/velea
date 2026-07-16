@@ -17,6 +17,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { setDayAccent } from "@/lib/dayAccent";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
+import { useTheme } from "@/contexts/ThemeContext";
 import { getLoginUrl } from "@/const";
 import { pickGreeting } from "@/lib/greeting";
 import { MODE_SOLID } from "../../../shared/types";
@@ -198,8 +199,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // ONE SOURCE: the dateline word is today's movement (Golden Day / Action / Build /
   // Selective / Restraint / Caution) — the retired pipeline's mode/qualifier never render.
   const [fullSpectrum] = useFullSpectrum();
+  const { theme } = useTheme();
   const todayCharacter = (headerCrown as any)?.days?.find((d: any) => d.date === stampDateStr)?.character ?? null;
-  useEffect(() => { setDayAccent(todayCharacter, fullSpectrum); }, [todayCharacter, fullSpectrum]);
+  useEffect(() => { setDayAccent(todayCharacter, fullSpectrum); }, [todayCharacter, fullSpectrum, theme]); // theme dep: the dark lift remaps the accent on mode flip
   const todayMovementWord = todayCharacter?.movementWord ?? null;
   const stampModeLabel = todayMovementWord ?? "";
   void stampMode; void stampQualifier; // retired vocabulary — kept only so older code paths type-check

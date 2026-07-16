@@ -15,11 +15,25 @@ export function coinForCharacter(c: any): string | null {
   const depth = c.depth ?? c.buildDepth;
   return DEPTH_COIN[c.movement]?.[depth ?? "mid"] ?? MOVEMENT_COIN[c.movement] ?? null;
 }
+// C · JYOTISH INDIGO tuning (2026-07-16): on the indigo night ground the COOL day colors
+// sit closest to the ground's own hue and melt — each gets a LIFTED dark-chrome variant.
+// Named knobs on purpose: David tunes these per-color by eye, round by round. The calendar
+// coins themselves are untouched (the almanac stays paper); this lifts CHROME accents only.
+const DARK_LIFT: Record<string, string> = {
+  "#00525F": "#2E8291", "#00687a": "#3A96A6", "#2E8291": "#63BFC9", "#54787C": "#7C9AA0", // selective ladder
+  "#2E7D4F": "#3FA06B", // golden
+  "#77A96B": "#8FC182", "#5E9457": "#77A96B", "#94BC88": "#A9CC9E", "#9AA579": "#AFBA8E", // action ladder
+  "#d57176": "#E28A93", // restraint
+  "#B3232F": "#D24352", // caution ruby
+  "#D4AF37": "#E0BC4E", "#C49A2E": "#D4AF37", "#CD9E86": "#DCB29B", "#BC886F": "#CFA089", // build/ochre ladder
+};
 /** Sets --day-accent on the root. Full Spectrum is exempt (its gold is law). */
 export function setDayAccent(character: any, fullSpectrum: boolean) {
   const root = document.documentElement;
   if (fullSpectrum) { root.style.removeProperty("--day-accent"); return; }
-  const coin = coinForCharacter(character);
+  let coin = coinForCharacter(character);
+  // Dark chrome lifts the coin toward starlight so the accent never melts into the night.
+  if (coin && root.classList.contains("dark")) coin = DARK_LIFT[coin] ?? coin;
   if (coin) {
     root.style.setProperty("--day-accent", coin);
     // deep self-shade of the day (same recipe as the filled coin's number)
