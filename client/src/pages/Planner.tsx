@@ -1556,8 +1556,15 @@ export default function Planner() {
                       centered inside. The PERCH survives only where the coin's center is
                       already taken: station days (big planet glyph) and filled days
                       (today/caution keep their number — the tara badges never hide). */}
-                  {!isCrown && !eclipseByDate.has(dateStr) && stationsToday.length > 0 && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) && (() => {
+                  {/* Crown days keep their perch too (doctrine: layers COEXIST — the 7/24 crown was
+                      swallowing Mercury's station-direct ☿). A crowned station day perches ALL its
+                      marks above the octagram coin. */}
+                  {!eclipseByDate.has(dateStr) && (stationsToday.length > 0 || isCrown) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0 || (isCrown && stationsToday.length > 0)) && (() => {
                     const others: React.ReactNode[] = [];
+                    // A crowned station day: the turning planet perches (the octagram holds the center).
+                    if (isCrown) for (const e of stationsToday) others.push(
+                      <PlanetMark key={`st-${e.planet}`} planet={e.planet} size={15} strokeWidth={2} />
+                    );
                     const phase = moonPhaseByDate.get(dateStr);
                     if (phase) others.push(
                       <span key="moon" style={{ width: 9, height: 9, borderRadius: 999, alignSelf: "center",
