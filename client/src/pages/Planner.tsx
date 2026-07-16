@@ -1451,8 +1451,10 @@ export default function Planner() {
                   {/* Tara-day badge — $ (Sampat) / ✓ (Sadhaka) as a small corner mark so the
                       DATE stays readable and a station glyph can share the coin (David 7/26). */}
                   {(prosperitySet.has(dateStr) || achievementSet.has(dateStr)) && !isCrown && !eclipseByDate.has(dateStr) && (
-                    <span style={{ position: "absolute", top: -1, right: 2, fontSize: "0.7rem", fontWeight: 800, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>
-                      {prosperitySet.has(dateStr) ? "$" : "✓"}
+                    // $ = Sampat (prosperity) · ♛ = Sadhaka (achievement — something can be WON
+                    // today; a ✓ read as already-done, David 2026-07-15).
+                    <span style={{ position: "absolute", top: -1, right: 2, fontSize: prosperitySet.has(dateStr) ? "0.7rem" : "0.62rem", fontWeight: 800, color: numberColor, lineHeight: 1, pointerEvents: "none" }}>
+                      {prosperitySet.has(dateStr) ? "$" : "♛"}
                     </span>
                   )}
                   {isCrown ? (
