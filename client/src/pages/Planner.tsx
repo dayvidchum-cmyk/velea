@@ -1502,11 +1502,11 @@ export default function Planner() {
                     const hasCrownMark = achievementSet.has(dateStr);
                     const mid = Math.floor(others.length / 2);
                     return (
-                      <span style={{ position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "baseline", gap: 1, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "2px 3px 1px", borderRadius: 8, zIndex: 1, whiteSpace: "nowrap" }}>
+                      <span style={{ position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 1, lineHeight: 1, pointerEvents: "none", background: "var(--parchment)", padding: "2px 3px 1px", borderRadius: 8, zIndex: 1, whiteSpace: "nowrap" }}>
                         {hasCrownMark ? (
                           <>
                             {others.slice(0, mid)}
-                            <span style={{ fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown }}>♛</span>
+                            <span style={{ fontSize: "1rem", fontWeight: 800, color: MARK_INK.crown, transform: "translateY(-2px)" }}>♛</span>
                             {others.slice(mid)}
                           </>
                         ) : others}
