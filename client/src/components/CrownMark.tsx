@@ -28,15 +28,16 @@ export default function CrownMark({
       strokeLinejoin="round"
       style={{ display: "inline-block", flexShrink: 0, ...style }}
     >
-      {/* The body (v2 — "It's squished"): taller slender spikes, shallower valleys,
-          base inset from the shoulders, matching his image's proportions. */}
-      <path d="M5.6 18.8 L3.6 11 Q6.3 14.2 8.6 8.8 Q10.6 13 12 7.2 Q13.4 13 15.4 8.8 Q17.7 14.2 20.4 11 L18.4 18.8 Z" />
-      {/* The bindu balls, floating just off every point. */}
-      <circle cx="3.5" cy="9.4" r="1.45" />
-      <circle cx="8.6" cy="7.1" r="1.45" />
-      <circle cx="12" cy="5.4" r="1.55" />
-      <circle cx="15.4" cy="7.1" r="1.45" />
-      <circle cx="20.5" cy="9.4" r="1.45" />
+      {/* The body (v3 — TRACED from David's image, pixel-measured, not drawn from
+          memory): the four side balls sit LEVEL, only the center towers; valleys dip
+          to 44%; the base spans 80% of the width; whole crown ~1.62 wide-to-tall. */}
+      <path d="M4 18.2 L2.6 10.4 Q5.3 12.9 8 10.4 Q10.2 12.4 12 7.7 Q13.8 12.4 16 10.4 Q18.7 12.9 21.4 10.4 L20 18.2 Z" />
+      {/* The bindu balls — four level, one crowning the center. */}
+      <circle cx="2.6" cy="9.3" r="1.3" />
+      <circle cx="8" cy="9.3" r="1.3" />
+      <circle cx="12" cy="6.5" r="1.45" />
+      <circle cx="16" cy="9.3" r="1.3" />
+      <circle cx="21.4" cy="9.3" r="1.3" />
     </svg>
   );
 }

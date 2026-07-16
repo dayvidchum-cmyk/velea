@@ -1481,11 +1481,11 @@ export default function Planner() {
             // soft fill (lighter than today's weight), cleared when selection returns home.
             const restingBg = filled
               ? `color-mix(in srgb, ${accent} 62%, var(--parchment))`
-              // Crown coins are FILLED with pale champagne (David 7/16: "fill that coin on
-              // 7/24 with a pale champagne gold") — the build-highlight champagne washed
-              // toward the paper, so the octagram sits on a lit coin.
+              // Crown coins wear TODAY's fill weight (David 7/16: "match today's fill.
+              // It'll look clearer") — the day's own coin at full strength, so the
+              // octagram sits on a solid lit coin instead of a fuzzy champagne wash.
               : isCrown
-              ? "color-mix(in srgb, #E8D87A 38%, var(--parchment))"
+              ? `color-mix(in srgb, ${accent} 62%, var(--parchment))`
               : isSelected && hasMode && !eclipseByDate.has(dateStr)
               ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
               : "transparent";
@@ -1636,13 +1636,13 @@ export default function Planner() {
                     // THE GLYPH DAY: the marks ARE the day — centered inside the ring. A solo
                     // mark sits large; COMPANIONS SHRINK AND HUDDLE (two 16s + gap outgrew the
                     // 32px coin — "like they are running from each other").
-                    <span style={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
+                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
                       {(() => {
                         const phase = moonPhaseByDate.get(dateStr);
                         const count = (phase ? 1 : 0) + (prosperitySet.has(dateStr) ? 1 : 0) + (achievementSet.has(dateStr) ? 1 : 0) + windowGlyphList.length;
                         const g = count >= 2 ? 13 : 16;
                         return <>
-                          {phase && <span style={{ width: count >= 2 ? 9 : 11, height: count >= 2 ? 9 : 11, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />}
+                          {phase && <span style={{ width: count >= 2 ? 11 : 13, height: count >= 2 ? 11 : 13, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
                           {prosperitySet.has(dateStr) && <span style={{ fontSize: `${g}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
                           {achievementSet.has(dateStr) && <CrownMark size={g + 5} />}
                           {windowGlyphList.map((e) => (
@@ -1826,12 +1826,12 @@ export default function Planner() {
                       background: isToday ? "color-mix(in srgb, var(--day-accent) 62%, var(--orb-base, var(--parchment)))"
                         : isLanding ? "color-mix(in srgb, var(--day-accent) 26%, var(--orb-base, var(--parchment)))" : "transparent",
                       border: isToday || isLanding ? "1px solid transparent" : `1px solid ${kColor}`,
-                      color: isToday || isLanding ? "var(--day-accent-deep)" : kColor,
+                      color: isToday || isLanding ? "var(--orb-ink, var(--day-accent-deep))" : kColor,
                     }}
                   >
                     {settings.showOrbCounts && !softOpen ? kCount : "·"}
                   </div>
-                  <span className="text-[9px] font-bold uppercase" style={{ letterSpacing: "0.06em", color: isToday ? "var(--day-accent-deep)" : "var(--color-muted-foreground)" }}>
+                  <span className="text-[9px] font-bold uppercase" style={{ letterSpacing: "0.06em", color: isToday ? "var(--orb-ink, var(--day-accent-deep))" : "var(--color-muted-foreground)" }}>
                     {NATURE_WORD[k]}
                   </span>
                 </button>

@@ -111,7 +111,7 @@ function SettingsSection({ title, children, defaultOpen = false }: { title: stri
         </span>
         <ChevronDown size={18} style={{ color: "#FDFDFD", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
       </button>
-      {open && <div className="px-5">{children}</div>}
+      {open && <div className="px-5 pt-4 pb-5">{children}</div>}
     </div>
   );
 }

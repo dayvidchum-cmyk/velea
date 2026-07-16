@@ -287,7 +287,7 @@ export default function YearCalendar() {
                         return (
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
                             className="relative min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center"
-                            style={{ background: isCrown ? "color-mix(in srgb, #E8D87A 38%, #f8f4ea)" : bg, color: filled || isPicked ? shade(coin) : familyInk,
+                            style={{ background: bg, color: filled || isPicked ? shade(coin) : familyInk,
                               // Border laws (David 2026-07-16): crown = gold; caution = ruby;
                               // any tile carrying a glyph, $ OR a window dot = fine anchor
                               // border of its own hue. Bare days stay bare.
@@ -323,7 +323,7 @@ export default function YearCalendar() {
                                     </span>
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
-                                      {moonPhase && <span style={{ width: 12, height: 12, borderRadius: 999, background: moonPhase === "full" ? "#FDFBF3" : "#160f26", border: moonPhase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
+                                      {moonPhase && <span style={{ width: 13, height: 13, borderRadius: 999, background: moonPhase === "full" ? "#FDFBF3" : "#160f26", border: moonPhase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
                                       {isDollar && <span style={{ fontSize: `${mSize}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>$</span>}
                                       {isSummit && <CrownMark size={markCount === 1 ? 20 : mSize + 4} />}
                                       {marks.slice(0, 2).map((mk) => (
