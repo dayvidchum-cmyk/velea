@@ -560,8 +560,10 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
       {/* The task's arc — a hairline fill along the bottom edge (subtask-derived, or the
           user's own declared percent when no subtask list exists). */}
       {effectivePct != null && !task.isCompleted && (
-        <div style={{ height: 3, background: "rgba(var(--ink),0.14)" }}>
-          <div style={{ height: "100%", width: `${effectivePct}%`, background: "rgba(var(--ink),0.85)", transition: "width 300ms ease" }} />
+        // An inset rounded meter — deliberately a design element, not a stripe kissing the
+        // card's edge (David: the full-bleed bar "looks like a glitch").
+        <div style={{ margin: "0 12px 10px", height: 4, borderRadius: 999, background: "rgba(var(--ink),0.18)", overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${effectivePct}%`, background: "rgba(var(--ink),0.9)", borderRadius: 999, transition: "width 300ms ease" }} />
         </div>
       )}
     </div>
