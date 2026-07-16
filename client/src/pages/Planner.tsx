@@ -1459,7 +1459,7 @@ export default function Planner() {
                     // the days that earn one: caution (red), knot/crown (gold), golden (gold), and
                     // station (the day-mode color, around the planet glyph).
                     border: cautionSet.has(dateStr)
-                      ? `2px solid ${shadeHex("#B3232F", 0.6)}`
+                      ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : eclipseByDate.has(dateStr)
                       ? `1.5px solid ${ECLIPSE_RING}`
                       : isCrown
@@ -1469,7 +1469,7 @@ export default function Planner() {
                       : isSelected
                       ? "2px solid var(--color-foreground)"
                       : isToday
-                      ? `2px solid ${shadeHex(accent, 0.55)}`
+                      ? "2px solid transparent"
                       : ringForMarks && hasMode
                       ? `1px solid ${accent}`
                       : "1px solid transparent",
