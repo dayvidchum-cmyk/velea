@@ -138,7 +138,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
     <>
       {/* Top-anchored (the card-never-moves law): centered boxes jump when async sky lands. */}
       <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4" style={{ background: "var(--dialog-overlay)", paddingTop: "7dvh" }} onClick={onClose}>
-        <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col"
+        <div onClick={(e) => e.stopPropagation()} className="parchment w-full max-w-md flex flex-col"
           style={{ maxHeight: "min(92vh, 840px)", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: "var(--radius-hero)", overflow: "hidden", border: "1.5px solid color-mix(in srgb, var(--day-accent) 40%, transparent)", position: "relative" }}>
 
           <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: "0.85rem", right: "0.85rem", zIndex: 6, width: 36, height: 36, borderRadius: 999, border: "none", background: "rgba(30, 24, 16, 0.55)", color: "#FBF7ED", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
@@ -172,7 +172,10 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                           Retrograde cards use a lighter veil (their art is dim + now exposure-lifted). */}
                       {!h.primary && <div style={{ position: "absolute", inset: 0, background: dimRx ? "rgba(84,84,84,0.14)" : STATION_VEIL, pointerEvents: "none" }} />}
                       {/* The reading — moon card rides a gradient scrim; station cards sit on the flat veil */}
-                      <div style={{ position: "absolute", top: "15%", left: 0, right: 0, padding: "2.6rem 1.4rem 1.6rem", background: h.primary ? TEXT_SCRIM : "transparent", animation: "velea-rise 0.7s ease both" }}>
+                      {/* IN FLOW, not absolute (David: "Is this supposed to scroll?") — absolute text
+                          taller than the card was guillotined at the edge; in flow it GROWS the
+                          card and the sheet's scroll engages. The art stays absolute behind. */}
+                      <div style={{ position: "relative", zIndex: 1, marginTop: "clamp(90px, 22vh, 200px)", padding: "2.6rem 1.4rem 1.6rem", background: h.primary ? TEXT_SCRIM : "transparent", animation: "velea-rise 0.7s ease both" }}>
                         <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: ts }}>{h.kicker}</p>
                         <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "'Playfair Display', Georgia, serif", textShadow: ts, lineHeight: 1.05 }}>{h.title}</p>
                         <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: ts }}>{h.note}</p>
