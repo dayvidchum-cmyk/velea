@@ -101,6 +101,7 @@
       "avoidPlain": "Don't start anything new. Today is not a day where something is completed."
     },
     "fierce": {
+      "supportsPlain": "The day supports directness. No beginnings, no endings. No celebrations.",
       "sanskrit": "Ugra",
       "nakshatras": [
         "Bharani",

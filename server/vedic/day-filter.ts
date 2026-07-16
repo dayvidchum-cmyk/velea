@@ -134,7 +134,12 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     ? (input.tara?.quality === "good"
         ? `${cap(headline)} — but your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it.`
         : `${cap(headline)} — start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
-    : `${cap(headline)} — ${supportsPlain ?? `it supports ${listOf(supports.slice(0, 3))}`}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
+    // A nature with David's plain line drops the headline echo entirely — the hero
+    // prints the headline right above the sentence (his 7/16 refinement). His fierce
+    // line carries its own avoids, so avoidPlain only appends when distinct.
+    : supportsPlain
+    ? `${supportsPlain}${avoidPlain ? ` ${avoidPlain}` : ""}${personalTurn}`
+    : `${cap(headline)} — it supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
 
   // THE HANDSHAKE (David 2026-07-15: "just do it. We can always roll it back"): the day's
   // supports ARE the seven kinds. The day names which KINDS of act it carries: its own

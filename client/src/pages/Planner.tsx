@@ -1128,31 +1128,31 @@ export default function Planner() {
             {/* Panchang mini row */}
             <div data-tour="panchang-terms" className="flex items-center gap-4 flex-wrap" style={{ marginBottom: '1.25rem' }}>
               <div className="flex items-center gap-1.5">
-                <Moon size={11} style={{ color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)' }} />
+                <Moon size={14} style={{ color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)' }} />
                 {selectedPanchang.nakshatraTransitionTime && selectedPanchang.nakshatraAfterTransition ? (
-                  <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}>
+                  <span style={{ fontSize: '0.9rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}>
                     <GlossaryLink term={selectedPanchang.nakshatraAtSunrise ?? ''}>{selectedPanchang.nakshatraAtSunrise}</GlossaryLink>
                     <span style={{ color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}> → </span>
                     <GlossaryLink term={selectedPanchang.nakshatraAfterTransition ?? ''}>{selectedPanchang.nakshatraAfterTransition}</GlossaryLink>
                     <span style={{ color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}> {selectedPanchang.nakshatraTransitionTime}</span>
                   </span>
                 ) : (
-                  <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={selectedPanchang.nakshatra ?? ''}>{selectedPanchang.nakshatra}</GlossaryLink></span>
+                  <span style={{ fontSize: '0.9rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={selectedPanchang.nakshatra ?? ''}>{selectedPanchang.nakshatra}</GlossaryLink></span>
                 )}
               </div>
               <div className="flex items-center gap-1.5">
-                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}>☽</span>
-                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={selectedPanchang.moonSign ?? ''}>{selectedPanchang.moonSign}</GlossaryLink></span>
+                <span style={{ fontSize: '0.9rem', color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}>☽</span>
+                <span style={{ fontSize: '0.9rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={selectedPanchang.moonSign ?? ''}>{selectedPanchang.moonSign}</GlossaryLink></span>
               </div>
               {selectedPanchang.sunriseLocal && (
                 <div className="flex items-center gap-1.5">
-                  <Sunrise size={11} style={{ color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)' }} />
-                  <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}>{selectedPanchang.sunriseLocal}</span>
+                  <Sunrise size={14} style={{ color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)' }} />
+                  <span style={{ fontSize: '0.9rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}>{selectedPanchang.sunriseLocal}</span>
                 </div>
               )}
               <div className="flex items-center gap-1.5">
-                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}>◑</span>
-                <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={(selectedPanchang.tithi ?? '').replace(/^(shukla|krishna)\s+/i, '')}>{selectedPanchang.tithi}</GlossaryLink></span>
+                <span style={{ fontSize: '0.9rem', color: 'color-mix(in srgb, var(--hero-ink) 50%, transparent)' }}>◑</span>
+                <span style={{ fontSize: '0.9rem', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }}><GlossaryLink term={(selectedPanchang.tithi ?? '').replace(/^(shukla|krishna)\s+/i, '')}>{selectedPanchang.tithi}</GlossaryLink></span>
               </div>
             </div>
 
