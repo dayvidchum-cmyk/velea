@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { CIRCLES, CIRCLE_LABEL, type TaskCircle } from "@shared/task-circle";
+import { CIRCLE_SHELVES, CIRCLE_LABEL, type TaskCircle } from "@shared/task-circle";
 import { createPortal } from "react-dom";
 import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown, Repeat, Layers } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -262,6 +262,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
   const [effortSize, setEffortSize] = useState<"quick" | "sitting" | "long" | null>(null);
   // WHO the task touches — David's nine circles (the engine maps them to life-theme rooms).
   const [circle, setCircle] = useState<TaskCircle | null>(null);
+  const [circleOpen, setCircleOpen] = useState(false); // the shelves ship COLLAPSED (no bubble swamp)
   const [intent, setIntent] = useState<"want" | "need">("need");
   const [dueDate, setDueDate] = useState("");
   const [isPinned, setIsPinned] = useState(false);
@@ -610,33 +611,52 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
             </div>
           </div>
 
-          {/* WHO IS THIS FOR? — the nine circles (David 2026-07-16). Optional; the engine
-              maps each circle to its life-theme rooms so open windows lift matching tasks. */}
+          {/* WHO IS THIS FOR? — the twenty-six circles on five SHELVES (David: "i am
+              picturing a mess of bubbles" — so: one quiet row, collapsed by default;
+              tap to open the shelves; pick folds it back wearing the choice). */}
           <div className="mb-6">
-            <label className="block text-[12px] font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
-              Who is this for?
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {CIRCLES.map((c) => {
-                const on = circle === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setCircle(on ? null : c)}
-                    className="py-2 px-1 rounded-lg text-xs font-medium transition-colors"
-                    style={{
-                      background: on ? "var(--color-accent)" : "var(--color-secondary)",
-                      color: on ? "var(--color-accent-foreground)" : "var(--color-foreground)",
-                      border: `1px solid ${on ? "var(--color-accent)" : "var(--color-border)"}`,
-                      lineHeight: 1.15,
-                    }}
-                  >
-                    {CIRCLE_LABEL[c]}
-                  </button>
-                );
-              })}
-            </div>
+            <button
+              type="button"
+              onClick={() => setCircleOpen((v) => !v)}
+              className="w-full flex items-center justify-between py-2.5 px-3 rounded-lg"
+              style={{ background: "var(--color-secondary)", border: `1px solid ${circle ? "var(--color-accent)" : "var(--color-border)"}` }}
+            >
+              <span className="text-[12px] font-semibold tracking-wide uppercase" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
+                Who is this for?
+              </span>
+              <span className="text-sm font-semibold" style={{ color: circle ? "var(--color-foreground)" : "var(--color-muted-foreground)" }}>
+                {circle ? CIRCLE_LABEL[circle] : "anyone"} {circleOpen ? "▴" : "▾"}
+              </span>
+            </button>
+            {circleOpen && (
+              <div className="mt-2 space-y-2.5">
+                {CIRCLE_SHELVES.map((shelf) => (
+                  <div key={shelf.label}>
+                    <p className="text-[10px] font-bold uppercase mb-1" style={{ letterSpacing: "0.09em", color: "var(--color-muted-foreground)" }}>{shelf.label}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {shelf.circles.map((c) => {
+                        const on = circle === c;
+                        return (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => { setCircle(on ? null : c); setCircleOpen(false); }}
+                            className="py-1.5 px-2.5 rounded-full text-xs font-medium transition-colors"
+                            style={{
+                              background: on ? "var(--color-accent)" : "var(--color-secondary)",
+                              color: on ? "var(--color-accent-foreground)" : "var(--color-foreground)",
+                              border: `1px solid ${on ? "var(--color-accent)" : "var(--color-border)"}`,
+                            }}
+                          >
+                            {CIRCLE_LABEL[c]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* STATUS — the user's own declaration: new venture vs already in their story.

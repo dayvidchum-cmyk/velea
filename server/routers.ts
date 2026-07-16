@@ -708,7 +708,7 @@ export const appRouter = router({
           isNewVenture: z.boolean().nullable().optional(),
           completionPct: z.number().int().min(0).max(100).nullable().optional(),
           effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
-          circle: z.enum(["life_partner", "family", "best_friends", "inner_circle", "friends", "coworkers", "clients", "self", "everyone_else"]).nullable().optional(),
+          circle: z.enum(["life_partner", "husband", "wife", "boyfriend", "girlfriend", "lover", "situationship", "children", "family", "pets", "self", "inner_circle", "friends", "acquaintances", "boss", "business_partner", "mentors", "mentees", "coworkers", "clients", "helpers", "institutions", "powerful", "followers", "everyone_else", "enemies"]).nullable().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -763,7 +763,7 @@ export const appRouter = router({
           isNewVenture: z.boolean().nullable().optional(),
           completionPct: z.number().int().min(0).max(100).nullable().optional(),
           effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
-          circle: z.enum(["life_partner", "family", "best_friends", "inner_circle", "friends", "coworkers", "clients", "self", "everyone_else"]).nullable().optional(),
+          circle: z.enum(["life_partner", "husband", "wife", "boyfriend", "girlfriend", "lover", "situationship", "children", "family", "pets", "self", "inner_circle", "friends", "acquaintances", "boss", "business_partner", "mentors", "mentees", "coworkers", "clients", "helpers", "institutions", "powerful", "followers", "everyone_else", "enemies"]).nullable().optional(),
           // When provided and isPinned=true, the task's mode is set to this value.
           // Ignored when isPinned is false or undefined.
           dayMode: TaskModeEnum.optional(),

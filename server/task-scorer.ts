@@ -26,7 +26,7 @@ import { themeMatchesTask } from "./layers/time-lord-theme";
 import { goldenMomentEffect, type GoldenMomentSignal } from "./sky/golden-moment";
 import { housesForAreas, matchedAreaLabels, parseLifeAreas } from "../shared/life-areas";
 import { kindOfTask, KIND_WORD } from "../shared/task-kind";
-import { CIRCLE_THEMES, CIRCLE_LABEL, THEME_ROOM, type TaskCircle } from "../shared/task-circle.js";
+import { CIRCLE_THEMES, CIRCLE_LABEL, CIRCLE_VOICE, THEME_ROOM, type TaskCircle } from "../shared/task-circle.js";
 
 /**
  * Layer 3 transit → task-mode effect map (Conflict-Q3 confirmed):
@@ -291,7 +291,8 @@ export function scoreTasks(
         const lit = themes.find((t) => opts.openThemes!.includes(t));
         if (lit) {
           soft += 55;
-          reasons.push(`The ${THEME_ROOM[lit] ?? lit} window is open — this touches your ${CIRCLE_LABEL[(task as any).circle as TaskCircle].toLowerCase()}`);
+          const c = (task as any).circle as TaskCircle;
+          reasons.push(CIRCLE_VOICE[c] ?? `The ${THEME_ROOM[lit] ?? lit} window is open — this touches your ${CIRCLE_LABEL[c].toLowerCase()}`);
         }
       }
 
