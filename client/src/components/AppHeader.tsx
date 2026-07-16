@@ -261,7 +261,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                   <span style={{ opacity: 0.4 }}>•</span>
                   <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
-                  {stampHoraLord && (<><span style={{ opacity: 0.4 }}>:</span><span style={{ color: modeColor }}>{stampHoraLord}</span></>)}
+                  {/* The hora lord wears its activity's color — one phrase, one voice (David). */}
+                  {stampHoraLord && (<><span style={{ opacity: 0.4 }}>:</span><span style={{ color: stampActivity ? (CAT_COLOR[stampActivity] ?? "inherit") : modeColor }}>{stampHoraLord}</span></>)}
                 </span>
               )}
             </div>
