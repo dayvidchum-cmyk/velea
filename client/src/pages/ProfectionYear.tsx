@@ -834,7 +834,7 @@ export default function ProfectionYear() {
                         const d: any = tlWindowQ.data;
                         if (!begun) return (
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "0.65rem" }}>
-                            <GateMark size={13} />
+                            <GateMark size={19} />
                             <span style={{ fontSize: "0.78rem", color: TEXT_MUTED }}>This window hasn't opened — it reads when it arrives.</span>
                           </div>
                         );
@@ -850,7 +850,7 @@ export default function ProfectionYear() {
                               <ProseCard color={ink}>{[d.read.scene, d.read.story, d.read.tilt, d.read.closeLine].filter(Boolean).join("\n\n")}</ProseCard>
                             ) : d?.locked ? (
                               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                                <GateMark size={13} />
+                                <GateMark size={19} />
                                 <span style={{ fontSize: "0.78rem", color: TEXT_MUTED }}>Opens with the full library. Soon.</span>
                               </div>
                             ) : (
@@ -900,7 +900,7 @@ export default function ProfectionYear() {
             const compactV = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n} days` : `${Math.round(n / 30.4)} months`);
             return (
               <div className="flex items-start gap-2.5 rounded-lg px-3 py-3" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                <GateMark size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                <GateMark size={20} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
                 <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.55 }}>
                   The road ahead is written{apx ? ` — your strongest-aligned day lands in ${compactV(apx.daysAway)}, with ${arcData.crownCount} crown day${arcData.crownCount === 1 ? "" : "s"} in the next 90` : ""}, and {slowCount} slow season-turn{slowCount === 1 ? "" : "s"} mapped over the coming year. The dates, the turns, and what each asks open with Velea. Soon.
                 </p>

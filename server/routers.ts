@@ -109,6 +109,9 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { users, profiles, profileNatalBodies } from "../drizzle/schema";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { TRPCError } from "@trpc/server";
+// Bundled canon (2026-07-18): the yoga nameplates' source — a static import so esbuild
+// ships it inside dist (a runtime readFileSync path silently missed in prod).
+import canonYogasJson from "./vedic/canon/yogas.json";
 
 // Time Master (Pancha Pakshi) entitlement — the private feature flag. Today this is an allowlist
 // (David = user 2); later it becomes a per-user backend toggle. One source of truth so the data
@@ -2313,24 +2316,29 @@ export const appRouter = router({
       // THE NAMEPLATE (David 2026-07-17: "Those yoga names might as well be written in
       // Arabic or Sanskrit or Khmer") — every locked door gets a plain-language line:
       // the canon's own "result" + the type in lived words. Free tier; the READING stays gated.
-      const { fileURLToPath } = await import("node:url");
-      const path = await import("node:path");
-      const fs = await import("node:fs");
-      let canonYogas: any[] = [];
-      try {
-        const here = path.dirname(fileURLToPath(import.meta.url));
-        canonYogas = JSON.parse(fs.readFileSync(path.resolve(here, "vedic/canon/yogas.json"), "utf8"));
-      } catch { /* nameplates degrade gracefully */ }
+      // 2026-07-18 fix: the canon was loaded via readFileSync from a path that doesn't
+      // exist in the prod bundle (and the root is {yogas: []}, not an array) — glosses
+      // never shipped. Now BUNDLED via static import, so the nameplate can't go missing.
+      const canonYogas: any[] = (canonYogasJson as any)?.yogas ?? [];
       const TYPE_WORD: Record<string, string> = {
         raja: "a royal combination", dhana: "a wealth combination", mahapurusha: "a great-person mark",
-        nabhasa: "a sky-pattern", chandra: "a moon-born gift", parivartana: "an exchange of lords",
-        arishta: "a hardship knot", "arishta-bhanga": "a hardship undone", vipreet: "strength born of trouble",
+        nabhasa: "a sky-pattern", chandra: "a moon-born gift", lunar: "a moon-side gift",
+        solar: "a sun-side companion", "lunar-affliction": "a moon left unaccompanied",
+        benefic: "a gentle blessing", "benefic-enclosure": "protected on both sides",
+        "malefic-enclosure": "pressed on both sides", "benefic-kendra": "a blessing at the pillars",
+        "malefic-kendra": "a testing seat at the pillars", exchange: "two lords trade houses",
+        parivartana: "two lords trade houses", fortune: "a fortune mark",
+        "nodal-affliction": "a serpent knot", intellect: "a mind-brightening pair",
+        reversal: "strength born of trouble", vipreet: "strength born of trouble",
+        learning: "a learning gift", progeny: "a children-and-legacy mark",
+        protective: "a guarding mark", renunciation: "a letting-go mark",
+        arishta: "a hardship knot", "arishta-bhanga": "a hardship undone", affliction: "a hardship knot",
       };
       const yogas = (research?.yogas ?? []).map((y: any) => {
-        const c = canonYogas.find((cy: any) => cy.name === y.name);
+        const c = (canonYogas ?? []).find((cy: any) => cy.name === y.name || cy.name.startsWith(y.name + " "));
         return {
           name: y.name, type: y.type, vantages: y.frames?.length ?? 1, repeatsInNavamsha: !!y.inNavamsha,
-          kind: TYPE_WORD[y.type] ?? null,
+          kind: TYPE_WORD[y.type] ?? TYPE_WORD[c?.type] ?? null,
           gloss: c?.result ?? null,
         };
       });

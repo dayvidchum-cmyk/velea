@@ -5,6 +5,7 @@ import { buildNarrativeInput } from "./input-builder.js";
 import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateMercuryRxRead, generateMonthRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
+import canonYogasJson from "../vedic/canon/yogas.json";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
 
 // PROMPT_VERSION is part of the key so a prompt change busts the cache — otherwise a
@@ -641,15 +642,9 @@ export async function getYogaReadCached(profileId: number, yogaName: string, ref
   const research: any = await getStoredResearch(profileId);
   const yoga = (research?.yogas ?? []).find((y: any) => y.name === yogaName);
   if (!yoga) return { available: false, read: null, generatedAt: null, cached: false };
-  let canonDef: any = null;
-  try {
-    const { readFileSync } = await import("fs");
-    const { fileURLToPath } = await import("url");
-    const { dirname, join } = await import("path");
-    const here = dirname(fileURLToPath(import.meta.url));
-    const canon = JSON.parse(readFileSync(join(here, "../vedic/canon/yogas.json"), "utf8"));
-    canonDef = (canon.yogas ?? []).find((y: any) => y.name === yogaName) ?? null;
-  } catch { /* canon optional */ }
+  // Bundled canon (2026-07-18): readFileSync missed in the prod bundle — the reading's
+  // canon context silently arrived null. Static import ships it inside dist.
+  const canonDef: any = ((canonYogasJson as any)?.yogas ?? []).find((y: any) => y.name === yogaName || y.name.startsWith(yogaName + " ")) ?? null;
   const input = {
     yoga: { name: yoga.name, type: yoga.type, heldFrom: yoga.frames, vantages: yoga.frames?.length ?? 1, repeatsInNavamsha: !!yoga.inNavamsha, note: yoga.note ?? null },
     canon: canonDef ? { condition: canonDef.condition, result: canonDef.result, note: canonDef.note ?? null, rooms: canonDef.knot ?? [] } : null,

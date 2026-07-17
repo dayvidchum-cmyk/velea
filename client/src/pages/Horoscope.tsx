@@ -285,6 +285,13 @@ export default function Horoscope() {
                 <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>No standing yogas detected in this chart's research yet.</p>
               ) : (
                 <div className="space-y-1.5">
+                  {/* WHAT THIS SHELF IS (David 2026-07-18: "The feature isn't even clear") —
+                      one plain line before any Sanskrit. */}
+                  <p className="text-xs" style={{ color: "var(--color-muted-foreground)", margin: "0 0 0.6rem", lineHeight: 1.55 }}>
+                    A yoga is a standing pattern your birth sky holds for life — planets seated
+                    so they work as one force. These are the ones written into your chart; tap
+                    one to hear what it gives you.
+                  </p>
                   {/* THE FREE TASTE (David: "the user pics") — one yoga of YOUR choosing
                       opens free; the pick is permanent; the rest wear the gate. */}
                   {!entitled && (
@@ -312,14 +319,14 @@ export default function Horoscope() {
                               </span>
                             )}
                           </span>
-                          {!entitled && !tasteable && <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
+                          {!entitled && !tasteable && <GateMark size={19} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
                           {!entitled && tasteable && freePick === null && <span className="text-[10px] font-bold uppercase" style={{ letterSpacing: "0.08em", color: "var(--brand-gold)", flexShrink: 0 }}>taste</span>}
                         </button>
                         {open && (
                           <div className="px-3 pb-3">
                             {!entitled && !tasteable ? (
                               <div className="flex items-start gap-2.5 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                                <GateMark size={13} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                                <GateMark size={19} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
                                 <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
                                   This yoga is written into your chart — its reading (what it gives, how strongly you hold it, when it ripens) opens with the premium layer. Soon.
                                 </p>

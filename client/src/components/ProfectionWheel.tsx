@@ -53,9 +53,11 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
 
   const SIZE = 320;
   const cx = SIZE / 2, cy = SIZE / 2;
-  const labelBand = 26;
+  // LOW-VISION PASS (David 2026-07-18: "That entire wheel needs to be as big as the
+  // black circle") — margins trimmed, every band and font grown; the ink fills the frame.
+  const labelBand = 24;
   const hole = 16;
-  const ringOuter = SIZE / 2 - labelBand - 2;
+  const ringOuter = SIZE / 2 - labelBand - 1;
   const ringW = (ringOuter - hole) / rings;
 
   const currentSign = ZODIAC[(lagIdx + (age % 12)) % 12];
@@ -81,13 +83,13 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
       const [tx, ty] = polar(cx, cy, (ri + ro) / 2, (a0 + a1) / 2);
       cells.push(
         <path key={`c${h}-${r}`} d={annular(cx, cy, ri, ro, a0, a1)} fill={cellFill} stroke={isCurrent ? currentColor : isBirth ? birthFill : INK_BORDER} strokeWidth={0.5} />,
-        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={7} fontWeight={isCurrent || isBirth ? 800 : 400} fill={isCurrent || isBirth ? "#000" : INK_MUTED} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
+        <text key={`t${h}-${r}`} x={tx} y={ty} fontSize={8.4} fontWeight={isCurrent || isBirth ? 800 : 500} fill={isCurrent || isBirth ? "#000" : INK_MUTED} textAnchor="middle" dominantBaseline="central">{ageVal}</text>,
       );
     }
 
     const [lx, ly] = polar(cx, cy, ringOuter + labelBand / 2, (a0 + a1) / 2);
     labels.push(
-      <text key={`l${h}`} x={lx} y={ly} fontSize={currentHouse === h + 1 ? 17 : 13} fontWeight={700} fill={signColor} fontFamily="'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols2',serif" textAnchor="middle" dominantBaseline="central">{GLYPH[sign]}</text>,
+      <text key={`l${h}`} x={lx} y={ly} fontSize={currentHouse === h + 1 ? 21 : 16} fontWeight={700} fill={signColor} fontFamily="'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols2',serif" textAnchor="middle" dominantBaseline="central">{GLYPH[sign]}</text>,
     );
   }
 
@@ -96,10 +98,10 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
   const callouts: ReactElement[] = [];
   const mkCallout = (h: number, text: string, bump: number) => {
     const midA = h * 30 + 15;
-    const rText = ringOuter + labelBand + 12 + bump;
+    const rText = ringOuter + labelBand + 7 + bump;
     const [lx, ly] = polar(cx, cy, rText, midA);
     callouts.push(
-      <text key={`co-t-${text}`} x={lx} y={ly} fontSize={6.5} fontWeight={700} fill="#C9A84C" textAnchor="middle" dominantBaseline="central" style={{ letterSpacing: "0.08em" }}>{text}</text>,
+      <text key={`co-t-${text}`} x={lx} y={ly} fontSize={8.5} fontWeight={700} fill="#C9A84C" textAnchor="middle" dominantBaseline="central" style={{ letterSpacing: "0.08em" }}>{text}</text>,
     );
   };
   const nowH = age % 12;
@@ -107,12 +109,12 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
   // If the current year falls on the birth wedge (age is a multiple of 12), stack NOW further out.
   mkCallout(nowH, "NOW", nowH === 0 ? 9 : 0);
 
-  const M = 26; // outer margin so the callouts aren't clipped
+  const M = 14; // outer margin so the callouts aren't clipped
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
       {/* The wheel sits on a PARCHMENT card — a chart artifact, luminous on dark, clean on light. */}
-      <div style={{ width: "100%", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: 16, padding: "0.75rem 0.5rem" }}>
+      <div style={{ width: "100%", background: "var(--parchment)", boxShadow: "var(--parchment-shadow)", borderRadius: 16, padding: "0.35rem 0.1rem" }}>
         <svg viewBox={`${-M} ${-M} ${SIZE + 2 * M} ${SIZE + 2 * M}`} width="100%" style={{ display: "block" }}>
           {cells}
           {labels}
