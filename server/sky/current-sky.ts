@@ -234,7 +234,10 @@ function buildPlanets(
 }
 
 export async function getCurrentSky(subject: AstrologySubject, when: Date = new Date()): Promise<CurrentSky> {
-  const cacheKey = `${subject.lagnaSign ?? "?"}|${subject.ascendantDegree ?? "?"}|${Math.floor(when.getTime() / CACHE_TTL_MS)}`;
+  // Key by PROFILE (audit L4): the natal-hit list is per-chart, but the old key was only
+  // lagnaSign+ascendantDegree+bucket, so two profiles sharing those could be served each
+  // other's hits. profileId makes the key chart-specific.
+  const cacheKey = `${subject.profileId ?? "?"}|${subject.lagnaSign ?? "?"}|${subject.ascendantDegree ?? "?"}|${Math.floor(when.getTime() / CACHE_TTL_MS)}`;
   const cached = CACHE.get(cacheKey);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.value;
 

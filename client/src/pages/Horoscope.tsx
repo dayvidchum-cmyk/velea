@@ -155,6 +155,7 @@ export default function Horoscope() {
   const flushNotes = () => { if (exists && notesDraft !== savedNotesRef.current) { saveNotes.mutate({ date: selectedDate, lifeArea: selectedArea, notes: notesDraft }); savedNotesRef.current = notesDraft; } };
 
   const selectDate = (s: string) => {
+    flushNotes(); // audit L16: save the pending notes draft before leaving this date (no blur on an iOS date-tap)
     setSelectedDate(s);
     setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
   };
@@ -461,7 +462,7 @@ export default function Horoscope() {
                         return (
                           <button
                             key={sa.key}
-                            onClick={() => setSelectedArea(sa.key)}
+                            onClick={() => { flushNotes(); setSelectedArea(sa.key); }}
                             className="line-pill"
                             style={{
                               ["--pill-ink" as any]: "var(--heading-ink)",

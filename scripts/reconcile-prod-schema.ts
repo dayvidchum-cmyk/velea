@@ -139,10 +139,14 @@ async function main() {
 
   // ── 4. horoscopes: lifeArea column + the 3-col unique key ─────────────────────
   console.log("\n— HOROSCOPES —");
-  await step("horoscopes.lifeArea column", async () => {
-    if (await columnType("horoscopes", "lifeArea")) return "·";
-    await db.execute(sql.raw(`ALTER TABLE horoscopes ADD COLUMN lifeArea VARCHAR(16) NOT NULL DEFAULT 'day'`));
-    return "✓ added";
+  await step("horoscopes.lifeArea column ≥ VARCHAR(24)", async () => {
+    const t = await columnType("horoscopes", "lifeArea");
+    if (!t) { await db.execute(sql.raw(`ALTER TABLE horoscopes ADD COLUMN lifeArea VARCHAR(24) NOT NULL DEFAULT 'day'`)); return "✓ added"; }
+    if (t === "varchar(24)") return "·";
+    // audit L14: was VARCHAR(16) — 'money_livelihood' is exactly 16 chars (zero headroom); a
+    // longer life-area key would truncate and collide in the unique purchase key.
+    await db.execute(sql.raw(`ALTER TABLE horoscopes MODIFY lifeArea VARCHAR(24) NOT NULL DEFAULT 'day'`));
+    return `✓ widened (was ${t})`;
   });
   await step("uniq_horoscope → (profileId, readingDate, lifeArea)", async () => {
     const cols = await indexColumns("horoscopes", "uniq_horoscope");

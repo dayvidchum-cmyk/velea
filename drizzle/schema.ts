@@ -454,7 +454,7 @@ export const horoscopes = mysqlTable("horoscopes", {
   // The life area this reading is FOR (money/career/love/…; life-areas.ts keys). 'day' = a legacy
   // whole-day snapshot from before the life-area feature. Part of the unique key so each
   // (profile, date, area) is its own immutable purchase — eclipse×Career and eclipse×Money coexist.
-  lifeArea: varchar("lifeArea", { length: 16 }).notNull().default("day"),
+  lifeArea: varchar("lifeArea", { length: 24 }).notNull().default("day"), // audit L14: was 16 ('money_livelihood' = exactly 16, zero headroom)
   promptVersion: varchar("promptVersion", { length: 64 }).notNull(), // frozen at purchase time
   model: varchar("model", { length: 48 }).notNull(),
   content: text("content").notNull(), // the DeepRead JSON snapshot — immutable once written
