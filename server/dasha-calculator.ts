@@ -236,47 +236,62 @@ export function calculateDashaTimeline(
   }
 
   const startingDasha = DASHA_SEQUENCE[startingIndex];
-  const remainingYears = startingDasha.years * (1 - elapsedFraction);
 
   // ── Step 3: Build the full timeline ─────────────────────────────────────
   const entries: DashaEntry[] = [];
-  let mahaStart = birth;
+
+  // THE BIRTH MAHA IS BACK-DATED (audit 2026-07-17, H7). The old code tiled the birth
+  // maha's antars INTO remainingYears starting at the maha lord from the birth date, so a
+  // native still inside their first mahadasha got the WRONG current antar — and it disagreed
+  // with the stored dasha tree (dasha-tree.ts) that the tense anchor reads, so the running
+  // sub-chapter was voiced in past tense (the ghost). The classical method (matching
+  // dasha-tree): the birth maha's notional start predates birth by its elapsed fraction, its
+  // antars tile the FULL maha, and birth simply falls inside. Subsequent mahas are unchanged
+  // (notionalStart + fullYears == birth + remainingYears, so maha 2+ start identically).
+  const firstMahaYears = startingDasha.years;
+  let mahaStart = addYears(birth, -(elapsedFraction * firstMahaYears));
 
   // Walk through all 9 mahadashas starting from the starting lord
   for (let i = 0; i < 9; i++) {
     const mahaIndex = (startingIndex + i) % 9;
     const maha = DASHA_SEQUENCE[mahaIndex];
 
-    // First mahadasha uses remaining years; subsequent use full duration
-    const mahaYears = i === 0 ? remainingYears : maha.years;
+    // Every maha uses its FULL duration; the birth maha's pre-birth portion is clipped below.
+    const mahaYears = maha.years;
     const mahaEnd = addYears(mahaStart, mahaYears);
 
     // ── Step 4: Calculate antardashas within this mahadasha ─────────────
-    // Antardasha sequence starts with the mahadasha lord itself
-    const antarStart = mahaIndex; // antardasha sequence starts at same planet
+    // Antardasha sequence starts with the mahadasha lord itself.
+    const antarStart = mahaIndex;
     let antarDate = mahaStart;
 
     for (let j = 0; j < 9; j++) {
       const antarIndex = (antarStart + j) % 9;
       const antar = DASHA_SEQUENCE[antarIndex];
 
-      // Antardasha duration = (antardasha_years / 120) * mahadasha_years
+      // Antardasha duration = (antardasha_years / 120) * FULL mahadasha_years.
       const antarYears = (antar.years / 120) * mahaYears;
       const antarEnd = addYears(antarDate, antarYears);
 
-      const startStr = toDateString(antarDate);
-      const endStr = toDateString(antarEnd);
-      const isCurrent = today >= startStr && today < endStr;
+      // Skip antars that fully precede birth — they never happened for this native.
+      if (antarEnd > birth) {
+        // Display start clips to birth; isCurrent uses the TRUE (unclipped) span so the
+        // running antar of a birth-maha native is detected correctly.
+        const displayStart = antarDate < birth ? birth : antarDate;
+        const trueStartStr = toDateString(antarDate);
+        const endStr = toDateString(antarEnd);
+        const isCurrent = today >= trueStartStr && today < endStr;
 
-      entries.push({
-        mahadasha: maha.planet,
-        antardasha: antar.planet,
-        startDate: startStr,
-        endDate: endStr,
-        startAge: formatAge(birth, antarDate),
-        duration: formatDuration(antarYears),
-        isCurrent,
-      });
+        entries.push({
+          mahadasha: maha.planet,
+          antardasha: antar.planet,
+          startDate: toDateString(displayStart),
+          endDate: endStr,
+          startAge: formatAge(birth, displayStart),
+          duration: formatDuration(antarYears),
+          isCurrent,
+        });
+      }
 
       antarDate = antarEnd;
     }
