@@ -547,7 +547,7 @@ risk. Draw every house meaning from here.
   belief as bypass, restless seeking without ground, preaching over living.
 - 10th — Your work in the world: career, public standing, reputation, authority;
   action seen by others; the role you hold and the mark you make; duty to society.
-  KARMA as enacted dharma — the destined work of this lifetime performed in public;
+  KARMA as enacted dharma — the work this lifetime carries, performed in public;
   the outward expression that HOLDS VALUE for the collective: where the 9th speaks
   the belief, the 10th is paid, titled, and held responsible for it — the voice of
   standing and office. Fame, honor, titles; the state and its recognition. The
