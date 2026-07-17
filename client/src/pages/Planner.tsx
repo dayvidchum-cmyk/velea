@@ -405,6 +405,21 @@ export default function Planner() {
     for (const arr of Array.from(map.values())) arr.sort((a, b) => order.indexOf(a.planet) - order.indexOf(b.planet));
     return map;
   }, [skyMarks]);
+  // THE APPROACH GRADIENT (David 2026-07-16: "the fill opacity is an opportunity in design.
+  // you get it?") — every station-window day knows its distance to the turn, so the planet's
+  // ink can GATHER day by day into the station and release after: a crescendo, not a flat wash.
+  const stationDistByDate = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of skyMarks?.retro ?? []) for (const st of p.stations) {
+      const sMs = Date.parse(st.date + "T00:00:00");
+      for (const d of [st.date, ...p.windowDays]) {
+        const dist = Math.abs(Math.round((Date.parse(d + "T00:00:00") - sMs) / 86400000));
+        if (dist <= 3 && dist < (m.get(d) ?? 9)) m.set(d, dist);
+      }
+    }
+    return m;
+  }, [skyMarks]);
+
   // The retrograde planets present ANYWHERE this month, in canonical order — each gets a fixed
   // track slot under the coins so its span reads as one continuous horizontal line across days.
   const monthRetroPlanets = useMemo(() => {
@@ -1512,6 +1527,9 @@ export default function Planner() {
             // RX STATION DATES (David 2026-07-16): these coins speak in the PLANET's own ink —
             // ring + fill, faint through the approach window, full-voiced on the turn day/press.
             const stationInk = stationsToday.length > 0 ? (PLANET_MARK_INK[stationsToday[0].planet] ?? familyInk) : windowGlyphList.length > 0 ? (PLANET_MARK_INK[windowGlyphList[0].planet] ?? familyInk) : null;
+            // 0 = the turn itself · 1/2/3 = days out; the ink gathers on the approach.
+            const stationDist = stationsToday.length > 0 ? 0 : windowGlyphList.length > 0 ? (stationDistByDate.get(dateStr) ?? 3) : null;
+            const STATION_FILL = [34, 24, 17, 11]; const STATION_RING = [100, 75, 58, 42];
             const ringForMarks = hasTaraBadge || windowGlyphList.length > 0;
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
@@ -1538,12 +1556,10 @@ export default function Planner() {
               // scheme... branding should make it really stand out as special").
               : isCrown
               ? "color-mix(in srgb, #FFD429 62%, var(--parchment))"
-              // Station coins are ALWAYS filled in the planet's ink — translucent and faint
-              // until the big day (30% on the turn itself, 12% through the window).
-              : stationsToday.length > 0 && stationInk
-              ? `color-mix(in srgb, ${stationInk} 30%, var(--parchment))`
-              : windowGlyphList.length > 0 && stationInk
-              ? `color-mix(in srgb, ${stationInk} 12%, var(--parchment))`
+              // Station coins fill in the planet's ink on THE APPROACH GRADIENT — the ink
+              // gathers day by day into the turn (11% → 17% → 24% → 34%) and releases after.
+              : stationInk && stationDist != null
+              ? `color-mix(in srgb, ${stationInk} ${STATION_FILL[stationDist]}%, var(--parchment))`
               : isSelected && hasMode && !eclipseByDate.has(dateStr)
               ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
               : "transparent";
@@ -1598,12 +1614,9 @@ export default function Planner() {
                       ? "1.5px solid #D4AF37"
                       // THE GLYPH DAY earns its thin ring — the FAMILY ink (five-ink law);
                       // station days wear it too ("why doesn't station days get a ring?").
-                      // Station/window coins: the ring is the PLANET's color — solid on the
-                      // day of the turn, faint through the approach window.
-                      : (!filled && !eclipseByDate.has(dateStr) && stationsToday.length > 0 && stationInk)
-                      ? `1.5px solid ${stationInk}`
-                      : (!filled && !eclipseByDate.has(dateStr) && windowGlyphList.length > 0 && stationInk)
-                      ? `1.5px solid color-mix(in srgb, ${stationInk} 55%, transparent)`
+                      // Station/window rings ride the same approach gradient as the fill.
+                      : (!filled && !eclipseByDate.has(dateStr) && stationInk && stationDist != null)
+                      ? `1.5px solid color-mix(in srgb, ${stationInk} ${STATION_RING[stationDist]}%, transparent)`
                       : (!filled && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr)))
                       ? `1.5px solid color-mix(in srgb, ${familyInk} 62%, transparent)`
                       // SELECTED keeps its ring in the family ink; the fill beneath is the specific mode.
