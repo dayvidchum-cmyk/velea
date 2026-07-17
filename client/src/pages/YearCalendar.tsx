@@ -288,7 +288,7 @@ export default function YearCalendar() {
                             // Hover feedback (David 2026-07-16: "nothing highlights under my
                             // cursor") — a soft wash of the day's own coin, restored on leave.
                             onMouseEnter={(e) => { e.currentTarget.style.background = `color-mix(in srgb, ${coin} 30%, #f8f4ea)`; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = bg; }}
                             className="relative min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center cursor-pointer"
                             style={{ background: bg, color: filled || isPicked ? shade(coin) : familyInk,
                               // Border laws (David 2026-07-16): crown = gold; caution = ruby;
