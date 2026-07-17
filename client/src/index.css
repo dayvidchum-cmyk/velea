@@ -92,6 +92,16 @@
 .lakshmi-pulse { animation: veleaLakshmiPulse 3.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .lakshmi-pulse { animation: none; } }
 
+/* TODAY'S BREATH (David 2026-07-16: "i have a hard time identifying todays date!") — the
+   calendar grew fills (stations, crowns, caution) and today's fill lost its uniqueness;
+   now today is the ONE coin that breathes in the day's own accent. Motion finds the eye. */
+@keyframes veleaTodayPulse {
+  0%, 100% { box-shadow: 0 0 4px 0 color-mix(in srgb, var(--day-accent, var(--brand-gold)) 35%, transparent); }
+  50%      { box-shadow: 0 0 14px 3px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 60%, transparent); }
+}
+.today-pulse { animation: veleaTodayPulse 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .today-pulse { animation: none; box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 55%, transparent); } }
+
 /* PARCHMENT — the shared surface for the chart ARTIFACT family (calendar, profection wheel, natal,
    dasha, the readings calendar + reveal box). It's always a LIGHT almanac page (tone is appearance-
    aware via --parchment / --parchment-shadow), and it ALSO remaps the color tokens LOCALLY so every

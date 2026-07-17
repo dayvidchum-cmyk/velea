@@ -1591,7 +1591,7 @@ export default function Planner() {
               >
                 {/* The round date coin. */}
                 <div
-                  className={`flex items-center justify-center${isCrown ? " lakshmi-pulse" : ""}`}
+                  className={`flex items-center justify-center${isToday && hasMode ? " today-pulse" : isCrown ? " lakshmi-pulse" : ""}`}
                   style={{
                     position: "relative",
                     // Whole pixels (the Virgo-rising pass): a FIXED 32px box means the number
