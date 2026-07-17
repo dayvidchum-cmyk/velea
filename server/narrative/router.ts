@@ -5,6 +5,7 @@ import { buildNarrativeInput } from "./input-builder.js";
 import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
 import { assertOwnsProfile } from "../routers/profiles.js";
 import { getTimezoneOffset } from "../panchang/tz-offset.js";
+import { rateLimit } from "../_core/rateLimit.js";
 
 // The day-mode's location basis — the viewer's stored location + real tz, matching the hero's
 // panchang (panchang.today / byDate). undefined → getDayField uses its built-in default. Keeping
@@ -31,11 +32,52 @@ const inputSchema = z.object({
   deepened: z.boolean().optional(),
 });
 
+type GenCtx = { user: { id?: number; role?: string | null; email?: string | null }; req: Parameters<typeof rateLimit>[0] };
+
+// The free daily reads (glance/dayRead/cast/chapter) are meant for the viewer's TODAY. Their
+// `date` param is otherwise unbounded — a scripted caller could walk history, each distinct date
+// a fresh billed LLM generation, draining the capped Anthropic wallet (a denial-of-quality: once
+// dry, EVERY user's read drops to static fallback). This is the guard for that whole class of
+// generation-triggering procedures.
+//
+// ±1 UTC day is the "today" window: every timezone's local today lands within today±1 UTC, so a
+// legit `localToday` request is always honored regardless of tz (no midnight off-by-one). Any
+// date beyond that is pick-a-date territory — allowed only for the entitled (specialReadings /
+// admin) and rate-limited; everyone else is clamped to today, so at most a handful of day-keys
+// per profile can ever generate. Cache still means each honored date generates at most once.
+function withinDailyWindow(date: string): boolean {
+  const d = Date.parse(date + "T00:00:00Z");
+  if (Number.isNaN(d)) return false;
+  const t = Date.parse(todayUTC() + "T00:00:00Z");
+  return Math.abs(d - t) <= 24 * 60 * 60 * 1000 + 1000;
+}
+
+async function guardedDate(ctx: GenCtx, requested: string | undefined): Promise<string> {
+  const today = todayUTC();
+  const date = requested ?? today;
+  if (withinDailyWindow(date)) return date;
+  const { hasFeature } = await import("../feature-flags.js");
+  const canPickDate = ctx.user.role === "admin" || (await hasFeature(ctx.user as any, "specialReadings"));
+  if (!canPickDate) return today; // clamp non-entitled to today — the wallet drain is closed here
+  rateLimit(ctx.req, "narrative-pickdate", { max: 40, windowMs: 15 * 60 * 1000 }); // entitled: cap the pick-a-date generation surface (defense-in-depth)
+  return date;
+}
+
+// Year-sight (the deep six-section year read) is premium per the time-gate doctrine. Its two UI
+// surfaces gate on yearPage (Profection) and specialReadings (Horoscope reveal); the endpoint
+// itself enforced NEITHER, so a non-admin calling narrative.deepRead directly got a full billed
+// year read for free. This is the missing server-side gate — either entitlement (or admin) opens it.
+async function canYearSight(user: { role?: string | null; email?: string | null }): Promise<boolean> {
+  if (user.role === "admin") return true;
+  const { hasFeature } = await import("../feature-flags.js");
+  return (await hasFeature(user as any, "yearPage")) || (await hasFeature(user as any, "specialReadings"));
+}
+
 export const narrativeRouter = router({
   // One-sentence daily signal for the Today page. Falls back to null on any error.
   glance: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = input.date ?? todayUTC();
+    const date = await guardedDate(ctx, input.date);
     try {
       const u = await getUserById(ctx.user.id);
       // Day-mode from the viewer's location basis (same as the hero) — so the read and the hero
@@ -67,7 +109,10 @@ export const narrativeRouter = router({
   // Structured six-section + synthesis read for the Profection page.
   deepRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = input.date ?? todayUTC();
+    // Year-sight is premium (time-gate doctrine). Gate the ENDPOINT, not just the UI, so it
+    // can't be called around the paywall for a free billed year read.
+    if (!(await canYearSight(ctx.user))) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
+    const date = await guardedDate(ctx, input.date);
     // The deepened "stage + guests" read is an admin-only preview of the paid tier — a
     // non-admin can never obtain it, so the fast-tier detail stays behind the upsell.
     const deepened = (input.deepened ?? false) && ctx.user.role === "admin";
@@ -87,7 +132,7 @@ export const narrativeRouter = router({
   // self it lands on), and how to move — as interactions.
   dayRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = input.date ?? todayUTC();
+    const date = await guardedDate(ctx, input.date);
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
       const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
@@ -103,7 +148,7 @@ export const narrativeRouter = router({
   // only when THE READ is tapped. Falls back to unavailable (→ static copy) when the key is off.
   cast: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = input.date ?? todayUTC();
+    const date = await guardedDate(ctx, input.date);
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
       const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
@@ -234,7 +279,7 @@ export const narrativeRouter = router({
 
   chapter: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = input.date ?? todayUTC();
+    const date = await guardedDate(ctx, input.date);
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
       return await getChapterCached(input.profileId, date, input.refresh ?? false, dayLoc);
@@ -273,7 +318,7 @@ export const narrativeRouter = router({
   // prompt-version or input changes, so it never regenerates until unpinned.
   setLock: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional(), locked: z.boolean() })).mutation(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = input.date ?? todayUTC();
+    const date = await guardedDate(ctx, input.date);
     // Ensure both surfaces exist before locking, so there's a row to pin — with the SAME
     // dayLoc the DISPLAY path used (audit M1). Without it the ensure-exists hashed a
     // no-location (noon-UTC) input, MISSED the user's actual read, regenerated a different
@@ -282,7 +327,10 @@ export const narrativeRouter = router({
     if (input.locked) {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
       await getGlanceCached(input.profileId, date, false, undefined, dayLoc).catch(() => {});
-      await getDeepReadCached(input.profileId, date, false, false, dayLoc).catch(() => {});
+      // Only ensure-generate the premium year read for the entitled — otherwise a free pin would
+      // silently mint a billed deep read around the deepRead gate. The lock rows below are cheap
+      // (no generation), so both surfaces still unpin cleanly.
+      if (await canYearSight(ctx.user)) await getDeepReadCached(input.profileId, date, false, false, dayLoc).catch(() => {});
     }
     await setNarrativeLock(input.profileId, "glance", date, input.locked);
     await setNarrativeLock(input.profileId, "deep", date, input.locked);
