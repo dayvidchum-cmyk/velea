@@ -200,8 +200,13 @@ export async function getDayField(
       // Mode is ALWAYS re-derived from current rules so interpretation changes
       // are reflected without recalculating astronomy.
       const cachedPaksha = (cached.tithiPaksha as 'Shukla' | 'Krishna') ?? 'Shukla';
+      // The DB stores tithi WITH a paksha prefix ("Shukla Dvitiya"); the fresh-calc path returns
+      // it BARE ("Dvitiya"). Normalize the cached form to bare here (data-path audit #3) so the
+      // tithi handed to every consumer — and to the LLM — is shape-consistent regardless of cache
+      // state; paksha travels separately in cachedPaksha.
+      const cachedTithi = (cached.tithi ?? "").replace(/^(Shukla|Krishna)\s+/, "");
       const nakshatraModifier = getNakshatraModifier(cached.nakshatra);
-      const tithiPacing = getTithiPacing(cached.tithi, cachedPaksha);
+      const tithiPacing = getTithiPacing(cachedTithi, cachedPaksha);
 
       // Re-derive house from Moon sign + active lagna (profile or user's own)
       // Using cached.houseActivated would give the wrong house if the profile's
@@ -251,7 +256,7 @@ export async function getDayField(
       // Literal star+sign switch + field/karana steps — the mode the day is ACTUALLY in.
       const fin = finishDayMode({
         baseMode, baseModeAfterSign, signTransitionTime,
-        tithi: cached.tithi, paksha: cachedPaksha, karanaName: karana?.name ?? null,
+        tithi: cachedTithi, paksha: cachedPaksha, karanaName: karana?.name ?? null,
         sunriseNak: nakshatraAtSunrise, transitionTime: nakshatraTransitionTime,
         afterNak: nakshatraAfterTransition, sunriseLocal, dateStr, utcOffset,
       });
@@ -267,14 +272,14 @@ export async function getDayField(
         houseActivated: house,
         nakshatra: cached.nakshatra,
         nakshatraPada: cached.nakshatraPada ?? 1,
-        tithi: cached.tithi,
+        tithi: cachedTithi,
         tithiPaksha: cachedPaksha,
         karana,
         sunriseLocal: cached.sunrise,
         mode: finalMode,
         baseMode,
         finalMode,
-        qualifier: fin.stepReasons.length ? generateQualifier(finalMode, fin.activeNakshatra, cached.tithi, cachedPaksha) : modeReason.qualifier,
+        qualifier: fin.stepReasons.length ? generateQualifier(finalMode, fin.activeNakshatra, cachedTithi, cachedPaksha) : modeReason.qualifier,
         instruction,
         modeReason,
         activeNakshatra: fin.activeNakshatra,

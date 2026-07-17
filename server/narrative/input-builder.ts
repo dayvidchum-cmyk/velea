@@ -202,7 +202,25 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
 
   const moon = byPlanet["Moon"];
   const tl = calculateDashaTimeline(p.birthDate, moon.nakshatra || "", moon.sign, moon.degree, dateStr, moon.longitude);
-  const cur = tl.entries.find((e: any) => e.isCurrent);
+  let cur: any = tl.entries.find((e: any) => e.isCurrent);
+  // AUTHORITATIVE current lords from the STORED dasha tree (data-path audit #1): the daily
+  // calculateDashaTimeline anchors the maha at MIDNIGHT-UTC of the birth DATE, while the stored
+  // tree (dasha-tree.ts) anchors at the TRUE birth instant (utcBirthIso). On a sub-period
+  // boundary day the two name different running lords — so the Today read could contradict the
+  // Chapter reader / tense anchor / convergence, which all read the tree. The tree is the single
+  // source of truth: overwrite cur's lords + antar span here so EVERY downstream use of `cur`
+  // (dasha layer, pratyantar, the natal-condition lens, the cast roles) reads the truth. Legacy
+  // profiles without a stored tree fall back to the daily calc.
+  try {
+    const { getDashaChainAt } = await import("../vedic/research-store.js");
+    const chain: any[] = await getDashaChainAt(profileId, new Date(dateStr + "T12:00:00Z"));
+    const cm = chain.find((r) => r.level === 1);
+    const ca = chain.find((r) => r.level === 2);
+    if (cm && ca) {
+      const iso = (d: any) => (d instanceof Date ? d : new Date(d)).toISOString().slice(0, 10);
+      cur = { ...(cur ?? {}), mahadasha: cm.maha, antardasha: ca.antar, startDate: iso(ca.startAt), endDate: iso(ca.endAt), isCurrent: true };
+    }
+  } catch { /* no stored tree (legacy profile) — keep the daily-calc cur */ }
   // Slow daśā layers (the chapter): mahā (years) + antar (months). pratyantar (days–weeks)
   // is a FAST layer, added below only for the deepened read.
   const dashaBase = cur
@@ -223,11 +241,20 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     dateStr,
   );
   const trimP = (x: any) => (x ? { lord: x.lord, ageStart: x.ageStart, ageEnd: x.ageEnd, sits: x.natalHouse, rules: x.rulesHouses } : null);
+  // computeDashaJourney still runs the midnight-UTC calc, so its current lords must be
+  // realigned to the tree-authoritative `cur` (data-path audit #1) — otherwise, on a boundary
+  // day, arc.journey.currentAntar and dasha.antarDasha would name DIFFERENT current lords
+  // inside one input (a self-contradiction). Ages come from the calc journey (approximate, no
+  // date shown); house/rules recompute for the authoritative lord. pastMahas/nextAntar (the
+  // same sequence in both engines) keep the calc's structure.
+  const curJourney = (jx: any, lord: string | undefined) => (lord
+    ? { lord, ageStart: jx?.ageStart ?? null, ageEnd: jx?.ageEnd ?? null, sits: natalHouseByPlanet[lord] ?? null, rules: rulesHouses(lord, lagna) }
+    : trimP(jx));
   const arc = {
     journey: {
       pastMahas: journey.pastMahas.map(trimP),
-      currentMaha: trimP(journey.currentMaha),
-      currentAntar: trimP(journey.currentAntar),
+      currentMaha: curJourney(journey.currentMaha, cur?.mahadasha),
+      currentAntar: curJourney(journey.currentAntar, cur?.antardasha),
       nextAntar: trimP(journey.nextAntar),
     },
   };
@@ -344,7 +371,13 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     console.warn("[narrative] natalCondition unavailable (read continues without):", rcErr);
   }
 
-  const noon = new Date(dateStr + "T12:00:00Z");
+  // Anchor the transit snapshot at the VIEWER's local noon (data-path audit #2), not a fixed
+  // noon-UTC. The panchang (nakshatra, mode, activatedHouse) is computed at the viewer's
+  // SUNRISE; a fixed-UTC Moon (fast, ~0.55°/hr) could sit in a DIFFERENT sign than the panchang
+  // implies for a far-from-UTC viewer on a boundary day — a self-contradiction inside one input.
+  // Local noon centers the snapshot on the viewer's day, consistent with the panchang and with
+  // the crown/dayFilter Moon derived from this same sample. utcOffset is DST-correct (H10).
+  const noon = new Date(Date.parse(dateStr + "T12:00:00Z") - (moment?.dayLoc ? moment.dayLoc.utcOffset * 3600000 : 0));
   const soon = new Date(noon.getTime() + 86400000);
   const a = await getSiderealLongitudes(noon, PLANETS);
   const b = await getSiderealLongitudes(soon, PLANETS);
@@ -453,7 +486,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
 
   const panchang = {
     mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated,
-    nakshatra: (field as any).activeNakshatra ?? field.nakshatra, tithi: field.tithi,
+    // tithi is now BARE both paths (data-path audit #3); paksha travels EXPLICITLY so the LLM
+    // always gets the waxing(Shukla)/waning(Krishna) direction — it was only ever embedded in
+    // the cached tithi's prefix and absent entirely on freshly-computed days.
+    nakshatra: (field as any).activeNakshatra ?? field.nakshatra, tithi: field.tithi, paksha: (field as any).tithiPaksha ?? null,
     karana: field.karana ? { name: field.karana.name, quality: field.karana.quality, vishti: field.karana.name === "Vishti" } : null,
     // The literal mid-day turn and the field/karana containment reasons — the DAY-scale
     // particulars the read must spend its words on.
