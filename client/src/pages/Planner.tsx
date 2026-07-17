@@ -109,7 +109,7 @@ const DEPTH_BG: Record<string, Record<string, [string, string]>> = {
 // action green, the crown in gold, Mercury in aquamarine, Saturn in the deep indigo of
 // jyotish ink (deep, never black).
 const MARK_INK: Record<string, string> = {
-  dollar: "#77A96B", crown: "#D4AF37", Mercury: "#3FA8A0", Saturn: "#454A8C",
+  dollar: "#2E9B54", crown: "#D4AF37", Mercury: "#3FA8A0", Saturn: "#454A8C",
 };
 // Ink-bearing corrections (em) — the astro glyph font's ink sits off-center in its em box;
 // these nudge each glyph's INK onto the true axis. Tuned against David's iPhone crops.

@@ -15,7 +15,7 @@ const PLANET_GLYPH_FONT = '"Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbol
 // Planet inks match the dasha table's parchment set (David: "grey/brown Venus and mars? Why?").
 // Mercury aquamarine + Saturn jyotish indigo stay HIS blessed mark inks.
 const MARK_INK: Record<string, string> = {
-  dollar: "#77A96B", crown: "#D4AF37",
+  dollar: "#2E9B54", crown: "#D4AF37",
   Mercury: "#3FA8A0", Saturn: "#454A8C",
   Venus: "#CE5F6E", Mars: "#A8002C", Jupiter: "#A2850A",
 };
@@ -377,7 +377,7 @@ export default function YearCalendar() {
               <p className="font-serif text-lg" style={{ color: topSet.has(ds) ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
               <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
-                {taraNum === 2 && <span style={{ marginLeft: 8, color: "#77A96B" }}><span style={{ fontWeight: 600, marginRight: 3 }}>€</span>prosperity</span>}
+                {taraNum === 2 && <span style={{ marginLeft: 8, color: "#2E9B54" }}><span style={{ fontWeight: 600, marginRight: 3 }}>€</span>prosperity</span>}
                 {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}><CrownMark size={16} style={{ verticalAlign: "-3px", marginRight: 3 }} />achievement</span>}
                 {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#B3902C" }}><OctagramMark size={13} color="#D4AF37" strokeWidth={1.5} style={{ verticalAlign: "-2px", marginRight: 3 }} />crowning day</span>}
               </p>
