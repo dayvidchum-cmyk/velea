@@ -6,7 +6,10 @@ import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
+import { installStaleGuard } from "./lib/stale-guard";
 import "./index.css";
+
+installStaleGuard();
 
 const queryClient = new QueryClient();
 
