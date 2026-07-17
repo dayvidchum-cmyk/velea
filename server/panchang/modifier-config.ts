@@ -52,7 +52,7 @@ export const NAKSHATRA_MODIFIERS: Record<string, { score: number; category: stri
   Swati:             { score: +1, category: 'Upgrade' },
   Vishakha:          { score: +1, category: 'Upgrade' },
   'Purva Ashadha':   { score: +1, category: 'Upgrade' },
-  Dhanishta:         { score: +1, category: 'Upgrade' },
+  Dhanishtha:        { score: +1, category: 'Upgrade' }, // audit M11: was 'Dhanishta' — never matched the emitted name
 
   // ─── DOWNGRADE (-1) ───
   Bharani:              { score: -1, category: 'Downgrade' },

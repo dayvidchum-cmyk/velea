@@ -237,6 +237,11 @@ async function getDominantByMajority(
   const tithiCounts: Record<number, number> = {};
   let lastMoon: MoonData | null = null;
   let lastTithi: TithiData | null = null;
+  // The pada last seen WITHIN each nakshatra (audit M14): the dominant nakshatra's pada must
+  // come from a moment the Moon was actually IN it — the old code paired the dominant NAME
+  // with lastMoon's pada (end of day), which on a transition day belongs to the NEXT
+  // nakshatra (usually pada 1), so e.g. "Rohini pada 1" showed when Rohini's hours were pada 3-4.
+  const padaByNak: Record<number, number> = {};
 
   for (let i = 0; i < samples; i++) {
     const sampleJD = sunriseJD + step * (i + 0.5);
@@ -249,6 +254,7 @@ async function getDominantByMajority(
     const tithi = calcTithi(moonLon, sunLon);
 
     nakshatraCounts[moon.nakshatraIndex] = (nakshatraCounts[moon.nakshatraIndex] || 0) + 1;
+    padaByNak[moon.nakshatraIndex] = moon.nakshatraPada;
     tithiCounts[tithi.index] = (tithiCounts[tithi.index] || 0) + 1;
     lastMoon = moon;
     lastTithi = tithi;
@@ -271,7 +277,8 @@ async function getDominantByMajority(
     ...sunriseMoon,
     nakshatraIndex: dominantNakshatraIdx,
     nakshatra: NAKSHATRAS[dominantNakshatraIdx],
-    nakshatraPada: lastMoon?.nakshatraPada ?? 1,
+    // Pada from WITHIN the dominant nakshatra (audit M14), not lastMoon's end-of-day pada.
+    nakshatraPada: padaByNak[dominantNakshatraIdx] ?? sunriseMoon.nakshatraPada,
   };
 
   const dominantTithi: TithiData = {

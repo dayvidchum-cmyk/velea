@@ -252,7 +252,7 @@ const MODE_BASE_INSTRUCTIONS: Record<string, string> = {
 /** Expansion / outward movement nakshatras: upgrade +1 */
 const NAKSHATRA_UPGRADE: string[] = [
   'Purva Ashadha', 'Rohini', 'Pushya', 'Purva Phalguni', 'Vishakha',
-  'Ashwini', 'Magha', 'Swati', 'Dhanishta',
+  'Ashwini', 'Magha', 'Swati', 'Dhanishtha', // audit M11: astronomy emits 'Dhanishtha' (with the h) — the old 'Dhanishta' never matched, so this upgrade nakshatra never fired ~13 days/yr
 ];
 
 /** Correction / containment nakshatras: downgrade -1 */
@@ -580,8 +580,8 @@ const NAKSHATRA_LIBRARY: Record<string, NakshatraModifier> = {
     modifierTags: ['receptive', 'thoughtful', 'informational'],
     toneModifier: 'Pay attention before making major moves.',
   },
-  Dhanishta: {
-    name: 'Dhanishta',
+  Dhanishtha: {
+    name: 'Dhanishtha',
     behavioralQuality: 'rhythmic, productive, socially connected, execution-oriented',
     supports: ['teamwork', 'production', 'consistency', 'operational movement'],
     avoid: ['overcommitment', 'scattered priorities'],
@@ -653,6 +653,10 @@ export function getNakshatraModifier(nakshatra: string): NakshatraModifier {
 // Tithi 16-30 = Krishna Paksha (waning) → reduction/refinement support
 
 export function getTithiPacing(tithi: string, paksha: 'Shukla' | 'Krishna'): TithiPacing {
+  // Tolerate a paksha-prefixed tithi (audit M12): the panchang CACHE stores "Shukla Purnima"
+  // while this matched bare 'Purnima'/'Amavasya', so on the cached read path full/new-moon
+  // days silently lost their Culmination/Reset pacing and fell back to generic waxing/waning.
+  tithi = tithi.replace(/^(Shukla|Krishna)\s+/, '');
   const isWaxing = paksha === 'Shukla';
   // Full moon and new moon are turning points, not generic waxing/waning days.
   // Purnima is the APEX of the waxing cycle — culmination, not a new start.

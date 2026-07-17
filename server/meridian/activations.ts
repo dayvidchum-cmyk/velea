@@ -217,14 +217,22 @@ export async function computeMeridianArc(
       stationDirectISO = new Date(exT).toISOString().slice(0, 10);
       const nowSample = [...samples].reverse().find((s) => s.t <= now.getTime() && s.lon[Name] != null);
       const curLon = nowSample?.lon[Name] ?? exLon;
-      shadowCleared = curLon > retroBefore.lon;
+      // 0°/360° WRAP-SAFE clearance (audit M13): the old raw `> retroBefore.lon` never fired
+      // when the retro degree sits late in Pisces and clearance happens AFTER crossing 0°
+      // Aries (a re-crossed ~1° is never > ~358°), so a Saturn/Jupiter Pisces→Aries chapter
+      // officially never closed. Measure FORWARD progress from the station-direct degree
+      // (exLon, the deepest point): the shadow clears when that progress reaches the forward
+      // distance out to retroBefore.lon — correct across the wrap.
+      const fwd = (from: number, to: number) => (((to - from) % 360) + 360) % 360;
+      const clearTarget = fwd(exLon, retroBefore.lon);
+      shadowCleared = fwd(exLon, curLon) >= clearTarget;
       // Exact shadow-clearance: the day it re-passes the degree where it first turned back.
-      const clrSample = samples.find((s) => s.t > exT && s.lon[Name] != null && s.lon[Name] > retroBefore.lon);
+      const clrSample = samples.find((s) => s.t > exT && s.lon[Name] != null && fwd(exLon, s.lon[Name]) >= clearTarget);
       if (clrSample) {
         let clrT = clrSample.t;
         for (let t = Math.max(exT + DAY, clrSample.t - stepDays * DAY); t <= clrSample.t; t += DAY) {
           const cc: any = await calculateBirthChart(new Date(t).toISOString().slice(0, 10), "12:00", 0, 0, "UTC");
-          if (cc[key] && cc[key].longitude > retroBefore.lon) { clrT = t; break; }
+          if (cc[key] && fwd(exLon, cc[key].longitude) >= clearTarget) { clrT = t; break; }
         }
         shadowClearedMonth = fmtMonth(clrT);
         shadowClearedISO = new Date(clrT).toISOString().slice(0, 10);
