@@ -97,12 +97,21 @@ async function initSwissEph() {
     
     // Initialize the WASM module
     await swissEph.initSwissEph();
-    
+
+    // AYANAMSA (audit 2026-07-17, C1): every SEFLG_SIDEREAL call on THIS instance was
+    // silently using Swiss Ephemeris' default Fagan–Bradley — ~0.883° behind the Lahiri
+    // frame the natal charts (birthchart/calculator.ts) and panchang are stored in. Each
+    // WASM instance holds its own C state, so this must be set here too. Without it, every
+    // transit-to-natal orb, day-Moon sign, crown/tara scan, and Varshaphala return was off.
+    if (swissEph.set_sid_mode) {
+      swissEph.set_sid_mode(swissEph.SE_SIDM_LAHIRI ?? 1, 0, 0);
+    }
+
     // Try to set ephemeris path if available
     if (swissEph.set_ephe_path) {
       swissEph.set_ephe_path("./ephemeris");
     }
-    
+
     return swissEph;
   } catch (error) {
     console.error("Failed to initialize Swiss Ephemeris:", error);

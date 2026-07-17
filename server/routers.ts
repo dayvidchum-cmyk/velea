@@ -1624,7 +1624,12 @@ export const appRouter = router({
 
   // ── SYSTEM PROMPTS ─────────────────────────────────────────
   systemPrompts: router({
-    list: protectedProcedure.query(async () => {
+    // ADMIN-ONLY (audit 2026-07-17, C3): these were plain protectedProcedure. The
+    // feature_flags row lives in this table, so any logged-in user could upsert it to
+    // unlock every premium surface for everyone, and list leaked the tester allowlist.
+    // Client-side admin routing is no defense against direct tRPC calls.
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
       return getAllSystemPrompts();
     }),
 
@@ -1636,7 +1641,8 @@ export const appRouter = router({
           content: z.string().max(20000),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
         await upsertSystemPrompt(input.key, input.title, input.content);
         return { success: true };
       }),

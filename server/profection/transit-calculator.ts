@@ -13,6 +13,13 @@ async function getSharedSe() {
   if (!_sharedSe) {
     const se = new (SwissEph as any)();
     await se.initSwissEph();
+    // AYANAMSA (audit 2026-07-17, C1): this private instance never set Lahiri, so every
+    // SEFLG_SIDEREAL call here ran in the default Fagan–Bradley frame (~0.883° off the
+    // stored natal charts). Time Lord ingress dates were off by 0.883°÷speed (~22h Sun,
+    // ~9d Jupiter, ~26d Saturn), and a lord within 0.88° of a cusp showed the wrong
+    // sign/house all segment. The prior "SEFLG_SIDEREAL already returns Lahiri" note below
+    // was false FOR THIS INSTANCE. Each WASM instance holds its own C state.
+    if (se.set_sid_mode) se.set_sid_mode(se.SE_SIDM_LAHIRI ?? 1, 0, 0);
     _sharedSe = se;
   }
   return _sharedSe;
@@ -47,7 +54,7 @@ export async function timeLordGuestsNow(planet: string): Promise<{ coPresentPlan
 export async function timeLordCurrentSign(planet: string): Promise<string | null> {
   try {
     const se = await getSharedSe();
-    const r = se.calc(dateToJD(new Date()), getPlanetNumber(planet), se.SEFLG_SIDEREAL);
+    const r = calcSid(se, dateToJD(new Date()), planet);
     if (r?.longitude == null) return null;
     return getZodiacSign(r.longitude);
   } catch {
@@ -89,16 +96,16 @@ const CO_PRESENT_PLANETS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter"
 
 /** Which other planets share the Time Lord's sidereal sign at `jd` (+ combustion by the Sun). */
 function computeCoPresent(se: any, jd: number, timeLordPlanet: string) {
-  const tl = se.calc(jd, getPlanetNumber(timeLordPlanet), se.SEFLG_SIDEREAL);
-  const tlLon = ((tl.longitude % 360) + 360) % 360;
+  const tl = calcSid(se, jd, timeLordPlanet);
+  const tlLon = tl.longitude;
   const tlRetro = tl.longitudeSpeed < 0;
   const tlSign = getZodiacSign(tlLon);
   const coPresentPlanets: string[] = [];
   let combustion = false;
   for (const name of CO_PRESENT_PLANETS) {
     if (name === timeLordPlanet) continue;
-    const r = se.calc(jd, getPlanetNumber(name), se.SEFLG_SIDEREAL);
-    const lon = ((r.longitude % 360) + 360) % 360;
+    const r = calcSid(se, jd, name);
+    const lon = r.longitude;
     if (getZodiacSign(lon) === tlSign) coPresentPlanets.push(name);
     if (name === "Sun" && timeLordPlanet !== "Sun") {
       // Classical per-planet combustion orb (shared with the narrative's Layer-4 module),
@@ -133,19 +140,32 @@ const HOUSE_INTERPRETATIONS: Record<number, string> = {
   12: "rest, withdrawal, closure, subconscious patterns, private work",
 };
 
-function getPlanetNumber(planetName: string): number {
-  const planetMap: Record<string, number> = {
-    Sun: 0,
-    Moon: 1,
-    Mercury: 2,
-    Venus: 3,
-    Mars: 4,
-    Jupiter: 5,
-    Saturn: 6,
-    Rahu: 9,
-    Ketu: 10,
-  };
-  return planetMap[planetName] || 0;
+// Swiss Ephemeris body indices. NODE BUG (audit 2026-07-17, C2): the old map had
+// Rahu:9 (which is SE_PLUTO) and Ketu:10 (SE_MEAN_NODE = the REAL Rahu). Every node read
+// was 1-2 bodies wrong — a Rahu/Ketu Time Lord (25 of every 120 years) had its whole
+// movement timeline computed from Pluto/Rahu, and the guests layer reported Rahu when
+// Pluto shared the sign. Node convention matches the natal store (birthchart/calculator.ts:
+// SE_MEAN_NODE for Rahu, Ketu = Rahu + 180°) so transit-vs-natal node hits stay consistent.
+const SE_INDEX: Record<string, number> = {
+  Sun: 0, Moon: 1, Mercury: 2, Venus: 3, Mars: 4, Jupiter: 5, Saturn: 6,
+};
+const SE_MEAN_NODE = 10;
+
+/** Sidereal longitude + speed for any graha OR node, node-correct. The single entry point
+ *  so no caller can reach a raw SE index for Rahu/Ketu again. Both mean nodes are always
+ *  retrograde, so Ketu carries Rahu's (negative) speed — not a negated one. */
+function calcSid(se: any, jd: number, name: string): { longitude: number; longitudeSpeed: number } {
+  if (name === "Rahu" || name === "Ketu") {
+    const r = se.calc(jd, SE_MEAN_NODE, se.SEFLG_SIDEREAL | se.SEFLG_SPEED);
+    const rahu = ((r.longitude % 360) + 360) % 360;
+    return {
+      longitude: name === "Rahu" ? rahu : (rahu + 180) % 360,
+      longitudeSpeed: r.longitudeSpeed ?? 0,
+    };
+  }
+  const idx = SE_INDEX[name] ?? 0;
+  const r = se.calc(jd, idx, se.SEFLG_SIDEREAL | se.SEFLG_SPEED);
+  return { longitude: ((r.longitude % 360) + 360) % 360, longitudeSpeed: r.longitudeSpeed ?? 0 };
 }
 
 function getPlanetHouse(planetLongitude: number, lagnaLongitude: number): number {
@@ -178,12 +198,11 @@ function dateToJD(date: Date): number {
   return jdn + (hour - 12) / 24;
 }
 
-function getPlanetState(se: any, jd: number, planetNum: number, lagnaLongitude: number, lagnaSign: string) {
-  // SEFLG_SIDEREAL already returns Lahiri sidereal longitude — do NOT subtract the
-  // ayanamsa again (that double-count put every Time Lord ~one sign behind).
-  // SEFLG_SPEED is REQUIRED for longitudeSpeed to be populated — without it speed is 0,
-  // so `< 0` never fired and NO segment was ever flagged retrograde (Venus Rx read "direct").
-  const result = se.calc(jd, planetNum, se.SEFLG_SIDEREAL | se.SEFLG_SPEED);
+function getPlanetState(se: any, jd: number, planetName: string, lagnaLongitude: number, lagnaSign: string) {
+  // calcSid sets the Lahiri frame (via the shared instance) and is node-correct; it also
+  // requests SEFLG_SPEED so longitudeSpeed is populated — without it `< 0` never fired and
+  // NO segment was ever flagged retrograde (Venus Rx read "direct").
+  const result = calcSid(se, jd, planetName);
   const normalizedLon = ((result.longitude % 360) + 360) % 360;
   const transitSign = getZodiacSign(normalizedLon);
   
@@ -229,14 +248,13 @@ export async function calculateTimeLordTransits(
 
     const startDate = new Date(yearStart);
     const endDate = new Date(yearEnd);
-    const planetNum = getPlanetNumber(timeLordPlanet);
     const stepDays = SCAN_STEP_DAYS[timeLordPlanet] ?? 2;
 
     // Step 1: Scan (step tuned to the planet's speed) for sign/house/retrograde changes
     const changePoints: { date: Date; state: any }[] = [];
 
     let currentDate = new Date(startDate);
-    let lastState = getPlanetState(se, dateToJD(currentDate), planetNum, lagnaLongitude, lagnaSign);
+    let lastState = getPlanetState(se, dateToJD(currentDate), timeLordPlanet, lagnaLongitude, lagnaSign);
     changePoints.push({ date: new Date(currentDate), state: lastState });
 
     // Scan at the planet-tuned step for accuracy without wasted calls
@@ -244,7 +262,7 @@ export async function calculateTimeLordTransits(
       currentDate.setDate(currentDate.getDate() + stepDays);
       if (currentDate > endDate) currentDate = new Date(endDate);
 
-      const newState = getPlanetState(se, dateToJD(currentDate), planetNum, lagnaLongitude, lagnaSign);
+      const newState = getPlanetState(se, dateToJD(currentDate), timeLordPlanet, lagnaLongitude, lagnaSign);
 
       // Check if anything changed
       if (
@@ -268,7 +286,7 @@ export async function calculateTimeLordTransits(
 
       while (right.getTime() - left.getTime() > 24 * 60 * 60 * 1000) { // Stop when within 1 day
         const mid = new Date((left.getTime() + right.getTime()) / 2);
-        const midState = getPlanetState(se, dateToJD(mid), planetNum, lagnaLongitude, lagnaSign);
+        const midState = getPlanetState(se, dateToJD(mid), timeLordPlanet, lagnaLongitude, lagnaSign);
 
         if (
           midState.sign === startPoint.state.sign &&
