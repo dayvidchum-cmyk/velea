@@ -374,6 +374,10 @@ export const appRouter = router({
     login: publicProcedure
       .input(z.object({ email: z.string().email(), password: z.string().min(6) }))
       .mutation(async ({ ctx, input }) => {
+        // Throttle online password brute force (audit 2026-07-17, H2 — login had no limit
+        // while register did). Per-IP sliding window; 10/15min is well clear of a forgetful
+        // real user but stops network-speed guessing. bcrypt already slows each attempt.
+        rateLimit(ctx.req, "login", { max: 10, windowMs: 15 * 60 * 1000 });
         // Normalize email so it matches the lowercased form stored at registration.
         const email = input.email.trim().toLowerCase();
         const user = await verifyLogin(email, input.password);
@@ -2351,8 +2355,12 @@ export const appRouter = router({
       // THE FREE TASTE (David 2026-07-16: "the user pics") — the yoga this profile has
       // already opened un-entitled (recorded by its cached read; null = pick still open).
       const { listYogaReadKeys } = await import("./db.js");
+      const { yogaDateKey } = await import("./narrative/service.js");
       const tasted = await listYogaReadKeys(profile.id);
-      const freePick = tasted.find((k) => k.startsWith("yoga-"))?.slice(5) ?? null;
+      // Map the tasted cache-key slug back to the yoga's DISPLAY name — the client compares
+      // freePick against display names (audit H4: this returned the raw slug, never matched).
+      const tastedKey = tasted.find((k) => k.startsWith("yoga-")) ?? null;
+      const freePick = tastedKey ? ((yogas.find((y: any) => yogaDateKey(y.name) === tastedKey)?.name) ?? null) : null;
       return { available: true as const, yogas, freePick };
     }),
     yogaRead: protectedProcedure
@@ -2365,8 +2373,11 @@ export const appRouter = router({
         // the pick is the cached read itself (re-readable forever); every other yoga gates.
         if (!(await hasHoroscope(ctx.user))) {
           const { listYogaReadKeys } = await import("./db.js");
+          const { yogaDateKey } = await import("./narrative/service.js");
           const tasted = (await listYogaReadKeys(profile.id)).filter((k) => k.startsWith("yoga-"));
-          const isMyPick = tasted.includes(`yoga-${input.name}`);
+          // Compare on the SLUGGED key both sides (audit H4) — raw-name vs slug never matched,
+          // so the free pick locked itself after one view.
+          const isMyPick = tasted.includes(yogaDateKey(input.name));
           const pickStillOpen = tasted.length === 0;
           if (!isMyPick && !pickStillOpen) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
           if (input.refresh) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };

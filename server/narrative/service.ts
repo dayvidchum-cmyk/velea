@@ -61,12 +61,58 @@ function singleFlight<T>(key: string, fn: () => Promise<T>): Promise<T> {
  *  to today. The stance IS hashed (stable — flips only when a span ends, which SHOULD
  *  regenerate); `today` itself is passed to the prompt but NEVER hashed (a daily hash
  *  would regenerate every read every day — the cache law). */
+// THE ONE yoga cache-key builder (audit 2026-07-17, H4). The gate in routers.ts compared a
+// raw display name ("yoga-Gaja Keshari") against these slugged keys ("yoga-gaja-keshari"),
+// so a free-taste pick locked itself after the first view. Exported so the gate and the
+// cache derive the key identically — the mismatch can never recur.
+export const yogaDateKey = (name: string) => `yoga-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48)}`;
+
 const todayIso = () => new Date().toISOString().slice(0, 10);
 function tenseOf(from?: string | null, to?: string | null): "past" | "current" | "future" {
   const t = todayIso();
   if (to && String(to).slice(0, 10) < t) return "past";
   if (from && String(from).slice(0, 10) > t) return "future";
   return "current";
+}
+
+// THE PLANET'S CONDITION (audit 2026-07-17, H6). service.ts read research.shadbala[L] and
+// research.states[L]/avashtas[L] — NONE of which exist: per-planet strength/state/dignity
+// live at research.planets[L] (see house-research.ts PlanetResearch). Every chapter, atlas
+// theme and window read therefore shipped strength: null and no states — an exalted lord and
+// a starving one voiced identically. This mirrors the felt signals the DAY read already uses
+// correctly (input-builder condOf), so a lord's condition reads the same on every surface.
+const LAJJ_EN: Record<string, string> = {
+  mudita: "delighted", kshudita: "starved", kshobhita: "agitated",
+  trishita: "left thirsty", lajjita: "shamed", garvita: "proud",
+};
+function planetCondition(research: any, L: string) {
+  const pr = research?.planets?.[L];
+  if (!pr) return { planet: L, note: "a node — carries the axis it sits on" };
+  const ratio = pr.shadbala?.ratio;
+  const strength = ratio == null ? "unmeasured"
+    : ratio >= 1.15 ? "strong — can deliver what it promises"
+    : ratio <= 0.85 ? "thin — delivers with struggle" : "steady";
+  const vim = pr.vimshopak?.points?.shodasha ?? null;
+  const expression = vim == null ? null
+    : vim >= 12.5 ? "shows its better face" : vim <= 7.5 ? "tends to show its harder face" : "mixed expression";
+  const states: string[] = [];
+  if (pr.avashtas?.jagradaadi === "jagrat") states.push("awake (full capacity)");
+  else if (pr.avashtas?.jagradaadi === "svapna") states.push("sleepy (half capacity)");
+  else if (pr.avashtas?.jagradaadi === "sushupti") states.push("asleep (needs its friends to act)");
+  for (const h of pr.avashtas?.lajjitaadi ?? []) {
+    states.push(`${LAJJ_EN[h.state] ?? h.state}${h.by?.length ? ` by ${h.by.join(" and ")}` : ""}`);
+  }
+  if (pr.deepthaadi?.includes("vikala")) states.push("combust — burnt close to the Sun, agency reduced");
+  if (pr.deepthaadi?.includes("nipeedita")) states.push("in a planetary war");
+  return {
+    planet: L,
+    seat: `${pr.sign}, house ${pr.house}${pr.retrograde ? ", retrograde" : ""}`,
+    dignity: `${pr.dignity?.state ?? "unknown"}${pr.dignity?.neechaBhanga?.cancelled ? " (fall CANCELLED — hard-won strength, not weakness)" : ""}`,
+    strength,
+    ...(expression ? { expression } : {}),
+    states,
+    shadbalaRatio: ratio ?? null,
+  };
 }
 
 export async function getGlanceCached(profileId: number, date: string, refresh = false, moment?: { nowMs: number; lat?: number; lon?: number }, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<GlanceResult> {
@@ -529,7 +575,7 @@ export async function getHouseReadCached(profileId: number, house: number, refre
   const research: any = await getStoredResearch(profileId);
   const data = research?.houses?.[house - 1];
   if (!data) return { available: false, read: null, generatedAt: null, cached: false };
-  const input = { house, lagnaSign: research?.lagnaSign ?? research?.meta?.lagnaSign ?? null, engineVersion: research?.engineVersion ?? null, data };
+  const input = { house, lagnaSign: research?.anchors?.lagna?.sign ?? null, engineVersion: research?.engineVersion ?? null, data };
   const hash = dayStableHash(input, surface);
   const dateKey = `natal-h${house}`;
   if (!refresh) {
@@ -568,7 +614,7 @@ export async function getDashaReadCached(profileId: number, lord: string, span?:
   const dossierOf = (L: string) => {
     const rules = houses.filter((h) => h?.lord?.planet === L).map((h) => ({ house: h.house, sign: h.sign, lordPlacedHouse: h.lord.placedHouse, lordPlacedSign: h.lord.placedSign, bhavaYoga: h.lord.bhavaYoga, occupants: h.occupants, vargaCheck: h.vargaCheck }));
     const livesIn = houses.find((h) => (h.occupants ?? []).some((o: any) => (o.planet ?? o) === L));
-    return { lord: L, livesIn: livesIn ? { house: livesIn.house, sign: livesIn.sign, occupants: livesIn.occupants } : null, rules, shadbala: research?.shadbala?.[L] ?? null, states: research?.states?.[L] ?? research?.avashtas?.[L] ?? null };
+    return { lord: L, livesIn: livesIn ? { house: livesIn.house, sign: livesIn.sign, occupants: livesIn.occupants } : null, rules, condition: planetCondition(research, L), shadbala: research?.planets?.[L]?.shadbala ?? null };
   };
   const dossier = dossierOf(lord);
   // THE TENSE ANCHOR: find this chapter's real dates in the stored periods so the prompt
@@ -648,11 +694,11 @@ export async function getYogaReadCached(profileId: number, yogaName: string, ref
   const input = {
     yoga: { name: yoga.name, type: yoga.type, heldFrom: yoga.frames, vantages: yoga.frames?.length ?? 1, repeatsInNavamsha: !!yoga.inNavamsha, note: yoga.note ?? null },
     canon: canonDef ? { condition: canonDef.condition, result: canonDef.result, note: canonDef.note ?? null, rooms: canonDef.knot ?? [] } : null,
-    anchors: { lagnaSign: research?.anchors?.lagnaSign ?? null, atmakaraka: research?.anchors?.atmakaraka?.planet ?? null },
+    anchors: { lagnaSign: research?.anchors?.lagna?.sign ?? null, atmakaraka: research?.anchors?.atmakaraka?.planet ?? null },
     engineVersion: research?.engineVersion ?? null,
   };
   const hash = dayStableHash(input, surface);
-  const dateKey = `yoga-${yogaName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48)}`;
+  const dateKey = yogaDateKey(yogaName);
   if (!refresh) {
     const row = await getNarrativeCache(profileId, surface, dateKey);
     if (row && (row.locked || row.inputHash === hash)) {
@@ -695,7 +741,7 @@ export async function getWindowReadCached(profileId: number, theme: string, labe
       const d = houses[h - 1];
       return d ? { house: h, sign: d.sign, occupants: d.occupants, lord: d.lord, vargaCheck: d.vargaCheck } : null;
     }).filter(Boolean),
-    karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, shadbala: research?.shadbala?.[k] ?? null })),
+    karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, condition: planetCondition(research, k), shadbala: research?.planets?.[k]?.shadbala ?? null })),
   };
   const input = { theme, label, window: { from: win.from, to: win.to, peak: win.peak, bigKnot: win.bigKnot, era: win.era }, stance: tenseOf(win.from, win.to), promise, engineVersion: research?.engineVersion ?? null };
   const hash = dayStableHash(input, surface);
@@ -738,7 +784,7 @@ export async function getAtlasReadCached(profileId: number, theme: string, label
       const d = houses[h - 1];
       return d ? { house: h, sign: d.sign, occupants: d.occupants, lord: d.lord, vargaCheck: d.vargaCheck } : null;
     }).filter(Boolean),
-    karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, shadbala: research?.shadbala?.[k] ?? null })),
+    karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, condition: planetCondition(research, k), shadbala: research?.planets?.[k]?.shadbala ?? null })),
     birthDate: null as string | null,
   };
   const input = { theme, label, engineVersion: research?.engineVersion ?? null, promise, windows };

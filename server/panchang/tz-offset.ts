@@ -1,7 +1,13 @@
 /**
- * Timezone → whole-hour UTC offset, DST-correct. Shared by the panchang router (the hero's
- * day-mode) and the narrative pipeline (the day-card read) so BOTH derive "today's mode" from
- * the same location basis — otherwise the two can name different modes on the same day.
+ * Timezone → UTC offset IN HOURS (fractional; minute precision), DST-correct. Shared by the
+ * panchang router (the hero's day-mode) and the narrative pipeline (the day-card read) so
+ * BOTH derive "today's mode" from the same location basis. Every consumer uses the value as
+ * arithmetic (offset * 3600000, utHours + offset), so a fractional offset is safe.
+ *
+ * H10 (audit 2026-07-17): this used to round to whole hours, so India +5:30 became +6,
+ * Nepal +5:45 → +6, Newfoundland −3:30 → −4. The CORE Vedic audience saw sunrise, nakshatra-
+ * transition and "the day turns at…" times 30-45 min wrong, every day, and the live mode
+ * segment flipped early. Now minute-precise: IST = 5.5, Nepal = 5.75, NST = −3.5.
  */
 
 export function getTimezoneOffset(timezone: string, date: Date): number {
@@ -16,7 +22,8 @@ export function getTimezoneOffset(timezone: string, date: Date): number {
       hour: "2-digit", minute: "2-digit", second: "2-digit" });
     const utcMs = new Date(utcStr).getTime();
     const tzMs = new Date(tzStr).getTime();
-    return Math.round((tzMs - utcMs) / 3600000);
+    // Nearest minute, expressed in hours — preserves the half/quarter-hour zones.
+    return Math.round((tzMs - utcMs) / 60000) / 60;
   } catch {
     return getBostonOffset(date); // safe fallback
   }
