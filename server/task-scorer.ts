@@ -286,13 +286,24 @@ export function scoreTasks(
       // 11. THE SECOND HANDSHAKE (soft) — the day's open windows light life-theme rooms;
       //     a task touching a circle that lives in a lit room rises ("the marriage window
       //     is open — the life-partner tasks land"). Never a filter, always a lift.
-      if (opts.openThemes?.length && (task as any).circle) {
-        const themes = CIRCLE_THEMES[(task as any).circle as TaskCircle] ?? [];
-        const lit = themes.find((t) => opts.openThemes!.includes(t));
-        if (lit) {
-          soft += 55;
-          const c = (task as any).circle as TaskCircle;
-          reasons.push(CIRCLE_VOICE[c] ?? `The ${THEME_ROOM[lit] ?? lit} window is open — this touches your ${CIRCLE_LABEL[c].toLowerCase()}`);
+      // MULTI-CIRCLE (2026-07-17): a task can touch many bubbles — the handshake fires
+      // on the FIRST lit circle across all of them (one lift, never stacked).
+      {
+        const raw = (task as any).circles;
+        let list: TaskCircle[] = [];
+        try { if (typeof raw === "string" && raw) list = JSON.parse(raw); else if (Array.isArray(raw)) list = raw; } catch { /* legacy */ }
+        if (!list.length && (task as any).circle) list = [(task as any).circle as TaskCircle];
+        if (opts.openThemes?.length && list.length) {
+          outer: for (const c of list) {
+            const themes = CIRCLE_THEMES[c] ?? [];
+            for (const t of themes) {
+              if (opts.openThemes!.includes(t)) {
+                soft += 55;
+                reasons.push(CIRCLE_VOICE[c] ?? `The ${THEME_ROOM[t] ?? t} window is open — this touches your ${CIRCLE_LABEL[c].toLowerCase()}`);
+                break outer;
+              }
+            }
+          }
         }
       }
 

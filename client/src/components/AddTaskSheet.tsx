@@ -280,6 +280,7 @@ export function toSheetTask(t: any) {
     lifeAreas: t.lifeAreas ?? null,
     effortSize: t.effortSize ?? null,
     circle: t.circle ?? null,
+    circles: t.circles ?? null,
     intent: t.intent ?? null,
     isNewVenture: t.isNewVenture ?? null,
   };
@@ -296,6 +297,9 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
   const [effortSize, setEffortSize] = useState<"quick" | "sitting" | "long" | null>(null);
   // WHO the task touches — David's nine circles (the engine maps them to life-theme rooms).
   const [circle, setCircle] = useState<TaskCircle | null>(null);
+  // MULTI-CIRCLE (David 2026-07-17: "more than one bubble for a person. for anything") —
+  // a task touches every circle you light; `circle` stays as the first pick for legacy reads.
+  const [circles, setCircles] = useState<TaskCircle[]>([]);
   const [circleOpen, setCircleOpen] = useState(false); // the shelves ship COLLAPSED (no bubble swamp)
   const [intent, setIntent] = useState<"want" | "need">("need");
   const [dueDate, setDueDate] = useState("");
@@ -387,6 +391,13 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
       setNotes(editTask.notes ?? "");
       setEffortSize(((editTask as any).effortSize as "quick" | "sitting" | "long" | null) ?? null);
       setCircle(((editTask as any).circle as TaskCircle | null) ?? null);
+      {
+        const raw = (editTask as any).circles;
+        let list: TaskCircle[] = [];
+        try { if (typeof raw === "string" && raw) list = JSON.parse(raw); else if (Array.isArray(raw)) list = raw; } catch { /* legacy */ }
+        if (!list.length && (editTask as any).circle) list = [(editTask as any).circle];
+        setCircles(list);
+      }
       setRecurrence((editTask.recurrence as Recurrence) ?? "none");
       setLifeAreas(
         Array.isArray(editTask.lifeAreas)
@@ -398,6 +409,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
       setTitle("");
       setEffortSize(null);
       setCircle(null);
+      setCircles([]);
       setMode(initialMode ?? "Build");
       // openWithSuggestion → the prefilled mode is a soft default, NOT a manual pick, so the
       // suggestion still blooms (FAB). Otherwise a passed initialMode means the orb chose it.
@@ -489,6 +501,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
           isNewVenture,
           effortSize,
           circle,
+          circles: circles.length ? circles : null,
         });
 
         // Sync subtasks in edit mode: create the newly-added ones, delete the removed ones.
@@ -523,6 +536,7 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
           isNewVenture,
           effortSize,
           circle,
+          circles: circles.length ? circles : null,
         });
 
         if (task && subtasks.length > 0) {
@@ -660,8 +674,8 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
               <span className="text-[12px] font-semibold tracking-wide uppercase" style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.04em" }}>
                 Who is this for?
               </span>
-              <span className="text-sm font-semibold" style={{ color: circle ? "var(--color-foreground)" : "var(--color-muted-foreground)" }}>
-                {circle ? CIRCLE_LABEL[circle] : "anyone"} {circleOpen ? "▴" : "▾"}
+              <span className="text-sm font-semibold" style={{ color: circles.length ? "var(--color-foreground)" : "var(--color-muted-foreground)" }}>
+                {circles.length === 0 ? "anyone" : circles.length <= 2 ? circles.map((c) => CIRCLE_LABEL[c]).join(" · ") : `${CIRCLE_LABEL[circles[0]]} +${circles.length - 1}`} {circleOpen ? "▴" : "▾"}
               </span>
             </button>
             {circleOpen && (
@@ -671,12 +685,16 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
                     <p className="text-[10px] font-bold uppercase mb-1" style={{ letterSpacing: "0.09em", color: "var(--color-muted-foreground)" }}>{shelf.label}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {shelf.circles.map((c) => {
-                        const on = circle === c;
+                        const on = circles.includes(c);
                         return (
                           <button
                             key={c}
                             type="button"
-                            onClick={() => { setCircle(on ? null : c); setCircleOpen(false); }}
+                            onClick={() => {
+                              const next = on ? circles.filter((x) => x !== c) : [...circles, c];
+                              setCircles(next);
+                              setCircle(next[0] ?? null); // legacy first-pick mirror
+                            }}
                             className="py-1.5 px-2.5 rounded-full text-xs font-medium transition-colors"
                             style={{
                               background: on ? "var(--color-accent)" : "var(--color-secondary)",

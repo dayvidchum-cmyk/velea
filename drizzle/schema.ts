@@ -115,6 +115,8 @@ export const tasks = mysqlTable("tasks", {
   // WHO the task touches (David's nine circles, 2026-07-16) — maps to life-theme rooms
   // so open windows lift matching tasks. Column added by hand (add-task-circle-column.ts).
   circle: mysqlEnum("circle", ["life_partner", "husband", "wife", "boyfriend", "girlfriend", "lover", "situationship", "children", "family", "pets", "self", "inner_circle", "friends", "acquaintances", "boss", "business_partner", "mentors", "mentees", "coworkers", "clients", "helpers", "institutions", "powerful", "followers", "everyone_else", "enemies"]),
+  // MULTI-CIRCLE (2026-07-17): JSON array of circle keys — a task can touch many bubbles.
+  circles: text("circles"),
   notes: text("notes"), // Optional free-text notes, context, or links
   // Recurrence — when set, completing the task rolls its due date forward to the
   // next occurrence and keeps it active instead of marking it done.

@@ -725,6 +725,7 @@ export const appRouter = router({
           completionPct: z.number().int().min(0).max(100).nullable().optional(),
           effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
           circle: z.enum(CIRCLES).nullable().optional(),
+          circles: z.array(z.enum(CIRCLES)).max(8).nullable().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -752,6 +753,7 @@ export const appRouter = router({
           completionPct: input.completionPct ?? null,
           effortSize: input.effortSize ?? null,
           circle: input.circle ?? null,
+          circles: input.circles ?? null,
         });
       }),
 
@@ -780,6 +782,7 @@ export const appRouter = router({
           completionPct: z.number().int().min(0).max(100).nullable().optional(),
           effortSize: z.enum(["quick", "sitting", "long"]).nullable().optional(),
           circle: z.enum(CIRCLES).nullable().optional(),
+          circles: z.array(z.enum(CIRCLES)).max(8).nullable().optional(),
           // When provided and isPinned=true, the task's mode is set to this value.
           // Ignored when isPinned is false or undefined.
           dayMode: TaskModeEnum.optional(),

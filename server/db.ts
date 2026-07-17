@@ -271,6 +271,7 @@ export async function getTasksByUser(userId: number, profileId?: number | null) 
       completionPct: tasks.completionPct,
       effortSize: tasks.effortSize,
       circle: tasks.circle,
+    circles: tasks.circles,
       createdAt: tasks.createdAt,
       updatedAt: tasks.updatedAt,
       projectName: projects.name,
@@ -330,10 +331,12 @@ export async function createTask(data: {
   completionPct?: number | null;
   effortSize?: "quick" | "sitting" | "long" | null;
   circle?: "life_partner" | "husband" | "wife" | "boyfriend" | "girlfriend" | "lover" | "situationship" | "children" | "mother" | "father" | "family" | "pets" | "self" | "inner_circle" | "friends" | "acquaintances" | "boss" | "business_partner" | "mentors" | "mentees" | "coworkers" | "clients" | "helpers" | "institutions" | "powerful" | "followers" | "everyone_else" | "enemies" | null;
+  circles?: string[] | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  const [result] = await db.insert(tasks).values(data).$returningId();
+  const payload: any = { ...data, circles: data.circles ? JSON.stringify(data.circles) : null };
+  const [result] = await db.insert(tasks).values(payload).$returningId();
   return result;
 }
 
@@ -348,6 +351,7 @@ export async function updateTask(
   id: number,
   userId: number,
   data: Partial<{
+    circles?: string[] | null;
     title: string;
     mode: "Restraint" | "Build" | "Selective" | "Action";
     priority: "High" | "Medium" | "Low";
@@ -372,7 +376,7 @@ export async function updateTask(
   if (!db) throw new Error("DB unavailable");
   await db
     .update(tasks)
-    .set(data)
+    .set({ ...data, ...(((data as any).circles !== undefined) ? { circles: (data as any).circles ? JSON.stringify((data as any).circles) : null } : {}) } as any)
     .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));
 }
 
