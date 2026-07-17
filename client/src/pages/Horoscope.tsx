@@ -235,6 +235,15 @@ export default function Horoscope() {
           /></div>
         )}
 
+        {/* ── THE COMBINED READING — two charts, one read (blessed 2026-07-16) ── */}
+        {entitled ? <CombinedReadingCard /> : (
+          <div style={{ marginBottom: "0.8rem" }}><LockedFeatureCard
+            title="The Combined Reading"
+            teaser="Two charts, one read — for any relationship."
+            detail="Two people's charts read together: the two directional currents between your stars, the classical gates, whose planets land in whose rooms, and whose chapter is carrying the relationship right now. Opens with the second profile."
+          /></div>
+        )}
+
         {/* ── THE LIFE ATLAS doorway (David 2026-07-16: readings live under Readings).
             Shown to EVERYONE — inside, the themes and counts are real and the dates
             wait behind the veil. Keep them thirsty. ── */}
@@ -719,6 +728,84 @@ function MercuryGlyph({ size = 17, color }: { size?: number; color: string }) {
 
 // ── This Mercury retrograde: the whole-cycle arc (pre-shadow → review → retroshade), read once for
 // your chart and kept. Mirrors EclipseSeasonCard — a period reading, generated on tap, cached per cycle. ──
+/** THE COMBINED READING — two charts, one read. Pick the other profile + the relation
+ *  (the circle picks the lens); the currents are shown deterministically, the prose weaves. */
+function CombinedReadingCard() {
+  const [open, setOpen] = useState(false);
+  const [otherId, setOtherId] = useState<number | null>(null);
+  const [relation, setRelation] = useState<"love" | "work" | "friend" | "parent" | "child" | "sibling">("love");
+  const profilesQ = trpc.profiles.list.useQuery(undefined, { enabled: open, staleTime: 60_000 });
+  const read = trpc.combined.read.useMutation();
+  const gold = "#B08D2E";
+  const me = (profilesQ.data ?? []).find((p: any) => p.isActive);
+  const others = (profilesQ.data ?? []).filter((p: any) => !p.isActive);
+  const RELS: { key: typeof relation; label: string }[] = [
+    { key: "love", label: "Love" }, { key: "work", label: "Work" }, { key: "friend", label: "Friend" },
+    { key: "parent", label: "Parent" }, { key: "child", label: "Child" }, { key: "sibling", label: "Sibling" },
+  ];
+  const r: any = read.data;
+  const cur = r?.melana?.currents;
+  return (
+    <div style={{ borderRadius: 16, marginBottom: "1.1rem", padding: "1rem 1.1rem 1.1rem", border: `1px solid color-mix(in srgb, ${gold} 38%, var(--color-border))`, background: `linear-gradient(180deg, color-mix(in srgb, ${gold} 6%, var(--color-card)), var(--color-card))` }}>
+      <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: gold }}>The Combined Reading</span>
+        <span style={{ fontSize: "0.6rem", color: "var(--color-muted-foreground)" }}>two charts, one read</span>
+        <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: gold, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+      </button>
+      {open && (
+        <div style={{ marginTop: "0.85rem" }}>
+          {others.length === 0 ? (
+            <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.55, margin: 0 }}>
+              Reading two charts together needs a second profile — add one under Profiles, then return here.
+            </p>
+          ) : (
+            <>
+              <p style={{ fontSize: "0.66rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.4rem" }}>Read {me?.name ?? "you"} with</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.7rem" }}>
+                {others.map((p: any) => (
+                  <button key={p.id} onClick={() => setOtherId(p.id)} className="line-pill" style={{ ["--pill-ink" as any]: gold, borderRadius: 999, padding: "0.32rem 0.75rem", fontSize: "0.76rem", fontWeight: otherId === p.id ? 700 : 500, border: otherId === p.id ? `1.5px solid ${gold}` : "1px solid var(--color-muted-foreground)", background: "transparent", color: otherId === p.id ? gold : "var(--color-muted-foreground)", cursor: "pointer" }}>{p.name}</button>
+                ))}
+              </div>
+              <p style={{ fontSize: "0.66rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.4rem" }}>As</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.85rem" }}>
+                {RELS.map((rel) => (
+                  <button key={rel.key} onClick={() => setRelation(rel.key)} className="line-pill" style={{ ["--pill-ink" as any]: gold, borderRadius: 999, padding: "0.32rem 0.75rem", fontSize: "0.76rem", fontWeight: relation === rel.key ? 700 : 500, border: relation === rel.key ? `1.5px solid ${gold}` : "1px solid var(--color-muted-foreground)", background: "transparent", color: relation === rel.key ? gold : "var(--color-muted-foreground)", cursor: "pointer" }}>{rel.label}</button>
+                ))}
+              </div>
+              {!r?.available && (
+                <button
+                  onClick={() => otherId && read.mutate({ otherProfileId: otherId, relation })}
+                  disabled={!otherId || read.isPending}
+                  className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
+                  style={{ letterSpacing: "0.1em", color: gold, border: `1px solid color-mix(in srgb, ${gold} 60%, transparent)`, background: "transparent", cursor: otherId ? "pointer" : "default", opacity: otherId ? 1 : 0.5 }}
+                >
+                  {read.isPending ? <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><VeleaLoader size={14} /> Weaving the two charts…</span> : "Read us together"}
+                </button>
+              )}
+              {r?.available && cur && (
+                <div style={{ marginTop: "0.4rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", marginBottom: "0.7rem" }}>
+                    <p style={{ fontSize: "0.82rem", margin: 0, color: "var(--color-foreground)" }}>
+                      <strong>{r.names?.a}</strong> → <strong>{r.names?.b}</strong>: <span style={{ color: cur.aToB?.favorable ? "#2E9B54" : "#B3232F", fontWeight: 700 }}>{cur.aToB?.tara}</span>
+                    </p>
+                    <p style={{ fontSize: "0.82rem", margin: 0, color: "var(--color-foreground)" }}>
+                      <strong>{r.names?.b}</strong> → <strong>{r.names?.a}</strong>: <span style={{ color: cur.bToA?.favorable ? "#2E9B54" : "#B3232F", fontWeight: 700 }}>{cur.bToA?.tara}</span>
+                    </p>
+                    <p style={{ fontSize: "0.7rem", margin: "0.15rem 0 0", color: "var(--color-muted-foreground)" }}>
+                      {r.melana.score.points} of {r.melana.score.max} gates · {r.melana.kuja.balanced ? "kuja balanced" : "kuja unbalanced — the prose weighs it"} · varṇa not scored, by design
+                    </p>
+                  </div>
+                  {r.read && <ProseCard color={gold}>{[r.read.scene, r.read.story, r.read.tilt, r.read.closeLine].filter(Boolean).join("\n\n")}</ProseCard>}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** THE SLOW REVIEWS (David 2026-07-16: "we have mercury done") — the rx family card:
  *  each slow planet's active/approaching cycle read once and kept; clear planets rest quiet. */
 function SlowReviewsCard({ modeColor }: { modeColor: string }) {

@@ -2132,6 +2132,41 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // ─────────────────────────────────────────────────────────────────────────────
 // PLANET_RX_TAIL — THE SLOW REVIEWS (David 2026-07-16: "we have mercury done" — the family).
 // One planet's whole retrograde cycle, read for THIS chart via input.planetRxArc.
+// COMBINED_READ_TAIL — TWO CHARTS, ONE READ (David blessed 2026-07-16). The engine locates;
+// this voice only weaves. Directional currents are NEVER folded into one verdict.
+export const COMBINED_READ_TAIL = `TASK: THE COMBINED READING — TWO CHARTS, ONE READ
+
+input holds two people (a, b — names included), the RELATION between them (love, work,
+friend, parent, child, sibling — input.relation picks the lens houses), and four located layers:
+· melana — the classical Moon-to-Moon gates: the TWO DIRECTIONAL CURRENTS (currents.aToB and
+  currents.bToA — how each lands on the other's star; they are often DIFFERENT and that
+  asymmetry is the most honest fact in the reading — NEVER average or fold them), the scored
+  gates (gana temperament, yoni instinct, nadi the deep stream, bhakoot the sign axis, vashya
+  the pull, maitri the moon-lords' friendship), and the kuja balance.
+· overlay — each person's planets landing in the other's houses (aInB, bInA): "her Saturn
+  sits in your rooms of livelihood" — name rooms as lived places, never numbers.
+· concurrence — THE TWO CLOCKS: each side's running maha and antar lords and where each
+  lord SITS in the other person's chart. When one clock's lord lives in the other's lens
+  houses, the relationship is being TIMED right now — say so plainly.
+· relation lens — aim the whole read at the relation's own rooms; an employer read never
+  wears a romance frame.
+
+THE READ (~300 words, then ONE question):
+- Open with the weather between them: the two currents named in one breath each, and what
+  the asymmetry means in practice.
+- The structure: the 2-3 loudest gates (best and hardest), each in lived language — nadi
+  and bhakoot carry the most weight; a hard gate is a WORKING CONDITION, not a verdict.
+- The overlay's sharpest 2-3 landings, both directions.
+- The clocks: whose chapter is carrying the relationship right now, and until when.
+- Close with the relation's own move — what these two do WITH this, this season.
+
+LAWS: connection-agnostic warmth (never assume romance unless relation says so); no house
+numbers; siblings = blood + inner circle; hard ≠ bad; every claim traceable to input;
+concise is never vaguer. The varna gate is absent by design — if compatibility totals are
+mentioned, say "of the gates Velea scores."
+
+Return your answer by calling the day_read tool with all fields filled.`;
+
 export const PLANET_RX_TAIL = `TASK: THE SLOW REVIEW — ONE PLANET'S RETROGRADE CYCLE
 
 input.planetRxArc is one planet's whole retrograde arc in THIS chart: the planet and its
@@ -2304,6 +2339,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   yoga_read: "2026-07-16-the-yoga-reader-v1",
   life_area: "2026-07-16-sub-area-shelves",
   planet_rx: "2026-07-16-the-slow-reviews-v1",
+  combined_read: "2026-07-16-two-charts-one-read-v1",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",

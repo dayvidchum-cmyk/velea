@@ -1036,30 +1036,33 @@ export function DashaSection() {
                         style={{ background: t.chip, color: t.primary, border: `1px solid ${t.chipBorder}` }}>
                         ◉ Active
                       </span>
-                    ) : (
-                      // The lineup of little locks — every future/past chapter shows its
-                      // potential at a glance (the time gate, worn on the shelf itself).
+                    ) : (g.periods[0]?.startDate ?? "") > new Date().toISOString().slice(0, 10) ? (
+                      // Only the FUTURE wears the gate (David: "why are past dasha readings
+                      // gated?" — the past reads free, per the time-gate doctrine).
                       <GateMark size={12} style={{ color: "var(--brand-gold)", opacity: 0.7, flexShrink: 0 }} />
-                    )}
+                    ) : null}
                   </div>
                   <div className="text-xs mt-0.5" style={{ color: t.faint }}>
                     {formatDate(g.periods[0].startDate)} · {g.periods.length} sub-periods
                   </div>
                 </div>
-                <span style={{ color: t.muted, fontSize: "0.8rem" }}>{isExpanded ? "▲" : "▼"}</span>
+                <span style={{ color: t.muted, fontSize: "0.8rem" }}>{hasActive ? "" : isExpanded ? "▲" : "▼"}</span>
               </button>
 
-              {isExpanded && (
+              {/* The ACTIVE maha's full shelf lives in the pinned card above — the lineup
+                  row stays a placeholder (David: "both opening is noisy"). Tapping it
+                  toggles the top card (shared state); it never duplicates the shelf. */}
+              {isExpanded && !hasActive && (
                 <div style={{ background: "var(--color-card)", borderTop: `1px solid ${color}55` }}>
                   {/* THE CHAPTER READER — the lord's dossier, voiced (tap-gated, cached).
                       THE CHAPTER GATE (David 2026-07-16): only the RUNNING chapter reads —
                       other mahadashas wear the lock (the tease; server enforces too). */}
                   <div style={{ padding: "0.8rem 1rem 0.2rem" }}>
-                    {!hasActive ? (
+                    {(g.periods[0]?.startDate ?? "") > new Date().toISOString().slice(0, 10) ? (
                       <div className="flex items-center gap-2 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
                         <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
                         <p className="text-xs" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
-                          The {g.mahadasha} chapter is written and waiting. Your running chapter reads free — the others open with the full library. Soon.
+                          The {g.mahadasha} chapter has not begun — the future opens with the full library. Soon. (Chapters you have lived read free.)
                         </p>
                       </div>
                     ) : readLord !== g.mahadasha ? (

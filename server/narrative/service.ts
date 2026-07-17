@@ -307,6 +307,34 @@ export async function getMercuryRxCached(profileId: number, date: string, refres
   return { available: true, read, cycle: { stationRetro: cycleKey, phaseNow: arc.phaseNow }, generatedAt: new Date(), cached: false };
 }
 
+/** THE COMBINED READING — two charts, one read; cached on the OWNER profile's row,
+ *  keyed per (other profile, relation); hash covers the whole located input, so an
+ *  antar turn on either clock regenerates (correct — the timing layer moved). */
+export async function getCombinedReadCached(profileAId: number, pairKey: string, input: any, refresh = false): Promise<{ available: boolean; read: any | null; generatedAt: Date | string | null; cached: boolean }> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const surface = "combined_read";
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(input)).digest("hex");
+  if (!refresh) {
+    const row = await getNarrativeCache(profileAId, surface, pairKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        const { isCompleteDayRead } = await import("./generate.js");
+        if (isCompleteDayRead(read)) return { available: true, read, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generateCombinedRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileAId}:${pairKey}:${hash}`, async () => {
+    const r = await generateCombinedRead(input);
+    if (r) await upsertNarrativeCache(profileAId, surface, pairKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, generatedAt: null, cached: false };
+  return { available: true, read, generatedAt: new Date(), cached: false };
+}
+
 /** THE SLOW REVIEWS — Venus/Mars/Jupiter/Saturn cycle readings, cached once per cycle
  *  per planet (dateKey `rx-{planet}-{stationRetroDate}`); the Mercury pattern, familied. */
 export async function getPlanetRxCached(profileId: number, planet: "venus" | "mars" | "jupiter" | "saturn", date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {

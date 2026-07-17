@@ -153,7 +153,11 @@ export const narrativeRouter = router({
           const today = new Date().toISOString().slice(0, 10);
           const tl = calculateDashaTimeline((profile as any).birthDate, moon?.nakshatra || "", moon?.sign ?? "", String(moon?.degree ?? ""), today, moon?.longitude != null ? String(moon.longitude) : null);
           const cur: any = tl.entries.find((e: any) => e.isCurrent);
-          const allowed = new Set([cur?.mahadasha, cur?.antardasha].filter(Boolean));
+          // THE PAST READS FREE (time-gate doctrine; David 2026-07-16: "why are past
+          // dasha readings gated?") — any chapter that has BEGUN is open; only the
+          // future waits behind the gate.
+          const begun = new Set(tl.entries.filter((e: any) => e.startDate <= today).map((e: any) => e.mahadasha));
+          const allowed = new Set([cur?.mahadasha, cur?.antardasha, ...begun].filter(Boolean));
           if (!allowed.has(input.lord)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
           // Sub-chapter gate (David 2026-07-16: "only current year and the past are
           // accessible") — within the ACTIVE maha, PAST and CURRENT antars read; FUTURE

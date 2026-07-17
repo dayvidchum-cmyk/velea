@@ -2060,6 +2060,72 @@ export const appRouter = router({
       }),
   }),
 
+  // THE COMBINED READING — two charts, one read (David blessed 2026-07-16). Rides the
+  // multi-profile seam; both profiles must belong to the caller; directional currents never fold.
+  combined: router({
+    read: protectedProcedure
+      .input(z.object({ otherProfileId: z.number(), relation: z.enum(["love", "work", "friend", "parent", "child", "sibling"]), refresh: z.boolean().optional() }))
+      .mutation(async ({ ctx, input }) => {
+        if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const };
+        const { getActiveProfile, getProfileNatalBodies } = await import("./routers/profiles.js");
+        const a = await getActiveProfile(ctx.user.id);
+        if (!a) return { available: false as const, locked: false as const };
+        const db = await getDb();
+        if (!db) return { available: false as const, locked: false as const };
+        const { profiles: profilesTable } = await import("../drizzle/schema.js");
+        const { and: andW, eq: eqW } = await import("drizzle-orm");
+        const [b] = await db.select().from(profilesTable).where(andW(eqW(profilesTable.id, input.otherProfileId), eqW(profilesTable.userId, ctx.user.id)));
+        if (!b || b.id === a.id) return { available: false as const, locked: false as const };
+
+        const SIGNS_Z = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+        const houseFrom = (sign: string, lagna: string) => ((SIGNS_Z.indexOf(sign) - SIGNS_Z.indexOf(lagna) + 12) % 12) + 1;
+        const load = async (prof: any) => {
+          const bodies: any[] = await getProfileNatalBodies(prof.id);
+          const moon = bodies.find((x) => x.planet === "Moon");
+          const mars = bodies.find((x) => x.planet === "Mars");
+          return { prof, bodies, moon, mars };
+        };
+        const A = await load(a), B = await load(b);
+        if (!A.moon || !B.moon || !a.lagnaSign || !b.lagnaSign) return { available: false as const, locked: false as const };
+
+        const { computeMelana } = await import("./vedic/melana.js");
+        const melana = computeMelana({
+          nakA: A.moon.nakshatra, nakB: B.moon.nakshatra,
+          moonSignA: A.moon.sign, moonSignB: B.moon.sign,
+          marsHouseA: A.mars ? houseFrom(A.mars.sign, a.lagnaSign) : null,
+          marsHouseB: B.mars ? houseFrom(B.mars.sign, b.lagnaSign) : null,
+        });
+        const overlayOf = (fromB: any[], toLagna: string) => fromB.map((x) => ({ planet: x.planet, sign: x.sign, landsInHouse: houseFrom(x.sign, toLagna) }));
+        // THE TWO CLOCKS — each side's running lords + where each sits in the OTHER chart.
+        const { calculateDashaTimeline } = await import("./dasha-calculator.js");
+        const today = new Date().toISOString().slice(0, 10);
+        const clockOf = (side: any, otherLagna: string) => {
+          try {
+            const tl = calculateDashaTimeline(side.prof.birthDate, side.moon?.nakshatra || "", side.moon?.sign ?? "", String(side.moon?.degree ?? ""), today, side.moon?.longitude != null ? String(side.moon.longitude) : null);
+            const cur: any = tl.entries.find((e: any) => e.isCurrent);
+            if (!cur) return null;
+            const seat = (lord: string) => {
+              const pb = side.bodies.find((x: any) => x.planet === lord);
+              return pb ? { lord, sign: pb.sign, sitsInOthersHouse: houseFrom(pb.sign, otherLagna) } : { lord };
+            };
+            return { maha: seat(cur.mahadasha), antar: seat(cur.antardasha), until: cur.endDate };
+          } catch { return null; }
+        };
+        const RELATION_LENS: Record<string, number[]> = { love: [7, 5], work: [10, 6], friend: [11], parent: [4, 9], child: [5], sibling: [3] };
+        const inputObj = {
+          relation: input.relation, lensHouses: RELATION_LENS[input.relation],
+          a: { name: a.name, lagna: a.lagnaSign, moonSign: A.moon.sign, moonNakshatra: A.moon.nakshatra },
+          b: { name: b.name, lagna: b.lagnaSign, moonSign: B.moon.sign, moonNakshatra: B.moon.nakshatra },
+          melana,
+          overlay: { aInB: overlayOf(A.bodies, b.lagnaSign), bInA: overlayOf(B.bodies, a.lagnaSign) },
+          concurrence: { a: clockOf(A, b.lagnaSign), b: clockOf(B, a.lagnaSign) },
+        };
+        const { getCombinedReadCached } = await import("./narrative/service.js");
+        const res = await getCombinedReadCached(a.id, `pair-${b.id}-${input.relation}`, inputObj, input.refresh ?? false);
+        return { ...res, locked: false as const, melana, names: { a: a.name, b: b.name } };
+      }),
+  }),
+
   // FEATURE FLAGS — the tester switchboard (David 2026-07-16). Buttons live in Settings
   // (admin section); audiences: admins | testers | everyone; testers = email allowlist.
   features: router({
