@@ -13,11 +13,19 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
   useDarkChromeWhile(true, "#0a131e"); // dark chrome so no white bar under the night sky
 
+  // THE FOURTH BEAT (David 2026-07-18: "the shell on the water is the 4th beat with the
+  // whole etymology") — gate → credentials → through → THE SHELL: the open shell holding
+  // the light IS វេលាល្អ, the golden moment, settling in behind its own name. One day,
+  // one night — same clock as the gate.
+  const isDay = (() => { const h = new Date().getHours(); return h >= 6 && h < 18; })();
+  const art = isDay ? "/shell-sunset.jpg" : "/shell-night.jpg";
+
   useEffect(() => {
+    const img = new Image(); img.src = art; // warm the finale while the words play
     const fade = setTimeout(() => setLeaving(true), 6000);
     const done = setTimeout(onDone, 6800);
     return () => { clearTimeout(fade); clearTimeout(done); };
-  }, [onDone]);
+  }, [onDone, art]);
 
   return (
     <div
@@ -31,23 +39,25 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         transition: "opacity 640ms ease",
       }}
     >
-      {/* Night sky + mountains — the finale, fading in behind the words. */}
+      {/* The shell on the water — the finale, fading in behind the words. */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
-          backgroundImage: "url(/welcome-sunset.jpg)",
+          backgroundImage: `url(${art})`,
           backgroundSize: "cover",
           backgroundPosition: "center center",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />
-      {/* Soft vignette so the words stay legible over the stars. */}
+      {/* Vignette so the words stay legible — deeper by day (the sunset shell is bright). */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
-          background: "radial-gradient(ellipse at center 42%, rgba(10,19,30,0.5) 0%, rgba(10,19,30,0.8) 100%)",
+          background: isDay
+            ? "radial-gradient(ellipse at center 42%, rgba(10,19,30,0.58) 0%, rgba(10,19,30,0.86) 100%)"
+            : "radial-gradient(ellipse at center 42%, rgba(10,19,30,0.5) 0%, rgba(10,19,30,0.8) 100%)",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />
@@ -111,7 +121,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
             { km: "វេលា", roman: "ve-lea", gloss: "time" },
             { km: "ល្អ", roman: "l'or", gloss: "good" },
           ].map((row) => (
-            <p key={row.roman} style={{ margin: 0, display: "flex", alignItems: "baseline", justifyContent: "center", flexWrap: "wrap", gap: "0.55rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.4 }}>
+            <p key={row.roman} style={{ margin: 0, display: "flex", alignItems: "baseline", justifyContent: "center", flexWrap: "wrap", gap: "0.55rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.4, textShadow: "0 1px 10px rgba(4,10,18,0.75)" }}>
               <span lang="km" style={{ fontFamily: "'Hanuman', serif", fontSize: "1.55rem", color: GOLD }}>{row.km}</span>
               <span style={{ opacity: 0.4 }}>•</span>
               <span style={{ fontStyle: "italic", opacity: 0.82, fontSize: "1.05rem" }}>{row.roman}</span>
@@ -121,7 +131,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
           ))}
           {/* The compound — the payoff */}
           <div style={{ marginTop: "0.5rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(201,168,76,0.3)" }}>
-            <p style={{ margin: 0, display: "flex", alignItems: "baseline", justifyContent: "center", flexWrap: "wrap", gap: "0.55rem", color: "rgba(255,255,255,0.95)" }}>
+            <p style={{ margin: 0, display: "flex", alignItems: "baseline", justifyContent: "center", flexWrap: "wrap", gap: "0.55rem", color: "rgba(255,255,255,0.95)", textShadow: "0 1px 10px rgba(4,10,18,0.75)" }}>
               <span lang="km" style={{ fontFamily: "'Hanuman', serif", fontSize: "1.7rem", color: GOLD }}>វេលាល្អ</span>
               <span style={{ opacity: 0.4 }}>•</span>
               <span style={{ fontStyle: "italic", opacity: 0.85, fontSize: "1.1rem" }}>ve-lea l'or</span>

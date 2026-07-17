@@ -3,6 +3,7 @@ import InstallGuide from "@/components/InstallGuide";
 import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useDarkChromeWhile } from "@/contexts/ThemeContext";
 
 /**
  * THE LOGIN IS THE GATE (David 2026-07-18: "Let's do it. One day one night. We can try
@@ -39,6 +40,7 @@ export default function Login() {
   const registerMutation = trpc.auth.register.useMutation();
 
   const isSignup = mode === "signup";
+  useDarkChromeWhile(true, "#050505"); // the gate owns the phone chrome — no white bands
 
   // One day, one night — the door keeps time.
   const hour = new Date().getHours();
@@ -84,9 +86,10 @@ export default function Login() {
   const inputStyle: React.CSSProperties = {
     background: "rgba(6,6,9,0.72)",
     border: `1px solid color-mix(in srgb, ${METAL.accent} 62%, transparent)`,
-    borderRadius: 14,
-    padding: "0.95rem 1rem",
-    letterSpacing: "0.22em",
+    borderRadius: 11,
+    padding: "0.6rem 0.85rem",
+    fontSize: "0.68rem",
+    letterSpacing: "0.18em",
     textAlign: "center",
     caretColor: METAL.accent,
     color: "#F2EFE6",
@@ -105,23 +108,23 @@ export default function Login() {
 
   return (
     <div style={{ minHeight: "100dvh", background: "#050505", position: "relative", overflow: "hidden" }}>
-      <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.55); letter-spacing: 0.22em; }`}</style>
+      <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.55); letter-spacing: 0.18em; font-size: 0.68rem; }`}</style>
 
       {/* THE GATE — his engraving, whole, on its own black ground. */}
       <img
         src={art}
         alt=""
         aria-hidden="true"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", userSelect: "none", pointerEvents: "none" }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", transform: "scale(1.12)", transformOrigin: "center", userSelect: "none", pointerEvents: "none" }}
       />
 
       {/* Wordmark in the sky above the crest */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "max(3dvh, env(safe-area-inset-top, 0px))" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "max(2dvh, env(safe-area-inset-top, 0px))" }}>
         <h1
           style={{
             fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
             fontWeight: 700,
-            fontSize: "clamp(2rem, 8vw, 2.8rem)",
+            fontSize: "clamp(1.6rem, 6.5vw, 2.2rem)",
             letterSpacing: "-0.01em",
             lineHeight: 1,
             margin: 0,
@@ -133,9 +136,6 @@ export default function Login() {
         >
           Velea
         </h1>
-        <p style={{ fontSize: "0.62rem", fontWeight: 600, letterSpacing: "0.42em", paddingLeft: "0.42em", textTransform: "uppercase", color: "rgba(242,239,230,0.6)", margin: "0.5rem 0 0" }}>
-          Why now?
-        </p>
       </div>
 
       {/* THE THRESHOLD — the form, seated in the doorway. */}
@@ -146,10 +146,10 @@ export default function Login() {
           top: DOOR_ANCHOR,
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "min(330px, 86vw)",
+          width: "min(264px, 70vw)",
           display: "flex",
           flexDirection: "column",
-          gap: "0.8rem",
+          gap: "0.5rem",
         }}
       >
         {isSignup && (
@@ -210,9 +210,9 @@ export default function Login() {
           style={{
             background: `linear-gradient(180deg, ${METAL.hi}, ${METAL.accent} 55%, ${METAL.deep})`,
             color: METAL.btnText,
-            borderRadius: 14,
-            padding: "0.95rem",
-            fontSize: "0.72rem",
+            borderRadius: 11,
+            padding: "0.6rem",
+            fontSize: "0.64rem",
             fontWeight: 700,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
