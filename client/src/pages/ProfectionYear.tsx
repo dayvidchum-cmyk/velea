@@ -502,12 +502,15 @@ export default function ProfectionYear() {
             </div>
             <div style={{ overflowY: "auto", padding: "1rem 1.3rem 1.3rem" }}>
               <p style={{ color: TEXT_PRIMARY, fontSize: "0.98rem", lineHeight: 1.65, margin: 0 }}>
-                In astrology, <strong>annual profection</strong> is an ancient timing technique that follows the
-                movement of your <strong>Lagna</strong> (Ascendant, Rising Sign), which activates one house of your
-                birth chart each year of your life. At birth you are age 0 and your <strong>1st house</strong> is
-                activated; at age 1, the 2nd house; and after 12 years the cycle repeats. The themes of the
-                activated house become the focus of the year. The ruler of the activated house is your{" "}
-                <strong>Time Lord</strong> — the planet running your year.
+                <strong>Annual profection</strong> is a <strong>Hellenistic</strong> timing technique — one of
+                the oldest in the Greek astrological tradition of the ancient Mediterranean. Each year of your
+                life it activates one house of your birth chart, counting from your <strong>Lagna</strong>{" "}
+                (Ascendant, Rising Sign): at birth, age 0, your <strong>1st house</strong> is activated; at age 1,
+                the 2nd; after 12 years the cycle repeats. The themes of the activated house become the focus of
+                the year, and its ruler is your <strong>Time Lord</strong> — the planet running your year.{" "}
+                <strong>Velea runs this ancient wheel on your Vedic chart</strong>: the houses and signs it turns
+                through are your sidereal ones, so the year-lord it crowns is read with the same precision as
+                everything else here — a Hellenistic clock, keeping Vedic time.
               </p>
             </div>
           </div>
