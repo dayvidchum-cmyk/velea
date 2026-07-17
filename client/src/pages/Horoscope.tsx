@@ -301,11 +301,16 @@ export default function Horoscope() {
                     return (
                       <div key={y.name} className="rounded-lg overflow-hidden" style={{ border: open ? "1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)" : "1px solid var(--color-border)" }}>
                         <button onClick={() => setOpenYoga(open ? null : y.name)} className="w-full flex items-center justify-between px-3 py-2.5 text-left">
-                          <span className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
+                          <span className="text-sm font-semibold" style={{ color: "var(--color-foreground)", minWidth: 0 }}>
                             {y.name}
                             <span className="ml-2 text-[11px] font-medium" style={{ color: "var(--color-muted-foreground)" }}>
-                              {y.vantages > 1 ? `holds from ${y.vantages} vantages` : "held"}{y.repeatsInNavamsha ? " · repeats in the navamsha" : ""}
+                              {y.kind ? `${y.kind} · ` : ""}{y.vantages > 1 ? `holds from ${y.vantages} vantages` : "held"}{y.repeatsInNavamsha ? " · repeats in the navamsha" : ""}
                             </span>
+                            {y.gloss && (
+                              <span className="block text-[12px] font-normal mt-0.5" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.45 }}>
+                                {y.gloss}
+                              </span>
+                            )}
                           </span>
                           {!entitled && !tasteable && <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
                           {!entitled && tasteable && freePick === null && <span className="text-[10px] font-bold uppercase" style={{ letterSpacing: "0.08em", color: "var(--brand-gold)", flexShrink: 0 }}>taste</span>}

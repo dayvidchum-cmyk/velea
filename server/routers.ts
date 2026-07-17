@@ -2302,9 +2302,30 @@ export const appRouter = router({
       if (!profile) return { available: false as const, yogas: [] as any[] };
       const { getStoredResearch } = await import("./vedic/research-store.js");
       const research: any = await getStoredResearch(profile.id);
-      const yogas = (research?.yogas ?? []).map((y: any) => ({
-        name: y.name, type: y.type, vantages: y.frames?.length ?? 1, repeatsInNavamsha: !!y.inNavamsha,
-      }));
+      // THE NAMEPLATE (David 2026-07-17: "Those yoga names might as well be written in
+      // Arabic or Sanskrit or Khmer") — every locked door gets a plain-language line:
+      // the canon's own "result" + the type in lived words. Free tier; the READING stays gated.
+      const { fileURLToPath } = await import("node:url");
+      const path = await import("node:path");
+      const fs = await import("node:fs");
+      let canonYogas: any[] = [];
+      try {
+        const here = path.dirname(fileURLToPath(import.meta.url));
+        canonYogas = JSON.parse(fs.readFileSync(path.resolve(here, "vedic/canon/yogas.json"), "utf8"));
+      } catch { /* nameplates degrade gracefully */ }
+      const TYPE_WORD: Record<string, string> = {
+        raja: "a royal combination", dhana: "a wealth combination", mahapurusha: "a great-person mark",
+        nabhasa: "a sky-pattern", chandra: "a moon-born gift", parivartana: "an exchange of lords",
+        arishta: "a hardship knot", "arishta-bhanga": "a hardship undone", vipreet: "strength born of trouble",
+      };
+      const yogas = (research?.yogas ?? []).map((y: any) => {
+        const c = canonYogas.find((cy: any) => cy.name === y.name);
+        return {
+          name: y.name, type: y.type, vantages: y.frames?.length ?? 1, repeatsInNavamsha: !!y.inNavamsha,
+          kind: TYPE_WORD[y.type] ?? null,
+          gloss: c?.result ?? null,
+        };
+      });
       // THE FREE TASTE (David 2026-07-16: "the user pics") — the yoga this profile has
       // already opened un-entitled (recorded by its cached read; null = pick still open).
       const { listYogaReadKeys } = await import("./db.js");
