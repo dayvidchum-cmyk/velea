@@ -86,8 +86,8 @@
 /* THE LAKSHMI PULSE (David 2026-07-16: "make that lakshmi day pulse just a little bit lmao")
    — the crowned coin breathes a small gold halo, softer and slower than the kind orbs. */
 @keyframes veleaLakshmiPulse {
-  0%, 100% { box-shadow: 0 0 3px 0 rgba(255, 212, 41, 0.25); }
-  50%      { box-shadow: 0 0 10px 2px rgba(255, 212, 41, 0.5); }
+  0%, 100% { box-shadow: 0 0 6px 1px rgba(255, 212, 41, 0.4); }
+  50%      { box-shadow: 0 0 20px 5px rgba(255, 212, 41, 0.75); }
 }
 .lakshmi-pulse { animation: veleaLakshmiPulse 3.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .lakshmi-pulse { animation: none; } }
