@@ -1,0 +1,125 @@
+{
+  "_source": "B.V. Raman, Muhurtha (Electional Astrology, 1948 1st ed.) [R p.N] + Muhurtacintamani of Rama Daivajna w/ Maniprabha Hindi comm. by Kapilesvara Sastri, Chaukhamba (vivaha-prakarana ch.6) [MC p.N]. Extracted 2026-07-17 from David's scans (For Claude Code folder); studied page-by-page, no gap-filling.",
+  "_scan_gaps": "Raman scan physically missing printed pp. 62-63, 66-67, 78-81 (Dina/Tara kuta, Gana kuta, Mahendra, Stree-Deergha), 94-97 (tail of exceptions list). MC fold-out charts torn; in-text chakras used.",
+  "tara": {
+    "counting": "From each Moon-star to the other's, inclusive, both directions, mod 9 (MC v.24 p.177; examples p.178).",
+    "unfavorable_remainders_melana": [
+      3,
+      5,
+      7
+    ],
+    "favorable_includes_janma": true,
+    "note": "MC states twice (p.177): only 3,5,7 inauspicious for melana; 1(janma),2,4,6,8,0 auspicious. Raman's own marriage Dina-kuta page (78) is missing; his election tara (pp.17-18) treats janma as 'danger to body' — election rule, not melana.",
+    "scoring_mc": "both directions good=3, one good=1.5, both bad=0 (9x9 chakra p.177)"
+  },
+  "gana": {
+    "groups_confirmed": "MC v.29-30 p.183 — identical to engine groups.",
+    "directional_grid_kanya_rows": {
+      "same_any": 6,
+      "kanya_nara_vara_deva": 5,
+      "kanya_deva_vara_nara": 4,
+      "kanya_deva_vara_rakshasa": 2,
+      "kanya_nara_vara_rakshasa": 1,
+      "kanya_rakshasa_vara_other": 0
+    },
+    "raman_direction": "R p.186 (Summary): girl rakshasa + boy deva/manusha barred; the reverse recommended.",
+    "parihara": "Gana dosha void if rasi lords or navamsa lords are mutual friends (MC v.33 p.187); also void when same rasi + different nakshatras (MC v.35 p.189)."
+  },
+  "yoni": {
+    "animals": "Engine confirmed for all 27 (Krittika/Pushya printed as sheep = same class as goat; Anuradha/Jyeshtha: MC deer vs Raman hare — same pair, name differs).",
+    "enemy_pairs_mc_p179": [
+      "cow-tiger",
+      "elephant-lion",
+      "horse-buffalo",
+      "dog-deer",
+      "serpent-mongoose",
+      "sheep-monkey",
+      "cat-rat"
+    ],
+    "raman_variant": "R p.84 prints 'monkey and cat' instead of sheep-monkey and marks the list non-exhaustive — both readings recorded, no winner.",
+    "gradation": "MC p.179: mahavaira 0, vaira 1, udasina 2, maitri 3, same 4, with full 14x14 chakra (tiger x horse = 1, worked example p.180). MATRIX NOT HARD-CODED: several interior cells uncertain in the worn scan — re-verify MC p.179 before adopting.",
+    "parihara": "Yoni enmity tolerable if rasi-vashya holds (MC p.179)."
+  },
+  "maitri": {
+    "friendship_table": "Identical in both sources (R p.86; MC p.181) and to canon/planetary-friendships.json.",
+    "scoring_mc_p181_grid": {
+      "friend_friend_or_same_lord": 5,
+      "friend_neutral": 4,
+      "neutral_neutral": 3,
+      "friend_enemy": 2,
+      "neutral_enemy": 1,
+      "enemy_enemy": 0
+    },
+    "note": "MC prose line prints 0 for sama+shatru but its own grid consistently prints 1 (five cells checked) — grid used, flagged.",
+    "navamsa_escape": "If rasi lords are not friends, kuta exists if the navamsa-moon lords are friends (R p.87, worked example pp.87-88). Also void if janma rasis are 1/7 from each other (R p.93 exc.2)."
+  },
+  "bhakoot": {
+    "dosha_axes": [
+      "2/12",
+      "5/9",
+      "6/8"
+    ],
+    "units": 7,
+    "cancellations": [
+      "Same lord of both rasis, or lords mutual friends → evil cancelled (R p.85).",
+      "MC v.32 p.186 (each REQUIRES nadi-shuddhi): (i) ekadhipatya (ii) rasi lords friends (iii) navamsa lords friends (iv) tara shuddhi (v) rasi-vashya.",
+      "Grahamaitri destroys dushta bhakoot; shubha bhakoot destroys graha-enmity — at least one of the two MUST hold (MC v.33 p.187).",
+      "Mitra shadashtaka (6/8 pairs with same/friendly lords) auspicious: 1-8, 2-7, 4-9, 5-12, 6-11, 10-3 (MC p.185)."
+    ],
+    "direction_conflict": "2/12 direction: R p.85 girl-2nd-from-boy = longevity(good); MC p.184 (Jyotihprakasha) the opposite. Both recorded, no winner."
+  },
+  "nadi": {
+    "groups_confirmed": "Both sources identical to engine (R pp.91-92; MC v.34 pp.187-188).",
+    "units": 8,
+    "middle_worst": "Same madhya nadi = certain death (MC p.188); Raman p.92: middle absolute, first/last 'may under certain circumstances'.",
+    "exceptions_mc_v35_p189": [
+      "Same rasi + different nakshatras → no nadi dosha AND no gana dosha.",
+      "Same nakshatra + different rasis → no nadi dosha.",
+      "Same nakshatra + different padas → no dosha (boy's star first in zodiacal order preferred)."
+    ],
+    "raman_exception": "R p.93 (4): nadi evil ignored if rasi+rajju kutas prevail, or same planet lords both janma rasis (list cut off by missing pp.94-97).",
+    "pada_fallback": "R p.92: nadi may be reckoned by pada, cycling V P S | S P V |… from Ashwini-1."
+  },
+  "vashya": {
+    "raman_lists_confirmed": "All 12 sign→group lists verbatim R p.88; unit 2; NO mutual/one-way sub-scoring in the surviving text (engine's split is an implementation choice, flagged).",
+    "mc_alternate_model": "5-class (quadruped/nara/jala/keeta/Leo) vashya-bhakshya system scoring 2/1/0.5/0 (MC v.23 pp.176-177) — irreconcilable with Raman's lists; engine follows Raman."
+  },
+  "varna": {
+    "omitted_by_design": "Velea does not score people by station (David's call).",
+    "for_the_record": "Both sources score 1/0 by groom-grade >= bride-grade. Sign groups CONFLICT: R pp.90-91 Kshatriya {Leo,Sag,Libra}, Vaisya {Aries,Gem,Aqu}, Sudra {Tau,Vir,Cap} vs MC v.22 Kshatriya {Leo,Sag,Aries}, Vaisya {Tau,Vir,Cap}, Sudra {Gem,Lib,Aqu}. Brahmin triad identical {Pis,Sco,Can}. MC escape: boy's rasi-lord's varna outranking cancels (p.175)."
+  },
+  "kuja": {
+    "houses": [
+      2,
+      12,
+      4,
+      7,
+      8
+    ],
+    "first_house_absent": "R p.98 stanza (dhane vyayecha…) — the 1st is NOT in this text.",
+    "reckoned_from": [
+      "Lagna (weakest)",
+      "Moon (stronger)",
+      "Venus (most powerful)"
+    ],
+    "cancellations_r_pp99_100": [
+      "Both charts have the dosha → cancelled.",
+      "2nd: none if Gemini or Virgo.",
+      "12th: none if Taurus or Libra.",
+      "4th: none if Aries or Scorpio.",
+      "7th: none if Capricorn or Cancer.",
+      "8th: none if Sagittarius or Pisces.",
+      "Mars in Aquarius or Leo: no dosha whatsoever.",
+      "Mars conjunct Jupiter or Moon: counteracted."
+    ],
+    "mc": "Vivaha-prakarana as read is silent on kuja dosha."
+  },
+  "totals_mc": {
+    "max": 36,
+    "require": "> 18",
+    "bands": "<=16 nindita · 16-20 madhyama · 20-30 uttama · 30-36 uttamottama; with dushta bhakoot the bars rise (<=20 nindita, 20-25 madhyama, 25-30 shreshtha)",
+    "fractional_totals_legal": "Rama-Sita worked example totals 24.5 (MC p.190)"
+  },
+  "weighting": "Nadi 'the most important' (R p.91); Graha Maitram 'the sine qua non' (R p.187); 'without nadi-shuddhi no guna is pure' (MC p.186).",
+  "southern_extras_raman": "Rajju (groups + effects, R pp.88-89), Vedha pairs (pp.89-90), Mahendra & Stree-Deergha (definitions lost with pp.78-81)."
+}

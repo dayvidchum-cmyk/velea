@@ -330,7 +330,7 @@ export default function YearCalendar() {
                                   ) : markCount > 0 ? (
                                     <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
                                       {moonPhase && <span style={{ width: 13, height: 13, borderRadius: 999, background: moonPhase === "full" ? "#FDFBF3" : "#160f26", border: moonPhase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
-                                      {isDollar && <span style={{ fontSize: `${mSize}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>€</span>}
+                                      {isDollar && <span style={{ fontFamily: "Georgia, serif", fontSize: `${mSize}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>€</span>}
                                       {isSummit && <CrownMark size={markCount === 1 ? 22 : mSize + 4} />}
                                       {marks.slice(0, 2).map((mk) => (
                                         <PlanetMark key={mk.planet} planet={mk.planet} size={mSize} strokeWidth={2} />
@@ -377,7 +377,7 @@ export default function YearCalendar() {
               <p className="font-serif text-lg" style={{ color: topSet.has(ds) ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
               <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
-                {taraNum === 2 && <span style={{ marginLeft: 8, color: "#2E9B54" }}><span style={{ fontWeight: 600, marginRight: 3 }}>€</span>prosperity</span>}
+                {taraNum === 2 && <span style={{ marginLeft: 8, color: "#2E9B54" }}><span style={{ fontFamily: "Georgia, serif", fontWeight: 600, marginRight: 3 }}>€</span>prosperity</span>}
                 {taraNum === 6 && <span style={{ marginLeft: 8, color: "#D4AF37" }}><CrownMark size={16} style={{ verticalAlign: "-3px", marginRight: 3 }} />achievement</span>}
                 {topSet.has(ds) && <span style={{ marginLeft: 8, color: "#B3902C" }}><OctagramMark size={13} color="#D4AF37" strokeWidth={1.5} style={{ verticalAlign: "-2px", marginRight: 3 }} />crowning day</span>}
               </p>

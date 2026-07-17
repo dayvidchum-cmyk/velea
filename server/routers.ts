@@ -2089,11 +2089,22 @@ export const appRouter = router({
         if (!A.moon || !B.moon || !a.lagnaSign || !b.lagnaSign) return { available: false as const, locked: false as const };
 
         const { computeMelana } = await import("./vedic/melana.js");
+        // Canon context (Jyeshtha, renewed — 2026-07-17): padas unlock the nāḍī exceptions,
+        // signs unlock the full kuja rule (Lagna+Moon+Venus, with cancellations).
+        const conj = (side: any) => {
+          const jup = side.bodies.find((x: any) => x.planet === "Jupiter");
+          const moon = side.moon;
+          return !!(side.mars && ((jup && jup.sign === side.mars.sign) || (moon && moon.sign === side.mars.sign)));
+        };
+        const venusA = A.bodies.find((x: any) => x.planet === "Venus"), venusB = B.bodies.find((x: any) => x.planet === "Venus");
         const melana = computeMelana({
           nakA: A.moon.nakshatra, nakB: B.moon.nakshatra,
           moonSignA: A.moon.sign, moonSignB: B.moon.sign,
-          marsHouseA: A.mars ? houseFrom(A.mars.sign, a.lagnaSign) : null,
-          marsHouseB: B.mars ? houseFrom(B.mars.sign, b.lagnaSign) : null,
+          padaA: (A.moon as any).nakshatraPada ?? null, padaB: (B.moon as any).nakshatraPada ?? null,
+          lagnaSignA: a.lagnaSign, lagnaSignB: b.lagnaSign,
+          marsSignA: A.mars?.sign ?? null, marsSignB: B.mars?.sign ?? null,
+          venusSignA: venusA?.sign ?? null, venusSignB: venusB?.sign ?? null,
+          marsConjA: conj(A), marsConjB: conj(B),
         });
         const overlayOf = (fromB: any[], toLagna: string) => fromB.map((x) => ({ planet: x.planet, sign: x.sign, landsInHouse: houseFrom(x.sign, toLagna) }));
         // THE TWO CLOCKS — each side's running lords + where each sits in the OTHER chart.
