@@ -33,6 +33,19 @@ function client(): Anthropic | null {
   return new Anthropic({ apiKey });
 }
 
+// THE BLACK BOX (2026-07-17 outage): every generation failure is recorded here so the
+// admin Users page can print the verbatim error one tap away — the truth was previously
+// reachable only through Railway's logs. In-memory by design: resets on deploy, holds
+// only error text, never chart data.
+const recentGenErrors: { at: string; fn: string; message: string }[] = [];
+export function getRecentGenErrors() { return recentGenErrors; }
+function logGenError(fn: string, err: unknown) {
+  const message = String((err as any)?.message ?? err).slice(0, 600);
+  console.error(`[narrative] ${fn} failed:`, message);
+  recentGenErrors.unshift({ at: new Date().toISOString(), fn, message });
+  if (recentGenErrors.length > 24) recentGenErrors.length = 24;
+}
+
 /**
  * Admin diagnostic: makes a tiny live Anthropic call and reports the exact outcome, so a blank
  * reading can be diagnosed (missing key vs bad key vs billing/cap vs works) instead of guessed.
@@ -87,7 +100,7 @@ export async function generateGlance(input: NarrativeInput): Promise<GlanceConte
   } catch (err) {
     // Dry wallet (400 "credit balance too low"), rate limit, timeout, network — ANY API failure
     // returns null so callers fall back to static copy instead of a blank day.
-    console.error("[narrative] generateGlance failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateGlance", err);
     return null;
   }
 }
@@ -137,7 +150,7 @@ export async function generateDeepRead(input: NarrativeInput): Promise<DeepRead 
     if (!block || block.type !== "tool_use") return null;
     return isCompleteDeepRead(block.input) ? scrubDeepRead(block.input as DeepRead) : null;
   } catch (err) {
-    console.error("[narrative] generateDeepRead failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateDeepRead", err);
     return null;
   }
 }
@@ -187,7 +200,7 @@ export async function generateChapter(input: NarrativeInput): Promise<Chapter | 
     if (!block || block.type !== "tool_use") return null;
     return isCompleteChapter(block.input) ? scrubChapter(block.input as Chapter) : null;
   } catch (err) {
-    console.error("[narrative] generateChapter failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateChapter", err);
     return null;
   }
 }
@@ -378,7 +391,7 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
     });
     return r ? scrubDayRead(r) : null; // deterministic scrub is the final guarantee no banned term ships
   } catch (err) {
-    console.error("[narrative] generateDayRead failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateDayRead", err);
     return null;
   }
 }
@@ -407,7 +420,7 @@ export async function generateLifeAreaRead(input: NarrativeInput): Promise<DayRe
     });
     return r ? scrubDayRead(r) : null; // deterministic scrub is the final guarantee no banned term ships
   } catch (err) {
-    console.error("[narrative] generateLifeAreaRead failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateLifeAreaRead", err);
     return null;
   }
 }
@@ -429,7 +442,7 @@ export async function generateEclipseSeasonRead(input: NarrativeInput): Promise<
     });
     return r ? scrubDayRead(r) : null; // deterministic scrub — no banned term ships
   } catch (err) {
-    console.error("[narrative] generateEclipseSeasonRead failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateEclipseSeasonRead", err);
     return null;
   }
 }
@@ -449,7 +462,7 @@ export async function generateTlWindowRead(input: any): Promise<DayRead | null> 
     });
     return r ? scrubDayRead(r) : null;
   } catch (err) {
-    console.error("[narrative] generateTlWindowRead failed:", (err as any)?.message ?? err);
+    logGenError("generateTlWindowRead", err);
     return null;
   }
 }
@@ -466,7 +479,7 @@ export async function generateCombinedRead(input: any): Promise<DayRead | null> 
     });
     return r ? scrubDayRead(r) : null;
   } catch (err) {
-    console.error("[narrative] generateCombinedRead failed:", (err as any)?.message ?? err);
+    logGenError("generateCombinedRead", err);
     return null;
   }
 }
@@ -483,7 +496,7 @@ export async function generatePlanetRxRead(input: NarrativeInput): Promise<DayRe
     });
     return r ? scrubDayRead(r) : null;
   } catch (err) {
-    console.error("[narrative] generatePlanetRxRead failed:", (err as any)?.message ?? err);
+    logGenError("generatePlanetRxRead", err);
     return null;
   }
 }
@@ -502,7 +515,7 @@ export async function generateMercuryRxRead(input: NarrativeInput): Promise<DayR
     });
     return r ? scrubDayRead(r) : null; // deterministic scrub — no banned term ships
   } catch (err) {
-    console.error("[narrative] generateMercuryRxRead failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateMercuryRxRead", err);
     return null;
   }
 }
@@ -524,7 +537,7 @@ export async function generateMonthRead(input: NarrativeInput): Promise<DayRead 
     });
     return r ? scrubDayRead(r) : null; // deterministic scrub — no banned term ships
   } catch (err) {
-    console.error("[narrative] generateMonthRead failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateMonthRead", err);
     return null;
   }
 }
@@ -558,7 +571,7 @@ export async function generateCast(input: NarrativeInput): Promise<Cast | null> 
     });
     return r ? { read: scrubMachinery(r.read) } : null; // deterministic scrub — no banned term ships
   } catch (err) {
-    console.error("[narrative] generateCast failed, using static fallback:", (err as any)?.message ?? err);
+    logGenError("generateCast", err);
     return null;
   }
 }
@@ -597,7 +610,7 @@ export async function generateHouseRead(input: any): Promise<HouseRead | null> {
       textOf: (r) => r.read,
     });
   } catch (err) {
-    console.error("[narrative] generateHouseRead failed:", (err as any)?.message ?? err);
+    logGenError("generateHouseRead", err);
     return null;
   }
 }
@@ -619,7 +632,7 @@ export async function generateDashaRead(input: any): Promise<DashaRead | null> {
       complete: isCompleteDashaRead, textOf: (r) => r.read,
     });
   } catch (err) {
-    console.error("[narrative] generateDashaRead failed:", (err as any)?.message ?? err);
+    logGenError("generateDashaRead", err);
     return null;
   }
 }
@@ -643,7 +656,7 @@ export async function generateYogaRead(input: any): Promise<YogaRead | null> {
       complete: isCompleteYogaRead, textOf: (r) => r.read,
     });
   } catch (err) {
-    console.error("[narrative] generateYogaRead failed:", (err as any)?.message ?? err);
+    logGenError("generateYogaRead", err);
     return null;
   }
 }
@@ -664,7 +677,7 @@ export async function generateWindowRead(input: any): Promise<WindowRead | null>
       complete: isCompleteWindowRead, textOf: (r) => r.read,
     });
   } catch (err) {
-    console.error("[narrative] generateWindowRead failed:", (err as any)?.message ?? err);
+    logGenError("generateWindowRead", err);
     return null;
   }
 }
@@ -683,7 +696,7 @@ export async function generateAtlasRead(input: any): Promise<AtlasRead | null> {
       complete: isCompleteAtlasRead, textOf: (r) => r.read,
     });
   } catch (err) {
-    console.error("[narrative] generateAtlasRead failed:", (err as any)?.message ?? err);
+    logGenError("generateAtlasRead", err);
     return null;
   }
 }

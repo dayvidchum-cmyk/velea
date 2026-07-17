@@ -532,6 +532,14 @@ export const appRouter = router({
         const { probeLLM } = await import("./narrative/generate.js");
         return probeLLM();
       }),
+    // Admin: the black box — verbatim messages from every narrative-generation failure since
+    // the last deploy. Pairs with llmStatus: probe green + errors here = the bug is ours.
+    llmRecentErrors: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const { getRecentGenErrors } = await import("./narrative/generate.js");
+        return { errors: getRecentGenErrors() };
+      }),
     // Admin: run a specific user's ACTUAL day reading end-to-end (build input → generate) and report
     // the exact failure point. Diagnoses a per-user blank when the global LLM probe is green.
     testReadingForUser: protectedProcedure

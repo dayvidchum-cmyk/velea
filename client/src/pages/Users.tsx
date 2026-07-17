@@ -55,6 +55,14 @@ export default function Users() {
     onSuccess: (r: any) => setLlmResult(r.ok ? `✅ Reading generated OK for this user.` : `❌ Failed at "${r.stage}"${r.error ? ` — ${r.error}` : ""}`),
     onError: (err: any) => setLlmResult(`❌ ${err.message || "test failed"}`),
   });
+  const llmErrorsMutation = trpc.auth.llmRecentErrors.useMutation({
+    onSuccess: (r: any) => setLlmResult(
+      (r.errors ?? []).length === 0
+        ? "✅ Black box is empty — no generation has failed since the last deploy."
+        : (r.errors as any[]).slice(0, 8).map((e) => `${e.at.slice(11, 19)} · ${e.fn}\n${e.message}`).join("\n\n"),
+    ),
+    onError: (err: any) => setLlmResult(`❌ ${err.message || "couldn't read the box"}`),
+  });
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,17 +190,27 @@ export default function Users() {
           </div>
           <p className="text-sm text-muted-foreground mb-4">Testers get Time Master + Hora unlocked. New test users are testers by default. Charts also self-heal on first read.</p>
           <div className="mb-4 flex flex-col gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="self-start"
-              disabled={llmStatusMutation.isPending}
-              onClick={() => { setLlmResult(""); llmStatusMutation.mutate(); }}
-              title="Live-test the Anthropic key — diagnoses blank readings"
-            >
-              {llmStatusMutation.isPending ? "Testing LLM…" : "Test LLM"}
-            </Button>
-            {llmResult && <p className="text-xs" style={{ color: "var(--color-muted-foreground)", wordBreak: "break-word" }}>{llmResult}</p>}
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={llmStatusMutation.isPending}
+                onClick={() => { setLlmResult(""); llmStatusMutation.mutate(); }}
+                title="Live-test the Anthropic key — diagnoses blank readings"
+              >
+                {llmStatusMutation.isPending ? "Testing LLM…" : "Test LLM"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={llmErrorsMutation.isPending}
+                onClick={() => { setLlmResult(""); llmErrorsMutation.mutate(); }}
+                title="The black box — verbatim errors from every reading generation that failed since the last deploy"
+              >
+                {llmErrorsMutation.isPending ? "Reading the box…" : "Recent errors"}
+              </Button>
+            </div>
+            {llmResult && <p className="text-xs whitespace-pre-wrap" style={{ color: "var(--color-muted-foreground)", wordBreak: "break-word" }}>{llmResult}</p>}
           </div>
           {usersList.isLoading ? (
             <VeleaLoader size={26} label="Fetching users…" />
