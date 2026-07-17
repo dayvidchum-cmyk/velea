@@ -1,4 +1,5 @@
-import { BookmarkCheck, Lock, Sparkles } from "lucide-react";
+import GateMark from "@/components/GateMark";
+import { BookmarkCheck,  Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
@@ -40,7 +41,7 @@ export default function ReadingsArchive() {
       <div className="flex-1 px-4 pb-32 space-y-4 max-w-lg mx-auto w-full">
         {access && !entitled ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Lock className="w-10 h-10 text-muted-foreground/40 mb-3" />
+            <GateMark className="w-10 h-10 text-muted-foreground/40 mb-3" />
             <p className="text-sm text-muted-foreground">Kept Readings is a premium layer.</p>
             <p className="text-xs text-muted-foreground mt-1">The archive of your days — not yet unlocked.</p>
           </div>

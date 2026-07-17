@@ -1,6 +1,7 @@
+import GateMark from "@/components/GateMark";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Lock, X } from "lucide-react";
+import { X } from "lucide-react";
 
 /**
  * A public-but-locked feature tile. Fills the same grid cell as the real card (Time Master / Hora)
@@ -38,7 +39,7 @@ export default function LockedFeatureCard({
         }}
       >
         <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-          <Lock size={11} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />
+          <GateMark size={11} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />
           <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--foreground)", whiteSpace: "nowrap" }}>{title}</span>
           <span style={{ marginLeft: "auto", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)", borderRadius: 999, padding: "0.1rem 0.4rem" }}>Locked</span>
         </span>
@@ -61,7 +62,7 @@ export default function LockedFeatureCard({
               <X size={15} />
             </button>
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "color-mix(in srgb, var(--brand-gold, #C9A84C) 16%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.9rem" }}>
-              <Lock size={18} style={{ color: "var(--brand-gold, #C9A84C)" }} />
+              <GateMark size={18} style={{ color: "var(--brand-gold, #C9A84C)" }} />
             </div>
             <h3 style={{ margin: 0, fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.35rem", fontWeight: 700, color: "var(--foreground)" }}>{title}</h3>
             <p style={{ margin: "0.6rem 0 0", fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-muted-foreground)" }}>{detail}</p>

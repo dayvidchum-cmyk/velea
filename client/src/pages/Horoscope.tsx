@@ -1,3 +1,4 @@
+import GateMark from "@/components/GateMark";
 import ProseCard from "@/components/ProseCard";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { useLocation } from "wouter";
@@ -270,13 +271,13 @@ export default function Horoscope() {
                               {y.vantages > 1 ? `holds from ${y.vantages} vantages` : "held"}{y.repeatsInNavamsha ? " · repeats in the navamsha" : ""}
                             </span>
                           </span>
-                          {!entitled && <Lock size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
+                          {!entitled && <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
                         </button>
                         {open && (
                           <div className="px-3 pb-3">
                             {!entitled ? (
                               <div className="flex items-start gap-2.5 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                                <Lock size={13} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                                <GateMark size={13} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
                                 <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
                                   This yoga is written into your chart — its reading (what it gives, how strongly you hold it, when it ripens) opens with the premium layer. Soon.
                                 </p>

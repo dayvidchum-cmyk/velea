@@ -1,7 +1,8 @@
+import GateMark from "@/components/GateMark";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
-import { Bookmark, BookmarkCheck, ChevronRight, Lock, X } from "lucide-react";
+import { Bookmark, BookmarkCheck, ChevronRight,  X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 /**
@@ -51,13 +52,13 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
         <button onClick={() => setTeaserOpen(true)} style={{ ...rowStyle, background: "none", border: "none", borderTop: hairline, width: "100%", cursor: "pointer", color: ink }}>
           <Bookmark size={14} style={{ flexShrink: 0 }} />
           <span>Keep this reading</span>
-          <Lock size={12} style={{ marginLeft: "auto", opacity: 0.7 }} />
+          <GateMark size={12} style={{ marginLeft: "auto", opacity: 0.7 }} />
         </button>
         {teaserOpen && createPortal(
           <div onClick={() => setTeaserOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(30, 24, 16, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
             <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid var(--color-border)", padding: "1.4rem", boxShadow: "0 20px 60px oklch(0 0 0 / 0.4)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.7rem" }}>
-                <Lock size={16} style={{ color: "#C9A84C" }} />
+                <GateMark size={16} style={{ color: "#C9A84C" }} />
                 <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--foreground)" }}>Kept Readings</span>
                 <button onClick={() => setTeaserOpen(false)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)" }}><X size={16} /></button>
               </div>

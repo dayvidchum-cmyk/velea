@@ -1,9 +1,10 @@
+import GateMark from "@/components/GateMark";
 import { trpc } from "../lib/trpc";
 import VeleaLoader from "@/components/VeleaLoader";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import { ChevronDown, X, Lock } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
@@ -857,7 +858,7 @@ export default function ProfectionYear() {
             const compactV = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n} days` : `${Math.round(n / 30.4)} months`);
             return (
               <div className="flex items-start gap-2.5 rounded-lg px-3 py-3" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                <Lock size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                <GateMark size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
                 <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.55 }}>
                   The road ahead is written{apx ? ` — your strongest-aligned day lands in ${compactV(apx.daysAway)}, with ${arcData.crownCount} crown day${arcData.crownCount === 1 ? "" : "s"} in the next 90` : ""}, and {slowCount} slow season-turn{slowCount === 1 ? "" : "s"} mapped over the coming year. The dates, the turns, and what each asks open with Velea. Soon.
                 </p>

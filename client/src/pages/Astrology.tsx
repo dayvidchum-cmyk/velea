@@ -1,9 +1,10 @@
+import GateMark from "@/components/GateMark";
 import ProseCard from "@/components/ProseCard";
 import { useState, useMemo, useEffect, useRef } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
 import { createPortal } from "react-dom";
 import { trpc } from "@/lib/trpc";
-import { ChevronDown, X, Lock } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
 import { ModeCard } from "@/components/ModeCard";
@@ -356,7 +357,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                 const roomOpen = sel === 1 || sel === houseOfBody("Sun") || sel === houseOfBody("Moon");
                 if (!roomOpen) return (
                   <div className="flex items-center gap-2 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                    <Lock size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
+                    <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
                     <p className="text-xs" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
                       This room's reading waits with the full library. Your rising, your Sun's room and your Moon's room read free.
                     </p>
@@ -975,7 +976,7 @@ export function DashaSection() {
                         <span className="text-sm flex-shrink-0" style={{ color: period.isCurrent ? antColor : "var(--color-foreground)", fontWeight: period.isCurrent ? 700 : 500, minWidth: "72px" }}>{period.antardasha}</span>
                         <span className="text-[11px]" style={{ color: "var(--color-muted-foreground)" }}>{formatDate(period.startDate)} · {period.duration}</span>
                         {future ? (
-                          <Lock size={11} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.6, flexShrink: 0 }} />
+                          <GateMark size={11} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.6, flexShrink: 0 }} />
                         ) : !reading ? (
                           <button onClick={() => setAntarKey({ maha: currentMaha!, antar: period.antardasha })} className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full" style={{ marginLeft: "auto", letterSpacing: "0.08em", color: antColor, border: `1px solid ${antColor}66`, background: "transparent", cursor: "pointer", flexShrink: 0 }}>
                             {period.isCurrent ? "Now · read" : "Read"}
@@ -1038,7 +1039,7 @@ export function DashaSection() {
                     ) : (
                       // The lineup of little locks — every future/past chapter shows its
                       // potential at a glance (the time gate, worn on the shelf itself).
-                      <Lock size={12} style={{ color: "var(--brand-gold)", opacity: 0.7, flexShrink: 0 }} />
+                      <GateMark size={12} style={{ color: "var(--brand-gold)", opacity: 0.7, flexShrink: 0 }} />
                     )}
                   </div>
                   <div className="text-xs mt-0.5" style={{ color: t.faint }}>
@@ -1056,7 +1057,7 @@ export function DashaSection() {
                   <div style={{ padding: "0.8rem 1rem 0.2rem" }}>
                     {!hasActive ? (
                       <div className="flex items-center gap-2 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                        <Lock size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
+                        <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
                         <p className="text-xs" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
                           The {g.mahadasha} chapter is written and waiting. Your running chapter reads free — the others open with the full library. Soon.
                         </p>
@@ -1108,7 +1109,7 @@ export function DashaSection() {
                               NOW
                             </span>
                           ) : (hasActive && g.periods.findIndex((p: any) => p.isCurrent) >= 0 && i > g.periods.findIndex((p: any) => p.isCurrent)) || !hasActive ? (
-                            <Lock size={11} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.55, flexShrink: 0 }} />
+                            <GateMark size={11} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.55, flexShrink: 0 }} />
                           ) : null}
                         </div>
                         <div className="flex items-center gap-3 mt-1 pl-5 flex-wrap">

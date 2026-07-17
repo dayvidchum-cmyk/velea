@@ -1,8 +1,9 @@
+import GateMark from "@/components/GateMark";
 import ProseCard from "@/components/ProseCard";
 import { useState } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
-import { ChevronDown, ChevronLeft, Lock } from "lucide-react";
+import { ChevronDown, ChevronLeft } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import OctagramMark from "@/components/OctagramMark";
 import DiamondMark from "@/components/DiamondMark";
@@ -91,7 +92,7 @@ export default function LifeAtlas() {
                           )
                         ) : (
                           <div className="flex items-start gap-2.5 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                            <Lock size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                            <GateMark size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
                             <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.55 }}>
                               The reading that names what this theme carries — and what each season below holds — opens with the Atlas. Soon.
                             </p>
@@ -153,7 +154,7 @@ export default function LifeAtlas() {
             <div className="mt-3" style={{ minHeight: 40 }}>
               {!entitled ? (
                 <div className="flex items-start gap-2.5 rounded-lg px-3 py-3" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
-                  <Lock size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                  <GateMark size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
                   <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.55 }}>
                     This season has its own reading — what it carries, what ripens, what asks to be done. It opens with the Atlas. Soon.
                   </p>
