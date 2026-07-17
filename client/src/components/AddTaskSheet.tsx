@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "sonner";
 import { CIRCLE_SHELVES, CIRCLE_LABEL, type TaskCircle } from "@shared/task-circle";
 import { createPortal } from "react-dom";
 import { X, CalendarDays, Plus, Trash2, FolderOpen, ChevronDown, Repeat, Layers } from "lucide-react";
@@ -533,7 +534,9 @@ export default function AddTaskSheet({ open, onClose, initialMode, openWithSugge
       }
       onClose();
     } catch (error) {
+      // Honest surfaces (the tester-panel law): a failed save SPEAKS — silence reads as saved.
       console.error("Error saving task:", error);
+      toast.error("Couldn't save the task — " + ((error as any)?.message ?? "try again"));
     }
   }, [title, mode, priority, intent, dueDate, isPinned, wealthFlow, projectId, cognitiveLoad, physicalLoad, creativeRequired, socialRequired, emotionalLoad, notes, recurrence, lifeAreas, subtasks, editTask, createTask, updateTask, createSubtask, utils, onClose]);
 
