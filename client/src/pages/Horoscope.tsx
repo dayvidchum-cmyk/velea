@@ -30,6 +30,8 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 // The life areas the reading can be pointed at — each routes server-side to its own divisional
 // chart (life-areas.ts, from Kurczak & Fish Appendix IV). Display metadata only; the server
 // validates the key. Order mirrors LIFE_AREA_ORDER.
+import { AREA_SHELVES, AREA_LABEL } from "@shared/life-area-shelves";
+// Legacy parent keys — kept so purchases made before the shelves still label correctly.
 const LIFE_AREAS: { key: string; label: string }[] = [
   { key: "self", label: "Self & Body" },
   { key: "money", label: "Money" },
@@ -42,7 +44,7 @@ const LIFE_AREAS: { key: string; label: string }[] = [
   { key: "siblings", label: "Siblings & Inner Circle" },
   { key: "parents", label: "Parents" },
 ];
-const areaLabel = (k: string) => (k === "day" ? "Full day" : LIFE_AREAS.find((a) => a.key === k)?.label ?? k);
+const areaLabel = (k: string) => (k === "day" ? "Full day" : AREA_LABEL[k] ?? LIFE_AREAS.find((a) => a.key === k)?.label ?? k);
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const ymd = (y: number, m0: number, d: number) => `${y}-${pad(m0 + 1)}-${pad(d)}`;
@@ -96,6 +98,8 @@ export default function Horoscope() {
   const [openYoga, setOpenYoga] = useState<string | null>(null);
   // The free-taste confirmation — picking is permanent, so it asks once.
   const [confirmTaste, setConfirmTaste] = useState<string | null>(null);
+  // THE LIFE-AREA SHELVES — which shelf of the picker is open (one at a time, the mantra).
+  const [openAreaShelf, setOpenAreaShelf] = useState<string | null>(null);
   const { data: yogasData } = trpc.horoscope.yogasList.useQuery(undefined, { enabled: yogasOpen, staleTime: 30 * 60_000 });
   const yogaFreePick = (yogasData as any)?.freePick ?? null;
   const yogaReadQ = trpc.horoscope.yogaRead.useQuery(
@@ -390,27 +394,49 @@ export default function Horoscope() {
           <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)", margin: "0 0 0.5rem" }}>
             Which part of life?
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-            {LIFE_AREAS.map((a) => {
-              const on = a.key === selectedArea;
-              const owned = (purchased ?? []).some((r) => r.date === selectedDate && (r.lifeArea ?? "day") === a.key);
+          {/* THE SHELVES (David: "money alone can mean so many things") — each big area
+              opens into its precise classical seats; one shelf at a time, line-pill grammar. */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem" }}>
+            {AREA_SHELVES.map((shelf) => {
+              const openShelf = openAreaShelf === shelf.label;
+              const holdsSelected = shelf.areas.some((sa) => sa.key === selectedArea);
               return (
-                <button
-                  key={a.key}
-                  onClick={() => setSelectedArea(a.key)}
-                  // The blessed pill language (David's Refresh/Clear-all refs): OUTLINE,
-                  // border the same color as the font, no tint fill.
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: "0.3rem", cursor: "pointer",
-                    borderRadius: 999, padding: "0.34rem 0.72rem", fontSize: "0.74rem", fontWeight: on ? 700 : 500,
-                    border: on ? "1.5px solid var(--heading-ink)" : "1px solid var(--color-muted-foreground)",
-                    background: "transparent",
-                    color: on ? "var(--heading-ink)" : "var(--color-muted-foreground)",
-                  }}
-                >
-                  {owned && <OctagramMark size={9} color={GOLD} strokeWidth={1.2} />}
-                  {a.label}
-                </button>
+                <div key={shelf.label}>
+                  <button
+                    onClick={() => setOpenAreaShelf(openShelf ? null : shelf.label)}
+                    style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", padding: "0.3rem 0", cursor: "pointer", color: holdsSelected ? "var(--heading-ink)" : "var(--color-muted-foreground)", fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}
+                  >
+                    {shelf.label}
+                    {holdsSelected && !openShelf && <span style={{ fontWeight: 500, textTransform: "none", letterSpacing: 0 }}>· {areaLabel(selectedArea)}</span>}
+                    <ChevronDown size={13} style={{ transform: openShelf ? "rotate(180deg)" : "none", transition: "transform 160ms ease", opacity: 0.7 }} />
+                  </button>
+                  {openShelf && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", margin: "0.15rem 0 0.55rem" }}>
+                      {shelf.areas.map((sa) => {
+                        const on = sa.key === selectedArea;
+                        const owned = (purchased ?? []).some((r) => r.date === selectedDate && (r.lifeArea ?? "day") === sa.key);
+                        return (
+                          <button
+                            key={sa.key}
+                            onClick={() => setSelectedArea(sa.key)}
+                            className="line-pill"
+                            style={{
+                              ["--pill-ink" as any]: "var(--heading-ink)",
+                              display: "inline-flex", alignItems: "center", gap: "0.3rem", cursor: "pointer",
+                              borderRadius: 999, padding: "0.34rem 0.72rem", fontSize: "0.74rem", fontWeight: on ? 700 : 500,
+                              border: on ? "1.5px solid var(--heading-ink)" : "1px solid var(--color-muted-foreground)",
+                              background: "transparent",
+                              color: on ? "var(--heading-ink)" : "var(--color-muted-foreground)",
+                            }}
+                          >
+                            {owned && <OctagramMark size={9} color={GOLD} strokeWidth={1.2} />}
+                            {sa.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

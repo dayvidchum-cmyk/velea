@@ -61,7 +61,7 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
@@ -76,14 +76,14 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   const locKey = dl ? `${dl.lat},${dl.lon},${dl.utcOffset}` : "def";
   // lifeArea is part of the key: a Career lens and a Money lens are different inputs, so two
   // life areas must never share a memoized input (they'd produce the same reading otherwise).
-  const areaKey = opts?.lifeArea ?? "none";
+  const areaKey = `${opts?.lifeArea ?? "none"}${opts?.areaFocus ? ":" + opts.areaFocus.key : ""}`;
   const eclKey = opts?.eclipseArc ? "ecl" : "no";
   const merKey = opts?.mercuryRxArc ? "mrx" : "no";
   const monKey = opts?.monthArc ? "mon" : "no";
   const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}|${monKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc, monthArc: opts?.monthArc });
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, areaFocus: opts?.areaFocus, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc, monthArc: opts?.monthArc });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   return value;
 }
@@ -95,7 +95,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -789,6 +789,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       transits: transits as any,
       dasha: dasha as any,
     });
+    // THE FOCUS (life-area shelves, 2026-07-16): when the user asked about a PRECISE
+    // seat ("shared & inherited", not just "money"), the lens carries it — the prompt
+    // must aim every paragraph at this seat.
+    if (lifeAreaLens && moment?.areaFocus) (lifeAreaLens as any).focus = moment.areaFocus;
     // THE DEPTH GRAFT: the area's carriers (house lord + karakas) get their stored
     // both-volumes condition — Shadbala strength, avashtas, combustion, neecha-bhanga —
     // so the paid lens is never shallower than the free House Reader.

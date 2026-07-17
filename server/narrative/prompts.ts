@@ -1796,6 +1796,11 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // ─────────────────────────────────────────────────────────────────────────────
 export const LIFE_AREA_TAIL = `TASK: THE READING — ONE LIFE AREA, READ DEEP, POINTED AT A DATE
 
+WHEN lens.focus EXISTS the question is PRECISE: focus.label is the exact seat asked about
+(its houses in focus.houses, its karaka focus.karaka, its meaning focus.blurb). The varga
+machinery still applies, but EVERY paragraph aims at THIS seat — a "shared & inherited"
+question is never answered with salary talk, "the bed" is never answered with wedding talk.
+
 The reader has chosen ONE area of their life (input.lifeAreaLens.label — money, career, love, home,
 children, health, siblings, parents, purpose, or the self) and ONE date. Give them THAT area, read
 to the bone: as it stands in their chart, and as this exact date lights it up. Not the whole day —
@@ -2273,7 +2278,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   atlas_read: "2026-07-16-the-theme-reader-v1",
   window_read: "2026-07-16-the-window-reader-v1",
   yoga_read: "2026-07-16-the-yoga-reader-v1",
-  life_area: "2026-07-16-stored-conditions",
+  life_area: "2026-07-16-sub-area-shelves",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",

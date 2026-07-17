@@ -207,10 +207,10 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
 // so this does NOT touch narrative_cache — it only builds the input and generates, deduped by
 // single-flight so a double-reveal never fires two (paid) calls. Returns unavailable → the reveal
 // reports failure and the user can retry, exactly like the day read.
-export async function getLifeAreaRead(profileId: number, date: string, lifeArea: LifeAreaKey, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<DayReadResult> {
+export async function getLifeAreaRead(profileId: number, date: string, lifeArea: LifeAreaKey, dayLoc?: { lat: number; lon: number; utcOffset: number }, areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }): Promise<DayReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
-  const input = await buildNarrativeInput(profileId, date, { dayLoc, lifeArea });
-  const read = await singleFlight(`life_area:${profileId}:${date}:${lifeArea}`, async () => generateLifeAreaRead(input));
+  const input = await buildNarrativeInput(profileId, date, { dayLoc, lifeArea, areaFocus });
+  const read = await singleFlight(`life_area:${profileId}:${date}:${lifeArea}:${areaFocus?.key ?? "whole"}`, async () => generateLifeAreaRead(input));
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read, generatedAt: new Date(), cached: false };
 }

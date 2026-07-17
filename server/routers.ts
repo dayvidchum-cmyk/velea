@@ -2288,7 +2288,12 @@ export const appRouter = router({
     reveal: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string() })).mutation(async ({ ctx, input }) => {
       if (!(await hasHoroscope(ctx.user))) return null;
       const { isLifeAreaKey } = await import("./vedic/life-areas.js");
-      if (!isLifeAreaKey(input.lifeArea)) return { available: false as const };
+      const { resolveArea } = await import("../shared/life-area-shelves.js");
+      // Parent areas (legacy keys) still read whole; sub-areas resolve to parent + FOCUS.
+      const resolved = isLifeAreaKey(input.lifeArea)
+        ? { parent: input.lifeArea, focus: undefined as any }
+        : (() => { const r = resolveArea(input.lifeArea); return r && isLifeAreaKey(r.parent) ? { parent: r.parent, focus: r.focus } : null; })();
+      if (!resolved) return { available: false as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2309,7 +2314,7 @@ export const appRouter = router({
         ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
         : undefined;
       const { getLifeAreaRead } = await import("./narrative/service.js");
-      const res = await getLifeAreaRead(profile.id, input.date, input.lifeArea, dayLoc);
+      const res = await getLifeAreaRead(profile.id, input.date, resolved.parent as any, dayLoc, resolved.focus);
       if (!res.available || !res.read) return { available: false as const };
 
       const { PROMPT_VERSION, MODEL } = await import("./narrative/prompts.js");
