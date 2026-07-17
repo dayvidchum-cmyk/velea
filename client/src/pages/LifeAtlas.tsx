@@ -41,12 +41,8 @@ export default function LifeAtlas() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="container py-6"><AppHeader pageTitle="The Life Atlas" /></div>
+      <div className="container py-6"><AppHeader pageTitle="The Life Atlas" onBack={() => navigate("/horoscope")} backLabel="Readings" /></div>
       <main className="mx-auto max-w-lg px-4 pt-2">
-        <button onClick={() => navigate("/horoscope")} className="mb-3 flex items-center gap-1 text-sm text-muted-foreground">
-          <ChevronLeft className="h-4 w-4" /> Readings
-        </button>
-
         {!data && (
           <div className="mt-10"><VeleaLoader label="Unrolling the atlas…" /></div>
         )}

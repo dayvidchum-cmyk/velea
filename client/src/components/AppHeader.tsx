@@ -342,17 +342,16 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
 
         {/* Optional back link — sits directly above the page title */}
         {pageTitle && onBack && (
+          // THE BLESSED BACK CHIP (David 2026-07-16: the old ones "look out of place. the
+          // styling? location? both?" — both): a quiet parchment pill seated in the masthead,
+          // named destination (never bare "Back"), 17px chevron per the Lisa bar.
           <button
             onClick={onBack}
-            className="flex items-center gap-1 text-xs font-semibold uppercase transition-colors"
-            style={{ color: "var(--color-muted-foreground)", letterSpacing: "0.06em", marginTop: "1.25rem" }}
+            className="parchment inline-flex items-center"
+            style={{ gap: 2, padding: "0.3rem 0.8rem 0.3rem 0.45rem", borderRadius: 999, background: "var(--parchment)", border: "1px solid color-mix(in srgb, var(--day-accent, var(--brand-gold)) 42%, transparent)", color: "var(--heading-ink)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", marginTop: "1.25rem" }}
             aria-label={`Back to ${backLabel}`}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--day-accent)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-muted-foreground)"; }}
-            onMouseDown={(e) => { e.currentTarget.style.color = "var(--day-accent)"; }}
-            onMouseUp={(e) => { e.currentTarget.style.color = "var(--day-accent)"; }}
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={17} />
             {backLabel}
           </button>
         )}
