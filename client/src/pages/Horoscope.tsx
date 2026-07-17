@@ -318,7 +318,10 @@ export default function Horoscope() {
                   {yogasData.yogas.map((y: any) => {
                     const open = openYoga === y.name;
                     const freePick = (yogasData as any).freePick as string | null;
-                    const tasteable = !entitled && (freePick === y.name || freePick === null);
+                    // Once a taste is being confirmed (audit L17), ONLY that yoga stays tasteable
+                    // — the ~60s generation left the other taste buttons live, so a user could
+                    // confirm a second pick and the server's arrival order silently decided which kept.
+                    const tasteable = !entitled && (freePick === y.name || (freePick === null && (confirmTaste === null || confirmTaste === y.name)));
                     return (
                       <div key={y.name} className="rounded-lg overflow-hidden" style={{ border: open ? "1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)" : "1px solid var(--color-border)" }}>
                         <button onClick={() => setOpenYoga(open ? null : y.name)} className="w-full flex items-center justify-between px-3 py-2.5 text-left">

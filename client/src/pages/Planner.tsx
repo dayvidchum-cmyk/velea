@@ -260,6 +260,9 @@ export default function Planner() {
     const check = () => {
       const now = new Date();
       if (toDateStr(now) === toDateStr(today)) return;
+      // New day (audit L15): re-evaluate the field-note dismissal — it was set once at mount, so
+      // an always-open PWA kept yesterday's dismissal and suppressed today's warnings.
+      try { setFieldNoteDismissed(localStorage.getItem("velea-fieldnote") === toDateStr(now)); } catch { /* storage unavailable */ }
       // Only carry the user forward if they were sitting on "today"; leave a manually
       // selected past/future date alone.
       setSelectedDate((sd) => (sd === toDateStr(today) ? toDateStr(now) : sd));
