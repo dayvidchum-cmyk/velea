@@ -18,18 +18,38 @@ const HOUSE_GLOSS: Record<number, string> = {
   12: "rest, retreat, release, the unseen",
 };
 
-// What each planet DOES when it moves through a house — its nature ("brings …") fused with
-// how to work with it ("tone"). Read as: "It brings {brings} here — {tone}"
-const PLANET_NATURE: Record<string, { brings: string; tone: string }> = {
-  Sun:     { brings: "visibility & authority", tone: "step forward, let it serve the work" },
-  Moon:    { brings: "shifting mood & sensitivity", tone: "tend the feeling, don't chase the spike" },
-  Mars:    { brings: "drive, heat, courage", tone: "push decisively — aim it, don't spill" },
-  Mercury: { brings: "quick thinking & dealings", tone: "good for talk, contracts, details" },
-  Jupiter: { brings: "growth & opportunity", tone: "say yes to what expands you" },
-  Venus:   { brings: "harmony, pleasure, ease", tone: "lean into connection & beauty" },
-  Saturn:  { brings: "weight & discipline", tone: "patience and structure win" },
-  Rahu:    { brings: "hunger & amplification", tone: "aim high, watch the overreach" },
-  Ketu:    { brings: "detachment & release", tone: "loosen the grip, turn inward" },
+// THE 5W REWRITE (David 2026-07-16: "who are these people? what are they doing? where
+// are they? whats the effect?") — every trigger reads as SENTENCES answering
+// who · what · where · when · why · how, never a data stack.
+const PLANET_WHO: Record<string, string> = {
+  Sun: "the sovereign — visibility and authority",
+  Moon: "the tide — mood and feeling",
+  Mars: "the mover — drive, heat, courage",
+  Mercury: "the messenger — words, dealings, quick thinking",
+  Jupiter: "the teacher — growth and opportunity",
+  Venus: "the lover — harmony, pleasure, ease",
+  Saturn: "the elder — weight, patience, discipline",
+  Rahu: "the hunger — amplification and reach",
+  Ketu: "the release — detachment and undoing",
+};
+const PLANET_EFFECT: Record<string, string> = {
+  Sun: "Step forward and let the visibility serve the work.",
+  Moon: "Tend the feeling; don't chase the spike.",
+  Mars: "Push decisively — aim it, don't spill it.",
+  Mercury: "Use it: talk, contracts, details move well today.",
+  Jupiter: "Say yes to what expands you here.",
+  Venus: "Lean into connection and beauty; let ease do the work.",
+  Saturn: "Patience and structure win here — build, don't rush.",
+  Rahu: "Aim high, and watch the overreach.",
+  Ketu: "Loosen the grip; what leaves was finished.",
+};
+const HOUSE_PLACE: Record<number, string> = {
+  1: "the rooms of the self and the body", 2: "your money and livelihood rooms",
+  3: "the rooms of your craft and close circle", 4: "your home and roots",
+  5: "the rooms of the heart and its creations", 6: "your daily work and health rooms",
+  7: "the partnership rooms", 8: "the rooms of the shared and the hidden",
+  9: "your belief and far-horizon rooms", 10: "the rooms of your public standing",
+  11: "your community and gains rooms", 12: "the rooms of rest and release",
 };
 
 export function CurrentTriggerBreakdown({
@@ -49,25 +69,25 @@ export function CurrentTriggerBreakdown({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
       {sig.map((t, i) => {
-        const tags: string[] = [];
-        if (t.planet === timeLord) tags.push("your Time Lord — the current chapter");
-        if (t.houseFromLagna === activatedHouse) tags.push("this year's activated house");
-        if (t.hitsNatalPoint) tags.push(`touching your natal ${t.hitsNatalPoint}`);
-        if (t.retrograde) tags.push("retrograde");
-        const nature = PLANET_NATURE[t.planet];
+        const isTL = t.planet === timeLord;
+        const isYearHouse = t.houseFromLagna === activatedHouse;
+        const place = HOUSE_PLACE[t.houseFromLagna] ?? "this part of your life";
+        const motion = t.retrograde ? "retracing its steps back through" : "moving through";
+        const role = isTL && isYearHouse
+          ? " — your Time Lord walking the year's own activated house, the chapter and the year in one place"
+          : isTL
+          ? " — and it is your Time Lord, the planet running this chapter, so its weather is your weather"
+          : isYearHouse
+          ? " — the very house this year runs on, so what happens here lands where the year already points"
+          : "";
+        const hit = t.hitsNatalPoint ? `; it is standing on your natal ${t.hitsNatalPoint}, waking what that point holds in your chart` : "";
+        const effect = (PLANET_EFFECT[t.planet] ?? "") + (t.retrograde ? " Retrograde means review — redo and reconsider before starting anything brand-new." : "");
         return (
           <div key={i} style={{ borderLeft: `3px solid ${accent}`, paddingLeft: "0.75rem" }}>
-            <p style={{ color: fg, fontSize: "0.98rem", lineHeight: 1.35, margin: 0, fontWeight: 700 }}>
-              {t.planet} <span style={{ fontWeight: 500, opacity: 0.82 }}>· {HOUSE_GLOSS[t.houseFromLagna] ?? "this area of life"}</span>
+            <p style={{ color: fg, fontSize: "0.9rem", lineHeight: 1.6, margin: 0 }}>
+              <strong>{t.planet}</strong>, {PLANET_WHO[t.planet] ?? "a moving planet"}, is {motion} {place} right now{role}{hit}.
             </p>
-            {nature && (
-              <p style={{ color: fg, fontSize: "0.86rem", lineHeight: 1.4, margin: "0.2rem 0 0", opacity: 0.82 }}>
-                {nature.brings} — {nature.tone}
-              </p>
-            )}
-            {tags.length > 0 && (
-              <p style={{ color: accent, fontSize: "0.8rem", marginTop: "0.3rem", marginBottom: 0, fontWeight: 600 }}>{tags.join(" · ")}</p>
-            )}
+            <p style={{ color: accent, fontSize: "0.86rem", lineHeight: 1.5, margin: "0.3rem 0 0", fontWeight: 600 }}>{effect}</p>
           </div>
         );
       })}
