@@ -49,16 +49,24 @@ function withinDailyWindow(date: string): boolean {
   const d = Date.parse(date + "T00:00:00Z");
   if (Number.isNaN(d)) return false;
   const t = Date.parse(todayUTC() + "T00:00:00Z");
-  return Math.abs(d - t) <= 24 * 60 * 60 * 1000 + 1000;
+  const day = 24 * 60 * 60 * 1000;
+  // [today-2, today+1] in UTC. Max tz offset is <24h, so a user's LOCAL yesterday can land on
+  // UTC today-2 (far-west evening) and their local today/tomorrow on today+1 — this window makes
+  // "yesterday + today" free in EVERY timezone (David's free-tier line). Deeper history is premium.
+  return d >= t - 2 * day - 1000 && d <= t + day + 1000;
 }
 
-async function guardedDate(ctx: GenCtx, requested: string | undefined): Promise<string> {
+// Returns the date to read, or null = "blocked" (deeper history/future for a non-entitled user).
+// null → the caller returns a locked/unavailable shape: we NEVER silently serve today's read under
+// another date's header (a wrong-content, data-accuracy bug), and we never generate a fresh billed
+// read for a walked date (the wallet drain). Deeper dates are the pick-a-date premium.
+async function guardedDate(ctx: GenCtx, requested: string | undefined): Promise<string | null> {
   const today = todayUTC();
   const date = requested ?? today;
   if (withinDailyWindow(date)) return date;
   const { hasFeature } = await import("../feature-flags.js");
   const canPickDate = ctx.user.role === "admin" || (await hasFeature(ctx.user as any, "specialReadings"));
-  if (!canPickDate) return today; // clamp non-entitled to today — the wallet drain is closed here
+  if (!canPickDate) return null; // deeper history = premium: locked, not silently-today
   rateLimit(ctx.req, "narrative-pickdate", { max: 40, windowMs: 15 * 60 * 1000 }); // entitled: cap the pick-a-date generation surface (defense-in-depth)
   return date;
 }
@@ -78,6 +86,7 @@ export const narrativeRouter = router({
   glance: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = await guardedDate(ctx, input.date);
+    if (!date) return { available: false as const, locked: true as const, content: null, generatedAt: null, cached: false };
     try {
       const u = await getUserById(ctx.user.id);
       // Day-mode from the viewer's location basis (same as the hero) — so the read and the hero
@@ -113,6 +122,7 @@ export const narrativeRouter = router({
     // can't be called around the paywall for a free billed year read.
     if (!(await canYearSight(ctx.user))) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
     const date = await guardedDate(ctx, input.date);
+    if (!date) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
     // The deepened "stage + guests" read is an admin-only preview of the paid tier — a
     // non-admin can never obtain it, so the fast-tier detail stays behind the upsell.
     const deepened = (input.deepened ?? false) && ctx.user.role === "admin";
@@ -133,6 +143,7 @@ export const narrativeRouter = router({
   dayRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = await guardedDate(ctx, input.date);
+    if (!date) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
       const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
@@ -149,6 +160,7 @@ export const narrativeRouter = router({
   cast: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = await guardedDate(ctx, input.date);
+    if (!date) return { available: false as const, locked: true as const, cast: null, generatedAt: null, cached: false };
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
       const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
@@ -280,6 +292,7 @@ export const narrativeRouter = router({
   chapter: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = await guardedDate(ctx, input.date);
+    if (!date) return { available: false as const, locked: true as const, chapter: null, generatedAt: null, cached: false };
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
       return await getChapterCached(input.profileId, date, input.refresh ?? false, dayLoc);
@@ -319,6 +332,7 @@ export const narrativeRouter = router({
   setLock: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional(), locked: z.boolean() })).mutation(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = await guardedDate(ctx, input.date);
+    if (!date) return { locked: false }; // can't pin a date outside the free window (premium pick-a-date)
     // Ensure both surfaces exist before locking, so there's a row to pin — with the SAME
     // dayLoc the DISPLAY path used (audit M1). Without it the ensure-exists hashed a
     // no-location (noon-UTC) input, MISSED the user's actual read, regenerated a different
