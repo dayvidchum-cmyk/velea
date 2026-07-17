@@ -96,7 +96,8 @@ export async function generateGlance(input: NarrativeInput): Promise<GlanceConte
       messages: [{ role: "user", content: JSON.stringify(input) }],
     });
     const block = msg.content.find((b) => b.type === "tool_use");
-    return block && block.type === "tool_use" ? (block.input as GlanceContent) : null;
+    if (!block || block.type !== "tool_use") { logGenError("generateGlance", `reply had no tool block (stop_reason=${msg.stop_reason})`); return null; }
+    return block.input as GlanceContent;
   } catch (err) {
     // Dry wallet (400 "credit balance too low"), rate limit, timeout, network — ANY API failure
     // returns null so callers fall back to static copy instead of a blank day.
@@ -147,8 +148,9 @@ export async function generateDeepRead(input: NarrativeInput): Promise<DeepRead 
       messages: [{ role: "user", content: JSON.stringify(input) }],
     });
     const block = msg.content.find((b) => b.type === "tool_use");
-    if (!block || block.type !== "tool_use") return null;
-    return isCompleteDeepRead(block.input) ? scrubDeepRead(block.input as DeepRead) : null;
+    if (!block || block.type !== "tool_use") { logGenError("generateDeepRead", `reply had no tool block (stop_reason=${msg.stop_reason})`); return null; }
+    if (!isCompleteDeepRead(block.input)) { logGenError("generateDeepRead", `incomplete tool input (stop_reason=${msg.stop_reason})`); return null; }
+    return scrubDeepRead(block.input as DeepRead);
   } catch (err) {
     logGenError("generateDeepRead", err);
     return null;
@@ -197,8 +199,9 @@ export async function generateChapter(input: NarrativeInput): Promise<Chapter | 
       messages: [{ role: "user", content: JSON.stringify(input) }],
     });
     const block = msg.content.find((b) => b.type === "tool_use");
-    if (!block || block.type !== "tool_use") return null;
-    return isCompleteChapter(block.input) ? scrubChapter(block.input as Chapter) : null;
+    if (!block || block.type !== "tool_use") { logGenError("generateChapter", `reply had no tool block (stop_reason=${msg.stop_reason})`); return null; }
+    if (!isCompleteChapter(block.input)) { logGenError("generateChapter", `incomplete tool input (stop_reason=${msg.stop_reason})`); return null; }
+    return scrubChapter(block.input as Chapter);
   } catch (err) {
     logGenError("generateChapter", err);
     return null;
@@ -346,8 +349,11 @@ async function callGuarded<T>(o: {
       messages: [{ role: "user", content: JSON.stringify(o.input) }],
     });
     const block = msg.content.find((b) => b.type === "tool_use");
-    if (!block || block.type !== "tool_use") return null;
-    return o.complete(block.input) ? (block.input as T) : null;
+    // These two nulls were SILENT until the 2026-07-17 outage — a truncated or tool-less
+    // reply produced a quiet surface with an empty black box. Now they're recorded.
+    if (!block || block.type !== "tool_use") { logGenError(o.toolName, `reply had no tool block (stop_reason=${msg.stop_reason})`); return null; }
+    if (!o.complete(block.input)) { logGenError(o.toolName, `incomplete tool input (stop_reason=${msg.stop_reason}; keys=${Object.keys((block.input as any) ?? {}).join(",") || "none"})`); return null; }
+    return block.input as T;
   };
   let best = await run();
   if (!best) return null;
