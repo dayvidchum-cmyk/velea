@@ -30,7 +30,7 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 // The life areas the reading can be pointed at — each routes server-side to its own divisional
 // chart (life-areas.ts, from Kurczak & Fish Appendix IV). Display metadata only; the server
 // validates the key. Order mirrors LIFE_AREA_ORDER.
-import { AREA_SHELVES, AREA_LABEL } from "@shared/life-area-shelves";
+import { AREA_SHELVES, AREA_LABEL, SUB_THEME } from "@shared/life-area-shelves";
 // Legacy parent keys — kept so purchases made before the shelves still label correctly.
 const LIFE_AREAS: { key: string; label: string }[] = [
   { key: "self", label: "Self & Body" },
@@ -466,9 +466,15 @@ export default function Horoscope() {
             {purchasedSet.has(selectedDate) && <OctagramMark size={16} color={GOLD} strokeWidth={1.2} />}
             <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--foreground)", margin: 0, letterSpacing: "-0.01em" }}>{fmtLong(selectedDate)}</h2>
           </div>
-          <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.7rem", opacity: 0.85 }}>
+          <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.25rem", opacity: 0.85 }}>
             {areaLabel(selectedArea)}
           </p>
+          {/* THE BRIDGE — from this seat's question to its whole-life seasons in the Atlas. */}
+          {SUB_THEME[selectedArea] && (
+            <button onClick={() => navigate(`/atlas?theme=${SUB_THEME[selectedArea]}`)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "none", border: "none", padding: 0, margin: "0 0 0.7rem", cursor: "pointer", color: "var(--brand-gold)", fontSize: "0.74rem", fontWeight: 600 }}>
+              Seasons of this seat → the Atlas
+            </button>
+          )}
 
           {readingLoading ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>

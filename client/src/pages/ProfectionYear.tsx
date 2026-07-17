@@ -1,3 +1,4 @@
+import ProseCard from "@/components/ProseCard";
 import GateMark from "@/components/GateMark";
 import { trpc } from "../lib/trpc";
 import VeleaLoader from "@/components/VeleaLoader";
@@ -150,6 +151,8 @@ export default function ProfectionYear() {
   const [tlOpen, setTlOpen] = useState(false);
   const [triggerOpen, setTriggerOpen] = useState(false);
   const [roadOpen, setRoadOpen] = useState(false);
+  // ONE WINDOW ON THE YEAR-LORD'S ROAD — which band's read is open (tap-gated).
+  const [tlRead, setTlRead] = useState<{ from: string; sign: string } | null>(null);
   const [explainerOpen, setExplainerOpen] = useState(false);
   const [wheelOpen, setWheelOpen] = useState(true); // wheel is the tab's ONE primary — stays open
   const [whyNowOpen, setWhyNowOpen] = useState(false);
@@ -209,6 +212,10 @@ export default function ProfectionYear() {
   // The Road Ahead is THE FUTURE — strategically locked (David 2026-07-16); testers via flag.
   const featuresQ = trpc.features.mine.useQuery();
   const roadEntitled = isAdmin || !!(featuresQ.data as any)?.specialReadings;
+  const tlWindowQ = trpc.narrative.tlWindowRead.useQuery(
+    { from: tlRead?.from ?? "", sign: tlRead?.sign ?? "" },
+    { enabled: !!tlRead, staleTime: Infinity, retry: false },
+  );
   // The Road Ahead is admin-only (David) for now — only query it for admins.
   const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false, enabled: isAdmin });
   const utils = trpc.useUtils();
@@ -817,6 +824,41 @@ export default function ProfectionYear() {
                           <span style={{ color: TEXT_PRIMARY, fontWeight: 500, textAlign: "right" }}>{value}</span>
                         </div>
                       ))}
+                      {/* THE WINDOW'S OWN READ (David 2026-07-17: "build it") — a begun
+                          window reads; a future window waits behind the gate (time-gate law). */}
+                      {(() => {
+                        const todayIso = new Date().toISOString().slice(0, 10);
+                        const begun = sel.startDate <= todayIso;
+                        const mine = tlRead?.from === sel.startDate;
+                        const ink = SIGN_COLOR[sel.sign] ?? modeColor;
+                        const d: any = tlWindowQ.data;
+                        if (!begun) return (
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "0.65rem" }}>
+                            <GateMark size={13} />
+                            <span style={{ fontSize: "0.78rem", color: TEXT_MUTED }}>This window hasn't opened — it reads when it arrives.</span>
+                          </div>
+                        );
+                        return (
+                          <div style={{ marginTop: "0.7rem" }}>
+                            {!mine ? (
+                              <button onClick={() => setTlRead({ from: sel.startDate, sign: sel.sign })} className="w-full py-2 rounded-full text-[11px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: ink, border: `1px solid color-mix(in srgb, ${ink} 60%, transparent)`, background: "transparent", cursor: "pointer" }}>
+                                Read this window
+                              </button>
+                            ) : tlWindowQ.isLoading ? (
+                              <VeleaLoader size={20} label="Reading the window…" />
+                            ) : d?.available && d.read ? (
+                              <ProseCard color={ink}>{[d.read.scene, d.read.story, d.read.tilt, d.read.closeLine].filter(Boolean).join("\n\n")}</ProseCard>
+                            ) : d?.locked ? (
+                              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                <GateMark size={13} />
+                                <span style={{ fontSize: "0.78rem", color: TEXT_MUTED }}>Opens with the full library. Soon.</span>
+                              </div>
+                            ) : (
+                              <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: TEXT_MUTED, margin: 0 }}>The window is quiet — try again in a moment.</p>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>

@@ -179,6 +179,47 @@ export const narrativeRouter = router({
     }
   }),
 
+  // ONE WINDOW ON THE YEAR-LORD'S ROAD (David 2026-07-17: "build it") — the TL path's
+  // sign-band detail grows its own read. Time gate: BEGUN windows read; future ones wait.
+  tlWindowRead: protectedProcedure.input(z.object({ from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), sign: z.string().min(3).max(16), refresh: z.boolean().optional() })).query(async ({ ctx, input }) => {
+    try {
+      const { hasFeature } = await import("../feature-flags.js");
+      if (!(await hasFeature(ctx.user, "chapterReader"))) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+      const { getActiveProfile } = await import("../routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
+      const today = new Date().toISOString().slice(0, 10);
+      if (ctx.user.role !== "admin" && input.from > today) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+      const { getDb } = await import("../db.js");
+      const db = await getDb();
+      if (!db) return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
+      const { timeLordTransits } = await import("../../drizzle/schema.js");
+      const { and, eq } = await import("drizzle-orm");
+      const rows = await db.select().from(timeLordTransits).where(and(eq(timeLordTransits.userId, ctx.user.id), eq(timeLordTransits.startDate, input.from), eq(timeLordTransits.sign, input.sign)));
+      const row: any = rows.find((r: any) => r.profileId === profile.id) ?? rows.find((r: any) => r.profileId == null) ?? rows[0];
+      if (!row) return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
+      const SIGNS_Z = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+      const HOUSE_GLOSS: Record<number, string> = { 1: "the self and the body", 2: "money and livelihood", 3: "the craft and the close circle", 4: "home and roots", 5: "the heart and its creations", 6: "the daily work and health", 7: "partnership", 8: "the shared and the hidden", 9: "belief and the far horizon", 10: "standing in the world", 11: "community and gains", 12: "rest and release" };
+      const lagna = (profile as any).lagnaSign as string | null;
+      const house = lagna ? ((SIGNS_Z.indexOf(input.sign) - SIGNS_Z.indexOf(lagna) + 12) % 12) + 1 : row.house;
+      let cond: any = null;
+      try { cond = JSON.parse(row.condition ?? "null"); } catch { cond = row.condition; }
+      const tlInput = {
+        tlWindow: {
+          timeLord: row.timeLord, sign: input.sign, from: row.startDate, to: row.endDate,
+          house, houseGloss: HOUSE_GLOSS[house], nakshatra: row.nakshatra,
+          retro: !!row.isRetrograde, condition: cond,
+          operationalMeaning: row.operationalMeaning, recommendedUse: row.recommendedUse,
+        },
+      };
+      const { getTlWindowReadCached } = await import("./service.js");
+      return await getTlWindowReadCached(profile.id, input.from, tlInput, input.refresh ?? false);
+    } catch (e) {
+      console.error("[narrative.tlWindowRead]", e);
+      return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
+    }
+  }),
+
   chapter: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();

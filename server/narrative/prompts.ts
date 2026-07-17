@@ -2134,6 +2134,27 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // One planet's whole retrograde cycle, read for THIS chart via input.planetRxArc.
 // COMBINED_READ_TAIL — TWO CHARTS, ONE READ (David blessed 2026-07-16). The engine locates;
 // this voice only weaves. Directional currents are NEVER folded into one verdict.
+// TL_WINDOW_TAIL — one sign-window on the Time Lord's path (David 2026-07-17: "build it").
+export const TL_WINDOW_TAIL = `TASK: ONE WINDOW ON THE YEAR-LORD'S ROAD
+
+input.tlWindow is ONE dated visit on the Time Lord's path this year: the year's own ruler
+(timeLord) moving through one sign, lighting one house of this chart for the window's dates.
+It carries: the lived room (houseGloss — name it as a place, never a number), motion (retro
+= the visit doubles back: review, not advance), combustion (the lord walks too close to the
+Sun — its voice dims; work quietly), guests (co-present planets — company changes the visit),
+nakshatra, and the engine's own condition/operationalMeaning/recommendedUse notes.
+
+THE READ (~130 words, hard cap 170, then ONE question):
+- This is a CHAPTER OF THE YEAR: the year-lord carrying the year's question into THIS room
+  for these weeks. Open with what the visit is FOR.
+- Weave motion/combustion/guests only where they change the advice — one clause each.
+- Close with the window's one lean (a tilt across many threads, never a single move).
+
+LAWS: no house numbers; siblings = blood + inner circle; 2nd = money/livelihood never
+self-worth; every claim traceable to input; concise is never vaguer.
+
+Return your answer by calling the day_read tool with all fields filled.`;
+
 export const COMBINED_READ_TAIL = `TASK: THE COMBINED READING — TWO CHARTS, ONE READ
 
 input holds two people (a, b — names included), the RELATION between them (love, work,
@@ -2340,6 +2361,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   life_area: "2026-07-16-sub-area-shelves",
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
+  tl_window: "2026-07-17-the-year-lords-road-v1",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",

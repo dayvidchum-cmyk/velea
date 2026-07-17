@@ -27,7 +27,7 @@ import { dashaTree } from "./dasha-tree";
 import { GRAHAS, type Graha, SIGN_RULER, planetDignity } from "./dignity";
 import { signIndexOf, signName } from "./vargas";
 
-export const CONVERGENCE_ENGINE_VERSION = "convergence-v1";
+export const CONVERGENCE_ENGINE_VERSION = "convergence-v2-heavylord";
 
 /** Per-theme convergence inside one pratyantar span (compact — only themes with a tie). */
 export interface ThemeConvergence {
@@ -58,6 +58,8 @@ export interface ConvergenceInput {
   lagnaLon: number;
   /** Exact birth instant (UTC ms) — the dasha clock. */
   birthUtcMs: number;
+  /** Degree-true MC longitude (timed charts only) — enables THE HEAVY LORD. */
+  mcLon?: number | null;
 }
 
 const ALL_BODIES = [...GRAHAS, "Rahu", "Ketu"];
@@ -92,6 +94,20 @@ export function computeConvergenceTimeline(input: ConvergenceInput): Convergence
   const natal = natalMapOf(input.lonBy, input.lagnaLon);
   const spans = dashaTree(input.birthUtcMs, input.lonBy.Moon, 3).filter((p) => p.level === 3);
 
+  // THE HEAVY LORD (David's law, decided 2026-07-17 by the proving case — Simone's
+  // engagement: "when a dasha lord lands on the Meridian, it's the whole reading"):
+  // a period lord SEATED on the degree-true MC/IC axis (sign-level occupancy, matching
+  // meridianOnAxis semantics) has each of its ACTIVE ties count double. Timed charts
+  // only — no MC, no weighting (Chandra charts skip, as everywhere).
+  const axisSeated = new Set<string>();
+  if (input.mcLon != null) {
+    const mcIdx = signIndexOf(input.mcLon), icIdx = (mcIdx + 6) % 12;
+    for (const [planet, lon] of Object.entries(input.lonBy)) {
+      const si = signIndexOf(lon);
+      if (si === mcIdx || si === icIdx) axisSeated.add(planet);
+    }
+  }
+
   // One buildKnots call per DISTINCT lord-triple; spans sharing a triple share the result.
   const cache = new Map<string, Partial<Record<KnotTheme, ThemeConvergence>>>();
   const themesFor = (maha: string, antar: string, praty: string) => {
@@ -107,10 +123,13 @@ export function computeConvergenceTimeline(input: ConvergenceInput): Convergence
       themes = {};
       for (const k of all) {
         if (k.convergence >= 1) {
+          // Heavy-lord weighting: each axis-seated ACTIVE lord adds one more line.
+          const heavy = (k.activeLords ?? []).filter((L: string) => axisSeated.has(L)).length;
+          const convergence = k.convergence + heavy;
           themes[k.theme] = {
-            convergence: k.convergence,
+            convergence,
             mahaTied: k.mahaTied,
-            lit: k.lit,
+            lit: k.mahaTied && convergence >= 2,
             lords: k.activeLords,
           };
         }

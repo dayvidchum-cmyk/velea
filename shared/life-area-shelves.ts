@@ -66,6 +66,21 @@ export const AREA_SHELVES: { label: string; areas: SubArea[] }[] = [
 export const SUB_AREAS: SubArea[] = AREA_SHELVES.flatMap((s) => s.areas);
 export const AREA_LABEL: Record<string, string> = Object.fromEntries(SUB_AREAS.map((a) => [a.key, a.label]));
 
+/** THE BRIDGE — each sub-seat's nearest stored atlas theme (the knot vocabulary is 10
+ *  themes; seats without an honest home map to null rather than lie). Used for the
+ *  "seasons of this seat" deep-link into the Life Atlas. */
+export const SUB_THEME: Record<string, string | null> = {
+  money_livelihood: "wealth", money_kept: "wealth", money_gains: "wealth", money_salary: "career",
+  money_fortune: "wealth", money_debts: "wealth", money_shared: "wealth", money_risked: "wealth",
+  love_union: "marriage", love_romance: "marriage", love_bed: "marriage", love_friend: "siblings",
+  calling_standing: "career", calling_craft: "career", calling_service: "career", calling_venture: "career",
+  family_mother: "parents", family_father: "parents", family_siblings: "siblings", family_roots: "parents",
+  home_hearth: "home", home_land: "home", home_moves: "home",
+  body_vitality: "health", body_illness: "health", body_hidden: "health", body_rest: "health",
+  create_children: "children", create_art: "children", create_students: "children",
+  spirit_faith: null, spirit_study: null, spirit_release: null, spirit_journeys: null,
+};
+
 /** Resolve any picker key: a sub-area returns its parent + focus; unknown returns null. */
 export function resolveArea(key: string): { parent: string; focus: AreaFocus } | null {
   const a = SUB_AREAS.find((x) => x.key === key);

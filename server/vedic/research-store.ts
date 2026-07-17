@@ -219,7 +219,7 @@ export async function storeConvergence(input: StoreChartInput, researchStatus?: 
 
     const lonBy: Record<string, number> = {};
     for (const [name, b] of Object.entries(input.bodies)) lonBy[name] = b.longitude;
-    const spans = computeConvergenceTimeline({ lonBy, lagnaLon: input.lagnaLon, birthUtcMs });
+    const spans = computeConvergenceTimeline({ lonBy, lagnaLon: input.lagnaLon, birthUtcMs, mcLon: input.mcLon });
 
     await db.transaction(async (tx) => {
       await tx.delete(profileConvergence).where(eq(profileConvergence.profileId, input.profileId));

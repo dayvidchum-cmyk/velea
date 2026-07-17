@@ -307,6 +307,33 @@ export async function getMercuryRxCached(profileId: number, date: string, refres
   return { available: true, read, cycle: { stationRetro: cycleKey, phaseNow: arc.phaseNow }, generatedAt: new Date(), cached: false };
 }
 
+/** ONE WINDOW ON THE YEAR-LORD'S ROAD — cached per (profile, window start); the row's
+ *  own engine notes are the input, so the hash is window-stable. */
+export async function getTlWindowReadCached(profileId: number, from: string, input: any, refresh = false): Promise<{ available: boolean; read: any | null; generatedAt: Date | string | null; cached: boolean }> {
+  if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
+  const surface = "tl_window";
+  const dateKey = `tlw-${from}`;
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(input)).digest("hex");
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, dateKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        if (isCompleteDayRead(read)) return { available: true, read, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generateTlWindowRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
+    const r = await generateTlWindowRead(input);
+    if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, generatedAt: null, cached: false };
+  return { available: true, read, generatedAt: new Date(), cached: false };
+}
+
 /** THE COMBINED READING — two charts, one read; cached on the OWNER profile's row,
  *  keyed per (other profile, relation); hash covers the whole located input, so an
  *  antar turn on either clock regenerates (correct — the timing layer moved). */

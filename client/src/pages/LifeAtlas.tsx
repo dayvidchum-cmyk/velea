@@ -19,7 +19,10 @@ export default function LifeAtlas() {
   const [, navigate] = useLocation();
   const { data } = trpc.atlas.windows.useQuery(undefined, { staleTime: 30 * 60_000 });
   const entitled = data?.entitled === true;
-  const [openTheme, setOpenTheme] = useState<string | null>(null);
+  // ?theme= deep-link — the bridge from a life-area seat to its seasons.
+  const [openTheme, setOpenTheme] = useState<string | null>(() => {
+    try { return new URLSearchParams(window.location.search).get("theme"); } catch { return null; }
+  });
   const [openWindow, setOpenWindow] = useState<{ theme: string; label: string; w: any } | null>(null);
   const readQ = trpc.atlas.themeRead.useQuery(
     { theme: openTheme ?? "" },
