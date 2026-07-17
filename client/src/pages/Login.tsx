@@ -1,14 +1,26 @@
 import { useState } from "react";
 import InstallGuide from "@/components/InstallGuide";
 import VeleaLoader from "@/components/VeleaLoader";
-import { Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useTheme } from "@/contexts/ThemeContext";
 
-const GOLD = "#C9A84C";
+/**
+ * THE LOGIN IS THE GATE (David 2026-07-18: "Let's do it. One day one night. We can try
+ * and see.") — the login screen is the one place the Time Gate is literally true: you
+ * stand outside, the lions watch, you enter THROUGH the doorway. David's two ceremonial
+ * gate engravings (his art, use-the-file law): GOLD by day, SILVER by night, picked by
+ * the local clock (v1: 6am–6pm; upgrade to true sunrise/sunset later). The form sits
+ * seated in the doorway's dark slot. Art is shown WHOLE (contain on black — the
+ * letterbox is invisible because the art's own ground is black). This page deliberately
+ * commits to the night-world look in both app themes.
+ */
 
 type Mode = "signin" | "signup";
+
+// Gate art aspect ratio (both engravings ≈ 900×1123 → 0.8016). The doorway's dark slot
+// centers at ~73.5% of the image height; the min() picks the right anchor whether the
+// viewport fits the art by height (desktop) or by width (phones).
+const DOOR_ANCHOR = "min(73.5dvh, calc(50dvh + 29.3vw))";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -27,10 +39,14 @@ export default function Login() {
   const registerMutation = trpc.auth.register.useMutation();
 
   const isSignup = mode === "signup";
-  const { theme } = useTheme();
-  const dark = theme === "dark";
-  const ink = dark ? "rgba(255,255,255,0.92)" : "#161616";
-  const inkSoft = dark ? "rgba(255,255,255,0.72)" : "rgba(0,0,0,0.6)";
+
+  // One day, one night — the door keeps time.
+  const hour = new Date().getHours();
+  const isDay = hour >= 6 && hour < 18;
+  const METAL = isDay
+    ? { hi: "#E7C766", accent: "#C9A84C", deep: "#A87E2E", btnText: "#1a1200" }
+    : { hi: "#DDE3EA", accent: "#B9C2CE", deep: "#8E97A6", btnText: "#0d1117" };
+  const art = isDay ? "/login-gate-day.jpg" : "/login-gate-night.jpg";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,55 +82,50 @@ export default function Login() {
   };
 
   const inputStyle: React.CSSProperties = {
-    background: dark ? "rgba(10,10,20,0.55)" : "rgba(255,255,255,0.18)",
-    border: `1px solid ${GOLD}`,
+    background: "rgba(6,6,9,0.72)",
+    border: `1px solid color-mix(in srgb, ${METAL.accent} 62%, transparent)`,
     borderRadius: 14,
-    padding: "1.05rem 1rem",
-    letterSpacing: "0.25em",
+    padding: "0.95rem 1rem",
+    letterSpacing: "0.22em",
     textAlign: "center",
-    caretColor: GOLD,
-    color: ink,
-    backdropFilter: "blur(3px)",
-    WebkitBackdropFilter: "blur(3px)",
+    caretColor: METAL.accent,
+    color: "#F2EFE6",
+    backdropFilter: "blur(4px)",
+    WebkitBackdropFilter: "blur(4px)",
   };
 
   const focusBorder = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = "#A87E2E";
-    e.currentTarget.style.boxShadow = `0 0 0 3px ${GOLD}22`;
+    e.currentTarget.style.borderColor = METAL.hi;
+    e.currentTarget.style.boxShadow = `0 0 0 3px ${METAL.accent}26`;
   };
   const blurBorder = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = GOLD;
+    e.currentTarget.style.borderColor = `color-mix(in srgb, ${METAL.accent} 62%, transparent)`;
     e.currentTarget.style.boxShadow = "none";
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-8 py-16"
-      style={{
-        backgroundColor: dark ? "#0b0a14" : "#FDFDFD",
-        backgroundImage: dark
-          ? "linear-gradient(180deg, rgba(6,6,16,0.5) 0%, rgba(6,6,16,0.38) 32%, rgba(6,6,16,0.8) 100%), url('/shell-night.jpg')"
-          : "linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.5) 100%), url('/shell-sunset.jpg')",
-        backgroundSize: dark ? "auto 118%" : "cover",
-        backgroundPosition: dark ? "center 78%" : "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <div className="flex flex-col items-center w-full" style={{ maxWidth: 360 }}>
-        <style>{`.velea-input::placeholder { color: ${inkSoft}; letter-spacing: 0.25em; }`}</style>
-        {/* Emblem — comet / clock / conception. */}
-        <img src="/velea-emblem.png" alt="Velea" width={168} height={168} />
+    <div style={{ minHeight: "100dvh", background: "#050505", position: "relative", overflow: "hidden" }}>
+      <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.55); letter-spacing: 0.22em; }`}</style>
 
-        {/* Wordmark */}
+      {/* THE GATE — his engraving, whole, on its own black ground. */}
+      <img
+        src={art}
+        alt=""
+        aria-hidden="true"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", userSelect: "none", pointerEvents: "none" }}
+      />
+
+      {/* Wordmark in the sky above the crest */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "max(3dvh, env(safe-area-inset-top, 0px))" }}>
         <h1
           style={{
             fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
             fontWeight: 700,
-            fontSize: "clamp(3rem, 12vw, 4.5rem)",
+            fontSize: "clamp(2rem, 8vw, 2.8rem)",
             letterSpacing: "-0.01em",
             lineHeight: 1,
-            margin: "1.25rem 0 0.5rem",
-            background: `linear-gradient(180deg, #E7C766 0%, ${GOLD} 55%, #A87E2E 100%)`,
+            margin: 0,
+            background: `linear-gradient(180deg, ${METAL.hi} 0%, ${METAL.accent} 55%, ${METAL.deep} 100%)`,
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
@@ -122,118 +133,114 @@ export default function Login() {
         >
           Velea
         </h1>
-
-        {/* Tagline */}
-        <p
-          style={{
-            fontSize: "0.95rem",
-            fontWeight: 600,
-            letterSpacing: "0.4em",
-            paddingLeft: "0.4em", // compensate trailing letter-spacing so it stays centered
-            textTransform: "uppercase",
-            color: "#FDFDFD",
-            textShadow: "0 1px 8px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.4)",
-            margin: 0,
-          }}
-        >
+        <p style={{ fontSize: "0.62rem", fontWeight: 600, letterSpacing: "0.42em", paddingLeft: "0.42em", textTransform: "uppercase", color: "rgba(242,239,230,0.6)", margin: "0.5rem 0 0" }}>
           Why now?
         </p>
+      </div>
 
-        {/* Rule */}
-        <div style={{ width: 140, height: 1, background: "#FDFDFD", opacity: 0.95, margin: "1.25rem 0 2.5rem", boxShadow: "0 0 6px rgba(0,0,0,0.45)" }} />
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="w-full space-y-4">
-          {isSignup && (
-            <input
-              type="text"
-              autoComplete="name"
-              placeholder="NAME (OPTIONAL)"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={isLoading}
-              maxLength={120}
-              className="velea-input w-full outline-none transition-all text-sm font-medium"
-              style={inputStyle}
-              onFocus={focusBorder}
-              onBlur={blurBorder}
-            />
-          )}
-
+      {/* THE THRESHOLD — the form, seated in the doorway. */}
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          position: "absolute",
+          top: DOOR_ANCHOR,
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "min(330px, 86vw)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.8rem",
+        }}
+      >
+        {isSignup && (
           <input
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="EMAIL"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            autoComplete="name"
+            placeholder="NAME (OPTIONAL)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             disabled={isLoading}
-            className="velea-input w-full outline-none transition-all text-xs font-medium"
+            maxLength={120}
+            className="velea-input w-full outline-none transition-all text-sm font-medium"
             style={inputStyle}
             onFocus={focusBorder}
             onBlur={blurBorder}
           />
+        )}
 
-          <input
-            type="password"
-            autoComplete={isSignup ? "new-password" : "current-password"}
-            required
-            minLength={isSignup ? 8 : 6}
-            placeholder={isSignup ? "PASSWORD (MIN 8)" : "PASSWORD"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-            className="velea-input w-full outline-none transition-all text-xs font-medium"
-            style={inputStyle}
-            onFocus={focusBorder}
-            onBlur={blurBorder}
-          />
+        <input
+          type="email"
+          autoComplete="email"
+          required
+          placeholder="EMAIL"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
+          className="velea-input w-full outline-none transition-all text-xs font-medium"
+          style={inputStyle}
+          onFocus={focusBorder}
+          onBlur={blurBorder}
+        />
 
-          {error && (
-            <p className="text-xs text-center" style={{ color: "#c0504d" }}>
-              {error}
-            </p>
-          )}
+        <input
+          type="password"
+          autoComplete={isSignup ? "new-password" : "current-password"}
+          required
+          minLength={isSignup ? 8 : 6}
+          placeholder={isSignup ? "PASSWORD (MIN 8)" : "PASSWORD"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
+          className="velea-input w-full outline-none transition-all text-xs font-medium"
+          style={inputStyle}
+          onFocus={focusBorder}
+          onBlur={blurBorder}
+        />
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full transition-all active:scale-[0.98] disabled:opacity-50"
-            style={{
-              background: GOLD,
-              color: "#1a1200",
-              borderRadius: "14px",
-              padding: "1rem",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              marginTop: "0.5rem",
-            }}
-          >
-            {isLoading ? (
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.55rem" }}>
-                <VeleaLoader size={15} />
-                {isSignup ? "Creating…" : "Signing in…"}
-              </span>
-            ) : (isSignup ? "Create Account" : "Sign In")}
-          </button>
-        </form>
+        {error && (
+          <p className="text-xs text-center" style={{ color: "#E08A85", margin: 0, textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}>
+            {error}
+          </p>
+        )}
 
-        {/* Signup is invite-only: the toggle appears solely when arriving via an invite link
-            (…/login?code=XXXX). A plain visit stays sign-in only. */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full transition-all active:scale-[0.98] disabled:opacity-50"
+          style={{
+            background: `linear-gradient(180deg, ${METAL.hi}, ${METAL.accent} 55%, ${METAL.deep})`,
+            color: METAL.btnText,
+            borderRadius: 14,
+            padding: "0.95rem",
+            fontSize: "0.72rem",
+            fontWeight: 700,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+          }}
+        >
+          {isLoading ? (
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.55rem" }}>
+              <VeleaLoader size={15} />
+              {isSignup ? "Opening…" : "Entering…"}
+            </span>
+          ) : (isSignup ? "Create Account" : "Enter")}
+        </button>
+      </form>
+
+      {/* Below the threshold: invite toggle + install guide */}
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: "max(0.9rem, env(safe-area-inset-bottom, 0px))" }}>
         {canSignup && (
           <button
             type="button"
             onClick={toggleMode}
-            style={{ marginTop: "1rem", background: "none", border: "none", color: inkSoft, fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", width: "100%", textAlign: "center" }}
+            style={{ background: "none", border: "none", color: "rgba(242,239,230,0.6)", fontSize: "0.78rem", cursor: "pointer", textDecoration: "underline", textAlign: "center", marginBottom: "0.4rem" }}
           >
             {isSignup ? "Already have an account? Sign in" : "Have an invite? Create your account"}
           </button>
         )}
-
-        {/* Nana-grade install steps — device-detected, collapsed, gone once installed. */}
-        <InstallGuide />
+        <div style={{ width: "min(360px, 90vw)" }}>
+          <InstallGuide />
+        </div>
       </div>
     </div>
   );
