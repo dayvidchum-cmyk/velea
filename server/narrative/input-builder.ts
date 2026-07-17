@@ -108,7 +108,12 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const owner = await db.select({ role: users.role }).from(users).where(eq(users.id, p.userId)).limit(1);
   const ownerIsAdmin = owner[0]?.role === "admin";
   let bodies = await db.select().from(profileNatalBodies).where(eq(profileNatalBodies.profileId, p.id));
-  if (!bodies.length && p.birthDate) {
+  // Self-heal also when the MOON is missing, not only when the set is fully empty (audit M3):
+  // a PARTIAL bodies set (interrupted recompute / failed migration) passed the length check,
+  // then `moon.nakshatra` below threw TypeError → every surface returned available:false with
+  // no signal. A missing Moon is as unusable as an empty chart, so it triggers the same repair.
+  const hasMoon = (bs: typeof bodies) => bs.some((b) => b.planet === "Moon");
+  if ((!bodies.length || !hasMoon(bodies)) && p.birthDate) {
     // SELF-HEAL: a profile with birth data but no per-planet natal bodies (e.g. a friend login
     // created before createProfileUser computed the full chart). Recompute once from the stored
     // birth data, then re-fetch — so a blank chart repairs itself on first read, no admin step.
@@ -130,6 +135,8 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     }
   }
   if (!bodies.length) throw new Error(`profile ${profileId} has no natal bodies`);
+  // Clean, explicit error instead of a raw TypeError deep in the builder (audit M3).
+  if (!hasMoon(bodies)) throw new Error(`profile ${profileId} natal bodies missing the Moon (partial chart)`);
 
   const lagna = p.lagnaSign;
   const lat = parseFloat(p.birthLocationLat || "42.36");

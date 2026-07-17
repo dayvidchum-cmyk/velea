@@ -124,7 +124,7 @@ export const narrativeRouter = router({
           const houseOf = (planet: string) => (research?.houses ?? []).find((h: any) => (h.occupants ?? []).some((o: any) => (o.planet ?? o) === planet))?.house ?? null;
           const open = new Set([1, houseOf("Sun"), houseOf("Moon")].filter(Boolean));
           if (!open.has(input.house)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
-        } catch { return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const; }
+        } catch { /* audit M20: a thrown error here is a transient hiccup (DB, missing row), NOT a paywall — return unavailable, not locked, so an owner isn't shown a lock until it clears */ return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const; }
       }
       const { getHouseReadCached } = await import("./service.js");
       return await getHouseReadCached(profile.id, input.house, input.refresh ?? false);
@@ -169,7 +169,7 @@ export const narrativeRouter = router({
             const askIdx = inMaha.findIndex((e: any) => e.antardasha === input.antar);
             if (askIdx < 0 || curIdx < 0 || askIdx > curIdx) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
           }
-        } catch { return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const; }
+        } catch { /* audit M20: a thrown error here is a transient hiccup (DB, missing row), NOT a paywall — return unavailable, not locked, so an owner isn't shown a lock until it clears */ return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const; }
       }
       const { getDashaReadCached } = await import("./service.js");
       return await getDashaReadCached(profile.id, input.lord, input.span, input.refresh ?? false, input.antar);

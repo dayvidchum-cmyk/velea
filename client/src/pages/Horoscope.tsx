@@ -185,11 +185,16 @@ export default function Horoscope() {
               <DayReadBody read={todayReadContent} modeColor={modeColor} />
               <button onClick={() => navigate("/")} style={hubLinkStyle(modeColor)}>Open Today →</button>
             </>
-          ) : <SectionLoading label="Reading today…" />}
+          ) : todayReadRes === undefined ? (
+            <SectionLoading label="Reading today…" />
+          ) : (
+            // Settled but no read (audit M7: don't spin forever) — honest, not a permanent loader.
+            <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>This reading couldn't be drawn just now — try again in a moment.</p>
+          )}
         </HubSection>
 
         <HubSection title="Your year" subtitle="From your birthday to your next birthday — your solar year, not the calendar year" open={yearOpen} onToggle={() => setYearOpen((o) => !o)} accent={modeColor}>
-          {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : <SectionLoading label="Reading your year…" />}
+          {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : yearReadRes === undefined ? <SectionLoading label="Reading your year…" /> : <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>This reading couldn't be drawn just now — try again in a moment.</p>}
         </HubSection>
 
         {/* Time Master + Hora — the premium timing layer, now living in Readings. Each carries its own
