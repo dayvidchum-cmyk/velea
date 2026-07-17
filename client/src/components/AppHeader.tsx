@@ -250,7 +250,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
                 "Velea" and the last segment sits flush-right under the golden-hour readout — the
                 dateline spans the same width as the brand line above it. Each segment is grouped so
                 its bullet stays attached to its word. Scrolls if a screen is too narrow to fit. */}
-            <div className="no-scrollbar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "nowrap", whiteSpace: "nowrap", overflowX: "auto", overflowY: "hidden", gap: "0.3rem", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+            <div className="no-scrollbar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "nowrap", whiteSpace: "nowrap", overflowX: "auto", overflowY: "hidden", gap: "0.3rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
               <span style={{ color: modeColor, flexShrink: 0 }}>{shortDateLabel}</span>
               <span style={{ color: modeColor, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{stampTime}</span>
               {stampModeLabel && (
