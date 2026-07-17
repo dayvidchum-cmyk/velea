@@ -307,6 +307,39 @@ export async function getMercuryRxCached(profileId: number, date: string, refres
   return { available: true, read, cycle: { stationRetro: cycleKey, phaseNow: arc.phaseNow }, generatedAt: new Date(), cached: false };
 }
 
+/** THE SLOW REVIEWS — Venus/Mars/Jupiter/Saturn cycle readings, cached once per cycle
+ *  per planet (dateKey `rx-{planet}-{stationRetroDate}`); the Mercury pattern, familied. */
+export async function getPlanetRxCached(profileId: number, planet: "venus" | "mars" | "jupiter" | "saturn", date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, rxArcPlanet: planet });
+  const arc = input.planetRxArc;
+  if (!arc) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+
+  const surface = "planet_rx";
+  const cycleKey = `rx-${planet}-${arc.stationRetroDate}`;
+  const stable = { profileId, planet, lagna: input.natal?.lagna, r: arc.stationRetroDate, d: arc.stationDirectDate, h: arc.house, h2: arc.house2 ?? null, disp: arc.dispositor?.planet, self: arc.selfSeat, hits: arc.hits };
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
+
+  if (!refresh) {
+    const row = await getNarrativeCache(profileId, surface, cycleKey);
+    if (row && (row.locked || row.inputHash === hash)) {
+      try {
+        const read = JSON.parse(row.content);
+        if (isCompleteDayRead(read)) return { available: true, read, cycle: { stationRetro: arc.stationRetroDate, phaseNow: arc.phaseNow, planet: arc.planet } as any, generatedAt: row.generatedAt, cached: true };
+      } catch { /* regenerate on corrupt cache */ }
+    }
+  }
+  const { generatePlanetRxRead } = await import("./generate.js");
+  const read = await singleFlight(`${surface}:${profileId}:${cycleKey}:${hash}`, async () => {
+    const r = await generatePlanetRxRead(input);
+    if (r) await upsertNarrativeCache(profileId, surface, cycleKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+  return { available: true, read, cycle: { stationRetro: arc.stationRetroDate, phaseNow: arc.phaseNow, planet: arc.planet } as any, generatedAt: new Date(), cached: false };
+}
+
 // PEEK — read-only: is there ALREADY a cached Mercury-rx reading for the current cycle? Never generates.
 export async function peekMercuryRxCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };

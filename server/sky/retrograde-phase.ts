@@ -96,24 +96,34 @@ export interface MercuryRxCycle {
 }
 
 /**
- * The Mercury retrograde CYCLE relevant to `dateStr` — the whole arc (pre-shadow → station R →
- * retrograde → station D → retroshade) for the episode that is currently active OR approaching within
- * ~45 days. Returns null when no cycle is in range (Mercury clear). The period-reading analog of
- * nextEclipseSeason: raw astronomy only; the chart mapping (houses/hits) happens in the input-builder.
+ * ONE PLANET'S retrograde CYCLE relevant to `dateStr` — the whole arc (pre-shadow → station R →
+ * retrograde → station D → retroshade) for the episode active OR approaching within the planet's
+ * lookahead. Generalized from Mercury (David 2026-07-16: "we have mercury done") — same sweep,
+ * per-planet windows sized to each planet's shadow-to-shadow span. Raw astronomy only; the chart
+ * mapping happens in the input-builder.
  */
-export async function mercuryRxCycle(dateStr: string, lookaheadDays = 45): Promise<MercuryRxCycle | null> {
-  const BACK = 25, FWD = 135;
+export type RxPlanet = "mercury" | "venus" | "mars" | "jupiter" | "saturn";
+const RX_WINDOWS: Record<RxPlanet, { back: number; fwd: number; lookahead: number }> = {
+  mercury: { back: 25, fwd: 135, lookahead: 45 },
+  venus:   { back: 60, fwd: 280, lookahead: 60 },
+  mars:    { back: 100, fwd: 360, lookahead: 75 },
+  jupiter: { back: 140, fwd: 430, lookahead: 90 },
+  saturn:  { back: 160, fwd: 470, lookahead: 90 },
+};
+export type PlanetRxCycle = MercuryRxCycle & { planet: RxPlanet };
+
+export async function planetRxCycle(planet: RxPlanet, dateStr: string): Promise<PlanetRxCycle | null> {
+  const { back: BACK, fwd: FWD, lookahead } = RX_WINDOWS[planet];
   const dates: string[] = [];
   for (let i = -BACK; i <= FWD; i++) dates.push(addDays(dateStr, i));
   const raw: number[] = [];
-  for (const d of dates) raw.push((await planetLongitudeSpeed("mercury", d)).longitude);
+  for (const d of dates) raw.push((await planetLongitudeSpeed(planet, d)).longitude);
   let off = 0; const cum: number[] = [];
   for (let i = 0; i < raw.length; i++) {
     if (i > 0) { const diff = raw[i] - raw[i - 1]; if (diff < -180) off += 360; else if (diff > 180) off -= 360; }
     cum.push(raw[i] + off);
   }
   const spd = cum.map((v, i) => (i === 0 ? 0 : v - cum[i - 1]));
-  const idxOf = (iso: string) => dates.indexOf(iso);
   const todayIdx = BACK;
 
   for (let i = 1; i < spd.length; i++) {
@@ -126,11 +136,10 @@ export async function mercuryRxCycle(dateStr: string, lookaheadDays = 45): Promi
       let preStart = stationR; while (preStart > 0 && cum[preStart - 1] >= lonD) preStart--;
       let postEnd = stationD; while (postEnd < cum.length - 1 && cum[postEnd + 1] <= lonR) postEnd++;
 
-      // In range if the cycle hasn't fully cleared and its build is within the lookahead window.
       const retroshadeEnd = dates[postEnd];
       const preShadowStart = dates[preStart];
       if (retroshadeEnd < dateStr) continue;                      // already over
-      if (preShadowStart > addDays(dateStr, lookaheadDays)) return null; // too far out — nothing to read yet
+      if (preShadowStart > addDays(dateStr, lookahead)) return null; // too far out — nothing to read yet
 
       const phaseNow: MercuryRxCycle["phaseNow"] =
         todayIdx < preStart ? "approaching"
@@ -138,6 +147,7 @@ export async function mercuryRxCycle(dateStr: string, lookaheadDays = 45): Promi
             : todayIdx <= stationD ? "retrograde"
               : "retroshade";
       return {
+        planet,
         preShadowStart,
         stationRetro: { date: dates[stationR], lon: ((lonR % 360) + 360) % 360, sign: signOfLon(lonR) },
         stationDirect: { date: dates[stationD], lon: ((lonD % 360) + 360) % 360, sign: signOfLon(lonD) },
@@ -151,4 +161,9 @@ export async function mercuryRxCycle(dateStr: string, lookaheadDays = 45): Promi
     }
   }
   return null;
+}
+
+/** Mercury's cycle — the original entry point, now a delegate. */
+export async function mercuryRxCycle(dateStr: string): Promise<MercuryRxCycle | null> {
+  return planetRxCycle("mercury", dateStr);
 }

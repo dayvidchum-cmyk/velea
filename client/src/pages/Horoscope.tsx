@@ -226,6 +226,15 @@ export default function Horoscope() {
           /></div>
         )}
 
+        {/* ── THE SLOW REVIEWS — Venus · Mars · Jupiter · Saturn retrograde cycles ── */}
+        {entitled ? <SlowReviewsCard modeColor={modeColor} /> : (
+          <div style={{ marginBottom: "0.8rem" }}><LockedFeatureCard
+            title="The slow reviews"
+            teaser="Venus, Mars, Jupiter and Saturn retrogrades, read for your chart."
+            detail="Each slow planet's whole retrograde arc — what it re-examines, the rooms it reviews in your chart, the natal points it backs over — read once per cycle, and kept. A premium reading, not yet unlocked."
+          /></div>
+        )}
+
         {/* ── THE LIFE ATLAS doorway (David 2026-07-16: readings live under Readings).
             Shown to EVERYONE — inside, the themes and counts are real and the dates
             wait behind the veil. Keep them thirsty. ── */}
@@ -710,6 +719,62 @@ function MercuryGlyph({ size = 17, color }: { size?: number; color: string }) {
 
 // ── This Mercury retrograde: the whole-cycle arc (pre-shadow → review → retroshade), read once for
 // your chart and kept. Mirrors EclipseSeasonCard — a period reading, generated on tap, cached per cycle. ──
+/** THE SLOW REVIEWS (David 2026-07-16: "we have mercury done") — the rx family card:
+ *  each slow planet's active/approaching cycle read once and kept; clear planets rest quiet. */
+function SlowReviewsCard({ modeColor }: { modeColor: string }) {
+  const [open, setOpen] = useState(false);
+  const [reads, setReads] = useState<Record<string, any>>({});
+  const planetRx = trpc.horoscope.planetRx.useMutation();
+  const PLANETS: { key: "venus" | "mars" | "jupiter" | "saturn"; name: string; ink: string }[] = [
+    { key: "venus", name: "Venus", ink: "#CE5F6E" },
+    { key: "mars", name: "Mars", ink: "#A8002C" },
+    { key: "jupiter", name: "Jupiter", ink: "#A2850A" },
+    { key: "saturn", name: "Saturn", ink: "#454A8C" },
+  ];
+  const fired = useRef(false);
+  const openUp = () => {
+    setOpen((o) => !o);
+    if (!fired.current) {
+      fired.current = true;
+      PLANETS.forEach((p) => {
+        planetRx.mutateAsync({ planet: p.key }).then((r) => setReads((prev) => ({ ...prev, [p.key]: r }))).catch(() => setReads((prev) => ({ ...prev, [p.key]: { available: false } })));
+      });
+    }
+  };
+  const gold = "#B08D2E";
+  return (
+    <div style={{ borderRadius: 16, marginBottom: "1.1rem", padding: "1rem 1.1rem 1.1rem", border: `1px solid color-mix(in srgb, ${gold} 38%, var(--color-border))`, background: `linear-gradient(180deg, color-mix(in srgb, ${gold} 6%, var(--color-card)), var(--color-card))` }}>
+      <button onClick={openUp} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: gold }}>The slow reviews</span>
+        <span style={{ fontSize: "0.6rem", color: "var(--color-muted-foreground)" }}>Venus · Mars · Jupiter · Saturn</span>
+        <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: gold, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+      </button>
+      {open && (
+        <div style={{ marginTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+          {PLANETS.map((p) => {
+            const r = reads[p.key];
+            if (!r) return <div key={p.key}><VeleaLoader size={18} label={`Listening for ${p.name}…`} /></div>;
+            if (!r.available || !r.read) return (
+              <p key={p.key} style={{ fontSize: "0.78rem", color: "var(--color-muted-foreground)", margin: 0 }}>
+                <strong style={{ color: p.ink }}>{p.name}</strong> is running clear — no review to read; this opens as its next cycle builds.
+              </p>
+            );
+            const phase = r.cycle?.phaseNow as string | undefined;
+            return (
+              <div key={p.key}>
+                <p style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: p.ink, margin: "0 0 0.4rem" }}>
+                  {phase === "approaching" ? `${p.name} retrograde ahead` : `This ${p.name} retrograde`}
+                </p>
+                <ProseCard color={p.ink} question={r.read.closeLine ? undefined : undefined}>{[r.read.scene, r.read.story, r.read.tilt, r.read.closeLine].filter(Boolean).join("\n\n")}</ProseCard>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MercuryRxCard({ modeColor }: { modeColor: string }) {
   const utils = trpc.useUtils();
   const saved = trpc.horoscope.mercuryRxSaved.useQuery(undefined, { staleTime: 1000 * 60 * 5 });

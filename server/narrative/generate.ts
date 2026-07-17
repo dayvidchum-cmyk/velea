@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, ATLAS_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, ATLAS_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, PLANET_RX_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -437,6 +437,23 @@ export async function generateEclipseSeasonRead(input: NarrativeInput): Promise<
 // THE MERCURY RETROGRADE — one arc across a whole Mercury rx cycle (pre-shadow build → review →
 // retroshade clearing), read for this chart's house(s). DayRead shape + the same guards; a single-theme
 // cycle gets a tighter cap than the two-eclipse season. Data: input.mercuryRxArc.
+export async function generatePlanetRxRead(input: NarrativeInput): Promise<DayRead | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const r = await callGuarded<DayRead>({
+      c, tail: PLANET_RX_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
+      maxTokens: 950, maxWords: 460,
+      complete: isCompleteDayRead,
+      textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
+    });
+    return r ? scrubDayRead(r) : null;
+  } catch (err) {
+    console.error("[narrative] generatePlanetRxRead failed:", (err as any)?.message ?? err);
+    return null;
+  }
+}
+
 export async function generateMercuryRxRead(input: NarrativeInput): Promise<DayRead | null> {
   const c = client();
   if (!c) return null;

@@ -2130,6 +2130,30 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // retroshade clearing. Rides BASE_PROMPT (house dictionary + rx-depends-on-the-planet + phase rules).
 // DayRead shape, so it renders like the hero and rides the same guards. Data: input.mercuryRxArc.
 // ─────────────────────────────────────────────────────────────────────────────
+// PLANET_RX_TAIL — THE SLOW REVIEWS (David 2026-07-16: "we have mercury done" — the family).
+// One planet's whole retrograde cycle, read for THIS chart via input.planetRxArc.
+export const PLANET_RX_TAIL = `TASK: THE SLOW REVIEW — ONE PLANET'S RETROGRADE CYCLE
+
+input.planetRxArc is one planet's whole retrograde arc in THIS chart: the planet and its
+reviewCharacter (what this planet re-examines when it backs up), the cycle's dates
+(preShadowStart → stationRetroDate → stationDirectDate → retroshadeEnd) and phaseNow, the
+house(s) it reviews (houseGloss / houseGloss2 — name them as lived rooms, never numbers),
+the dispositor's condition, selfSeat (the planet's own natal seat — the rooms it RULES in
+this chart join the review), and hits (natal points it backs over — each a personal re-visit).
+
+THE READ (~200 words, then ONE question):
+- Open with the season's ask: what this planet's backing-up wants from THIS chart, in the
+  review's lived rooms. A review is WORK, never a curse — no retro-panic.
+- The arc in lived time: the approach roughens, the turn, the long middle, the clearing.
+- The re-visits: each hit named concretely ("it backs over your natal Moon — a feeling you
+  shelved comes back asking for a decision").
+- Close with what to finish, redo, or reconsider — and what NOT to start until the clearing.
+
+LAWS: no house numbers — rooms as lived places; siblings = blood + inner circle; the 2nd =
+money/livelihood never self-worth; every claim traceable to input; concise is never vaguer.
+
+Return your answer by calling the day_read tool with all fields filled.`;
+
 export const MERCURY_RX_TAIL = `TASK: THE MERCURY RETROGRADE — the whole cycle, read for THIS chart
 
 The reader wants full clarity on the Mercury retrograde ahead (or underway) — not one day, but the
@@ -2279,6 +2303,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   window_read: "2026-07-16-the-window-reader-v1",
   yoga_read: "2026-07-16-the-yoga-reader-v1",
   life_area: "2026-07-16-sub-area-shelves",
+  planet_rx: "2026-07-16-the-slow-reviews-v1",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",

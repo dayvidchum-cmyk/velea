@@ -18,7 +18,7 @@ import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { buildKnots, type NatalPlanet } from "../vedic/knots.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
-import { mercuryRxState, mercuryRxCycle } from "../sky/retrograde-phase.js";
+import { mercuryRxState, mercuryRxCycle , planetRxCycle } from "../sky/retrograde-phase.js";
 import { monthEvents } from "../sky/month-events.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
@@ -61,7 +61,7 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
@@ -78,12 +78,12 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   // life areas must never share a memoized input (they'd produce the same reading otherwise).
   const areaKey = `${opts?.lifeArea ?? "none"}${opts?.areaFocus ? ":" + opts.areaFocus.key : ""}`;
   const eclKey = opts?.eclipseArc ? "ecl" : "no";
-  const merKey = opts?.mercuryRxArc ? "mrx" : "no";
+  const merKey = opts?.rxArcPlanet ? `rx-${opts.rxArcPlanet}` : opts?.mercuryRxArc ? "mrx" : "no";
   const monKey = opts?.monthArc ? "mon" : "no";
   const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}|${monKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, areaFocus: opts?.areaFocus, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc, monthArc: opts?.monthArc });
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, areaFocus: opts?.areaFocus, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc, rxArcPlanet: opts?.rxArcPlanet, monthArc: opts?.monthArc });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   return value;
 }
@@ -95,7 +95,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; monthArc?: boolean }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -846,8 +846,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // sign/house), the sign lord whose condition colours the review, and any natal points Mercury
   // retrogrades back over (a direct personal re-visit). Deterministic (sky/retrograde-phase.ts).
   let mercuryRxArc: any | undefined;
-  if (moment?.mercuryRxArc) {
-    const cyc = await mercuryRxCycle(dateStr);
+  let planetRxArc: any | undefined;
+  if (moment?.mercuryRxArc || moment?.rxArcPlanet) {
+    const rxPlanet = moment?.rxArcPlanet ?? "mercury";
+    const cyc = await planetRxCycle(rxPlanet as any, dateStr);
     if (cyc) {
       const norm = (x: number) => ((x % 360) + 360) % 360;
       const sep = (a: number, b: number) => { const d = Math.abs(norm(a) - norm(b)); return Math.min(d, 360 - d); };
@@ -868,7 +870,19 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         return { point, orbDeg: inBand ? 0 : +Math.min(sep(lon, lo), sep(lon, hi)).toFixed(1), inBand };
       }).filter((h) => h.inBand || h.orbDeg <= 4).sort((a, b) => a.orbDeg - b.orbDeg)
         .map((h) => ({ point: h.point, orbDeg: h.orbDeg }));
-      mercuryRxArc = {
+      // What each slow planet RE-EXAMINES when it backs up — the review's character.
+      const REVIEW_CHARACTER: Record<string, string> = {
+        mercury: "re-checks words, dealings, plans, and the details signed too fast",
+        venus: "re-evaluates love, worth, pleasure, and what you find beautiful",
+        mars: "recalibrates drive, effort, anger, and where you spend force",
+        jupiter: "reviews beliefs, growth, teachers, and what you keep saying yes to",
+        saturn: "re-audits structures, duties, commitments, and what deserves to keep standing",
+      };
+      const capName = rxPlanet.charAt(0).toUpperCase() + rxPlanet.slice(1);
+      const selfNat = natByName[capName];
+      const arcObj = {
+        planet: capName, reviewCharacter: REVIEW_CHARACTER[rxPlanet],
+        selfSeat: selfNat ? { natalHouse: selfNat.house, sign: selfNat.sign, dignity: selfNat.dignity, rulesHouses: selfNat.rulesHouses ?? [] } : null,
         today: dateStr, phaseNow: cyc.phaseNow,
         preShadowStart: cyc.preShadowStart, stationRetroDate: cyc.stationRetro.date,
         stationDirectDate: cyc.stationDirect.date, retroshadeEnd: cyc.retroshadeEnd,
@@ -880,6 +894,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
           ? { dispositor2: dispOf(cyc.stationDirect.sign) } : {}),
         hits,
       };
+      if (rxPlanet === "mercury") mercuryRxArc = arcObj; else planetRxArc = arcObj;
     }
   }
 
@@ -926,5 +941,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

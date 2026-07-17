@@ -2363,6 +2363,22 @@ export const appRouter = router({
     // THE MERCURY RETROGRADE — the whole-cycle arc reading (pre-shadow → review → retroshade) for the
     // active/approaching Mercury rx, read for this chart's house(s). Generates + caches per cycle;
     // unavailable when Mercury is clear (no cycle in range).
+    planetRx: protectedProcedure.input(z.object({ planet: z.enum(["venus", "mars", "jupiter", "saturn"]) })).mutation(async ({ ctx, input }) => {
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const };
+      const { getUserById } = await import("./db.js");
+      const u = await getUserById(ctx.user.id);
+      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
+      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
+        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
+        : undefined;
+      const { getPlanetRxCached } = await import("./narrative/service.js");
+      const today = new Date().toISOString().slice(0, 10);
+      return await getPlanetRxCached(profile.id, input.planet, today, false, dayLoc);
+    }),
+
     mercuryRx: protectedProcedure.mutation(async ({ ctx }) => {
       if (!(await hasHoroscope(ctx.user))) return { available: false as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
