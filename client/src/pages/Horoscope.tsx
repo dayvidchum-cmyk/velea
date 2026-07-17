@@ -1,3 +1,4 @@
+import ProseCard from "@/components/ProseCard";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { useLocation } from "wouter";
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Lock } from "lucide-react";
@@ -283,7 +284,7 @@ export default function Horoscope() {
                             ) : yogaReadQ.isLoading ? (
                               <VeleaLoader size={22} label="Voicing the yoga…" />
                             ) : yogaReadQ.data?.available && yogaReadQ.data.read ? (
-                              <p className="text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.6, whiteSpace: "pre-wrap", margin: 0 }}>{yogaReadQ.data.read.read}</p>
+                              <ProseCard color="#B08D2E">{yogaReadQ.data.read.read}</ProseCard>
                             ) : (
                               <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>The yoga is quiet — try again in a moment.</p>
                             )}

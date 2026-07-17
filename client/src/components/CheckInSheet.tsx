@@ -280,10 +280,12 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
             disabled={!allFilled || createMutation.isPending}
             className="w-full h-12 rounded-2xl text-sm font-bold uppercase transition-all active:scale-[0.99] disabled:cursor-not-allowed"
             style={{
-              background: allFilled ? "#FDFDFD" : "rgba(255,255,255,0.2)",
-              color: allFilled ? "#1a1a1a" : "rgba(255,255,255,0.85)",
+              // Lines, not a white slab (David: "glaring white button EWWWWW") —
+              // the outline-pill grammar, at home on the gradient ground.
+              background: "transparent",
+              color: allFilled ? "#FDF9EE" : "rgba(255,255,255,0.75)",
               letterSpacing: "0.08em",
-              border: allFilled ? "none" : "1px solid rgba(255,255,255,0.3)",
+              border: allFilled ? "1.5px solid rgba(255,255,255,0.85)" : "1px solid rgba(255,255,255,0.3)",
               opacity: createMutation.isPending ? 0.7 : 1,
             }}
           >

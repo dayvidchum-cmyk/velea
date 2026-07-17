@@ -60,6 +60,22 @@ export function WhyNowChain({
     );
   }
 
+  // THE THREAD — the resting close (David 2026-07-16: "this needs a simple prose written
+  // summary at the end. 2-3 sentences. right now it's just a feature."). Plain places,
+  // no house numbers, built from the same computed facts.
+  const PLACE: Record<number, string> = {
+    1: "the self and the body", 2: "money and livelihood", 3: "the craft and the close circle",
+    4: "home and roots", 5: "the heart and its creations", 6: "the daily work and health",
+    7: "partnership", 8: "the shared and the hidden", 9: "belief and the far horizon",
+    10: "your standing in the world", 11: "community and gains", 12: "rest and release",
+  };
+  const thread =
+    `So this is a year of ${PLACE[activatedHouse]}, and ${timeLord} runs it${tlNatalHouse ? ` from ${PLACE[tlNatalHouse]}` : ""}.` +
+    (tlNatalHouse ? ` That seat is where the year actually happens — the questions of ${PLACE[activatedHouse]} get worked out through ${PLACE[tlNatalHouse]}.` : "") +
+    (isKetu ? " And Ketu makes it a letting-go: the year moves by releasing that ground, not by gripping it."
+      : isRahu ? " And Rahu makes it a hunger: the year keeps reaching past what is familiar there."
+      : ` Watch the days ${timeLord} runs strong — that is when this year speaks loudest.`);
+
   return (
     <div>
       {steps.map((s, i) => (
@@ -73,6 +89,9 @@ export function WhyNowChain({
           )}
         </div>
       ))}
+      <p style={{ marginTop: "1.15rem", fontSize: "0.97rem", lineHeight: 1.7, color: "var(--foreground)" }}>
+        <GlossaryText>{thread}</GlossaryText>
+      </p>
     </div>
   );
 }

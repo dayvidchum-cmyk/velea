@@ -3,7 +3,7 @@ import VeleaLoader from "@/components/VeleaLoader";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, X, Lock } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
@@ -205,6 +205,9 @@ export default function ProfectionYear() {
 
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+  // The Road Ahead is THE FUTURE — strategically locked (David 2026-07-16); testers via flag.
+  const featuresQ = trpc.features.mine.useQuery();
+  const roadEntitled = isAdmin || !!(featuresQ.data as any)?.specialReadings;
   // The Road Ahead is admin-only (David) for now — only query it for admins.
   const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false, enabled: isAdmin });
   const utils = trpc.useUtils();
@@ -838,12 +841,27 @@ export default function ProfectionYear() {
           Movement now (David): the axis chapters read as a continuation of the movement story. */}
       <MeridianCard />
 
-      {isAdmin && panel("The Road Ahead", roadOpen, setRoadOpen, (
+      {panel("The Road Ahead", roadOpen, setRoadOpen, (
         arcError ? (
           <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Add your birth details to map the road ahead.</p>
         ) : arcLoading ? (
           <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>Mapping your year…</p>
         ) : arcData ? (() => {
+          // THE VEIL (sunken-lock + thirst law; "it's the future"): real counts shown,
+          // the dates, the turns, and what each asks stay behind the gate.
+          if (!roadEntitled) {
+            const slowCount = (arcData.milestones as any[]).filter((m: any) => m.kind !== "apex").length;
+            const apx: any = arcData.apex;
+            const compactV = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n} days` : `${Math.round(n / 30.4)} months`);
+            return (
+              <div className="flex items-start gap-2.5 rounded-lg px-3 py-3" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
+                <Lock size={14} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+                <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.55 }}>
+                  The road ahead is written{apx ? ` — your strongest-aligned day lands in ${compactV(apx.daysAway)}, with ${arcData.crownCount} crown day${arcData.crownCount === 1 ? "" : "s"} in the next 90` : ""}, and {slowCount} slow season-turn{slowCount === 1 ? "" : "s"} mapped over the coming year. The dates, the turns, and what each asks open with Velea. Soon.
+                </p>
+              </div>
+            );
+          }
           const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
           const compact = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n}d` : `${Math.round(n / 30.4)}mo`);
           const slow = (arcData.milestones as any[]).filter((m) => m.kind !== "apex");

@@ -83,6 +83,16 @@ which axis) and check the compression keeps all the decisive ones. Known thresho
 when touched: bigKnot/era, crown-day ladder ranks, second-handshake +55, rest-gate floors, muhurta
 vetoes, golden-hour peak pick. **Check:** any new or touched threshold in the stretch.
 
+### 12. Explainer-prose audit 👁 — _protects: understanding over machinery on every teaching surface_
+Born 2026-07-16: the "Your year, explained" chain shipped VERBATIM as David's scaffolding sketch —
+a numbered decoder ring with arrow stacks. His verdict: "it's not clear. it makes me shut down.
+visually is jolting." LAW: every explainer/glossary/chain surface must RESOLVE — end in 2–3
+sentences of plain prose that synthesize the steps into one thought worth reading on (the thread).
+Scaffolding handed over mid-design is never final copy. Pale-background/dark-ink is the CLINICAL
+register — a reading's main voice belongs on the gradient (ProseCard). **Check:** every
+numbered/structured explainer (chains, glossary blocks, node bullets, house pop-ups) — does it
+close in prose? Does it make you want to keep reading?
+
 ---
 
 ## How to run

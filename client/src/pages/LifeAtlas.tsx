@@ -1,3 +1,4 @@
+import ProseCard from "@/components/ProseCard";
 import { useState } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
@@ -84,10 +85,7 @@ export default function LifeAtlas() {
                           readQ.isLoading ? (
                             <VeleaLoader size={24} label="Reading the seasons…" />
                           ) : readQ.data?.available && readQ.data.read ? (
-                            <>
-                              <p className="text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{readQ.data.read.read}</p>
-                              <p className="text-sm italic mt-2" style={{ color: "var(--color-muted-foreground)" }}>{readQ.data.read.question}</p>
-                            </>
+                            <ProseCard color="#B08D2E" question={readQ.data.read.question}>{readQ.data.read.read}</ProseCard>
                           ) : (
                             <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)" }}>The atlas is quiet — try again in a moment.</p>
                           )
@@ -163,7 +161,7 @@ export default function LifeAtlas() {
               ) : windowReadQ.isLoading ? (
                 <VeleaLoader size={24} label="Reading the season…" />
               ) : windowReadQ.data?.available && windowReadQ.data.read ? (
-                <p className="text-sm" style={{ color: "var(--color-foreground)", lineHeight: 1.6, whiteSpace: "pre-wrap", margin: 0 }}>{windowReadQ.data.read.read}</p>
+                <ProseCard color="#B08D2E">{windowReadQ.data.read.read}</ProseCard>
               ) : (
                 <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>The season is quiet — try again in a moment.</p>
               )}

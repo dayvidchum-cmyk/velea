@@ -1,3 +1,4 @@
+import ProseCard from "@/components/ProseCard";
 import { useState, useMemo, useEffect, useRef } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
 import { createPortal } from "react-dom";
@@ -984,10 +985,7 @@ export function DashaSection() {
                       {reading && (
                         dashaAntarQ.isLoading ? <div className="mt-2"><VeleaLoader size={20} label="Opening the sub-chapter…" /></div>
                         : dashaAntarQ.data?.available && dashaAntarQ.data.read ? (
-                          <div className="mt-2">
-                            <p style={{ fontSize: "0.83rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>{dashaAntarQ.data.read.read}</p>
-                            <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.5rem 0 0" }}>{dashaAntarQ.data.read.question}</p>
-                          </div>
+                          <div className="mt-2"><ProseCard color={antColor} question={dashaAntarQ.data.read.question}>{dashaAntarQ.data.read.read}</ProseCard></div>
                         ) : <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>The sub-chapter is quiet — try again in a moment.</p>
                       )}
                     </div>
@@ -1074,14 +1072,7 @@ export function DashaSection() {
                     ) : dashaReadQ.isLoading ? (
                       <VeleaLoader size={24} label="Opening the chapter…" />
                     ) : dashaReadQ.data?.available && dashaReadQ.data.read ? (
-                      <div>
-                        <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>
-                          {dashaReadQ.data.read.read}
-                        </p>
-                        <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.55rem 0 0.3rem" }}>
-                          {dashaReadQ.data.read.question}
-                        </p>
-                      </div>
+                      <ProseCard color={color} question={dashaReadQ.data.read.question}>{dashaReadQ.data.read.read}</ProseCard>
                     ) : (
                       <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
                         The chapter is quiet right now — try again in a moment.
@@ -1138,10 +1129,7 @@ export function DashaSection() {
                           ) : dashaAntarQ.isLoading ? (
                             <div className="mt-2"><VeleaLoader size={20} label="Opening the sub-chapter…" /></div>
                           ) : dashaAntarQ.data?.available && dashaAntarQ.data.read ? (
-                            <div className="mt-2">
-                              <p style={{ fontSize: "0.83rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>{dashaAntarQ.data.read.read}</p>
-                              <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.5rem 0 0" }}>{dashaAntarQ.data.read.question}</p>
-                            </div>
+                            <div className="mt-2"><ProseCard color={antColor} question={dashaAntarQ.data.read.question}>{dashaAntarQ.data.read.read}</ProseCard></div>
                           ) : (
                             <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>The sub-chapter is quiet — try again in a moment.</p>
                           )
