@@ -328,7 +328,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-150"
               style={{ color: modeColor, background: "transparent", border: `1px solid color-mix(in srgb, ${modeColor} 35%, transparent)` }}
               title="Update current state"
-              onMouseEnter={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; e.currentTarget.style.background = `color-mix(in srgb,  14%, transparent)`; }}
+              onMouseEnter={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 14%, transparent)`; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
             >
               <RefreshCw size={12} />

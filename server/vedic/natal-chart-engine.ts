@@ -262,9 +262,19 @@ export async function calculateNatalChart(
   ];
 
   for (const config of planetConfigs) {
-    const planetCalc = se.calc_ut(jd, config.index, flags);
-    // With SEFLG_SIDEREAL flag, calc_ut returns sidereal coordinates directly
-    const planetLonSidereal = planetCalc[0];
+    // Rahu/Ketu have no SE_RAHU/SE_KETU in this binding (they're undefined → index 0 = SE_SUN,
+    // so both nodes computed as the SUN — re-audit 2026-07-18; test-only path, fixed so it can't
+    // be revived into prod broken). Use the mean node, Ketu = Rahu + 180°, as the live paths do.
+    let planetLonSidereal: number;
+    if (config.name === "Rahu" || config.name === "Ketu") {
+      const nodeCalc = se.calc_ut(jd, se.SE_MEAN_NODE, flags);
+      const rahuLon = ((nodeCalc[0] % 360) + 360) % 360;
+      planetLonSidereal = config.name === "Rahu" ? rahuLon : (rahuLon + 180) % 360;
+    } else {
+      const planetCalc = se.calc_ut(jd, config.index, flags);
+      // With SEFLG_SIDEREAL flag, calc_ut returns sidereal coordinates directly
+      planetLonSidereal = planetCalc[0];
+    }
 
     const signData = getLongitudeSign(planetLonSidereal);
     const house = getPlanetHouse(planetLonSidereal, lagnaLonSidereal);

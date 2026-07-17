@@ -532,9 +532,24 @@ export async function getMonthCached(profileId: number, date: string, refresh = 
 // PEEK — read-only: is there ALREADY a cached reading for the current month? Never generates.
 export async function peekMonthCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MonthResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, month: null, generatedAt: null, cached: false };
-  const monthKey = date.slice(0, 7);
+  // Match the getter's hash + lock gate (re-audit — the one peek left out of the M19 pattern):
+  // serving any complete row could report a month "already read" that the real open would
+  // regenerate (beats/sub-periods moved), so the reading changed on open.
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, monthArc: true });
+  const arc = input.monthArc;
+  if (!arc) return { available: false, read: null, month: null, generatedAt: null, cached: false };
+  const monthKey: string = arc.month;
+  const stable = {
+    profileId, lagna: input.natal?.lagna, m: arc.month,
+    ev: (arc.events as any[]).map((e) => ({ k: e.kind, d: e.date, p: e.planet ?? e.type ?? null, h: e.house, n: e.natalPoint ?? null })),
+    sp: (arc.subPeriods as any[] ?? []).map((s) => ({ l: s.lord, s: s.startDate, e: s.endDate })),
+    tl: input.timeLordTransit?.planet ?? input.dasha?.antarDasha?.lord ?? null,
+    prof: input.profection?.activatedHouse ?? null,
+  };
+  const salt = SURFACE_VERSION["month"] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
   const row = await getNarrativeCache(profileId, "month", monthKey);
-  if (row) {
+  if (row && (row.locked || row.inputHash === hash)) {
     try {
       const read = JSON.parse(row.content);
       if (isCompleteDayRead(read)) return { available: true, read, month: monthKey, generatedAt: row.generatedAt, cached: true };

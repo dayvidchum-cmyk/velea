@@ -408,7 +408,13 @@ export const profileNatalBodies = mysqlTable("profile_natal_bodies", {
   isRetrograde: boolean("isRetrograde").default(false),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (t) => ({
+  // The upsert (routers/profiles.ts onDuplicateKeyUpdate) DEPENDS on this key — it was
+  // declared in prod (reconcile-prod-schema.ts) but missing from schema.ts (re-audit
+  // 2026-07-18), so a fresh DB from schema.ts would plain-insert duplicate (profileId, planet)
+  // rows — the v257 blank-reading class. Source of truth realigned to prod.
+  uniqProfilePlanet: unique("uniq_profile_planet").on(t.profileId, t.planet),
+}));
 
 export type ProfileNatalBody = typeof profileNatalBodies.$inferSelect;
 export type InsertProfileNatalBody = typeof profileNatalBodies.$inferInsert;

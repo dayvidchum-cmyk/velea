@@ -100,7 +100,7 @@ export default function Horoscope() {
   const [confirmTaste, setConfirmTaste] = useState<string | null>(null);
   // THE LIFE-AREA SHELVES — which shelf of the picker is open (one at a time, the mantra).
   const [openAreaShelf, setOpenAreaShelf] = useState<string | null>(null);
-  const { data: yogasData } = trpc.horoscope.yogasList.useQuery(undefined, { enabled: yogasOpen, staleTime: 30 * 60_000 });
+  const { data: yogasData, isError: yogasError } = trpc.horoscope.yogasList.useQuery(undefined, { enabled: yogasOpen, staleTime: 30 * 60_000 });
   const yogaFreePick = (yogasData as any)?.freePick ?? null;
   const yogaReadQ = trpc.horoscope.yogaRead.useQuery(
     { name: openYoga ?? "" },
@@ -293,7 +293,10 @@ export default function Horoscope() {
           </button>
           {yogasOpen && (
             <div className="px-4 pb-4">
-              {!yogasData ? (
+              {yogasError ? (
+                // Don't spin forever on a query error (re-audit, M7 class) — say so honestly.
+                <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>The birth-sky reading couldn't load just now — try again in a moment.</p>
+              ) : !yogasData ? (
                 <VeleaLoader size={24} label="Reading the birth sky…" />
               ) : !yogasData.available || yogasData.yogas.length === 0 ? (
                 <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>No standing yogas detected in this chart's research yet.</p>
