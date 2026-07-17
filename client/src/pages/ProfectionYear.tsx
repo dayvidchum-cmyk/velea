@@ -586,20 +586,21 @@ export default function ProfectionYear() {
                   key={a.key}
                   term={houseTerm}
                   underline={false}
+                  // Empty, just lines (David 2026-07-16: "like (delete) (refresh app)") —
+                  // the outline-pill grammar: transparent, one hairline, the ink is the line.
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.4rem",
                     fontSize: "0.8rem",
-                    fontWeight: 500,
-                    padding: "0.3rem 0.6rem",
-                    borderRadius: "0.4rem",
-                    background: `color-mix(in srgb, ${modeColor} 22%, transparent)`,
-                    border: `1px solid color-mix(in srgb, ${modeColor} 45%, transparent)`,
-                    color: "var(--foreground)",
+                    fontWeight: 600,
+                    padding: "0.3rem 0.8rem",
+                    borderRadius: "999px",
+                    background: "transparent",
+                    border: `1px solid ${modeColor}`,
+                    color: modeColor,
                   }}
                 >
-                  <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: modeColor, flexShrink: 0 }} />
                   {a.label}
                 </GlossaryLink>
               ))}
