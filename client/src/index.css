@@ -104,6 +104,12 @@
 .today-pulse { animation: veleaTodayPulse 2.8s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .today-pulse { animation: none; box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 55%, transparent); } }
 
+/* LINE PILLS (David 2026-07-16): outline pills fill FAINTLY AND GRACEFULLY on hover,
+   a touch deeper on press — the ink is set per-pill via --pill-ink. */
+.line-pill { transition: background 180ms ease; }
+.line-pill:hover { background: color-mix(in srgb, var(--pill-ink, var(--brand-gold)) 12%, transparent) !important; }
+.line-pill:active { background: color-mix(in srgb, var(--pill-ink, var(--brand-gold)) 24%, transparent) !important; }
+
 /* PARCHMENT — the shared surface for the chart ARTIFACT family (calendar, profection wheel, natal,
    dasha, the readings calendar + reveal box). It's always a LIGHT almanac page (tone is appearance-
    aware via --parchment / --parchment-shadow), and it ALSO remaps the color tokens LOCALLY so every

@@ -591,7 +591,9 @@ export default function ProfectionYear() {
                   underline={false}
                   // Empty, just lines (David 2026-07-16: "like (delete) (refresh app)") —
                   // the outline-pill grammar: transparent, one hairline, the ink is the line.
+                  className="line-pill"
                   style={{
+                    ["--pill-ink" as any]: modeColor,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.4rem",

@@ -133,7 +133,12 @@ export default function MeridianCard() {
   const [open, setOpen] = useState(false); // collapsed by default — matches the Chart page's other panels
   if (!data) return null;
   const liftOn = settings.meridianLift;
-  const toggleLift = () => saveSettings({ ...settings, meridianLift: !liftOn });
+  const utils = trpc.useUtils();
+  // The toggle now TAKES EFFECT immediately (David: "I hate that i have to keep turning
+  // it on and off to effect my readings") — flipping it invalidates the ranked list, so
+  // one flip is one result; no double-toggling to nudge a stale ranking.
+  const toggleLift = () => { saveSettings({ ...settings, meridianLift: !liftOn }); setTimeout(() => utils.tasks.invalidate(), 250); };
+  const [openClosed, setOpenClosed] = useState<Set<number>>(new Set());
 
   const chapters = (data.chapters ?? []) as Chapter[];
   const hits = ((data as any).hits ?? []) as AxisHit[];
@@ -217,17 +222,29 @@ export default function MeridianCard() {
             <div style={{ marginTop: "0.6rem", display: "flex", flexDirection: "column", gap: "0.9rem" }}>
               {chapters.map((ch, i) => {
                 const n = narrate(ch);
+                // A closed chapter is the PAST — it arrives folded (David 2026-07-16:
+                // "can the just closed slow arc collapse?"); one line, opt-in to reopen.
+                const folded = ch.status === "recent" && !openClosed.has(i);
                 return (
                   <div key={i} style={{ borderLeft: `3px solid ${tone[ch.status]}`, paddingLeft: "0.8rem" }}>
                     <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: tone[ch.status], margin: 0 }}>
                       {ch.status === "current" ? "Now" : ch.status === "recent" ? "Just closed" : "Forming"}
                     </p>
-                    <p style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--foreground)", margin: "0.2rem 0 0", lineHeight: 1.4 }}><GlossaryText>{n.headline}</GlossaryText></p>
-                    <p style={{ fontSize: "0.84rem", color: "var(--color-muted-foreground)", margin: "0.25rem 0 0", lineHeight: 1.55 }}><GlossaryText>{n.body}</GlossaryText></p>
-                    {n.reflect && (
-                      <button onClick={() => navigate("/reflections")} style={{ marginTop: "0.4rem", fontSize: "0.78rem", fontWeight: 600, color: accent, background: "none", border: "none", padding: 0, cursor: "pointer" }}>
-                        What did it land? → Reflect
+                    {folded ? (
+                      <button onClick={() => setOpenClosed((prev) => new Set(prev).add(i))} style={{ display: "flex", alignItems: "baseline", gap: 6, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
+                        <span style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--foreground)", lineHeight: 1.4 }}><GlossaryText>{n.headline}</GlossaryText></span>
+                        <span style={{ fontSize: "0.72rem", color: "var(--color-muted-foreground)", flexShrink: 0 }}>more ▾</span>
                       </button>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--foreground)", margin: "0.2rem 0 0", lineHeight: 1.4 }}><GlossaryText>{n.headline}</GlossaryText></p>
+                        <p style={{ fontSize: "0.84rem", color: "var(--color-muted-foreground)", margin: "0.25rem 0 0", lineHeight: 1.55 }}><GlossaryText>{n.body}</GlossaryText></p>
+                        {n.reflect && (
+                          <button onClick={() => navigate("/reflections")} style={{ marginTop: "0.4rem", fontSize: "0.78rem", fontWeight: 600, color: accent, background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+                            What did it land? → Reflect
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 );
