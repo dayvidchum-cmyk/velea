@@ -38,17 +38,23 @@ export const narrativeRouter = router({
       // Day-mode from the viewer's location basis (same as the hero) — so the read and the hero
       // never name different modes on the same day.
       const dayLoc = dayLocFromUser(u);
+      // METER THE FORCED REGENERATION (audit M2): the "update to the moment" refresh (nowMs) and
+      // the refresh flag both force a fresh, un-persisted LLM call. The feature is admin-gated on
+      // the client but the server enforced nothing — any user could spam it, an unmetered drain on
+      // the capped wallet. Gate both behind the momentRefresh entitlement (admins today).
+      const { hasFeature } = await import("../feature-flags.js");
+      const canForce = ctx.user.role === "admin" || (await hasFeature(ctx.user, "momentRefresh"));
       // Moment read: attach the user's CURRENT location so the hora is "this hour where
       // you are" (default Boston, matching Master Mode's hora), not the birth place.
       let moment: { nowMs: number; lat?: number; lon?: number } | undefined;
-      if (input.nowMs != null) {
+      if (input.nowMs != null && canForce) {
         moment = {
           nowMs: input.nowMs,
           lat: u?.locationLat ? parseFloat(u.locationLat) : 42.3601,
           lon: u?.locationLon ? parseFloat(u.locationLon) : -71.0589,
         };
       }
-      return await getGlanceCached(input.profileId, date, input.refresh ?? false, moment, dayLoc);
+      return await getGlanceCached(input.profileId, date, canForce && (input.refresh ?? false), moment, dayLoc);
     } catch (e) {
       console.error("[narrative.glance]", e);
       return { available: false, content: null, generatedAt: null, cached: false } as const;
@@ -64,7 +70,8 @@ export const narrativeRouter = router({
     const deepened = (input.deepened ?? false) && ctx.user.role === "admin";
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id));
-      return await getDeepReadCached(input.profileId, date, input.refresh ?? false, deepened, dayLoc);
+      const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2: meter forced regen
+      return await getDeepReadCached(input.profileId, date, canForce && (input.refresh ?? false), deepened, dayLoc);
     } catch (e) {
       console.error("[narrative.deepRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
@@ -80,7 +87,8 @@ export const narrativeRouter = router({
     const date = input.date ?? todayUTC();
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id));
-      return await getDayReadCached(input.profileId, date, input.refresh ?? false, dayLoc);
+      const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
+      return await getDayReadCached(input.profileId, date, canForce && (input.refresh ?? false), dayLoc);
     } catch (e) {
       console.error("[narrative.dayRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
@@ -95,7 +103,8 @@ export const narrativeRouter = router({
     const date = input.date ?? todayUTC();
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id));
-      return await getCastCached(input.profileId, date, input.refresh ?? false, dayLoc);
+      const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
+      return await getCastCached(input.profileId, date, canForce && (input.refresh ?? false), dayLoc);
     } catch (e) {
       console.error("[narrative.cast]", e);
       return { available: false, cast: null, generatedAt: null, cached: false } as const;

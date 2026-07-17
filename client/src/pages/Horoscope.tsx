@@ -127,7 +127,11 @@ export default function Horoscope() {
   );
 
   const reveal = trpc.horoscope.reveal.useMutation({
-    onSuccess: () => { utils.horoscope.get.invalidate({ date: selectedDate, lifeArea: selectedArea }); utils.horoscope.list.invalidate(); },
+    // Invalidate get for the date/area the reveal was FOR — from the mutation variables, not the
+    // current selectedDate (audit M6): a ~1-min reveal can resolve after the user browsed away,
+    // and invalidating the CURRENT key left the revealed date's get cached as {exists:false} → the
+    // just-paid reading showed as un-revealed on return. The variables are reliable.
+    onSuccess: (_data, variables) => { utils.horoscope.get.invalidate({ date: variables.date, lifeArea: variables.lifeArea }); utils.horoscope.list.invalidate(); },
   });
   // Clear last-reveal state when the date OR area changes, so a prior read never leaks in.
   useEffect(() => { reveal.reset(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [selectedDate, selectedArea]);
@@ -170,7 +174,9 @@ export default function Horoscope() {
 
   // Prefer the frozen reading from `get`; fall back to the fresh reveal response for THIS date
   // (so the prose appears the instant the mutation returns, before `get` refetches).
-  const revealed: AnyRead | null = reveal.data?.available && (reveal.data as any).date === selectedDate ? ((reveal.data as any).read ?? null) : null;
+  // Guard the fresh-reveal response on BOTH date AND area (audit M6) via the mutation variables —
+  // checking date alone painted one frame of the other area's reading when switching areas.
+  const revealed: AnyRead | null = reveal.data?.available && (reveal.variables as any)?.date === selectedDate && (reveal.variables as any)?.lifeArea === selectedArea ? ((reveal.data as any).read ?? null) : null;
   const read: AnyRead | null = (exists ? (reading as any).read : null) ?? revealed ?? null;
 
   return (
