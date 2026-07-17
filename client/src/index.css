@@ -67,7 +67,9 @@
   50%      { box-shadow: 0 0 18px 5px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 55%, transparent); }
 }
 .orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite; }
-.velea-loader { animation: veleaSweep 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; transform-origin: center; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--day-accent) 35%, transparent)); }
+/* Bolder sweep (David 2026-07-16): two tight same-color shadows fatten the mask's strokes,
+   then the soft glow rides on top. */
+.velea-loader { animation: veleaSweep 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; transform-origin: center; filter: drop-shadow(0 0 0.6px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 92%, transparent)) drop-shadow(0 0 0.6px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 92%, transparent)) drop-shadow(0 0 6px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 40%, transparent)); }
 @keyframes veleaSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .velea-loader { animation: veleaLoaderBreath 2.2s ease-in-out infinite; } }
 @keyframes veleaLoaderBreath { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
