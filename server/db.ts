@@ -553,6 +553,18 @@ export async function getSystemPromptByKey(key: string) {
 }
 
 // ===== NARRATIVE CACHE (LLM Glance / Deep Read) =====
+/** The yoga_read cache keys this profile holds — the FREE TASTE mechanic (David 2026-07-16:
+ *  "the user pics"): an un-entitled user's first opened yoga IS their pick, recorded by the
+ *  cached read itself; no schema, self-enforcing, re-readable forever. */
+export async function listYogaReadKeys(profileId: number): Promise<string[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ cacheDate: narrativeCache.cacheDate })
+    .from(narrativeCache)
+    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, "yoga_read")));
+  return rows.map((r) => r.cacheDate);
+}
+
 export async function getNarrativeCache(profileId: number, surface: string, cacheDate: string) {
   const db = await getDb();
   if (!db) return undefined;

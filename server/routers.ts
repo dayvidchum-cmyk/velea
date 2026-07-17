@@ -2224,15 +2224,29 @@ export const appRouter = router({
       const yogas = (research?.yogas ?? []).map((y: any) => ({
         name: y.name, type: y.type, vantages: y.frames?.length ?? 1, repeatsInNavamsha: !!y.inNavamsha,
       }));
-      return { available: true as const, yogas };
+      // THE FREE TASTE (David 2026-07-16: "the user pics") — the yoga this profile has
+      // already opened un-entitled (recorded by its cached read; null = pick still open).
+      const { listYogaReadKeys } = await import("./db.js");
+      const tasted = await listYogaReadKeys(profile.id);
+      const freePick = tasted.find((k) => k.startsWith("yoga-"))?.slice(5) ?? null;
+      return { available: true as const, yogas, freePick };
     }),
     yogaRead: protectedProcedure
       .input(z.object({ name: z.string().min(2).max(64), refresh: z.boolean().optional() }))
       .query(async ({ ctx, input }) => {
-        if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
         const { getActiveProfile } = await import("./routers/profiles.js");
         const profile = await getActiveProfile(ctx.user.id);
         if (!profile) return { available: false as const, locked: false as const, read: null, generatedAt: null, cached: false };
+        // THE FREE TASTE: un-entitled, each profile opens ONE yoga of their choosing —
+        // the pick is the cached read itself (re-readable forever); every other yoga gates.
+        if (!(await hasHoroscope(ctx.user))) {
+          const { listYogaReadKeys } = await import("./db.js");
+          const tasted = (await listYogaReadKeys(profile.id)).filter((k) => k.startsWith("yoga-"));
+          const isMyPick = tasted.includes(`yoga-${input.name}`);
+          const pickStillOpen = tasted.length === 0;
+          if (!isMyPick && !pickStillOpen) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
+          if (input.refresh) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
+        }
         const { getYogaReadCached } = await import("./narrative/service.js");
         return getYogaReadCached(profile.id, input.name, input.refresh ?? false);
       }),

@@ -94,10 +94,13 @@ export default function Horoscope() {
   // each reading is premium. Collapsed by default, NOT locked at the section level.
   const [yogasOpen, setYogasOpen] = useState(false);
   const [openYoga, setOpenYoga] = useState<string | null>(null);
+  // The free-taste confirmation — picking is permanent, so it asks once.
+  const [confirmTaste, setConfirmTaste] = useState<string | null>(null);
   const { data: yogasData } = trpc.horoscope.yogasList.useQuery(undefined, { enabled: yogasOpen, staleTime: 30 * 60_000 });
+  const yogaFreePick = (yogasData as any)?.freePick ?? null;
   const yogaReadQ = trpc.horoscope.yogaRead.useQuery(
     { name: openYoga ?? "" },
-    { enabled: !!openYoga && entitled, staleTime: Infinity, retry: false },
+    { enabled: !!openYoga && (entitled || yogaFreePick === openYoga || confirmTaste === openYoga), staleTime: Infinity, retry: false },
   );
   const hasEclipseSaved = (eclipseSaved as any)?.available === true;
 
@@ -260,8 +263,19 @@ export default function Horoscope() {
                 <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>No standing yogas detected in this chart's research yet.</p>
               ) : (
                 <div className="space-y-1.5">
+                  {/* THE FREE TASTE (David: "the user pics") — one yoga of YOUR choosing
+                      opens free; the pick is permanent; the rest wear the gate. */}
+                  {!entitled && (
+                    <p className="text-xs" style={{ color: "var(--color-muted-foreground)", margin: "0 0 0.5rem", lineHeight: 1.5 }}>
+                      {(yogasData as any).freePick
+                        ? <>Your chosen taste is <b style={{ color: "var(--brand-gold)" }}>{(yogasData as any).freePick}</b> — the others open with Velea.</>
+                        : <>Choose one — its full reading opens free, and the choice is yours to keep. The rest open with Velea.</>}
+                    </p>
+                  )}
                   {yogasData.yogas.map((y: any) => {
                     const open = openYoga === y.name;
+                    const freePick = (yogasData as any).freePick as string | null;
+                    const tasteable = !entitled && (freePick === y.name || freePick === null);
                     return (
                       <div key={y.name} className="rounded-lg overflow-hidden" style={{ border: open ? "1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)" : "1px solid var(--color-border)" }}>
                         <button onClick={() => setOpenYoga(open ? null : y.name)} className="w-full flex items-center justify-between px-3 py-2.5 text-left">
@@ -271,17 +285,22 @@ export default function Horoscope() {
                               {y.vantages > 1 ? `holds from ${y.vantages} vantages` : "held"}{y.repeatsInNavamsha ? " · repeats in the navamsha" : ""}
                             </span>
                           </span>
-                          {!entitled && <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
+                          {!entitled && !tasteable && <GateMark size={13} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />}
+                          {!entitled && tasteable && freePick === null && <span className="text-[10px] font-bold uppercase" style={{ letterSpacing: "0.08em", color: "var(--brand-gold)", flexShrink: 0 }}>taste</span>}
                         </button>
                         {open && (
                           <div className="px-3 pb-3">
-                            {!entitled ? (
+                            {!entitled && !tasteable ? (
                               <div className="flex items-start gap-2.5 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
                                 <GateMark size={13} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
                                 <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
                                   This yoga is written into your chart — its reading (what it gives, how strongly you hold it, when it ripens) opens with the premium layer. Soon.
                                 </p>
                               </div>
+                            ) : !entitled && tasteable && freePick === null && confirmTaste !== y.name ? (
+                              <button onClick={() => { setConfirmTaste(y.name); setTimeout(() => utils.horoscope.yogasList.invalidate(), 4000); }} className="w-full py-2 rounded-full text-[11px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--brand-gold)", border: "1px solid color-mix(in srgb, var(--brand-gold) 55%, transparent)", background: "transparent", cursor: "pointer" }}>
+                                Make {y.name} my free reading — this choice keeps
+                              </button>
                             ) : yogaReadQ.isLoading ? (
                               <VeleaLoader size={22} label="Voicing the yoga…" />
                             ) : yogaReadQ.data?.available && yogaReadQ.data.read ? (
