@@ -114,7 +114,10 @@ export const tasks = mysqlTable("tasks", {
   effortSize: mysqlEnum("effortSize", ["quick", "sitting", "long"]),
   // WHO the task touches (David's nine circles, 2026-07-16) — maps to life-theme rooms
   // so open windows lift matching tasks. Column added by hand (add-task-circle-column.ts).
-  circle: mysqlEnum("circle", ["life_partner", "husband", "wife", "boyfriend", "girlfriend", "lover", "situationship", "children", "family", "pets", "self", "inner_circle", "friends", "acquaintances", "boss", "business_partner", "mentors", "mentees", "coworkers", "clients", "helpers", "institutions", "powerful", "followers", "everyone_else", "enemies"]),
+  // 28 values, in PROD's exact order (extend-circles-2.ts, run by David) — schema.ts drifted
+  // to 26 (missing mother/father); realigned 2026-07-18 (audit H14) so a future db:push can
+  // never SHRINK the enum and truncate mother/father rows.
+  circle: mysqlEnum("circle", ["life_partner", "husband", "wife", "boyfriend", "girlfriend", "lover", "situationship", "business_partner", "children", "mother", "father", "family", "inner_circle", "friends", "acquaintances", "mentors", "mentees", "boss", "coworkers", "clients", "helpers", "institutions", "powerful", "followers", "pets", "enemies", "self", "everyone_else"]),
   // MULTI-CIRCLE (2026-07-17): JSON array of circle keys — a task can touch many bubbles.
   circles: text("circles"),
   notes: text("notes"), // Optional free-text notes, context, or links
