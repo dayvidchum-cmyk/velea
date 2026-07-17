@@ -1,4 +1,6 @@
 import { useState } from "react";
+import InstallGuide from "@/components/InstallGuide";
+import VeleaLoader from "@/components/VeleaLoader";
 import { Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -211,7 +213,7 @@ export default function Login() {
           >
             {isLoading ? (
               <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.55rem" }}>
-                <Loader2 size={15} className="animate-spin" />
+                <VeleaLoader size={15} />
                 {isSignup ? "Creating…" : "Signing in…"}
               </span>
             ) : (isSignup ? "Create Account" : "Sign In")}
@@ -229,6 +231,9 @@ export default function Login() {
             {isSignup ? "Already have an account? Sign in" : "Have an invite? Create your account"}
           </button>
         )}
+
+        {/* Nana-grade install steps — device-detected, collapsed, gone once installed. */}
+        <InstallGuide />
       </div>
     </div>
   );
