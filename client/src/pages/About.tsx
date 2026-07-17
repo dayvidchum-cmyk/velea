@@ -42,7 +42,7 @@ export default function About() {
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "0.5rem 1.4rem 2rem" }}>
       <button onClick={() => navigate("/settings")}
-        className="parchment inline-flex items-center" style={{ gap: 2, padding: "0.3rem 0.8rem 0.3rem 0.45rem", borderRadius: 999, background: "var(--parchment)", border: "1px solid color-mix(in srgb, var(--day-accent, var(--brand-gold)) 42%, transparent)", color: "var(--heading-ink)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", marginTop: "0.75rem" }}>
+        className="line-pill inline-flex items-center" style={{ gap: 2, padding: "0.3rem 0.8rem 0.3rem 0.45rem", borderRadius: 999, background: "transparent", border: "1px solid color-mix(in srgb, var(--day-accent, var(--brand-gold)) 42%, transparent)", color: "var(--heading-ink)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", marginTop: "0.75rem", ["--pill-ink" as string]: "#5E87B8" }}>
         <ChevronLeft size={17} /> Settings
       </button>
 

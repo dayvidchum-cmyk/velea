@@ -936,8 +936,10 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
                 style={{
                   display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: reveal.isPending ? "default" : "pointer",
                   borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, letterSpacing: "0.01em",
-                  color: "#FBF7ED", background: `linear-gradient(180deg, ${accent}, #3a6ba8)`, opacity: reveal.isPending ? 0.7 : 1,
-                  boxShadow: `0 2px 12px ${accent}3a`,
+                  // Field note 2026-07-17: "Flatter button background here. Aquamarine mint" —
+                  // one flat mint-aquamarine, the gradient retired.
+                  color: "#FBF7ED", background: "#54B8A9", opacity: reveal.isPending ? 0.7 : 1,
+                  boxShadow: "0 2px 10px #54B8A930",
                 }}
               >
                 {reveal.isPending ? <><span className="velea-loader" style={{ display: "inline-flex", lineHeight: 0 }}><VeleaMark size={15} color="currentColor" /></span> Reading the cycle…</> : <>Read this Mercury retrograde</>}

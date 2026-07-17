@@ -343,12 +343,14 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         {/* Optional back link — sits directly above the page title */}
         {pageTitle && onBack && (
           // THE BLESSED BACK CHIP (David 2026-07-16: the old ones "look out of place. the
-          // styling? location? both?" — both): a quiet parchment pill seated in the masthead,
-          // named destination (never bare "Back"), 17px chevron per the Lisa bar.
+          // styling? location? both?" — both): a quiet pill seated in the masthead, named
+          // destination (never bare "Back"), 17px chevron per the Lisa bar. Field note
+          // 2026-07-17: "It should be background color and then fill to pale blue" — resting
+          // = the page's own ground (no parchment fill), press/hover blooms a pale blue.
           <button
             onClick={onBack}
-            className="parchment inline-flex items-center"
-            style={{ gap: 2, padding: "0.3rem 0.8rem 0.3rem 0.45rem", borderRadius: 999, background: "var(--parchment)", border: "1px solid color-mix(in srgb, var(--day-accent, var(--brand-gold)) 42%, transparent)", color: "var(--heading-ink)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", marginTop: "1.25rem" }}
+            className="line-pill inline-flex items-center"
+            style={{ gap: 2, padding: "0.3rem 0.8rem 0.3rem 0.45rem", borderRadius: 999, background: "transparent", border: "1px solid color-mix(in srgb, var(--day-accent, var(--brand-gold)) 42%, transparent)", color: "var(--heading-ink)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", marginTop: "1.25rem", ["--pill-ink" as string]: "#5E87B8" }}
             aria-label={`Back to ${backLabel}`}
           >
             <ChevronLeft size={17} />
