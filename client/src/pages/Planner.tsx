@@ -10,6 +10,7 @@ import PlanetMark, { PLANET_MARK_INK } from "@/components/PlanetMark";
 import CrownMark from "@/components/CrownMark";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import GateMark from "@/components/GateMark";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { trpc } from "@/lib/trpc";
@@ -612,6 +613,13 @@ export default function Planner() {
   // moment/ephemeral read), so the new one persists and returns on reload (David's expectation).
   // Each tap is a fresh Sonnet call, so the button is admin-gated in the UI.
   const [refreshingRead, setRefreshingRead] = useState(false);
+  // "UPDATE TO THE MOMENT" — the premium moment-read (David 2026-07-18). The free day-read is
+  // anchored to the day's RULING star (v680), whole and stable; the moment refresh re-reads for
+  // THIS hour. Server enforces it (momentRefresh gate, audit M2); here it renders LOCKED for the
+  // un-entitled with an upsell instead of being invisible.
+  const { data: myFeatures } = trpc.features.mine.useQuery(undefined, { staleTime: 5 * 60_000 });
+  const canMoment = user?.role === "admin" || (myFeatures as any)?.momentRefresh === true;
+  const [momentUpsellOpen, setMomentUpsellOpen] = useState(false);
   const updateToMoment = async () => {
     if (!glanceProfileId) return;
     setRefreshingRead(true);
@@ -1096,18 +1104,31 @@ export default function Planner() {
                 (RIGHT corner). The refresh lives OPPOSITE the caret with the date between them, so the
                 two tap targets never crowd — reaching for one can't catch the other. */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', width: '100%', marginBottom: '0.25rem' }}>
-              {/* Premium preview (admin only): regenerate the day-read to this moment. */}
-              {user?.role === "admin" && glanceProfileId && dayReadContent && (
-                <button
-                  type="button"
-                  onClick={updateToMoment}
-                  disabled={refreshingRead}
-                  title="Refresh today's reading"
-                  aria-label="Refresh today's reading"
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
-                >
-                  <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
-                </button>
+              {/* "Update to the moment" — entitled users get the working refresh; everyone else
+                  sees it LOCKED (the gate) and tapping opens the upsell (David 2026-07-18). */}
+              {glanceProfileId && dayReadContent && (
+                canMoment ? (
+                  <button
+                    type="button"
+                    onClick={updateToMoment}
+                    disabled={refreshingRead}
+                    title="Update to the moment"
+                    aria-label="Update to the moment"
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                  >
+                    <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setMomentUpsellOpen(true)}
+                    title="Update to the moment — a premium moment-read"
+                    aria-label="Update to the moment — locked. Tap to learn more."
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                  >
+                    <GateMark size={15} color="var(--brand-gold)" />
+                  </button>
+                )
               )}
               <button
                 type="button"
@@ -2452,6 +2473,33 @@ export default function Planner() {
         editTask={sheetEditTask}
       />
 
+      {/* "UPDATE TO THE MOMENT" upsell (David 2026-07-18 — proposed copy, his to refine when
+          he lives it). The free read is complete; this is a true sharpening, not a paywall. */}
+      {momentUpsellOpen && (
+        <div
+          onClick={() => setMomentUpsellOpen(false)}
+          style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(6,6,9,0.55)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="parchment"
+            style={{ maxWidth: 360, width: '100%', borderRadius: 18, padding: '1.4rem 1.4rem 1.2rem', border: '1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.7rem' }}
+          >
+            <GateMark size={26} color="var(--brand-gold)" />
+            <h3 style={{ margin: 0, fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.35rem', color: 'var(--heading-ink)' }}>Update to the moment</h3>
+            <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--color-foreground)' }}>
+              Today's reading is anchored to the day's <b>ruling star</b> — the whole day, whole and true. <b>Update to the moment</b> re-reads for <i>right now</i>: the star ruling this hour and the planetary hour where you're standing. The day tells you what today is for; the moment tells you if now is the time.
+            </p>
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--brand-gold)' }}>Opens with the premium layer · soon</p>
+            <button
+              onClick={() => setMomentUpsellOpen(false)}
+              style={{ marginTop: '0.4rem', background: 'transparent', border: '1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)', borderRadius: 999, padding: '0.5rem 1.4rem', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--heading-ink)', cursor: 'pointer' }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       </div>
     </div>
