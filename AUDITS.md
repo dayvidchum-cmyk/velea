@@ -45,6 +45,14 @@ The reading laws hold everywhere: **no house numbers** in user prose (name the l
 **never collapse to one single move**. Grep for house numbers / "she" near Moon / banned word
 "horoscope"; read for the rest.
 
+### 4b. Orb-honesty check (joined audit #4, born 2026-07-17) — _protects: earned precision_
+The Simone acceptance read claimed "Rahu sits on that same point within a degree" — natal
+Mars–Rahu are 17.5° apart (same sign only); "fused" for a 13.7° separation; transit dignity
+sold without its house or the natal condition beside it. The LLM tightens orbs the input never
+gave. **Check:** every degree-level claim in sampled readings traces to a numeric orb in the
+input; sign-level facts wear sign-level language. The celebratory summarizer (Claude included)
+is subject to the same check.
+
 ### 5. Cognitive-load audit 👁 — _protects: collapse-is-default_
 New sections **ship collapsed**; one clear primary per screen; nothing mushed or noisy. **Check:**
 default-open states, and whether a new panel is adding load or earning its space.

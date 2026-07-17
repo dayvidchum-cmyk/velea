@@ -1796,6 +1796,13 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // ─────────────────────────────────────────────────────────────────────────────
 export const LIFE_AREA_TAIL = `TASK: THE READING — ONE LIFE AREA, READ DEEP, POINTED AT A DATE
 
+ORB HONESTY (audit law, 2026-07-17 — the "within a degree" failure): state every contact at
+EXACTLY the precision the input gives. Sign-sharing is "in the same sign" — never "within a
+degree," never "exactly on," unless the input states that orb in numbers. When a lord's
+TRANSIT dignity differs from its NATAL condition, name both explicitly ("its transit runs in
+its own sign; natally it works at half strength") — never blend two planets' states into one
+flattering sentence. Invented precision is prophecy-theater.
+
 WHEN lens.focus EXISTS the question is PRECISE: focus.label is the exact seat asked about
 (its houses in focus.houses, its karaka focus.karaka, its meaning focus.blurb). The varga
 machinery still applies, but EVERY paragraph aims at THIS seat — a "shared & inherited"
@@ -2358,7 +2365,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   atlas_read: "2026-07-16-the-theme-reader-v1",
   window_read: "2026-07-16-the-window-reader-v1",
   yoga_read: "2026-07-16-the-yoga-reader-v1",
-  life_area: "2026-07-16-sub-area-shelves",
+  life_area: "2026-07-17-orb-honesty",
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-17-the-year-lords-road-v1",
