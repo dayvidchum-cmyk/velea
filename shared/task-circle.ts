@@ -7,7 +7,7 @@
  */
 export const CIRCLES = [
   "life_partner", "husband", "wife", "boyfriend", "girlfriend", "lover", "situationship",
-  "children", "family", "pets", "self",
+  "children", "mother", "father", "family", "pets", "self",
   "inner_circle", "friends", "acquaintances",
   "boss", "business_partner", "mentors", "mentees", "coworkers", "clients", "helpers",
   "institutions", "powerful", "followers", "everyone_else", "enemies",
@@ -17,7 +17,7 @@ export type TaskCircle = (typeof CIRCLES)[number];
 export const CIRCLE_LABEL: Record<TaskCircle, string> = {
   life_partner: "Life partner", husband: "Husband", wife: "Wife",
   boyfriend: "Boyfriend", girlfriend: "Girlfriend", lover: "Lover", situationship: "Situationship",
-  children: "Children", family: "Family", pets: "Pets", self: "Self",
+  children: "Children", mother: "Mother", father: "Father", family: "Family", pets: "Pets", self: "Self",
   inner_circle: "Inner circle", friends: "Friends", acquaintances: "Acquaintances",
   boss: "Boss", business_partner: "Business partner", mentors: "Mentors", mentees: "Mentees",
   coworkers: "Co-workers", clients: "Clients", helpers: "Helpers",
@@ -28,7 +28,7 @@ export const CIRCLE_LABEL: Record<TaskCircle, string> = {
 /** The five shelves — the picker's organization (never a flat bubble field). */
 export const CIRCLE_SHELVES: { label: string; circles: TaskCircle[] }[] = [
   { label: "Love", circles: ["life_partner", "husband", "wife", "boyfriend", "girlfriend", "lover", "situationship"] },
-  { label: "Yours", circles: ["self", "children", "family", "pets"] },
+  { label: "Yours", circles: ["self", "children", "mother", "father", "family", "pets"] },
   { label: "Chosen", circles: ["inner_circle", "friends", "acquaintances"] },
   { label: "Work", circles: ["boss", "business_partner", "mentors", "mentees", "coworkers", "clients", "helpers"] },
   { label: "The world", circles: ["institutions", "powerful", "followers", "everyone_else", "enemies"] },
@@ -41,7 +41,9 @@ export const CIRCLE_THEMES: Record<TaskCircle, string[]> = {
   life_partner: ["marriage"], husband: ["marriage"], wife: ["marriage"],
   boyfriend: ["marriage"], girlfriend: ["marriage"],
   lover: ["children", "marriage"], situationship: ["marriage"],
-  children: ["children"], family: ["parents", "home"], pets: ["health"],
+  // Mother and father are PRECISE in the tradition (David: "specific to the tradition.
+  // Very precise."): mother = the 4th (mātṛ, Moon) · father = the 9th (pitṛ, Sun).
+  children: ["children"], mother: ["home", "parents"], father: ["parents"], family: ["parents", "home"], pets: ["health"],
   self: ["identity", "health"],
   inner_circle: ["siblings"], friends: ["siblings"], acquaintances: ["fame"],
   boss: ["career"], business_partner: ["marriage", "career"],
@@ -63,6 +65,8 @@ export const CIRCLE_VOICE: Partial<Record<TaskCircle, string>> = {
   institutions: "The authority rooms are open — paperwork and officials move",
   lover: "The romance rooms are open",
   situationship: "The union rooms are open — clarity favors you",
+  mother: "The 4th's rooms are open — the ground she gave you is tended today",
+  father: "The 9th's rooms are open — the line he carries meets you today",
 };
 
 /** The room named in lived words (default scorer reasons + whispers). */

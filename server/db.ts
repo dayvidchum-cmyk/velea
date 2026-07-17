@@ -329,7 +329,7 @@ export async function createTask(data: {
   lifeAreas?: string | null;
   completionPct?: number | null;
   effortSize?: "quick" | "sitting" | "long" | null;
-  circle?: "life_partner" | "husband" | "wife" | "boyfriend" | "girlfriend" | "lover" | "situationship" | "children" | "family" | "pets" | "self" | "inner_circle" | "friends" | "acquaintances" | "boss" | "business_partner" | "mentors" | "mentees" | "coworkers" | "clients" | "helpers" | "institutions" | "powerful" | "followers" | "everyone_else" | "enemies" | null;
+  circle?: "life_partner" | "husband" | "wife" | "boyfriend" | "girlfriend" | "lover" | "situationship" | "children" | "mother" | "father" | "family" | "pets" | "self" | "inner_circle" | "friends" | "acquaintances" | "boss" | "business_partner" | "mentors" | "mentees" | "coworkers" | "clients" | "helpers" | "institutions" | "powerful" | "followers" | "everyone_else" | "enemies" | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
