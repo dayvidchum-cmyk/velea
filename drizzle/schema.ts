@@ -418,8 +418,11 @@ export type InsertProfileNatalBody = typeof profileNatalBodies.$inferInsert;
 export const narrativeCache = mysqlTable("narrative_cache", {
   id: int("id").autoincrement().primaryKey(),
   profileId: int("profileId").notNull(),
-  surface: varchar("surface", { length: 16 }).notNull(), // 'glance' | 'deep'
-  cacheDate: varchar("cacheDate", { length: 10 }).notNull(), // YYYY-MM-DD the content is for
+  surface: varchar("surface", { length: 24 }).notNull(), // 'glance' | 'deep' | 'atlas_read' | …
+  // Was VARCHAR(10) for YYYY-MM-DD — the 2026-07-17 outage: newer surfaces key by slug
+  // ("atlas-wealth", "yoga-…", "atlas-w-wealth-2058-04-15") and strict MySQL rejected every
+  // write, killing already-generated readings. Widened via scripts/widen-narrative-cache.ts.
+  cacheDate: varchar("cacheDate", { length: 64 }).notNull(), // date OR surface-specific key slug
   inputHash: varchar("inputHash", { length: 64 }).notNull(),
   model: varchar("model", { length: 48 }).notNull(),
   content: text("content").notNull(), // glance: plain string; deep: JSON

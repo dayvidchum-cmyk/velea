@@ -599,10 +599,19 @@ export async function getLatestNarrativeCache(profileId: number, surface: string
 export async function upsertNarrativeCache(profileId: number, surface: string, cacheDate: string, inputHash: string, model: string, content: string) {
   const db = await getDb();
   if (!db) return;
-  await db
-    .insert(narrativeCache)
-    .values({ profileId, surface, cacheDate, inputHash, model, content, generatedAt: new Date() })
-    .onDuplicateKeyUpdate({ set: { inputHash, model, content, generatedAt: new Date() } });
+  try {
+    await db
+      .insert(narrativeCache)
+      .values({ profileId, surface, cacheDate, inputHash, model, content, generatedAt: new Date() })
+      .onDuplicateKeyUpdate({ set: { inputHash, model, content, generatedAt: new Date() } });
+  } catch (err) {
+    // THE 2026-07-17 OUTAGE LAW: a cache-write failure must NEVER kill a generated reading.
+    // The read was already produced and billed — serve it; record the write failure in the
+    // black box. (This exact path was cacheDate VARCHAR(10) rejecting the new long keys,
+    // silently discarding paid generations and regenerating on every tap.)
+    const { recordServerError } = await import("./narrative/generate.js");
+    recordServerError(`cacheWrite:${surface}:${cacheDate}`, err);
+  }
 }
 
 /** The archive: every stored daily glance for a profile, newest first (for the Kept Readings view). */
