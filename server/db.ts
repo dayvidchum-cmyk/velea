@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, checkIns, horoscopes, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -594,6 +594,21 @@ export async function getLatestNarrativeCache(profileId: number, surface: string
     .orderBy(desc(narrativeCache.id))
     .limit(1);
   return result[0];
+}
+
+// Count of NEW narrative generations for a profile since UTC midnight — the durable signal for
+// the daily generation cap (the "invisible fairness limit"). Survives restarts and counts the
+// distinct surface+date reads minted today, which is exactly the binge-cost surface. Refresh/
+// ephemeral-moment events are counted in-process on top of this (see service.ts guardedGen).
+export async function countGenerationsToday(profileId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const start = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00.000Z");
+  const rows = await db
+    .select({ n: sql<number>`count(*)` })
+    .from(narrativeCache)
+    .where(and(eq(narrativeCache.profileId, profileId), gte(narrativeCache.generatedAt, start)));
+  return Number(rows[0]?.n ?? 0);
 }
 
 export async function upsertNarrativeCache(profileId: number, surface: string, cacheDate: string, inputHash: string, model: string, content: string) {

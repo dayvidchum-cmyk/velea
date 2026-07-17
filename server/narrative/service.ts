@@ -6,7 +6,7 @@ import { generateGlance, generateDeepRead, generateChapter, generateDayRead, gen
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import canonYogasJson from "../vedic/canon/yogas.json";
-import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache } from "../db.js";
+import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache, countGenerationsToday } from "../db.js";
 
 // PROMPT_VERSION is part of the key so a prompt change busts the cache — otherwise a
 // stale read (generated under an older prompt) keeps being served until the chart data
@@ -54,6 +54,44 @@ function singleFlight<T>(key: string, fn: () => Promise<T>): Promise<T> {
   const p = fn().finally(() => inFlight.delete(key));
   inFlight.set(key, p);
   return p;
+}
+
+// THE INVISIBLE DAILY GENERATION CAP (2026-07-17). One flat price unlocks everything, so the
+// only economic risk is the "dopamine binge": one user minting hundreds of fresh reads in a
+// night (years, months, days, every surface) — each a real LLM call, uncapped that could exceed
+// a month's subscription in an evening. This is the fairness ceiling that makes flat-rate sound:
+// no credit meter, no visible gate — a number NO normal user reaches (typical daily use is well
+// under 10 generations; the cap is set far above that). A binger simply plateaus for the day and
+// everything they already made stays cached and free forever. The $20 wallet cap is the ultimate
+// backstop beneath this; this stops one user from starving the pool.
+const DAILY_GEN_CAP = 50; // tunable; set above heavy first-day exploration (all houses+chapters+year ≈ 30-40), below pool-starvation. The $20 wallet cap is the true money ceiling beneath this.
+// In-process event counter — counts EVERY generation event (incl. forced refresh and the
+// ephemeral moment read, which never touch narrative_cache and so are invisible to the durable
+// DB count). We take max(DB-count, in-proc-count): the DB count is the restart-proof floor
+// (distinct reads minted today), the in-proc count catches within-process refresh/moment spam.
+const genEventsByProfile = new Map<number, { day: string; n: number }>();
+const utcDay = () => new Date().toISOString().slice(0, 10);
+function bumpGenEvent(profileId: number): void {
+  const day = utcDay();
+  const cur = genEventsByProfile.get(profileId);
+  if (!cur || cur.day !== day) genEventsByProfile.set(profileId, { day, n: 1 });
+  else cur.n += 1;
+}
+function inProcGenCount(profileId: number): number {
+  const cur = genEventsByProfile.get(profileId);
+  return cur && cur.day === utcDay() ? cur.n : 0;
+}
+async function overDailyCap(profileId: number): Promise<boolean> {
+  const durable = await countGenerationsToday(profileId).catch(() => 0);
+  return Math.max(durable, inProcGenCount(profileId)) >= DAILY_GEN_CAP;
+}
+// Wraps a generation in the cap. Over the cap → returns null WITHOUT generating, so the caller
+// degrades exactly like the dry-wallet path (available:false → static copy). The event is counted
+// inside the single-flight so coalesced duplicate callers count once, and cache HITS never reach
+// here (each surface checks its cache before calling this), so re-reads are free and uncounted.
+async function guardedGen<T>(profileId: number, key: string, fn: () => Promise<T>): Promise<T | null> {
+  if (await overDailyCap(profileId)) return null;
+  return singleFlight(key, async () => { bumpGenEvent(profileId); return fn(); });
 }
 
 /** THE TENSE ANCHOR (2026-07-17, the "ghost in the past" failure: a past antar chapter
@@ -134,7 +172,7 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
       }
     }
   }
-  const content = await singleFlight(`glance:${profileId}:${date}:${hash}`, async () => {
+  const content = await guardedGen(profileId, `glance:${profileId}:${date}:${hash}`, async () => {
     const c = await generateGlance(input);
     // Persist inside the single-flight so the one generation writes the cache once; coalesced
     // callers then share it (and every later request hits the cache, fast).
@@ -177,7 +215,7 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
       }
     }
   }
-  const read = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${date}:${hash}`, async () => {
     const r = await generateDeepRead(input);
     if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
     return r;
@@ -214,7 +252,7 @@ export async function getChapterCached(profileId: number, date: string, refresh 
       }
     }
   }
-  const chapter = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+  const chapter = await guardedGen(profileId, `${surface}:${profileId}:${date}:${hash}`, async () => {
     const r = await generateChapter(input);
     if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
     return r;
@@ -252,7 +290,7 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
       }
     }
   }
-  const read = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${date}:${hash}`, async () => {
     const r = await generateDayRead(input);
     if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
     return r;
@@ -270,7 +308,7 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
 export async function getLifeAreaRead(profileId: number, date: string, lifeArea: LifeAreaKey, dayLoc?: { lat: number; lon: number; utcOffset: number }, areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }): Promise<DayReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const input = await buildNarrativeInput(profileId, date, { dayLoc, lifeArea, areaFocus });
-  const read = await singleFlight(`life_area:${profileId}:${date}:${lifeArea}:${areaFocus?.key ?? "whole"}`, async () => generateLifeAreaRead(input));
+  const read = await guardedGen(profileId, `life_area:${profileId}:${date}:${lifeArea}:${areaFocus?.key ?? "whole"}`, async () => generateLifeAreaRead(input));
   if (!read) return { available: false, read: null, generatedAt: null, cached: false };
   return { available: true, read, generatedAt: new Date(), cached: false };
 }
@@ -304,7 +342,7 @@ export async function getEclipseSeasonCached(profileId: number, date: string, re
       } catch { /* regenerate on corrupt cache */ }
     }
   }
-  const read = await singleFlight(`${surface}:${profileId}:${seasonKey}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${seasonKey}:${hash}`, async () => {
     const r = await generateEclipseSeasonRead(input);
     if (r) await upsertNarrativeCache(profileId, surface, seasonKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -365,7 +403,7 @@ export async function getMercuryRxCached(profileId: number, date: string, refres
       } catch { /* regenerate on corrupt cache */ }
     }
   }
-  const read = await singleFlight(`${surface}:${profileId}:${cycleKey}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${cycleKey}:${hash}`, async () => {
     const r = await generateMercuryRxRead(input);
     if (r) await upsertNarrativeCache(profileId, surface, cycleKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -396,7 +434,7 @@ export async function getTlWindowReadCached(profileId: number, from: string, inp
     }
   }
   const { generateTlWindowRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${dateKey}:${hash}`, async () => {
     const r = await generateTlWindowRead({ ...input, today: todayIso() });
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -424,7 +462,7 @@ export async function getCombinedReadCached(profileAId: number, pairKey: string,
     }
   }
   const { generateCombinedRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileAId}:${pairKey}:${hash}`, async () => {
+  const read = await guardedGen(profileAId, `${surface}:${profileAId}:${pairKey}:${hash}`, async () => {
     const r = await generateCombinedRead(input);
     if (r) await upsertNarrativeCache(profileAId, surface, pairKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -457,7 +495,7 @@ export async function getPlanetRxCached(profileId: number, planet: "venus" | "ma
     }
   }
   const { generatePlanetRxRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${cycleKey}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${cycleKey}:${hash}`, async () => {
     const r = await generatePlanetRxRead(input);
     if (r) await upsertNarrativeCache(profileId, surface, cycleKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -520,7 +558,7 @@ export async function getMonthCached(profileId: number, date: string, refresh = 
       } catch { /* regenerate on corrupt cache */ }
     }
   }
-  const read = await singleFlight(`${surface}:${profileId}:${monthKey}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${monthKey}:${hash}`, async () => {
     const r = await generateMonthRead(input);
     if (r) await upsertNarrativeCache(profileId, surface, monthKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -583,7 +621,7 @@ export async function getCastCached(profileId: number, date: string, refresh = f
       }
     }
   }
-  const cast = await singleFlight(`${surface}:${profileId}:${date}:${hash}`, async () => {
+  const cast = await guardedGen(profileId, `${surface}:${profileId}:${date}:${hash}`, async () => {
     const r = await generateCast(input);
     if (r) await upsertNarrativeCache(profileId, surface, date, hash, MODEL, JSON.stringify(r));
     return r;
@@ -617,7 +655,7 @@ export async function getHouseReadCached(profileId: number, house: number, refre
     }
   }
   const { generateHouseRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${house}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${house}:${hash}`, async () => {
     const r = await generateHouseRead(input as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -684,7 +722,7 @@ export async function getDashaReadCached(profileId: number, lord: string, span?:
     }
   }
   const { generateDashaRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${dateKey}:${hash}`, async () => {
     const r = await generateDashaRead({ ...input, today: todayIso() } as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -738,7 +776,7 @@ export async function getYogaReadCached(profileId: number, yogaName: string, ref
     }
   }
   const { generateYogaRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${dateKey}:${hash}`, async () => {
     const r = await generateYogaRead(input as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -785,7 +823,7 @@ export async function getWindowReadCached(profileId: number, theme: string, labe
     }
   }
   const { generateWindowRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${theme}:${from}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${theme}:${from}:${hash}`, async () => {
     const r = await generateWindowRead({ ...input, today: todayIso() } as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
@@ -833,7 +871,7 @@ export async function getAtlasReadCached(profileId: number, theme: string, label
   // the cache or reports there's a door to open. Generation requires the explicit tap.
   if (peek) return { available: false, read: null, windows, generatedAt: null, cached: false, peeked: true };
   const { generateAtlasRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${theme}:${hash}`, async () => {
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${theme}:${hash}`, async () => {
     const r = await generateAtlasRead({ ...input, today: todayIso() } as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
