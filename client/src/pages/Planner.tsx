@@ -299,13 +299,31 @@ export default function Planner() {
   // hero + calendar + at most one aligned task; orb numbers hidden; task lists held back
   // until one tap ("Show my day"). Once per local day; Settings can turn it off.
   const [softOpen, setSoftOpen] = useState(false);
+  // Soft open fires on the day's FIRST open — and again after AN HOUR away (David
+  // 2026-07-16: "soft open was lovely today… i want soft open to reset after an hour of
+  // last use. what a nice way to reenter what i must tend to"). Last-use stamps on every
+  // hide/leave; returning after 60+ minutes re-arrives soft.
   useEffect(() => {
     if (settings.softOpen === false) return;
-    const todayStr = toDateStr(new Date());
-    if (localStorage.getItem("velea-soft-open-seen") !== todayStr) {
-      localStorage.setItem("velea-soft-open-seen", todayStr);
-      setSoftOpen(true);
-    }
+    const HOUR = 60 * 60 * 1000;
+    const maybeSoften = () => {
+      const todayStr = toDateStr(new Date());
+      const firstOfDay = localStorage.getItem("velea-soft-open-seen") !== todayStr;
+      const last = parseInt(localStorage.getItem("velea-last-use") ?? "0", 10);
+      const awayLong = last > 0 && Date.now() - last > HOUR;
+      if (firstOfDay || awayLong) {
+        localStorage.setItem("velea-soft-open-seen", todayStr);
+        localStorage.setItem("velea-last-use", String(Date.now()));
+        setSoftOpen(true);
+      }
+    };
+    maybeSoften();
+    const stamp = () => { try { localStorage.setItem("velea-last-use", String(Date.now())); } catch { /* full */ } };
+    const onVis = () => { if (document.visibilityState === "hidden") stamp(); else maybeSoften(); };
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("pagehide", stamp);
+    const beat = setInterval(stamp, 5 * 60 * 1000); // heartbeat so a killed app still has a fresh stamp
+    return () => { document.removeEventListener("visibilitychange", onVis); window.removeEventListener("pagehide", stamp); clearInterval(beat); };
   }, [settings.softOpen]);
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
   const [allTasksOpen, setAllTasksOpen] = useState(false);
