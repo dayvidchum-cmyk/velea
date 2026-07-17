@@ -10,7 +10,6 @@ import PlanetMark, { PLANET_MARK_INK } from "@/components/PlanetMark";
 import CrownMark from "@/components/CrownMark";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import GateMark from "@/components/GateMark";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { trpc } from "@/lib/trpc";
@@ -619,7 +618,11 @@ export default function Planner() {
   // un-entitled with an upsell instead of being invisible.
   const { data: myFeatures } = trpc.features.mine.useQuery(undefined, { staleTime: 5 * 60_000 });
   const canMoment = user?.role === "admin" || (myFeatures as any)?.momentRefresh === true;
+  // NO GATE, illusion-first (David 2026-07-18): the refresh looks normal to everyone. A
+  // non-entitled user presses it EXPECTING the new day — and in that honest moment of desire
+  // gets the pitch instead. subscribeTapped flips the pop-up from pitch → "coming soon".
   const [momentUpsellOpen, setMomentUpsellOpen] = useState(false);
+  const [subscribeTapped, setSubscribeTapped] = useState(false);
   const updateToMoment = async () => {
     if (!glanceProfileId) return;
     setRefreshingRead(true);
@@ -1104,31 +1107,20 @@ export default function Planner() {
                 (RIGHT corner). The refresh lives OPPOSITE the caret with the date between them, so the
                 two tap targets never crowd — reaching for one can't catch the other. */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', width: '100%', marginBottom: '0.25rem' }}>
-              {/* "Update to the moment" — entitled users get the working refresh; everyone else
-                  sees it LOCKED (the gate) and tapping opens the upsell (David 2026-07-18). */}
+              {/* "Update to the moment" — the SAME refresh icon for everyone (no gate, the illusion).
+                  Entitled/admin get the real refresh; everyone else gets the pitch pop-up in the
+                  moment they press it wanting the new day (David 2026-07-18). */}
               {glanceProfileId && dayReadContent && (
-                canMoment ? (
-                  <button
-                    type="button"
-                    onClick={updateToMoment}
-                    disabled={refreshingRead}
-                    title="Update to the moment"
-                    aria-label="Update to the moment"
-                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
-                  >
-                    <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setMomentUpsellOpen(true)}
-                    title="Update to the moment — a premium moment-read"
-                    aria-label="Update to the moment — locked. Tap to learn more."
-                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
-                  >
-                    <GateMark size={15} color="var(--brand-gold)" />
-                  </button>
-                )
+                <button
+                  type="button"
+                  onClick={canMoment ? updateToMoment : () => { setSubscribeTapped(false); setMomentUpsellOpen(true); }}
+                  disabled={refreshingRead}
+                  title="Update to the moment"
+                  aria-label="Update to the moment"
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                >
+                  <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
+                </button>
               )}
               <button
                 type="button"
@@ -2473,8 +2465,10 @@ export default function Planner() {
         editTask={sheetEditTask}
       />
 
-      {/* "UPDATE TO THE MOMENT" upsell (David 2026-07-18 — proposed copy, his to refine when
-          he lives it). The free read is complete; this is a true sharpening, not a paywall. */}
+      {/* "UPDATE TO THE MOMENT" pitch (David 2026-07-18). No gate — the pitch appears in the
+          honest moment they press refresh wanting the new day. Subscribe shows a real price
+          ($X.XX = PLACEHOLDER, David sets it) → "coming soon" (no real charge pre-Stripe).
+          Copy is his to finalize at Stripe time. */}
       {momentUpsellOpen && (
         <div
           onClick={() => setMomentUpsellOpen(false)}
@@ -2483,20 +2477,40 @@ export default function Planner() {
           <div
             onClick={(e) => e.stopPropagation()}
             className="parchment"
-            style={{ maxWidth: 360, width: '100%', borderRadius: 18, padding: '1.4rem 1.4rem 1.2rem', border: '1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.7rem' }}
+            style={{ maxWidth: 360, width: '100%', borderRadius: 18, padding: '1.5rem 1.4rem 1.3rem', border: '1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.85rem' }}
           >
-            <GateMark size={26} color="var(--brand-gold)" />
-            <h3 style={{ margin: 0, fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.35rem', color: 'var(--heading-ink)' }}>Update to the moment</h3>
-            <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--color-foreground)' }}>
-              Today's reading is anchored to the day's <b>ruling star</b> — the whole day, whole and true. <b>Update to the moment</b> re-reads for <i>right now</i>: the star ruling this hour and the planetary hour where you're standing. The day tells you what today is for; the moment tells you if now is the time.
-            </p>
-            <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--brand-gold)' }}>Opens with the premium layer · soon</p>
-            <button
-              onClick={() => setMomentUpsellOpen(false)}
-              style={{ marginTop: '0.4rem', background: 'transparent', border: '1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)', borderRadius: 999, padding: '0.5rem 1.4rem', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--heading-ink)', cursor: 'pointer' }}
-            >
-              Close
-            </button>
+            {!subscribeTapped ? (
+              <>
+                <h3 style={{ margin: 0, fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.4rem', color: 'var(--heading-ink)' }}>Update to the moment</h3>
+                <p style={{ margin: 0, fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--color-foreground)' }}>
+                  Today's reading holds the whole day — its ruling star. <b>Update to the moment</b> re-reads for this exact moment: the star and the planetary hour where you're standing. The day tells you what today is for. The moment tells you if now is the time.
+                </p>
+                <button
+                  onClick={() => setSubscribeTapped(true)}
+                  style={{ marginTop: '0.3rem', width: '100%', background: 'linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)', border: 'none', borderRadius: 12, padding: '0.85rem', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '0.04em', color: '#1a1200', cursor: 'pointer' }}
+                >
+                  Subscribe · $4.99 / mo
+                </button>
+                <button
+                  onClick={() => setMomentUpsellOpen(false)}
+                  style={{ background: 'transparent', border: 'none', fontSize: '0.78rem', color: 'var(--color-muted-foreground)', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  Not now
+                </button>
+              </>
+            ) : (
+              <>
+                <p style={{ margin: '0.4rem 0', fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-foreground)' }}>
+                  This feature is coming soon. Contact your Admin.
+                </p>
+                <button
+                  onClick={() => setMomentUpsellOpen(false)}
+                  style={{ background: 'transparent', border: '1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)', borderRadius: 999, padding: '0.5rem 1.4rem', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--heading-ink)', cursor: 'pointer' }}
+                >
+                  Close
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
