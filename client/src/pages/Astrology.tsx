@@ -875,6 +875,13 @@ export function DashaSection() {
     { lord: readLord ?? "" },
     { enabled: !!readLord, staleTime: Infinity, retry: false },
   );
+  // THE SUB-CHAPTER READER (David 2026-07-16: "specific maha antar readings... a line up
+  // of little locks and potential") — only the running maha–antar pair opens; the rest lock.
+  const [antarKey, setAntarKey] = useState<{ maha: string; antar: string } | null>(null);
+  const dashaAntarQ = trpc.narrative.dashaRead.useQuery(
+    { lord: antarKey?.maha ?? "", antar: antarKey?.antar ?? "" },
+    { enabled: !!antarKey, staleTime: Infinity, retry: false },
+  );
   const didAutoOpen = useRef(false);
   const dayLabelColor = useDayModeColor();
 
@@ -987,11 +994,15 @@ export function DashaSection() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-semibold" style={{ color: t.primary }}>{g.mahadasha} Mahadasha</span>
                     <span className="text-xs" style={{ color: t.muted }}>{dur} yrs</span>
-                    {hasActive && (
+                    {hasActive ? (
                       <span className="text-xs px-2 py-0.5 rounded-full"
                         style={{ background: t.chip, color: t.primary, border: `1px solid ${t.chipBorder}` }}>
                         ◉ Active
                       </span>
+                    ) : (
+                      // The lineup of little locks — every future/past chapter shows its
+                      // potential at a glance (the time gate, worn on the shelf itself).
+                      <Lock size={12} style={{ color: "var(--brand-gold)", opacity: 0.7, flexShrink: 0 }} />
                     )}
                   </div>
                   <div className="text-xs mt-0.5" style={{ color: t.faint }}>
@@ -1062,11 +1073,13 @@ export function DashaSection() {
                             style={{ color: isCurrent ? antColor : "var(--color-muted-foreground)", fontWeight: isCurrent ? 600 : 400, minWidth: "80px" }}>
                             {period.antardasha}
                           </span>
-                          {isCurrent && (
+                          {isCurrent ? (
                             <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-semibold"
                               style={{ background: antColor, color: autoTextColors(antColor).primary, border: `1px solid ${antColor}` }}>
                               NOW
                             </span>
+                          ) : (
+                            <Lock size={11} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.55, flexShrink: 0 }} />
                           )}
                         </div>
                         <div className="flex items-center gap-3 mt-1 pl-5 flex-wrap">
@@ -1074,6 +1087,27 @@ export function DashaSection() {
                           <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>· {period.duration}</span>
                           <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>· {period.startAge}</span>
                         </div>
+                        {/* The running sub-chapter reads; every other antar wears its little lock above. */}
+                        {isCurrent && hasActive && (
+                          antarKey?.antar !== period.antardasha ? (
+                            <button
+                              onClick={() => setAntarKey({ maha: g.mahadasha, antar: period.antardasha })}
+                              className="mt-2 w-full py-1.5 rounded-full text-[10px] font-bold uppercase"
+                              style={{ letterSpacing: "0.09em", color: antColor, border: `1px solid ${antColor}66`, background: "transparent", cursor: "pointer" }}
+                            >
+                              Read the {period.antardasha} sub-chapter
+                            </button>
+                          ) : dashaAntarQ.isLoading ? (
+                            <div className="mt-2"><VeleaLoader size={20} label="Opening the sub-chapter…" /></div>
+                          ) : dashaAntarQ.data?.available && dashaAntarQ.data.read ? (
+                            <div className="mt-2">
+                              <p style={{ fontSize: "0.83rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>{dashaAntarQ.data.read.read}</p>
+                              <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.5rem 0 0" }}>{dashaAntarQ.data.read.question}</p>
+                            </div>
+                          ) : (
+                            <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>The sub-chapter is quiet — try again in a moment.</p>
+                          )
+                        )}
                       </div>
                     );
                   })}

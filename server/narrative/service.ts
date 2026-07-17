@@ -452,19 +452,24 @@ export async function getHouseReadCached(profileId: number, house: number, refre
 // ── THE CHAPTER READER — one read per (profile, dasha lord); the lord's natal dossier
 // assembled from stored research (placement + every house he rules with its condition).
 export type DashaReadResult = { available: boolean; read: import("./generate.js").DashaRead | null; generatedAt: Date | null; cached: boolean };
-export async function getDashaReadCached(profileId: number, lord: string, span?: string, refresh = false): Promise<DashaReadResult> {
+export async function getDashaReadCached(profileId: number, lord: string, span?: string, refresh = false, antar?: string): Promise<DashaReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = "dasha_read";
   const { getStoredResearch } = await import("../vedic/research-store.js");
   const research: any = await getStoredResearch(profileId);
   if (!research?.houses) return { available: false, read: null, generatedAt: null, cached: false };
   const houses: any[] = research.houses;
-  const rules = houses.filter((h) => h?.lord?.planet === lord).map((h) => ({ house: h.house, sign: h.sign, lordPlacedHouse: h.lord.placedHouse, lordPlacedSign: h.lord.placedSign, bhavaYoga: h.lord.bhavaYoga, occupants: h.occupants, vargaCheck: h.vargaCheck }));
-  const livesIn = houses.find((h) => (h.occupants ?? []).some((o: any) => (o.planet ?? o) === lord));
-  const dossier = { lord, livesIn: livesIn ? { house: livesIn.house, sign: livesIn.sign, occupants: livesIn.occupants } : null, rules, shadbala: research?.shadbala?.[lord] ?? null, states: research?.states?.[lord] ?? research?.avashtas?.[lord] ?? null };
-  const input = { lord, span: span ?? null, engineVersion: research?.engineVersion ?? null, dossier };
+  // One lord's natal dossier — used for the maha, and again for the antar lord when this
+  // is a SUB-CHAPTER read (David 2026-07-16: "specific maha antar readings").
+  const dossierOf = (L: string) => {
+    const rules = houses.filter((h) => h?.lord?.planet === L).map((h) => ({ house: h.house, sign: h.sign, lordPlacedHouse: h.lord.placedHouse, lordPlacedSign: h.lord.placedSign, bhavaYoga: h.lord.bhavaYoga, occupants: h.occupants, vargaCheck: h.vargaCheck }));
+    const livesIn = houses.find((h) => (h.occupants ?? []).some((o: any) => (o.planet ?? o) === L));
+    return { lord: L, livesIn: livesIn ? { house: livesIn.house, sign: livesIn.sign, occupants: livesIn.occupants } : null, rules, shadbala: research?.shadbala?.[L] ?? null, states: research?.states?.[L] ?? research?.avashtas?.[L] ?? null };
+  };
+  const dossier = dossierOf(lord);
+  const input = { lord, antar: antar ?? null, span: span ?? null, engineVersion: research?.engineVersion ?? null, dossier, antarDossier: antar ? dossierOf(antar) : null };
   const hash = dayStableHash(input, surface);
-  const dateKey = `dasha-${lord}`;
+  const dateKey = antar ? `dasha-${lord}-${antar}` : `dasha-${lord}`;
   if (!refresh) {
     const row = await getNarrativeCache(profileId, surface, dateKey);
     if (row && (row.locked || row.inputHash === hash)) {
@@ -476,7 +481,7 @@ export async function getDashaReadCached(profileId: number, lord: string, span?:
     }
   }
   const { generateDashaRead } = await import("./generate.js");
-  const read = await singleFlight(`${surface}:${profileId}:${lord}:${hash}`, async () => {
+  const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
     const r = await generateDashaRead(input as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;

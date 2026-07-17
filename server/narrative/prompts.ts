@@ -1931,6 +1931,11 @@ LAWS: siblings = blood + inner circle; the 2nd = money/livelihood never self-wor
 Moon gender-neutral; PG-playful warmth; no prophecy-theater — every claim traceable to
 input.dossier; concise is never vaguer.
 
+WHEN input.antar IS PRESENT this is a SUB-CHAPTER: the antar lord (input.antarDossier)
+acting WITHIN the maha lord's season (input.dossier). One or two lines set the maha's
+landscape; the antar lord is the HAND doing the season's work right now — his condition,
+his rooms, what he collects or spends of the larger chapter. Tighter: ~170 words.
+
 Return your answer by calling the dasha_read tool with "read" and "question" filled in.`;
 
 // ATLAS_READ_TAIL — THE THEME READER (David 2026-07-16: "When do I meet my soulmate?
@@ -2264,7 +2269,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   day_read: "2026-07-16-the-spine-not-the-mood",
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
-  dasha_read: "2026-07-16-the-chapter-reader-v1",
+  dasha_read: "2026-07-16-the-chapter-reader-v2-antar",
   atlas_read: "2026-07-16-the-theme-reader-v1",
   window_read: "2026-07-16-the-window-reader-v1",
   yoga_read: "2026-07-16-the-yoga-reader-v1",

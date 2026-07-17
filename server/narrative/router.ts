@@ -135,7 +135,7 @@ export const narrativeRouter = router({
   }),
 
   // THE CHAPTER READER — tap a mahadasha on the timeline, the lord's dossier speaks.
-  dashaRead: protectedProcedure.input(z.object({ lord: z.string().min(2).max(12), span: z.string().optional(), refresh: z.boolean().optional() })).query(async ({ ctx, input }) => {
+  dashaRead: protectedProcedure.input(z.object({ lord: z.string().min(2).max(12), antar: z.string().min(2).max(12).optional(), span: z.string().optional(), refresh: z.boolean().optional() })).query(async ({ ctx, input }) => {
     try {
       const { hasFeature } = await import("../feature-flags.js");
       if (!(await hasFeature(ctx.user, "chapterReader"))) return { available: false, read: null, generatedAt: null, cached: false } as const;
@@ -155,10 +155,13 @@ export const narrativeRouter = router({
           const cur: any = tl.entries.find((e: any) => e.isCurrent);
           const allowed = new Set([cur?.mahadasha, cur?.antardasha].filter(Boolean));
           if (!allowed.has(input.lord)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+          // Sub-chapter gate: only the RUNNING maha–antar pair reads (the rest are the
+          // lineup of little locks — the time gate on this page).
+          if (input.antar && !(input.lord === cur?.mahadasha && input.antar === cur?.antardasha)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
         } catch { return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const; }
       }
       const { getDashaReadCached } = await import("./service.js");
-      return await getDashaReadCached(profile.id, input.lord, input.span, input.refresh ?? false);
+      return await getDashaReadCached(profile.id, input.lord, input.span, input.refresh ?? false, input.antar);
     } catch (e) {
       console.error("[narrative.dashaRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
