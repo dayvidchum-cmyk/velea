@@ -957,6 +957,44 @@ export function DashaSection() {
                 Started {formatDate(currentPeriod.startDate)} · {currentPeriod.duration}
               </p>
             </div>
+            {/* THE PERIOD'S OWN SHELF (David 2026-07-16): open the active card and every
+                sub-period of this maha lines up — the past and the present read, the
+                future waits locked. Only current and past are accessible: the time gate. */}
+            {isOpen && (
+              <div style={{ background: "var(--color-card)", borderTop: `1px solid ${activeColor}55`, padding: "0.4rem 0.6rem 0.6rem" }}>
+                {(groups.find((g) => g.mahadasha === currentMaha)?.periods ?? []).map((period: any, i: number, arr: any[]) => {
+                  const curIdx = arr.findIndex((p: any) => p.isCurrent);
+                  const future = curIdx >= 0 && i > curIdx;
+                  const antColor = PLANET_COLORS[period.antardasha] ?? "var(--color-muted-foreground)";
+                  const reading = antarKey?.antar === period.antardasha && antarKey?.maha === currentMaha;
+                  return (
+                    <div key={`top-${period.antardasha}-${i}`} className="px-3 py-2" style={period.isCurrent ? { background: `${antColor}1C`, borderLeft: `3px solid ${antColor}`, borderRadius: 8, margin: "0.25rem 0" } : { borderLeft: "3px solid transparent" }}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex-shrink-0 leading-none text-center" style={{ fontSize: "0.9rem", color: antColor, width: "1rem" }}>{PLANET_SYMBOLS[period.antardasha] ?? "●"}</span>
+                        <span className="text-sm flex-shrink-0" style={{ color: period.isCurrent ? antColor : "var(--color-foreground)", fontWeight: period.isCurrent ? 700 : 500, minWidth: "72px" }}>{period.antardasha}</span>
+                        <span className="text-[11px]" style={{ color: "var(--color-muted-foreground)" }}>{formatDate(period.startDate)} · {period.duration}</span>
+                        {future ? (
+                          <Lock size={11} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.6, flexShrink: 0 }} />
+                        ) : !reading ? (
+                          <button onClick={() => setAntarKey({ maha: currentMaha!, antar: period.antardasha })} className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full" style={{ marginLeft: "auto", letterSpacing: "0.08em", color: antColor, border: `1px solid ${antColor}66`, background: "transparent", cursor: "pointer", flexShrink: 0 }}>
+                            {period.isCurrent ? "Now · read" : "Read"}
+                          </button>
+                        ) : null}
+                      </div>
+                      {reading && (
+                        dashaAntarQ.isLoading ? <div className="mt-2"><VeleaLoader size={20} label="Opening the sub-chapter…" /></div>
+                        : dashaAntarQ.data?.available && dashaAntarQ.data.read ? (
+                          <div className="mt-2">
+                            <p style={{ fontSize: "0.83rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>{dashaAntarQ.data.read.read}</p>
+                            <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.5rem 0 0" }}>{dashaAntarQ.data.read.question}</p>
+                          </div>
+                        ) : <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>The sub-chapter is quiet — try again in a moment.</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })()}
@@ -1078,17 +1116,17 @@ export function DashaSection() {
                               style={{ background: antColor, color: autoTextColors(antColor).primary, border: `1px solid ${antColor}` }}>
                               NOW
                             </span>
-                          ) : (
+                          ) : (hasActive && g.periods.findIndex((p: any) => p.isCurrent) >= 0 && i > g.periods.findIndex((p: any) => p.isCurrent)) || !hasActive ? (
                             <Lock size={11} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.55, flexShrink: 0 }} />
-                          )}
+                          ) : null}
                         </div>
                         <div className="flex items-center gap-3 mt-1 pl-5 flex-wrap">
                           <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>{formatDate(period.startDate)}</span>
                           <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>· {period.duration}</span>
                           <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>· {period.startAge}</span>
                         </div>
-                        {/* The running sub-chapter reads; every other antar wears its little lock above. */}
-                        {isCurrent && hasActive && (
+                        {/* Past + current sub-chapters read; the future wears the lock above. */}
+                        {hasActive && !(g.periods.findIndex((p: any) => p.isCurrent) >= 0 && i > g.periods.findIndex((p: any) => p.isCurrent)) && (
                           antarKey?.antar !== period.antardasha ? (
                             <button
                               onClick={() => setAntarKey({ maha: g.mahadasha, antar: period.antardasha })}

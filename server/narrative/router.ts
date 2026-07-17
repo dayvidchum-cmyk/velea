@@ -155,9 +155,16 @@ export const narrativeRouter = router({
           const cur: any = tl.entries.find((e: any) => e.isCurrent);
           const allowed = new Set([cur?.mahadasha, cur?.antardasha].filter(Boolean));
           if (!allowed.has(input.lord)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
-          // Sub-chapter gate: only the RUNNING maha–antar pair reads (the rest are the
-          // lineup of little locks — the time gate on this page).
-          if (input.antar && !(input.lord === cur?.mahadasha && input.antar === cur?.antardasha)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+          // Sub-chapter gate (David 2026-07-16: "only current year and the past are
+          // accessible") — within the ACTIVE maha, PAST and CURRENT antars read; FUTURE
+          // antars wait locked. The time gate: the past is free, the future is destiny.
+          if (input.antar) {
+            if (input.lord !== cur?.mahadasha) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+            const inMaha = tl.entries.filter((e: any) => e.mahadasha === input.lord);
+            const curIdx = inMaha.findIndex((e: any) => e.isCurrent);
+            const askIdx = inMaha.findIndex((e: any) => e.antardasha === input.antar);
+            if (askIdx < 0 || curIdx < 0 || askIdx > curIdx) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
+          }
         } catch { return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const; }
       }
       const { getDashaReadCached } = await import("./service.js");
