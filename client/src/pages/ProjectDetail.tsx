@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Edit2, Save, X, ChevronDown, Plus } from "lucide-react";
 import { useParams, useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
 import SwipeableTaskRow from "@/components/SwipeableTaskRow";
 import TaskItem from "@/components/TaskItem";
-import AddTaskSheet from "@/components/AddTaskSheet";
+import AddTaskSheet, { toSheetTask } from "@/components/AddTaskSheet";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
@@ -50,6 +50,7 @@ export default function ProjectDetail() {
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
+  const sheetEditTask = useMemo(() => (editTask ? toSheetTask(editTask) : undefined), [editTask]);
   const [addOpen, setAddOpen] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
 
@@ -491,21 +492,7 @@ export default function ProjectDetail() {
         <AddTaskSheet
           open={!!editTask}
           onClose={() => setEditTask(null)}
-          editTask={{
-            id: String(editTask.id),
-            title: editTask.title,
-            mode: editTask.mode,
-            priority: editTask.priority === 'High' ? 3 : editTask.priority === 'Medium' ? 2 : 1,
-            dueDate: editTask.dueDate ? new Date(editTask.dueDate).toISOString().split('T')[0] : undefined,
-            isPinned: editTask.isPinned,
-            wealthFlow: (editTask as any).wealthFlow ?? false,
-            projectId: (editTask as any).projectId ?? null,
-            cognitiveLoad: (editTask as any).cognitiveLoad ?? null,
-            physicalLoad: (editTask as any).physicalLoad ?? null,
-            creativeRequired: (editTask as any).creativeRequired ?? null,
-            socialRequired: (editTask as any).socialRequired ?? null,
-            emotionalLoad: (editTask as any).emotionalLoad ?? null,
-          }}
+          editTask={sheetEditTask}
         />
       )}
     </div>

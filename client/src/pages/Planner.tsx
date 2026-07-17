@@ -16,7 +16,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import TaskItem from "@/components/TaskItem";
 import SwipeableTaskRow from "@/components/SwipeableTaskRow";
-import AddTaskSheet from "@/components/AddTaskSheet";
+import AddTaskSheet, { toSheetTask } from "@/components/AddTaskSheet";
 import ModeOrb from "@/components/ModeOrb";
 import ModeOrbSheet from "@/components/ModeOrbSheet";
 import { useSettingsContext } from "@/contexts/SettingsContext";
@@ -243,28 +243,6 @@ const PLANNER_MODE_TINT: Record<TaskMode, string> = {
 // Plain-language day-mode reference shown at the bottom of Today (collapsible),
 // to help decide which tasks fit which mode. Mirrors the Glossary "Modes" entries.
 
-// Task → AddTaskSheet's editTask shape. One mapping for every edit entry point (was duplicated
-// three times — general, pinned, aligned — each a ~15-field literal that could drift apart).
-function toSheetTask(t: any) {
-  return {
-    id: String(t.id),
-    title: t.title,
-    mode: t.mode,
-    priority: t.priority === "High" ? 3 : t.priority === "Medium" ? 2 : 1,
-    dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : undefined,
-    isPinned: t.isPinned,
-    wealthFlow: t.wealthFlow ?? false,
-    projectId: t.projectId ?? null,
-    cognitiveLoad: t.cognitiveLoad ?? null,
-    physicalLoad: t.physicalLoad ?? null,
-    creativeRequired: t.creativeRequired ?? null,
-    socialRequired: t.socialRequired ?? null,
-    emotionalLoad: t.emotionalLoad ?? null,
-    notes: t.notes ?? null,
-    recurrence: t.recurrence ?? null,
-    lifeAreas: t.lifeAreas ?? null,
-  };
-}
 
 
 export default function Planner() {
@@ -299,6 +277,8 @@ export default function Planner() {
   // Task list state
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
+  // Memoized: a fresh object each render would re-run the sheet's hydration mid-typing.
+  const sheetEditTask = useMemo(() => (editTask ? toSheetTask(editTask) : undefined), [editTask]);
   // Edit sheets for the curated daily lists (ported from the retired Today page)
   // COLLAPSED ON ARRIVAL, ALWAYS (David 2026-07-16: "it's a lot to be hit with at any
   // time of day for a neurodivergent. you can't predict how heightened their senses are
@@ -2425,7 +2405,7 @@ export default function Planner() {
       <AddTaskSheet
         open={sheetOpen}
         onClose={() => { setSheetOpen(false); setEditTask(null); }}
-        editTask={editTask ? toSheetTask(editTask) : undefined}
+        editTask={sheetEditTask}
       />
 
 

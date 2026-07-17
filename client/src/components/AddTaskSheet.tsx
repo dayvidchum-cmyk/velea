@@ -251,6 +251,39 @@ function ProjectSelector({
 
 // ─── Main sheet ──────────────────────────────────────────────────────────────
 
+/**
+ * Task → the sheet's editTask shape. THE ONE MAPPING (David 2026-07-16: "when I go edit a
+ * task it should not show a blank card") — it lives HERE, beside the hydrator it must
+ * mirror, because two hand-copied versions (Planner + ProjectDetail) drifted and silently
+ * dropped effortSize/circle/intent/isNewVenture: the newest pickers opened blank on edit.
+ * Add a field to the hydrator ⇒ add it here, same commit. Call sites MUST memoize on the
+ * source task (a fresh object every render re-runs hydration and stomps typing).
+ */
+export function toSheetTask(t: any) {
+  return {
+    id: String(t.id),
+    title: t.title,
+    mode: t.mode,
+    priority: t.priority === "High" ? 3 : t.priority === "Medium" ? 2 : 1,
+    dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : undefined,
+    isPinned: t.isPinned,
+    wealthFlow: t.wealthFlow ?? false,
+    projectId: t.projectId ?? null,
+    cognitiveLoad: t.cognitiveLoad ?? null,
+    physicalLoad: t.physicalLoad ?? null,
+    creativeRequired: t.creativeRequired ?? null,
+    socialRequired: t.socialRequired ?? null,
+    emotionalLoad: t.emotionalLoad ?? null,
+    notes: t.notes ?? null,
+    recurrence: t.recurrence ?? null,
+    lifeAreas: t.lifeAreas ?? null,
+    effortSize: t.effortSize ?? null,
+    circle: t.circle ?? null,
+    intent: t.intent ?? null,
+    isNewVenture: t.isNewVenture ?? null,
+  };
+}
+
 export default function AddTaskSheet({ open, onClose, initialMode, openWithSuggestion, initialProjectId, editTask, initialDueDate }: AddTaskSheetProps) {
   const [title, setTitle] = useState("");
   const [mode, setMode] = useState<TaskMode>("Build");
