@@ -18,11 +18,6 @@ import { useDarkChromeWhile } from "@/contexts/ThemeContext";
 
 type Mode = "signin" | "signup";
 
-// Gate art aspect ratio (both engravings ≈ 900×1123 → 0.8016). The doorway's dark slot
-// centers at ~73.5% of the image height; the min() picks the right anchor whether the
-// viewport fits the art by height (desktop) or by width (phones).
-const DOOR_ANCHOR = "min(73.5dvh, calc(50dvh + 29.3vw))";
-
 export default function Login() {
   const [, setLocation] = useLocation();
   // Invite-only signup: the signup form is only offered when arriving via an invite link
@@ -83,40 +78,42 @@ export default function Login() {
     setPassword("");
   };
 
+  // GHOST REGISTER (David: "Email password and enter is way too overpowering") — the
+  // doorway's darkness is the field; the form is just hairlines and small caps.
   const inputStyle: React.CSSProperties = {
-    background: "rgba(6,6,9,0.72)",
-    border: `1px solid color-mix(in srgb, ${METAL.accent} 62%, transparent)`,
-    borderRadius: 11,
-    padding: "0.6rem 0.85rem",
-    fontSize: "0.68rem",
+    background: "transparent",
+    border: "none",
+    borderBottom: `1px solid color-mix(in srgb, ${METAL.accent} 45%, transparent)`,
+    borderRadius: 0,
+    padding: "0.45rem 0.4rem",
+    fontSize: "0.66rem",
     letterSpacing: "0.18em",
     textAlign: "center",
     caretColor: METAL.accent,
     color: "#F2EFE6",
-    backdropFilter: "blur(4px)",
-    WebkitBackdropFilter: "blur(4px)",
   };
 
   const focusBorder = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = METAL.hi;
-    e.currentTarget.style.boxShadow = `0 0 0 3px ${METAL.accent}26`;
+    e.currentTarget.style.borderBottomColor = METAL.hi;
   };
   const blurBorder = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = `color-mix(in srgb, ${METAL.accent} 62%, transparent)`;
-    e.currentTarget.style.boxShadow = "none";
+    e.currentTarget.style.borderBottomColor = `color-mix(in srgb, ${METAL.accent} 45%, transparent)`;
   };
 
   return (
-    <div style={{ minHeight: "100dvh", background: "#050505", position: "relative", overflow: "hidden" }}>
-      <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.55); letter-spacing: 0.18em; font-size: 0.68rem; }`}</style>
+    <div style={{ height: "100dvh", background: "#050505", position: "relative", overflow: "hidden", display: "grid", placeItems: "center" }}>
+      <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.5); letter-spacing: 0.18em; font-size: 0.66rem; }`}</style>
 
-      {/* THE GATE — his engraving, whole, on its own black ground. */}
-      <img
-        src={art}
-        alt=""
-        aria-hidden="true"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", transform: "scale(1.12)", transformOrigin: "center", userSelect: "none", pointerEvents: "none" }}
-      />
+      {/* THE GATE BOX — an element with the art's exact aspect (900×1122), scaled 12%
+          past the viewport fit; the form anchors INSIDE it, so the doorway seat is
+          pixel-true on every screen (door slot measured: rows 59.9–91.1%, center 75.5%). */}
+      <div style={{ position: "relative", aspectRatio: "900 / 1122", height: "min(112dvh, 139.7vw)", flexShrink: 0 }}>
+        <img
+          src={art}
+          alt=""
+          aria-hidden="true"
+          style={{ width: "100%", height: "100%", objectFit: "cover", userSelect: "none", pointerEvents: "none" }}
+        />
 
       {/* Wordmark in the sky above the crest */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "max(2dvh, env(safe-area-inset-top, 0px))" }}>
@@ -138,18 +135,18 @@ export default function Login() {
         </h1>
       </div>
 
-      {/* THE THRESHOLD — the form, seated in the doorway. */}
+      {/* THE THRESHOLD — the form, seated in the doorway's own darkness. */}
       <form
         onSubmit={handleSubmit}
         style={{
           position: "absolute",
-          top: DOOR_ANCHOR,
+          top: "75.5%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "min(264px, 70vw)",
+          width: "min(230px, 60vw)",
           display: "flex",
           flexDirection: "column",
-          gap: "0.5rem",
+          gap: "0.55rem",
         }}
       >
         {isSignup && (
@@ -208,14 +205,16 @@ export default function Login() {
           disabled={isLoading}
           className="w-full transition-all active:scale-[0.98] disabled:opacity-50"
           style={{
-            background: `linear-gradient(180deg, ${METAL.hi}, ${METAL.accent} 55%, ${METAL.deep})`,
-            color: METAL.btnText,
-            borderRadius: 11,
-            padding: "0.6rem",
-            fontSize: "0.64rem",
+            background: "transparent",
+            color: METAL.hi,
+            border: `1px solid color-mix(in srgb, ${METAL.accent} 55%, transparent)`,
+            borderRadius: 999,
+            padding: "0.5rem",
+            fontSize: "0.62rem",
             fontWeight: 700,
-            letterSpacing: "0.22em",
+            letterSpacing: "0.26em",
             textTransform: "uppercase",
+            marginTop: "0.35rem",
           }}
         >
           {isLoading ? (
@@ -226,6 +225,7 @@ export default function Login() {
           ) : (isSignup ? "Create Account" : "Enter")}
         </button>
       </form>
+      </div>
 
       {/* Below the threshold: invite toggle + install guide */}
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: "max(0.9rem, env(safe-area-inset-bottom, 0px))" }}>
