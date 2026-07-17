@@ -7,6 +7,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
+import { recordServerError } from "../narrative/generate";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { rateLimit } from "./rateLimit";
@@ -107,6 +108,14 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      // THE BLACK BOX, WIDENED (2026-07-17 deep audit): a reading query that THROWS never
+      // reached the generation-level box — the surface went quiet with a clean box. Every
+      // tRPC procedure error is now recorded (path + verbatim message), same admin button.
+      onError({ error, path }) {
+        try {
+          recordServerError(path ?? "unknown", error);
+        } catch { /* never let telemetry break the response */ }
+      },
     })
   );
   // development mode uses Vite, production mode uses static files

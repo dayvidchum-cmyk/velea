@@ -39,6 +39,15 @@ function client(): Anthropic | null {
 // only error text, never chart data.
 const recentGenErrors: { at: string; fn: string; message: string }[] = [];
 export function getRecentGenErrors() { return recentGenErrors; }
+/** Router-level errors (thrown tRPC procedures) land in the same box, prefixed by path.
+ *  UNAUTHORIZED noise is skipped — login redirects aren't failures. */
+export function recordServerError(path: string, err: unknown) {
+  const message = String((err as any)?.message ?? err).slice(0, 600);
+  if (message === "Please login (10001)" || (err as any)?.code === "UNAUTHORIZED") return;
+  console.error(`[trpc] ${path} failed:`, message);
+  recentGenErrors.unshift({ at: new Date().toISOString(), fn: `trpc:${path}`, message });
+  if (recentGenErrors.length > 24) recentGenErrors.length = 24;
+}
 function logGenError(fn: string, err: unknown) {
   const message = String((err as any)?.message ?? err).slice(0, 600);
   console.error(`[narrative] ${fn} failed:`, message);
