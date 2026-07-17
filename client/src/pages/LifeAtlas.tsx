@@ -24,10 +24,19 @@ export default function LifeAtlas() {
     try { return new URLSearchParams(window.location.search).get("theme"); } catch { return null; }
   });
   const [openWindow, setOpenWindow] = useState<{ theme: string; label: string; w: any } | null>(null);
-  const readQ = trpc.atlas.themeRead.useQuery(
-    { theme: openTheme ?? "" },
+  // THE DOOR LAW (David 2026-07-17: "It should never go automatically like that"):
+  // opening a theme only PEEKS the cache — an already-read theme shows instantly (free),
+  // an unread one shows the door. Only the tap on the door generates.
+  const [armedTheme, setArmedTheme] = useState<string | null>(null);
+  const peekQ = trpc.atlas.themeRead.useQuery(
+    { theme: openTheme ?? "", peek: true },
     { enabled: !!openTheme && entitled, staleTime: Infinity, retry: false },
   );
+  const genQ = trpc.atlas.themeRead.useQuery(
+    { theme: openTheme ?? "" },
+    { enabled: !!openTheme && entitled && armedTheme === openTheme, staleTime: Infinity, retry: false },
+  );
+  const readQ = armedTheme === openTheme && !peekQ.data?.read ? genQ : peekQ;
   const windowReadQ = trpc.atlas.windowRead.useQuery(
     { theme: openWindow?.theme ?? "", from: openWindow?.w?.from ?? "1900-01-01" },
     { enabled: !!openWindow && entitled, staleTime: Infinity, retry: false },
@@ -90,6 +99,15 @@ export default function LifeAtlas() {
                             <VeleaLoader size={24} label="Reading the seasons…" />
                           ) : readQ.data?.available && readQ.data.read ? (
                             <ProseCard color="#B08D2E" question={readQ.data.read.question}>{readQ.data.read.read}</ProseCard>
+                          ) : (readQ.data as any)?.peeked && armedTheme !== t.theme ? (
+                            // THE DOOR — nothing generates until this is tapped.
+                            <button
+                              onClick={() => setArmedTheme(t.theme)}
+                              className="line-pill inline-flex items-center"
+                              style={{ gap: 6, padding: "0.42rem 0.95rem", borderRadius: 999, background: "transparent", border: "1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)", color: "var(--heading-ink)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", ["--pill-ink" as string]: "var(--brand-gold)" }}
+                            >
+                              Read this life area
+                            </button>
                           ) : (
                             <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)" }}>The atlas is quiet — try again in a moment.</p>
                           )

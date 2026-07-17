@@ -2055,7 +2055,7 @@ export const appRouter = router({
         return getWindowReadCached(profile.id, input.theme, LABELS[input.theme] ?? input.theme, input.from, input.refresh ?? false);
       }),
     themeRead: protectedProcedure
-      .input(z.object({ theme: z.string().min(2).max(20), refresh: z.boolean().optional() }))
+      .input(z.object({ theme: z.string().min(2).max(20), refresh: z.boolean().optional(), peek: z.boolean().optional() }))
       .query(async ({ ctx, input }) => {
         const { hasFeature } = await import("./feature-flags.js");
         if (!(await hasFeature(ctx.user, "lifeAtlas"))) return { available: false, read: null, windows: [], generatedAt: null, cached: false } as const;
@@ -2068,7 +2068,7 @@ export const appRouter = router({
           siblings: "Inner circle", parents: "Parents & roots", home: "Home & land", health: "Health & vitality",
         };
         const { getAtlasReadCached } = await import("./narrative/service.js");
-        return await getAtlasReadCached(profile.id, input.theme, LABELS[input.theme] ?? input.theme, input.refresh ?? false);
+        return await getAtlasReadCached(profile.id, input.theme, LABELS[input.theme] ?? input.theme, input.refresh ?? false, input.peek ?? false);
       }),
   }),
 

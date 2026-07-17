@@ -576,7 +576,10 @@ export default function Planner() {
   // exactly one read generates per day (no double-pay). The prose generates for ANY date.
   const { data: dayRead, isFetching: dayReadFetching } = trpc.narrative.dayRead.useQuery(
     { profileId: glanceProfileId as number, date: selectedDate },
-    { enabled: !!glanceProfileId, staleTime: 1000 * 60 * 30 },
+    // THE DOOR LAW (David 2026-07-17: "Every single reading should have that gate"): the
+    // hero's expand tap is this reading's door — collapsed, the page loads and dates browse
+    // without a single generation. Open, the story reads for whichever date is selected.
+    { enabled: !!glanceProfileId && heroOpen, staleTime: 1000 * 60 * 30 },
   );
   const dayReadContent = (dayRead as any)?.read ?? null;
 

@@ -590,7 +590,7 @@ const THEME_KARAKAS: Record<string, string[]> = {
   identity: ["Sun"], fame: ["Sun"], wealth: ["Jupiter"], siblings: ["Mars"],
   parents: ["Moon", "Sun", "Jupiter"], home: ["Moon", "Mercury"], health: ["Sun", "Mars"],
 };
-export type AtlasReadResult = { available: boolean; read: import("./generate.js").AtlasRead | null; windows: any[]; generatedAt: Date | null; cached: boolean };
+export type AtlasReadResult = { available: boolean; read: import("./generate.js").AtlasRead | null; windows: any[]; generatedAt: Date | null; cached: boolean; peeked?: boolean };
 export interface YogaReadResult { available: boolean; read: { read: string } | null; generatedAt: Date | string | null; cached: boolean }
 /** One standing yoga, voiced — natal-stable (the chart doesn't move), cached forever
  *  per yoga name; canon definition + this chart's hold strength feed the prompt. */
@@ -684,7 +684,7 @@ export async function getWindowReadCached(profileId: number, theme: string, labe
   return read ? { available: true, read, generatedAt: new Date(), cached: false } : { available: false, read: null, generatedAt: null, cached: false };
 }
 
-export async function getAtlasReadCached(profileId: number, theme: string, label: string, refresh = false): Promise<AtlasReadResult> {
+export async function getAtlasReadCached(profileId: number, theme: string, label: string, refresh = false, peek = false): Promise<AtlasReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, windows: [], generatedAt: null, cached: false };
   const surface = "atlas_read";
   const { getDb } = await import("../db.js");
@@ -719,6 +719,10 @@ export async function getAtlasReadCached(profileId: number, theme: string, label
       } catch { /* regenerate on corrupt cache */ }
     }
   }
+  // THE DOOR LAW (David 2026-07-17: "It should never go automatically like that… Every
+  // single reading should have that gate built in"): a peek NEVER generates — it serves
+  // the cache or reports there's a door to open. Generation requires the explicit tap.
+  if (peek) return { available: false, read: null, windows, generatedAt: null, cached: false, peeked: true };
   const { generateAtlasRead } = await import("./generate.js");
   const read = await singleFlight(`${surface}:${profileId}:${theme}:${hash}`, async () => {
     const r = await generateAtlasRead(input as any);
