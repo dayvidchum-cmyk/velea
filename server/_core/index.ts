@@ -69,11 +69,18 @@ async function startServer() {
   };
   app.get(Object.keys(marketingPages), (req, res, next) => {
     if (!landingHosts.has(req.hostname)) return next();
+    // Normalize trailing slash + case (audit M16): Express's non-strict, case-insensitive
+    // routing matches "/velea/" and "/Velea" to this route, but a raw marketingPages[req.path]
+    // then misses and path.resolve(base, undefined) threw a 500. A shared link with a trailing
+    // slash must not error — fall through on any unmatched variant.
+    const key = (req.path.replace(/\/+$/, "").toLowerCase() || "/");
+    const file = marketingPages[key];
+    if (!file) return next();
     const base =
       process.env.NODE_ENV === "development"
         ? path.resolve(import.meta.dirname, "../..", "client", "public", "marketing")
         : path.resolve(import.meta.dirname, "public", "marketing");
-    res.sendFile(path.resolve(base, marketingPages[req.path]));
+    res.sendFile(path.resolve(base, file));
   });
 
   // Public waitlist capture from the landing page (no auth; rate-limited).

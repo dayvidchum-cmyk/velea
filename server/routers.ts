@@ -345,7 +345,9 @@ export const appRouter = router({
   referrals: router({
     validate: publicProcedure
       .input(z.object({ code: z.string().min(2).max(32) }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        // Throttle code enumeration (audit M4) — public, was unlimited.
+        rateLimit(ctx.req, "referral-validate", { max: 30, windowMs: 15 * 60 * 1000 });
         const row = await getReferralCode(input.code);
         return row && row.active
           ? { valid: true as const, discountPct: row.newUserDiscountPct, ownerName: row.ownerName }
@@ -361,6 +363,8 @@ export const appRouter = router({
         birthLocation: z.string().max(255).nullable().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        // Throttle redemption-row spam (audit M4) — public, was unlimited.
+        rateLimit(ctx.req, "referral-redeem", { max: 10, windowMs: 15 * 60 * 1000 });
         return redeemReferralCode({ ...input, userId: ctx.user?.id ?? null });
       }),
     adminActivity: protectedProcedure.query(async ({ ctx }) => {

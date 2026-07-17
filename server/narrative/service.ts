@@ -321,8 +321,15 @@ export async function peekEclipseSeasonCached(profileId: number, date: string, d
   const arc = input.eclipseSeasonArc;
   if (!arc || !arc.eclipses?.length) return { available: false, read: null, season: null, generatedAt: null, cached: false };
   const seasonKey: string = arc.eclipses[0].date;
+  // Match the REAL getter's hash + lock gate (audit M19): a peek that serves ANY complete row
+  // can show a preview generated under an old salt/prompt/chart that the real open would
+  // REGENERATE — the reading changes the moment it's actually opened. Only report "already
+  // read" when the cached row still matches what would be served (or is pinned).
+  const stable = { profileId, lagna: input.natal?.lagna, e: arc.eclipses.map((e: any) => ({ d: e.date, h: e.house, o: e.oppositeHouse, disp: e.dispositor?.planet, hits: e.hits })) };
+  const salt = SURFACE_VERSION["eclipse_season"] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
   const row = await getNarrativeCache(profileId, "eclipse_season", seasonKey);
-  if (row) {
+  if (row && (row.locked || row.inputHash === hash)) {
     try {
       const read = JSON.parse(row.content);
       if (isCompleteDayRead(read)) return { available: true, read, season: { firstDate: seasonKey, count: arc.count }, generatedAt: row.generatedAt, cached: true };
@@ -464,8 +471,12 @@ export async function peekMercuryRxCached(profileId: number, date: string, dayLo
   const arc = input.mercuryRxArc;
   if (!arc) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
   const cycleKey: string = arc.stationRetroDate;
+  // Match the real getter's hash + lock gate (audit M19) — don't promise a preview the open would regenerate.
+  const stable = { profileId, lagna: input.natal?.lagna, r: arc.stationRetroDate, d: arc.stationDirectDate, h: arc.house, h2: arc.house2 ?? null, disp: arc.dispositor?.planet, hits: arc.hits };
+  const salt = SURFACE_VERSION["mercury_rx"] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
   const row = await getNarrativeCache(profileId, "mercury_rx", cycleKey);
-  if (row) {
+  if (row && (row.locked || row.inputHash === hash)) {
     try {
       const read = JSON.parse(row.content);
       if (isCompleteDayRead(read)) return { available: true, read, cycle: { stationRetro: cycleKey, phaseNow: arc.phaseNow }, generatedAt: row.generatedAt, cached: true };

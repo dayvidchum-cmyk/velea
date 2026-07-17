@@ -262,10 +262,15 @@ export const narrativeRouter = router({
   setLock: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional(), locked: z.boolean() })).mutation(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
     const date = input.date ?? todayUTC();
-    // Ensure both surfaces exist before locking, so there's a row to pin.
+    // Ensure both surfaces exist before locking, so there's a row to pin — with the SAME
+    // dayLoc the DISPLAY path used (audit M1). Without it the ensure-exists hashed a
+    // no-location (noon-UTC) input, MISSED the user's actual read, regenerated a different
+    // one from the wrong-location data, overwrote it, and pinned content they never saw —
+    // now a data-accuracy issue, since dayLoc drives the transit Moon (data-path #2).
     if (input.locked) {
-      await getGlanceCached(input.profileId, date, false).catch(() => {});
-      await getDeepReadCached(input.profileId, date, false).catch(() => {});
+      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id));
+      await getGlanceCached(input.profileId, date, false, undefined, dayLoc).catch(() => {});
+      await getDeepReadCached(input.profileId, date, false, false, dayLoc).catch(() => {});
     }
     await setNarrativeLock(input.profileId, "glance", date, input.locked);
     await setNarrativeLock(input.profileId, "deep", date, input.locked);
