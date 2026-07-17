@@ -1,6 +1,22 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>
+    /* THE PWA DOORWAY (audit 2026-07-17, H3): this marketing landing is served at
+       velealor.com/ ONLY to logged-OUT visitors (logged-in users carry the cookie and
+       skip straight to the app). A returning installed-PWA user whose 7-day session
+       expired used to land HERE — a dead end with no link into the app. If we're running
+       in standalone/home-screen mode, that's a PWA launch, not a marketing visit: send
+       them to /login (the SPA then routes a fresh login onward). Browser visitors see the
+       marketing page untouched. Runs before paint to avoid a flash. */
+    (function () {
+      try {
+        var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+          || window.navigator.standalone === true;
+        if (standalone) { window.location.replace('/login'); }
+      } catch (e) { /* never block the page on this */ }
+    })();
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Velea — a daily planner that reads your sky · វេលាល្អ</title>

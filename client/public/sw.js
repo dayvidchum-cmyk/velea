@@ -1,7 +1,7 @@
 /* Velea service worker — enables desktop/mobile install and light offline.
    Deliberately conservative: never touches API/tRPC traffic, always prefers
    fresh HTML, and only cache-firsts Vite's content-hashed static assets. */
-const CACHE = "velea-cache-v666";
+const CACHE = "velea-cache-v667";
 const ASSET_RE = /\.(?:js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico|webmanifest)$/;
 
 self.addEventListener("install", () => {
@@ -41,8 +41,13 @@ self.addEventListener("fetch", (event) => {
         (cached) =>
           cached ||
           fetch(req).then((res) => {
-            if (res.ok) {                       // never cache failures (a 404 during a deploy
-              const copy = res.clone();         // would otherwise be served forever)
+            // Never cache failures (a 404 during a deploy would be served forever), and
+            // NEVER cache an HTML body under an asset URL (audit H1 defense-in-depth): if a
+            // regression makes the SPA fallback 200-HTML a missing chunk again, storing it
+            // would wedge the route. The server now 404s missing assets; this is the belt.
+            const ct = res.headers.get("Content-Type") || "";
+            if (res.ok && !ct.includes("text/html")) {
+              const copy = res.clone();
               caches.open(CACHE).then((c) => c.put(req, copy));
             }
             return res;

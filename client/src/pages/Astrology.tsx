@@ -1106,14 +1106,14 @@ export function DashaSection() {
                             style={{ color: isCurrent ? antColor : "var(--color-muted-foreground)", fontWeight: isCurrent ? 600 : 400, minWidth: "80px" }}>
                             {period.antardasha}
                           </span>
-                          {isCurrent ? (
-                            <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-semibold"
-                              style={{ background: antColor, color: autoTextColors(antColor).primary, border: `1px solid ${antColor}` }}>
-                              NOW
-                            </span>
-                          ) : (hasActive && g.periods.findIndex((p: any) => p.isCurrent) >= 0 && i > g.periods.findIndex((p: any) => p.isCurrent)) || !hasActive ? (
-                            <GateMark size={17} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.55, flexShrink: 0 }} />
-                          ) : null}
+                          {/* This shelf renders only NON-active mahas, so its antar rows are
+                              plain timeline (audit 2026-07-17, H13). No per-antar lock: a past
+                              maha already reads at MAHA level (the button above; server doctrine:
+                              past mahas read whole, only the ACTIVE maha's antars read one-by-one),
+                              and a future maha shows its gate at the maha level. The old
+                              `|| !hasActive` lit a gold lock on EVERY antar of every non-active
+                              maha — a lock guarding nothing, contradicting past-reads-free. */}
+                          {null}
                         </div>
                         <div className="flex items-center gap-3 mt-1 pl-5 flex-wrap">
                           <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>{formatDate(period.startDate)}</span>

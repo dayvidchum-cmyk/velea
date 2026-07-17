@@ -60,8 +60,20 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  // Fall through to the SPA shell for NAVIGATIONS only. A missing content-hashed asset
+  // (a stale page importing /assets/Chart-<oldhash>.js after a deploy) must 404, NOT get
+  // 200 index.html (audit 2026-07-17, H1): an HTML body under a .js URL breaks the dynamic
+  // import into a white screen AND — because the service worker cache-firsts .js and stores
+  // any res.ok body — poisons the cache with HTML under the chunk URL, wedging the route
+  // until the next SW generation. express.static already served every asset that exists, so
+  // anything with an asset extension reaching here is genuinely missing.
+  const ASSET_EXT = /\.(?:js|mjs|css|png|jpg|jpeg|svg|webp|gif|woff2?|ttf|ico|map|json|webmanifest)$/;
+  app.use("*", (req, res) => {
+    const pathname = req.originalUrl.split("?")[0];
+    if (ASSET_EXT.test(pathname) || pathname.startsWith("/assets/")) {
+      res.status(404).end();
+      return;
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
