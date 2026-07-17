@@ -254,7 +254,9 @@ export default function Horoscope() {
         >
           <span className="flex flex-col items-start gap-0.5 text-left">
             <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--heading-ink)" }}>
-              <OctagramMark size={15} color="var(--brand-gold)" strokeWidth={1.2} /> The Life Atlas
+              {/* The Atlas doorway is a TIME THRESHOLD — it wears the gate, not a knot star
+                  (David 2026-07-18); octagrams inside stay: they mark the knots themselves. */}
+              <GateMark size={19} color="var(--brand-gold)" /> The Life Atlas
             </span>
             <span className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
               Every season of your life — marriage, wealth, children — dated and voiced
