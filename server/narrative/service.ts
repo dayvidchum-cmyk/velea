@@ -55,6 +55,19 @@ function singleFlight<T>(key: string, fn: () => Promise<T>): Promise<T> {
   return p;
 }
 
+/** THE TENSE ANCHOR (2026-07-17, the "ghost in the past" failure: a past antar chapter
+ *  was voiced as "between now and May 2025" in July 2026). Where a span stands relative
+ *  to today. The stance IS hashed (stable — flips only when a span ends, which SHOULD
+ *  regenerate); `today` itself is passed to the prompt but NEVER hashed (a daily hash
+ *  would regenerate every read every day — the cache law). */
+const todayIso = () => new Date().toISOString().slice(0, 10);
+function tenseOf(from?: string | null, to?: string | null): "past" | "current" | "future" {
+  const t = todayIso();
+  if (to && String(to).slice(0, 10) < t) return "past";
+  if (from && String(from).slice(0, 10) > t) return "future";
+  return "current";
+}
+
 export async function getGlanceCached(profileId: number, date: string, refresh = false, moment?: { nowMs: number; lat?: number; lon?: number }, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<GlanceResult> {
   if (!hasAnthropicKey()) return { available: false, content: null, generatedAt: null, cached: false };
   // A moment read (moment.nowMs) is hora-flavored and EPHEMERAL: never read from nor
@@ -313,6 +326,8 @@ export async function getTlWindowReadCached(profileId: number, from: string, inp
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = "tl_window";
   const dateKey = `tlw-${from}`;
+  // Tense anchor: window bounds live in the caller's input (window.from/to or from/to).
+  input = { ...input, stance: tenseOf(input?.window?.from ?? input?.from ?? from, input?.window?.to ?? input?.to ?? null) };
   const salt = SURFACE_VERSION[surface] ?? "";
   const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(input)).digest("hex");
   if (!refresh) {
@@ -326,7 +341,7 @@ export async function getTlWindowReadCached(profileId: number, from: string, inp
   }
   const { generateTlWindowRead } = await import("./generate.js");
   const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
-    const r = await generateTlWindowRead(input);
+    const r = await generateTlWindowRead({ ...input, today: todayIso() });
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
   });
@@ -555,7 +570,32 @@ export async function getDashaReadCached(profileId: number, lord: string, span?:
     return { lord: L, livesIn: livesIn ? { house: livesIn.house, sign: livesIn.sign, occupants: livesIn.occupants } : null, rules, shadbala: research?.shadbala?.[L] ?? null, states: research?.states?.[L] ?? research?.avashtas?.[L] ?? null };
   };
   const dossier = dossierOf(lord);
-  const input = { lord, antar: antar ?? null, span: span ?? null, engineVersion: research?.engineVersion ?? null, dossier, antarDossier: antar ? dossierOf(antar) : null };
+  // THE TENSE ANCHOR: find this chapter's real dates in the stored periods so the prompt
+  // knows whether it's reading a lived season, the running one, or one still ahead.
+  let chapter: { from: string; to: string } | null = null;
+  try {
+    const { getDb } = await import("../db.js");
+    const dbT = await getDb();
+    if (dbT) {
+      const { profileDashaPeriods } = await import("../../drizzle/schema.js");
+      const { and: andT, eq: eqT } = await import("drizzle-orm");
+      const rows = await dbT.select().from(profileDashaPeriods).where(andT(
+        eqT(profileDashaPeriods.profileId, profileId),
+        eqT(profileDashaPeriods.level, antar ? 2 : 1),
+        eqT(profileDashaPeriods.maha, lord),
+        ...(antar ? [eqT(profileDashaPeriods.antar, antar)] : []),
+      ));
+      if (rows.length) {
+        const t = todayIso();
+        const inRange = rows.find((r: any) => String(r.startAt.toISOString()).slice(0, 10) <= t && String(r.endAt.toISOString()).slice(0, 10) > t);
+        const begunRows = rows.filter((r: any) => String(r.startAt.toISOString()).slice(0, 10) <= t).sort((a: any, b: any) => +b.startAt - +a.startAt);
+        const pick: any = inRange ?? begunRows[0] ?? rows.sort((a: any, b: any) => +a.startAt - +b.startAt)[0];
+        chapter = { from: pick.startAt.toISOString().slice(0, 10), to: pick.endAt.toISOString().slice(0, 10) };
+      }
+    }
+  } catch { /* stance degrades gracefully — the read still generates */ }
+  const stance = chapter ? tenseOf(chapter.from, chapter.to) : null;
+  const input = { lord, antar: antar ?? null, span: span ?? null, chapter, stance, engineVersion: research?.engineVersion ?? null, dossier, antarDossier: antar ? dossierOf(antar) : null };
   const hash = dayStableHash(input, surface);
   const dateKey = antar ? `dasha-${lord}-${antar}` : `dasha-${lord}`;
   if (!refresh) {
@@ -570,7 +610,7 @@ export async function getDashaReadCached(profileId: number, lord: string, span?:
   }
   const { generateDashaRead } = await import("./generate.js");
   const read = await singleFlight(`${surface}:${profileId}:${dateKey}:${hash}`, async () => {
-    const r = await generateDashaRead(input as any);
+    const r = await generateDashaRead({ ...input, today: todayIso() } as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
   });
@@ -662,7 +702,7 @@ export async function getWindowReadCached(profileId: number, theme: string, labe
     }).filter(Boolean),
     karakas: (THEME_KARAKAS[theme] ?? []).map((k) => ({ planet: k, shadbala: research?.shadbala?.[k] ?? null })),
   };
-  const input = { theme, label, window: { from: win.from, to: win.to, peak: win.peak, bigKnot: win.bigKnot, era: win.era }, promise, engineVersion: research?.engineVersion ?? null };
+  const input = { theme, label, window: { from: win.from, to: win.to, peak: win.peak, bigKnot: win.bigKnot, era: win.era }, stance: tenseOf(win.from, win.to), promise, engineVersion: research?.engineVersion ?? null };
   const hash = dayStableHash(input, surface);
   const dateKey = `atlas-w-${theme}-${from}`;
   if (!refresh) {
@@ -677,7 +717,7 @@ export async function getWindowReadCached(profileId: number, theme: string, labe
   }
   const { generateWindowRead } = await import("./generate.js");
   const read = await singleFlight(`${surface}:${profileId}:${theme}:${from}:${hash}`, async () => {
-    const r = await generateWindowRead(input as any);
+    const r = await generateWindowRead({ ...input, today: todayIso() } as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
   });
@@ -725,7 +765,7 @@ export async function getAtlasReadCached(profileId: number, theme: string, label
   if (peek) return { available: false, read: null, windows, generatedAt: null, cached: false, peeked: true };
   const { generateAtlasRead } = await import("./generate.js");
   const read = await singleFlight(`${surface}:${profileId}:${theme}:${hash}`, async () => {
-    const r = await generateAtlasRead(input as any);
+    const r = await generateAtlasRead({ ...input, today: todayIso() } as any);
     if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
     return r;
   });

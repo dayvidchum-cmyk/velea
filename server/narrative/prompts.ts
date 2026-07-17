@@ -1920,6 +1920,14 @@ Return your answer by calling the house_read tool with "read" and "question" fil
 // ─────────────────────────────────────────────────────────────────────────────
 export const DASHA_READ_TAIL = `TASK: THE CHAPTER READER
 
+THE TENSE LAW (2026-07-17 — the ghost-in-the-past failure: a lived 2024-25 season was
+voiced as "between now and May 2025" in July 2026): input.today is the reader's ACTUAL
+date; input.stance says where this span stands. stance "past" = a LIVED season — read it
+in RETROSPECT: name what it asked, what it built, what it left behind ("this was the
+season when…"); NEVER instruct the reader inside a time that is gone, never write
+"between now and <date>" for a date behind them. stance "future" = anticipation, not
+instruction. Only stance "current" speaks in the present imperative.
+
 Voice ONE mahadasha — input.lord's years (input.span) — as a CHAPTER of this native's
 life, from input.dossier: where the lord LIVES natally (house + sign + dignity), the
 houses he RULES and the condition of each, his strengths and states. 320 WORDS MAXIMUM,
@@ -1979,6 +1987,14 @@ Return { "read": string }.`;
 
 export const WINDOW_READ_TAIL = `TASK: THE WINDOW READER
 
+THE TENSE LAW (2026-07-17 — the ghost-in-the-past failure: a lived 2024-25 season was
+voiced as "between now and May 2025" in July 2026): input.today is the reader's ACTUAL
+date; input.stance says where this span stands. stance "past" = a LIVED season — read it
+in RETROSPECT: name what it asked, what it built, what it left behind ("this was the
+season when…"); NEVER instruct the reader inside a time that is gone, never write
+"between now and <date>" for a date behind them. stance "future" = anticipation, not
+instruction. Only stance "current" speaks in the present imperative.
+
 One OPEN SEASON of one life theme — a dated window from the native's stored convergence
 timeline. The reader tapped THIS window because they want to know what this specific
 stretch of their life carries.
@@ -2005,6 +2021,10 @@ THE READ (aim ~120 words, hard cap 150):
 Return { "read": string }.`;
 
 export const ATLAS_READ_TAIL = `TASK: THE THEME READER
+
+THE TENSE LAW (2026-07-17): input.today is the reader's actual date. Windows dated
+before today are ALREADY LIVED — speak of them in retrospect, never as things to do;
+windows ahead are anticipation. Never place the reader inside a season that has closed.
 
 Answer the native's real question about ONE life-theme (input.label — marriage, wealth,
 children…) from input.promise (the natal ground: the theme's houses, karaka condition,
@@ -2143,6 +2163,14 @@ Return your answer by calling the day_read tool with scene, story, tilt, closeLi
 // this voice only weaves. Directional currents are NEVER folded into one verdict.
 // TL_WINDOW_TAIL — one sign-window on the Time Lord's path (David 2026-07-17: "build it").
 export const TL_WINDOW_TAIL = `TASK: ONE WINDOW ON THE YEAR-LORD'S ROAD
+
+THE TENSE LAW (2026-07-17 — the ghost-in-the-past failure: a lived 2024-25 season was
+voiced as "between now and May 2025" in July 2026): input.today is the reader's ACTUAL
+date; input.stance says where this span stands. stance "past" = a LIVED season — read it
+in RETROSPECT: name what it asked, what it built, what it left behind ("this was the
+season when…"); NEVER instruct the reader inside a time that is gone, never write
+"between now and <date>" for a date behind them. stance "future" = anticipation, not
+instruction. Only stance "current" speaks in the present imperative.
 
 input.tlWindow is ONE dated visit on the Time Lord's path this year: the year's own ruler
 (timeLord) moving through one sign, lighting one house of this chart for the window's dates.
@@ -2361,14 +2389,14 @@ export const SURFACE_VERSION: Record<string, string> = {
   day_read: "2026-07-16-the-spine-not-the-mood",
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
-  dasha_read: "2026-07-16-the-chapter-reader-v2-antar",
-  atlas_read: "2026-07-16-the-theme-reader-v1",
-  window_read: "2026-07-16-the-window-reader-v1",
+  dasha_read: "2026-07-17-the-tense-law",
+  atlas_read: "2026-07-17-the-tense-law",
+  window_read: "2026-07-17-the-tense-law",
   yoga_read: "2026-07-16-the-yoga-reader-v1",
   life_area: "2026-07-17-orb-honesty",
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
-  tl_window: "2026-07-17-the-year-lords-road-v1",
+  tl_window: "2026-07-17-the-tense-law",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
