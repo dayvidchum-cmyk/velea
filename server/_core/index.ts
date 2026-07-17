@@ -133,7 +133,11 @@ async function startServer() {
   }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
+  // In production, bind $PORT EXACTLY (audit L11): Railway routes to $PORT, so hopping to a
+  // fallback port passes the local bind but fails the healthcheck with a confusing symptom.
+  // A genuine conflict should crash loudly. Dev keeps the convenience of finding a free port.
+  const port =
+    process.env.NODE_ENV === "production" ? preferredPort : await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);

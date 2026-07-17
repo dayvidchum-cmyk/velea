@@ -480,7 +480,10 @@ export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
   // node proximity — same geometry as findEclipses, swept across the whole month.
   const eclipses: { date: string; type: "solar" | "lunar" }[] = [];
   let prevElong: number | null = null;
-  for (let off = 0; off < daysInMonth; off++) {
+  // Start at off=-1 (the day before the 1st) to SEED prevElong (audit L2): starting at the 1st
+  // with prevElong=null skipped a syzygy in the month's first ~12h. The push is guarded to this
+  // month so the seed day's crossing (which can date to the previous month) isn't misattributed.
+  for (let off = -1; off < daysInMonth; off++) {
     const d = new Date(first + off * DAY_MS);
     const pos = await getSiderealLongitudesWithSpeed(d, ["Sun", "Moon", "Rahu"]);
     const sun = ((pos.Sun?.longitude ?? 0) % 360 + 360) % 360;
@@ -497,7 +500,8 @@ export async function monthSkyMarks(yearMonth: string): Promise<MonthSkyMarks> {
         const prevVal = crossedNew ? prevElong - 360 : prevElong;
         const target = crossedNew ? 0 : 180;
         const f = Math.max(0, Math.min(1, (target - prevVal) / (elong - prevVal)));
-        if (nodeDist <= limit) eclipses.push({ date: iso(d.getTime() - DAY_MS + f * DAY_MS), type: crossedNew ? "solar" : "lunar" });
+        const eclDate = iso(d.getTime() - DAY_MS + f * DAY_MS);
+        if (nodeDist <= limit && eclDate.slice(0, 7) === yearMonth) eclipses.push({ date: eclDate, type: crossedNew ? "solar" : "lunar" });
       }
     }
     prevElong = elong;

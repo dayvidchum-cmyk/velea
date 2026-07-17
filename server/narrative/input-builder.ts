@@ -85,6 +85,13 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
   const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, areaFocus: opts?.areaFocus, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc, rxArcPlanet: opts?.rxArcPlanet, monthArc: opts?.monthArc });
   INPUT_CACHE.set(key, { at: Date.now(), value });
+  // Evict expired entries (audit L21): they were TTL-checked on read but never deleted, so the
+  // memo grew unbounded between deploys (~50-100KB per (profile,date,variant)). Cheap amortized
+  // sweep, only when the map gets large.
+  if (INPUT_CACHE.size > 200) {
+    const cutoff = Date.now() - INPUT_TTL_MS;
+    INPUT_CACHE.forEach((v, k) => { if (v.at < cutoff) INPUT_CACHE.delete(k); });
+  }
   return value;
 }
 

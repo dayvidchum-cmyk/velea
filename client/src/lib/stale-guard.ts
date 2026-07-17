@@ -20,9 +20,17 @@ async function checkFreshness() {
     if (!res.ok) return;
     const m = (await res.text()).match(/velea-cache-v(\d+)/);
     const server = m ? Number(m[1]) : 0;
-    if (server > mine && sessionStorage.getItem("velea-stale-reload") !== String(server)) {
-      sessionStorage.setItem("velea-stale-reload", String(server));
-      window.location.reload();
+    if (server > mine) {
+      // The loop-guard marker must NEVER block the reload (audit L10): a sessionStorage throw
+      // (private mode / quota) used to fall through to the outer catch and skip the reload on
+      // exactly the devices the guard protects. Isolate it; reload regardless. (A loop can't
+      // form anyway — the reload loads the new bundle, so server > mine goes false.)
+      let already = false;
+      try { already = sessionStorage.getItem("velea-stale-reload") === String(server); } catch { /* storage unavailable */ }
+      if (!already) {
+        try { sessionStorage.setItem("velea-stale-reload", String(server)); } catch { /* storage unavailable */ }
+        window.location.reload();
+      }
     }
   } catch {
     /* offline — the cached shell is the right thing to keep serving */
