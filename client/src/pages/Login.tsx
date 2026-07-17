@@ -101,13 +101,13 @@ export default function Login() {
   };
 
   return (
-    <div style={{ height: "100dvh", background: "#050505", position: "relative", overflow: "hidden", display: "grid", placeItems: "center" }}>
+    <div style={{ height: "100dvh", background: "#050505", position: "relative", overflow: "hidden" }}>
       <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.5); letter-spacing: 0.18em; font-size: 0.66rem; }`}</style>
 
       {/* THE GATE BOX — an element with the art's exact aspect (900×1122), scaled 12%
           past the viewport fit; the form anchors INSIDE it, so the doorway seat is
           pixel-true on every screen (door slot measured: rows 59.9–91.1%, center 75.5%). */}
-      <div style={{ position: "relative", aspectRatio: "900 / 1122", height: "min(112dvh, 139.7vw)", flexShrink: 0 }}>
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", aspectRatio: "900 / 1122", height: "min(112dvh, 139.7vw)" }}>
         <img
           src={art}
           alt=""
@@ -115,32 +115,35 @@ export default function Login() {
           style={{ width: "100%", height: "100%", objectFit: "cover", userSelect: "none", pointerEvents: "none" }}
         />
 
-      {/* Wordmark in the sky above the crest */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "max(2dvh, env(safe-area-inset-top, 0px))" }}>
-        <h1
-          style={{
-            fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
-            fontWeight: 700,
-            fontSize: "clamp(1.6rem, 6.5vw, 2.2rem)",
-            letterSpacing: "-0.01em",
-            lineHeight: 1,
-            margin: 0,
-            background: `linear-gradient(180deg, ${METAL.hi} 0%, ${METAL.accent} 55%, ${METAL.deep} 100%)`,
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          Velea
-        </h1>
-      </div>
+      {/* The name, inscribed in the doorway (David: it got lost over the drawing) —
+          the slot's darkness is the only ground on this screen that can hold it. */}
+      <h1
+        style={{
+          position: "absolute",
+          top: "63%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+          fontWeight: 700,
+          fontSize: "clamp(1.5rem, 6vw, 2rem)",
+          letterSpacing: "-0.01em",
+          lineHeight: 1,
+          margin: 0,
+          background: `linear-gradient(180deg, ${METAL.hi} 0%, ${METAL.accent} 55%, ${METAL.deep} 100%)`,
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
+          color: "transparent",
+        }}
+      >
+        Velea
+      </h1>
 
       {/* THE THRESHOLD — the form, seated in the doorway's own darkness. */}
       <form
         onSubmit={handleSubmit}
         style={{
           position: "absolute",
-          top: "75.5%",
+          top: "78%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "min(230px, 60vw)",
