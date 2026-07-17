@@ -10,7 +10,7 @@
 
 import { calcPanchang } from './astronomy.js';
 import { karanaFromLongitudes } from './karana.js';
-import { interpretPanchang, getNakshatraModifier, getTithiPacing, moonSignToHouse, composeInstructionFromParts, calculateFinalMode, applyWeatherGate, applyFieldKarana, generateQualifier, type DayField, type DayMode, type FinalMode } from './interpreter.js';
+import { interpretPanchang, getNakshatraModifier, getTithiPacing, moonSignToHouse, composeInstructionFromParts, calculateFinalMode, applyWeatherGate, applyFieldKarana, generateQualifier, HOUSE_MODE, type DayField, type DayMode, type FinalMode } from './interpreter.js';
 import { getPanchangByDate, upsertPanchang } from '../db.js';
 
 // Sign name → index (must match SIGN_INDEX in interpreter.ts)
@@ -72,20 +72,7 @@ export function dayModeToTaskMode(mode: string): string {
 
 // ─── House-to-mode mapping (needed for cache re-derivation) ──────────────────
 
-const HOUSE_MODE: Record<number, DayMode> = {
-  1: 'Action',
-  2: 'Flex',
-  3: 'Build',
-  4: 'Restraint',
-  5: 'Selective',
-  6: 'Build',
-  7: 'Selective',
-  8: 'Restraint',
-  9: 'Flex',
-  10: 'Action',
-  11: 'Action',
-  12: 'Restraint',
-};
+// HOUSE_MODE is imported from interpreter.js (the one canonical map — audit H9).
 
 // ─── Main function ────────────────────────────────────────────────────────────
 

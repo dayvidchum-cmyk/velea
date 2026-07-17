@@ -149,7 +149,11 @@ export function moonSignToHouse(moonSignIndex: number, lagnaSign: string): numbe
 // David 2026-07-12: corrected the 3rd/5th/9th assignments. 3rd (effort, communication, the near
 // reach) is Selective, not Build; 5th (creation, what you make) is Build, not Selective; 9th
 // (fortune, the wide horizon) is Action, not the ambiguous Flex.
-const HOUSE_MODE: Record<number, DayMode> = {
+// THE ONE house→mode map (audit 2026-07-17, H9). service.ts had a private stale COPY that
+// still read the pre-2026-07-12 assignments for houses 3/5/9 (Build/Selective/Flex), so the
+// cached day-mode path and every "the day turns at…" sign-flip disagreed with this corrected
+// map. Exported and consumed there now — one source, no drift.
+export const HOUSE_MODE: Record<number, DayMode> = {
   1: 'Action',
   2: 'Flex',
   3: 'Selective',

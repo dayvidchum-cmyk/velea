@@ -354,6 +354,23 @@ export default function Planner() {
     { year: viewDate.getFullYear(), month: viewDate.getMonth() + 1 },
     { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
   );
+  // TODAY'S month, always (audit 2026-07-17, H12): every today-derived value (supported
+  // kinds, mode, gradient, caution) and the today-hero used to read from the VIEWED month's
+  // days, so paging the calendar dropped today out of the map — the hero blanked, the mode
+  // fell back, and the Aligned list reshuffled just from browsing. This stable query keeps
+  // today present regardless of viewDate. When viewing the current month the key is identical
+  // so React Query dedupes it (no extra fetch); paged away, both months are merged below.
+  const { data: crownTodayData } = trpc.crown.forMonth.useQuery(
+    { year: today.getFullYear(), month: today.getMonth() + 1 },
+    { enabled: isAuthenticated, staleTime: 60 * 60 * 1000 },
+  );
+  // The union of the viewed month and today's month. The calendar grid only ever looks up
+  // its own visible dates, so today's extra entries never bleed into the grid; but today's
+  // values and the today-hero can always find their date.
+  const crownDays = useMemo(
+    () => [...((crownData?.days ?? []) as any[]), ...((crownTodayData?.days ?? []) as any[])],
+    [crownData, crownTodayData],
+  );
   // Collective sky labels — Mercury's course (David follows the WHOLE course; the ±3
   // days around each station are the worst) + eclipse days. One glyph, three
   // intensities: faint ☿ across the retrograde, stronger in station windows, full on
@@ -362,9 +379,9 @@ export default function Planner() {
   // The day CHARACTER per date (the classical filter) — from the same crown.forMonth source.
   const charByDate = useMemo(() => {
     const m = new Map<string, any>();
-    for (const d of (crownData?.days ?? []) as any[]) if (d.character) m.set(d.date, d.character);
+    for (const d of crownDays as any[]) if (d.character) m.set(d.date, d.character);
     return m;
-  }, [crownData]);
+  }, [crownDays]);
   const selectedCharacter = charByDate.get(selectedDate);
   // THE HANDSHAKE (hoisted above the ranking query, which feeds on it): the kinds
   // today's character supports — empty on hostile/contained days.
@@ -374,9 +391,9 @@ export default function Planner() {
   }, [charByDate]);
   const rungByDate = useMemo(() => {
     const m = new Map<string, { num: number; quality: string }>();
-    for (const d of (crownData?.days ?? []) as any[]) if (d.rung) m.set(d.date, d.rung);
+    for (const d of crownDays as any[]) if (d.rung) m.set(d.date, d.rung);
     return m;
-  }, [crownData]);
+  }, [crownDays]);
   // Every retrograde planet's marks, collapsed to a per-date list for the glyph strip.
   // Each planet contributes at most one state per day; strongest wins: station > window
   // > rx > shadow. `detail` feeds the tap popup.
@@ -431,34 +448,34 @@ export default function Planner() {
   }, [skyMarks]);
   const crownByDate = useMemo(() => {
     const m = new Map<string, string>();
-    for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
+    for (const d of crownDays as any[]) if (d.rating === "crown") m.set(d.date, d.why ?? "");
     return m;
-  }, [crownData]);
+  }, [crownDays]);
   // Personal-weather gate, calendar edition: a personal CAUTION day is contained to Restraint
   // (mirrors server applyWeatherGate — the day sheet/hero get the same clamp server-side, so
   // tile color and prose always agree). See server/panchang/interpreter.ts.
   const cautionByDate = useMemo(() => {
     const m = new Map<string, string>();
-    for (const d of (crownData?.days ?? []) as any[]) if (d.rating === "caution") m.set(d.date, d.why ?? "");
+    for (const d of crownDays as any[]) if (d.rating === "caution") m.set(d.date, d.why ?? "");
     return m;
-  }, [crownData]);
+  }, [crownDays]);
   const cautionSet = useMemo(() => new Set(cautionByDate.keys()), [cautionByDate]);
   // Prosperity days — a lit WEALTH convergence window covers the date; the coin wears $
   // at glyph size (David 2026-07-16: "$ for prosperity", sized like the other glyphs).
   const prosperitySet = useMemo(
-    () => new Set<string>(((crownData?.days ?? []) as any[]).filter((d) => d.prosperity).map((d) => d.date)),
-    [crownData],
+    () => new Set<string>((crownDays as any[]).filter((d) => d.prosperity).map((d) => d.date)),
+    [crownDays],
   );
   // Achievement days — Sadhaka tara (rung 6, the accomplisher): the coin wears ✓ (David).
   // Full/new moon days — a pale disc and a dark disc in the mark cluster (David).
   const moonPhaseByDate = useMemo(() => {
     const m = new Map<string, "full" | "new">();
-    for (const d of ((crownData?.days ?? []) as any[])) if (d.moonPhase) m.set(d.date, d.moonPhase);
+    for (const d of (crownDays as any[])) if (d.moonPhase) m.set(d.date, d.moonPhase);
     return m;
-  }, [crownData]);
+  }, [crownDays]);
   const achievementSet = useMemo(
-    () => new Set<string>(((crownData?.days ?? []) as any[]).filter((d) => d.achievement).map((d) => d.date)),
-    [crownData],
+    () => new Set<string>((crownDays as any[]).filter((d) => d.achievement).map((d) => d.date)),
+    [crownDays],
   );
   // The interaction MODE per day (David's two-lens precision model, server-gated) — the SAME mode
   // the day card/hero shows. crown.forMonth computes it off the day chart it already builds, so the
@@ -466,9 +483,9 @@ export default function Planner() {
   // profile has no crown scan (no birth chart).
   const modeByDate = useMemo(() => {
     const m = new Map<string, string>();
-    for (const d of (crownData?.days ?? []) as any[]) if (d.mode) m.set(d.date, d.mode);
+    for (const d of crownDays as any[]) if (d.mode) m.set(d.date, d.mode);
     return m;
-  }, [crownData]);
+  }, [crownDays]);
   // Golden days — the COLLECTIVE potential (panchang day-quality, no chart needed), brought
   // back as a golden BORDER on the calendar. Crown days = a golden day + the crown badge on top.
   const { data: goldenData } = trpc.sky.goldenDays.useQuery(
@@ -545,7 +562,10 @@ export default function Planner() {
   }, [isAuthenticated, tasksLoaded, allTasks.length, user?.id]);
 
   // Ranked-for-today suggestions powering the "Aligned for today" list (ported from Home).
-  const todayDateStr = useMemo(() => today.toISOString().split("T")[0], [today]);
+  // LOCAL date, not toISOString (audit 2026-07-17, H11 — the 8pm-Boston class David already
+  // fixed in YearCalendar): UTC rolls to tomorrow after 8pm ET, so the evening "Aligned"
+  // list scored due-today tasks overdue and lit tomorrow's windows. Same frame as the grid.
+  const todayDateStr = useMemo(() => toDateStr(today), [today]);
   const { data: rankedTasks } = trpc.tasks.rankedForToday.useQuery(
     {
       todayMode: todayTaskMode ?? "Build",
