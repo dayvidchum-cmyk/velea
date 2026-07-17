@@ -176,7 +176,10 @@ function composeHouseSynthesis(
   }
 
   const rb = natalBodies.find((b) => b.planet === ruler);
-  if (rb) {
+  // Guard rb.house (audit L18): a body with a null/0 house (the historical blank-chart / repair
+  // class) made HOUSE_SUMMARY[rb.house] undefined, and .title threw — the ErrorBoundary then
+  // replaced the whole Charts page with a stack trace. Skip the ruler line rather than crash.
+  if (rb && rb.house && HOUSE_SUMMARY[rb.house]) {
     const rdig = getPlanetDignity(ruler, rb.sign);
     const rdigw = rdig ? ` (${DIGNITY_WORD[rdig]})` : "";
     out.push(`Its ruler ${ruler}${rdigw} sits in your ${ORD[rb.house]} house (${HOUSE_SUMMARY[rb.house].title}), tying these themes to that part of life.`);

@@ -31,13 +31,19 @@ class ErrorBoundary extends Component<Props, State> {
               className="text-destructive mb-6 flex-shrink-0"
             />
 
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
+            <h2 className="text-xl mb-2">Something went sideways.</h2>
+            <p className="text-sm text-muted-foreground mb-6 text-center max-w-sm">
+              This screen hit a snag. Reloading usually clears it — your data is safe.
+            </p>
 
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
-              </pre>
-            </div>
+            {/* Raw stack only in dev (audit L13) — end users saw bundle internals + paths. */}
+            {import.meta.env.DEV && this.state.error?.stack && (
+              <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
+                <pre className="text-sm text-muted-foreground whitespace-break-spaces">
+                  {this.state.error.stack}
+                </pre>
+              </div>
+            )}
 
             <button
               onClick={() => window.location.reload()}

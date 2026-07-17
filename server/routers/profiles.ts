@@ -9,7 +9,7 @@
  */
 
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
@@ -24,7 +24,7 @@ async function getProfilesByUser(userId: number) {
   return db
     .select()
     .from(profiles)
-    .where(and(eq(profiles.userId, userId), eq(profiles.archivedAt, null as any)))
+    .where(and(eq(profiles.userId, userId), isNull(profiles.archivedAt))) // audit L8: was eq(…, null) → 'archivedAt = NULL', always false
     .orderBy(profiles.createdAt);
 }
 

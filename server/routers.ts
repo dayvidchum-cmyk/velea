@@ -144,12 +144,16 @@ function nextDueDate(base: string | null, recurrence: string): string {
   const today = new Date().toISOString().split("T")[0];
   const start = base && base >= today ? base : today;
   const d = new Date(start + "T00:00:00Z");
+  // Month/year overflow clamp (audit L9): setUTCMonth on the 31st rolled a task due Jan 31
+  // into Mar 3 (Feb has no 31st), skipping February; Feb 29 yearly rolled into Mar 1. When the
+  // day changes, JS overflowed — setUTCDate(0) snaps back to the intended month's last day.
+  const clampOverflow = (dayBefore: number) => { if (d.getUTCDate() !== dayBefore) d.setUTCDate(0); };
   switch (recurrence) {
     case "daily": d.setUTCDate(d.getUTCDate() + 1); break;
     case "weekly": d.setUTCDate(d.getUTCDate() + 7); break;
     case "biweekly": d.setUTCDate(d.getUTCDate() + 14); break;
-    case "monthly": d.setUTCMonth(d.getUTCMonth() + 1); break;
-    case "yearly": d.setUTCFullYear(d.getUTCFullYear() + 1); break;
+    case "monthly": { const day = d.getUTCDate(); d.setUTCMonth(d.getUTCMonth() + 1); clampOverflow(day); break; }
+    case "yearly": { const day = d.getUTCDate(); d.setUTCFullYear(d.getUTCFullYear() + 1); clampOverflow(day); break; }
     default: d.setUTCDate(d.getUTCDate() + 1);
   }
   return d.toISOString().split("T")[0];
@@ -1667,6 +1671,11 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({ taskId: z.number(), title: z.string().min(1).max(512) }))
       .mutation(async ({ ctx, input }) => {
+        // Verify the parent task belongs to the caller (audit L6) — the ownership assert every
+        // other task endpoint has was missing here, so a subtask could be attached to another
+        // user's task id (orphan-write pollution).
+        const parent = await getTaskById(input.taskId, ctx.user.id);
+        if (!parent) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
         const result = await createSubtask({ taskId: input.taskId, userId: ctx.user.id, title: input.title });
         return result;
       }),

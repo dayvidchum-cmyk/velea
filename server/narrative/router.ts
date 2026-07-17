@@ -222,7 +222,7 @@ export const narrativeRouter = router({
         },
       };
       const { getTlWindowReadCached } = await import("./service.js");
-      return await getTlWindowReadCached(profile.id, input.from, tlInput, input.refresh ?? false);
+      return await getTlWindowReadCached(profile.id, input.from, tlInput, input.refresh ?? false, input.sign);
     } catch (e) {
       console.error("[narrative.tlWindowRead]", e);
       return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;

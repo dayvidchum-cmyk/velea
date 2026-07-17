@@ -376,10 +376,12 @@ export async function getMercuryRxCached(profileId: number, date: string, refres
 
 /** ONE WINDOW ON THE YEAR-LORD'S ROAD — cached per (profile, window start); the row's
  *  own engine notes are the input, so the hash is window-stable. */
-export async function getTlWindowReadCached(profileId: number, from: string, input: any, refresh = false): Promise<{ available: boolean; read: any | null; generatedAt: Date | string | null; cached: boolean }> {
+export async function getTlWindowReadCached(profileId: number, from: string, input: any, refresh = false, sign?: string): Promise<{ available: boolean; read: any | null; generatedAt: Date | string | null; cached: boolean }> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = "tl_window";
-  const dateKey = `tlw-${from}`;
+  // Key by (from, SIGN) — the window is selected by both (audit L20); tlw-${from} alone let two
+  // windows sharing a start date fight over one cache row, each open overwriting the other.
+  const dateKey = sign ? `tlw-${from}-${sign.toLowerCase()}` : `tlw-${from}`;
   // Tense anchor: window bounds live in the caller's input (window.from/to or from/to).
   input = { ...input, stance: tenseOf(input?.window?.from ?? input?.from ?? from, input?.window?.to ?? input?.to ?? null) };
   const salt = SURFACE_VERSION[surface] ?? "";
