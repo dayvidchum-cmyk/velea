@@ -36,6 +36,14 @@ const PLANET_SYMBOLS: Record<string, string> = {
 
 // ── Planet color helpers ─────────────────────────────────────────────────────
 
+// LOCAL today (audit M10): the TL surfaces used new Date().toISOString() (UTC), so after
+// ~8pm ET the ribbon's "current" band, the window begun-gate, and the future-maha gate all
+// jumped to tomorrow (the 8pm-Boston class). Local frame, same as the calendars.
+function localTodayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace("#", "");
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
@@ -1036,7 +1044,7 @@ export function DashaSection() {
                         style={{ background: t.chip, color: t.primary, border: `1px solid ${t.chipBorder}` }}>
                         ◉ Active
                       </span>
-                    ) : (g.periods[0]?.startDate ?? "") > new Date().toISOString().slice(0, 10) ? (
+                    ) : (g.periods[0]?.startDate ?? "") > localTodayStr() ? (
                       // Only the FUTURE wears the gate (David: "why are past dasha readings
                       // gated?" — the past reads free, per the time-gate doctrine).
                       <GateMark size={18} style={{ color: "var(--brand-gold)", opacity: 0.7, flexShrink: 0 }} />
@@ -1058,7 +1066,7 @@ export function DashaSection() {
                       THE CHAPTER GATE (David 2026-07-16): only the RUNNING chapter reads —
                       other mahadashas wear the lock (the tease; server enforces too). */}
                   <div style={{ padding: "0.8rem 1rem 0.2rem" }}>
-                    {(g.periods[0]?.startDate ?? "") > new Date().toISOString().slice(0, 10) ? (
+                    {(g.periods[0]?.startDate ?? "") > localTodayStr() ? (
                       <div className="flex items-center gap-2 rounded-lg px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
                         <GateMark size={19} style={{ flexShrink: 0, color: "var(--brand-gold)" }} />
                         <p className="text-xs" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.5 }}>
@@ -1183,7 +1191,7 @@ function ProfectionSection() {
     : "var(--card)";
   const accentColor = taskMode ? MODE_OKLCH[taskMode] : "var(--color-border)";
   const darkColor = taskMode ? MODE_DARK[taskMode] : undefined;
-  const todayDateStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const todayDateStr = useMemo(() => localTodayStr(), []);
   const TEXT_PRIMARY = "var(--foreground)";
   const TEXT_MUTED = "var(--muted-foreground)";
   // Light text for use on the immersive gradient cards
@@ -1294,7 +1302,7 @@ function ProfectionSection() {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {transitsData.transits.map((transit: any, idx: number) => {
               const isExpanded = expandedTransitId === idx;
-              const today = new Date().toISOString().split("T")[0];
+              const today = localTodayStr();
               const isCurrent = transit.startDate <= today && today <= transit.endDate;
               return (
                 <div key={idx} style={{ border: `1.5px solid ${isCurrent ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)"}`, borderRadius: "0.5rem", overflow: "hidden", background: isCurrent ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)" }}>

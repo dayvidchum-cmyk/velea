@@ -1,6 +1,6 @@
 import GateMark from "@/components/GateMark";
 import ProseCard from "@/components/ProseCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
 import { ChevronDown, ChevronLeft } from "lucide-react";
@@ -37,6 +37,15 @@ export default function LifeAtlas() {
     { enabled: !!openTheme && entitled && armedTheme === openTheme, staleTime: Infinity, retry: false },
   );
   const readQ = armedTheme === openTheme && !peekQ.data?.read ? genQ : peekQ;
+  // After a theme generates, refresh its peek (audit M5): peekQ is staleTime:Infinity, so
+  // without this it keeps reporting {peeked:true} and reopening a read theme shows the door
+  // again. Invalidate → refetch → the peek now carries the cached read.
+  const utils = trpc.useUtils();
+  useEffect(() => {
+    if ((genQ.data as any)?.read && openTheme) {
+      utils.atlas.themeRead.invalidate({ theme: openTheme, peek: true });
+    }
+  }, [genQ.data, openTheme]);
   const windowReadQ = trpc.atlas.windowRead.useQuery(
     { theme: openWindow?.theme ?? "", from: openWindow?.w?.from ?? "1900-01-01" },
     { enabled: !!openWindow && entitled, staleTime: Infinity, retry: false },

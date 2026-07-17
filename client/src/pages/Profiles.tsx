@@ -928,6 +928,10 @@ export default function Profiles() {
       await deleteMutation.mutateAsync({ id: profileId });
       await utils.profiles.list.invalidate();
       await utils.profiles.getActive.invalidate();
+      // Blanket reset (audit M9): if the DELETED profile was the active one, the server picks a
+      // new active, but every un-profile-keyed surface (crown, horoscope, readings, charts) kept
+      // the deleted person's data until reload. Same wipe handleSetActive does — deletions are rare.
+      await queryClient.resetQueries();
       toast.success(`${name} deleted`);
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to delete profile");

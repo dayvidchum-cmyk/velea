@@ -714,7 +714,7 @@ export default function ProfectionYear() {
           ) : transitsData?.transits?.length ? (
             (() => {
               const segs = transitsData.transits as any[];
-              const todayStr = new Date().toISOString().split("T")[0];
+              const todayStr = localToday; // audit M10: local, not UTC (8pm-Boston class)
               const ms = (d: string) => new Date(d + "T12:00:00").getTime();
               const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" });
               const fmtLong = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -827,7 +827,7 @@ export default function ProfectionYear() {
                       {/* THE WINDOW'S OWN READ (David 2026-07-17: "build it") — a begun
                           window reads; a future window waits behind the gate (time-gate law). */}
                       {(() => {
-                        const todayIso = new Date().toISOString().slice(0, 10);
+                        const todayIso = localToday; // audit M10: local, not UTC
                         const begun = sel.startDate <= todayIso;
                         const mine = tlRead?.from === sel.startDate;
                         const ink = SIGN_COLOR[sel.sign] ?? modeColor;
