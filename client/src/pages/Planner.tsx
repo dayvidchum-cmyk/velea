@@ -2466,9 +2466,9 @@ export default function Planner() {
       />
 
       {/* "UPDATE TO THE MOMENT" pitch (David 2026-07-18). No gate — the pitch appears in the
-          honest moment they press refresh wanting the new day. Subscribe shows a real price
-          ($X.XX = PLACEHOLDER, David sets it) → "coming soon" (no real charge pre-Stripe).
-          Copy is his to finalize at Stripe time. */}
+          honest moment they press refresh wanting the new day. Subscribe shows the price
+          ($2.99/mo — David's call: start low so word-of-mouth carries it, raise as the app
+          earns its reputation) → "coming soon" (no real charge pre-Stripe). Finalize at Stripe. */}
       {momentUpsellOpen && (
         <div
           onClick={() => setMomentUpsellOpen(false)}
@@ -2489,7 +2489,7 @@ export default function Planner() {
                   onClick={() => setSubscribeTapped(true)}
                   style={{ marginTop: '0.3rem', width: '100%', background: 'linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)', border: 'none', borderRadius: 12, padding: '0.85rem', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '0.04em', color: '#1a1200', cursor: 'pointer' }}
                 >
-                  Subscribe · $4.99 / mo
+                  Subscribe · $2.99 / mo
                 </button>
                 <button
                   onClick={() => setMomentUpsellOpen(false)}
