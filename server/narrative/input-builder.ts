@@ -496,7 +496,14 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // tithi is now BARE both paths (data-path audit #3); paksha travels EXPLICITLY so the LLM
     // always gets the waxing(Shukla)/waning(Krishna) direction — it was only ever embedded in
     // the cached tithi's prefix and absent entirely on freshly-computed days.
-    nakshatra: (field as any).activeNakshatra ?? field.nakshatra, tithi: field.tithi, paksha: (field as any).tithiPaksha ?? null,
+    // THE READING READS THE DAY'S MAJORITY STAR (David 2026-07-18: "fine-tune H5 to only
+    // regenerate if the new star is the majority of the day"). field.nakshatra is the DOMINANT
+    // star (rules most of the vedic day) — day-stable, unlike the live-minute activeNakshatra.
+    // So the dayFilter (built from this) no longer flips at every mid-day transition; it changes
+    // only when the majority changes, day to day. A brief minority star late in the day no longer
+    // regenerates (and re-bills) the read. The hero still shows the live "turns at…" moment; the
+    // READING is about the day's ruling character. turnsAtNote still tells the model it turns.
+    nakshatra: field.nakshatra ?? (field as any).activeNakshatra, tithi: field.tithi, paksha: (field as any).tithiPaksha ?? null,
     karana: field.karana ? { name: field.karana.name, quality: field.karana.quality, vishti: field.karana.name === "Vishti" } : null,
     // The literal mid-day turn and the field/karana containment reasons — the DAY-scale
     // particulars the read must spend its words on.
