@@ -67,10 +67,10 @@
   50%      { box-shadow: 0 0 18px 5px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 55%, transparent); }
 }
 .orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite; }
-/* Bolder sweep, round two (field note 2026-07-17: "still is too wimpy. Bolder please") —
-   the v623 pair of 0.6px shadows read as a faint halo, not weight. Four full-strength 1px
-   dilation shadows genuinely fatten the arc's stroke; the soft glow rides on top. */
-.velea-loader { animation: veleaSweep 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; transform-origin: center; filter: drop-shadow(0 0 1px currentColor) drop-shadow(0 0 1px currentColor) drop-shadow(0 0 1px currentColor) drop-shadow(0 0 1px currentColor) drop-shadow(0 0 7px color-mix(in srgb, currentColor 45%, transparent)); }
+/* The sweep, settled (David 2026-07-17: v648's four dilation shadows read "too big and
+   fuzzy" — blur is not weight). One hairline pass keeps the edge honest, one faint glow
+   keeps the life; the mark stays CRISP. */
+.velea-loader { animation: veleaSweep 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; transform-origin: center; filter: drop-shadow(0 0 0.5px currentColor) drop-shadow(0 0 4px color-mix(in srgb, currentColor 28%, transparent)); }
 @keyframes veleaSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .velea-loader { animation: veleaLoaderBreath 2.2s ease-in-out infinite; } }
 @keyframes veleaLoaderBreath { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
