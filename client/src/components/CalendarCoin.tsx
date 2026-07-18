@@ -53,22 +53,24 @@ export default function CalendarCoin(p: CalendarCoinProps) {
     hoverBg, pressBg, activeInk, accent, stations = [], windows = [], moonPhase, prosperity, achievement, bindis, shadows = [] } = p;
   const hasBindis = !!bindis?.some(Boolean);
 
+  // TODAY IS THE SQUARE (David's 18-coin screenshot: "sloppy… the edges of the circle poking
+  // out") — a circle behind a slightly-larger square always leaks its curve at the edge
+  // midpoints, and the round pulse ring haloed past the corners. So today the coin BECOMES the
+  // square: one shape, dark mode-mix fill, white number; the pulse's box-shadow follows the
+  // square's radius. Hover/press bg swaps are skipped for today (they'd flash the round tint).
+  const todayBg = `color-mix(in srgb, ${accent} 55%, #191109)`;
   return (
     <div
       className={`flex items-center justify-center${pulse === "today" ? " today-pulse" : pulse === "lakshmi" ? " lakshmi-pulse" : ""}`}
       style={{
-        position: "relative", width: "32px", height: "32px", borderRadius: 999,
-        transition: "background 150ms", color: numberColor, background: restingBg, border,
+        position: "relative", width: "32px", height: "32px", borderRadius: isToday ? 7 : 999,
+        transition: "background 150ms", color: numberColor, background: isToday ? todayBg : restingBg, border,
       }}
-      onMouseEnter={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; if (hoverBg) e.currentTarget.style.background = hoverBg; if (hasMode && activeInk) e.currentTarget.style.color = activeInk; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = numberColor; }}
-      onMouseDown={(e) => { if (pressBg) e.currentTarget.style.background = pressBg; if (hasMode && activeInk) e.currentTarget.style.color = activeInk; }}
-      onMouseUp={(e) => { if (hoverBg) e.currentTarget.style.background = hoverBg; if (hasMode && activeInk) e.currentTarget.style.color = activeInk; }}
+      onMouseEnter={(e) => { if (isToday) return; if (!window.matchMedia("(hover: hover)").matches) return; if (hoverBg) e.currentTarget.style.background = hoverBg; if (hasMode && activeInk) e.currentTarget.style.color = activeInk; }}
+      onMouseLeave={(e) => { if (isToday) return; e.currentTarget.style.background = restingBg; e.currentTarget.style.color = numberColor; }}
+      onMouseDown={(e) => { if (isToday) return; if (pressBg) e.currentTarget.style.background = pressBg; if (hasMode && activeInk) e.currentTarget.style.color = activeInk; }}
+      onMouseUp={(e) => { if (isToday) return; if (hoverBg) e.currentTarget.style.background = hoverBg; if (hasMode && activeInk) e.currentTarget.style.color = activeInk; }}
     >
-      {/* TODAY: a matching-color SQUARE FILL darker than the coin, white number reading on it. */}
-      {isToday && (
-        <span aria-hidden style={{ position: "absolute", inset: -1, background: `color-mix(in srgb, ${accent} 55%, #191109)`, borderRadius: 6, pointerEvents: "none", zIndex: 0 }} />
-      )}
 
       {/* THE MARK RAIL — all secondary marks, one aligned rail above the coin. */}
       {(stations.length > 0 || windows.length > 0 || shadows.length > 0 || !!moonPhase || !!prosperity || !!achievement) && (() => {
