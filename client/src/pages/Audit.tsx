@@ -35,12 +35,13 @@ const COIN_CASES: Array<{ note: string; props: CalendarCoinProps }> = [
   { note: "Crown (octagram)", props: { day: 12, isCrown: true, pulse: "lakshmi", numberColor: "#3A2E12", restingBg: "color-mix(in srgb, #FFD429 62%, var(--parchment))", border: "1.5px solid #D4AF37", accent: "#D4AF37" } },
   { note: "Eclipse (disc)", props: { day: 9, isEclipse: true, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD } },
   { note: "Caution (red)", props: { day: 4, filled: true, hasMode: true, numberColor: "#fff", restingBg: "#C41E3A", border: "2px solid transparent", accent: "#C41E3A" } },
-  { note: "Station · Mercury", props: { day: 20, stations: ["Mercury"], numberColor: MERC, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${MERC} 58%, transparent)`, accent: MERC } },
-  { note: "Station + window", props: { day: 22, stations: ["Saturn"], windows: ["Mercury"], numberColor: "#454A8C", restingBg: "transparent", border: `1.5px solid color-mix(in srgb, #454A8C 55%, transparent)`, accent: "#454A8C" } },
+  // FIRST LAW (v699): station coins are MODE-colored; the planet speaks only via the rail glyph.
+  { note: "Station · Mercury", props: { day: 20, stations: ["Mercury"], numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
+  { note: "Station + window", props: { day: 22, stations: ["Saturn"], windows: ["Mercury"], numberColor: GOLD, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${GOLD} 62%, transparent)`, accent: GOLD } },
   { note: "Moon · full", props: { day: 6, moonPhase: "full", numberColor: GREY, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${GREY} 62%, transparent)`, accent: GREY } },
   { note: "€ prosperity", props: { day: 7, prosperity: true, numberColor: "#2E9B54", restingBg: "transparent", border: "1.5px solid color-mix(in srgb, #2E9B54 62%, transparent)", accent: "#2E9B54" } },
   { note: "Achievement ♛", props: { day: 30, achievement: true, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
-  { note: "4+ marks (overflow test)", props: { day: 24, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, numberColor: MERC, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${MERC} 55%, transparent)`, accent: MERC } },
+  { note: "4+ marks (overflow test)", props: { day: 24, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
   { note: "Crown + station (both)", props: { day: 19, isCrown: true, pulse: "lakshmi", stations: ["Mercury"], achievement: true, numberColor: "#3A2E12", restingBg: "color-mix(in srgb, #FFD429 62%, var(--parchment))", border: "1.5px solid #D4AF37", accent: "#D4AF37" } },
 ];
 
