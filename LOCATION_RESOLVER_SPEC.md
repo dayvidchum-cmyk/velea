@@ -131,10 +131,17 @@ Phases 1–3 fix the accuracy bug with ZERO new UX. Phases 4–5 are the feature
 - **Q1 — Hometown entry:** where does hometown live in the UX? A field next to birth location in
   the profile editor? Auto-seeded from birth location on first save (edit later)? Or a row in the
   LocationSheet next to "current"?
-- **Q2 — Per-profile current:** today "current" is one value per account. When you read a friend's
-  chart, should the day-layer use *your* current location, *their* hometown, or ask? (My lean:
-  a non-owner profile ignores the owner's "current" and uses hometown → birth. The owner's own
-  chart uses current. But your call.)
+- **Q2 — Per-profile current: ANSWERED (David, 7/18).** "Current location is [the] current
+  account, which is owned by a current user. When viewing another profile, pop-up to change
+  location. I have lived this need many times." → current stays ONE value on the user/account
+  (not per-profile). The trigger: **switching to view another profile pops a prompt to
+  change/confirm the location** (the reading needs the place the *chart's person* is, not the
+  owner's). MVP = prompt on profile-switch; the answer is stored back to the single current-
+  location slot for that session. (This is a UX prompt, not new per-profile storage — simpler
+  than the earlier per-profile-current idea.)
+  NOTE: GPS never changes location silently today — it's manual (LocationSheet "use my location"
+  button) or the LocationNudge toast (already-granted users, >150km drift, throttled 2h) that
+  OFFERS a one-tap update. The profile-switch prompt is a NEW, separate trigger from GPS drift.
 - **Q3 — "Current" staleness:** a stored current location is only true near today. For a date
   more than a few days out, should the resolver skip "current" and fall to hometown? (My lean:
   yes — current applies only within a small window of today; older/future dates use hometown.)
