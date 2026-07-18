@@ -2376,7 +2376,19 @@ export const appRouter = router({
       return { configured: pushConfigured(), publicKey: process.env.VAPID_PUBLIC_KEY ?? null, subscribed };
     }),
     subscribe: protectedProcedure
-      .input(z.object({ endpoint: z.string().url().max(512), p256dh: z.string().min(10).max(255), auth: z.string().min(6).max(255) }))
+      .input(z.object({
+        // AUDIT #4 (SSRF): the server POSTs to this URL (VAPID-signed) every morning. Without a
+        // host guard a user could store an internal/localhost URL and use the bell as a blind-SSRF
+        // + timing probe into the private network. Require https + a recognized push-service host.
+        endpoint: z.string().url().max(512).refine((u) => {
+          try {
+            const { protocol, hostname } = new URL(u);
+            if (protocol !== "https:") return false;
+            return /(^|\.)(google(apis)?\.com|mozilla\.com|mozaws\.net|windows\.com|microsoft\.com|apple\.com|push\.services\.mozilla\.com)$/i.test(hostname);
+          } catch { return false; }
+        }, "unrecognized push endpoint"),
+        p256dh: z.string().min(10).max(255), auth: z.string().min(6).max(255),
+      }))
       .mutation(async ({ ctx, input }) => {
         rateLimit(ctx.req, "push-subscribe", { max: 10, windowMs: 15 * 60 * 1000 });
         const db = await getDb();
@@ -2388,12 +2400,20 @@ export const appRouter = router({
         return { ok: true };
       }),
     unsubscribe: protectedProcedure
-      .input(z.object({ endpoint: z.string().max(512) }))
+      // AUDIT #4 (HIGH): endpoint optional. Omitted (or "-") = silence ALL this user's devices —
+      // the fix for turning the bell off from a device that didn't subscribe (status.subscribed is
+      // per-user, so the laptop showed "On" but could only delete a bogus "-" row → snapped back).
+      .input(z.object({ endpoint: z.string().max(512).optional() }))
       .mutation(async ({ ctx, input }) => {
         const db = await getDb();
         if (!db) return { ok: false };
         const { pushSubscriptions } = await import("../drizzle/schema.js");
-        await db.delete(pushSubscriptions).where(and(eq(pushSubscriptions.userId, ctx.user.id), eq(pushSubscriptions.endpoint, input.endpoint)));
+        const all = !input.endpoint || input.endpoint === "-";
+        await db.delete(pushSubscriptions).where(
+          all
+            ? eq(pushSubscriptions.userId, ctx.user.id)
+            : and(eq(pushSubscriptions.userId, ctx.user.id), eq(pushSubscriptions.endpoint, input.endpoint)),
+        );
         return { ok: true };
       }),
     // Admin: ring yourself NOW to hear the bell end-to-end.

@@ -412,14 +412,15 @@ async function recomputeProfileChart(
     console.warn('[Profile Chart] Transit precompute failed (will lazy-generate on view):', preErr);
   }
 
-  // Bust + warm the narrative caches so no typo-derived read survives the birthday fix.
+  // Bust the in-proc narrative memo so no typo-derived read survives the birthday fix.
+  // AUDIT #4: do NOT warm-generate here — changed birth data changes the natal chart, which
+  // changes the day-stable hash, so stale DB rows already can never match (no wrong read is
+  // served). The old warm billed getDeepReadCached (the premium year read a FREE user can't
+  // view) and getGlanceCached (a surface with zero client consumers) on every chart edit —
+  // pure waste. The real reads lazily generate on actual view, behind their own gates/doors.
   try {
-    const today = new Date().toISOString().split('T')[0];
-    const { getDeepReadCached, getGlanceCached } = await import('../narrative/service.js');
     const { invalidateNarrativeInput } = await import('../narrative/input-builder.js');
     invalidateNarrativeInput(profileId);
-    void getDeepReadCached(profileId, today).catch(() => {});
-    void getGlanceCached(profileId, today).catch(() => {});
   } catch { /* ignore */ }
 
   return chart;

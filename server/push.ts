@@ -13,7 +13,7 @@
  *    08:00 can't double-ring.
  */
 import webpush from "web-push";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or, isNull, ne } from "drizzle-orm";
 import { getDb } from "./db.js";
 import { pushSubscriptions, users } from "../drizzle/schema.js";
 import { getTimezoneOffset } from "./panchang/tz-offset.js";
@@ -52,6 +52,10 @@ export async function sendPushToUser(userId: number, payload: PushPayload): Prom
       await webpush.sendNotification(
         { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
         JSON.stringify(payload),
+        // AUDIT #4 (8): a morning line must not arrive at 10pm — TTL a few hours, and a
+        // topic so a newer bell replaces an undelivered one. timeout so one hanging
+        // endpoint can't stall the whole tick (web-push sets NO socket timeout by default).
+        { TTL: 6 * 3600, topic: "morning-bell", timeout: 10_000 } as any,
       );
       sent++;
     } catch (err: any) {
@@ -67,6 +71,10 @@ export async function sendPushToUser(userId: number, payload: PushPayload): Prom
 /** The user's local YYYY-MM-DD + hour, from their stored tz. Null when no tz (skip, don't guess). */
 function localClock(tz: string | null | undefined): { date: string; hour: number } | null {
   if (!tz) return null;
+  // AUDIT #4 (5): getTimezoneOffset swallows invalid tz strings and falls back to Boston —
+  // which would ring "8am" at the wrong hour of the user's real day. Validate the tz
+  // ourselves: malformed → null → skipped, per the header contract (skip, don't guess).
+  try { new Intl.DateTimeFormat("en-US", { timeZone: tz }); } catch { return null; }
   try {
     const offset = getTimezoneOffset(tz, new Date()); // hours
     const local = new Date(Date.now() + offset * 3600000);
@@ -224,24 +232,36 @@ export async function morningBellTick(): Promise<void> {
     })
     .from(pushSubscriptions)
     .innerJoin(users, eq(users.id, pushSubscriptions.userId));
-  const seen = new Set<number>();
+  // Group every subscription row per user so the dedupe sees ALL devices, not an
+  // arbitrary first row (AUDIT #4, 9).
+  const byUser = new Map<number, { name: string | null; tz: string | null; pushes: (string | null)[] }>();
   for (const r of rows) {
-    if (seen.has(r.userId)) continue;
-    seen.add(r.userId);
-    const clock = localClock(r.tz);
+    const u = byUser.get(r.userId) ?? { name: r.name, tz: r.tz, pushes: [] };
+    u.pushes.push(r.lastMorningPush ?? null);
+    byUser.set(r.userId, u);
+  }
+  for (const [userId, u] of byUser) {
+    const clock = localClock(u.tz);
     if (!clock || clock.hour !== MORNING_HOUR) continue;
-    if (r.lastMorningPush === clock.date) continue; // already rung today (their today)
-    const first = (r.name ?? "").trim().split(/\s+/)[0] || "friend";
-    const sent = await sendPushToUser(r.userId, {
+    const anyRungToday = u.pushes.some((p) => p === clock.date);
+    // CLAIM BEFORE SEND (AUDIT #4, 2+3): atomically stamp the date on this user's
+    // unstamped rows. Zero rows claimed → another instance/tick already owns today.
+    // Stamping FIRST inverts every failure mode the old send-then-stamp had: a crash,
+    // a hanging endpoint, or a failing push service now costs one missed bell instead
+    // of a double-ring or a 60-attempts-per-morning retry hammer (e.g. rotated VAPID
+    // keys → 403 forever → the old code hammered every subscriber every minute).
+    const res: any = await db.update(pushSubscriptions)
+      .set({ lastMorningPush: clock.date })
+      .where(and(eq(pushSubscriptions.userId, userId), or(isNull(pushSubscriptions.lastMorningPush), ne(pushSubscriptions.lastMorningPush, clock.date))));
+    const claimed = Number(res?.[0]?.affectedRows ?? res?.rowsAffected ?? 0);
+    if (claimed === 0) continue;      // nothing new to claim — already rung
+    if (anyRungToday) continue;       // a device added mid-morning: stamp it, don't re-ring the user
+    const first = (u.name ?? "").trim().split(/\s+/)[0] || "friend";
+    await sendPushToUser(userId, {
       title: `Good morning, ${first}!`,
       body: await skyLineFor(clock.date), // the day's sky picks the line — David's words, engine-chosen
       url: "/",
     });
-    if (sent > 0) {
-      await db.update(pushSubscriptions)
-        .set({ lastMorningPush: clock.date })
-        .where(eq(pushSubscriptions.userId, r.userId));
-    }
   }
 }
 
@@ -256,6 +276,11 @@ let schedulerStarted = false;
 export function startMorningBell(): void {
   if (schedulerStarted) return;
   schedulerStarted = true;
-  setInterval(() => { morningBellTick().catch((e) => console.warn("[push] tick failed:", e)); }, 60_000);
+  let ticking = false; // AUDIT #4 (2): a slow tick must not overlap the next one
+  setInterval(() => {
+    if (ticking) return;
+    ticking = true;
+    morningBellTick().catch((e) => console.warn("[push] tick failed:", e)).finally(() => { ticking = false; });
+  }, 60_000);
   console.log(`[push] morning bell scheduler started (configured: ${pushConfigured()})`);
 }

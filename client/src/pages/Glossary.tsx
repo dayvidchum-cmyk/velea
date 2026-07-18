@@ -209,6 +209,12 @@ export function findGlossaryTerm(value: string): GlossaryTerm | undefined {
   // Exact match first
   const exact = GLOSSARY.find((g) => g.term.toLowerCase() === v);
   if (exact) return exact;
+  // Then the term's NAME (the head before " (Sanskrit)") — so "Sun" resolves to
+  // "Sun (Surya)", not "Sunrise (Brahma Muhurta)" (AUDIT #4: the loose prefix scan below
+  // matched Sunrise first because it sorts earlier and starts with "sun"). Word-boundary
+  // safe: the head must equal the value exactly.
+  const byHead = GLOSSARY.find((g) => g.term.toLowerCase().replace(/\s*\(.*$/, "").trim() === v);
+  if (byHead) return byHead;
   // Partial match — term starts with value or value starts with term
   return GLOSSARY.find(
     (g) => g.term.toLowerCase().startsWith(v) || v.startsWith(g.term.toLowerCase())

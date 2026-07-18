@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDarkChromeWhile } from "@/contexts/ThemeContext";
 import { pickGreeting } from "@/lib/greeting";
 import { trpc } from "@/lib/trpc";
@@ -50,11 +50,17 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
 
   const greeting = pickGreeting(now, firstName);
 
+  // AUDIT #4 (HIGH), same class as BrandSplash M12: App passes an inline onDone (new identity
+  // every render) and app-open is exactly when the tree re-renders repeatedly — keying the timers
+  // on [onDone] cleared and RESTARTED them each render, stretching the welcome unpredictably. The
+  // callback lives in a ref; the timers run ONCE.
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
   useEffect(() => {
     const fade = setTimeout(() => setLeaving(true), 3400);
-    const done = setTimeout(onDone, 4100);
+    const done = setTimeout(() => onDoneRef.current(), 4100);
     return () => { clearTimeout(fade); clearTimeout(done); };
-  }, [onDone]);
+  }, []);
 
   return (
     <div

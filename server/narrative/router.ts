@@ -383,7 +383,12 @@ export const narrativeRouter = router({
     try { rateLimit(ctx.req, "current-transits", { max: 120, windowMs: 15 * 60 * 1000 }); } catch { return { available: false as const }; }
     const date = input.date ?? todayUTC();
     try {
-      const ni = await buildNarrativeInput(input.profileId, date);
+      // AUDIT #4 (HIGH): thread the SAME dayLoc the reading uses, so The Why popup samples the
+      // transit sky at the viewer's local noon — not fixed noon-UTC. Without it a UTC+12 user saw
+      // the Moon filed under the wrong house on ~1 day in 5 (the receipts contradicting the read).
+      // Sharing dayLoc also shares the in-proc memo with the reading build (no second ephemeris run).
+      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
+      const ni = await buildNarrativeInput(input.profileId, date, { dayLoc });
       return {
         available: true,
         activatedHouse: ni.profection.activatedHouse,

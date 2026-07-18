@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, checkIns, horoscopes, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, profileResearch, profileDashaPeriods, profileConvergence, type User } from "../drizzle/schema";
+import { InsertUser, checkIns, horoscopes, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, profileResearch, profileDashaPeriods, profileConvergence, pushSubscriptions, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -162,6 +162,7 @@ export async function deleteUserCascade(userId: number): Promise<void> {
   await db.delete(projects).where(eq(projects.userId, userId));
   await db.delete(projectNotes).where(eq(projectNotes.userId, userId));
   await db.delete(checkIns).where(eq(checkIns.userId, userId));
+  await db.delete(pushSubscriptions).where(eq(pushSubscriptions.userId, userId)); // AUDIT #4: was stranded on delete
 
   // 3. Clear links on OTHER users' (e.g. the admin's) reference profiles that pointed here.
   await db.update(profiles).set({ linkedUserId: null }).where(eq(profiles.linkedUserId, userId));

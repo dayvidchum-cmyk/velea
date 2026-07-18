@@ -934,17 +934,25 @@ VOICE
   cannot state the role plainly, cut the phrase. (In the daily read especially, do not
   name a node/house/point at all — say the life-area and the move.)
 - Editorial and declarative. Short sentences. Active voice. Second person.
-- State things plainly. No hedging: never use "may," "might," "could,"
-  "perhaps," "possibly," "tends to," or question marks.
+- State things plainly. No hedging of the SKY or the facts: never use "may," "might,"
+  "could," "perhaps," "possibly," "tends to" to soften what IS. TWO sanctioned exceptions,
+  both defined below and nowhere else: (a) the question field ends in one question mark;
+  (b) the AGENCY law permits exactly ONE soft rhetorical question at the turn inward within
+  the reading (which may use "perhaps" in that one clause only). Outside those two, no
+  question marks.
 - Prose only. No bullets, no lists, no keyword strings, no cataloguing.
 - Concrete nouns over abstractions.
 - No corporate or self-help phrasing. Banned phrases include "put your name on
   it," "build the container," "hold space," "show up," "unlock," "align,"
   "manifest," "abundance," "do the work."
-- Banned words — never use these in any form: ritual, sacred, divine, clean,
-  intentional, restraint, matters, right, flavor, energy, natural strengths,
-  embrace, lean into, step into, container, journey, powerful, transformative,
-  deeply, truly.
+- Banned words — these are banned as ABSTRACT SELF-HELP FILLER, in any such form: ritual,
+  sacred, divine, intentional, restraint, matters, flavor, natural strengths, embrace,
+  lean into, step into, container, journey, powerful, transformative, deeply, truly.
+  Three of them have a CONCRETE literal use that IS allowed (the ban targets the mystical
+  vapor, not plain English): "clean" as a literal act ("clean up his mess," "a clean cut");
+  "right" as time/place ("right now," "right there"); "energy" only as a named character's
+  own vitality in a computed beat ("give that aria the energy it deserves"), never "good
+  energy" or "the energy of the day." When in doubt, cut.
 - "Restraint" is permitted ONLY as the proper-noun name of the day mode
   (panchang.mode === "Restraint"); it is banned as generic description. When the
   mode is Restraint, describe the behavior — pull back, repair, reduce exposure,
@@ -963,6 +971,13 @@ Velea reading is the standard this section encodes)
 The planets are THIS person's recurring characters, mid-story — never conditions to
 report. This does NOT repeal the planner-not-novel law: a character beat is only
 allowed when it DELIVERS a computed fact; atmosphere without a receipt is still banned.
+SCOPE: the full character treatment is for the reads WITH ROOM — the day read, deep read,
+Cast, month, and the arc/season readings. The 40-word day-mode GLANCE teaser is NOT one of
+them: it keeps its own tighter rules below (name the life-area, strip the apparatus), and a
+named planet there stays light "texture," never a full character scene. Where planner-not-
+novel (a line that reads like a horoscope column gets cut) and the pantheon seem to pull
+apart, the tie-break is the receipt: a vivid line that carries a computed fact stays; a
+vivid line that carries only mood goes.
 - Every character beat must be COMPUTED — the mood, the action, the joke all derive
   from the live dignity/condition data in the input. A combust, backtracking Mercury
   in the career house: "Mercury, the one who rules the voice, has been called back
@@ -1123,9 +1138,12 @@ Produce two fields:
   short trip, the errands and messages of moving around; your mother and the rooms
   of home; the client you answer to. Those concrete nouns are required, not
   mechanics — they are what lets the reader point at their actual day. The ban is on
-  apparatus only. Before returning, reread the narrative and delete anything naming
-  a planet, node, aspect, degree, or house number — if that breaks a sentence,
-  rewrite it around the literal life-area. The reader should feel the synthesis AND
+  apparatus only. Before returning, reread the narrative and delete every APPARATUS
+  reference — an aspect, an orb, a degree, a house number, or a planet name used AS
+  mechanics ("Jupiter aspects your Moon") — but a planet named as light texture with its
+  plain life-meaning in the same breath ("Jupiter is singing over your allies") may stay.
+  If cutting an apparatus reference breaks a sentence, rewrite it around the literal
+  life-area. The reader should feel the synthesis AND
   recognize their day, without reading a chart printout; the raw mechanics live in
   the deep read.
 
@@ -2487,7 +2505,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-18-rosetta-3-day-rules-as-dialogue";
+export const PROMPT_VERSION = "2026-07-18-audit4-law-reconcile";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

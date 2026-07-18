@@ -53,32 +53,39 @@ function ConditionLine({ t, timeLord, accent }: { t: any; timeLord: string; acce
   const tierKey: string | undefined = t.strength?.tier;
   const tierPhrase = tierKey ? TIER_PHRASE[tierKey]?.(t.planet) : null;
   const tierTerm = tierKey ? TIER_TERM[tierKey] : undefined;
+  // The nodes are ALWAYS retrograde (mean-node geometry) — a permanent fact, not a live event.
+  // Phrasing it as "retracing his steps" every day contradicts the glossary and reads as news;
+  // suppress the clause for Rahu/Ketu (AUDIT #4). Their strength is null → no tier phrase either.
+  const isNode = t.planet === "Rahu" || t.planet === "Ketu";
+  // dotted underline WITHOUT GlossaryLink's own solid borderBottom (underline={false}) — the two
+  // stacked into a double underline + double-bolded the term (AUDIT #4).
+  const linkStyle = { textDecoration: "underline", textDecorationStyle: "dotted" as const, textUnderlineOffset: 2 };
   const bits: React.ReactNode[] = [];
   bits.push(
     <span key="sign">
-      moving through <GlossaryLink term={t.sign}><span style={{ textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>{t.sign}</span></GlossaryLink>
+      moving through <GlossaryLink term={t.sign} underline={false}><span style={linkStyle}>{t.sign}</span></GlossaryLink>
     </span>,
   );
   if (tierPhrase) bits.push(
     <span key="tier">
       {", "}
       {tierTerm
-        ? <GlossaryLink term={tierTerm}><span style={{ textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>{tierPhrase}</span></GlossaryLink>
+        ? <GlossaryLink term={tierTerm} underline={false}><span style={linkStyle}>{tierPhrase}</span></GlossaryLink>
         : tierPhrase}
     </span>,
   );
   if (t.combust) bits.push(<span key="comb">, swallowed by the Sun's glare (combust)</span>);
-  if (t.nodal?.node) bits.push(<span key="nodal">, gripped close by <GlossaryLink term={t.nodal.node}><span style={{ textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>{t.nodal.node}</span></GlossaryLink></span>);
-  if (t.retrograde) bits.push(
+  if (t.nodal?.node) bits.push(<span key="nodal">, gripped close by <GlossaryLink term={t.nodal.node} underline={false}><span style={linkStyle}>{t.nodal.node}</span></GlossaryLink></span>);
+  if (t.retrograde && !isNode) bits.push(
     <span key="rx">
-      , <GlossaryLink term="Retrograde (Vakri)"><span style={{ textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>retracing {poss(t.planet)} steps</span></GlossaryLink>
+      , <GlossaryLink term="Retrograde (Vakri)" underline={false}><span style={linkStyle}>retracing {poss(t.planet)} steps</span></GlossaryLink>
     </span>,
   );
   if (t.hitsNatalPoint) bits.push(<span key="hit">, standing on your natal {t.hitsNatalPoint}</span>);
 
   return (
     <p style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
-      <GlossaryLink term={t.planet}><strong style={{ textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>{t.planet}</strong></GlossaryLink>
+      <GlossaryLink term={t.planet} underline={false}><strong style={linkStyle}>{t.planet}</strong></GlossaryLink>
       {t.planet === timeLord && (
         <span style={{ marginLeft: "0.4rem", fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: accent }}>runs this year</span>
       )}
@@ -90,9 +97,9 @@ function ConditionLine({ t, timeLord, accent }: { t: any; timeLord: string; acce
 }
 
 export default function TheWhySheet({ profileId, date, modeColor, onClose }: { profileId: number; date: string; modeColor: string; onClose: () => void }) {
-  const { data } = trpc.narrative.currentTransits.useQuery(
+  const { data, isError } = trpc.narrative.currentTransits.useQuery(
     { profileId, date },
-    { staleTime: 10 * 60 * 1000 },
+    { staleTime: 10 * 60 * 1000, retry: 1 },
   );
 
   const groups = (() => {
@@ -130,7 +137,9 @@ export default function TheWhySheet({ profileId, date, modeColor, onClose }: { p
           </button>
         </div>
 
-        {!data ? (
+        {isError ? (
+          <p style={{ fontSize: "0.88rem", color: "var(--color-muted-foreground)", margin: "1rem 0 0" }}>The sky's ledger couldn't load just now — try again in a moment.</p>
+        ) : !data ? (
           <div style={{ padding: "1.6rem 0" }}><VeleaLoader size={22} label="Reading the sky…" /></div>
         ) : !data.available || groups.length === 0 ? (
           <p style={{ fontSize: "0.88rem", color: "var(--color-muted-foreground)", margin: "1rem 0 0" }}>The sky's ledger couldn't load just now — try again in a moment.</p>

@@ -269,7 +269,9 @@ function MorningBellRow() {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
       if (sub) { await unsubscribeMut.mutateAsync({ endpoint: sub.endpoint }); await sub.unsubscribe(); }
-      else if (status.subscribed) { await unsubscribeMut.mutateAsync({ endpoint: "-" }); }
+      // No local subscription but the account still shows subscribed (another device) → clear ALL
+      // this user's devices (AUDIT #4: "-" now means silence-everywhere server-side).
+      else if (status.subscribed) { await unsubscribeMut.mutateAsync({}); }
       setNote("The bell is quiet.");
     } catch { setNote("Couldn't unsubscribe this device."); }
     finally { setBusy(false); }

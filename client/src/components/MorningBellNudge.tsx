@@ -20,7 +20,7 @@ export default function MorningBellNudge() {
   const { data: status } = trpc.push.status.useQuery(undefined, { staleTime: 60_000 });
   const subscribeMut = trpc.push.subscribe.useMutation({ onSettled: () => utils.push.status.invalidate() });
   const [show, setShow] = useState(false);
-  const [state, setState] = useState<"ask" | "busy" | "rung" | "blocked">("ask");
+  const [state, setState] = useState<"ask" | "busy" | "rung" | "blocked" | "error">("ask");
 
   useEffect(() => {
     try {
@@ -53,9 +53,14 @@ export default function MorningBellNudge() {
 
   const ringIt = async () => {
     setState("busy");
+    // AUDIT #4: only a denied/failed PERMISSION is "blocked" (→ the device-settings guidance). A
+    // permission grant that then fails at subscribe/network/server is a transient error, not a
+    // blocked-notifications state — say so and let them retry, don't misdiagnose.
     try {
       const perm = await Notification.requestPermission();
       if (perm !== "granted") { setState("blocked"); return; }
+    } catch { setState("blocked"); return; }
+    try {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(status.publicKey!) });
       const json = sub.toJSON() as any;
@@ -63,11 +68,11 @@ export default function MorningBellNudge() {
       try { localStorage.setItem(DONE_KEY, "1"); } catch {}
       setState("rung");
       setTimeout(() => setShow(false), 2600);
-    } catch { setState("blocked"); }
+    } catch { setState("error"); }
   };
 
   return createPortal(
-    <div style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(20,15,8,0.45)", backdropFilter: "blur(3px)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 1rem calc(2rem + env(safe-area-inset-bottom, 0px))" }} onClick={dismiss}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 9998, background: "rgba(20,15,8,0.45)", backdropFilter: "blur(3px)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 1rem calc(2rem + env(safe-area-inset-bottom, 0px))" }} onClick={dismiss}>
       <div
         onClick={(e) => e.stopPropagation()}
         className="parchment"
@@ -92,8 +97,9 @@ export default function MorningBellNudge() {
         ) : (
           <>
             <p style={{ margin: 0, fontSize: "0.95rem", lineHeight: 1.55, color: "var(--color-foreground)" }}>
-              One line at 8 each morning — how the stage is set, what's coming, whose day it is.
-              Sometimes trivia. Sometimes gossip about the Moon.
+              {state === "error"
+                ? "That didn't go through — a hiccup on the way. Try once more?"
+                : "One line at 8 each morning — how the stage is set, what's coming, whose day it is. Sometimes trivia. Sometimes gossip about the Moon."}
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "1.1rem" }}>
               <button
@@ -101,7 +107,7 @@ export default function MorningBellNudge() {
                 disabled={state === "busy"}
                 style={{ flex: 1, borderRadius: 999, padding: "0.65rem 1rem", fontSize: "0.85rem", fontWeight: 800, border: "none", cursor: "pointer", color: "#1a1305", background: "linear-gradient(180deg, #E7C766, #B8912F)", opacity: state === "busy" ? 0.7 : 1 }}
               >
-                {state === "busy" ? "Setting…" : "Ring it"}
+                {state === "busy" ? "Setting…" : state === "error" ? "Try again" : "Ring it"}
               </button>
               <button onClick={dismiss} style={{ background: "none", border: "none", color: "var(--color-muted-foreground)", fontSize: "0.82rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}>
                 Not now

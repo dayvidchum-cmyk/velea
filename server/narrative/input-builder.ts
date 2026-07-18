@@ -432,7 +432,13 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = Object.fromEntries(PLANETS.filter((n) => a[n] != null).map((n) => [n, si(a[n]!)]));
     const { majorityDayStarIdx, natalAshtakavarga, personalDayForDate } = await import("../panchang/crown.js");
-    const majIdx = await majorityDayStarIdx(dateStr);
+    // AUDIT #4 (HIGH): the crown/tara majority-star must come from the SAME sky the day-star,
+    // mode, and dayFilter use — the viewer's day-location — not the Boston default. Computing it
+    // from Boston split personalTara/personalApex off from panchang.nakshatra on star-boundary
+    // days for located users (the "Selective vs Restrained Build" class the v742 fix closed one
+    // call site down). personalDayForDate already threads dayLoc; this crownDay path did not.
+    const dl = moment?.dayLoc;
+    const majIdx = dl ? await majorityDayStarIdx(dateStr, dl.lat, dl.lon, dl.utcOffset) : await majorityDayStarIdx(dateStr);
     // Same natal Ashtakavarga the calendar uses, from the natal bodies — keeps the reading's crown
     // in lockstep with the calendar's crown badge (both AV-refined).
     const natalSignIdx: Record<string, number> = {};
