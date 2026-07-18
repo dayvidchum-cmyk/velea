@@ -113,7 +113,7 @@ export default function Login() {
           vertical frame always shows — no overscan, no recomposition; narrow phones shave only
           side starfield. Form anchors INSIDE the box, so the doorway seat is pixel-true
           (door slot measured on this art: rows ~46.4–63.6%, center ~55%). */}
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", aspectRatio: "3375 / 6000", height: "100dvh" }}>
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", aspectRatio: "3375 / 6000", height: "100lvh" }}>
         <img
           src={art}
           alt=""
