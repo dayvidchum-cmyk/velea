@@ -50,6 +50,9 @@ const COIN_CASES: Array<{ note: string; props: CalendarCoinProps }> = [
   // 11/16 shape: crown + ODD mark count — the cluster must center as one unit, never lopside right.
   { note: "Crown + 3 marks (11/16)", props: { day: 16, achievement: true, stations: ["Mercury"], windows: ["Saturn"], moonPhase: "full", numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
   { note: "Crown + 1 mark (odd, small)", props: { day: 2, achievement: true, prosperity: true, numberColor: GOLD, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${GOLD} 62%, transparent)`, accent: GOLD } },
+  // Shadow threshold: the day a shadow opens/closes, the glyph rides the rail GHOSTED (0.42) —
+  // "quietly signal its descent into mania." Paired with its 2-bindi building strength.
+  { note: "Shadow enter (ghost glyph)", props: { day: 11, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL, shadows: ["Mercury"], bindis: [{ planet: "Mercury", strength: 2 }] } },
   // THE BINDI LADDER — dot count = rx strength (5 station · 4 window · 3 rx · 2 pre- · 1 post-shadow).
   { note: "Bindis · 5 (station)", props: { day: 3, stations: ["Mercury"], numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL, bindis: [{ planet: "Mercury", strength: 5 }] } },
   { note: "Bindis · 3 (mid-rx)", props: { day: 10, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD, bindis: [{ planet: "Mercury", strength: 3 }] } },

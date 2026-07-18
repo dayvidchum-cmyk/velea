@@ -452,6 +452,19 @@ export default function Planner() {
     return m;
   }, [skyMarks]);
 
+  // SHADOW THRESHOLDS (David 2026-07-18): the single day a planet's shadow OPENS or CLOSES, its
+  // glyph appears on the rail GHOSTED — "quietly signal its descent into mania" (and its emergence).
+  // Full-ink glyphs stay reserved for stations/windows; the threshold is a whisper, not a shout.
+  const shadowEdgeByDate = useMemo(() => {
+    const m = new Map<string, string[]>();
+    const add = (d: string, pl: string) => { const a = m.get(d) ?? []; if (!a.includes(pl)) a.push(pl); m.set(d, a); };
+    for (const p of skyMarks?.retro ?? []) {
+      for (const d of p.shadowEnterDays ?? []) add(d, p.planet);
+      for (const d of p.shadowExitDays ?? []) add(d, p.planet);
+    }
+    return m;
+  }, [skyMarks]);
+
   // The retrograde planets present ANYWHERE this month, in canonical order — each gets a fixed
   // track slot under the coins so its span reads as one continuous horizontal line across days.
   const monthRetroPlanets = useMemo(() => {
@@ -1668,6 +1681,7 @@ export default function Planner() {
                   accent={accent}
                   stations={stationsToday.map((e) => e.planet)}
                   windows={windowGlyphList.map((e) => e.planet)}
+                  shadows={(shadowEdgeByDate.get(dateStr) ?? []).filter((pl) => !stationsToday.some((e) => e.planet === pl) && !windowGlyphList.some((e) => e.planet === pl))}
                   moonPhase={(moonPhaseByDate.get(dateStr) as any) ?? null}
                   prosperity={prosperitySet.has(dateStr)}
                   achievement={achievementSet.has(dateStr)}

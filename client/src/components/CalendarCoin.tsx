@@ -33,6 +33,9 @@ export type CalendarCoinProps = {
    *  dot COLOR = the planet's own ink (identity = color + fixed row). null = the planet's track
    *  is empty today but keeps its slot, so rows never jump between days. */
   bindis?: Array<{ planet: string; strength: number } | null>;
+  /** SHADOW THRESHOLDS: planets whose shadow OPENS or CLOSES today — their glyph rides the rail
+   *  GHOSTED ("quietly signal its descent into mania"). A whisper next to the full-ink stations. */
+  shadows?: string[];
 };
 
 /**
@@ -47,7 +50,7 @@ export type CalendarCoinProps = {
  */
 export default function CalendarCoin(p: CalendarCoinProps) {
   const { day, isToday, isCrown, isEclipse, hasMode, filled, pulse, border, numberColor, restingBg,
-    hoverBg, pressBg, activeInk, accent, stations = [], windows = [], moonPhase, prosperity, achievement, bindis } = p;
+    hoverBg, pressBg, activeInk, accent, stations = [], windows = [], moonPhase, prosperity, achievement, bindis, shadows = [] } = p;
   const hasBindis = !!bindis?.some(Boolean);
 
   return (
@@ -68,18 +71,20 @@ export default function CalendarCoin(p: CalendarCoinProps) {
       )}
 
       {/* THE MARK RAIL — all secondary marks, one aligned rail above the coin. */}
-      {(stations.length > 0 || windows.length > 0 || !!moonPhase || !!prosperity || !!achievement) && (() => {
+      {(stations.length > 0 || windows.length > 0 || shadows.length > 0 || !!moonPhase || !!prosperity || !!achievement) && (() => {
         const others: ReactNode[] = [];
         // David's 12/14 catch (2026-07-18): the old scaling shrank SLOTS faster than GLYPHS — at
         // 3 marks a 12px glyph sat in an 11px slot, so neighbors overlapped by a pixel and the
         // trio read cramped/odd. LAW: a glyph NEVER exceeds its slot (glyph = slot width). The
         // real width budget is the CELL (~44px on a phone), not the 32px coin — so 3 marks get
         // honest 12px slots (36px total) instead of being crushed into the coin.
-        const markCount = stations.length + windows.length + (moonPhase ? 1 : 0) + (prosperity ? 1 : 0);
+        const markCount = stations.length + windows.length + shadows.length + (moonPhase ? 1 : 0) + (prosperity ? 1 : 0);
         const slotW = markCount >= 5 ? 8 : markCount === 4 ? 10 : markCount === 3 ? 12 : 13;
         const g = slotW;
         const dotSz = markCount >= 4 ? 7 : 9;
         for (const pl of stations) others.push(<PlanetMark key={`st-${pl}`} planet={pl} size={g} strokeWidth={2.1} />);
+        // Shadow thresholds: the glyph GHOSTED — half-present, slipping under / surfacing.
+        for (const pl of shadows) others.push(<PlanetMark key={`sh-${pl}`} planet={pl} size={g} strokeWidth={2.1} style={{ opacity: 0.42 }} />);
         if (moonPhase) others.push(
           <span key="moon" style={{ width: dotSz, height: dotSz, borderRadius: 999, alignSelf: "center",
             background: moonPhase === "full" ? "#FDFBF3" : "#160f26",
