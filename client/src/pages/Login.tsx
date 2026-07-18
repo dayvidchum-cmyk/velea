@@ -105,7 +105,7 @@ export default function Login() {
   };
 
   return (
-    <div style={{ height: "100dvh", background: "#050505", position: "relative", overflow: "hidden" }}>
+    <div style={{ height: "100lvh", background: "#050505", position: "relative", overflow: "hidden" }}>
       <style>{`.velea-input::placeholder { color: rgba(212,175,55,0.8); letter-spacing: 0.18em; font-size: 0.66rem; }`}</style>
 
       {/* THE GATE BOX — the art's exact aspect (3375×6000) at FULL viewport height: David likes
