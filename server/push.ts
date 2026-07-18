@@ -112,7 +112,15 @@ async function skyLineFor(localDate: string): Promise<string> {
       const when = DAY_WORD[best.days] ?? `in ${best.days} days`;
       return `${best.planet} stations direct ${when}. Don't go chasing waterfalls.`;
     }
-    // (Slots still awaiting David's words: pre-retro window · eclipse day · crown day.)
+    // 3 · PRE-RETRO window — a retrograde BEGINS within 3 days. David's line names nothing on
+    // purpose: the bell teases, the tap reveals (the crumb, as a notification).
+    for (const st of marks.stations) {
+      if (st.kind === "station-retro") {
+        const days = daysTo(st.date);
+        if (days >= 1 && days <= 3) return "There's something on the horizon.";
+      }
+    }
+    // (Slots still awaiting David's words: eclipse day · crown day.)
   } catch { /* sky unavailable — the default line never fails */ }
   return "Let's see how the stage is set today.";
 }
