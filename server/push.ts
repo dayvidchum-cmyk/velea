@@ -91,7 +91,7 @@ const PRONOUN: Record<string, string> = { Venus: "She", Moon: "They" };
 async function skyLineFor(localDate: string): Promise<string> {
   try {
     const from = localDate;
-    const to = new Date(Date.parse(localDate + "T00:00:00Z") + 4 * 86400000).toISOString().slice(0, 10);
+    const to = new Date(Date.parse(localDate + "T00:00:00Z") + 8 * 86400000).toISOString().slice(0, 10); // 7-day lookahead for the horizon rung
     const marks = await yearStationMarks(from, to);
     const daysTo = (d: string) => Math.round((Date.parse(d + "T00:00:00Z") - Date.parse(localDate + "T00:00:00Z")) / 86400000);
     // 1 · STATION-DIRECT TODAY — the turn itself outranks the approach (his retroshade line).
@@ -101,29 +101,33 @@ async function skyLineFor(localDate: string): Promise<string> {
         return `${st.planet} Retrograde ends today! But it's never that easy. ${he} walked right into retroshade.`;
       }
     }
-    // 2 · Pre-direct window — stations direct within 3 days (his waterfalls line).
-    let best: { planet: string; days: number } | null = null;
+    // 2 · THE WATERFALLS — a station approaches, EITHER direction, 1-3 days out, NAMED
+    // (David: "waterfalls is good for station retro, as well").
+    let best: { planet: string; days: number; kind: string } | null = null;
     for (const st of marks.stations) {
-      if (st.kind !== "station-direct") continue;
+      if (st.kind !== "station-direct" && st.kind !== "station-retro") continue;
       const days = daysTo(st.date);
-      if (days >= 1 && days <= 3 && (!best || days < best.days)) best = { planet: st.planet, days };
+      if (days >= 1 && days <= 3 && (!best || days < best.days)) best = { planet: st.planet, days, kind: st.kind };
     }
     if (best) {
       const when = DAY_WORD[best.days] ?? `in ${best.days} days`;
-      return `${best.planet} stations direct ${when}. Don't go chasing waterfalls.`;
+      const turn = best.kind === "station-direct" ? "direct" : "retrograde";
+      return `${best.planet} stations ${turn} ${when}. Don't go chasing waterfalls.`;
     }
-    // 3 · THE HORIZON TEASE — something loud approaches within 3 days: a retrograde beginning
-    // OR an eclipse (David: "horizon would be great for eclipses too"). Nothing named on
-    // purpose: the bell teases, the tap reveals (the crumb, as a notification).
-    for (const st of marks.stations) {
-      if (st.kind === "station-retro") {
-        const days = daysTo(st.date);
-        if (days >= 1 && days <= 3) return "There's something on the horizon.";
-      }
-    }
+    // 3 · THE HORIZON TEASE — the far rung of the same crescendo (David: "horizon is good for
+    // eclipses and any rx coming up"): an eclipse within 3 days, or an rx GATHERING 4-7 days
+    // out — before the waterfalls names it. Deliberately unnamed: the bell teases, the tap
+    // reveals. horizon → waterfalls → retroshade: the tease sharpens into the name, the name
+    // breaks into the turn.
     for (const ec of marks.eclipses ?? []) {
       const days = daysTo(ec.date);
       if (days >= 1 && days <= 3) return "There's something on the horizon.";
+    }
+    for (const st of marks.stations) {
+      if (st.kind === "station-retro") {
+        const days = daysTo(st.date);
+        if (days >= 4 && days <= 7) return "There's something on the horizon.";
+      }
     }
     // (Slots still awaiting David's words: eclipse day · crown day.)
   } catch { /* sky unavailable — the default line never fails */ }
