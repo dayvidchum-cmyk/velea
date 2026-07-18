@@ -96,10 +96,14 @@ export default function CalendarCoin(p: CalendarCoinProps) {
         return (
           <span style={{ position: "absolute", top: -17, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
             {hasCrownMark ? (
-              <span style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", width: "100%", lineHeight: 1, whiteSpace: "nowrap" }}>
-                <span style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>{slotted.slice(0, mid)}</span>
+              // David's 11/16 catch: the old 1fr|auto|1fr grid hard-pinned the crown to the coin's
+              // axis and split flanks floor/ceil — an ODD mark count dumped the extra glyph on the
+              // right and the cluster never re-centered. Now the WHOLE cluster (crown mid, marks
+              // around) centers as one unit; with even flanks the crown still sits exactly on-axis.
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1, whiteSpace: "nowrap" }}>
+                {slotted.slice(0, mid)}
                 <CrownMark size={17} style={{ transform: "translateY(-2px)" }} />
-                <span style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>{slotted.slice(mid)}</span>
+                {slotted.slice(mid)}
               </span>
             ) : (
               <span style={{ display: "flex", alignItems: "center", lineHeight: 1, whiteSpace: "nowrap" }}>{slotted}</span>
