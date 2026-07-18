@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
-import { getGlanceCached, getDeepReadCached, getChapterCached, getDayReadCached, getCastCached } from "./service.js";
+import { getGlanceCached, getDeepReadCached, getChapterCached, getDayReadCached, getCastCached, markProfileUncapped } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
 import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
 import { assertOwnsProfile } from "../routers/profiles.js";
@@ -60,14 +60,19 @@ function withinDailyWindow(date: string): boolean {
 // null → the caller returns a locked/unavailable shape: we NEVER silently serve today's read under
 // another date's header (a wrong-content, data-accuracy bug), and we never generate a fresh billed
 // read for a walked date (the wallet drain). Deeper dates are the pick-a-date premium.
-async function guardedDate(ctx: GenCtx, requested: string | undefined): Promise<string | null> {
+async function guardedDate(ctx: GenCtx, profileId: number, requested: string | undefined): Promise<string | null> {
+  // audit MEDIUM-6: an admin opening any daily surface marks their profile uncapped for the rest
+  // of the process — so QA'ing prose across many surfaces/dates never trips the paying-user cap.
+  if (ctx.user.role === "admin" && Number.isFinite(profileId)) markProfileUncapped(profileId);
   const today = todayUTC();
   const date = requested ?? today;
   if (withinDailyWindow(date)) return date;
   const { hasFeature } = await import("../feature-flags.js");
   const canPickDate = ctx.user.role === "admin" || (await hasFeature(ctx.user as any, "specialReadings"));
   if (!canPickDate) return null; // deeper history = premium: locked, not silently-today
-  rateLimit(ctx.req, "narrative-pickdate", { max: 40, windowMs: 15 * 60 * 1000 }); // entitled: cap the pick-a-date generation surface (defense-in-depth)
+  // audit LOW-13: over the pick-a-date limit, degrade to the graceful lock (null) instead of
+  // letting rateLimit's throw propagate as a hard error toast.
+  try { rateLimit(ctx.req, "narrative-pickdate", { max: 40, windowMs: 15 * 60 * 1000 }); } catch { return null; }
   return date;
 }
 
@@ -85,7 +90,7 @@ export const narrativeRouter = router({
   // One-sentence daily signal for the Today page. Falls back to null on any error.
   glance: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = await guardedDate(ctx, input.date);
+    const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, content: null, generatedAt: null, cached: false };
     try {
       const u = await getUserById(ctx.user.id);
@@ -121,7 +126,7 @@ export const narrativeRouter = router({
     // Year-sight is premium (time-gate doctrine). Gate the ENDPOINT, not just the UI, so it
     // can't be called around the paywall for a free billed year read.
     if (!(await canYearSight(ctx.user))) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
-    const date = await guardedDate(ctx, input.date);
+    const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
     // The deepened "stage + guests" read is an admin-only preview of the paid tier — a
     // non-admin can never obtain it, so the fast-tier detail stays behind the upsell.
@@ -142,7 +147,7 @@ export const narrativeRouter = router({
   // self it lands on), and how to move — as interactions.
   dayRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = await guardedDate(ctx, input.date);
+    const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
@@ -159,7 +164,7 @@ export const narrativeRouter = router({
   // only when THE READ is tapped. Falls back to unavailable (→ static copy) when the key is off.
   cast: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = await guardedDate(ctx, input.date);
+    const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, cast: null, generatedAt: null, cached: false };
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
@@ -291,7 +296,7 @@ export const narrativeRouter = router({
 
   chapter: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = await guardedDate(ctx, input.date);
+    const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, chapter: null, generatedAt: null, cached: false };
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
@@ -331,7 +336,7 @@ export const narrativeRouter = router({
   // prompt-version or input changes, so it never regenerates until unpinned.
   setLock: protectedProcedure.input(z.object({ profileId: z.number(), date: z.string().optional(), locked: z.boolean() })).mutation(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = await guardedDate(ctx, input.date);
+    const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { locked: false }; // can't pin a date outside the free window (premium pick-a-date)
     // Ensure both surfaces exist before locking, so there's a row to pin — with the SAME
     // dayLoc the DISPLAY path used (audit M1). Without it the ensure-exists hashed a

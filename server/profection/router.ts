@@ -236,8 +236,8 @@ export const profectionRouter = router({
         );
       }
 
-      // Get existing transits
-      let transits = await getTimeLordTransitsForYear(profectionYear.id);
+      // Get existing transits (scoped to the owner — audit HIGH-1)
+      let transits = await getTimeLordTransitsForYear(profectionYear.id, ctx.user.id);
 
       // Heal stale rows: rebuild if the segment covering today disagrees with the Time
       // Lord's actual sidereal sign (old ayanamsa bug), OR if it predates the co-present

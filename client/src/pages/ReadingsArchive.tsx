@@ -52,7 +52,9 @@ export default function ReadingsArchive() {
             <p className="text-sm text-muted-foreground">Kept Readings is a premium layer.</p>
             <p className="text-xs text-muted-foreground mt-1">The archive of your days — not yet unlocked.</p>
           </div>
-        ) : isLoading ? (
+        ) : isLoading || (entitled && !profileId) ? (
+          // audit LOW-19: while profiles.getActive is still resolving, profileId is undefined and
+          // the list query is disabled (isLoading:false) — show the skeleton, not a false "empty".
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="rounded-xl border border-border p-4 space-y-2 animate-pulse">

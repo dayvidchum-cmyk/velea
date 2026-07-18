@@ -7,9 +7,10 @@ import {
   getTimeLordTransitForDate,
   getTimeLordTransitsInRange,
 } from "./transit-db";
-import { getProfectionYearForDate, getOrCreateProfectionYear } from "./db";
+import { getProfectionYearForDate, getOrCreateProfectionYear, isProfectionYearOwnedBy } from "./db";
 import { calculateProfectionYear } from "./calculator";
 import { getUserById } from "../db";
+import { TRPCError } from "@trpc/server";
 
 export const timeLordTransitRouter = router({
   /**
@@ -21,8 +22,10 @@ export const timeLordTransitRouter = router({
         profectionYearId: z.number(),
       })
     )
-    .query(async ({ input }) => {
-      return await getTimeLordTransitsForYear(input.profectionYearId);
+    .query(async ({ ctx, input }) => {
+      // audit HIGH-1 (IDOR): the query is scoped to ctx.user.id so a guessed year id
+      // can only ever return the caller's own transits.
+      return await getTimeLordTransitsForYear(input.profectionYearId, ctx.user.id);
     }),
 
   /**
@@ -192,6 +195,11 @@ export const timeLordTransitRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // audit MEDIUM-4: verify the target year is the caller's before computing/writing —
+      // no polluting another user's year id or spending ephemeris compute on it.
+      if (!(await isProfectionYearOwnedBy(input.profectionYearId, ctx.user.id))) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Not your profection year." });
+      }
       // Calculate transits
       const timeline = await calculateTimeLordTransits(
         input.timeLord,

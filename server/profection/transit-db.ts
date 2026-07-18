@@ -60,14 +60,16 @@ export async function createTimeLordTransits(
  * Get all Time Lord transits for a profection year
  */
 export async function getTimeLordTransitsForYear(
-  profectionYearId: number
+  profectionYearId: number,
+  userId: number, // audit HIGH-1 (IDOR): scope by owner — the rows carry userId, so a caller
+                  // can never read another user's transits by guessing the sequential year id.
 ): Promise<TimeLordTransit[]> {
   const db = await getDb();
   if (!db) return [];
   return await db
     .select()
     .from(timeLordTransits)
-    .where(eq(timeLordTransits.profectionYearId, profectionYearId))
+    .where(and(eq(timeLordTransits.profectionYearId, profectionYearId), eq(timeLordTransits.userId, userId)))
     .orderBy(timeLordTransits.startDate);
 }
 

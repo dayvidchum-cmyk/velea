@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, checkIns, horoscopes, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, type User } from "../drizzle/schema";
+import { InsertUser, checkIns, horoscopes, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, profileResearch, profileDashaPeriods, profileConvergence, type User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -141,6 +141,13 @@ export async function deleteUserCascade(userId: number): Promise<void> {
   if (profileIds.length) {
     await db.delete(profileNatalBodies).where(inArray(profileNatalBodies.profileId, profileIds));
     await db.delete(narrativeCache).where(inArray(narrativeCache.profileId, profileIds));
+    // audit MEDIUM-10: these four profileId-keyed tables were orphaned on every cascade — the
+    // biggest, profileDashaPeriods, is ~66-75k rows PER profile. Delete them too so account churn
+    // (the friend-onboarding create → repair → deleteUserCascade path) doesn't strand DB bloat.
+    await db.delete(horoscopes).where(inArray(horoscopes.profileId, profileIds));
+    await db.delete(profileResearch).where(inArray(profileResearch.profileId, profileIds));
+    await db.delete(profileDashaPeriods).where(inArray(profileDashaPeriods.profileId, profileIds));
+    await db.delete(profileConvergence).where(inArray(profileConvergence.profileId, profileIds));
   }
 
   // 2. Every table keyed by userId.

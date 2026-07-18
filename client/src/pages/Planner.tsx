@@ -1670,7 +1670,7 @@ export default function Planner() {
                       matching-color SQUARE frames the round coin, and the number goes white — today's
                       one unmistakable tell in the aligned grid. */}
                   {isToday && (
-                    <span aria-hidden style={{ position: "absolute", inset: -4, border: `2px solid ${accent}`, borderRadius: 7, pointerEvents: "none", zIndex: 0 }} />
+                    <span aria-hidden style={{ position: "absolute", inset: -4, background: `color-mix(in srgb, ${accent} 55%, #191109)`, borderRadius: 6, pointerEvents: "none", zIndex: 0 }} />
                   )}
                   {/* THE ONE TEMPLATE (field note 2026-07-17 "one template for a calendar square,
                       stacked, they all align… same reasoning graphically"): every coin is the same
@@ -1681,30 +1681,37 @@ export default function Planner() {
                     const others: React.ReactNode[] = [];
                     // Station planets ALWAYS ride the rail now (one template) — same slot + size as the
                     // window glyphs, so the rail is uniform and the coin center keeps its number.
+                    // audit MEDIUM-9: the rail must never spill past the 32px coin into neighboring
+                    // cells. Scale the glyphs + slot width DOWN as the mark count grows, so a busy
+                    // day (station + windows + moon + €) still fits within the coin's width.
+                    const markCount = stationsToday.length + windowGlyphList.length
+                      + (moonPhaseByDate.has(dateStr) ? 1 : 0) + (prosperitySet.has(dateStr) ? 1 : 0);
+                    const g = markCount >= 4 ? 10 : markCount === 3 ? 12 : 13;
+                    const dotSz = markCount >= 4 ? 7 : 9;
+                    const slotW = markCount >= 4 ? Math.max(7, Math.floor(32 / markCount)) : markCount === 3 ? 11 : 12;
                     for (const e of stationsToday) others.push(
-                      <PlanetMark key={`st-${e.planet}`} planet={e.planet} size={13} strokeWidth={2.1} />
+                      <PlanetMark key={`st-${e.planet}`} planet={e.planet} size={g} strokeWidth={2.1} />
                     );
                     const phase = moonPhaseByDate.get(dateStr);
                     if (phase) others.push(
-                      <span key="moon" style={{ width: 9, height: 9, borderRadius: 999, alignSelf: "center",
+                      <span key="moon" style={{ width: dotSz, height: dotSz, borderRadius: 999, alignSelf: "center",
                         background: phase === "full" ? "#FDFBF3" : "#160f26",
                         border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26",
                         display: "inline-block" }} />
                     );
-                    if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontFamily: "Georgia, serif", fontSize: "0.82rem", fontWeight: 600, color: MARK_INK.dollar, alignSelf: "center" }}>€</span>);
+                    if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontFamily: "Georgia, serif", fontSize: `${g + 1}px`, fontWeight: 600, color: MARK_INK.dollar, alignSelf: "center", lineHeight: 1 }}>€</span>);
                     // A station day still shows OTHER planets' window glyphs (David's 7/26:
                     // Saturn centers, Mercury's window ☿ perches) — the stationing planet
                     // itself is never in windowGlyphList (its state is "station").
                     for (const e of windowGlyphList) others.push(
-                      <PlanetMark key={e.planet} planet={e.planet} size={13} strokeWidth={2.1} />
+                      <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={2.1} />
                     );
                     const hasCrownMark = achievementSet.has(dateStr);
                     const mid = Math.floor(others.length / 2);
-                    // Each mark sits in a FIXED 12px slot (flex-centered) so Apple-Symbols
-                    // advance-width noise can't drift the cluster's optical center (the
-                    // "sad alignment" audit, 7/16). Slotted marks, measured geometry.
+                    // Each mark sits in a fixed (count-scaled) slot so the cluster's optical center
+                    // stays put and the row never outgrows the coin.
                     const slot = (node: React.ReactNode, key: React.Key) => (
-                      <span key={key} style={{ width: 12, display: "flex", justifyContent: "center", alignItems: "center" }}>{node}</span>
+                      <span key={key} style={{ width: slotW, display: "flex", justifyContent: "center", alignItems: "center" }}>{node}</span>
                     );
                     const slotted = others.map((n, i) => slot(n, i));
                     return (

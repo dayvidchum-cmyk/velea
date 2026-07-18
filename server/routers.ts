@@ -378,7 +378,14 @@ export const appRouter = router({
   }),
 
   auth: router({
-    me: publicProcedure.query((opts) => opts.ctx.user),
+    me: publicProcedure.query((opts) => {
+      // audit HIGH-2: never ship credential material to the browser. Strip passwordHash/openId
+      // from the raw users row before it leaves the server (login/register already do this).
+      const u = opts.ctx.user;
+      if (!u) return null;
+      const { passwordHash: _p, openId: _o, ...safe } = u as any;
+      return safe;
+    }),
     login: publicProcedure
       .input(z.object({ email: z.string().email(), password: z.string().min(6) }))
       .mutation(async ({ ctx, input }) => {
@@ -1407,11 +1414,13 @@ export const appRouter = router({
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
         let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
         if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-          const now = new Date();
+          // audit MEDIUM-8: offset for the READING's date, not `now` — else a browsed date in a
+          // different DST regime got a time-string shifted by the DST delta (Dec viewer opening July).
+          const at = new Date(opts.input.date + "T12:00:00Z");
           locationOverride = {
             lat: parseFloat(user.locationLat),
             lon: parseFloat(user.locationLon),
-            utcOffset: getTimezoneOffset(user.locationTimezone, now),
+            utcOffset: getTimezoneOffset(user.locationTimezone, at),
           };
         }
         // Use active profile (or owner profile) lagna — single source of truth
@@ -1424,15 +1433,11 @@ export const appRouter = router({
       .input(z.object({ yearMonth: z.string() }))
       .query(async (opts) => {
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
-        let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
-        if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-          const now = new Date();
-          locationOverride = {
-            lat: parseFloat(user.locationLat),
-            lon: parseFloat(user.locationLon),
-            utcOffset: getTimezoneOffset(user.locationTimezone, now),
-          };
-        }
+        // audit MEDIUM-8: offset is computed PER-DAY (below), not once at `now` — so a month that
+        // spans a DST transition, or a month browsed from another DST regime, gets correct times.
+        const loc = (user?.locationLat && user?.locationLon && user?.locationTimezone)
+          ? { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), tz: user.locationTimezone }
+          : null;
         // Use active profile (or owner profile) lagna — single source of truth
         const lagnaOverride = opts.ctx.subject?.lagnaSign ?? undefined;
         const [year, month] = opts.input.yearMonth.split('-').map(Number);
@@ -1440,6 +1445,9 @@ export const appRouter = router({
         const results = [];
         for (let d = 1; d <= daysInMonth; d++) {
           const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          const locationOverride = loc
+            ? { lat: loc.lat, lon: loc.lon, utcOffset: getTimezoneOffset(loc.tz, new Date(dateStr + "T12:00:00Z")) }
+            : undefined;
           const field = await getDayField(dateStr, false, locationOverride, lagnaOverride);
           if (field) results.push(field);
         }
@@ -2932,9 +2940,11 @@ export const appRouter = router({
       }),
 
     /** Full modifier breakdown for a date range */
-    range: publicProcedure
-      .input(z.object({ startDate: z.string(), endDate: z.string() }))
+    range: protectedProcedure
+      .input(z.object({ startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
       .query(async (opts) => {
+        // audit MEDIUM-5: was public + unbounded — a 2000→2100 range meant ~36,500 synchronous
+        // ephemeris computations in one request. Now auth-required and span-capped (below).
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
         let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
         if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
@@ -2952,6 +2962,9 @@ export const appRouter = router({
         }
         const start = new Date(opts.input.startDate);
         const end = new Date(opts.input.endDate);
+        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start || (end.getTime() - start.getTime()) / 86400000 > 92) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Range must be valid and at most 92 days." });
+        }
         const results = [];
         const current = new Date(start);
         while (current <= end) {

@@ -8,6 +8,22 @@ import { eq, and, isNull } from "drizzle-orm";
 import type { InsertProfectionYear, ProfectionYear } from "../../drizzle/schema.js";
 
 /**
+ * Ownership check (audit MEDIUM-4): does this profection-year id belong to this user?
+ * Used to gate the raw-id write endpoint so a caller can't compute/store transits against
+ * another user's year id.
+ */
+export async function isProfectionYearOwnedBy(id: number, userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const rows = await db
+    .select({ id: profectionYears.id })
+    .from(profectionYears)
+    .where(and(eq(profectionYears.id, id), eq(profectionYears.userId, userId)))
+    .limit(1);
+  return rows.length > 0;
+}
+
+/**
  * Get or create a profection year record
  */
 export async function getOrCreateProfectionYear(

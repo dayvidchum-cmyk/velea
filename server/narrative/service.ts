@@ -81,7 +81,14 @@ function inProcGenCount(profileId: number): number {
   const cur = genEventsByProfile.get(profileId);
   return cur && cur.day === utcDay() ? cur.n : 0;
 }
+// audit MEDIUM-6: admins never hit the cap. The cap exists to bound a paying user's binge, not to
+// throttle David QA'ing prose across many dates. Admin profiles register here (lazily, from the
+// routers) and skip the cap for the process lifetime — non-admins are never added.
+const uncappedProfiles = new Set<number>();
+export function markProfileUncapped(profileId: number): void { uncappedProfiles.add(profileId); }
+
 async function overDailyCap(profileId: number): Promise<boolean> {
+  if (uncappedProfiles.has(profileId)) return false;
   const durable = await countGenerationsToday(profileId).catch(() => 0);
   return Math.max(durable, inProcGenCount(profileId)) >= DAILY_GEN_CAP;
 }
@@ -91,7 +98,13 @@ async function overDailyCap(profileId: number): Promise<boolean> {
 // here (each surface checks its cache before calling this), so re-reads are free and uncounted.
 async function guardedGen<T>(profileId: number, key: string, fn: () => Promise<T>): Promise<T | null> {
   if (await overDailyCap(profileId)) return null;
-  return singleFlight(key, async () => { bumpGenEvent(profileId); return fn(); });
+  return singleFlight(key, async () => {
+    const r = await fn();
+    // audit LOW-14: count only a REAL generation. A null (dry wallet / API error / parse fail)
+    // wasn't billed, so it must not burn the daily cap and prematurely plateau the profile.
+    if (r != null) bumpGenEvent(profileId);
+    return r;
+  });
 }
 
 /** THE TENSE ANCHOR (2026-07-17, the "ghost in the past" failure: a past antar chapter
@@ -162,9 +175,11 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
   const input = await buildNarrativeInput(profileId, date, isMoment ? { ...moment, dayLoc } : { dayLoc });
   const hash = dayStableHash(input, "glance");
 
-  if (!refresh && !isMoment) {
+  // audit LOW: honor the pin even on refresh — a LOCKED read NEVER regenerates (the pin invariant);
+  // only an unlocked read respects `refresh` + the hash match. (Moment reads are ephemeral, skip.)
+  if (!isMoment) {
     const row = await getNarrativeCache(profileId, "glance", date);
-    if (row && (row.locked || row.inputHash === hash)) {
+    if (row && (row.locked || (!refresh && row.inputHash === hash))) {
       try {
         return { available: true, content: JSON.parse(row.content) as GlanceContent, generatedAt: row.generatedAt, cached: true };
       } catch {
@@ -193,6 +208,18 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
   const surface = deepened ? "deep_full" : "deep";
   const input = await buildNarrativeInput(profileId, date, deepened ? { dayLoc } : { slowOnly: true, dayLoc });
   const hash = dayStableHash(input, surface);
+
+  // audit LOW: a LOCKED deep read never regenerates, even on refresh (the pin invariant) — refresh
+  // otherwise skipped the cache check entirely and overwrote the pinned prose.
+  if (refresh) {
+    const lockedRow = await getNarrativeCache(profileId, surface, date);
+    if (lockedRow?.locked) {
+      try {
+        const read = JSON.parse(lockedRow.content);
+        if (isCompleteDeepRead(read)) return { available: true, read, generatedAt: lockedRow.generatedAt, cached: true };
+      } catch { /* corrupt — fall through to regenerate */ }
+    }
+  }
 
   if (!refresh) {
     let row = await getNarrativeCache(profileId, surface, date);
