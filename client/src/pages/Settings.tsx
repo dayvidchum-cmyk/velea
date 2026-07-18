@@ -226,6 +226,73 @@ function fmtBirthTime(t?: string | null) {
   return `${h % 12 || 12}:${String(mi ?? 0).padStart(2, "0")} ${period}`;
 }
 
+
+/** THE MORNING BELL — subscribe/unsubscribe web push from a deliberate tap. Hidden entirely
+ *  when the server has no VAPID keys (feature not yet configured). */
+function MorningBellRow() {
+  const utils = trpc.useUtils();
+  const { data: status } = trpc.push.status.useQuery(undefined, { staleTime: 60_000 });
+  const subscribeMut = trpc.push.subscribe.useMutation({ onSettled: () => utils.push.status.invalidate() });
+  const unsubscribeMut = trpc.push.unsubscribe.useMutation({ onSettled: () => utils.push.status.invalidate() });
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  if (!status?.configured) return null; // keys not in Railway yet — the row simply doesn't exist
+  const supported = typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+
+  const urlBase64ToUint8Array = (base64: string) => {
+    const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+    const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = window.atob(b64);
+    return Uint8Array.from(Array.from(raw).map((c) => c.charCodeAt(0)));
+  };
+
+  const turnOn = async () => {
+    setBusy(true); setNote(null);
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") { setNote("Notifications are blocked for Velea — allow them in your phone's settings."); return; }
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(status.publicKey!) });
+      const json = sub.toJSON() as any;
+      await subscribeMut.mutateAsync({ endpoint: sub.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth });
+      setNote("The bell is set — it rings at 8 each morning.");
+    } catch (e: any) {
+      setNote("Couldn't set the bell on this device. On iPhone, Velea must be added to your Home Screen first.");
+    } finally { setBusy(false); }
+  };
+
+  const turnOff = async () => {
+    setBusy(true); setNote(null);
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) { await unsubscribeMut.mutateAsync({ endpoint: sub.endpoint }); await sub.unsubscribe(); }
+      else if (status.subscribed) { await unsubscribeMut.mutateAsync({ endpoint: "-" }); }
+      setNote("The bell is quiet.");
+    } catch { setNote("Couldn't unsubscribe this device."); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <SettingRow
+      label="The Morning Bell"
+      description={supported
+        ? "A morning notification at 8am your time: how the stage is set today. On iPhone, add Velea to your Home Screen first."
+        : "Your browser doesn't support notifications — on iPhone, add Velea to your Home Screen and set the bell from there."}
+    >
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+        <TogglePair
+          options={["on", "off"] as const}
+          value={status.subscribed ? "on" : "off"}
+          onChange={(v) => { if (busy || !supported) return; v === "on" ? turnOn() : turnOff(); }}
+          renderLabel={(v) => <span className="flex items-center gap-1.5">{busy ? "…" : v === "on" ? "On" : "Off"}</span>}
+        />
+        {note && <span style={{ fontSize: "0.68rem", color: "var(--color-muted-foreground)", textAlign: "right", maxWidth: 200 }}>{note}</span>}
+      </div>
+    </SettingRow>
+  );
+}
+
 export default function Settings() {
   const { settings, updateSetting, saveSettings } = useSettingsContext();
   const { user } = useAuth();
@@ -342,6 +409,11 @@ export default function Settings() {
               )}
             />
           </SettingRow>
+
+          {/* THE MORNING BELL (David 2026-07-18): "Good morning, {name}! Let's see how the stage
+              is set today." — a real push at 8am YOUR local time. Permission is asked HERE, from a
+              deliberate tap (never an ambush). iOS: works for the installed (Home Screen) app. */}
+          <MorningBellRow />
 
           {/* 2. Task Counts (everywhere — orbs, project lists, section headers) */}
           <SettingRow

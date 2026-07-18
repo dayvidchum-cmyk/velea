@@ -592,3 +592,20 @@ export const profileConvergence = mysqlTable("profile_convergence", {
 ]);
 
 export type ProfileConvergenceRow = typeof profileConvergence.$inferSelect;
+
+/**
+ * PUSH SUBSCRIPTIONS — the Morning Bell (David 2026-07-18: "Good morning, David! Let's see how
+ * the stage is set today."). One row per device; userId-scoped; lastMorningPush (YYYY-MM-DD,
+ * the user's LOCAL date) dedupes the daily send across deploys.
+ * Created via scripts/create-push-subscriptions.ts (David-run) — never drizzle-kit push.
+ */
+export const pushSubscriptions = mysqlTable("push_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  endpoint: varchar("endpoint", { length: 512 }).notNull().unique(),
+  p256dh: varchar("p256dh", { length: 255 }).notNull(),
+  auth: varchar("auth", { length: 255 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  lastMorningPush: varchar("lastMorningPush", { length: 10 }),
+});
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;

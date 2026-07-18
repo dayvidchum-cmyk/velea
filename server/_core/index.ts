@@ -147,6 +147,10 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+
+  // THE MORNING BELL — per-user 8am-local push scheduler (no-ops without VAPID keys in env).
+  const { startMorningBell } = await import("../push.js");
+  startMorningBell();
 }
 
 startServer().catch(console.error);

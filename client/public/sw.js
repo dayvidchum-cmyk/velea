@@ -1,7 +1,7 @@
 /* Velea service worker — enables desktop/mobile install and light offline.
    Deliberately conservative: never touches API/tRPC traffic, always prefers
    fresh HTML, and only cache-firsts Vite's content-hashed static assets. */
-const CACHE = "velea-cache-v721";
+const CACHE = "velea-cache-v722";
 const ASSET_RE = /\.(?:js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico|webmanifest)$/;
 
 self.addEventListener("install", () => {
@@ -99,4 +99,30 @@ self.addEventListener("fetch", (event) => {
         .catch(() => caches.match("/").then((r) => r || caches.match(req)))
     );
   }
+});
+
+/* THE MORNING BELL — web push (David 2026-07-18). The payload is JSON {title, body, url};
+   a tap opens (or focuses) the app at the given path — straight into the soft-open Today. */
+self.addEventListener("push", (event) => {
+  let data = { title: "Velea", body: "", url: "/" };
+  try { data = { ...data, ...event.data.json() }; } catch { /* non-JSON payload — show defaults */ }
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: "/velea-icon-192.png",
+      badge: "/velea-icon-192.png",
+      data: { url: data.url },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/";
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((wins) => {
+      for (const w of wins) { if ("focus" in w) { w.navigate(url); return w.focus(); } }
+      return clients.openWindow(url);
+    })
+  );
 });

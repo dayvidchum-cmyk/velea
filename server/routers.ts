@@ -105,7 +105,7 @@ import { dashaRouter } from "./routers/dasha.js";
 import { arcRouter } from "./routers/arc.js";
 import { profilesRouter } from "./routers/profiles.js";
 import { timeLordTransitRouter } from "./profection/transit-router.js";
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { users, profiles, profileNatalBodies } from "../drizzle/schema";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { TRPCError } from "@trpc/server";
@@ -2357,6 +2357,51 @@ export const appRouter = router({
           }),
         };
       }),
+  }),
+
+  // ── THE MORNING BELL — web push (David 2026-07-18). Subscribe from a real tap in Settings;
+  // iOS requires the installed PWA. No VAPID keys in env → configured:false and the UI hides.
+  push: router({
+    status: protectedProcedure.query(async ({ ctx }) => {
+      const { pushConfigured } = await import("./push.js");
+      const db = await getDb();
+      let subscribed = false;
+      if (db) {
+        const { pushSubscriptions } = await import("../drizzle/schema.js");
+        const rows = await db.select({ id: pushSubscriptions.id }).from(pushSubscriptions).where(eq(pushSubscriptions.userId, ctx.user.id)).limit(1);
+        subscribed = rows.length > 0;
+      }
+      return { configured: pushConfigured(), publicKey: process.env.VAPID_PUBLIC_KEY ?? null, subscribed };
+    }),
+    subscribe: protectedProcedure
+      .input(z.object({ endpoint: z.string().url().max(512), p256dh: z.string().min(10).max(255), auth: z.string().min(6).max(255) }))
+      .mutation(async ({ ctx, input }) => {
+        rateLimit(ctx.req, "push-subscribe", { max: 10, windowMs: 15 * 60 * 1000 });
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+        const { pushSubscriptions } = await import("../drizzle/schema.js");
+        await db.insert(pushSubscriptions)
+          .values({ userId: ctx.user.id, endpoint: input.endpoint, p256dh: input.p256dh, auth: input.auth })
+          .onDuplicateKeyUpdate({ set: { userId: ctx.user.id, p256dh: input.p256dh, auth: input.auth } });
+        return { ok: true };
+      }),
+    unsubscribe: protectedProcedure
+      .input(z.object({ endpoint: z.string().max(512) }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) return { ok: false };
+        const { pushSubscriptions } = await import("../drizzle/schema.js");
+        await db.delete(pushSubscriptions).where(and(eq(pushSubscriptions.userId, ctx.user.id), eq(pushSubscriptions.endpoint, input.endpoint)));
+        return { ok: true };
+      }),
+    // Admin: ring yourself NOW to hear the bell end-to-end.
+    testBell: adminProcedure.mutation(async ({ ctx }) => {
+      const { sendPushToUser } = await import("./push.js");
+      const u = await getUserById(ctx.user.id);
+      const first = (u?.name ?? "").trim().split(/\s+/)[0] || "friend";
+      const sent = await sendPushToUser(ctx.user.id, { title: `Good morning, ${first}!`, body: "Let's see how the stage is set today.", url: "/" });
+      return { sent };
+    }),
   }),
 
   // ── THE VERDICT — the chart's life-register headline (David 2026-07-18: the astrologer's
