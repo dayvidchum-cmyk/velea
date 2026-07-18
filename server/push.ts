@@ -83,23 +83,33 @@ const MORNING_HOUR = 8; // 8am local — v1 fixed; per-user hour is a later dial
  * writes them (the bell-voices list on the brief).
  */
 const DAY_WORD: Record<number, string> = { 1: "tomorrow", 2: "in 2 days", 3: "in 3 days" };
+// Planet pronouns for David's lines (Venus & the Moon speak as she — his to correct).
+const PRONOUN: Record<string, string> = { Venus: "She", Moon: "She" };
 async function skyLineFor(localDate: string): Promise<string> {
   try {
     const from = localDate;
     const to = new Date(Date.parse(localDate + "T00:00:00Z") + 4 * 86400000).toISOString().slice(0, 10);
     const marks = await yearStationMarks(from, to);
-    // Pre-direct window — a retro planet stations direct within 3 days (his waterfalls line).
+    const daysTo = (d: string) => Math.round((Date.parse(d + "T00:00:00Z") - Date.parse(localDate + "T00:00:00Z")) / 86400000);
+    // 1 · STATION-DIRECT TODAY — the turn itself outranks the approach (his retroshade line).
+    for (const st of marks.stations) {
+      if (st.kind === "station-direct" && daysTo(st.date) === 0) {
+        const he = PRONOUN[st.planet] ?? "He";
+        return `${st.planet} Retrograde ends today! But it's never that easy. ${he} walked right into retroshade.`;
+      }
+    }
+    // 2 · Pre-direct window — stations direct within 3 days (his waterfalls line).
     let best: { planet: string; days: number } | null = null;
     for (const st of marks.stations) {
       if (st.kind !== "station-direct") continue;
-      const days = Math.round((Date.parse(st.date + "T00:00:00Z") - Date.parse(localDate + "T00:00:00Z")) / 86400000);
+      const days = daysTo(st.date);
       if (days >= 1 && days <= 3 && (!best || days < best.days)) best = { planet: st.planet, days };
     }
     if (best) {
       const when = DAY_WORD[best.days] ?? `in ${best.days} days`;
       return `${best.planet} stations direct ${when}. Don't go chasing waterfalls.`;
     }
-    // (Slots awaiting David's words: station TODAY · pre-retro window · eclipse day · crown day.)
+    // (Slots still awaiting David's words: pre-retro window · eclipse day · crown day.)
   } catch { /* sky unavailable — the default line never fails */ }
   return "Let's see how the stage is set today.";
 }
