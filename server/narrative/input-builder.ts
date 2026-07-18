@@ -461,7 +461,17 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Build" split. Fall back to the birth-loc panchang only if getDayField yields nothing.
   const field = gateDayField(
     (await getDayField(dateStr, false, moment?.dayLoc, lagna, personalRating, interactionMode)) ??
-      interpretPanchang(await calcPanchang(dateStr, lat, lon, utcOffsetFromLon(lon)), lagna),
+      // Last-resort fallback: the viewer's day-location when known (matching the hero), the
+      // birth city only when nothing else exists — never the birth city's sky for a traveler.
+      interpretPanchang(
+        await calcPanchang(
+          dateStr,
+          moment?.dayLoc?.lat ?? lat,
+          moment?.dayLoc?.lon ?? lon,
+          moment?.dayLoc?.utcOffset ?? utcOffsetFromLon(lon)
+        ),
+        lagna
+      ),
     personalRating,
     interactionMode
   );
@@ -685,7 +695,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const md = (+dateStr.slice(5, 7)) * 100 + (+dateStr.slice(8, 10));
   const northSeason = md >= 321 && md < 621 ? "spring" : md >= 621 && md < 922 ? "summer" : md >= 922 && md < 1221 ? "autumn" : "winter";
   const flip: Record<string, string> = { spring: "autumn", summer: "winter", autumn: "spring", winter: "summer" };
-  const season = lat >= 0 ? northSeason : flip[northSeason];
+  // Hemisphere follows the BODY: the viewer's day-location when known, birth latitude only as
+  // the best guess when no location is stored. (A Sydney-born user wintering in Boston was
+  // reading "summer" — the reading disagreeing with the world outside the window.)
+  const season = (moment?.dayLoc?.lat ?? lat) >= 0 ? northSeason : flip[northSeason];
   const nearTurn = [321, 621, 922, 1221].some((t) => Math.abs(md - t) <= 6) ? "near a seasonal turn (solstice/equinox)" : null;
 
   const humanTime = { season, nearSeasonalTurn: nearTurn };
