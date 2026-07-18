@@ -33,9 +33,10 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
       className="app-shell-height"
       style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, cursor: "pointer",
-        // David's weld (2026-07-18): the fill above the art IS the art's own sky — sampled from
-        // each shell's top edge (night #0d0c19, sunset #85839f), so image and fill meet seamlessly.
-        background: isDay ? "#85839f" : "#0d0c19",
+        // David 2026-07-18: "can the background extensions be darker?" — the sampled-sky match
+        // capped how dark the fill could go, so: the fill goes PROPERLY dark, and a fade veil
+        // (below) melts the art's top into it. Night: near-black indigo; day: deep dusk.
+        background: isDay ? "#3c3950" : "#05060a",
         overflow: "hidden",
         opacity: leaving ? 0 : 1,
         transition: "opacity 640ms ease",
@@ -53,6 +54,21 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
           backgroundPosition: "center bottom",
           backgroundRepeat: "no-repeat",
           animation: "velea-sky-in 1.8s ease 2.7s both",
+        }}
+      />
+      {/* THE FADE VEIL — bottom-anchored with the art's own aspect, so it sits exactly on the
+          image: its top quarter dissolves up into the dark fill. Seam impossible (the veil starts
+          at precisely the fill color). */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute", left: 0, right: 0, bottom: 0,
+          aspectRatio: isDay ? "1024 / 1536" : "1615 / 2400",
+          background: isDay
+            ? "linear-gradient(180deg, #3c3950 0%, rgba(60,57,80,0) 26%)"
+            : "linear-gradient(180deg, #05060a 0%, rgba(5,6,10,0) 26%)",
+          animation: "velea-sky-in 1.8s ease 2.7s both",
+          pointerEvents: "none",
         }}
       />
       {/* Legibility scrim — TOP-DOWN only (the words live in the sky now): darkens the greeting's

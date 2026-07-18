@@ -212,9 +212,12 @@ export default function Login() {
           disabled={isLoading}
           className="w-full transition-all active:scale-[0.98] disabled:opacity-50"
           style={{
-            background: "transparent",
-            color: METAL.hi,
-            border: `1px solid color-mix(in srgb, ${METAL.accent} 55%, transparent)`,
+            // David 2026-07-18: "can the enter button turn bright gold when its entering" — the
+            // moment of crossing ignites; at rest it stays the quiet hairline.
+            background: isLoading ? "linear-gradient(180deg, #E7C766, #B8912F)" : "transparent",
+            color: isLoading ? "#1a1305" : METAL.hi,
+            border: isLoading ? "1px solid #E7C766" : `1px solid color-mix(in srgb, ${METAL.accent} 55%, transparent)`,
+            boxShadow: isLoading ? "0 0 18px rgba(212,175,55,0.45)" : "none",
             borderRadius: 999,
             padding: "0.5rem",
             fontSize: "0.62rem",
