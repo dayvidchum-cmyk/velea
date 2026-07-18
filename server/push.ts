@@ -123,7 +123,17 @@ const POOL = {
   horizon: [
     "There's something on the horizon.",
   ],
+  // Ordinary mornings rotate the greeting with TRIVIA (David: "people like to learn fun shit
+  // like this — tidbits"). Every fact verified true; every line his to veto or rewrite.
   stage: [
+    "Let's see how the stage is set today.",
+    "Planets never actually move backward. Retrograde is an illusion — a slower car seeming to slip back as you pass it.",
+    "In a lunar eclipse the Moon turns rust-red: it's lit by every sunrise and sunset on Earth at once.",
+    "The Moon is 400 times smaller than the Sun — and 400 times closer. An eclipse is an exact fit.",
+    "Every eclipse returns after 6,585 days — a third of the world further west each time.",
+    "The Moon sleeps in a different one of 27 star-mansions every night. Tonight's has a name.",
+    "In Vedic time, the day doesn't begin at midnight. It begins when the Sun does.",
+    "Mercury is retrograde about one day in five. You've survived every single one.",
     "Let's see how the stage is set today.",
   ],
 };
