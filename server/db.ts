@@ -659,6 +659,11 @@ export async function setNarrativeLock(profileId: number, surface: string, cache
 }
 
 export async function isNarrativeLocked(profileId: number, cacheDate: string): Promise<boolean> {
+  // AUDIT M4 (2026-07-18): the pin locks BOTH surfaces (glance + deep) but truth was read from
+  // glance alone — if only the deep row existed (glance generation dry/capped), the UI said
+  // "unpinned" while the year read sat invisibly frozen. Either locked row = pinned.
+  const deep = await getNarrativeCache(profileId, "deep", cacheDate);
+  if (deep?.locked) return true;
   const row = await getNarrativeCache(profileId, "glance", cacheDate);
   return !!(row as any)?.locked;
 }

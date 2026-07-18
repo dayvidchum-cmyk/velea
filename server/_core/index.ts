@@ -40,7 +40,7 @@ async function startServer() {
   // req.protocol is 'https' and secure cookies are set correctly.
   app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
+  app.use(express.json({ limit: "5mb" }) /* AUDIT LOW: 50mb accepted everywhere incl. tRPC; kilobytes suffice */);
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // Lightweight health check for the host (no DB, no auth).
   app.get("/healthz", (_req, res) => res.status(200).json({ ok: true }));
@@ -54,7 +54,7 @@ async function startServer() {
   const landingHosts = new Set(["velealor.com", "www.velealor.com"]);
   app.get("/", (req, res, next) => {
     if (!landingHosts.has(req.hostname)) return next();
-    if ((req.headers.cookie ?? "").includes(`${COOKIE_NAME}=`)) return next();
+    if (new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=`).test(req.headers.cookie ?? "")) return next(); // AUDIT LOW: substring matched any *suffix-named* cookie
     const file =
       process.env.NODE_ENV === "development"
         ? path.resolve(import.meta.dirname, "../..", "client", "public", "landing.html")

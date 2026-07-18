@@ -125,7 +125,10 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
 
   // THE BREAKDOWN DOOR (roadmap #2, David-greenlit; voice: plain and not yelling).
   const decompose = trpc.subtasks.decompose.useMutation({
-    onSettled: () => utils.subtasks.list.invalidate({ taskId: task.id }),
+    onSettled: () => {
+      utils.subtasks.list.invalidate({ taskId: task.id });
+      utils.tasks.list.invalidate(); // subtask count badges live on tasks.list rows
+    },
   });
 
   const deleteSubtask = trpc.subtasks.delete.useMutation({
@@ -316,6 +319,17 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               <Clock size={10} style={{ color: "rgba(var(--ink),0.5)" }} />
               <span className="text-[11px] font-medium" style={{ color: "rgba(var(--ink),0.5)" }}>
                 {snoozedLabel}
+              </span>
+            </div>
+          )}
+          {/* AUDIT H6 (2026-07-18): the gentle-overdue label existed but was never RENDERED — no
+              surface showed a task's due date at all. It joins as a passive whisper (the same
+              register as the snooze row): "waiting since Jul 8", "Today", "In 3d". Zero guilt math. */}
+          {task.dueDate && !task.isCompleted && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <CalendarDays size={10} style={{ color: "rgba(var(--ink),0.5)" }} />
+              <span className="text-[11px] font-medium" style={{ color: "rgba(var(--ink),0.5)" }}>
+                {formatDueDate(typeof task.dueDate === "string" ? task.dueDate.slice(0, 10) : new Date(task.dueDate).toISOString().slice(0, 10))}
               </span>
             </div>
           )}
@@ -543,7 +557,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
                   style={{ color: "rgba(var(--ink),0.65)" }}
                 >
                   <ListTree size={11} />
-                  {decompose.isPending ? "Breaking it down…" : "Break it down"}
+                  {decompose.isPending ? "Breaking it down…" : decompose.isError ? "Couldn't break it down — try again" : "Break it down"}
                 </button>
               )}
             </div>

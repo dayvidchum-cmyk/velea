@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { guardViolation, scrubMachinery } from "./generate";
-import { guardViolation } from "./generate";
 
 // These prove — deterministically, no LLM, no spend — that the two failure modes David kept
 // hitting (chart-machinery leaks and over-length reads) are CAUGHT in code and regenerated,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDarkChromeWhile } from "@/contexts/ThemeContext";
 
 const GOLD = "#C9A84C";
@@ -20,17 +20,23 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
   const isDay = (() => { const h = new Date().getHours(); return h >= 6 && h < 18; })();
   const art = isDay ? "/shell-sunset.jpg" : "/shell-night.jpg";
 
+  // AUDIT M12 (2026-07-18): App passes an inline onDone (new identity every render), and post-login
+  // is exactly when the tree re-renders repeatedly (utils.invalidate() refetching everything) — so
+  // keying the effect on [onDone] cleared and RESTARTED the 6s/6.8s timers each render, stretching
+  // the splash unpredictably. The callback lives in a ref; the timers run once per art.
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
   useEffect(() => {
     const img = new Image(); img.src = art; // warm the finale while the words play
     const fade = setTimeout(() => setLeaving(true), 6000);
-    const done = setTimeout(onDone, 6800);
+    const done = setTimeout(() => onDoneRef.current(), 6800);
     return () => { clearTimeout(fade); clearTimeout(done); };
-  }, [onDone, art]);
+  }, [art]);
 
   return (
     <div
       onClick={onDone}
-      className="app-shell-height"
+      className="app-cover-height"
       style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, cursor: "pointer",
         // David 2026-07-18: "can the background extensions be darker?" — the sampled-sky match

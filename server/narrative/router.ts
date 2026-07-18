@@ -40,19 +40,28 @@ type GenCtx = { user: { id?: number; role?: string | null; email?: string | null
 // dry, EVERY user's read drops to static fallback). This is the guard for that whole class of
 // generation-triggering procedures.
 //
-// ±1 UTC day is the "today" window: every timezone's local today lands within today±1 UTC, so a
-// legit `localToday` request is always honored regardless of tz (no midnight off-by-one). Any
-// date beyond that is pick-a-date territory — allowed only for the entitled (specialReadings /
-// admin) and rate-limited; everyone else is clamped to today, so at most a handful of day-keys
-// per profile can ever generate. Cache still means each honored date generates at most once.
-function withinDailyWindow(date: string): boolean {
+// The window is the viewer's LOCAL yesterday+today when their timezone is stored (exact), else a
+// wide UTC ±day fallback. Beyond it = pick-a-date territory — entitled (specialReadings/admin)
+// only, rate-limited; everyone else gets a locked shape. Cache still means each honored date
+// generates at most once.
+function withinDailyWindow(date: string, tz?: string | null): boolean {
   const d = Date.parse(date + "T00:00:00Z");
   if (Number.isNaN(d)) return false;
-  const t = Date.parse(todayUTC() + "T00:00:00Z");
   const day = 24 * 60 * 60 * 1000;
-  // [today-2, today+1] in UTC. Max tz offset is <24h, so a user's LOCAL yesterday can land on
-  // UTC today-2 (far-west evening) and their local today/tomorrow on today+1 — this window makes
-  // "yesterday + today" free in EVERY timezone (David's free-tier line). Deeper history is premium.
+  // AUDIT M1 (2026-07-18): the old blanket [UTC today-2, today+1] window "covered every timezone's
+  // yesterday+today" — but it ALSO granted tomorrow (and, in a western evening, day-after-tomorrow
+  // local) to free users: future sight, which the time-gate doctrine sells. With the viewer's stored
+  // timezone we clamp EXACTLY to their local yesterday+today. Without one, the wide window remains
+  // (never lock a legit today out on a guess).
+  if (tz) {
+    try {
+      const offset = getTimezoneOffset(tz, new Date()); // hours
+      const localNow = Date.now() + offset * 3600000;
+      const localToday = Math.floor(localNow / day) * day;
+      return d >= localToday - day - 1000 && d <= localToday + 1000;
+    } catch { /* bad tz string — fall through to the wide window */ }
+  }
+  const t = Date.parse(todayUTC() + "T00:00:00Z");
   return d >= t - 2 * day - 1000 && d <= t + day + 1000;
 }
 
@@ -66,7 +75,8 @@ async function guardedDate(ctx: GenCtx, profileId: number, requested: string | u
   if (ctx.user.role === "admin" && Number.isFinite(profileId)) markProfileUncapped(profileId);
   const today = todayUTC();
   const date = requested ?? today;
-  if (withinDailyWindow(date)) return date;
+  const viewer = ctx.user.id != null ? await getUserById(ctx.user.id) : null;
+  if (withinDailyWindow(date, viewer?.locationTimezone)) return date;
   const { hasFeature } = await import("../feature-flags.js");
   const canPickDate = ctx.user.role === "admin" || (await hasFeature(ctx.user as any, "specialReadings"));
   if (!canPickDate) return null; // deeper history = premium: locked, not silently-today
@@ -271,7 +281,10 @@ export const narrativeRouter = router({
       const { timeLordTransits } = await import("../../drizzle/schema.js");
       const { and, eq } = await import("drizzle-orm");
       const rows = await db.select().from(timeLordTransits).where(and(eq(timeLordTransits.userId, ctx.user.id), eq(timeLordTransits.startDate, input.from), eq(timeLordTransits.sign, input.sign)));
-      const row: any = rows.find((r: any) => r.profileId === profile.id) ?? rows.find((r: any) => r.profileId == null) ?? rows[0];
+      // AUDIT M2 (2026-07-18): the old `?? rows[0]` tail could voice ANOTHER profile's engine data
+      // under the active chart (rows are userId-filtered, not profile-filtered) — and then CACHE it
+      // under this profile's key forever. Exact profile, then legacy-null rows; nothing else.
+      const row: any = rows.find((r: any) => r.profileId === profile.id) ?? rows.find((r: any) => r.profileId == null);
       if (!row) return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
       const SIGNS_Z = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
       const HOUSE_GLOSS: Record<number, string> = { 1: "the self and the body", 2: "money and livelihood", 3: "the craft and the close circle", 4: "home and roots", 5: "the heart and its creations", 6: "the daily work and health", 7: "partnership", 8: "the shared and the hidden", 9: "belief and the far horizon", 10: "standing in the world", 11: "community and gains", 12: "rest and release" };
@@ -365,6 +378,9 @@ export const narrativeRouter = router({
   // No LLM — pure chart math, so it is free and auditable.
   currentTransits: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
     await assertOwnsProfile(ctx.user.id, input.profileId);
+    // AUDIT LOW (2026-07-18): no LLM cost, but an unbounded date walk = ~50 ephemeris calls per
+    // date on the single process. Bounded per IP; normal use never notices.
+    try { rateLimit(ctx.req, "current-transits", { max: 120, windowMs: 15 * 60 * 1000 }); } catch { return { available: false as const }; }
     const date = input.date ?? todayUTC();
     try {
       const ni = await buildNarrativeInput(input.profileId, date);

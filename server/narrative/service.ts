@@ -30,13 +30,20 @@ function hashInput(input: unknown, surface?: string): string {
 // Surfaces built from the slow-only (stage) input carry no `panchang`, so this is a no-op for them.
 export const VOLATILE_PANCHANG_FIELDS = ["mode", "qualifier", "activatedHouse", "nakshatra", "tithi", "karana", "turnsAtNote", "modeStepReasons", "weatherGated"] as const;
 export function dayStableHash(input: any, surface?: string): string {
-  const p = input?.panchang;
-  if (!p || typeof p !== "object") return hashInput(input, surface);
+  // AUDIT H1 (2026-07-18): recentReads (the last 3 days' cached prose, fed to the model for
+  // continuity) was being HASHED — so writing a NEIGHBOR day's row (e.g. opening yesterday, which
+  // is free) changed today's hash and silently regenerated (re-billed) today's already-served
+  // glance/day-read/cast, with different prose at noon than at morning. The model still RECEIVES
+  // recentReads; only the cache identity ignores it — the cache law ("hash only what's stable for
+  // the cache window") applied to the same class dayStableHash already fixed for panchang.
+  const { recentReads: _rr, ...rest } = input ?? {};
+  const p = rest?.panchang;
+  if (!p || typeof p !== "object") return hashInput(rest, surface);
   const stablePanchang: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(p)) {
     if (!(VOLATILE_PANCHANG_FIELDS as readonly string[]).includes(k)) stablePanchang[k] = v;
   }
-  return hashInput({ ...input, panchang: stablePanchang }, surface);
+  return hashInput({ ...rest, panchang: stablePanchang }, surface);
 }
 
 export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };

@@ -453,7 +453,7 @@ export default function Planner() {
   }, [skyMarks]);
 
   // SHADOW THRESHOLDS (David 2026-07-18): the single day a planet's shadow OPENS or CLOSES, its
-  // glyph appears on the rail GHOSTED — "quietly signal its descent into mania" (and its emergence).
+  // glyph appears on the rail at FULL ink — the signal is that it appears only on threshold days.
   // Full-ink glyphs stay reserved for stations/windows; the threshold is a whisper, not a shout.
   const shadowEdgeByDate = useMemo(() => {
     const m = new Map<string, string[]>();
@@ -465,12 +465,24 @@ export default function Planner() {
     return m;
   }, [skyMarks]);
 
-  // The retrograde planets present ANYWHERE this month, in canonical order — each gets a fixed
-  // track slot under the coins so its span reads as one continuous horizontal line across days.
+  // The rx planets that get bindi tracks this month — max 3. AUDIT H7 (2026-07-18): the old
+  // canonical slice dropped the SLOW planets first (Jupiter/Saturn cut in a busy month), so a
+  // Saturn STATION (strength 5, the loudest signal) could show nothing while a Mercury pre-shadow
+  // rendered. Selection is now by the planet's PEAK strength this month (station > window > rx >
+  // shadow), ties broken slow-first (canon: slow planets carry the story). Row order among the
+  // chosen stays canonical so tracks read stably across days.
   const monthRetroPlanets = useMemo(() => {
-    const present = new Set<string>((skyMarks?.retro ?? []).map((p) => p.planet));
-    return ["Mercury", "Venus", "Mars", "Jupiter", "Saturn"].filter((p) => present.has(p));
-  }, [skyMarks]);
+    const CANON = ["Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
+    const SLOW_FIRST = ["Saturn", "Jupiter", "Mars", "Venus", "Mercury"];
+    const peak = new Map<string, number>();
+    for (const day of Array.from(rxStrengthByDate.values()))
+      for (const [pl, st] of Array.from(day.entries()))
+        if (st > (peak.get(pl) ?? 0)) peak.set(pl, st);
+    const chosen = Array.from(peak.keys())
+      .sort((a, b) => (peak.get(b)! - peak.get(a)!) || (SLOW_FIRST.indexOf(a) - SLOW_FIRST.indexOf(b)))
+      .slice(0, 3);
+    return CANON.filter((p) => chosen.includes(p));
+  }, [rxStrengthByDate]);
   const eclipseByDate = useMemo(() => {
     const m = new Map<string, string>();
     for (const e of skyMarks?.eclipses ?? []) m.set(e.date, e.type);
@@ -1516,9 +1528,9 @@ export default function Planner() {
           ))}
         </div>
 
-        {/* rowGap holds BOTH neighbors' out-of-coin layers: the rail above a coin (~17px) and the
-            bindi tracks below the previous row's coins (~16px for 3 tracks) — 2.35rem clears them.
-            paddingBottom gives the LAST row's bindis their room. */}
+        {/* rowGap holds BOTH neighbors' out-of-coin layers: the rail above a coin (~19px incl. the
+            crown) and the bindi tracks below the previous row's coins (~16px for 3) — 2.7rem clears
+            them with air (David: "more vertical space is welcome"). paddingBottom = last row's room. */}
         <div className="grid grid-cols-7" style={{ rowGap: "2.7rem", paddingTop: "0.6rem", paddingBottom: "1.3rem" }}>
           {calendarCells.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />;
@@ -1555,7 +1567,6 @@ export default function Planner() {
               ? (isSelected ? 0.65 : 0.45)
               : (isSelected ? (isDark ? 0.78 : 0.55) : isToday ? (isDark ? 0.6 : 0.62) : (isDark ? 0.34 : 0.20));
             const GOLD_BRIGHT = "#F2C21C"; // saturated gold — golden-day border
-            const CROWN_YELLOW = "#FFD429"; // the crowned coin's FILL since the flip (star + ring wear #D4AF37)
             const CAUTION_RED = "#C41E3A"; // ruby — David 2026-07-15: "the fire engine red should be more ruby"
             // A caution day is ONE red family (David: today "vibrated" because the mulberry Restraint
             // fill and the fire-red caution ring/number — two close hues — stacked on the same coin).
@@ -1564,13 +1575,11 @@ export default function Planner() {
             const accent = isCautionDay ? CAUTION_RED : (modeColor ?? "var(--color-foreground)");
             // Five-ink law: the FAMILY color for this day's number + ring (fills stay specific).
             const familyInk = isCautionDay ? CAUTION_RED : (dayCharacter?.movement ? (FAMILY_INK[dayCharacter.movement] ?? accent) : accent);
-            const ECLIPSE_RING = "#6E5AA6"; // muted violet — echoes the eclipse disc's cosmic indigo
             // Retrograde planets active this day → the bottom glyph strip (rendered below).
             const retroToday = retroByDate.get(dateStr);
             const stationsToday = retroToday?.filter((e) => e.state === "station-retro" || e.state === "station-direct") ?? [];
             // The calendar surface is always light now, so the retro glyphs/strip always use the
             // deep (light-bg) palette — the bright variant would wash out on white in dark/FS mode.
-            const retroColor = PLANET_RETRO_COLOR.deep;
             // TODAY uses the normal theme-aware tint (a touch stronger via tintAlpha's isToday branch)
             // plus its white border + bold number — no longer force-darkened. The old dark fill existed
             // so a white Velea mark would read, but that mark was removed from today (v154); keeping the
@@ -1663,6 +1672,11 @@ export default function Planner() {
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : isCrown
                       ? "1.5px solid #D4AF37"
+                      // AUDIT H5 (2026-07-18): the golden-day border was computed (isGolden) but never
+                      // DRAWN after the coin-template refactor — the collective-sky golden layer
+                      // produced zero pixels. Restored: a golden day wears the saturated gold ring.
+                      : (isGolden && !eclipseByDate.has(dateStr))
+                      ? `1.5px solid ${GOLD_BRIGHT}`
                       // ONE marked-day treatment (David 2026-07-18): ANY day carrying rail marks —
                       // station/window planets included, no more planet-ink ring — earns the same
                       // thin ring in the day's FAMILY ink. Color stays the mode's; the rail glyph

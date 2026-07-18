@@ -1,7 +1,7 @@
 /* Velea service worker — enables desktop/mobile install and light offline.
    Deliberately conservative: never touches API/tRPC traffic, always prefers
    fresh HTML, and only cache-firsts Vite's content-hashed static assets. */
-const CACHE = "velea-cache-v720";
+const CACHE = "velea-cache-v721";
 const ASSET_RE = /\.(?:js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico|webmanifest)$/;
 
 self.addEventListener("install", () => {
@@ -33,6 +33,30 @@ self.addEventListener("fetch", (event) => {
   // Marketing assets are NOT content-hashed and change under the same URL — never
   // SW-cache them (cache-first would pin the first version forever; see moons.jpg).
   if (url.pathname.startsWith("/marketing/")) return;
+
+  // AUDIT M16 (2026-07-18): only Vite's /assets/* files are content-hashed — root-level art
+  // (login-gate.jpg, planet-marks/*, shells, celestial) changes UNDER THE SAME URL when David
+  // drops new art. Cache-first pinned the old file until the next version bump (the moons.jpg
+  // class, but for every unhashed image). Unhashed assets now use STALE-WHILE-REVALIDATE:
+  // serve the cached copy instantly, refresh the cache in the background — new art appears on
+  // the next open even without a CACHE bump.
+  const isHashed = url.pathname.startsWith("/assets/");
+  if (ASSET_RE.test(url.pathname) && !isHashed) {
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        const refetch = fetch(req).then((res) => {
+          const ct = res.headers.get("Content-Type") || "";
+          if (res.ok && !ct.includes("text/html")) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        }).catch(() => cached);
+        return cached || refetch;
+      })
+    );
+    return;
+  }
 
   // Content-hashed static assets → cache-first (safe; filenames change per build).
   if (ASSET_RE.test(url.pathname)) {

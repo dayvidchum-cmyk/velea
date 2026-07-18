@@ -101,7 +101,7 @@ export default function Login() {
     e.currentTarget.style.borderBottomColor = "#E7C766"; // bright gold on focus — the line wakes
   };
   const blurBorder = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderBottomColor = `color-mix(in srgb, #D4AF37 45%, transparent)`;
+    e.currentTarget.style.borderBottomColor = "color-mix(in srgb, #D4AF37 55%, transparent)"; // AUDIT M14: match the resting 55% — blur left touched inputs permanently dimmer
   };
 
   return (
@@ -147,6 +147,7 @@ export default function Login() {
         onSubmit={handleSubmit}
         style={{
           position: "absolute",
+          zIndex: 2, // AUDIT M14: the form stays typable above the bottom toggle/install strip on short screens
           top: "76%", // EMAIL lands on David's neon-green mark (~70.7% screen); pw + Enter follow below
           left: "50%",
           transform: "translate(-50%, -50%)",

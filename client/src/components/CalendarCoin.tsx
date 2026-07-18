@@ -101,7 +101,10 @@ export default function CalendarCoin(p: CalendarCoinProps) {
         const slot = (node: ReactNode, key: React.Key) => (
           <span key={key} style={{ width: slotW, display: "flex", justifyContent: "center", alignItems: "center" }}>{node}</span>
         );
-        const slotted = others.map((n, i) => slot(n, i));
+        // AUDIT LOW (2026-07-18): unbounded mark counts (2 stations + windows + moon + € + crown)
+        // could outgrow the cell. Hard cap at 5 slotted marks — the build order above IS the
+        // priority order (stations first), so the least-loud marks are the ones that yield.
+        const slotted = others.slice(0, 5).map((n, i) => slot(n, i));
         return (
           <span style={{ position: "absolute", top: -17, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
             {hasCrownMark ? (

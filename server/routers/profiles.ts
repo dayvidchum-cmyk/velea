@@ -662,6 +662,17 @@ export const profilesRouter = router({
       const existing = await getProfileById(input.id, ctx.user.id);
       if (!existing) throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
 
+      // AUDIT H4 (2026-07-18): this endpoint recomputed with attacker-supplied birth data and NO
+      // cooldown — profiles.update and settings.calculateBirthChart both enforce the 24h lock, so
+      // this was the open side door around the one-seat anti-hijack policy (swap in anyone's birth
+      // data, read their chart, swap back — each swap also burning research + warm LLM reads).
+      const changed = birthDataChanged(existing, {
+        birthDate: input.birthDate, birthTime: input.birthTime,
+        birthLocationCity: input.birthLocationCity, birthLocationLat: input.birthLocationLat,
+        birthLocationLon: input.birthLocationLon, birthTimezone: input.birthTimezone,
+      });
+      assertBirthDataCooldown({ isAdmin: ctx.user.role === "admin", changed, lastChangedAt: (existing as any).birthDataUpdatedAt });
+
       try {
         const chart = await recomputeProfileChart(ctx.user.id, input.id, {
           birthDate: input.birthDate,
@@ -672,6 +683,11 @@ export const profilesRouter = router({
           birthLocationLon: input.birthLocationLon,
           birthTimezone: input.birthTimezone,
         });
+        // Start/refresh the 24h lock when the data actually changed (same rule as .update) —
+        // without this stamp the cooldown check above never arms and swaps repeat freely.
+        if (changed) {
+          await db.update(profiles).set({ birthDataUpdatedAt: new Date() }).where(eq(profiles.id, input.id));
+        }
         return { success: true, chart };
       } catch (error) {
         console.error('[Profile Chart] Calculation failed:', error);

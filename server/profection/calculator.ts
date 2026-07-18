@@ -116,16 +116,20 @@ export function calculateProfectionYear(
     throw new Error(`No ruler found for sign: ${activatedSign}`);
   }
 
-  // Calculate year end (next birthday - 1 day)
+  // Calculate year end (next birthday - 1 day).
+  // AUDIT M7 (2026-07-18): the UTC-rollover fix was HALF-applied — the age/year-start math went
+  // UTC but this output path still used LOCAL setters/getters on UTC-midnight dates, shifting
+  // yearStart/yearEnd a day on any non-UTC host (the two failing calculator tests; latent on UTC
+  // prod, live on David's Mac). All UTC now — the same law, applied to the whole function.
   const yearEnd = new Date(profectionYearStart);
-  yearEnd.setFullYear(yearEnd.getFullYear() + 1);
-  yearEnd.setDate(yearEnd.getDate() - 1);
+  yearEnd.setUTCFullYear(yearEnd.getUTCFullYear() + 1);
+  yearEnd.setUTCDate(yearEnd.getUTCDate() - 1);
 
-  // Format dates as YYYY-MM-DD
+  // Format dates as YYYY-MM-DD (UTC components — the dates are UTC-constructed).
   const formatDate = (d: Date): string => {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 

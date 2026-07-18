@@ -320,6 +320,9 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
     } catch { /* a day without movement still ranks */ }
   }
   const result = { yearStart, yearEnd, natalMoonSignIdx, birthNakIdx, ...ranked };
+  // AUDIT LOW (2026-07-18): unbounded cache of 366-day objects (profile×year×location keys) —
+  // slow leak on a long-lived process. Cap with drop-oldest (Map preserves insertion order).
+  if (yearRankCache.size >= 40) { const oldest = yearRankCache.keys().next().value; if (oldest !== undefined) yearRankCache.delete(oldest); }
   yearRankCache.set(cacheKey, result);
   return result;
 }
@@ -1111,9 +1114,11 @@ export const appRouter = router({
       .input(
         z.object({
           city: z.string().min(1).max(128),
-          lat: z.string(),
-          lon: z.string(),
-          timezone: z.string(),
+          // AUDIT LOW (2026-07-18): unbounded/non-numeric values overflowed varchar columns (raw
+          // 500s) or became parseFloat NaN inside every downstream panchang/ephemeris call.
+          lat: z.string().max(24).refine((v) => Number.isFinite(parseFloat(v)) && Math.abs(parseFloat(v)) <= 90, "Invalid latitude"),
+          lon: z.string().max(24).refine((v) => Number.isFinite(parseFloat(v)) && Math.abs(parseFloat(v)) <= 180, "Invalid longitude"),
+          timezone: z.string().max(64),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -1409,8 +1414,9 @@ export const appRouter = router({
     }),
 
     byDate: publicProcedure
-      .input(z.object({ date: z.string() }))
+      .input(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
       .query(async (opts) => {
+        rateLimit(opts.ctx.req, "panchang-date", { max: 240, windowMs: 15 * 60 * 1000 });
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
         let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
         if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
@@ -1430,8 +1436,9 @@ export const appRouter = router({
       }),
 
     byMonth: publicProcedure
-      .input(z.object({ yearMonth: z.string() }))
+      .input(z.object({ yearMonth: z.string().regex(/^\d{4}-\d{2}$/) }))
       .query(async (opts) => {
+        rateLimit(opts.ctx.req, "panchang-month", { max: 60, windowMs: 15 * 60 * 1000 }); // AUDIT M5: ~31 getDayField calls per request — bounded
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
         // audit MEDIUM-8: offset is computed PER-DAY (below), not once at `now` — so a month that
         // spans a DST transition, or a month browsed from another DST regime, gets correct times.
@@ -1454,9 +1461,12 @@ export const appRouter = router({
         return results;
       }),
 
-    recalculate: publicProcedure
-      .input(z.object({ date: z.string() }))
-      .mutation(async ({ input }) => {
+    recalculate: protectedProcedure
+      .input(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
+      .mutation(async ({ ctx, input }) => {
+        // AUDIT M5 (2026-07-18): was public + unlimited — a cookieless curl loop could force
+        // full astronomy recomputes + DB writes at will. Auth + per-IP limit + format lock.
+        rateLimit(ctx.req, "panchang-recalc", { max: 30, windowMs: 15 * 60 * 1000 });
         const field = await getDayField(input.date, true);
         return field;
       }),
@@ -1695,6 +1705,7 @@ export const appRouter = router({
       .input(z.object({ taskId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         rateLimit(ctx.req, "task-decompose", { max: 20, windowMs: 15 * 60 * 1000 });
+        rateLimit(ctx.req, "task-decompose-day", { max: 60, windowMs: 24 * 60 * 60 * 1000 }); // AUDIT LOW: the one LLM door outside the profile cap — daily ceiling
         const parent = await getTaskById(input.taskId, ctx.user.id);
         if (!parent) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
         const existing = await getSubtasksByTask(input.taskId, ctx.user.id);
@@ -2445,6 +2456,22 @@ export const appRouter = router({
           const isMyPick = tasted.includes(yogaDateKey(input.name));
           const pickStillOpen = tasted.length === 0;
           if (!isMyPick && !pickStillOpen) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
+          // AUDIT LOW (2026-07-18): read-then-generate raced — two concurrent FIRST taps both saw
+          // an empty tasted list and double-billed two free readings. Reserve the slot in-process;
+          // the reservation clears itself (the cache row becomes the durable truth on next call).
+          if (pickStillOpen && !isMyPick) {
+            const g = globalThis as any;
+            g.__veleaYogaTaste ??= new Map<number, string>();
+            const held = g.__veleaYogaTaste.get(profile.id);
+            if (held && held !== yogaDateKey(input.name)) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
+            g.__veleaYogaTaste.set(profile.id, yogaDateKey(input.name));
+            // A failed generation RELEASES the reservation — a dry-wallet miss must not strand
+            // the free pick until process restart. The cache row is the durable truth after.
+            const { getYogaReadCached } = await import("./narrative/service.js");
+            const res = await getYogaReadCached(profile.id, input.name, false);
+            if (!res.available) g.__veleaYogaTaste.delete(profile.id);
+            return res;
+          }
           if (input.refresh) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
         }
         const { getYogaReadCached } = await import("./narrative/service.js");
@@ -2485,7 +2512,10 @@ export const appRouter = router({
     // Reveal ("purchase") a date + LIFE AREA: return the existing snapshot, or generate the
     // area's varga-deep reading for that date once and freeze it. One LLM call only on first
     // reveal of each (date, area). Each area is its own purchase (eclipse×Career ≠ eclipse×Money).
-    reveal: protectedProcedure.input(z.object({ date: z.string(), lifeArea: z.string() })).mutation(async ({ ctx, input }) => {
+    // AUDIT M3 (2026-07-18): `date` was a bare string — anything over readingDate VARCHAR(10)
+    // (an ISO datetime from a client bug) makes strict MySQL reject the freeze-insert: the exact
+    // 7/17 outage class, and every re-reveal then re-bills. Format-locked + lifeArea capped.
+    reveal: protectedProcedure.input(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), lifeArea: z.string().max(24) })).mutation(async ({ ctx, input }) => {
       if (!(await hasHoroscope(ctx.user))) return null;
       const { isLifeAreaKey } = await import("./vedic/life-areas.js");
       const { resolveArea } = await import("../shared/life-area-shelves.js");
@@ -2518,7 +2548,14 @@ export const appRouter = router({
       if (!res.available || !res.read) return { available: false as const };
 
       const { PROMPT_VERSION, MODEL } = await import("./narrative/prompts.js");
-      await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: PROMPT_VERSION, model: MODEL, content: JSON.stringify(res.read) });
+      // AUDIT M3: surface a failed freeze — the read was billed and IS served, but a snapshot that
+      // silently never landed means the archive won't list it and every re-reveal re-bills. The
+      // black box records it so the admin page shows the truth instead of a mystery.
+      const frozen = await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: PROMPT_VERSION, model: MODEL, content: JSON.stringify(res.read) });
+      if (!frozen) {
+        const { recordServerError } = await import("./narrative/generate.js");
+        recordServerError(`horoscope.reveal:freeze-failed:${input.date}:${input.lifeArea}`, new Error("insertHoroscope returned false — snapshot not persisted"));
+      }
       return { available: true as const, date: input.date, lifeArea: input.lifeArea, read: res.read, notes: "", cached: false };
     }),
 
@@ -2932,7 +2969,7 @@ export const appRouter = router({
   // ── DIAGNOSTICS ────────────────────────────────────────────
   diagnostics: router({
     /** Full modifier breakdown for a single day */
-    day: publicProcedure
+    day: protectedProcedure
       .input(z.object({ date: z.string() }))
       .query(async (opts) => {
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;

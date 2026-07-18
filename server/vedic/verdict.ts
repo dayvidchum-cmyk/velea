@@ -22,6 +22,8 @@ import { eq, and } from "drizzle-orm";
 import { getDb } from "../db.js";
 import { profiles, profileDashaPeriods } from "../../drizzle/schema.js";
 import { getStoredResearch } from "./research-store.js";
+import { signDignity } from "./avashtas.js";
+import type { Graha } from "./dignity.js";
 import timingJson from "./canon/timing.json";
 
 const MATURITY: Record<string, number> = (timingJson as any).maturityOfPlanets?.ageYears ?? {
@@ -55,6 +57,8 @@ export type VerdictData = {
     bloomAge: number | null;
     bloomYear: number | null;
     window: { lord: string; startAge: number; endAge: number } | null;
+    /** past = the window already ran · current = the native is inside it · future = ahead. */
+    tense: "past" | "current" | "future" | null;
     lords: Array<{ planet: string; fruit: number; dignity: string; balaadi: string; house: number }>;
   }>;
   nodal: { rahuHouse: number | null; ketuHouse: number | null };
@@ -64,12 +68,26 @@ export type VerdictData = {
 
 /** A lord's capacity to deliver, 0..1 — dignity (½) + Shadbala ratio (0.3) + Vimshopak (0.2),
  *  then multiplied by the Balaadi fruition dial. All read from the STORED research. */
+const SIGN_NAMES = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 function fruitOf(p: any): { fruit: number; dignity: string; balaadi: string } {
-  const state: string = p?.dignity?.state ?? "neutral";
+  let state: string = p?.dignity?.state ?? "neutral";
+  // AUDIT M8: planetDignity never emits friend/enemy (friendship stays "neutral" there), so those
+  // DIGNITY_BASE weights were unreachable and enemy-placed lords scored as neutral. Refine a
+  // neutral state through signDignity — the same friendship engine avashtas/house-research use.
+  if (state === "neutral" && p?.planet && p?.sign) {
+    const idx = SIGN_NAMES.indexOf(p.sign);
+    if (idx >= 0) {
+      const sd = signDignity(p.planet as Graha, idx);
+      if (sd === "friend" || sd === "enemy") state = sd;
+    }
+  }
   let base = DIGNITY_BASE[state] ?? 0.5;
   if (state === "debilitated" && p?.dignity?.neechaBhanga?.cancelled) base = 0.55; // bhanga lifts
   const ratio = Math.min(p?.shadbala?.ratio ?? 0.8, 1.5) / 1.5;
-  const vim = Math.min(Math.max((p?.vimshopak?.points ?? 10) / 20, 0), 1);
+  // AUDIT C1 (2026-07-18): vimshopak.points is a Record<group, number>, NOT a number — dividing
+  // the object produced NaN and cascaded every chart to "late-if-at-all". Read .shodasha (0-20),
+  // exactly as input-builder.ts:337 and narrative/service.ts:146 do.
+  const vim = Math.min(Math.max((p?.vimshopak?.points?.shodasha ?? 10) / 20, 0), 1);
   const q = base * 0.5 + ratio * 0.3 + vim * 0.2;
   const bal: string = p?.avashtas?.balaadi ?? "yuva";
   return { fruit: Math.round(q * (BALAADI_FRUIT[bal] ?? 1) * 100) / 100, dignity: state, balaadi: bal };
@@ -109,25 +127,45 @@ export async function computeVerdict(profileId: number): Promise<VerdictData | n
       .filter((g) => planets[g])
       .map((g) => ({ planet: g, house: planets[g].house as number, ...fruitOf(planets[g]) }))
       .sort((a, b) => b.fruit - a.fruit);
+    // AUDIT M9: the nodes were structurally excluded (planets{} holds the 7 grahas), so an 18-year
+    // Rahu maha could never be a bloom window even with Rahu standing IN the area's house — against
+    // the canon's reading law (a planet delivers the houses it occupies, in ITS periods). A node
+    // occupying an area house joins as a workable-strength lord (0.5 — a single documented constant,
+    // not fake precision; dispositor-refined scoring is a future sharpening).
+    for (const h of area.houses) {
+      const occ: string[] = houses[h - 1]?.occupants ?? [];
+      for (const node of ["Rahu", "Ketu"] as const) {
+        if (occ.includes(node) && !lords.some((l) => l.planet === node)) {
+          lords.push({ planet: node, house: h, fruit: 0.5, dignity: "node", balaadi: "yuva" });
+        }
+      }
+    }
     const best = lords[0]?.fruit ?? 0;
     const thin = best < 0.35; // no lord can carry it → "if at all" (the Balaadi verdict)
     // First maha run by a connected lord strong enough to pay (fruit ≥ .5; ≥ .35 counts as partial).
     let window: VerdictData["areas"][number]["window"] = null;
+    let windowStartYear: number | null = null;
     for (const m of mahas) {
       const lord = lords.find((l) => l.planet === m.maha);
       if (lord && lord.fruit >= (best >= 0.5 ? 0.5 : 0.35)) {
         window = { lord: m.maha, startAge: ageAt(m.startAt), endAge: ageAt(m.endAt) };
+        // AUDIT H2: the year comes straight from the window's own calendar date — the old
+        // birthYear + floor(age) math was off by one for late-year births (Q4 worst).
+        windowStartYear = new Date(m.startAt).getUTCFullYear();
         break;
       }
     }
     const bloomAge = thin ? null : window ? Math.max(window.startAge, 0) : null;
-    const bloomYear = bloomAge != null ? new Date(birthMs).getUTCFullYear() + Math.floor(bloomAge) : null;
-    return { key: area.key, label: area.label, gloss: area.gloss, thin, bloomAge, bloomYear, window, lords: lords.slice(0, 4) };
+    const bloomYear = bloomAge != null ? windowStartYear : null;
+    // AUDIT M10: name the window's TENSE against the native's current age, so the voicing never
+    // speaks a lived window in the future tense (the "ghost in the past" class).
+    const tense = window == null ? null : window.endAge < currentAge ? "past" : window.startAge <= currentAge ? "current" : "future";
+    return { key: area.key, label: area.label, gloss: area.gloss, thin, bloomAge, bloomYear, window, tense, lords: lords.slice(0, 4) };
   });
 
   // Bloom profile: median of the defined bloom ages (his astrologer's "late bloomer" line).
   const ages = areas.map((a) => a.bloomAge).filter((a): a is number => a != null).sort((a, b) => a - b);
-  const median = ages.length ? ages[Math.floor(ages.length / 2)] : null;
+  const median = ages.length ? ages[Math.floor((ages.length - 1) / 2)] : null; // lower median — no late bias on even counts
   const bloomProfile: VerdictData["bloomProfile"] =
     median == null ? "late-if-at-all" : median < 30 ? "early" : median <= 42 ? "steady" : "late";
 
@@ -135,12 +173,12 @@ export async function computeVerdict(profileId: number): Promise<VerdictData | n
   // chart's ripening beat (Vol I Ch.13).
   const anchors: any = (research as any).anchors ?? {};
   const hingeCandidates = [anchors?.lagna?.lord, anchors?.atmakaraka?.planet].filter((g) => g && planets[g]);
-  const hingePlanet = hingeCandidates.sort((a, b) => fruitOf(planets[b]).fruit - fruitOf(planets[a]).fruit)[0] ?? "Saturn";
-  const hinge = {
+  const hingePlanet = hingeCandidates.sort((a, b) => fruitOf(planets[b]).fruit - fruitOf(planets[a]).fruit)[0] ?? null;
+  const hinge = hingePlanet ? {
     planet: hingePlanet,
     maturityAge: MATURITY[hingePlanet] ?? 36,
     why: hingePlanet === anchors?.lagna?.lord ? "lord of the rising sign" : "the atmakaraka — the soul's own planet",
-  };
+  } : { planet: "Saturn", maturityAge: 36, why: "the slowest hand on the chart" }; // degenerate-research fallback, honestly labeled
 
   // Nodal axis: Ketu = past-life mastery (already spent), Rahu = this life's hunger.
   let rahuHouse: number | null = null, ketuHouse: number | null = null;

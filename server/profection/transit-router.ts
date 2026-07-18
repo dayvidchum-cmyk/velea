@@ -187,14 +187,25 @@ export const timeLordTransitRouter = router({
     .input(
       z.object({
         profectionYearId: z.number(),
-        timeLord: z.string(),
-        yearStart: z.string(),
-        yearEnd: z.string(),
-        lagnaLongitude: z.number(),
-        timezone: z.string(),
+        timeLord: z.string().min(2).max(12),
+        yearStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        yearEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        lagnaLongitude: z.number().min(0).max(360),
+        timezone: z.string().max(64),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // AUDIT H3 (2026-07-18): yearStart/yearEnd were unbounded strings driving a per-day
+      // ephemeris loop — "0001-01-01".."9999-12-31" = ~3.65M synchronous Swiss Ephemeris calls
+      // stalling the single-process server, then bulk junk inserts. A profection year is ~366
+      // days; cap the span hard and reject inverted ranges.
+      {
+        const startMs = Date.parse(input.yearStart + "T00:00:00Z");
+        const endMs = Date.parse(input.yearEnd + "T00:00:00Z");
+        if (isNaN(startMs) || isNaN(endMs) || endMs <= startMs || (endMs - startMs) / 86400000 > 400) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Span must be a valid range of at most 400 days." });
+        }
+      }
       // audit MEDIUM-4: verify the target year is the caller's before computing/writing —
       // no polluting another user's year id or spending ephemeris compute on it.
       if (!(await isProfectionYearOwnedBy(input.profectionYearId, ctx.user.id))) {

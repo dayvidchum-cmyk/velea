@@ -16,6 +16,11 @@ export function rateLimit(
   const ip = req.ip || req.socket.remoteAddress || "unknown";
   const key = `${bucket}:${ip}`;
   const now = Date.now();
+  // AUDIT LOW (2026-07-18): the map never evicted — every bucket:IP key lived for the process
+  // lifetime. Cheap sweep when it grows: drop keys whose newest hit is older than a day.
+  if (hits.size > 5000) {
+    for (const [k, arr] of hits) if (!arr.length || now - arr[arr.length - 1] > 86400000) hits.delete(k);
+  }
   const recent = (hits.get(key) ?? []).filter((t) => now - t < opts.windowMs);
   if (recent.length >= opts.max) {
     throw new TRPCError({

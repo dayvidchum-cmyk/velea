@@ -335,7 +335,7 @@ ${JSON.stringify(data)}
 Write the verdict in 250-350 words, plain prose, 3-5 short paragraphs:
 1. Open with the headline in one sentence — the bloom profile spoken like a human ("this is a late bloomer's chart, built on time and experience" — adjust to the actual profile).
 2. The hinge: name the planet the chart turns on and the AGE it matures — what sharpens from that year.
-3. Each area (money & livelihood, partnership, the world's stage): WHEN it pays (use the bloomAge/window ages and the lord's name), or — where 'thin' is true — say it straight and kindly: this current runs thin; if it pays, it pays late and modestly. Never pretend.
+3. Each area (money & livelihood, partnership, the world's stage): WHEN it pays — use the bloomAge/window ages, the lord's name, AND the area's 'tense' field against currentAge. tense="past": the paying window already RAN (speak it as lived: what it gave or asked, and what remains now — never the future tense). tense="current": the native is INSIDE the window now — say so plainly. tense="future": name the age and year it opens. Where 'thin' is true — say it straight and kindly: this current runs thin; if it pays, it pays late and modestly. Never pretend.
 4. The nodal line: what was already mastered (Ketu's ground, via its gloss) vs the hunger this life is here to feed (Rahu's).
 
 Rules: never say a house number — use the plain glosses provided. Never say "destined" or "meant to be" — the path is computed, not fixed. No "self-worth" language for money. Concrete ages and years, not vague seasons. Calm, direct, no exclamation marks, no mysticism-perfume. It should read like a precise elder speaking across a table.

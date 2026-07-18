@@ -27,9 +27,12 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
 
   const updateMutation = trpc.tasks.update.useMutation({
     onMutate: async (input) => {
+      // AUDIT M11 (2026-07-18): the optimistic write targeted key `undefined` while the live query
+      // is keyed {startDate, endDate} — a silent no-op (delete below always had it right).
+      const key = { startDate: "1970-01-01", endDate: localToday };
       await utils.tasks.dueList.cancel();
-      const prev = utils.tasks.dueList.getData();
-      utils.tasks.dueList.setData(undefined, (old) =>
+      const prev = utils.tasks.dueList.getData(key);
+      utils.tasks.dueList.setData(key, (old) =>
         old?.map((t) =>
           t.id === input.id
             ? { ...t, isCompleted: input.isCompleted ?? t.isCompleted, isPinned: input.isPinned ?? t.isPinned }
@@ -39,7 +42,7 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
       return { prev };
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.prev) utils.tasks.dueList.setData(undefined, ctx.prev);
+      if (ctx?.prev) utils.tasks.dueList.setData({ startDate: "1970-01-01", endDate: localToday }, ctx.prev);
     },
     onSettled: async () => {
       await utils.tasks.dueList.invalidate();
