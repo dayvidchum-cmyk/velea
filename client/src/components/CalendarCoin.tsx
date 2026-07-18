@@ -135,17 +135,18 @@ export default function CalendarCoin(p: CalendarCoinProps) {
           3px slot so a planet's line never jumps rows across the month. Quiet by design: a slow
           planet's months-long rx reads as a soft line of dots, never a glyph-per-day shout. */}
       {hasBindis && (
-        // Left-aligned (David 2026-07-18): every ribbon drains from the same origin — the coin's
-        // left edge — so the count reads comparably across days, like a bar emptying. 8-DOT MAX
-        // (his call): the five cycle states spread across the full row — 8 station · 6 window ·
-        // 4 mid-rx · 2 pre-shadow · 1 post-shadow. A full row (38px) is also a built-in RULER:
-        // any rail misalignment above the coin shows instantly against it.
-        <span aria-hidden style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2, pointerEvents: "none", zIndex: 1 }}>
+        // ONE AXIS (David 2026-07-18, the day-26 screenshot): glyphs, coin, and ribbons all center
+        // on the CELL's centerline. The earlier left-anchor made an 8-dot row grow rightward only,
+        // shoving the ribbon block's center off the coin's. Now a full station row (8 · ~38px)
+        // spans the true cell width symmetrically, and shorter ribbons shrink toward center —
+        // the coin sits centered above the ribbons and below the glyphs, always.
+        // Ladder: 8 station · 6 window · 4 mid-rx · 2 pre-shadow · 1 post-shadow.
+        <span aria-hidden style={{ position: "absolute", top: "calc(100% + 3px)", left: "50%", transform: "translateX(-50%)", width: "max-content", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, pointerEvents: "none", zIndex: 1 }}>
           {bindis!.map((t, row) => {
             const DOTS: Record<number, number> = { 5: 8, 4: 6, 3: 4, 2: 2, 1: 1 };
             const n = t ? (DOTS[Math.max(1, Math.min(5, t.strength))] ?? 0) : 0;
             return (
-              <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "flex-start" }}>
+              <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "center" }}>
                 {t && Array.from({ length: n }, (_, i) => (
                   <span key={i} style={{ width: 3, height: 3, borderRadius: 999, background: PLANET_MARK_INK[t.planet] ?? "currentColor", display: "inline-block" }} />
                 ))}
