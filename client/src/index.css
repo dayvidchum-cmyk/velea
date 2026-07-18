@@ -67,10 +67,11 @@
   50%      { box-shadow: 0 0 18px 5px color-mix(in srgb, var(--day-accent, var(--brand-gold)) 55%, transparent); }
 }
 .orb-pulse { animation: veleaOrbPulse 2.4s ease-in-out infinite; }
-/* The sweep, settled (David 2026-07-17: v648's four dilation shadows read "too big and
-   fuzzy" — blur is not weight). One hairline pass keeps the edge honest, one faint glow
-   keeps the life; the mark stays CRISP. */
-.velea-loader { animation: veleaSweep 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; transform-origin: center; filter: drop-shadow(0 0 0.5px currentColor) drop-shadow(0 0 4px color-mix(in srgb, currentColor 28%, transparent)); }
+/* The sweep, settled (David 2026-07-17: v648's blur read "too fuzzy", the hairline read "too
+   wimpy" — because BLUR IS NOT WEIGHT). Weight comes from ZERO-blur directional offsets: eight
+   crisp copies dilate the mark ~0.6px all around, so the arc reads genuinely BOLDER while staying
+   sharp — no glow, no fuzz. */
+.velea-loader { animation: veleaSweep 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; transform-origin: center; filter: drop-shadow(0.6px 0 0 currentColor) drop-shadow(-0.6px 0 0 currentColor) drop-shadow(0 0.6px 0 currentColor) drop-shadow(0 -0.6px 0 currentColor) drop-shadow(0.45px 0.45px 0 currentColor) drop-shadow(-0.45px 0.45px 0 currentColor) drop-shadow(0.45px -0.45px 0 currentColor) drop-shadow(-0.45px -0.45px 0 currentColor); }
 @keyframes veleaSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .velea-loader { animation: veleaLoaderBreath 2.2s ease-in-out infinite; } }
 @keyframes veleaLoaderBreath { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
@@ -687,6 +688,12 @@
   --foreground: #DCD6C7;
   --card: #201A14;
   --card-foreground: #DCD6C7;
+  /* Field note 2026-07-17 "Dark Mode. The parchment is still too bright. Too much contrast": the
+     .dark block never set --parchment, so the calendar paper inherited the full-bright light
+     #F4F0E8 and glared against the espresso ground. Dim it toward the page so it stays WARM paper
+     (dark coins still read on it) but sits calmly in the dark. Tune the % to taste. */
+  --parchment: color-mix(in srgb, #F4F0E8 64%, var(--background));
+  --parchment-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   --popover: #251E17;
   --popover-foreground: #DCD6C7;
   --primary: oklch(0.767 0.139 91.1);
