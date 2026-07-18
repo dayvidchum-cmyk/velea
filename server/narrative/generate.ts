@@ -312,6 +312,46 @@ export async function generateTaskSteps(title: string, notes?: string | null): P
   }
 }
 
+/**
+ * THE VERDICT voicing — speaks the engine's life-register data the way David's astrologer spoke:
+ * plainly, dated, falsifiable ("it's a late bloomer's chart… money, love — late, if at all").
+ * Laws: no house NUMBERS (glosses ride in the data), no "destined", no "self-worth" framing,
+ * plain and not yelling. The engine located everything; this only gives it a voice.
+ */
+export async function generateVerdictRead(data: unknown): Promise<{ narrative: string } | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 1100,
+      messages: [{
+        role: "user",
+        content: `You are voicing a Vedic astrologer's chart verdict — the life-register headline of this one chart. The engine has already computed everything; you only speak it.
+
+DATA (deterministic, from the stored research + the 120-year dasha sequence):
+${JSON.stringify(data)}
+
+Write the verdict in 250-350 words, plain prose, 3-5 short paragraphs:
+1. Open with the headline in one sentence — the bloom profile spoken like a human ("this is a late bloomer's chart, built on time and experience" — adjust to the actual profile).
+2. The hinge: name the planet the chart turns on and the AGE it matures — what sharpens from that year.
+3. Each area (money & livelihood, partnership, the world's stage): WHEN it pays (use the bloomAge/window ages and the lord's name), or — where 'thin' is true — say it straight and kindly: this current runs thin; if it pays, it pays late and modestly. Never pretend.
+4. The nodal line: what was already mastered (Ketu's ground, via its gloss) vs the hunger this life is here to feed (Rahu's).
+
+Rules: never say a house number — use the plain glosses provided. Never say "destined" or "meant to be" — the path is computed, not fixed. No "self-worth" language for money. Concrete ages and years, not vague seasons. Calm, direct, no exclamation marks, no mysticism-perfume. It should read like a precise elder speaking across a table.
+
+Reply with ONLY the prose, no headers, no preamble.`,
+      }],
+    });
+    const text = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "";
+    if (!text || text.length < 200) return null;
+    return { narrative: scrubMachinery(text) };
+  } catch (err) {
+    recordServerError("generateVerdictRead", err);
+    return null;
+  }
+}
+
 export function scrubMachinery(s: string): string {
   let out = s;
   for (const [re, rep] of SCRUB) out = out.replace(re, rep);

@@ -2348,6 +2348,31 @@ export const appRouter = router({
       }),
   }),
 
+  // ── THE VERDICT — the chart's life-register headline (David 2026-07-18: the astrologer's
+  // "late bloomer's chart… money, love — late, if at all", made deterministic). The engine
+  // (server/vedic/verdict.ts) locates the bloom schedule / hinge / thin areas from the stored
+  // research + 120-year tree; the LLM voices it once, cached per profile. Door Law: peek never
+  // generates; read fires only on the tap. Flag-gated (chartVerdict, admins → switchboard).
+  verdict: router({
+    access: protectedProcedure.query(async ({ ctx }) => ({ entitled: await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict") })),
+    peek: protectedProcedure.query(async ({ ctx }) => {
+      if (!(await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict"))) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
+      const { getVerdictCached } = await import("./narrative/service.js");
+      return await getVerdictCached(profile.id, true);
+    }),
+    read: protectedProcedure.mutation(async ({ ctx }) => {
+      if (!(await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict"))) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
+      const { getActiveProfile } = await import("./routers/profiles.js");
+      const profile = await getActiveProfile(ctx.user.id);
+      if (!profile) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
+      const { getVerdictCached } = await import("./narrative/service.js");
+      return await getVerdictCached(profile.id, false);
+    }),
+  }),
+
   // ── HOROSCOPE (the "pick a date" premium reading) — GATED (same lock as Master Mode) ──
   // Pick any date → a date-specific deep read is generated once and FROZEN as an immutable
   // "purchased" snapshot (in the horoscopes table), with the user's own notes under it. The

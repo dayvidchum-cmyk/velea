@@ -1372,6 +1372,55 @@ const TABS: { id: Tab; label: string }[] = [
 
 // ── Page ───────────────────────────────────────────────────────────────────
 
+/** THE VERDICT — the chart's life-register headline (David 2026-07-18: his astrologer's "late
+ *  bloomer's chart… money, love — late, if at all," made deterministic). Engine locates from the
+ *  stored research + 120-year tree; one voiced read, cached per profile. Door Law: expanding
+ *  PEEKS; the reading generates only on its own tap. Flag-gated (chartVerdict). */
+function VerdictCard() {
+  const [open, setOpen] = useState(false);
+  const { data: access } = trpc.verdict.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
+  const { data: peek } = trpc.verdict.peek.useQuery(undefined, { enabled: !!access?.entitled && open, staleTime: 1000 * 60 * 10 });
+  const read = trpc.verdict.read.useMutation();
+  if (!access?.entitled) return null;
+  const gold = "#B08D2E";
+  const result = read.data ?? peek;
+  const prose = result?.available && result.read?.narrative ? result.read.narrative : null;
+  return (
+    <div style={{ borderRadius: 16, padding: "1rem 1.1rem 1.1rem", border: `1px solid color-mix(in srgb, ${gold} 38%, var(--color-border))`, background: `linear-gradient(180deg, color-mix(in srgb, ${gold} 6%, var(--color-card)), var(--color-card))` }}>
+      <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: gold }}>The Verdict</span>
+        <span style={{ fontSize: "0.6rem", color: "var(--color-muted-foreground)" }}>this chart's life, read whole</span>
+        <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: gold, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+      </button>
+      {open && (
+        <div style={{ marginTop: "0.85rem" }}>
+          {prose ? (
+            <div style={{ fontSize: "0.86rem", lineHeight: 1.65, color: "var(--color-foreground)", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+              {prose.split(/\n\n+/).map((p, i) => <p key={i} style={{ margin: 0 }}>{p}</p>)}
+            </div>
+          ) : read.isPending ? (
+            <VeleaLoader size={20} label="Reading the whole chart…" />
+          ) : (
+            <>
+              <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.55, margin: "0 0 0.9rem" }}>
+                One reading of the chart's whole arc — when it blooms, what it's built on, where the
+                currents run thin. Located from your stored research and the full 120-year sequence;
+                spoken once, kept.
+              </p>
+              <button
+                onClick={() => read.mutate()}
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", border: "none", cursor: "pointer", borderRadius: 999, padding: "0.6rem 1.3rem", fontSize: "0.8rem", fontWeight: 800, color: "#1a1305", background: `linear-gradient(180deg, ${gold}, #8a6d1f)` }}
+              >
+                Read this chart's verdict
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Astrology() {
   const [tab, setTab] = useState<Tab>("natal");
   const modeColor = useDayModeColor();
@@ -1424,7 +1473,7 @@ export default function Astrology() {
           ))}
         </div>
 
-        {tab === "natal" && <NatalSection />}
+        {tab === "natal" && <><VerdictCard /><NatalSection /></>}
         {tab === "profection" && <ProfectionSection />}
         {tab === "dasha" && <DashaSection />}
       </div>

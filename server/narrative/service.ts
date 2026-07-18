@@ -558,6 +558,37 @@ export async function peekPlanetRxCached(profileId: number, planet: "venus" | "m
   return { available: false, read: null, cycle: cyc, generatedAt: null, cached: false }; // arc present, review not made → door
 }
 
+// THE VERDICT — the chart's life-register headline (server/vedic/verdict.ts locates; the LLM
+// voices). Natal-derived, so it caches per profile under one stable key and regenerates only
+// when the engine data or prompt version changes. Door-Law: read generates, peek never does.
+export type VerdictResult = { available: boolean; read: { narrative: string } | null; data: any | null; generatedAt: Date | null; cached: boolean };
+export async function getVerdictCached(profileId: number, peek = false): Promise<VerdictResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, data: null, generatedAt: null, cached: false };
+  const { computeVerdict } = await import("../vedic/verdict.js");
+  const data = await computeVerdict(profileId);
+  if (!data) return { available: false, read: null, data: null, generatedAt: null, cached: false };
+  const surface = "verdict";
+  const dateKey = "verdict-v1";
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(data)).digest("hex");
+  const row = await getNarrativeCache(profileId, surface, dateKey);
+  if (row && (row.locked || row.inputHash === hash)) {
+    try {
+      const read = JSON.parse(row.content);
+      if (read?.narrative) return { available: true, read, data, generatedAt: row.generatedAt, cached: true };
+    } catch { /* corrupt — regenerate on open */ }
+  }
+  if (peek) return { available: false, read: null, data, generatedAt: null, cached: false }; // a peek NEVER generates
+  const { generateVerdictRead } = await import("./generate.js");
+  const read = await guardedGen(profileId, `${surface}:${profileId}:${hash}`, async () => {
+    const r = await generateVerdictRead(data);
+    if (r) await upsertNarrativeCache(profileId, surface, dateKey, hash, MODEL, JSON.stringify(r));
+    return r;
+  });
+  if (!read) return { available: false, read: null, data, generatedAt: null, cached: false };
+  return { available: true, read, data, generatedAt: new Date(), cached: false };
+}
+
 // PEEK — read-only: is there ALREADY a cached Mercury-rx reading for the current cycle? Never generates.
 export async function peekMercuryRxCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
