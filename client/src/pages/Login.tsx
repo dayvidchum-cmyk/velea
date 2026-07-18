@@ -121,12 +121,12 @@ export default function Login() {
           style={{ width: "100%", height: "100%", objectFit: "cover", userSelect: "none", pointerEvents: "none" }}
         />
 
-      {/* The name, inscribed in the doorway (David: it got lost over the drawing) —
-          the slot's darkness is the only ground on this screen that can hold it. */}
+      {/* The name — now seated in the STAR-SEA below the gate (his call): the temple stands
+          untouched above; name + threshold live in the field of stars. */}
       <h1
         style={{
           position: "absolute",
-          top: "47.5%", // upper doorway — lifted so it never touches the form (his 4:26 recording)
+          top: "74%", // BELOW the gate (David 2026-07-18: "Velea and all the stuff under it… sit below the gate — there's a whole section of star field") — the name opens the star-sea
           left: "50%",
           transform: "translate(-50%, -50%)",
           fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
@@ -147,7 +147,7 @@ export default function Login() {
         onSubmit={handleSubmit}
         style={{
           position: "absolute",
-          top: "60%", // seated below the name with clear air between them
+          top: "84%", // the threshold floats in the star-sea beneath the temple
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "min(230px, 60vw)",
