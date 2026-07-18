@@ -64,7 +64,7 @@ export default function CalendarCoin(p: CalendarCoinProps) {
     >
       {/* TODAY: a matching-color SQUARE FILL darker than the coin, white number reading on it. */}
       {isToday && (
-        <span aria-hidden style={{ position: "absolute", inset: -4, background: `color-mix(in srgb, ${accent} 55%, #191109)`, borderRadius: 6, pointerEvents: "none", zIndex: 0 }} />
+        <span aria-hidden style={{ position: "absolute", inset: -1, background: `color-mix(in srgb, ${accent} 55%, #191109)`, borderRadius: 6, pointerEvents: "none", zIndex: 0 }} />
       )}
 
       {/* THE MARK RAIL — all secondary marks, one aligned rail above the coin. */}
@@ -119,9 +119,11 @@ export default function CalendarCoin(p: CalendarCoinProps) {
           3px slot so a planet's line never jumps rows across the month. Quiet by design: a slow
           planet's months-long rx reads as a soft line of dots, never a glyph-per-day shout. */}
       {hasBindis && (
-        <span aria-hidden style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, pointerEvents: "none", zIndex: 1 }}>
+        {/* Left-aligned (David 2026-07-18): every ribbon drains from the same origin — the coin's
+            left edge — so the count reads comparably across days, like a bar emptying. */}
+        <span aria-hidden style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2, pointerEvents: "none", zIndex: 1 }}>
           {bindis!.map((t, row) => (
-            <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "center" }}>
+            <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "flex-start" }}>
               {t && Array.from({ length: Math.max(0, Math.min(5, t.strength)) }, (_, i) => (
                 <span key={i} style={{ width: 3, height: 3, borderRadius: 999, background: PLANET_MARK_INK[t.planet] ?? "currentColor", display: "inline-block" }} />
               ))}
