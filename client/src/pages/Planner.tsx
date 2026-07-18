@@ -1666,19 +1666,23 @@ export default function Planner() {
                   onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                   onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
                 >
-                  {/* THE GLYPH-COIN LAW (David 2026-07-16): a bare day carrying marks drops
-                      its number — thin ring of its own color, no fill, the glyphs LARGE and
-                      centered inside. The PERCH survives only where the coin's center is
-                      already taken: station days (big planet glyph) and filled days
-                      (today/caution keep their number — the tara badges never hide). */}
-                  {/* Crown days keep their perch too (doctrine: layers COEXIST — the 7/24 crown was
-                      swallowing Mercury's station-direct ☿). A crowned station day perches ALL its
-                      marks above the octagram coin. */}
-                  {!eclipseByDate.has(dateStr) && (stationsToday.length > 0 || isCrown) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0 || (isCrown && stationsToday.length > 0)) && (() => {
+                  {/* TODAY (field note 2026-07-17 "matching square border AND white number"): a
+                      matching-color SQUARE frames the round coin, and the number goes white — today's
+                      one unmistakable tell in the aligned grid. */}
+                  {isToday && (
+                    <span aria-hidden style={{ position: "absolute", inset: -4, border: `2px solid ${accent}`, borderRadius: 7, pointerEvents: "none", zIndex: 0 }} />
+                  )}
+                  {/* THE ONE TEMPLATE (field note 2026-07-17 "one template for a calendar square,
+                      stacked, they all align… same reasoning graphically"): every coin is the same
+                      stack — a MARK RAIL above (all planet/moon/€/achievement marks, fixed slots) and
+                      the COIN below (always the date NUMBER, except the two apex exceptions David kept
+                      central: the crown octagram and the eclipse disc). Numbers never drop. */}
+                  {(stationsToday.length > 0 || windowGlyphList.length > 0 || moonPhaseByDate.has(dateStr) || prosperitySet.has(dateStr) || achievementSet.has(dateStr)) && (() => {
                     const others: React.ReactNode[] = [];
-                    // A crowned station day: the turning planet perches (the octagram holds the center).
-                    if (isCrown) for (const e of stationsToday) others.push(
-                      <PlanetMark key={`st-${e.planet}`} planet={e.planet} size={15} strokeWidth={2} />
+                    // Station planets ALWAYS ride the rail now (one template) — same slot + size as the
+                    // window glyphs, so the rail is uniform and the coin center keeps its number.
+                    for (const e of stationsToday) others.push(
+                      <PlanetMark key={`st-${e.planet}`} planet={e.planet} size={13} strokeWidth={2.1} />
                     );
                     const phase = moonPhaseByDate.get(dateStr);
                     if (phase) others.push(
@@ -1719,16 +1723,8 @@ export default function Planner() {
                       </span>
                     );
                   })()}
-                  {/* THE CROWN RIDES THE BORDER, ALWAYS (David 2026-07-16: "the crowns literally
-                      ride top center of the border always") — never in the interior huddle. On
-                      station/crown days the perch grid already crowns top-center; every other
-                      achievement day gets this dedicated slot, straddling the ring like a crown
-                      on the coin's head. Solo-crown days keep their number beneath it. */}
-                  {achievementSet.has(dateStr) && !eclipseByDate.has(dateStr) && !(stationsToday.length > 0 || isCrown) && (
-                    <span style={{ position: "absolute", top: -13, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
-                      <CrownMark size={17} style={{ transform: "translateY(-2px)" }} />
-                    </span>
-                  )}
+                  {/* (The standalone achievement-crown perch was folded into the ONE rail above — its
+                      crown-grid rides ♛ top-center whenever achievementSet, on every day type.) */}
                   {isCrown ? (
                     // The knot mark — an OUTLINE octagram (Star of Lakshmi), drawn in LINES, not a
                     // solid fill (David: "I want the lakshmi stars to be lines again"). The center
@@ -1741,37 +1737,10 @@ export default function Planner() {
                   ) : eclipseByDate.has(dateStr) ? (
                     // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
                     <span style={{ width: 20, height: 20, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
-                  ) : stationsToday.length ? (
-                    // Station day: the turning planet's glyph, in the DAY-MODE color. Rendered the same
-                    // proven way as the date number and the retro strip — a plain flex-centered span
-                    // with line-height:1. The SVG <text> route kept these Apple-Symbols astro glyphs
-                    // sitting high; the coin's own flexbox centers a plain span cleanly. Sized well
-                    // above the 1rem number so the turning planet reads at a glance (David).
-                    <span style={{ display: "flex", gap: 3, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
-                      {stationsToday.map((e) => (
-                        <PlanetMark key={e.planet} planet={e.planet} size={stationsToday.length > 1 ? 20 : 26} strokeWidth={1.7} />
-                      ))}
-                    </span>
-                  ) : (prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || windowGlyphList.length > 0) ? (
-                    // THE GLYPH DAY: the marks ARE the day — centered inside the ring. A solo
-                    // mark sits large; COMPANIONS SHRINK AND HUDDLE (two 16s + gap outgrew the
-                    // 32px coin — "like they are running from each other").
-                    <span style={{ display: "flex", gap: 2, alignItems: "center", justifyContent: "center", pointerEvents: "none", lineHeight: 1 }}>
-                      {(() => {
-                        const phase = moonPhaseByDate.get(dateStr);
-                        const count = (phase ? 1 : 0) + (prosperitySet.has(dateStr) ? 1 : 0) + windowGlyphList.length;
-                        const g = count >= 2 ? 13 : 16;
-                        return <>
-                          {phase && <span style={{ width: count >= 2 ? 11 : 13, height: count >= 2 ? 11 : 13, borderRadius: 999, background: phase === "full" ? "#FDFBF3" : "#160f26", border: phase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
-                          {prosperitySet.has(dateStr) && <span style={{ fontFamily: "Georgia, serif", fontSize: `${g}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>€</span>}
-                          {windowGlyphList.map((e) => (
-                            <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={count >= 2 ? 2.1 : 1.9} />
-                          ))}
-                        </>;
-                      })()}
-                    </span>
                   ) : (
-                    <span style={{ color: "inherit", fontWeight: filled ? 700 : 600, fontSize: "1.15rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
+                    // THE ONE TEMPLATE: every non-crown, non-eclipse day shows its DATE NUMBER here —
+                    // never a glyph (glyphs live in the rail above). Today's number goes white.
+                    <span style={{ color: isToday ? "#FBF7ED" : "inherit", fontWeight: filled ? 700 : 600, fontSize: "1.15rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
                       {day}
                     </span>
                   )}
