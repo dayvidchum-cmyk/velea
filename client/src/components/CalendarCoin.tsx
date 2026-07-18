@@ -34,7 +34,7 @@ export type CalendarCoinProps = {
    *  is empty today but keeps its slot, so rows never jump between days. */
   bindis?: Array<{ planet: string; strength: number } | null>;
   /** SHADOW THRESHOLDS: planets whose shadow OPENS or CLOSES today — their glyph rides the rail
-   *  GHOSTED ("quietly signal its descent into mania"). A whisper next to the full-ink stations. */
+   *  (full ink, like every glyph; the signal is that it appears ONLY on the threshold days). */
   shadows?: string[];
 };
 
@@ -83,8 +83,10 @@ export default function CalendarCoin(p: CalendarCoinProps) {
         const g = slotW;
         const dotSz = markCount >= 4 ? 7 : 9;
         for (const pl of stations) others.push(<PlanetMark key={`st-${pl}`} planet={pl} size={g} strokeWidth={2.1} />);
-        // Shadow thresholds: the glyph GHOSTED — half-present, slipping under / surfacing.
-        for (const pl of shadows) others.push(<PlanetMark key={`sh-${pl}`} planet={pl} size={g} strokeWidth={2.1} style={{ opacity: 0.42 }} />);
+        // Shadow thresholds: the glyph, FULL ink like every rail glyph (David 2026-07-18: "the
+        // glyph does not need to change opacity ever" — the quiet is that it appears ONLY on the
+        // threshold days, not a ghost treatment most people would never register).
+        for (const pl of shadows) others.push(<PlanetMark key={`sh-${pl}`} planet={pl} size={g} strokeWidth={2.1} />);
         if (moonPhase) others.push(
           <span key="moon" style={{ width: dotSz, height: dotSz, borderRadius: 999, alignSelf: "center",
             background: moonPhase === "full" ? "#FDFBF3" : "#160f26",
