@@ -76,17 +76,24 @@ function localClock(tz: string | null | undefined): { date: string; hour: number
 
 const MORNING_HOUR = 8; // 8am local — v1 fixed; per-user hour is a later dial
 
-// One LLM line per eclipse date, shared by every user; regenerates only on process restart.
+// THE ECLIPSE LINES — David's words lead (2026-07-18: "solar forces you to look in the dark.
+// lunar the circuit board gets overloaded. So your light is yours to tend. isn't it?"); the
+// LLM's per-eclipse line joins the pool as understudy. Date-picked like every other pool.
+const DAVID_ECLIPSE: Record<"solar" | "lunar", string[]> = {
+  solar: ["Solar eclipse today — it forces you to look in the dark. Your light is yours to tend, isn't it?"],
+  lunar: ["Lunar eclipse today — the circuit board gets overloaded. Your light is yours to tend, isn't it?"],
+};
 const ECLIPSE_LINE_MEMO = new Map<string, string>();
 async function eclipseBellLine(date: string, type: "solar" | "lunar"): Promise<string> {
   const memoKey = `${date}:${type}`;
-  const memo = ECLIPSE_LINE_MEMO.get(memoKey);
-  if (memo) return memo;
-  const { generateEclipseBellLine } = await import("./narrative/generate.js");
-  const line = (await generateEclipseBellLine(type))
-    ?? "The light breaks its own rules today. Watch — don't launch."; // his own doctrine, the fallback
-  ECLIPSE_LINE_MEMO.set(memoKey, line);
-  return line;
+  let llm = ECLIPSE_LINE_MEMO.get(memoKey);
+  if (!llm) {
+    const { generateEclipseBellLine } = await import("./narrative/generate.js");
+    llm = (await generateEclipseBellLine(type)) ?? "";
+    ECLIPSE_LINE_MEMO.set(memoKey, llm);
+  }
+  const pool = [...DAVID_ECLIPSE[type], ...(llm ? [llm] : [])];
+  return pickLine(pool, date);
 }
 
 /**
