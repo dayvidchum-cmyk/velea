@@ -424,20 +424,9 @@ export default function Planner() {
     for (const arr of Array.from(map.values())) arr.sort((a, b) => order.indexOf(a.planet) - order.indexOf(b.planet));
     return map;
   }, [skyMarks]);
-  // THE APPROACH GRADIENT (David 2026-07-16: "the fill opacity is an opportunity in design.
-  // you get it?") — every station-window day knows its distance to the turn, so the planet's
-  // ink can GATHER day by day into the station and release after: a crescendo, not a flat wash.
-  const stationDistByDate = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const p of skyMarks?.retro ?? []) for (const st of p.stations) {
-      const sMs = Date.parse(st.date + "T00:00:00");
-      for (const d of [st.date, ...p.windowDays]) {
-        const dist = Math.abs(Math.round((Date.parse(d + "T00:00:00") - sMs) / 86400000));
-        if (dist <= 3 && dist < (m.get(d) ?? 9)) m.set(d, dist);
-      }
-    }
-    return m;
-  }, [skyMarks]);
+  // (The approach-gradient distance map was retired 2026-07-18 with the station-ink coin
+  // treatment — the FIRST LAW won: coin color codes the MODE; the planet speaks only through
+  // its rail glyph. See the station comment at the coin render.)
 
   // The retrograde planets present ANYWHERE this month, in canonical order — each gets a fixed
   // track slot under the coins so its span reads as one continuous horizontal line across days.
@@ -1560,15 +1549,12 @@ export default function Planner() {
             // on the ring itself (paper halo breaks the line under each). Filled = weight:
             // today and the caution days, with a deeper ring of their own shade.
             const filled = (isToday || isCautionDay) && !!(dayCharacter?.movement || rung || hasMode);
-            const hasTaraBadge = prosperitySet.has(dateStr) || achievementSet.has(dateStr);
             const windowGlyphList = (retroByDate.get(dateStr) ?? []).filter((e) => e.state === "window").slice(0, 2);
-            // RX STATION DATES (David 2026-07-16): these coins speak in the PLANET's own ink —
-            // ring + fill, faint through the approach window, full-voiced on the turn day/press.
-            const stationInk = stationsToday.length > 0 ? (PLANET_MARK_INK[stationsToday[0].planet] ?? familyInk) : windowGlyphList.length > 0 ? (PLANET_MARK_INK[windowGlyphList[0].planet] ?? familyInk) : null;
-            // 0 = the turn itself · 1/2/3 = days out; the ink gathers on the approach.
-            const stationDist = stationsToday.length > 0 ? 0 : windowGlyphList.length > 0 ? (stationDistByDate.get(dateStr) ?? 3) : null;
-            const STATION_FILL = [34, 24, 17, 11]; const STATION_RING = [100, 75, 58, 42];
-            const ringForMarks = hasTaraBadge || windowGlyphList.length > 0;
+            // RX STATION DATES — REthought (David 2026-07-18): the old treatment painted the COIN in
+            // the PLANET's ink (fill on an approach gradient + ring), the only days whose color meant
+            // planet instead of mode — "confusing." THE FIRST LAW: color codes the day to the MODE.
+            // Now the planet speaks ONLY through its rail glyph (planet ink lives there); the coin
+            // beneath is a normal mode-colored day, same as its neighbors.
             // A FILLED coin's number is a very dark TONAL version of the day-mode color — more elegant
             // than flat white (David), and it lets the fill stay bright (esp. Build's gold). An OUTLINE
             // coin's number is the mode color itself, on white.
@@ -1594,15 +1580,11 @@ export default function Planner() {
               // scheme... branding should make it really stand out as special").
               : isCrown
               ? "color-mix(in srgb, #FFD429 62%, var(--parchment))"
-              // Station coins fill in the planet's ink on THE APPROACH GRADIENT — the ink
-              // gathers day by day into the turn (11% → 17% → 24% → 34%) and releases after.
-              : stationInk && stationDist != null
-              ? `color-mix(in srgb, ${stationInk} ${STATION_FILL[stationDist]}%, var(--parchment))`
               : isSelected && hasMode && !eclipseByDate.has(dateStr)
               ? `color-mix(in srgb, ${accent} 26%, var(--parchment))`
               : "transparent";
-            const hoverBg = stationInk ? `color-mix(in srgb, ${stationInk} 62%, var(--parchment))` : hasMode ? accent : "var(--color-secondary)";
-            const pressBg = stationInk ?? (hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)");
+            const hoverBg = hasMode ? accent : "var(--color-secondary)";
+            const pressBg = hasMode ? darkenOklch(accent, 0.85) : "var(--color-border)";
 
             return (
               <button
@@ -1641,9 +1623,11 @@ export default function Planner() {
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : isCrown
                       ? "1.5px solid #D4AF37"
-                      : (!filled && !eclipseByDate.has(dateStr) && stationInk && stationDist != null)
-                      ? `1.5px solid color-mix(in srgb, ${stationInk} ${STATION_RING[stationDist]}%, transparent)`
-                      : (!filled && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr)))
+                      // ONE marked-day treatment (David 2026-07-18): ANY day carrying rail marks —
+                      // station/window planets included, no more planet-ink ring — earns the same
+                      // thin ring in the day's FAMILY ink. Color stays the mode's; the rail glyph
+                      // alone names the planet.
+                      : (!filled && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr) || stationsToday.length > 0 || windowGlyphList.length > 0))
                       ? `1.5px solid color-mix(in srgb, ${familyInk} 62%, transparent)`
                       : (isSelected && hasMode && !isCrown && !eclipseByDate.has(dateStr))
                       ? `1.5px solid ${familyInk}`
