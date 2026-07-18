@@ -104,8 +104,12 @@ export default function Login() {
     e.currentTarget.style.borderBottomColor = "color-mix(in srgb, #D4AF37 55%, transparent)"; // AUDIT M14: match the resting 55% — blur left touched inputs permanently dimmer
   };
 
+  // FIXED inset:0 on TRUE BLACK (David 2026-07-18: "why is it oatmeal under it? just be black to
+  // match the image"). As an in-flow 100lvh div it sat inside the app's safe-area padding, so the
+  // parchment page background showed as an oatmeal band below the gate. Fixed to all four edges, it
+  // owns the whole screen — the black now runs edge to edge behind the art.
   return (
-    <div style={{ height: "100lvh", background: "#050505", position: "relative", overflow: "hidden" }}>
+    <div style={{ position: "fixed", inset: 0, background: "#000", overflow: "hidden" }}>
       <style>{`.velea-input::placeholder { color: rgba(212,175,55,0.8); letter-spacing: 0.18em; font-size: 0.66rem; }`}</style>
 
       {/* THE GATE BOX — the art's exact aspect (3375×6000) at FULL viewport height: David likes

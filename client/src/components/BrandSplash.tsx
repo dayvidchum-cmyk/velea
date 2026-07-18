@@ -60,7 +60,10 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(8,12,24,0.42) 0%, rgba(8,12,24,0.22) 45%, transparent 70%)",
+          // Carries the words down through the etymology block before it clears the bright shell
+          // (David 2026-07-18: "words over the shell not so legible anymore" after the full-bleed
+          // change). Deeper hold up top, fades out only past the text zone so the shell stays clean.
+          background: "linear-gradient(180deg, rgba(8,12,24,0.52) 0%, rgba(8,12,24,0.34) 38%, rgba(8,12,24,0.16) 58%, transparent 78%)",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />

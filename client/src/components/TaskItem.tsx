@@ -487,11 +487,14 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
 
                   <button
                     onClick={() => deleteSubtask.mutate({ id: sub.id })}
-                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5 rounded transition-opacity"
-                    style={{ color: "rgba(var(--ink),0.6)" }}
+                    className="flex-shrink-0 p-0.5 rounded"
+                    style={{ color: "rgba(var(--ink),0.55)" }}
                     aria-label="Delete subtask"
                   >
-                    <X size={11} />
+                    {/* Always visible (AUDIT/field-note 2026-07-18: "I used to be able to x the
+                        subtasks"). It was opacity-0 group-hover — hover never fires on a touch
+                        phone, so the × was unreachable. Touch-first: show it, dimmed. */}
+                    <X size={13} />
                   </button>
                 </div>
               ))}
