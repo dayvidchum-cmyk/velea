@@ -32,6 +32,7 @@ import ReadingsArchive from "./pages/ReadingsArchive";
 import Horoscope from "./pages/Horoscope";
 import YearCalendar from "./pages/YearCalendar";
 import Diagnostics from "./pages/Diagnostics";
+import Audit from "./pages/Audit";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Login from "./pages/Login";
@@ -266,6 +267,7 @@ const { user, loading } = useAuth();
           <Route path="/projects" component={Projects} />
           <Route path="/projects/:projectId" component={ProjectDetail} />
           <Route path="/diagnostics" component={Diagnostics} />
+          <Route path="/audit" component={Audit} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>

@@ -13,6 +13,7 @@ function StageMark({ size = 13 }: { size?: number }) {
   );
 }
 import { useDayModeColor } from "@/hooks/useDayModeColor";
+import Dateline from "@/components/Dateline";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { setDayAccent } from "@/lib/dayAccent";
@@ -253,24 +254,17 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             {/* Field note 2026-07-17 "Jupiter cut off": the dateline used overflow-x scroll, so a long
                 time-lord name (JUPITER) clipped at the right edge at rest. Now it WRAPS instead —
                 one edge-to-edge line when it fits, a graceful second line when it doesn't. Nothing clips. */}
-            <div className="no-scrollbar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", rowGap: "0.15rem", overflow: "hidden", gap: "0.3rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
-              <span style={{ color: modeColor, flexShrink: 0 }}>{shortDateLabel}</span>
-              <span style={{ color: modeColor, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{stampTime}</span>
-              {stampModeLabel && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
-                  <span style={{ opacity: 0.4 }}>•</span>
-                  <span style={{ color: modeColor }}>{stampModeLabel}</span>
-                </span>
-              )}
-              {stampActivity && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
-                  <span style={{ opacity: 0.4 }}>•</span>
-                  <span style={{ color: CAT_COLOR[stampActivity] ?? "inherit" }}>{stampActivity}</span>
-                  {/* The hora lord wears its activity's color — one phrase, one voice (David). */}
-                  {stampHoraLord && (<><span style={{ opacity: 0.4 }}>:</span><span style={{ color: stampActivity ? (CAT_COLOR[stampActivity] ?? "inherit") : modeColor }}>{stampHoraLord}</span></>)}
-                </span>
-              )}
-            </div>
+            {/* The dateline is now ONE component (also rendered on /audit across a matrix of states,
+                so the audit grid IS what users see). Hardened: wraps not clips, trailing separators. */}
+            <Dateline
+              dateLabel={shortDateLabel}
+              time={stampTime}
+              modeColor={modeColor}
+              modeLabel={stampModeLabel}
+              activity={stampActivity}
+              activityColor={stampActivity ? (CAT_COLOR[stampActivity] ?? undefined) : undefined}
+              horaLord={stampHoraLord}
+            />
             {/* The Stage — under the dateline; opens the Stage pop-up. */}
             <button
               onClick={() => setStageSheetOpen(true)}
