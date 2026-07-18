@@ -82,6 +82,7 @@ const MORNING_HOUR = 8; // 8am local — v1 fixed; per-user hour is a later dial
 const DAVID_ECLIPSE: Record<"solar" | "lunar", string[]> = {
   solar: [
     "Solar eclipse today — it forces you to look in the dark. Your light is yours to tend, isn't it?",
+    "Solar eclipse today — it forces you to look in the dark. Don't be scared. It's just your shadow.",
     "A 5, 6, 7, 8! Right on time — the sky nails its choreo today, and the lights go out.",
   ],
   lunar: [
