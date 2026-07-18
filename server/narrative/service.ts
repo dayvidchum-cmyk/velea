@@ -531,6 +531,33 @@ export async function getPlanetRxCached(profileId: number, planet: "venus" | "ma
   return { available: true, read, cycle: { stationRetro: arc.stationRetroDate, phaseNow: arc.phaseNow, planet: arc.planet } as any, generatedAt: new Date(), cached: false };
 }
 
+// PEEK — read-only: NEVER generates (the Door Law — this was the one slow-review that auto-fired on
+// expand). Three states the client renders without any LLM call:
+//   • no arc            → available:false, cycle:null   → "running clear"
+//   • arc + cached read → available:true,  read, cycle  → show the review
+//   • arc, no read yet  → available:false, cycle:non-null → show a "Read this <planet> rx" DOOR (a tap)
+export async function peekPlanetRxCached(profileId: number, planet: "venus" | "mars" | "jupiter" | "saturn", date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+  if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
+  const input: any = await buildNarrativeInput(profileId, date, { dayLoc, rxArcPlanet: planet });
+  const arc = input.planetRxArc;
+  if (!arc) return { available: false, read: null, cycle: null, generatedAt: null, cached: false }; // running clear
+  const surface = "planet_rx";
+  const cycleKey = `rx-${planet}-${arc.stationRetroDate}`;
+  // Match getPlanetRxCached's hash EXACTLY, so a peeked review is one the door would serve, not regenerate.
+  const stable = { profileId, planet, lagna: input.natal?.lagna, r: arc.stationRetroDate, d: arc.stationDirectDate, h: arc.house, h2: arc.house2 ?? null, disp: arc.dispositor?.planet, self: arc.selfSeat, hits: arc.hits };
+  const salt = SURFACE_VERSION[surface] ?? "";
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stable)).digest("hex");
+  const cyc = { stationRetro: arc.stationRetroDate, phaseNow: arc.phaseNow, planet: arc.planet } as any;
+  const row = await getNarrativeCache(profileId, surface, cycleKey);
+  if (row && (row.locked || row.inputHash === hash)) {
+    try {
+      const read = JSON.parse(row.content);
+      if (isCompleteDayRead(read)) return { available: true, read, cycle: cyc, generatedAt: row.generatedAt, cached: true };
+    } catch { /* corrupt — treat as not-yet-read */ }
+  }
+  return { available: false, read: null, cycle: cyc, generatedAt: null, cached: false }; // arc present, review not made → door
+}
+
 // PEEK — read-only: is there ALREADY a cached Mercury-rx reading for the current cycle? Never generates.
 export async function peekMercuryRxCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };

@@ -849,7 +849,9 @@ function CombinedReadingCard() {
 function SlowReviewsCard({ modeColor }: { modeColor: string }) {
   const [open, setOpen] = useState(false);
   const [reads, setReads] = useState<Record<string, any>>({});
-  const planetRx = trpc.horoscope.planetRx.useMutation();
+  const [generating, setGenerating] = useState<Record<string, boolean>>({});
+  const planetRx = trpc.horoscope.planetRx.useMutation();        // GENERATES — only on a door tap
+  const planetRxPeek = trpc.horoscope.planetRxPeek.useMutation(); // read-only state check — on expand
   const PLANETS: { key: "venus" | "mars" | "jupiter" | "saturn"; name: string; ink: string }[] = [
     { key: "venus", name: "Venus", ink: "#CE5F6E" },
     { key: "mars", name: "Mars", ink: "#A8002C" },
@@ -861,10 +863,19 @@ function SlowReviewsCard({ modeColor }: { modeColor: string }) {
     setOpen((o) => !o);
     if (!fired.current) {
       fired.current = true;
+      // Door Law: PEEK all four on expand (cheap, NEVER generates). Generation waits for a door tap.
       PLANETS.forEach((p) => {
-        planetRx.mutateAsync({ planet: p.key }).then((r) => setReads((prev) => ({ ...prev, [p.key]: r }))).catch(() => setReads((prev) => ({ ...prev, [p.key]: { available: false } })));
+        planetRxPeek.mutateAsync({ planet: p.key }).then((r) => setReads((prev) => ({ ...prev, [p.key]: r }))).catch(() => setReads((prev) => ({ ...prev, [p.key]: { available: false } })));
       });
     }
+  };
+  // A retrograde planet's review generates ONLY when its own door is tapped.
+  const generateOne = (key: "venus" | "mars" | "jupiter" | "saturn") => {
+    setGenerating((g) => ({ ...g, [key]: true }));
+    planetRx.mutateAsync({ planet: key })
+      .then((r) => setReads((prev) => ({ ...prev, [key]: r })))
+      .catch(() => {})
+      .finally(() => setGenerating((g) => ({ ...g, [key]: false })));
   };
   const gold = "#B08D2E";
   return (
@@ -878,19 +889,35 @@ function SlowReviewsCard({ modeColor }: { modeColor: string }) {
         <div style={{ marginTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
           {PLANETS.map((p) => {
             const r = reads[p.key];
-            if (!r) return <div key={p.key}><VeleaLoader size={18} label={`Listening for ${p.name}…`} /></div>;
+            // Generating (after a door tap) — THIS is where "Listening…" belongs now.
+            if (generating[p.key]) return <div key={p.key}><VeleaLoader size={18} label={`Listening for ${p.name}…`} /></div>;
+            // Peek still resolving (cheap, brief).
+            if (!r) return <p key={p.key} style={{ fontSize: "0.72rem", color: "var(--color-muted-foreground)", fontStyle: "italic", margin: 0, opacity: 0.7 }}>Checking {p.name}…</p>;
+            const phase = r.cycle?.phaseNow as string | undefined;
+            // Arc present but no review yet → a DOOR (Door Law: generate on the tap, not on expand).
+            if (!r.available && r.cycle) return (
+              <div key={p.key}>
+                <p style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: p.ink, margin: "0 0 0.4rem" }}>
+                  {phase === "approaching" ? `${p.name} retrograde ahead` : `This ${p.name} retrograde`}
+                </p>
+                <button onClick={() => generateOne(p.key)} style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", border: `1px solid color-mix(in srgb, ${p.ink} 45%, transparent)`, background: `color-mix(in srgb, ${p.ink} 8%, transparent)`, color: p.ink, borderRadius: 999, padding: "0.35rem 0.9rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.01em", cursor: "pointer" }}>
+                  Read this {p.name} retrograde
+                </button>
+              </div>
+            );
+            // Running clear — no arc.
             if (!r.available || !r.read) return (
               <p key={p.key} style={{ fontSize: "0.78rem", color: "var(--color-muted-foreground)", margin: 0 }}>
                 <strong style={{ color: p.ink }}>{p.name}</strong> is running clear — no review to read; this opens as its next cycle builds.
               </p>
             );
-            const phase = r.cycle?.phaseNow as string | undefined;
+            // Cached review — show it.
             return (
               <div key={p.key}>
                 <p style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: p.ink, margin: "0 0 0.4rem" }}>
                   {phase === "approaching" ? `${p.name} retrograde ahead` : `This ${p.name} retrograde`}
                 </p>
-                <ProseCard color={p.ink} question={r.read.closeLine ? undefined : undefined}>{[r.read.scene, r.read.story, r.read.tilt, r.read.closeLine].filter(Boolean).join("\n\n")}</ProseCard>
+                <ProseCard color={p.ink}>{[r.read.scene, r.read.story, r.read.tilt, r.read.closeLine].filter(Boolean).join("\n\n")}</ProseCard>
               </div>
             );
           })}

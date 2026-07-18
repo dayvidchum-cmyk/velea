@@ -40,8 +40,11 @@ export default function Dateline({ dateLabel, time, modeColor, modeLabel, activi
     </span>,
   );
 
+  // David 2026-07-18: "spaced together neatly on one line, aligned left." flex-start packs the
+  // segments left with an even gap (the old space-between spread them edge-to-edge and shoved the
+  // last one to a second line). Still wraps if it truly can't fit — but packed-left, never clipped.
   return (
-    <div className="no-scrollbar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", rowGap: "0.15rem", overflow: "hidden", gap: "0.3rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
+    <div className="no-scrollbar" style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", flexWrap: "wrap", rowGap: "0.15rem", overflow: "hidden", gap: "0.3rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>
       {segments.map((seg, i) => (
         // Segment + its TRAILING separator ride one non-shrinking unit, so on a wrap the "•" stays
         // at the end of the previous line and the next segment begins clean.
