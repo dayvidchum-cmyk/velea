@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Pin, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat, Pencil } from "lucide-react";
+import { Pin, ChevronDown, ChevronUp, CalendarDays, Plus, X, Check, FolderOpen, Clock, AlarmClockOff, Repeat, Pencil, ListTree } from "lucide-react";
 
 const RECURRENCE_SHORT: Record<string, string> = {
   daily: "Daily", weekly: "Weekly", biweekly: "2 wks", monthly: "Monthly", yearly: "Yearly",
@@ -121,6 +121,11 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
     onError: (_err, _vars, ctx) => {
       if (ctx?.prev) utils.subtasks.list.setData({ taskId: task.id }, ctx.prev);
     },
+  });
+
+  // THE BREAKDOWN DOOR (roadmap #2, David-greenlit; voice: plain and not yelling).
+  const decompose = trpc.subtasks.decompose.useMutation({
+    onSettled: () => utils.subtasks.list.invalidate({ taskId: task.id }),
   });
 
   const deleteSubtask = trpc.subtasks.delete.useMutation({
@@ -519,7 +524,7 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
               </button>
             </div>
           ) : (
-            <div className="px-3 pb-2">
+            <div className="px-3 pb-2 flex items-center gap-4">
               <button
                 onClick={() => setAddingSubtask(true)}
                 className="flex items-center gap-1.5 text-xs transition-opacity opacity-60 hover:opacity-100"
@@ -528,6 +533,19 @@ export default function TaskItem({ task, onToggleComplete, onTogglePin, onDelete
                 <Plus size={11} />
                 Add subtask
               </button>
+              {/* THE BREAKDOWN DOOR (roadmap #2): only when no steps exist yet — an explicit tap
+                  turns the task into 3-7 tiny plain steps. Never auto-fires, never overwrites. */}
+              {subtaskList.length === 0 && !task.isCompleted && (
+                <button
+                  onClick={() => decompose.mutate({ taskId: task.id })}
+                  disabled={decompose.isPending}
+                  className="flex items-center gap-1.5 text-xs transition-opacity opacity-60 hover:opacity-100 disabled:opacity-40"
+                  style={{ color: "rgba(var(--ink),0.65)" }}
+                >
+                  <ListTree size={11} />
+                  {decompose.isPending ? "Breaking it down…" : "Break it down"}
+                </button>
+              )}
             </div>
           )}
 

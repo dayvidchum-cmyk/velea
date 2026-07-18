@@ -1688,6 +1688,25 @@ export const appRouter = router({
         return result;
       }),
 
+    // THE BREAKDOWN DOOR (neurodivergent-UX roadmap #2): one explicit tap on a task → 3-7 tiny
+    // plain steps land as subtasks. Door Law (never auto-fires), ownership-checked, rate-limited;
+    // ~300-token call, so cheap — but still metered.
+    decompose: protectedProcedure
+      .input(z.object({ taskId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        rateLimit(ctx.req, "task-decompose", { max: 20, windowMs: 15 * 60 * 1000 });
+        const parent = await getTaskById(input.taskId, ctx.user.id);
+        if (!parent) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+        const existing = await getSubtasksByTask(input.taskId, ctx.user.id);
+        if (existing.length > 0) return { created: 0 }; // never overwrite hand-made steps
+        const { generateTaskSteps, hasAnthropicKey } = await import("./narrative/generate.js");
+        if (!hasAnthropicKey()) return { created: 0 };
+        const steps = await generateTaskSteps(parent.title, (parent as any).notes ?? null);
+        if (!steps) return { created: 0 };
+        for (const title of steps) await createSubtask({ taskId: input.taskId, userId: ctx.user.id, title });
+        return { created: steps.length };
+      }),
+
     toggle: protectedProcedure
       .input(z.object({ id: z.number(), isCompleted: z.boolean() }))
       .mutation(async ({ ctx, input }) => {

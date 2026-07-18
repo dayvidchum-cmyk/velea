@@ -33,31 +33,37 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
       className="app-shell-height"
       style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, cursor: "pointer",
-        background: "#0a131e",
+        // David's weld (2026-07-18): the fill above the art IS the art's own sky — sampled from
+        // each shell's top edge (night #0d0c19, sunset #85839f), so image and fill meet seamlessly.
+        background: isDay ? "#85839f" : "#0d0c19",
         overflow: "hidden",
         opacity: leaving ? 0 : 1,
         transition: "opacity 640ms ease",
       }}
     >
-      {/* The shell on the water — the finale, fading in behind the words. */}
+      {/* The shell on the water — WELDED to the bottom of the screen, full width, shown whole
+          (David: "the image is welded to the bottom and the color of the sky is filled in on
+          top"). The sky fill above becomes the greeting's negative space. */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
           backgroundImage: `url(${art})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
+          backgroundSize: "100% auto",
+          backgroundPosition: "center bottom",
+          backgroundRepeat: "no-repeat",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />
-      {/* Vignette so the words stay legible — deeper by day (the sunset shell is bright). */}
+      {/* Legibility scrim — TOP-DOWN only (the words live in the sky now): darkens the greeting's
+          ground, fades out before the shell so the art stays clean and unmuted. */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
           background: isDay
-            ? "radial-gradient(ellipse at center 42%, rgba(10,19,30,0.58) 0%, rgba(10,19,30,0.86) 100%)"
-            : "radial-gradient(ellipse at center 42%, rgba(10,19,30,0.5) 0%, rgba(10,19,30,0.8) 100%)",
+            ? "linear-gradient(180deg, rgba(10,19,30,0.55) 0%, rgba(10,19,30,0.32) 45%, transparent 72%)"
+            : "linear-gradient(180deg, rgba(6,5,14,0.4) 0%, rgba(6,5,14,0.2) 45%, transparent 72%)",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />
@@ -67,8 +73,10 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
         style={{
           position: "relative", zIndex: 1,
           width: "100%", height: "100%",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          padding: "2rem", textAlign: "center",
+          // The greeting seats in the SKY — the negative space above the welded shell —
+          // instead of centering over the art.
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start",
+          padding: "clamp(3rem, 11dvh, 6.5rem) 2rem 2rem", textAlign: "center",
         }}
       >
         <img

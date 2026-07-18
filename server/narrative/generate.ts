@@ -281,6 +281,37 @@ const SCRUB: Array<[RegExp, string]> = [
   [/\bcombust\b/gi, "lost in the glare"],
   [/\bmoolatrikona\b/gi, "its own strong ground"],
 ];
+/**
+ * TASK DECOMPOSITION (neurodivergent-UX roadmap #2, David-greenlit; voice: "plain and not
+ * yelling" — his blessing of the recommendation). Break one task into 3–7 tiny concrete
+ * steps that kill initiation paralysis. NOT a narrative surface: no cosmology, no ceremony,
+ * no exclamation marks — the smallest honest words that make the first move startable.
+ * Cheap by design (~300 output tokens); Door-Law gated at the router (explicit tap only).
+ */
+export async function generateTaskSteps(title: string, notes?: string | null): Promise<string[] | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 300,
+      messages: [{
+        role: "user",
+        content: `Break this task into 3-7 tiny concrete steps.\n\nTask: ${title}${notes ? `\nNotes: ${notes}` : ""}\n\nRules:\n- Each step is one small physical or digital action, startable in under 5 minutes.\n- The FIRST step must be the easiest possible way in (open the doc, put the thing on the table, find the phone number).\n- Plain, calm words. No exclamation marks, no motivational language, no headers.\n- Reply with ONLY a JSON array of step strings, nothing else.`,
+      }],
+    });
+    const text = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "";
+    const jsonStr = text.startsWith("[") ? text : text.slice(text.indexOf("["), text.lastIndexOf("]") + 1);
+    const arr = JSON.parse(jsonStr);
+    if (!Array.isArray(arr)) return null;
+    const steps = arr.filter((s) => typeof s === "string" && s.trim().length > 0).map((s) => s.trim().slice(0, 512));
+    return steps.length >= 2 && steps.length <= 8 ? steps : null;
+  } catch (err) {
+    recordServerError("generateTaskSteps", err);
+    return null;
+  }
+}
+
 export function scrubMachinery(s: string): string {
   let out = s;
   for (const [re, rep] of SCRUB) out = out.replace(re, rep);
