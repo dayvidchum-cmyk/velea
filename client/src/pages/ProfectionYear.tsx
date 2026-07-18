@@ -300,7 +300,13 @@ export default function ProfectionYear() {
   // Wraps rich (white-text) content in the colored ombre so it stays legible
   // inside the white card.
   const ombre = (children: React.ReactNode) => (
-    <div style={{ borderRadius: "14px", background: tlGradient, padding: "1.25rem", overflow: "hidden" }}>{children}</div>
+    <div style={{
+      borderRadius: "14px", background: tlGradient, padding: "1.25rem", overflow: "hidden",
+      // Loaders inside the ombre sweep in its own white ink, not the day accent the
+      // gradient is built from (the Lisa class, v743) — accent-on-accent is invisible.
+      ["--loader-ink" as any]: "#FDFDFD",
+      ["--loader-label-ink" as any]: "rgba(255,255,255,0.85)",
+    }}>{children}</div>
   );
 
   // One-sentence synthesis, carried by the gold Chart icon. Used at the end of every
