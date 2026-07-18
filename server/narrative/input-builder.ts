@@ -541,6 +541,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       tithiNumber,
       varaLord: WEEKDAY_LORD_7[new Date(dateStr + "T12:00:00Z").getUTCDay()],
       vishti: !!panchang.karana?.vishti,
+      dateSeed: dateStr,
       // Mercury reaches the read via input.mercuryRx; the rx law gates movement, not character.
       // The PERSONAL tara now reaches the filter (David's 7/29: the prose cheered travel on
       // his obstacle-star day) — the sentence carries the personal turn, supports empty out.

@@ -21,7 +21,13 @@
       "avoid": [
         "travel",
         "anything meant to move quickly"
-      ]
+      ],
+      "supportsPool": [
+        "Foundations must be carefully constructed if they are meant to withstand the test of time. Pace yourself, reach to finish, but only to set the quality.",
+        "Foundations must be carefully constructed if they are meant to withstand the test of time. Pace yourself, reach to finish, but only to set the bar where it needs to be—high.",
+        "The foundations that hold are the ones that were made with love, and precision."
+      ],
+      "_supportsPool_note": "David's own lines (the 2026-07-18 Rosetta rewrites), rotated by date. VERBATIM canon - never paraphrase. The supports/avoid item lists stay canonical for detail views and the reading's reach."
     },
     "movable": {
       "sanskrit": "Chara",

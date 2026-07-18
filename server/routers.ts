@@ -299,6 +299,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
       const c = dayFilter({
         nakshatra: d.nakshatra ?? "", tithiNumber: d.tithiNumber ?? 1,
         varaLord: d.varaLord ?? "Sun", vishti: !!d.vishti, tara: d.tara,
+        dateSeed: d.date,
       });
       const mv = movementOf(c, d.tara, topSet.has(d.date), {
         mercuryRetro: merc != null && merc < 0,
@@ -1969,6 +1970,7 @@ export const appRouter = router({
               varaLord: day.varaLord ?? "Sun",
               vishti: !!day.vishti,
               tara: day.tara,
+              dateSeed: date,
             });
             // THE SIX MOVEMENTS (David 2026-07-15). Mercury gates the movement per the
             // SHIPPED rx law (interpreter.ts): retrograde caps Action at Build unless a

@@ -56,6 +56,8 @@ export interface DayFilterInput {
   vishti: boolean;
   /** The native's tara standing for the day (personal layer; null = collective-only read). */
   tara?: { quality: "good" | "bad" | "mixed"; taraNum: number; cycle: number } | null;
+  /** Date (YYYY-MM-DD) used ONLY to rotate a nature's supportsPool line — stable all day. */
+  dateSeed?: string;
 }
 
 export interface DayCharacter {
@@ -172,7 +174,17 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // A nature may also carry David's plain SUPPORTS line (supportsPlain) — the sentence
   // speaks his register; the canonical item-list (incl. the literal surgery election)
   // stays in `supports` for detail views and the reading's reach (2026-07-15, his pick A).
-  const supportsPlain = (natDef as any).supportsPlain as string | undefined;
+  let supportsPlain = (natDef as any).supportsPlain as string | undefined;
+  // A nature may carry a POOL of David's lines (supportsPool) — date-seeded rotation, the
+  // same law as the Morning Bell pools: stable all day, a different face across days,
+  // always his words verbatim ("I handed you 3 variations", 2026-07-18).
+  const pool = (natDef as any).supportsPool as string[] | undefined;
+  if (pool?.length) {
+    let h = 0;
+    const seed = input.dateSeed ?? "";
+    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+    supportsPlain = pool[h % pool.length];
+  }
   // THE PERSONAL TURN (David 2026-07-15, the 7/29 golden-restraint conflict — "those
   // tooltip hero sentence suggestions are perfect"): a hostile personal star closes the
   // collective sentence — the world can run with the day; this native doesn't.

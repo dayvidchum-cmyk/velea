@@ -171,3 +171,34 @@ describe("David's plain movement line on cutting days (2026-07-15)", () => {
     expect(d.avoid.join(" ")).toMatch(/weddings/); // the detail data keeps the book's items
   });
 });
+
+describe("David's fixed-day supportsPool (the 2026-07-18 Rosetta lines)", () => {
+  const FIXED = { varaLord: "Saturn", vishti: false, tara: null, nakshatra: "Uttara Phalguni", tithiNumber: 5 };
+  const POOL_STARTS = [
+    /^Foundations must be carefully constructed/,
+    /^The foundations that hold are the ones that were made with love, and precision\./,
+  ];
+
+  it("a seeded fixed day speaks one of his lines, never the canned item-list", () => {
+    const d = dayFilter({ ...FIXED, dateSeed: "2026-07-18" });
+    expect(POOL_STARTS.some((re) => re.test(d.sentence))).toBe(true);
+    expect(d.sentence).not.toMatch(/^It supports/);
+    expect(d.sentence).not.toMatch(/Keep away from travel/);
+  });
+
+  it("the rotation is date-stable and turns across days", () => {
+    const a1 = dayFilter({ ...FIXED, dateSeed: "2026-07-18" }).sentence;
+    const a2 = dayFilter({ ...FIXED, dateSeed: "2026-07-18" }).sentence;
+    expect(a1).toBe(a2); // same date, same line — stable all day
+    const week = ["2026-07-18", "2026-07-19", "2026-07-20", "2026-07-21", "2026-07-22"]
+      .map((dateSeed) => dayFilter({ ...FIXED, dateSeed }).sentence);
+    expect(new Set(week).size).toBeGreaterThan(1); // different faces across days
+  });
+
+  it("no seed still speaks his words (first line), and the canon lists survive underneath", () => {
+    const d = dayFilter({ ...FIXED });
+    expect(d.sentence).toMatch(/^Foundations must be carefully constructed/);
+    expect(d.supports.join(" ")).toMatch(/commitments meant to last/); // detail views + the reading keep the items
+    expect(d.avoid.join(" ")).toMatch(/travel/);
+  });
+});
