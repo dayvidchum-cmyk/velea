@@ -31,6 +31,7 @@ import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
 import { GlossaryLink } from "@/components/GlossaryPopover";
 import WhyNowSheet from "@/components/WhyNowSheet";
+import TheWhySheet from "@/components/TheWhySheet";
 import { createPortal } from "react-dom";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import MeridianWhisper from "@/components/MeridianWhisper";
@@ -330,6 +331,7 @@ export default function Planner() {
     return () => { document.removeEventListener("visibilitychange", onVis); window.removeEventListener("pagehide", stamp); clearInterval(beat); };
   }, [settings.softOpen]);
   const [whyNowTask, setWhyNowTask] = useState<any>(null); // the aligned task whose "Why now?" pop-up is open
+  const [whyOpen, setWhyOpen] = useState(false); // THE WHY — the area-first receipts behind today's read
   const [allTasksOpen, setAllTasksOpen] = useState(false);
   const [taskSearch, setTaskSearch] = useState("");
   const [openKindGroups, setOpenKindGroups] = useState<Set<string>>(new Set());
@@ -1312,6 +1314,22 @@ export default function Planner() {
                     >
                       <GlossaryText>{dayReadContent.closeLine}</GlossaryText>
                     </p>
+                  )}
+                  {/* THE WHY — the area-first ledger behind the story (David 2026-07-18:
+                      areas as headers, each planet's condition beneath, glossary-linked;
+                      "people like to learn"). Deterministic + free; fetched on tap. */}
+                  {glanceProfileId != null && (
+                    <button
+                      onClick={() => setWhyOpen(true)}
+                      style={{
+                        marginTop: '0.9rem', background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                        fontSize: '0.66rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
+                        color: 'color-mix(in srgb, var(--hero-ink) 72%, transparent)',
+                        textDecoration: 'underline', textUnderlineOffset: 3, textDecorationStyle: 'dotted',
+                      }}
+                    >
+                      The why
+                    </button>
                   )}
                 </div>
               );
@@ -2335,6 +2353,9 @@ export default function Planner() {
 
       {/* Why-now pop-up for an aligned task */}
       <WhyNowSheet task={whyNowTask} modeColor={todayModeColor} onClose={() => setWhyNowTask(null)} />
+      {whyOpen && glanceProfileId != null && (
+        <TheWhySheet profileId={glanceProfileId} date={selectedDate} modeColor={todayModeColor} onClose={() => setWhyOpen(false)} />
+      )}
 
       {/* Due Orb Sheet */}
 
