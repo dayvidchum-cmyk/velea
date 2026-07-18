@@ -87,26 +87,26 @@ export default function Login() {
   const inputStyle: React.CSSProperties = {
     background: "transparent",
     border: "none",
-    borderBottom: `1px solid color-mix(in srgb, ${METAL.accent} 45%, transparent)`,
+    borderBottom: "1px solid color-mix(in srgb, #D4AF37 55%, transparent)", // gold lines (David 2026-07-18)
     borderRadius: 0,
     padding: "0.45rem 0.4rem",
     fontSize: "0.66rem",
     letterSpacing: "0.18em",
     textAlign: "center",
-    caretColor: METAL.accent,
+    caretColor: "#D4AF37",
     color: "#F2EFE6",
   };
 
   const focusBorder = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderBottomColor = METAL.hi;
+    e.currentTarget.style.borderBottomColor = "#E7C766"; // bright gold on focus — the line wakes
   };
   const blurBorder = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderBottomColor = `color-mix(in srgb, ${METAL.accent} 45%, transparent)`;
+    e.currentTarget.style.borderBottomColor = `color-mix(in srgb, #D4AF37 45%, transparent)`;
   };
 
   return (
     <div style={{ height: "100dvh", background: "#050505", position: "relative", overflow: "hidden" }}>
-      <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.5); letter-spacing: 0.18em; font-size: 0.66rem; }`}</style>
+      <style>{`.velea-input::placeholder { color: rgba(212,175,55,0.8); letter-spacing: 0.18em; font-size: 0.66rem; }`}</style>
 
       {/* THE GATE BOX — the art's exact aspect (3375×6000) at FULL viewport height: David likes
           how the piece is composed (halo above, gate seated, star-sea below), so the whole
@@ -126,7 +126,7 @@ export default function Login() {
       <h1
         style={{
           position: "absolute",
-          top: "50%", // upper doorway of the 2026-07-18 gate (door rows ~46.4–63.6%)
+          top: "47.5%", // upper doorway — lifted so it never touches the form (his 4:26 recording)
           left: "50%",
           transform: "translate(-50%, -50%)",
           fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
@@ -135,10 +135,8 @@ export default function Login() {
           letterSpacing: "-0.01em",
           lineHeight: 1,
           margin: 0,
-          background: `linear-gradient(180deg, ${METAL.hi} 0%, ${METAL.accent} 55%, ${METAL.deep} 100%)`,
-          WebkitBackgroundClip: "text",
-          backgroundClip: "text",
-          color: "transparent",
+          // David 2026-07-18: "make the velea brand word flat gold" — the gradient metal retired.
+          color: "#D4AF37",
         }}
       >
         Velea
@@ -149,7 +147,7 @@ export default function Login() {
         onSubmit={handleSubmit}
         style={{
           position: "absolute",
-          top: "57.5%", // seated in the doorway's lower half (door bottom ~63.6%)
+          top: "60%", // seated below the name with clear air between them
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "min(230px, 60vw)",
