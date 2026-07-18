@@ -140,6 +140,7 @@ const POOL = {
     "Every eclipse returns after 6,585 days — a third of the world further west each time.",
     "In Vedic time, the day begins with the light.", // David's rewrite of my longer version
     "Mercury is retrograde about one day in five. You've survived every single one.",
+    "In an eclipse, nothing touches anything. It's pure alignment — geometry so perfect it erases the light.",
     "Let's see how the stage is set today.",
   ],
 };
