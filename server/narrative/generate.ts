@@ -387,6 +387,40 @@ Reply with ONLY the line.`,
   }
 }
 
+/**
+ * THE GOSSIP LINE (David 2026-07-18: "the engine should be able to attempt that") — the comedy
+ * register the tradition was sitting on: the Moon has 27 wives (the nakshatras), visits one
+ * palace per night on a schedule, played favorites with Rohini, got cursed to wane for it, and
+ * waxing is the recovery. One tiny generation per DAY serves every user (memoized by caller).
+ */
+export async function generateMoonGossipLine(nakshatra: string): Promise<string | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 120,
+      messages: [{
+        role: "user",
+        content: `Write ONE morning-notification line (max 2 sentences, under 140 characters) in the register of a gossip column about the Moon's nightly rounds.
+
+The setup (true Vedic myth, played for gentle comedy): the Moon (Chandra — pronoun THEY) has 27 wives, the nakshatras, and visits one palace per night on a strict rotation. They played favorites with Rohini and got cursed to wane for it; waxing is the recovery. Tonight the Moon is at ${nakshatra}'s palace.
+
+Voice examples to match (playful, precise, a wink): "Don't go chasing waterfalls." / "He walked right into retroshade." / "Tidy up."
+
+Rules: name ${nakshatra}. Keep it warm and PG — cheeky, never crude. No "star-mansions" fantasy-speak, no "cosmic", no "destined", no emoji, no exclamation-point hype.
+
+Reply with ONLY the line.`,
+      }],
+    });
+    const text = msg.content[0]?.type === "text" ? msg.content[0].text.trim().replace(/^["']|["']$/g, "") : "";
+    return text && text.length >= 20 && text.length <= 200 ? text : null;
+  } catch (err) {
+    recordServerError("generateMoonGossipLine", err);
+    return null;
+  }
+}
+
 export function scrubMachinery(s: string): string {
   let out = s;
   for (const [re, rep] of SCRUB) out = out.replace(re, rep);
