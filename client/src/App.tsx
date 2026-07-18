@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
 import { Plus, RefreshCw } from "lucide-react";
 import BrandSplash from "@/components/BrandSplash";
+import MorningBellNudge from "@/components/MorningBellNudge";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import { PANCHANG_TO_TASK_MODE, type TaskMode } from "@shared/types";
 import { trpc } from "@/lib/trpc";
@@ -245,6 +246,8 @@ const { user, loading } = useAuth();
     <div className="min-h-[100dvh] bg-background text-foreground star-bg">
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
       {showWelcome && <WelcomeScreen firstName={user?.name?.split(" ")[0] ?? null} onDone={() => setShowWelcome(false)} />}
+      {/* The 3rd-open Morning Bell nudge — waits for the welcome/splash beats to finish. */}
+      {user && !showSplash && !showWelcome && <MorningBellNudge />}
       {/* Normal document flow — the page scrolls, the nav is fixed to the viewport bottom. */}
       <main className="overflow-x-hidden relative z-10 content-safe-area">
         <Switch>

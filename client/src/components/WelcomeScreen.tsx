@@ -7,18 +7,20 @@ import { trpc } from "@/lib/trpc";
  * WelcomeScreen — the post-login moment for everyone. A single full-bleed sky image with the
  * viewer's own time-of-day greeting + first name, animated in gently, then it fades to the app.
  *
- * The image tracks the hour (David's greeting_splash set): sunrise → day → sunset → evening, and
- * AT NIGHT it becomes the current Moon phase — the same phase art the Stage shows — so the welcome
- * mirrors the sky overhead. Tap to skip.
+ * The image tracks the hour: David's welcome shells (2026-07-18 drop, exact phone ratio
+ * 3375×6000 — "so you have no excuses") sunrise → day → sunset → evening as full-bleed COVER,
+ * and AT NIGHT it becomes the current Moon phase — the same phase art the Stage shows — so the
+ * welcome mirrors the sky overhead. (Phone-ratio moon art is his next drop.) Tap to skip.
  */
 
-// Local-hour → splash bucket. Aligned to the greeting-text buckets in greeting.ts so the words and
-// the sky agree: dawn 5–7, day 8–16, sunset 17–18, evening 19–20, night (Moon) 21–4.
-function daySplash(h: number): { file: string; dark: boolean } | null {
-  if (h >= 5 && h <= 7) return { file: "greeting-sunrise.jpg", dark: false };
-  if (h >= 8 && h <= 16) return { file: "greeting-day.jpg", dark: false };
-  if (h >= 17 && h <= 18) return { file: "greeting-sunset.jpg", dark: false };
-  if (h >= 19 && h <= 20) return { file: "greeting-evening.jpg", dark: true };
+// Local-hour → splash bucket. Aligned to the greeting-text buckets in greeting.ts so the words
+// and the sky agree: dawn 5–7, day 8–16, sunset 17–18, evening 19–20, night (Moon) 21–4.
+// chrome = the sampled top-strip color of each art, so the status bar melts into the sky.
+function daySplash(h: number): { file: string; chrome: string } | null {
+  if (h >= 5 && h <= 7) return { file: "welcome-sunrise.jpg", chrome: "#5c5476" };
+  if (h >= 8 && h <= 16) return { file: "welcome-day.jpg", chrome: "#739bc8" };
+  if (h >= 17 && h <= 18) return { file: "welcome-sunset.jpg", chrome: "#203356" };
+  if (h >= 19 && h <= 20) return { file: "welcome-evening.jpg", chrome: "#020211" };
   return null; // 21–4 → night, the Moon carries it
 }
 
@@ -34,7 +36,7 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
   const moonFile = isNight ? (sky as any)?.image ?? null : null;
 
   const bgSrc = isNight ? (moonFile ? `/celestial/${moonFile}` : null) : `/${day!.file}`;
-  const chrome = isNight || day?.dark ? "#0a131e" : "#93a8c0";
+  const chrome = isNight ? "#0a131e" : day!.chrome;
   useDarkChromeWhile(true, chrome); // match the sky at the top so there's no bar mismatch
 
   const greeting = pickGreeting(now, firstName);
@@ -60,8 +62,10 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
         transition: "opacity 680ms ease",
       }}
     >
-      {/* The image — a slow, gentle drift-in (fade + a touch of scale) so it settles rather than
-          pops. Keyed on the src so it re-mounts and re-animates if the Moon resolves late. */}
+      {/* The image — a slow, gentle drift-in so it settles rather than pops. Keyed on the src so
+          it re-mounts and re-animates if the Moon resolves late. Day shells are exact phone ratio
+          → full-bleed cover; the night Moon art stays contained WHOLE (fullscreen-art law) until
+          its phone-ratio versions arrive. */}
       {bgSrc && (
         <div
           key={bgSrc}
@@ -69,10 +73,20 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
           style={{
             position: "absolute", inset: 0,
             backgroundImage: `url(${bgSrc})`,
-            backgroundSize: "contain",
+            backgroundSize: isNight ? "contain" : "cover",
             backgroundPosition: "center center",
             backgroundRepeat: "no-repeat",
             animation: "velea-sky-in 5s ease-out both",
+          }}
+        />
+      )}
+      {/* Whisper of a top scrim under bright skies so the white greeting always reads. */}
+      {!isNight && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(180deg, rgba(12,18,32,0.34) 0%, rgba(12,18,32,0.16) 40%, transparent 62%)",
           }}
         />
       )}

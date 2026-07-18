@@ -11,14 +11,12 @@ const GOLD = "#C9A84C";
  */
 export default function BrandSplash({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
-  useDarkChromeWhile(true, "#0a131e"); // dark chrome so no white bar under the night sky
+  useDarkChromeWhile(true, "#1c2a48"); // match the art's starfield top — no bar mismatch
 
-  // THE FOURTH BEAT (David 2026-07-18: "the shell on the water is the 4th beat with the
-  // whole etymology") — gate → credentials → through → THE SHELL: the open shell holding
-  // the light IS វេលាល្អ, the golden moment, settling in behind its own name. One day,
-  // one night — same clock as the gate.
-  const isDay = (() => { const h = new Date().getHours(); return h >= 6 && h < 18; })();
-  const art = isDay ? "/shell-sunset.jpg" : "/shell-night.jpg";
+  // THE FOURTH BEAT — David's etymology splash (2026-07-18, exact phone ratio 3375×6000):
+  // the open shell holding the light IS វេលាល្អ, the Milky Way rising off its lip. One art,
+  // full-bleed cover — it owns the whole frame, so the old weld/fill/veil machinery is retired.
+  const art = "/etymology-splash.jpg";
 
   // AUDIT M12 (2026-07-18): App passes an inline onDone (new identity every render), and post-login
   // is exactly when the tree re-renders repeatedly (utils.invalidate() refetching everything) — so
@@ -39,53 +37,30 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
       className="app-cover-height"
       style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, cursor: "pointer",
-        // David 2026-07-18: "can the background extensions be darker?" — the sampled-sky match
-        // capped how dark the fill could go, so: the fill goes PROPERLY dark, and a fade veil
-        // (below) melts the art's top into it. Night: near-black indigo; day: deep dusk.
-        background: isDay ? "#3c3950" : "#05060a",
+        background: "#0a0a10", // behind the cover art; effectively invisible
         overflow: "hidden",
         opacity: leaving ? 0 : 1,
         transition: "opacity 640ms ease",
       }}
     >
-      {/* The shell on the water — WELDED to the bottom of the screen, full width, shown whole
-          (David: "the image is welded to the bottom and the color of the sky is filled in on
-          top"). The sky fill above becomes the greeting's negative space. */}
+      {/* The shell, FULL-BLEED — phone-ratio art covers the frame whole; nothing to weld or fill. */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
           backgroundImage: `url(${art})`,
-          backgroundSize: "100% auto",
-          backgroundPosition: "center bottom",
-          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />
-      {/* THE FADE VEIL — bottom-anchored with the art's own aspect, so it sits exactly on the
-          image: its top quarter dissolves up into the dark fill. Seam impossible (the veil starts
-          at precisely the fill color). */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute", left: 0, right: 0, bottom: 0,
-          aspectRatio: isDay ? "1024 / 1536" : "1615 / 2400",
-          background: isDay
-            ? "linear-gradient(180deg, #3c3950 0%, rgba(60,57,80,0) 26%)"
-            : "linear-gradient(180deg, #05060a 0%, rgba(5,6,10,0) 26%)",
-          animation: "velea-sky-in 1.8s ease 2.7s both",
-          pointerEvents: "none",
-        }}
-      />
-      {/* Legibility scrim — TOP-DOWN only (the words live in the sky now): darkens the greeting's
-          ground, fades out before the shell so the art stays clean and unmuted. */}
+      {/* Legibility scrim — TOP-DOWN only (the words live in the starfield); fades out before
+          the shell so the art stays clean. */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute", inset: 0,
-          background: isDay
-            ? "linear-gradient(180deg, rgba(10,19,30,0.55) 0%, rgba(10,19,30,0.32) 45%, transparent 72%)"
-            : "linear-gradient(180deg, rgba(6,5,14,0.4) 0%, rgba(6,5,14,0.2) 45%, transparent 72%)",
+          background: "linear-gradient(180deg, rgba(8,12,24,0.42) 0%, rgba(8,12,24,0.22) 45%, transparent 70%)",
           animation: "velea-sky-in 1.8s ease 2.7s both",
         }}
       />
