@@ -119,8 +119,8 @@ export default function CalendarCoin(p: CalendarCoinProps) {
           3px slot so a planet's line never jumps rows across the month. Quiet by design: a slow
           planet's months-long rx reads as a soft line of dots, never a glyph-per-day shout. */}
       {hasBindis && (
-        {/* Left-aligned (David 2026-07-18): every ribbon drains from the same origin — the coin's
-            left edge — so the count reads comparably across days, like a bar emptying. */}
+        // Left-aligned (David 2026-07-18): every ribbon drains from the same origin — the coin's
+        // left edge — so the count reads comparably across days, like a bar emptying.
         <span aria-hidden style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2, pointerEvents: "none", zIndex: 1 }}>
           {bindis!.map((t, row) => (
             <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "flex-start" }}>

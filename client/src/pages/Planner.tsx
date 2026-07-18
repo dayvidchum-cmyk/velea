@@ -1506,7 +1506,7 @@ export default function Planner() {
         {/* rowGap holds BOTH neighbors' out-of-coin layers: the rail above a coin (~17px) and the
             bindi tracks below the previous row's coins (~16px for 3 tracks) — 2.35rem clears them.
             paddingBottom gives the LAST row's bindis their room. */}
-        <div className="grid grid-cols-7" style={{ rowGap: "2.35rem", paddingTop: "0.6rem", paddingBottom: "1.1rem" }}>
+        <div className="grid grid-cols-7" style={{ rowGap: "2.7rem", paddingTop: "0.6rem", paddingBottom: "1.3rem" }}>
           {calendarCells.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />;
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
