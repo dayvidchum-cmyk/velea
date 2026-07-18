@@ -428,6 +428,30 @@ export default function Planner() {
   // treatment — the FIRST LAW won: coin color codes the MODE; the planet speaks only through
   // its rail glyph. See the station comment at the coin render.)
 
+  // THE BINDI LADDER (David 2026-07-18): under each coin, up to three tracks of tiny dots — one
+  // track per rx planet, dots in the PLANET'S ink (identity lives in color + fixed row), COUNT =
+  // the movement's current strength. Five levels, mapped to the real cycle anatomy:
+  //   5 station (the turn itself) · 4 station window (roughest days) · 3 mid-retrograde ·
+  //   2 pre-shadow (building) · 1 post-shadow (clearing) · none = running clear.
+  // WHY dots, not glyphs: a slow planet is rx for months — a glyph every day is noise; a quiet
+  // count makes the strength readable at a glance ("October/November when the rx season goes crazy").
+  const rxStrengthByDate = useMemo(() => {
+    const m = new Map<string, Map<string, number>>();
+    const put = (date: string, planet: string, s: number) => {
+      let day = m.get(date);
+      if (!day) { day = new Map(); m.set(date, day); }
+      if (s > (day.get(planet) ?? 0)) day.set(planet, s); // strongest wins
+    };
+    for (const p of skyMarks?.retro ?? []) {
+      for (const st of p.stations) put(st.date, p.planet, 5);
+      for (const d of p.windowDays) put(d, p.planet, 4);
+      for (const d of p.retroDays) put(d, p.planet, 3);
+      for (const d of [...(p.preShadowDays ?? []), ...(p.shadowEnterDays ?? [])]) put(d, p.planet, 2);
+      for (const d of [...(p.postShadowDays ?? []), ...(p.shadowExitDays ?? [])]) put(d, p.planet, 1);
+    }
+    return m;
+  }, [skyMarks]);
+
   // The retrograde planets present ANYWHERE this month, in canonical order — each gets a fixed
   // track slot under the coins so its span reads as one continuous horizontal line across days.
   const monthRetroPlanets = useMemo(() => {
@@ -1479,7 +1503,10 @@ export default function Planner() {
           ))}
         </div>
 
-        <div className="grid grid-cols-7" style={{ rowGap: "1.65rem", paddingTop: "0.6rem" }}>
+        {/* rowGap holds BOTH neighbors' out-of-coin layers: the rail above a coin (~17px) and the
+            bindi tracks below the previous row's coins (~16px for 3 tracks) — 2.35rem clears them.
+            paddingBottom gives the LAST row's bindis their room. */}
+        <div className="grid grid-cols-7" style={{ rowGap: "2.35rem", paddingTop: "0.6rem", paddingBottom: "1.1rem" }}>
           {calendarCells.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />;
             const dateStr = `${yearMonth}-${String(day).padStart(2, "0")}`;
@@ -1644,6 +1671,13 @@ export default function Planner() {
                   moonPhase={(moonPhaseByDate.get(dateStr) as any) ?? null}
                   prosperity={prosperitySet.has(dateStr)}
                   achievement={achievementSet.has(dateStr)}
+                  // Bindi tracks: FIXED row per planet across the whole month (canonical order), so
+                  // each planet's strength reads as one continuous line of days. Empty tracks keep
+                  // their slot (null) — a row never jumps when another planet clears.
+                  bindis={monthRetroPlanets.slice(0, 3).map((pl) => {
+                    const s = rxStrengthByDate.get(dateStr)?.get(pl) ?? 0;
+                    return s > 0 ? { planet: pl, strength: s } : null;
+                  })}
                 />
               </button>
             );

@@ -43,6 +43,13 @@ const COIN_CASES: Array<{ note: string; props: CalendarCoinProps }> = [
   { note: "Achievement ♛", props: { day: 30, achievement: true, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
   { note: "4+ marks (overflow test)", props: { day: 24, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
   { note: "Crown + station (both)", props: { day: 19, isCrown: true, pulse: "lakshmi", stations: ["Mercury"], achievement: true, numberColor: "#3A2E12", restingBg: "color-mix(in srgb, #FFD429 62%, var(--parchment))", border: "1.5px solid #D4AF37", accent: "#D4AF37" } },
+  // THE BINDI LADDER — dot count = rx strength (5 station · 4 window · 3 rx · 2 pre- · 1 post-shadow).
+  { note: "Bindis · 5 (station)", props: { day: 3, stations: ["Mercury"], numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL, bindis: [{ planet: "Mercury", strength: 5 }] } },
+  { note: "Bindis · 3 (mid-rx)", props: { day: 10, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD, bindis: [{ planet: "Mercury", strength: 3 }] } },
+  { note: "Bindis · 1 (clearing)", props: { day: 28, numberColor: GREY, restingBg: "transparent", border: "1.5px solid transparent", accent: GREY, bindis: [{ planet: "Mercury", strength: 1 }] } },
+  { note: "Oct/Nov · 3 tracks", props: { day: 25, numberColor: TEAL, restingBg: "transparent", border: "1.5px solid transparent", accent: TEAL, bindis: [{ planet: "Mercury", strength: 4 }, { planet: "Jupiter", strength: 3 }, { planet: "Saturn", strength: 2 }] } },
+  { note: "3 tracks + today", props: { day: 26, isToday: true, filled: true, hasMode: true, numberColor: "#FBF7ED", restingBg: `color-mix(in srgb, ${TEAL} 62%, var(--parchment))`, border: "1.5px solid transparent", accent: TEAL, bindis: [{ planet: "Venus", strength: 5 }, { planet: "Mars", strength: 3 }, { planet: "Saturn", strength: 1 }] } },
+  { note: "Track continuity (middle empty)", props: { day: 27, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD, bindis: [{ planet: "Mercury", strength: 2 }, null, { planet: "Saturn", strength: 3 }] } },
 ];
 
 // Each case is a labeled Dateline prop-set. The label says what edge it exercises.
@@ -109,7 +116,7 @@ export default function Audit() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(116px, 1fr))", gap: "0.9rem" }}>
           {COIN_CASES.map((c, i) => (
             <div key={`coin-${i}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.55rem" }}>
-              <div style={{ paddingTop: 22, paddingBottom: 8, width: "100%", display: "flex", justifyContent: "center", borderRadius: 12, background: "var(--parchment)", border: "1px solid var(--color-border)" }}>
+              <div style={{ paddingTop: 22, paddingBottom: 24, width: "100%", display: "flex", justifyContent: "center", borderRadius: 12, background: "var(--parchment)", border: "1px solid var(--color-border)" }}>
                 <CalendarCoin {...c.props} />
               </div>
               <span style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)", textAlign: "center" }}>{c.note}</span>

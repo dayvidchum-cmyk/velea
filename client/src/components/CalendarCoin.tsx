@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import PlanetMark from "@/components/PlanetMark";
+import PlanetMark, { PLANET_MARK_INK } from "@/components/PlanetMark";
 import OctagramMark from "@/components/OctagramMark";
 import CrownMark from "@/components/CrownMark";
 
@@ -28,6 +28,11 @@ export type CalendarCoinProps = {
   moonPhase?: "full" | "new" | null;
   prosperity?: boolean;
   achievement?: boolean;
+  /** THE BINDI LADDER (David 2026-07-18): up to 3 fixed tracks under the coin, one per rx planet.
+   *  Dot COUNT = current strength (5 station · 4 window · 3 rx · 2 pre-shadow · 1 post-shadow);
+   *  dot COLOR = the planet's own ink (identity = color + fixed row). null = the planet's track
+   *  is empty today but keeps its slot, so rows never jump between days. */
+  bindis?: Array<{ planet: string; strength: number } | null>;
 };
 
 /**
@@ -42,7 +47,8 @@ export type CalendarCoinProps = {
  */
 export default function CalendarCoin(p: CalendarCoinProps) {
   const { day, isToday, isCrown, isEclipse, hasMode, filled, pulse, border, numberColor, restingBg,
-    hoverBg, pressBg, activeInk, accent, stations = [], windows = [], moonPhase, prosperity, achievement } = p;
+    hoverBg, pressBg, activeInk, accent, stations = [], windows = [], moonPhase, prosperity, achievement, bindis } = p;
+  const hasBindis = !!bindis?.some(Boolean);
 
   return (
     <div
@@ -105,6 +111,22 @@ export default function CalendarCoin(p: CalendarCoinProps) {
       ) : (
         <span style={{ color: isToday ? "#FBF7ED" : "inherit", fontWeight: filled ? 700 : 600, fontSize: "1.15rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
           {day}
+        </span>
+      )}
+
+      {/* THE BINDI LADDER — the rail's mirror, below the coin. Each rx planet holds a FIXED track;
+          its dots (in its own ink) count the movement's strength today. Empty tracks keep their
+          3px slot so a planet's line never jumps rows across the month. Quiet by design: a slow
+          planet's months-long rx reads as a soft line of dots, never a glyph-per-day shout. */}
+      {hasBindis && (
+        <span aria-hidden style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, pointerEvents: "none", zIndex: 1 }}>
+          {bindis!.map((t, row) => (
+            <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "center" }}>
+              {t && Array.from({ length: Math.max(0, Math.min(5, t.strength)) }, (_, i) => (
+                <span key={i} style={{ width: 3, height: 3, borderRadius: 999, background: PLANET_MARK_INK[t.planet] ?? "currentColor", display: "inline-block" }} />
+              ))}
+            </span>
+          ))}
         </span>
       )}
     </div>
