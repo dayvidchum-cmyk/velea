@@ -52,7 +52,9 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
         <button onClick={() => setTeaserOpen(true)} style={{ ...rowStyle, background: "none", border: "none", borderTop: hairline, width: "100%", cursor: "pointer", color: ink }}>
           <Bookmark size={14} style={{ flexShrink: 0 }} />
           <span>Keep this reading</span>
-          <GateMark size={18} style={{ marginLeft: "auto", opacity: 0.7 }} />
+          {/* Speak the card's tonal ink, not raw gold (David 2026-07-18: "gold not showing up on
+              darker value colors is a recurring issue" — the lock mark vanished on the caution card). */}
+          <GateMark size={18} style={{ marginLeft: "auto", opacity: 0.85, color: ink }} />
         </button>
         {teaserOpen && createPortal(
           <div onClick={() => setTeaserOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(30, 24, 16, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
