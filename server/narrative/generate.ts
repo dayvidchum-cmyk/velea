@@ -352,6 +352,41 @@ Reply with ONLY the prose, no headers, no preamble.`,
   }
 }
 
+/**
+ * THE ECLIPSE BELL LINE (David 2026-07-18: "feed this one to the llm… for shits and giggles.
+ * one for lunar. one for solar."). Fires 4-7x/year, ONE line serves every user (global sky
+ * event), generated once per eclipse and cached by the caller — essentially free. Fed the
+ * PHENOMENOLOGY (the wrong light, the exact fit), never the demon myth (his call).
+ */
+export async function generateEclipseBellLine(type: "solar" | "lunar"): Promise<string | null> {
+  const c = client();
+  if (!c) return null;
+  const material = type === "solar"
+    ? "A solar eclipse: the Moon is 400x smaller than the Sun and 400x closer — an exact fit, nowhere else in the known universe. Nothing touches; it is pure alignment. The light goes wrong before it goes out: colors drain strange, shadows sharpen to knife edges, every gap between leaves casts a thousand tiny crescents, birds roost at noon, the horizon glows sunset in every direction. The outer light — visibility, the public self — is briefly erased, on a schedule known centuries ahead."
+    : "A lunar eclipse: the full Moon slides into Earth's shadow and turns rust-red — because it is being lit by every sunrise and every sunset on Earth simultaneously, bent around the planet's edge. The inner light — the mind, the private tide — goes strange for a few hours, on a schedule known centuries ahead. Nothing touches; it is pure alignment."
+  try {
+    const msg = await c.messages.create({
+      model: MODEL,
+      max_tokens: 120,
+      messages: [{
+        role: "user",
+        content: `Write ONE short morning-notification line (max 2 sentences, under 140 characters total) for the day of a ${type} eclipse.
+
+Material (use the feeling, not all the facts): ${material}
+
+Voice: playful but precise — the same register as "Don't go chasing waterfalls" and "He walked right into retroshade." A wink, not a warning siren. The undertone: today the light itself can't be trusted, so watch rather than launch. NEVER use: "destined", "fate", "cosmic energy", demon/dragon imagery, exclamation-point hype. No emoji.
+
+Reply with ONLY the line.`,
+      }],
+    });
+    const text = msg.content[0]?.type === "text" ? msg.content[0].text.trim().replace(/^["']|["']$/g, "") : "";
+    return text && text.length >= 20 && text.length <= 200 ? text : null;
+  } catch (err) {
+    recordServerError("generateEclipseBellLine", err);
+    return null;
+  }
+}
+
 export function scrubMachinery(s: string): string {
   let out = s;
   for (const [re, rep] of SCRUB) out = out.replace(re, rep);

@@ -76,6 +76,19 @@ function localClock(tz: string | null | undefined): { date: string; hour: number
 
 const MORNING_HOUR = 8; // 8am local — v1 fixed; per-user hour is a later dial
 
+// One LLM line per eclipse date, shared by every user; regenerates only on process restart.
+const ECLIPSE_LINE_MEMO = new Map<string, string>();
+async function eclipseBellLine(date: string, type: "solar" | "lunar"): Promise<string> {
+  const memoKey = `${date}:${type}`;
+  const memo = ECLIPSE_LINE_MEMO.get(memoKey);
+  if (memo) return memo;
+  const { generateEclipseBellLine } = await import("./narrative/generate.js");
+  const line = (await generateEclipseBellLine(type))
+    ?? "The light breaks its own rules today. Watch — don't launch."; // his own doctrine, the fallback
+  ECLIPSE_LINE_MEMO.set(memoKey, line);
+  return line;
+}
+
 /**
  * THE BELL'S SKY LINE (David 2026-07-18): the greeting stays; the body reads the day's sky.
  * Deterministic — the engine picks the state, DAVID's words fill it (no LLM, no cost). States he
@@ -94,7 +107,13 @@ async function skyLineFor(localDate: string): Promise<string> {
     const to = new Date(Date.parse(localDate + "T00:00:00Z") + 8 * 86400000).toISOString().slice(0, 10); // 7-day lookahead for the horizon rung
     const marks = await yearStationMarks(from, to);
     const daysTo = (d: string) => Math.round((Date.parse(d + "T00:00:00Z") - Date.parse(localDate + "T00:00:00Z")) / 86400000);
-    // 1 · STATION-DIRECT TODAY — the turn itself outranks the approach (his retroshade line).
+    // 1 · ECLIPSE DAY — the rarest, loudest global event (4-7x/year): the line is LLM-written
+    // per eclipse (one tiny call serves every user, memoized; static fallback if the wallet's
+    // dry). David: "feed this one to the llm… for shits and giggles."
+    for (const ec of marks.eclipses ?? []) {
+      if (daysTo(ec.date) === 0) return eclipseBellLine(ec.date, ec.type);
+    }
+    // 2 · STATION-DIRECT TODAY — the turn itself outranks the approach (his retroshade line).
     for (const st of marks.stations) {
       if (st.kind === "station-direct" && daysTo(st.date) === 0) {
         const he = PRONOUN[st.planet] ?? "He";
