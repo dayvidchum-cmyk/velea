@@ -43,7 +43,11 @@ export default function Login() {
   const METAL = isDay
     ? { hi: "#E7C766", accent: "#C9A84C", deep: "#A87E2E", btnText: "#1a1200" }
     : { hi: "#DDE3EA", accent: "#B9C2CE", deep: "#8E97A6", btnText: "#0d1117" };
-  const art = isDay ? "/login-gate-day.jpg" : "/login-gate-night.jpg";
+  // THE GATE (David's 2026-07-18 drop, Gate.png → login-gate.jpg): the temple over the yantra
+  // line-geometry on a starfield, black bled to every edge — the seam-killer re-export. ONE art
+  // for day and night now; the METAL (gold by day / silver by night) still turns with the sun.
+  // A gold day-variant slot stays open if he paints one.
+  const art = "/login-gate.jpg";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,10 +108,12 @@ export default function Login() {
     <div style={{ height: "100dvh", background: "#050505", position: "relative", overflow: "hidden" }}>
       <style>{`.velea-input::placeholder { color: rgba(242,239,230,0.5); letter-spacing: 0.18em; font-size: 0.66rem; }`}</style>
 
-      {/* THE GATE BOX — an element with the art's exact aspect (900×1122), scaled 12%
-          past the viewport fit; the form anchors INSIDE it, so the doorway seat is
-          pixel-true on every screen (door slot measured: rows 59.9–91.1%, center 75.5%). */}
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", aspectRatio: "900 / 1122", height: "min(112dvh, 139.7vw)" }}>
+      {/* THE GATE BOX — the art's exact aspect (3375×6000) at FULL viewport height: David likes
+          how the piece is composed (halo above, gate seated, star-sea below), so the whole
+          vertical frame always shows — no overscan, no recomposition; narrow phones shave only
+          side starfield. Form anchors INSIDE the box, so the doorway seat is pixel-true
+          (door slot measured on this art: rows ~46.4–63.6%, center ~55%). */}
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", aspectRatio: "3375 / 6000", height: "100dvh" }}>
         <img
           src={art}
           alt=""
@@ -120,7 +126,7 @@ export default function Login() {
       <h1
         style={{
           position: "absolute",
-          top: "63%",
+          top: "50%", // upper doorway of the 2026-07-18 gate (door rows ~46.4–63.6%)
           left: "50%",
           transform: "translate(-50%, -50%)",
           fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
@@ -143,7 +149,7 @@ export default function Login() {
         onSubmit={handleSubmit}
         style={{
           position: "absolute",
-          top: "78%",
+          top: "57.5%", // seated in the doorway's lower half (door bottom ~63.6%)
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "min(230px, 60vw)",
