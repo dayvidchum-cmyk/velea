@@ -175,7 +175,12 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                       {/* IN FLOW, not absolute (David: "Is this supposed to scroll?") — absolute text
                           taller than the card was guillotined at the edge; in flow it GROWS the
                           card and the sheet's scroll engages. The art stays absolute behind. */}
-                      <div style={{ position: "relative", zIndex: 1, marginTop: "clamp(90px, 22vh, 200px)", padding: "2.6rem 1.4rem 1.6rem", background: h.primary ? TEXT_SCRIM : "transparent", animation: "velea-rise 0.7s ease both" }}>
+                      {/* EVERY card's text rides the scrim now (David 2026-07-18: "text not placed over
+                          the sky in darker color… hard to read"). Station/retrograde cards used to sit
+                          on transparent + a weak flat veil, so white text over the brightened sky lost
+                          contrast. The scrim is a dark band that fades in above the text and out below
+                          it — legible words, art still clear on the foreground. */}
+                      <div style={{ position: "relative", zIndex: 1, marginTop: "clamp(90px, 22vh, 200px)", padding: "2.6rem 1.4rem 1.6rem", background: TEXT_SCRIM, animation: "velea-rise 0.7s ease both" }}>
                         <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: ts }}>{h.kicker}</p>
                         <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "'Playfair Display', Georgia, serif", textShadow: ts, lineHeight: 1.05 }}>{h.title}</p>
                         <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: ts }}>{h.note}</p>

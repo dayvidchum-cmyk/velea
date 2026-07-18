@@ -32,6 +32,13 @@ const UNICODE: Record<string, string> = {
   Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
 };
 
+// OPTICAL SCALE — normalizes each glyph's INKED size to the others without touching David's art
+// (the use-the-file law). Jupiter's ♃ art fills more of its square canvas, so at an equal box it
+// read too big and overflowed the crown trio (David, "many iterations ago… Jupiter's glyph is too
+// big"). A transform scales the rendered glyph inside its box, so slot widths + alignment are
+// untouched — only the ink shrinks. Default 1; tune per-planet as his eye calls it.
+const OPTICAL_SCALE: Record<string, number> = { Jupiter: 0.82 };
+
 export default function PlanetMark({
   planet,
   size = 14,
@@ -45,13 +52,14 @@ export default function PlanetMark({
   color?: string;
   style?: CSSProperties;
 }) {
+  const optical = OPTICAL_SCALE[planet] ?? 1;
   const file = FILES[planet];
   if (!file) {
     // No art for this planet (Sun/Moon today) → its Unicode glyph, tinted, sized to the box.
     const u = UNICODE[planet];
     if (!u) return null;
     return (
-      <span aria-hidden="true" style={{ display: "inline-flex", flexShrink: 0, width: size, height: size, alignItems: "center", justifyContent: "center", fontSize: size * 0.92, lineHeight: 1, color: color ?? PLANET_MARK_INK[planet] ?? "currentColor", ...style }}>{u}</span>
+      <span aria-hidden="true" style={{ display: "inline-flex", flexShrink: 0, width: size, height: size, alignItems: "center", justifyContent: "center", fontSize: size * 0.92 * optical, lineHeight: 1, color: color ?? PLANET_MARK_INK[planet] ?? "currentColor", ...style }}>{u}</span>
     );
   }
   const mask = `url("/planet-marks/${file}.png")`;
@@ -72,6 +80,8 @@ export default function PlanetMark({
         maskRepeat: "no-repeat",
         WebkitMaskPosition: "center",
         maskPosition: "center",
+        // Optical normalization (Jupiter reads big) — scales the ink, not the layout box.
+        ...(optical !== 1 ? { transform: `scale(${optical})`, transformOrigin: "center" } : {}),
         ...style,
       }}
     />
