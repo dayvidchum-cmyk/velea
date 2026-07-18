@@ -70,10 +70,15 @@ export default function CalendarCoin(p: CalendarCoinProps) {
       {/* THE MARK RAIL — all secondary marks, one aligned rail above the coin. */}
       {(stations.length > 0 || windows.length > 0 || !!moonPhase || !!prosperity || !!achievement) && (() => {
         const others: ReactNode[] = [];
+        // David's 12/14 catch (2026-07-18): the old scaling shrank SLOTS faster than GLYPHS — at
+        // 3 marks a 12px glyph sat in an 11px slot, so neighbors overlapped by a pixel and the
+        // trio read cramped/odd. LAW: a glyph NEVER exceeds its slot (glyph = slot width). The
+        // real width budget is the CELL (~44px on a phone), not the 32px coin — so 3 marks get
+        // honest 12px slots (36px total) instead of being crushed into the coin.
         const markCount = stations.length + windows.length + (moonPhase ? 1 : 0) + (prosperity ? 1 : 0);
-        const g = markCount >= 4 ? 10 : markCount === 3 ? 12 : 13;
+        const slotW = markCount >= 5 ? 8 : markCount === 4 ? 10 : markCount === 3 ? 12 : 13;
+        const g = slotW;
         const dotSz = markCount >= 4 ? 7 : 9;
-        const slotW = markCount >= 4 ? Math.max(7, Math.floor(32 / markCount)) : markCount === 3 ? 11 : 12;
         for (const pl of stations) others.push(<PlanetMark key={`st-${pl}`} planet={pl} size={g} strokeWidth={2.1} />);
         if (moonPhase) others.push(
           <span key="moon" style={{ width: dotSz, height: dotSz, borderRadius: 999, alignSelf: "center",

@@ -41,7 +41,11 @@ const COIN_CASES: Array<{ note: string; props: CalendarCoinProps }> = [
   { note: "Moon · full", props: { day: 6, moonPhase: "full", numberColor: GREY, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${GREY} 62%, transparent)`, accent: GREY } },
   { note: "€ prosperity", props: { day: 7, prosperity: true, numberColor: "#2E9B54", restingBg: "transparent", border: "1.5px solid color-mix(in srgb, #2E9B54 62%, transparent)", accent: "#2E9B54" } },
   { note: "Achievement ♛", props: { day: 30, achievement: true, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
-  { note: "4+ marks (overflow test)", props: { day: 24, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
+  // 12/14 lesson: the matrix jumped 2 → 4 marks; the 3-mark state was the hole where the
+  // glyph-overlap bug lived. EVERY mark count now has a tile (2/3/4/5).
+  { note: "3 marks (the 12/14 case)", props: { day: 14, stations: ["Mercury"], windows: ["Saturn"], moonPhase: "full", numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
+  { note: "4 marks (overflow test)", props: { day: 24, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
+  { note: "5 marks (worst case)", props: { day: 21, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, numberColor: GOLD, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${GOLD} 62%, transparent)`, accent: GOLD } },
   { note: "Crown + station (both)", props: { day: 19, isCrown: true, pulse: "lakshmi", stations: ["Mercury"], achievement: true, numberColor: "#3A2E12", restingBg: "color-mix(in srgb, #FFD429 62%, var(--parchment))", border: "1.5px solid #D4AF37", accent: "#D4AF37" } },
   // THE BINDI LADDER — dot count = rx strength (5 station · 4 window · 3 rx · 2 pre- · 1 post-shadow).
   { note: "Bindis · 5 (station)", props: { day: 3, stations: ["Mercury"], numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL, bindis: [{ planet: "Mercury", strength: 5 }] } },
