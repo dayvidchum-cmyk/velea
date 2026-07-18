@@ -1,0 +1,133 @@
+<title>State of Velea</title>
+<style>
+  :root {
+    --paper: #FBF7ED; --ink: #2E2A22; --gold: #8B7420; --teal: #1D6A6A;
+    --muted: #7A7263; --rule: #D9CFAF; --card: #F4EDD9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #201A12; --ink: #EDE6D6; --gold: #C9A84C; --teal: #7FC4BD; --muted: #A89F8C; --rule: #4A4030; --card: #2A2318; }
+  }
+  :root[data-theme="dark"] { --paper: #201A12; --ink: #EDE6D6; --gold: #C9A84C; --teal: #7FC4BD; --muted: #A89F8C; --rule: #4A4030; --card: #2A2318; }
+  :root[data-theme="light"] { --paper: #FBF7ED; --ink: #2E2A22; --gold: #8B7420; --teal: #1D6A6A; --muted: #7A7263; --rule: #D9CFAF; --card: #F4EDD9; }
+  body { background: var(--paper); color: var(--ink); font-family: Georgia, 'Times New Roman', serif; line-height: 1.6; margin: 0; }
+  .page { max-width: 46rem; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+  h1 { font-size: 2.3rem; color: var(--gold); margin: 0 0 0.2rem; }
+  .dateline { font-style: italic; color: var(--muted); margin: 0 0 2rem; font-size: 0.95rem; }
+  h2 { font-size: 1.25rem; color: var(--gold); border-bottom: 2px solid var(--rule); padding-bottom: 0.3rem; margin: 2.4rem 0 1rem; }
+  h3 { font-size: 1rem; color: var(--teal); margin: 1.5rem 0 0.6rem; }
+  p, li { font-size: 0.95rem; }
+  ul { padding-left: 1.3rem; margin: 0.4rem 0 1rem; }
+  li { margin-bottom: 0.5rem; }
+  strong { color: var(--ink); }
+  .callout { background: var(--card); border-left: 4px solid var(--gold); padding: 0.9rem 1.1rem; margin: 1.2rem 0; font-size: 0.93rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.9rem; }
+  th { text-align: left; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--rule); padding: 0.4rem 0.6rem 0.4rem 0; }
+  td { border-bottom: 1px solid var(--rule); padding: 0.55rem 0.6rem 0.55rem 0; vertical-align: top; }
+  .low { color: var(--muted); font-size: 0.82rem; }
+  .foot { color: var(--muted); font-size: 0.82rem; font-style: italic; margin-top: 2.5rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+  .done { text-decoration: line-through; color: var(--muted); }
+  .quote { font-style: italic; color: var(--teal); }
+  @media print { .page { max-width: none; padding: 0.5in; } body { background: #FBF7ED; color: #2E2A22; } }
+</style>
+<div class="page">
+<h1>State of Velea</h1>
+<p class="dateline">July 18, 2026 · v751 deployed at velealor.com · prepared for David Chum · <strong>the standing edition — updated whenever David asks; this document never disappears</strong></p>
+
+<h2>1 · What Velea is</h2>
+<p>A Vedic-timing companion: the engine <strong>locates</strong> a person on their karmic path from computed sky-data (Swiss Ephemeris, Lahiri sidereal, the canon of K&amp;F Vols. I–II + Appendix IV), and the LLM only <strong>voices</strong> what the engine found. The founding wound it answers: June 2026, AI astrology gaslit David because it was handed a pile of sky with no lens. Velea's law is the opposite — the time frame picks the one system (the Lens Router), data accuracy outranks everything, and the path is computed, not fixed ("destined" is banned from the copy).</p>
+<p class="quote">"Perception is a moving target. Velea is the horizon."</p>
+
+<h2>2 · Where it stands today</h2>
+<h3>Surfaces, live</h3>
+<ul>
+<li><strong>Today</strong> — the hero read (day-stable, anchored to the day's ruling star), check-in with gold-dot weighting, the rest gate, curated task lists, the soft open — and now <strong>The Why</strong>: a tap under the story opens the area-first ledger behind it (lived areas as headers, each planet's live condition beneath, every term a glossary door; pure ephemeris, free).</li>
+<li><strong>The Morning Bell</strong> — the push notification system, live and ringing on phones. 8am in the user's own timezone, one line: the ladder is crown &gt; eclipse-day &gt; retroshade &gt; waterfalls &gt; horizon &gt; ordinary; ordinary mornings rotate greeting / Question Bell (what's up with the Moon's house in <em>their</em> chart) / trivia, per-user, date-seeded. David's lines verbatim, LLM understudies for eclipse lines and Moon-gossip (Chandra canon, PG). All users get a on-brand 3rd-open nudge offering the bell ("Ring it" / "Not now" — never asks twice).</li>
+<li><strong>The welcome cycle</strong> — entirely David's art, edge to edge. Fresh login: the etymology splash (the shell holding the light, Milky Way off its lip). Every other open: the phone-ratio welcome shells by hour (sunrise · day · sunset · evening), and at night the actual current Moon phase — his eight 9:16 lunar greetings mapped straight off the ephemeris.</li>
+<li><strong>The calendar</strong> — one template per coin: mode-colored coins (first law: color = mode, never a planet), the mark rail above (all nine planet glyphs his art), rx bindi ribbons below, shadow-threshold glyphs, today as the dark square.</li>
+<li><strong>Readings hub</strong> — day read, the Cast, year read, eclipse season, Mercury rx, the Slow Reviews (Venus/Mars/Jupiter/Saturn), the month read, combined two-profile reading, pick-a-date horoscope. Pinned readings + archive link.</li>
+<li><strong>Charts</strong> — natal chart with room readings, dasha table, profection year, Life Atlas, yogas, and <strong>The Verdict</strong> (§5).</li>
+<li><strong>Planner</strong> — tasks with circles/kinds/alignment, projects, reflections; the first two neurodivergent features (§7).</li>
+<li><strong>The Gate</strong> — the login is David's art (temple × yantra × starfield), flat-gold Velea above the peak, gold fields in the star-sea, ENTER ignites while entering.</li>
+</ul>
+<h3>Engines, under the hood</h3>
+<ul>
+<li><strong>THE PANTHEON — the voice engine (new today, §6)</strong> — David's three hand-rewrites distilled into 26 laws + a gold exemplar living in the base prompt; every reading surface now writes planets as this person's recurring characters, with receipts.</li>
+<li><strong>Profile research store</strong> — full Appendix-IV research per chart (dignity, Shadbala, avashtas, vimshopak, all twelve houses) + the complete 120-year Vimshottari tree + convergence.</li>
+<li><strong>Cost armor</strong> — per-day caching (dayStableHash), the Door Law (no reading auto-generates; opens peek), free tier clamped to yesterday+today in every timezone, server-side entitlement gates, a 50-generation/day cap per profile, the $20/mo prepaid wallet as the absolute ceiling. A cache-write failure can never kill a billed reading.</li>
+<li><strong>The /audit harness</strong> — admin page rendering the real dateline and calendar-coin components across every data state. The dateline itself is now one-line <em>by construction</em> (ghost-measure + fit, legibility floor).</li>
+<li><strong>Day character canon</strong> — the classical muhurta filter (7 natures × 5 tithi families + vetoes); the fixed-day sentence now speaks David's own three lines in date-seeded rotation, canned catalog retired.</li>
+</ul>
+<h3>Launch pieces</h3>
+<p>Landing live at velealor.com (waitlist + referral codes capturing) · invite-only signup · crumbs marketing (no big-bang; the 7/29 reel; real opening after Mercury Rx) · Stripe wiring awaits "go stripe" · iOS via Capacitor planned (IAP-vs-Stripe decision pending) · mass logout ready for the "new Velea" moment when David declares.</p>
+
+<h2>3 · The price list — LOCKED (David, 7/18)</h2>
+<table>
+<tr><th>Tier</th><th>Unlocks</th><th>Price</th></tr>
+<tr><td><strong>Free</strong> — the past is faith</td><td>Today's read (+ yesterday, every timezone) · the lived past · the ranked calendar</td><td>—</td></tr>
+<tr><td><strong>Near-sight sub</strong> — the near future, rented</td><td>Moment refresh · House Reader · Chapter Reader · Time Master + Hora · special readings (eclipse / Mercury rx / month) · sight through next month</td><td><strong>$2.99/mo</strong></td></tr>
+<tr><td><strong>All-access</strong> — year-sight</td><td>Everything: + Year page · Life Atlas · second chart · The Verdict</td><td><strong>$4.99/mo</strong></td></tr>
+<tr><td><strong>Pick-a-date</strong> — the telescope</td><td>One future date pierced on demand, à la carte, no sub required</td><td><strong>$1.49 each</strong></td></tr>
+</table>
+<div class="callout"><strong>The logic: price = distance of sight.</strong> The time-gate doctrine made commercial — past free, near future rented, far horizon premium, any single date pierceable for pocket change. Free is COMPLETE (day-stable read; two days of precision prove the pattern — free builds belief). $2.99 is the impulse anchor that travels through the circles. $4.99 is the honest ceiling: half of Align27's $9.99 headline, which then stacks add-ons — the research's "Subscription Illusion," the category's #1 trust wound; one honest price is the knife. $1.49 exists <em>because</em> the sub sees only to next month — curiosity pierces one date without buying the year; the subs stay complete in themselves, so the telescope never reads as "the sub didn't cover it." Raise prices only as reputation earns it (Todoist's bare hike → 1-star wave is the proof).</div>
+
+<h2>4 · The deep audits — closed, and the suite is finally green</h2>
+<p>Three full standing audits have run (the v663–679 repair, the 7/18 five-hunter sweep, and run #3 on 7/18 against the standing prompt). Run #3 found and fixed: <strong>1 CRITICAL</strong> (The Verdict divided a Record by 20 → NaN → every chart read "late-if-at-all"), <strong>7 HIGH</strong> (including the cache hashing recentReads — free yesterday-opens were re-billing today's reads), <strong>12 MEDIUM, ~18 LOW</strong>. Earlier sweeps had already closed the cross-user transit leak (IDOR), the password-hash-to-browser leak, and the unbounded ephemeris DoS.</p>
+<ul>
+<li><strong>The travel bug is CLOSED (v742)</strong> — the last two birth-city leaks in the reading (the panchang fallback and the season's hemisphere) now follow the viewer's day-location; the reading can no longer disagree with the page around it.</li>
+<li><strong>The test suite is fully green (479 passing, 0 failing)</strong> — the 8 standing mock failures that every audit had to squint past were retired (each verified as a stale test, not a code bug — including the dasha pair, where the engine's balance-of-dasha math was proven right). Future audits gate on true green; any red is a real regression.</li>
+<li>Consciously deferred with reasons: offline app-shell (SW risk), per-endpoint premium limits (redundant under the cap), version/sw sync guard, Railway trust-proxy hops.</li>
+</ul>
+
+<h2>5 · The snowball: from "what's loud today?" to The Verdict</h2>
+<p>David asked: <span class="quote">"why isn't there an option to just have a reading on a specific day where the system scans the sky and delivers the loudest data. the convergence. the big thing."</span> The trail: no existing reading <em>ranked</em> the sky (the "no single move" law is a tilt, not a headline). A first loudness ladder drafted from app doctrines was rejected — <span class="quote">"my laws? what about the textbooks and the 2 axes i have named?"</span> — so the method came from canon: the Meridian axis, the nodal axis, K&amp;F's coordinate-with-the-running-dasha rule, convergence counted not vibed. His astrologer's dated calls became the spec (the manager-terminated-on-the-dasha-handoff story; "late bloomer's chart… money, love? late, if at all").</p>
+<ul>
+<li><strong>Built: THE VERDICT (v711)</strong> — the chart's life-register: bloom windows per area with ages, the hinge planet and its maturity year, the nodal line, an early/steady/late/late-if-at-all profile. Dated, falsifiable, no house numbers, no "destined." Behind the chartVerdict flag; David is the acceptance test.</li>
+<li><strong>Banked, awaiting "go": THE DAY HEADLINE</strong> — the same convergence method pointed at a date; dasha handoff on top of the blessed ladder.</li>
+</ul>
+
+<h2>6 · THE VOICE — the Rosetta stones (today's story)</h2>
+<p>David rewrote three readings by hand in one day — his own, Lisa's, and Lang's (three Venus time lords, same sky). Each pair (engine version vs. his) was banked verbatim in the private repo archive (<strong>VOICE_ROSETTA.md</strong>, gitignored like the proof log) and diffed sentence-by-sentence. <strong>26 distilled moves</strong> now live in the base prompt as law, plus his complete Venus-and-Mercury passage as the gold exemplar (fenced: match the craft, never the content).</p>
+<ul>
+<li><strong>The pantheon:</strong> planets as this person's recurring characters mid-story — computed from live condition data, "mythology with receipts"; not one fact lost to the drama. Pronouns: Venus she, Moon they, the rest he.</li>
+<li><strong>Agency:</strong> the sky stated plainly, outcomes returned to the person ("has the potential to seal," "what you intend to grow"); a limit is a rehearsal, not a wall.</li>
+<li><strong>The cast connects:</strong> interdependence is the plot (Venus can't sing because Mercury — her voice coach — is off staring into the Sun); the dasha handoff is a relationship between two characters.</li>
+<li><strong>Day rules as dialogue:</strong> the vetoes voiced as the scolding a planet ignores; consequence lands the lesson.</li>
+<li><strong>The balloon register:</strong> the closing question may be the horizon asking — "The horizon is asking you to release some sand bags. The time has come."</li>
+<li><strong>The loop is closing:</strong> by the third reading, the engine's own output was echoing the fed canon back unprompted.</li>
+<li><strong>Blessed, awaiting "go": the Year Book</strong> — each profile's time-lord year written once as literature (characters, plotline, twists) from the stored research, then fed to every daily read as its season bible; doubles as the premium year artifact.</li>
+</ul>
+
+<h2>7 · The neurodivergent / productivity roadmap — built vs. not built</h2>
+<p>Source: the team-run market research (Notion / Todoist / TickTick / ClickUp / Motion + neurodivergent-UX synthesis). Thesis: <strong>neuroinclusive design is universal design.</strong> None of the five leaders ship items 1, 3, or 9.</p>
+<h3>Built (2 of 10)</h3>
+<ul>
+<li><strong>#3 Gentle overdue</strong> (v708): "waiting since Jul 8" instead of shame counters; one-tap "Carry all N into today."</li>
+<li><strong>#2 AI task-decomposition — the Breakdown Door</strong> (v710): one tap → 3–7 tiny plain steps, first one deliberately easiest. "Plain and not yelling."</li>
+</ul>
+<h3>Not built (8 of 10)</h3>
+<ul>
+<li><strong>#1 Focus Mode</strong> (one task per screen) — needs David's UX spec.</li>
+<li><strong>#5 Visual time-anchoring</strong> — needs the `duration` schema script (David-run), then the UI.</li>
+<li><strong>#4 Sensory control panel</strong> — needs David's scope call.</li>
+<li><strong>#6 Zero-friction capture</strong> — largely a Capacitor/iOS feature; premature for the PWA.</li>
+<li><strong>#7 Save-and-resume by default</strong> — an audit pass of the few multi-step flows; smallest of the seven.</li>
+<li><strong>#8 Predictable structure, opt-in novelty</strong> — adopted as a working LAW for how Velea ships; not yet a user-facing choice.</li>
+<li><strong>#9 Body-doubling &amp; forgiving rewards</strong> — a product decision from scratch.</li>
+<li><strong>#10 Pomodoro</strong> (parked 7/18): 25/5 with distinct start/break sounds — David: "It works."</li>
+</ul>
+
+<h2>8 · The open queue (David's picks)</h2>
+<ul>
+<li><span class="done">Lunar greetings art at the Gate's ratio — DONE 7/18 (all eight phases live, full-bleed).</span></li>
+<li>Test The Verdict against the real astrologer's readings; rename at will.</li>
+<li>Say "go" on the Day Headline build.</li>
+<li>Say "go" on the Year Book (the time-lord year as literature, §6).</li>
+<li>Lines for the three natures still speaking the canned formula: movable, swift, mixed — one line or three variations each, pooled verbatim like the fixed day.</li>
+<li>The `duration` schema script for time-anchoring (I write, you run).</li>
+<li>UX specs for Focus Mode and the sensory panel, when ready.</li>
+<li>"go stripe" — wires the locked price list into real billing.</li>
+<li>The mass logout, when you declare new-Velea day.</li>
+</ul>
+
+<p class="foot">Prepared by Claude · sessions of July 17–18, 2026 (v647 → v751) · the Working Brief remains the live dashboard · this State of Velea is the standing edition: source versioned in the repo (STATE_OF_VELEA.html), published at its permanent URL, PDF delivered to David's iCloud — updated whenever David asks.</p>
+</div>
