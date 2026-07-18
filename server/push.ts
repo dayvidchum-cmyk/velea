@@ -96,6 +96,37 @@ async function eclipseBellLine(date: string, type: "solar" | "lunar"): Promise<s
  * writes them (the bell-voices list on the brief).
  */
 const DAY_WORD: Record<number, string> = { 1: "tomorrow", 2: "in 2 days", 3: "in 3 days" };
+
+/**
+ * THE BELL POOLS (David 2026-07-18: "there can be a few bells") — each state holds a POOL of
+ * his lines; the day's date picks one (stable all day, so the test bell rings what 8am rings,
+ * and the whole userbase hears the same voice each morning). Drop a new line into its pool and
+ * it joins the rotation.
+ */
+function pickLine(pool: string[], seed: string): string {
+  if (pool.length === 1) return pool[0];
+  let h = 0;
+  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return pool[h % pool.length];
+}
+
+const POOL = {
+  crown: [
+    "Heavy is the head that wears the crown — who cares. Today is yours, honey. Follow the sky.",
+  ],
+  retroshade: [
+    (planet: string, he: string) => `${planet} Retrograde ends today! But it's never that easy. ${he} walked right into retroshade.`,
+  ],
+  waterfalls: [
+    (planet: string, turn: string, when: string) => `${planet} stations ${turn} ${when}. Don't go chasing waterfalls.`,
+  ],
+  horizon: [
+    "There's something on the horizon.",
+  ],
+  stage: [
+    "Let's see how the stage is set today.",
+  ],
+};
 // Planet pronouns (David's pantheon canon, 2026-07-18): the Moon is THEY — Chandra is male in
 // the Vedas, "a horny whoring polygamist with a fucking harem, each in her own palace": the 27
 // nakshatra wives ARE the lunar mansions, one palace visited per night (Tara Bala's mythic skin).
@@ -117,7 +148,7 @@ async function skyLineFor(localDate: string): Promise<string> {
     for (const st of marks.stations) {
       if (st.kind === "station-direct" && daysTo(st.date) === 0) {
         const he = PRONOUN[st.planet] ?? "He";
-        return `${st.planet} Retrograde ends today! But it's never that easy. ${he} walked right into retroshade.`;
+        return pickLine(POOL.retroshade.map((fn) => fn(st.planet, he)), localDate);
       }
     }
     // 2 · THE WATERFALLS — a station approaches, EITHER direction, 1-3 days out, NAMED
@@ -131,7 +162,7 @@ async function skyLineFor(localDate: string): Promise<string> {
     if (best) {
       const when = DAY_WORD[best.days] ?? `in ${best.days} days`;
       const turn = best.kind === "station-direct" ? "direct" : "retrograde";
-      return `${best.planet} stations ${turn} ${when}. Don't go chasing waterfalls.`;
+      return pickLine(POOL.waterfalls.map((fn) => fn(best!.planet, turn, when)), localDate);
     }
     // 3 · THE HORIZON TEASE — the far rung of the same crescendo (David: "horizon is good for
     // eclipses and any rx coming up"): an eclipse within 3 days, or an rx GATHERING 4-7 days
@@ -140,17 +171,17 @@ async function skyLineFor(localDate: string): Promise<string> {
     // breaks into the turn.
     for (const ec of marks.eclipses ?? []) {
       const days = daysTo(ec.date);
-      if (days >= 1 && days <= 3) return "There's something on the horizon.";
+      if (days >= 1 && days <= 3) return pickLine(POOL.horizon, localDate);
     }
     for (const st of marks.stations) {
       if (st.kind === "station-retro") {
         const days = daysTo(st.date);
-        if (days >= 4 && days <= 7) return "There's something on the horizon.";
+        if (days >= 4 && days <= 7) return pickLine(POOL.horizon, localDate);
       }
     }
     // (Slots still awaiting David's words: eclipse day · crown day.)
   } catch { /* sky unavailable — the default line never fails */ }
-  return "Let's see how the stage is set today.";
+  return pickLine(POOL.stage, localDate);
 }
 
 /** One scheduler tick: ring every subscribed user whose local clock is in the 8am hour and who
