@@ -8,6 +8,7 @@ import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
 import PlanetMark, { PLANET_MARK_INK } from "@/components/PlanetMark";
 import CrownMark from "@/components/CrownMark";
+import CalendarCoin from "@/components/CalendarCoin";
 import { ChevronLeft, ChevronRight, Plus, ChevronDown, Pin, Moon, Sunrise, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1627,131 +1628,39 @@ export default function Planner() {
                 style={{ width: "100%", gap: "0.2rem" }}
               >
                 {/* The round date coin. */}
-                <div
-                  className={`flex items-center justify-center${isToday && hasMode ? " today-pulse" : isCrown ? " lakshmi-pulse" : ""}`}
-                  style={{
-                    position: "relative",
-                    // Whole pixels (the Virgo-rising pass): a FIXED 32px box means the number
-                    // and the mark chip round their centers identically in every column.
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: 999,
-                    transition: "background 150ms",
-                    color: numberColor,
-                    background: restingBg,
-                    // David 2026-07-11: day-mode rings REMOVED. A regular day is just its colored
-                    // number (or, for today / the pressed day, a filled coin). A ring survives ONLY on
-                    // the days that earn one: caution (red), knot/crown (gold), golden (gold), and
-                    // station (the day-mode color, around the planet glyph).
-                    // THE EXPERIMENT (David 2026-07-15 midnight): rings ONLY on current,
-                    // caution and crowned days — everything else bare. Marks still perch.
-                    border: cautionSet.has(dateStr)
+                <CalendarCoin
+                  day={day}
+                  isToday={isToday}
+                  isCrown={isCrown}
+                  isEclipse={eclipseByDate.has(dateStr)}
+                  hasMode={hasMode}
+                  filled={filled}
+                  pulse={isToday && hasMode ? "today" : isCrown ? "lakshmi" : null}
+                  border={
+                    cautionSet.has(dateStr)
                       ? (filled ? "2px solid transparent" : `2px solid ${shadeHex("#B3232F", 0.6)}`)
                       : isCrown
                       ? "1.5px solid #D4AF37"
-                      // THE GLYPH DAY earns its thin ring — the FAMILY ink (five-ink law);
-                      // station days wear it too ("why doesn't station days get a ring?").
-                      // Station/window rings ride the same approach gradient as the fill.
                       : (!filled && !eclipseByDate.has(dateStr) && stationInk && stationDist != null)
                       ? `1.5px solid color-mix(in srgb, ${stationInk} ${STATION_RING[stationDist]}%, transparent)`
                       : (!filled && !eclipseByDate.has(dateStr) && (achievementSet.has(dateStr) || prosperitySet.has(dateStr) || moonPhaseByDate.has(dateStr)))
                       ? `1.5px solid color-mix(in srgb, ${familyInk} 62%, transparent)`
-                      // SELECTED keeps its ring in the family ink; the fill beneath is the specific mode.
                       : (isSelected && hasMode && !isCrown && !eclipseByDate.has(dateStr))
                       ? `1.5px solid ${familyInk}`
-                      : "1.5px solid transparent",
-                  }}
-                  onMouseEnter={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = restingBg; e.currentTarget.style.color = numberColor; }}
-                  onMouseDown={(e) => { e.currentTarget.style.background = pressBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
-                  onMouseUp={(e) => { e.currentTarget.style.background = hoverBg; if (hasMode) e.currentTarget.style.color = activeInk; }}
-                >
-                  {/* TODAY (field note 2026-07-17 "matching square border AND white number"): a
-                      matching-color SQUARE frames the round coin, and the number goes white — today's
-                      one unmistakable tell in the aligned grid. */}
-                  {isToday && (
-                    <span aria-hidden style={{ position: "absolute", inset: -4, background: `color-mix(in srgb, ${accent} 55%, #191109)`, borderRadius: 6, pointerEvents: "none", zIndex: 0 }} />
-                  )}
-                  {/* THE ONE TEMPLATE (field note 2026-07-17 "one template for a calendar square,
-                      stacked, they all align… same reasoning graphically"): every coin is the same
-                      stack — a MARK RAIL above (all planet/moon/€/achievement marks, fixed slots) and
-                      the COIN below (always the date NUMBER, except the two apex exceptions David kept
-                      central: the crown octagram and the eclipse disc). Numbers never drop. */}
-                  {(stationsToday.length > 0 || windowGlyphList.length > 0 || moonPhaseByDate.has(dateStr) || prosperitySet.has(dateStr) || achievementSet.has(dateStr)) && (() => {
-                    const others: React.ReactNode[] = [];
-                    // Station planets ALWAYS ride the rail now (one template) — same slot + size as the
-                    // window glyphs, so the rail is uniform and the coin center keeps its number.
-                    // audit MEDIUM-9: the rail must never spill past the 32px coin into neighboring
-                    // cells. Scale the glyphs + slot width DOWN as the mark count grows, so a busy
-                    // day (station + windows + moon + €) still fits within the coin's width.
-                    const markCount = stationsToday.length + windowGlyphList.length
-                      + (moonPhaseByDate.has(dateStr) ? 1 : 0) + (prosperitySet.has(dateStr) ? 1 : 0);
-                    const g = markCount >= 4 ? 10 : markCount === 3 ? 12 : 13;
-                    const dotSz = markCount >= 4 ? 7 : 9;
-                    const slotW = markCount >= 4 ? Math.max(7, Math.floor(32 / markCount)) : markCount === 3 ? 11 : 12;
-                    for (const e of stationsToday) others.push(
-                      <PlanetMark key={`st-${e.planet}`} planet={e.planet} size={g} strokeWidth={2.1} />
-                    );
-                    const phase = moonPhaseByDate.get(dateStr);
-                    if (phase) others.push(
-                      <span key="moon" style={{ width: dotSz, height: dotSz, borderRadius: 999, alignSelf: "center",
-                        background: phase === "full" ? "#FDFBF3" : "#160f26",
-                        border: phase === "full" ? "1px solid #8a8264" : "1px solid #160f26",
-                        display: "inline-block" }} />
-                    );
-                    if (prosperitySet.has(dateStr)) others.push(<span key="$" style={{ fontFamily: "Georgia, serif", fontSize: `${g + 1}px`, fontWeight: 600, color: MARK_INK.dollar, alignSelf: "center", lineHeight: 1 }}>€</span>);
-                    // A station day still shows OTHER planets' window glyphs (David's 7/26:
-                    // Saturn centers, Mercury's window ☿ perches) — the stationing planet
-                    // itself is never in windowGlyphList (its state is "station").
-                    for (const e of windowGlyphList) others.push(
-                      <PlanetMark key={e.planet} planet={e.planet} size={g} strokeWidth={2.1} />
-                    );
-                    const hasCrownMark = achievementSet.has(dateStr);
-                    const mid = Math.floor(others.length / 2);
-                    // Each mark sits in a fixed (count-scaled) slot so the cluster's optical center
-                    // stays put and the row never outgrows the coin.
-                    const slot = (node: React.ReactNode, key: React.Key) => (
-                      <span key={key} style={{ width: slotW, display: "flex", justifyContent: "center", alignItems: "center" }}>{node}</span>
-                    );
-                    const slotted = others.map((n, i) => slot(n, i));
-                    return (
-                      <span style={{ position: "absolute", top: -17, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
-                        {hasCrownMark ? (
-                          // Crown law: ♛ ALWAYS rides the coin's center axis; others flank it.
-                          // A 3-column grid keeps the crown pinned even with an odd flank count.
-                          <span style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", width: "100%", lineHeight: 1, whiteSpace: "nowrap" }}>
-                            <span style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>{slotted.slice(0, mid)}</span>
-                            <CrownMark size={17} style={{ transform: "translateY(-2px)" }} />
-                            <span style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>{slotted.slice(mid)}</span>
-                          </span>
-                        ) : (
-                          <span style={{ display: "flex", alignItems: "center", lineHeight: 1, whiteSpace: "nowrap" }}>{slotted}</span>
-                        )}
-                      </span>
-                    );
-                  })()}
-                  {/* (The standalone achievement-crown perch was folded into the ONE rail above — its
-                      crown-grid rides ♛ top-center whenever achievementSet, on every day type.) */}
-                  {isCrown ? (
-                    // The knot mark — an OUTLINE octagram (Star of Lakshmi), drawn in LINES, not a
-                    // solid fill (David: "I want the lakshmi stars to be lines again"). The center
-                    // bindu (a solid point in the star's heart) + a soft glow keep it reading as a
-                    // luminous star, not a hollow white coin.
-                    // BRIGHT GOLD star on the gold coin (David 2026-07-16: the engraved amber
-                    // was "almost disappearing with the fill color... bright gold. abundance!");
-                    // the glow lifts it off the fill.
-                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 0, pointerEvents: "none" }}><OctagramMark size={25} color="#D4AF37" strokeWidth={1.3} style={{ filter: "drop-shadow(0 0 3px rgba(212,175,55,0.6))" }} /></span>
-                  ) : eclipseByDate.has(dateStr) ? (
-                    // Eclipse day: the dark gold-rimmed disc IN PLACE of the number — the day is the mark.
-                    <span style={{ width: 20, height: 20, borderRadius: 999, background: "#160f26", border: "1.25px solid #F2C21C", boxShadow: "0 0 6px rgba(242,194,28,0.55)", pointerEvents: "none", display: "inline-block" }} />
-                  ) : (
-                    // THE ONE TEMPLATE: every non-crown, non-eclipse day shows its DATE NUMBER here —
-                    // never a glyph (glyphs live in the rail above). Today's number goes white.
-                    <span style={{ color: isToday ? "#FBF7ED" : "inherit", fontWeight: filled ? 700 : 600, fontSize: "1.15rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
-                      {day}
-                    </span>
-                  )}
-                </div>
+                      : "1.5px solid transparent"
+                  }
+                  numberColor={numberColor}
+                  restingBg={restingBg}
+                  hoverBg={hoverBg}
+                  pressBg={pressBg}
+                  activeInk={activeInk}
+                  accent={accent}
+                  stations={stationsToday.map((e) => e.planet)}
+                  windows={windowGlyphList.map((e) => e.planet)}
+                  moonPhase={(moonPhaseByDate.get(dateStr) as any) ?? null}
+                  prosperity={prosperitySet.has(dateStr)}
+                  achievement={achievementSet.has(dateStr)}
+                />
               </button>
             );
           })}

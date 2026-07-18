@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Dateline, { type DatelineProps } from "@/components/Dateline";
+import CalendarCoin, { type CalendarCoinProps } from "@/components/CalendarCoin";
 
 /**
  * /audit — the VISUAL AUDIT harness. Instead of checking a data-driven graphic across hundreds of
@@ -24,6 +25,24 @@ const MODES: Array<{ label: string; color: string }> = [
 ];
 const ACT_GREEN = "#6BA644";
 const ACT_TEAL = "#3C8A7A";
+
+// Calendar-coin cases — colors are representative (Planner computes the real palette); the point
+// is to exercise every LAYOUT combination the one-template coin can produce.
+const TEAL = "#3C8A7A", GOLD = "#B8912F", GREY = "#7E7E7E", MERC = "#3FA8A0";
+const COIN_CASES: Array<{ note: string; props: CalendarCoinProps }> = [
+  { note: "Plain day", props: { day: 8, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD } },
+  { note: "TODAY (dark square)", props: { day: 17, isToday: true, filled: true, hasMode: true, pulse: "today", numberColor: "#FBF7ED", restingBg: `color-mix(in srgb, ${TEAL} 62%, var(--parchment))`, border: "1.5px solid transparent", accent: TEAL } },
+  { note: "Crown (octagram)", props: { day: 12, isCrown: true, pulse: "lakshmi", numberColor: "#3A2E12", restingBg: "color-mix(in srgb, #FFD429 62%, var(--parchment))", border: "1.5px solid #D4AF37", accent: "#D4AF37" } },
+  { note: "Eclipse (disc)", props: { day: 9, isEclipse: true, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD } },
+  { note: "Caution (red)", props: { day: 4, filled: true, hasMode: true, numberColor: "#fff", restingBg: "#C41E3A", border: "2px solid transparent", accent: "#C41E3A" } },
+  { note: "Station · Mercury", props: { day: 20, stations: ["Mercury"], numberColor: MERC, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${MERC} 58%, transparent)`, accent: MERC } },
+  { note: "Station + window", props: { day: 22, stations: ["Saturn"], windows: ["Mercury"], numberColor: "#454A8C", restingBg: "transparent", border: `1.5px solid color-mix(in srgb, #454A8C 55%, transparent)`, accent: "#454A8C" } },
+  { note: "Moon · full", props: { day: 6, moonPhase: "full", numberColor: GREY, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${GREY} 62%, transparent)`, accent: GREY } },
+  { note: "€ prosperity", props: { day: 7, prosperity: true, numberColor: "#2E9B54", restingBg: "transparent", border: "1.5px solid color-mix(in srgb, #2E9B54 62%, transparent)", accent: "#2E9B54" } },
+  { note: "Achievement ♛", props: { day: 30, achievement: true, numberColor: TEAL, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${TEAL} 62%, transparent)`, accent: TEAL } },
+  { note: "4+ marks (overflow test)", props: { day: 24, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, numberColor: MERC, restingBg: "transparent", border: `1.5px solid color-mix(in srgb, ${MERC} 55%, transparent)`, accent: MERC } },
+  { note: "Crown + station (both)", props: { day: 19, isCrown: true, pulse: "lakshmi", stations: ["Mercury"], achievement: true, numberColor: "#3A2E12", restingBg: "color-mix(in srgb, #FFD429 62%, var(--parchment))", border: "1.5px solid #D4AF37", accent: "#D4AF37" } },
+];
 
 // Each case is a labeled Dateline prop-set. The label says what edge it exercises.
 const CASES: Array<{ note: string; props: DatelineProps }> = [
@@ -81,6 +100,19 @@ export default function Audit() {
             <Tile key={m.label} note={m.label}>
               <Dateline dateLabel="FRI, 07-17-2026" time="11:33 PM" modeColor={m.color} modeLabel={m.label} activity="ENERGIZE" activityColor={ACT_GREEN} horaLord="MOON" />
             </Tile>
+          ))}
+        </div>
+
+        <h2 style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--heading-ink)", margin: "2.5rem 0 0.3rem" }}>The Calendar Coin</h2>
+        <p style={{ fontSize: "0.75rem", color: "var(--color-muted-foreground)", margin: "0 0 1rem" }}>Every mark combination the one-template coin can produce — watch the "4+ marks" tile for rail overflow into neighbors.</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(116px, 1fr))", gap: "0.9rem" }}>
+          {COIN_CASES.map((c, i) => (
+            <div key={`coin-${i}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.55rem" }}>
+              <div style={{ paddingTop: 22, paddingBottom: 8, width: "100%", display: "flex", justifyContent: "center", borderRadius: 12, background: "var(--parchment)", border: "1px solid var(--color-border)" }}>
+                <CalendarCoin {...c.props} />
+              </div>
+              <span style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-muted-foreground)", textAlign: "center" }}>{c.note}</span>
+            </div>
           ))}
         </div>
       </div>
