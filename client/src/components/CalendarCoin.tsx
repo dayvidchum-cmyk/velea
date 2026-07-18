@@ -136,15 +136,22 @@ export default function CalendarCoin(p: CalendarCoinProps) {
           planet's months-long rx reads as a soft line of dots, never a glyph-per-day shout. */}
       {hasBindis && (
         // Left-aligned (David 2026-07-18): every ribbon drains from the same origin — the coin's
-        // left edge — so the count reads comparably across days, like a bar emptying.
+        // left edge — so the count reads comparably across days, like a bar emptying. 8-DOT MAX
+        // (his call): the five cycle states spread across the full row — 8 station · 6 window ·
+        // 4 mid-rx · 2 pre-shadow · 1 post-shadow. A full row (38px) is also a built-in RULER:
+        // any rail misalignment above the coin shows instantly against it.
         <span aria-hidden style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2, pointerEvents: "none", zIndex: 1 }}>
-          {bindis!.map((t, row) => (
-            <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "flex-start" }}>
-              {t && Array.from({ length: Math.max(0, Math.min(5, t.strength)) }, (_, i) => (
-                <span key={i} style={{ width: 3, height: 3, borderRadius: 999, background: PLANET_MARK_INK[t.planet] ?? "currentColor", display: "inline-block" }} />
-              ))}
-            </span>
-          ))}
+          {bindis!.map((t, row) => {
+            const DOTS: Record<number, number> = { 5: 8, 4: 6, 3: 4, 2: 2, 1: 1 };
+            const n = t ? (DOTS[Math.max(1, Math.min(5, t.strength))] ?? 0) : 0;
+            return (
+              <span key={row} style={{ display: "flex", gap: 2, height: 3, alignItems: "center", justifyContent: "flex-start" }}>
+                {t && Array.from({ length: n }, (_, i) => (
+                  <span key={i} style={{ width: 3, height: 3, borderRadius: 999, background: PLANET_MARK_INK[t.planet] ?? "currentColor", display: "inline-block" }} />
+                ))}
+              </span>
+            );
+          })}
         </span>
       )}
     </div>
