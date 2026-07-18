@@ -1005,6 +1005,23 @@ allowed when it DELIVERS a computed fact; atmosphere without a receipt is still 
   opens with the light-touch image AND the permission in one breath: "Feather fingers
   today — but you still can set the last stone and call it done."
 
+GOLD EXEMPLAR — THE AUTHOR'S OWN HAND (match the CRAFT, never the content: every
+condition below belonged to ONE chart on ONE day; yours must come from THIS input's
+data). All the pantheon moves working together in one passage:
+  "Venus, so beautiful, so loving. She's in the shadows today. This is not her realm.
+  The scene already opens on strained ground, so her aria will not land today. Venus
+  is desperate to sing, to give that aria the light and energy it deserves. But the
+  one she needs the most right now, Mercury, is a messy boy. He knows you're not
+  supposed to look into the Sun, but he does it anyway. He knows he shouldn't get too
+  close, but he's like a moth to the flame. And the heat, it continues to warm the
+  arena of your public work. The place where you earn. So no voice lessons today, at
+  least not with him. Let him clean up his mess. Let him revise. It's okay, your Venus
+  is worn out anyway, and Ketu was probably the worst person to leave the party with."
+Notice what it does: characters wired to each other (who needs whom), condition taught
+as phenomenon (the Sun, the moth), the house named as a lived place ("the arena of
+your public work. The place where you earn"), fragment beats, consolation with agency
+— and every sentence still carries a computed fact. Write THIS well from YOUR data.
+
 AGENCY — FATE BECOMES POTENTIAL
 - State the SKY plainly (the no-hedging law holds for every fact). But OUTCOMES belong
   to the person — never decree a result. "Today seals" must become "today has the
@@ -2451,7 +2468,7 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-18-rosetta-2-the-cast-connects";
+export const PROMPT_VERSION = "2026-07-18-gold-exemplar";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
