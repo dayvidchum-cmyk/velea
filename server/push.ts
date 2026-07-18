@@ -80,8 +80,14 @@ const MORNING_HOUR = 8; // 8am local — v1 fixed; per-user hour is a later dial
 // lunar the circuit board gets overloaded. So your light is yours to tend. isn't it?"); the
 // LLM's per-eclipse line joins the pool as understudy. Date-picked like every other pool.
 const DAVID_ECLIPSE: Record<"solar" | "lunar", string[]> = {
-  solar: ["Solar eclipse today — it forces you to look in the dark. Your light is yours to tend, isn't it?"],
-  lunar: ["Lunar eclipse today — the circuit board gets overloaded. Your light is yours to tend, isn't it?"],
+  solar: [
+    "Solar eclipse today — it forces you to look in the dark. Your light is yours to tend, isn't it?",
+    "A 5, 6, 7, 8! Right on time — the sky nails its choreo today, and the lights go out.",
+  ],
+  lunar: [
+    "Lunar eclipse today — the circuit board gets overloaded. Your light is yours to tend, isn't it?",
+    "A 5, 6, 7, 8! Right on time — the sky nails its choreo today, and the lights go out.",
+  ],
 };
 const ECLIPSE_LINE_MEMO = new Map<string, string>();
 async function eclipseBellLine(date: string, type: "solar" | "lunar"): Promise<string> {
