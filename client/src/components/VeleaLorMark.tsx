@@ -35,6 +35,11 @@ export default function VeleaLorMark({
         maskRepeat: "no-repeat",
         WebkitMaskPosition: "center",
         maskPosition: "center",
+        // David 2026-07-18: "~10% bigger — the points are so fine they need to take up more
+        // visual space, and they are allowed." Scale transform grows the drawn mark without
+        // shifting any layout around it; one knob, every usage grows together.
+        transform: "scale(1.12)",
+        transformOrigin: "center",
         ...style,
       }}
     />
