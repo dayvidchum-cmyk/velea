@@ -78,6 +78,11 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
 
   const active = dueTasks.filter((t) => !t.isCompleted);
   const done = dueTasks.filter((t) => t.isCompleted);
+  // GENTLE OVERDUE — one-tap "carry into today" (neurodivergent-UX roadmap): the deck's spec is
+  // auto-offer the reschedule, never make the user renegotiate each task under a pile of overdue.
+  const dstr = (d: any) => (typeof d === "string" ? d.slice(0, 10) : new Date(d).toISOString().slice(0, 10));
+  const overdueActive = active.filter((t) => t.dueDate && dstr(t.dueDate) < localToday);
+  const carryAll = () => { for (const t of overdueActive) updateMutation.mutate({ id: t.id, dueDate: localToday }); };
 
   return (
     <>
@@ -161,6 +166,19 @@ export default function DueOrbSheet({ open, onClose }: DueOrbSheetProps) {
             </button>
           </div>
         </div>
+
+        {/* Carry-forward — appears only when something is waiting; compassion-coded, one tap. */}
+        {overdueActive.length > 0 && (
+          <div className="px-4 pt-3 flex-shrink-0">
+            <button
+              onClick={carryAll}
+              className="w-full rounded-xl py-2.5 text-[13px] font-semibold transition-all"
+              style={{ background: "oklch(0.55 0.14 250 / 0.1)", color: "oklch(0.45 0.14 250)", border: "1px solid oklch(0.55 0.14 250 / 0.25)" }}
+            >
+              Carry {overdueActive.length === 1 ? "it" : `all ${overdueActive.length}`} into today
+            </button>
+          </div>
+        )}
 
         {/* Task list */}
         <div className="overflow-y-auto flex-1 px-4 pb-4 pt-3 space-y-2">

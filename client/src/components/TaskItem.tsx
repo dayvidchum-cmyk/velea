@@ -58,7 +58,10 @@ function formatDueDate(dateStr: string): string {
   if (diff === 0) return "Today";
   if (diff === 1) return "Tomorrow";
   if (diff === -1) return "Yesterday";
-  if (diff < 0) return `${Math.abs(diff)}d overdue`;
+  // GENTLE OVERDUE (neurodivergent-UX roadmap, David-greenlit): "7d overdue" was a mounting shame
+  // counter — rejection-sensitivity turns that arithmetic into avoidance. Name the day it's been
+  // waiting since instead: same information, zero guilt math.
+  if (diff < 0) return `waiting since ${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
   if (diff <= 6) return `In ${diff}d`;
   return due.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
