@@ -231,7 +231,9 @@ function fmtBirthTime(t?: string | null) {
  *  when the server has no VAPID keys (feature not yet configured). */
 function MorningBellRow() {
   const utils = trpc.useUtils();
+  const { user } = useAuth();
   const { data: status } = trpc.push.status.useQuery(undefined, { staleTime: 60_000 });
+  const testBell = trpc.push.testBell.useMutation();
   const subscribeMut = trpc.push.subscribe.useMutation({ onSettled: () => utils.push.status.invalidate() });
   const unsubscribeMut = trpc.push.unsubscribe.useMutation({ onSettled: () => utils.push.status.invalidate() });
   const [busy, setBusy] = useState(false);
@@ -288,6 +290,15 @@ function MorningBellRow() {
           renderLabel={(v) => <span className="flex items-center gap-1.5">{busy ? "…" : v === "on" ? "On" : "Off"}</span>}
         />
         {note && <span style={{ fontSize: "0.68rem", color: "var(--color-muted-foreground)", textAlign: "right", maxWidth: 200 }}>{note}</span>}
+        {user?.role === "admin" && status.subscribed && (
+          <button
+            onClick={() => testBell.mutate()}
+            disabled={testBell.isPending}
+            style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--brand-gold, #B08D2E)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", padding: 0 }}
+          >
+            {testBell.isPending ? "Ringing…" : testBell.data ? `Rang ${testBell.data.sent} device${testBell.data.sent === 1 ? "" : "s"}` : "Ring it now (admin test)"}
+          </button>
+        )}
       </div>
     </SettingRow>
   );
