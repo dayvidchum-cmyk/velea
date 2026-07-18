@@ -2396,10 +2396,10 @@ export const appRouter = router({
       }),
     // Admin: ring yourself NOW to hear the bell end-to-end.
     testBell: adminProcedure.mutation(async ({ ctx }) => {
-      const { sendPushToUser } = await import("./push.js");
+      const { sendPushToUser, skyLineForToday } = await import("./push.js");
       const u = await getUserById(ctx.user.id);
       const first = (u?.name ?? "").trim().split(/\s+/)[0] || "friend";
-      const sent = await sendPushToUser(ctx.user.id, { title: `Good morning, ${first}!`, body: "Let's see how the stage is set today.", url: "/" });
+      const sent = await sendPushToUser(ctx.user.id, { title: `Good morning, ${first}!`, body: await skyLineForToday(u?.locationTimezone), url: "/" });
       return { sent };
     }),
   }),

@@ -17,6 +17,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "./db.js";
 import { pushSubscriptions, users } from "../drizzle/schema.js";
 import { getTimezoneOffset } from "./panchang/tz-offset.js";
+import { yearStationMarks } from "./sky/current-sky.js";
 
 export function pushConfigured(): boolean {
   return !!(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
@@ -75,6 +76,34 @@ function localClock(tz: string | null | undefined): { date: string; hour: number
 
 const MORNING_HOUR = 8; // 8am local — v1 fixed; per-user hour is a later dial
 
+/**
+ * THE BELL'S SKY LINE (David 2026-07-18): the greeting stays; the body reads the day's sky.
+ * Deterministic — the engine picks the state, DAVID's words fill it (no LLM, no cost). States he
+ * hasn't worded yet fall through to the default stage line; new lines drop into this table as he
+ * writes them (the bell-voices list on the brief).
+ */
+const DAY_WORD: Record<number, string> = { 1: "tomorrow", 2: "in 2 days", 3: "in 3 days" };
+async function skyLineFor(localDate: string): Promise<string> {
+  try {
+    const from = localDate;
+    const to = new Date(Date.parse(localDate + "T00:00:00Z") + 4 * 86400000).toISOString().slice(0, 10);
+    const marks = await yearStationMarks(from, to);
+    // Pre-direct window — a retro planet stations direct within 3 days (his waterfalls line).
+    let best: { planet: string; days: number } | null = null;
+    for (const st of marks.stations) {
+      if (st.kind !== "station-direct") continue;
+      const days = Math.round((Date.parse(st.date + "T00:00:00Z") - Date.parse(localDate + "T00:00:00Z")) / 86400000);
+      if (days >= 1 && days <= 3 && (!best || days < best.days)) best = { planet: st.planet, days };
+    }
+    if (best) {
+      const when = DAY_WORD[best.days] ?? `in ${best.days} days`;
+      return `${best.planet} stations direct ${when}. Don't go chasing waterfalls.`;
+    }
+    // (Slots awaiting David's words: station TODAY · pre-retro window · eclipse day · crown day.)
+  } catch { /* sky unavailable — the default line never fails */ }
+  return "Let's see how the stage is set today.";
+}
+
 /** One scheduler tick: ring every subscribed user whose local clock is in the 8am hour and who
  *  hasn't been rung on their local date yet. */
 export async function morningBellTick(): Promise<void> {
@@ -100,9 +129,8 @@ export async function morningBellTick(): Promise<void> {
     if (r.lastMorningPush === clock.date) continue; // already rung today (their today)
     const first = (r.name ?? "").trim().split(/\s+/)[0] || "friend";
     const sent = await sendPushToUser(r.userId, {
-      // David's exact words — the first bell.
       title: `Good morning, ${first}!`,
-      body: "Let's see how the stage is set today.",
+      body: await skyLineFor(clock.date), // the day's sky picks the line — David's words, engine-chosen
       url: "/",
     });
     if (sent > 0) {
@@ -111,6 +139,12 @@ export async function morningBellTick(): Promise<void> {
         .where(eq(pushSubscriptions.userId, r.userId));
     }
   }
+}
+
+/** The sky line for a user's local today — used by the admin test bell so it rings the REAL line. */
+export async function skyLineForToday(tz?: string | null): Promise<string> {
+  const clock = localClock(tz) ?? { date: new Date().toISOString().slice(0, 10), hour: 0 };
+  return skyLineFor(clock.date);
 }
 
 let schedulerStarted = false;
