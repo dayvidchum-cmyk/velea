@@ -1128,6 +1128,10 @@ export default function Planner() {
               padding: '1.75rem 1.75rem 1.5rem',
               background: heroGradient,
               ["--hero-ink" as any]: "color-mix(in srgb, var(--day-accent) 14%, #FBF7ED)",
+              // Loaders on this card sweep in hero ink, not the day accent the gradient is
+              // made of (accent-on-accent = invisible — Lisa's "Crafting…" line).
+              ["--loader-ink" as any]: "var(--hero-ink)",
+              ["--loader-label-ink" as any]: "color-mix(in srgb, var(--hero-ink) 85%, transparent)",
               minHeight: heroOpen ? '280px' : undefined,
               display: 'flex',
               flexDirection: 'column',

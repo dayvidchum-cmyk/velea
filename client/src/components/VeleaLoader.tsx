@@ -9,12 +9,16 @@ export default function VeleaLoader({ size = 30, label }: { size?: number; label
   return (
     <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 9, width: "100%", padding: "0.6rem 0" }}>
       {/* color pins the accent here so the CSS dilation shadows (currentColor) fatten in the
-          same ink as the mark; in-button mini loaders inherit their button's color instead. */}
-      <span className="velea-loader" style={{ display: "inline-flex", lineHeight: 0, color: "var(--day-accent, var(--brand-gold))" }}>
+          same ink as the mark; in-button mini loaders inherit their button's color instead.
+          SURFACE TOKENS (Lisa's invisible loader, 2026-07-18): a dark card whose gradient is
+          BUILT from the day accent renders an accent-colored mark invisible. Any surface can
+          set --loader-ink / --loader-label-ink at its root (the hero card does) and every
+          loader inside inherits legible ink; everywhere else the old defaults hold. */}
+      <span className="velea-loader" style={{ display: "inline-flex", lineHeight: 0, color: "var(--loader-ink, var(--day-accent, var(--brand-gold)))" }}>
         <VeleaMark size={size} color="currentColor" />
       </span>
       {label && (
-        <span style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", textAlign: "center" }}>
+        <span style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--loader-label-ink, var(--color-muted-foreground))", textAlign: "center" }}>
           {label}
         </span>
       )}
