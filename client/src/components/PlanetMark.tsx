@@ -20,8 +20,9 @@ export const PLANET_MARK_INK: Record<string, string> = {
 const FILES: Record<string, string> = {
   Mercury: "mercury", Saturn: "saturn", Venus: "venus", Mars: "mars", Jupiter: "jupiter",
   Rahu: "rahu", Ketu: "ketu",
-  // Sun & Moon: no art in David's 2026-07-17 drop yet — they render via the Unicode
-  // fallback below. Add "sun"/"moon" here (+ drop the PNGs in planet-marks/) to upgrade.
+  // Sun & Moon art landed 2026-07-17 (his "SUN.Moon" drop) — the family is complete, all nine
+  // are his own glyphs now. The Unicode fallback below stays as a safety net only.
+  Sun: "sun", Moon: "moon",
 };
 
 // Fallback so PlanetMark is safe EVERYWHERE (David 2026-07-17: "planet glyphs go everywhere").
