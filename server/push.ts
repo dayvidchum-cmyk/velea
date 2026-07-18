@@ -83,8 +83,11 @@ const MORNING_HOUR = 8; // 8am local — v1 fixed; per-user hour is a later dial
  * writes them (the bell-voices list on the brief).
  */
 const DAY_WORD: Record<number, string> = { 1: "tomorrow", 2: "in 2 days", 3: "in 3 days" };
-// Planet pronouns for David's lines (Venus & the Moon speak as she — his to correct).
-const PRONOUN: Record<string, string> = { Venus: "She", Moon: "She" };
+// Planet pronouns (David's pantheon canon, 2026-07-18): the Moon is THEY — Chandra is male in
+// the Vedas, "a horny whoring polygamist with a fucking harem, each in her own palace": the 27
+// nakshatra wives ARE the lunar mansions, one palace visited per night (Tara Bala's mythic skin).
+// David renders them They. Venus = She until he says otherwise; the rest He.
+const PRONOUN: Record<string, string> = { Venus: "She", Moon: "They" };
 async function skyLineFor(localDate: string): Promise<string> {
   try {
     const from = localDate;
