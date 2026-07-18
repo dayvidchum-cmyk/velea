@@ -69,11 +69,11 @@ describe("calculateDashaTimeline", () => {
     );
     const first = result.entries[0];
     expect(first.mahadasha).toBe("Mercury");
-    // First antardasha of Mercury mahadasha is Rahu (sequence starts at Mercury index = 8,
-    // so antardasha starts at Mercury itself... wait, let's check actual sequence)
-    // Mercury is index 8 in DASHA_SEQUENCE, so antardashas start at index 8:
-    // Mercury, Ketu, Venus, Sun, Moon, Mars, Rahu, Jupiter, Saturn
-    expect(first.antardasha).toBe("Mercury");
+    // BALANCE OF DASHA: birth falls 0.654 through Jyeshtha (see header), i.e. 0.654 through
+    // the Mercury maha. Antardasha cumulative fractions (lord-years/120): Mercury .142,
+    // Ketu .200, Venus .367, Sun .417, Moon .500, Mars .558, Rahu .708 — 0.654 lands inside
+    // RAHU. The first LIVED antardasha is Mercury/Rahu; the earlier six elapsed before birth.
+    expect(first.antardasha).toBe("Rahu");
   });
 
   it("first entry starts at birth date", () => {
@@ -99,7 +99,7 @@ describe("calculateDashaTimeline", () => {
     expect(result.entries[0].startAge).toBe("birth");
   });
 
-  it("produces exactly 81 entries (9 mahadashas × 9 antardashas)", () => {
+  it("produces exactly 75 entries (81 minus the 6 antardashas elapsed before birth)", () => {
     const result = calculateDashaTimeline(
       BIRTH_DATE,
       MOON_NAKSHATRA,
@@ -107,7 +107,9 @@ describe("calculateDashaTimeline", () => {
       MOON_DEGREE,
       TODAY_2026
     );
-    expect(result.entries.length).toBe(81);
+    // 9 mahas × 9 antardashas = 81, but the timeline starts AT BIRTH: the six Mercury
+    // antardashas already elapsed (Mercury..Mars, see above) are not lived, so 75 remain.
+    expect(result.entries.length).toBe(75);
   });
 
   it("marks exactly one entry as current", () => {

@@ -128,7 +128,7 @@ describe("projects.create", () => {
     const { createProject } = await import("./db");
     const caller = appRouter.createCaller(makeAuthCtx());
     const result = await caller.projects.create({ name: "New Project" });
-    expect(createProject).toHaveBeenCalledWith(1, "New Project", null);
+    expect(createProject).toHaveBeenCalledWith(1, "New Project", null, []);
     expect(result).toMatchObject({ id: 99, name: "New Project" });
   });
 

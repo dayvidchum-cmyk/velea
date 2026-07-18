@@ -101,7 +101,10 @@ describe("resolveAstrologySubject", () => {
     expect(result).not.toBeNull();
     expect(result!.birthDate).toBe("1982-04-13");
     expect(result!.lagnaSign).toBe("Virgo");
-    expect(result!.source).toBe("owner");
+    // getActiveProfile now falls back to the owner chart itself (the blank-reading fix),
+    // so the subject resolves via the active-profile path and is labeled "profile". The
+    // label is informational pass-through (nothing branches on it).
+    expect(result!.source).toBe("profile");
   });
 
   it("returns active profile data when an active profile is set", async () => {

@@ -45,11 +45,27 @@ vi.mock("./db", () => ({
   upsertNatalBody: vi.fn().mockResolvedValue(undefined),
   getNatalBodiesByUser: vi.fn().mockResolvedValue([]),
   getNatalBodyByUserAndPlanet: vi.fn().mockResolvedValue(null),
-  getDb: vi.fn().mockResolvedValue({
-    update: vi.fn().mockReturnThis(),
-    set: vi.fn().mockReturnThis(),
-    where: vi.fn().mockResolvedValue(undefined),
-  }),
+  getDb: vi.fn().mockResolvedValue((() => {
+    // Minimal drizzle-shaped stub: selects resolve empty (no profiles exist in these tests),
+    // updates resolve undefined. `where` must be BOTH awaitable (update chain terminal) and
+    // chainable (select().from().where().limit()), so it returns a promise with limit/orderBy.
+    const emptyResult = () => Object.assign(Promise.resolve([]), {
+      limit: async () => [],
+      orderBy: async () => [],
+    });
+    const chain: any = {};
+    chain.select = () => chain;
+    chain.from = () => chain;
+    chain.orderBy = async () => [];
+    chain.limit = async () => [];
+    chain.where = emptyResult;
+    chain.update = () => chain;
+    chain.set = () => chain;
+    chain.insert = () => chain;
+    chain.values = emptyResult;
+    chain.delete = () => chain;
+    return chain;
+  })()),
   getAllSystemPrompts: vi.fn().mockResolvedValue([]),
   getReflectionByDate: vi.fn().mockResolvedValue(null),
   getReflectionsByUser: vi.fn().mockResolvedValue([]),
@@ -142,6 +158,7 @@ describe("settings.calculateBirthChart", () => {
       birthTimezone: "UTC", // falls back to UTC when not provided
       // Calculated chart data
       lagnaSign: "Virgo",
+      mcLongitude: null, // MC travels with the chart since the Meridian work (null when unset)
       sunHouse: 10,
       moonHouse: 12,
       marsHouse: 8,
