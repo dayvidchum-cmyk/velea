@@ -1715,7 +1715,7 @@ export default function Planner() {
                     );
                     const slotted = others.map((n, i) => slot(n, i));
                     return (
-                      <span style={{ position: "absolute", top: -13, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
+                      <span style={{ position: "absolute", top: -17, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
                         {hasCrownMark ? (
                           // Crown law: ♛ ALWAYS rides the coin's center axis; others flank it.
                           // A 3-column grid keeps the crown pinned even with an odd flank count.
