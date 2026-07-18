@@ -147,7 +147,7 @@ export default function Login() {
         onSubmit={handleSubmit}
         style={{
           position: "absolute",
-          top: "84%", // the threshold floats in the star-sea beneath the temple
+          top: "76%", // EMAIL lands on David's neon-green mark (~70.7% screen); pw + Enter follow below
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "min(230px, 60vw)",
