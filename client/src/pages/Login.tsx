@@ -126,7 +126,7 @@ export default function Login() {
       <h1
         style={{
           position: "absolute",
-          top: "74%", // BELOW the gate (David 2026-07-18: "Velea and all the stuff under it… sit below the gate — there's a whole section of star field") — the name opens the star-sea
+          top: "12.5%", // ABOVE the natal-chart square's top line (~15.5%), right above the gate's peak (David: the name crowns the composition; the form lives in the star-sea below)
           left: "50%",
           transform: "translate(-50%, -50%)",
           fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
