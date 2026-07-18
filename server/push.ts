@@ -139,7 +139,7 @@ const POOL = {
     "The Moon is 400 times smaller than the Sun — and 400 times closer. An eclipse is an exact fit.",
     "Every eclipse returns after 6,585 days — a third of the world further west each time.",
     "The Moon sleeps in a different one of 27 star-mansions every night. Tonight's has a name.",
-    "In Vedic time, the day doesn't begin at midnight. It begins when the Sun does.",
+    "In Vedic time, the day begins with the light.", // David's rewrite of my longer version
     "Mercury is retrograde about one day in five. You've survived every single one.",
     "Let's see how the stage is set today.",
   ],
