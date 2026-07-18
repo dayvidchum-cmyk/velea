@@ -35,8 +35,17 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
   const { data: sky } = trpc.celestial.today.useQuery(undefined, { staleTime: 30 * 60 * 1000, enabled: isNight });
   const moonFile = isNight ? (sky as any)?.image ?? null : null;
 
-  const bgSrc = isNight ? (moonFile ? `/celestial/${moonFile}` : null) : `/${day!.file}`;
-  const chrome = isNight ? "#0a131e" : day!.chrome;
+  // David's phone-ratio lunar greetings (2026-07-18) mirror the celestial basenames, so the
+  // eight phases go full-bleed; anything outside the set (eclipse nights, for now) falls back
+  // to the Stage art shown whole.
+  const LUNAR_GREETINGS = new Set([
+    "new-moon.jpg", "waxing-crescent.jpg", "first-quarter.jpg", "waxing-gibbous.jpg",
+    "full-moon.jpg", "waning-gibbous.jpg", "last-quarter.jpg", "waning-crescent.jpg",
+  ]);
+  const moonFullBleed = !!moonFile && LUNAR_GREETINGS.has(moonFile);
+  const bgSrc = isNight ? (moonFile ? (moonFullBleed ? `/welcome-moon/${moonFile}` : `/celestial/${moonFile}`) : null) : `/${day!.file}`;
+  const fullBleed = !isNight || moonFullBleed;
+  const chrome = isNight ? (moonFullBleed ? "#010104" : "#0a131e") : day!.chrome;
   useDarkChromeWhile(true, chrome); // match the sky at the top so there's no bar mismatch
 
   const greeting = pickGreeting(now, firstName);
@@ -73,14 +82,15 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
           style={{
             position: "absolute", inset: 0,
             backgroundImage: `url(${bgSrc})`,
-            backgroundSize: isNight ? "contain" : "cover",
+            backgroundSize: fullBleed ? "cover" : "contain",
             backgroundPosition: "center center",
             backgroundRepeat: "no-repeat",
             animation: "velea-sky-in 5s ease-out both",
           }}
         />
       )}
-      {/* Whisper of a top scrim under bright skies so the white greeting always reads. */}
+      {/* Whisper of a top scrim under bright skies so the white greeting always reads. The lunar
+          greetings' starfields are already near-black at the top — no scrim needed at night. */}
       {!isNight && (
         <div
           aria-hidden="true"
