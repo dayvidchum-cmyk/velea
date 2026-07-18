@@ -132,9 +132,12 @@ function addYears(date: Date, years: number): Date {
  * Format a Date as YYYY-MM-DD string.
  */
 function toDateString(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
+  // audit LOW: the dates here are UTC-constructed (new Date(birth + "T00:00:00Z") advanced by ms),
+  // so read them back in UTC. A no-op on the UTC prod server; correct if the server TZ ever changes
+  // (local getters would otherwise shift the boundary by up to a day and disagree with dasha-tree).
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(date.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 

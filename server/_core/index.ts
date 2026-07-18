@@ -12,6 +12,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { rateLimit } from "./rateLimit";
 import { addWaitlistSignup } from "../db";
+import { COOKIE_NAME } from "@shared/const";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -53,7 +54,7 @@ async function startServer() {
   const landingHosts = new Set(["velealor.com", "www.velealor.com"]);
   app.get("/", (req, res, next) => {
     if (!landingHosts.has(req.hostname)) return next();
-    if ((req.headers.cookie ?? "").includes("app_session_id=")) return next();
+    if ((req.headers.cookie ?? "").includes(`${COOKIE_NAME}=`)) return next();
     const file =
       process.env.NODE_ENV === "development"
         ? path.resolve(import.meta.dirname, "../..", "client", "public", "landing.html")

@@ -201,7 +201,8 @@ export const narrativeRouter = router({
         } catch { /* audit M20: a thrown error here is a transient hiccup (DB, missing row), NOT a paywall — return unavailable, not locked, so an owner isn't shown a lock until it clears */ return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const; }
       }
       const { getHouseReadCached } = await import("./service.js");
-      return await getHouseReadCached(profile.id, input.house, input.refresh ?? false);
+      // audit LOW: meter forced regen (same class as M2) — only admins may cache-bypass a reader.
+      return await getHouseReadCached(profile.id, input.house, ctx.user.role === "admin" && (input.refresh ?? false));
     } catch (e) {
       console.error("[narrative.houseRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
@@ -246,7 +247,7 @@ export const narrativeRouter = router({
         } catch { /* audit M20: a thrown error here is a transient hiccup (DB, missing row), NOT a paywall — return unavailable, not locked, so an owner isn't shown a lock until it clears */ return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const; }
       }
       const { getDashaReadCached } = await import("./service.js");
-      return await getDashaReadCached(profile.id, input.lord, input.span, input.refresh ?? false, input.antar);
+      return await getDashaReadCached(profile.id, input.lord, input.span, ctx.user.role === "admin" && (input.refresh ?? false), input.antar);
     } catch (e) {
       console.error("[narrative.dashaRead]", e);
       return { available: false, read: null, generatedAt: null, cached: false } as const;
@@ -287,7 +288,7 @@ export const narrativeRouter = router({
         },
       };
       const { getTlWindowReadCached } = await import("./service.js");
-      return await getTlWindowReadCached(profile.id, input.from, tlInput, input.refresh ?? false, input.sign);
+      return await getTlWindowReadCached(profile.id, input.from, tlInput, ctx.user.role === "admin" && (input.refresh ?? false), input.sign);
     } catch (e) {
       console.error("[narrative.tlWindowRead]", e);
       return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
@@ -300,7 +301,7 @@ export const narrativeRouter = router({
     if (!date) return { available: false as const, locked: true as const, chapter: null, generatedAt: null, cached: false };
     try {
       const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
-      return await getChapterCached(input.profileId, date, input.refresh ?? false, dayLoc);
+      return await getChapterCached(input.profileId, date, ctx.user.role === "admin" && (input.refresh ?? false), dayLoc);
     } catch (e) {
       console.error("[narrative.chapter]", e);
       return { available: false, chapter: null, generatedAt: null, cached: false } as const;
@@ -353,7 +354,11 @@ export const narrativeRouter = router({
     }
     await setNarrativeLock(input.profileId, "glance", date, input.locked);
     await setNarrativeLock(input.profileId, "deep", date, input.locked);
-    return { locked: input.locked };
+    // audit LOW: report the ACTUAL lock state, not the requested one — if the glance row never
+    // existed (its generation hit a dry wallet / cap), the UPDATE was a no-op and the pin didn't
+    // take. Reading it back keeps the UI's "Pinned" honest instead of confirming a lock that isn't.
+    try { return { locked: await isNarrativeLocked(input.profileId, date) }; }
+    catch { return { locked: input.locked }; }
   }),
 
   // Deterministic (ephemeris) current transits for the CURRENT TRIGGER breakdown.

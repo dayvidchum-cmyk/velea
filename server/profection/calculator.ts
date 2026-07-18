@@ -79,18 +79,20 @@ export function calculateProfectionYear(
   const birth = new Date(birthDate);
   const current = new Date(currentDate);
 
-  // Calculate age at the start of the profection year
-  // The profection year starts on the user's birthday
+  // Calculate age at the start of the profection year (the user's birthday).
+  // audit LOW: birth/current are UTC-parsed date-only strings, so use UTC year getters/setters —
+  // a no-op on the UTC prod server, but prevents a birthday-rollover (and thus activated-house /
+  // Time-Lord) flipping a day early/late near midnight if the server TZ ever changes.
   let profectionYearStart = new Date(birth);
-  profectionYearStart.setFullYear(current.getFullYear());
+  profectionYearStart.setUTCFullYear(current.getUTCFullYear());
 
   // If the birthday hasn't occurred yet this year, use last year's birthday
   if (profectionYearStart > current) {
-    profectionYearStart.setFullYear(current.getFullYear() - 1);
+    profectionYearStart.setUTCFullYear(current.getUTCFullYear() - 1);
   }
 
   // Calculate age at profection year start
-  const age = profectionYearStart.getFullYear() - birth.getFullYear();
+  const age = profectionYearStart.getUTCFullYear() - birth.getUTCFullYear();
 
   // Calculate activated house: age % 12
   // 0 = 1st house, 1 = 2nd house, ..., 11 = 12th house
