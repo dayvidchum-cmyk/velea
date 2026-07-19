@@ -414,4 +414,14 @@
 // chip shows "Reading from <city>" and, on tap, opens the existing LocationSheet (via the shared
 // velea-open-location event) — no schema, reuses the per-user current location. This is v1 of the fuller
 // hometown + current + per-date location model (that fuller (B) version needs a reviewed schema, TODO).
-export const APP_VERSION = "1.1.755";
+// v1.1.756 = 2026-07-18 — THE LOCATION MODEL, whole (the fuller (B) version the v1.1.428 note
+// promised): ONE server resolver (resolveDaySky: per-date override → current (±3 days of today) →
+// hometown → birth → default) with the location REQUIRED at compile time everywhere — the silent-
+// Boston divergence class is dead (celestial time-of-day, monthSaved peek, recalculate, whyToday's
+// majority star, testReadingForUser all were unlocated; all wired). ONE editing surface: the
+// LocationSheet, now with contextual openings — missing-location prompt (once/session), profile-
+// switch confirm (Q2), and pick-a-date "Where were you this day?" (writes a per-profile-per-date
+// override row). Hometown per profile (editor field + geocoder; seeded from birth). City search
+// now stores the CITY's timezone, not the device's. BirthChartSheet (dead duplicate birth editor)
+// deleted. Schema: profiles.hometown* + profile_day_locations via scripts/add-location-model.ts.
+export const APP_VERSION = "1.1.756";
