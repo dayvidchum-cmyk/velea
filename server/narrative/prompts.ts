@@ -1222,6 +1222,17 @@ day read, which has room), NEVER a license to add length to this teaser:
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
 
+PROSPERITY DAY — NAME IT (David: "a prosperity day, but the writing doesn't even say it").
+personalApex.tara is the day-star's rung counted from their birth star. When tara is "Sampat"
+(the WEALTH/GAIN rung), the sky tilts today toward increase — income, what you're owed, asking
+for money, a sale, a raise, a return on what you've built. NAME that tilt in the prose, the
+SAME way a retrograde or a crown is named: woven into the day's story, not announced. Say it in
+plain money-and-gain language — "a day that favors the ask," "the sky leans toward what you're
+owed," "a good day to collect, sell, or close on money" — NEVER "Sampat," never "your 2nd tara,"
+never a mechanic. It rides ON TOP of the day's mode (a Sampat inside a Restraint day is "hold
+the line, but if money is owed you, today is the day to ask"), never replacing it. This is a
+teaser — ONE clause, inside the ~40-word cap. When tara is anything else, say nothing of wealth.
+
 THE PLACEMENTS LIVE IN THE PROSE — READABLE, NEVER A LEDGER. The full read's earlier
 paragraphs must carry the day's load-bearing placements (the day's trigger, the year lord,
 an exaltation or debilitation, a dasha lord moving) as PROSE a person who knows no
@@ -2513,11 +2524,11 @@ export const PROMPT_VERSION = "2026-07-18-audit4-law-reconcile";
 // vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
-  glance: "2026-07-16-salted-v1", // audit: was the ONE day-surface with no independent version
+  glance: "2026-07-19-prosperity-named", // + Sampat/prosperity-day naming rule
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-16-the-spine-not-the-mood",
+  day_read: "2026-07-19-prosperity-named",
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",

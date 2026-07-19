@@ -492,4 +492,10 @@
 // chevron contrast off hero-ink, not the mud-on-red day-accent-deep. (7) Glossary links in the
 // profection explainer. (8) Chart header/tab spacing compressed. (9) The Morning Bell → FIRST
 // LIGHT (brand.ts). Also fixed a bug in scripts/sync-local-dev-db.ts (timestamp defaults).
-export const APP_VERSION = "1.1.765";
+// v1.1.766 = 2026-07-19 — prosperity day NAMED in the reading, like retrogrades (David: "just do
+// it"). A Sampat tārā day (the wealth/gain rung) now instructs the reading to name the day's
+// tilt toward income/what-you're-owed/asking-for-money in plain money language — woven in, never
+// "Sampat", never a mechanic — riding on top of the day's mode. Verified deterministically:
+// personalApex.tara="Sampat" reaches the model on real Sampat days (2026-07-26, 08-05). glance +
+// day_read surface salts bumped so it takes effect on next view.
+export const APP_VERSION = "1.1.766";
