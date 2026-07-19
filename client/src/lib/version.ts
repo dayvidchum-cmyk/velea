@@ -454,4 +454,9 @@
 // me around" / Settings); (3) the Morning Bell rings only for onboarded accounts, never in a
 // session where first-run beats played, never over another overlay (its opens count is
 // device-wide, so account-level gates were missing).
-export const APP_VERSION = "1.1.761";
+// v1.1.762 = 2026-07-18 — self-audit of v756–v761 (AUDIT_2026-07-18_v756-761.md): 4 findings,
+// 4 fixed — (1) one unveiled paint in the returning-login veil (now flag-keyed); (2) almanac
+// year walk no longer consults the per-date override tier (a yearStart override relocated the
+// whole year); (3) missing-location prompt gate was unreachable for show-cap-burned accounts
+// (welcome-seen → manifesto-seen); (4) LocationSheet resets stale status on open.
+export const APP_VERSION = "1.1.762";

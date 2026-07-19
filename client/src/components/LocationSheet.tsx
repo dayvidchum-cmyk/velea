@@ -40,6 +40,12 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
     else if (locationData?.city) setSavedCity(locationData.city);
   }, [locationData, dayOverride, isDayOverride]);
 
+  // Fresh state every open (audit v762): with reload-on-save gone the sheet persists across
+  // opens, so a stale error/success from last time would re-show on the next open.
+  useEffect(() => {
+    if (open) { setStatus("idle"); setErrorMsg(""); }
+  }, [open]);
+
   const onSaved = {
     onSuccess: () => {
       setStatus("success");

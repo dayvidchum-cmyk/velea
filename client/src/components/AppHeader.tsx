@@ -89,7 +89,9 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   const { data: promptTourState } = trpc.settings.getTourState.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   useEffect(() => {
     if (!isAuthenticated || !promptLoc || promptLoc.lat) return;
-    if (!promptTourState?.seen?.includes("welcome")) return; // first-run beats own this moment
+    // Manifesto-seen = onboarded (audit v762) — the old welcome-seen gate was unreachable for
+    // accounts whose welcome burned by show-cap, so they'd never be prompted at all.
+    if (!promptTourState?.seen?.includes("manifesto")) return; // first-run beats own this moment
     if (sessionStorage.getItem("velea-loc-prompted")) return;
     const t = setTimeout(() => {
       if (document.querySelector("[data-velea-welcome], [data-velea-overlay]")) return;

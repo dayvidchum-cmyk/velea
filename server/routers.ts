@@ -194,7 +194,9 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   // DST-aware offsets per date via the sky's timezone.
   const { getUserById: getU } = await import("./db.js");
   const u = await getU(userId);
-  const sky = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: yearStart });
+  // NO profileId here (audit v762): the year walk wants the STABLE place. Passing it let a
+  // per-date override that happens to sit on yearStart relocate the entire year's almanac.
+  const sky = await resolveDaySky({ user: u, profile, dateStr: yearStart });
   const offsetFor = (date: string) => sky.timezone ? getTimezoneOffset(sky.timezone, new Date(date + "T12:00:00Z")) : sky.utcOffset;
   // Rounded to ~1km so a re-geocode of the same town never busts the year (time-stable law).
   const locKey = `${sky.lat.toFixed(2)},${sky.lon.toFixed(2)},${sky.timezone ?? sky.source}`;

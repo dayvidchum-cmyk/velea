@@ -110,7 +110,11 @@ const { user, loading } = useAuth();
   // login navigates without remounting App. Timeout so a hung fetch can never hold the gate.
   const freshLoginPending = (() => { try { return sessionStorage.getItem("velea_splash") === "1"; } catch { return false; } })();
   const [veilTimedOut, setVeilTimedOut] = useState(false);
-  const bootVeilVisible = freshLoginPending && !showSplash && !firstRunState.data && !veilTimedOut;
+  // AUDIT v762: keyed on the FLAG, not on tourState arrival — data lands one render before the
+  // effect mounts the splash, and that gap was one unveiled paint of Today. The flag is consumed
+  // in the same commit the splash (or beat 5) mounts, and every beat renders ABOVE the veil
+  // (manifesto z-140, splash/welcome z-9999/130 vs veil z-125), so the veil can never mask them.
+  const bootVeilVisible = freshLoginPending && !showSplash && !veilTimedOut;
   useEffect(() => {
     if (!bootVeilVisible) return;
     const t = setTimeout(() => setVeilTimedOut(true), 6000);
