@@ -448,4 +448,10 @@
 // change. (2) LocationSheet saves no longer window.location.reload() — queries invalidate in
 // place, so the flow that opened the sheet (welcome, Today, pick-a-date) keeps its state and
 // the chip updates live. Shared capture helper: lib/capture-location.ts.
-export const APP_VERSION = "1.1.760";
+// v1.1.761 = 2026-07-18 — quieting pass (David's velea-profile recording): (1) reopen-greeting
+// sync hint now keys on the MANIFESTO seen, not welcome — accounts whose welcome burned by
+// show-cap flashed Today forever; (2) page tours NEVER auto-fire — explicit start only ("Show
+// me around" / Settings); (3) the Morning Bell rings only for onboarded accounts, never in a
+// session where first-run beats played, never over another overlay (its opens count is
+// device-wide, so account-level gates were missing).
+export const APP_VERSION = "1.1.761";

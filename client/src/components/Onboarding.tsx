@@ -265,17 +265,9 @@ export default function Onboarding({ active, userId }: Props) {
     return () => window.removeEventListener("velea-start-tour", onStart);
   }, [location]);
 
-  // Run the current page's tour the first time the user lands there — but ONLY after the
-  // welcome has been dismissed AND the user opted into tours (enabled). No forced overlays.
-  useEffect(() => {
-    if (!active || userId == null || running || taskGuide) return;
-    const data = tourState.data;
-    if (!data || !data.enabled || !data.seen.includes("welcome")) return;
-    const pageTour = PAGE_TOURS.find((p) => p.route === location);
-    if (!pageTour || data.seen.includes(pageTour.key)) return;
-    const t = setTimeout(() => { setTourIndex(0); setRunning({ key: pageTour.key, steps: pageTour.steps }); }, 700);
-    return () => clearTimeout(t);
-  }, [active, userId, running, taskGuide, tourState.data, location]);
+  // KILLED (David, 2026-07-18 "the tour shouldn't even go on automatically. its a lot"):
+  // per-page tours no longer auto-fire on first visit. Tours run ONLY on explicit start —
+  // the welcome's "Show me around" and Settings — via the velea-start-tour event above.
 
   const finishTour = useCallback(() => {
     setRunning((r) => { if (r) markSeen.mutate({ key: r.key }); return null; });
@@ -291,6 +283,7 @@ export default function Onboarding({ active, userId }: Props) {
   const showManifesto = !manifestoDismissed && active && userId != null && !running && !taskGuide
     && !!tourState.data && !tourState.data.seen.includes("manifesto") && location === "/";
   if (showManifesto) {
+    try { sessionStorage.setItem("velea-firstrun-session", "1"); } catch { /* ignore */ } // quiets nudges this session
     return <ManifestoIntro onBegin={() => { setManifestoDismissed(true); markSeen.mutate({ key: "manifesto" }); }} />;
   }
 
@@ -302,6 +295,7 @@ export default function Onboarding({ active, userId }: Props) {
     && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto"))
     && !tourState.data.seen.includes("welcome") && location === "/";
   if (showSplashBeat) {
+    try { sessionStorage.setItem("velea-firstrun-session", "1"); } catch { /* ignore */ }
     return <BrandSplash onDone={() => { try { sessionStorage.removeItem("velea_splash"); } catch { /* ignore */ } setSplashBeatDone(true); }} />;
   }
 
@@ -315,6 +309,7 @@ export default function Onboarding({ active, userId }: Props) {
     && !tourState.data.seen.includes("welcome") && (((tourState.data as any).welcomeShows ?? 0) < 1)
     && location === "/";
   if (showWelcome) {
+    try { sessionStorage.setItem("velea-firstrun-session", "1"); } catch { /* ignore */ }
     return (
       <FirstRunWelcome
         name={prof?.name ?? ""}

@@ -75,9 +75,12 @@ const { user, loading } = useAuth();
   const firstRunState = trpc.settings.getTourState.useQuery(undefined, { enabled: !!user, staleTime: 60_000 });
   useEffect(() => {
     if (!user || !firstRunState.data) return;
-    // Keep the sync-boot hint honest for the NEXT open.
+    // Keep the sync-boot hint honest for the NEXT open. Keyed on the MANIFESTO (the true
+    // "has begun life in the app" marker) — welcome-seen was too strict: an account whose
+    // welcome burned by show-cap without an explicit dismiss never got the hint, so its
+    // reopens flashed Today forever (David's velea-profile recording).
     try {
-      if (firstRunState.data.seen.includes("welcome")) localStorage.setItem("velea-onboarded", "1");
+      if (firstRunState.data.seen.includes("manifesto")) localStorage.setItem("velea-onboarded", "1");
       else localStorage.removeItem("velea-onboarded");
     } catch { /* ignore */ }
     if (welcomeChecked.current) return;

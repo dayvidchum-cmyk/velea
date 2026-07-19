@@ -18,6 +18,10 @@ const DONE_KEY = "velea_bell_nudge_done";
 export default function MorningBellNudge() {
   const utils = trpc.useUtils();
   const { data: status } = trpc.push.status.useQuery(undefined, { staleTime: 60_000 });
+  // Quiet-session law (David, 2026-07-18 "that's a lot of stuff"): the bell never rings in a
+  // session where first-run beats played, never for an account still mid-first-run, and never
+  // over another overlay. The opens count is device-wide, so these account-level gates matter.
+  const { data: bellTourState } = trpc.settings.getTourState.useQuery(undefined, { staleTime: 60_000 });
   const subscribeMut = trpc.push.subscribe.useMutation({ onSettled: () => utils.push.status.invalidate() });
   const [show, setShow] = useState(false);
   const [state, setState] = useState<"ask" | "busy" | "rung" | "blocked" | "error">("ask");
@@ -33,12 +37,18 @@ export default function MorningBellNudge() {
       const opens = parseInt(localStorage.getItem(OPENS_KEY) ?? "0", 10);
       const done = localStorage.getItem(DONE_KEY);
       const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-      if (opens >= 3 && !done && supported && status?.configured && !status.subscribed) {
-        const t = setTimeout(() => setShow(true), 1600); // let the day settle in first
+      const firstRunSession = !!sessionStorage.getItem("velea-firstrun-session");
+      const onboarded = !!bellTourState?.seen?.includes("manifesto");
+      if (opens >= 3 && !done && supported && status?.configured && !status.subscribed && onboarded && !firstRunSession) {
+        const t = setTimeout(() => {
+          // A tour/welcome/sheet mid-flight → stay silent; a later session gets its turn.
+          if (document.querySelector("[data-velea-welcome], [data-velea-overlay]")) return;
+          setShow(true);
+        }, 1600); // let the day settle in first
         return () => clearTimeout(t);
       }
     } catch { /* storage unavailable — never nag, never crash */ }
-  }, [status?.configured, status?.subscribed]);
+  }, [status?.configured, status?.subscribed, bellTourState]);
 
   if (!show || !status?.configured) return null;
 
