@@ -424,4 +424,12 @@
 // override row). Hometown per profile (editor field + geocoder; seeded from birth). City search
 // now stores the CITY's timezone, not the device's. BirthChartSheet (dead duplicate birth editor)
 // deleted. Schema: profiles.hometown* + profile_day_locations via scripts/add-location-model.ts.
-export const APP_VERSION = "1.1.756";
+// v1.1.757 = 2026-07-18 — FIRST-RUN BEAT ORDER (David's spec, from the Linda login): login gate →
+// manifesto (3 beats) → etymology splash (seashell) → welcome pop-up (birth + location) → app
+// reveals + tour. Root causes fixed: (1) Login switched accounts with invalidate, not reset — the
+// PREVIOUS user's cached tourState ("welcome seen, tours on") auto-fired the page tour over the
+// new user's first-run; now queryClient.resetQueries(). (2) The etymology splash fired before the
+// manifesto; for first-run users App.tsx now defers it and Onboarding plays it as beat 5.
+// (3) The missing-location prompt is now strictly a later-session surface (waits for "welcome"
+// seen + no overlay on screen). (4) The task guide waits for first-run completion too.
+export const APP_VERSION = "1.1.757";

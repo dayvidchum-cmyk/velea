@@ -56,18 +56,25 @@ const { user, loading } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
   const welcomeChecked = useRef(false);
 
+  // FIRST-RUN BEAT ORDER (David, 2026-07-18): login gate → manifesto (3 beats) → etymology
+  // splash → welcome pop-up → app reveals + tour. For a first-run user App must NOT consume
+  // the splash here — Onboarding plays it as beat 5, AFTER the manifesto. Returning users
+  // keep today's behavior (fresh login → splash immediately; other opens → sunset greeting).
+  const firstRunState = trpc.settings.getTourState.useQuery(undefined, { enabled: !!user, staleTime: 60_000 });
   useEffect(() => {
-    if (!user || welcomeChecked.current) return;
+    if (!user || welcomeChecked.current || !firstRunState.data) return;
     welcomeChecked.current = true; // decide once per app load, not on every user-ref change
+    const firstRun = !firstRunState.data.seen.includes("manifesto");
     try {
       if (sessionStorage.getItem("velea_splash") === "1") {
+        if (firstRun) return; // Onboarding owns the splash beat (after the manifesto)
         sessionStorage.removeItem("velea_splash");
-        setShowSplash(true);  // fresh login → the etymology splash
-      } else {
+        setShowSplash(true);  // fresh login, returning user → the etymology splash
+      } else if (!firstRun) {
         setShowWelcome(true); // returning open → sunset shell + greeting
       }
     } catch { setShowWelcome(true); }
-  }, [user]);
+  }, [user, firstRunState.data]);
   const showNav = !location.startsWith("/404") && !location.startsWith("/login");
 
   // Ensure the owner's "My Chart" profile exists (idempotent migration)

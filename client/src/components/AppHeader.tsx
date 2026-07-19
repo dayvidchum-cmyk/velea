@@ -82,19 +82,22 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
 
   // MISSING-LOCATION PROMPT (David 2026-07-18: "a pop-up should appear when the location isn't
   // even entered"). Once per session, when signed in with no stored current location, open the
-  // sheet — never a silent app-default day. Skipped while the first-run welcome is on screen
-  // (it already asks); the next session picks it up if they skipped there.
+  // sheet — never a silent app-default day. STRICTLY a later-session surface: during first-run
+  // the welcome pop-up owns the location ask (David's beat order), so this waits until the
+  // welcome has been seen AND no overlay (welcome/tour/manifesto/splash) is on screen.
   const { data: promptLoc } = trpc.settings.getLocation.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: promptTourState } = trpc.settings.getTourState.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   useEffect(() => {
     if (!isAuthenticated || !promptLoc || promptLoc.lat) return;
+    if (!promptTourState?.seen?.includes("welcome")) return; // first-run beats own this moment
     if (sessionStorage.getItem("velea-loc-prompted")) return;
     const t = setTimeout(() => {
-      if (document.querySelector("[data-velea-welcome]")) return;
+      if (document.querySelector("[data-velea-welcome], [data-velea-overlay]")) return;
       sessionStorage.setItem("velea-loc-prompted", "1");
       window.dispatchEvent(new CustomEvent("velea-open-location", { detail: { reason: "missing" } }));
     }, 1200);
     return () => clearTimeout(t);
-  }, [isAuthenticated, promptLoc]);
+  }, [isAuthenticated, promptLoc, promptTourState]);
   const [checkInSheetOpen, setCheckInSheetOpen] = useState(false);
   // The stale-task nudge (CheckInNudge) opens the check-in from anywhere via this event.
   useEffect(() => {

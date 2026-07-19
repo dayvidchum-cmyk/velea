@@ -4,6 +4,7 @@ import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
 import FirstRunWelcome from "./FirstRunWelcome";
 import ManifestoIntro from "./ManifestoIntro";
+import BrandSplash from "./BrandSplash";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
@@ -243,14 +244,16 @@ export default function Onboarding({ active, userId }: Props) {
   const [taskGuide, setTaskGuide] = useState(false);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [manifestoDismissed, setManifestoDismissed] = useState(false);
+  const [splashBeatDone, setSplashBeatDone] = useState(false); // beat 5: etymology splash played this load
   const taskKey = userId != null ? `${TASK_GUIDE_PREFIX}${userId}` : null;
 
   // Standalone task guide — fired via window event (Settings, zero-task nudge).
   useEffect(() => {
-    const onFire = () => setTaskGuide((on) => (running ? on : true));
+    // Never during the first-run beats — the task guide waits until the welcome has run.
+    const onFire = () => setTaskGuide((on) => (running || !tourState.data?.seen.includes("welcome") ? on : true));
     window.addEventListener(TASK_GUIDE_EVENT, onFire);
     return () => window.removeEventListener(TASK_GUIDE_EVENT, onFire);
-  }, [running]);
+  }, [running, tourState.data]);
 
   // Explicit "start the tour" — from the welcome card or Settings. Opt-in only.
   useEffect(() => {
@@ -291,8 +294,19 @@ export default function Onboarding({ active, userId }: Props) {
     return <ManifestoIntro onBegin={() => { setManifestoDismissed(true); markSeen.mutate({ key: "manifesto" }); }} />;
   }
 
-  // First-run welcome — shown once on Today, after the manifesto, before any tour. Replaces the
-  // auto-forced tour; drives birth-data confirmation + current-location, then OFFERS the tour.
+  // BEAT 5 — the etymology splash (seashell on still water), AFTER the manifesto, BEFORE the
+  // welcome (David's first-run order, 2026-07-18). App.tsx leaves the fresh-login velea_splash
+  // flag unconsumed for first-run users precisely so it plays here, in sequence.
+  const splashPending = (() => { try { return sessionStorage.getItem("velea_splash") === "1"; } catch { return false; } })();
+  const showSplashBeat = !splashBeatDone && splashPending && active && userId != null && !running && !taskGuide
+    && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto"))
+    && !tourState.data.seen.includes("welcome") && location === "/";
+  if (showSplashBeat) {
+    return <BrandSplash onDone={() => { try { sessionStorage.removeItem("velea_splash"); } catch { /* ignore */ } setSplashBeatDone(true); }} />;
+  }
+
+  // First-run welcome — shown once on Today, after the manifesto + splash, before any tour.
+  // Replaces the auto-forced tour; drives birth-data + current-location, then OFFERS the tour.
   const prof = activeProfile.data as any;
   // Show ONCE (welcomeShows < 1), AND an explicit dismiss turns it off for good (seen "welcome").
   // Both live server-side, so logout / a new device / a mid-flow re-render never re-fire it.
@@ -629,6 +643,7 @@ function TourLayer({
   if (waiting) {
     return (
       <div
+        data-velea-overlay
         className="fixed inset-0 z-[120] flex items-center justify-center"
         style={{ background: "rgba(0,0,0,0.62)", pointerEvents: "auto" }}
       >
@@ -657,7 +672,7 @@ function TourLayer({
   }
 
   return (
-    <div className="fixed inset-0 z-[120]" style={{ pointerEvents: "auto" }}>
+    <div data-velea-overlay className="fixed inset-0 z-[120]" style={{ pointerEvents: "auto" }}>
       {/* Dimming + spotlight hole via a giant box-shadow. */}
       {hole ? (
         <div

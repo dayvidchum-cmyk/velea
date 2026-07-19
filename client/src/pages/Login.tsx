@@ -3,6 +3,7 @@ import InstallGuide from "@/components/InstallGuide";
 import VeleaLoader from "@/components/VeleaLoader";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useQueryClient } from "@tanstack/react-query";
 import { useDarkChromeWhile } from "@/contexts/ThemeContext";
 
 /**
@@ -30,7 +31,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const utils = trpc.useUtils();
+  const queryClient = useQueryClient();
   const loginMutation = trpc.auth.login.useMutation();
   const registerMutation = trpc.auth.register.useMutation();
 
@@ -59,10 +60,12 @@ export default function Login() {
       } else {
         await loginMutation.mutateAsync({ email, password });
       }
-      // Invalidate EVERYTHING, not just auth.me — queries that fired while logged out
-      // (subject, natal, profection, charts) have cached empty answers; leaving them
-      // stale is the "you haven't filled in birth data until you refresh" bug.
-      await utils.invalidate();
+      // RESET everything, don't just invalidate (onboarding-order bug, 2026-07-18):
+      // invalidate keeps serving the PREVIOUS user's cached answers until refetches land —
+      // logging in as another account let their tourState ("welcome seen, tours on") leak
+      // into the first render, auto-firing the page tour over the new user's first-run
+      // beats. Reset wipes the cache so nothing renders from the wrong account.
+      await queryClient.resetQueries();
       try { sessionStorage.setItem("velea_splash", "1"); } catch { /* ignore */ }
       setLocation("/");
     } catch (err: any) {
