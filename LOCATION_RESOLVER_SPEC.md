@@ -1,4 +1,7 @@
-# Location Resolver — APPROVED 2026-07-18 (David's answers in §7; build in progress)
+# Location Resolver — BUILT 2026-07-18 (all 5 phases; David's answers in §7)
+
+_Status: phases 1-5 shipped in commits fcbf2d8 → ffe2669. Local dev DB migrated + verified live
+(today → "current", far date → "hometown"). PROD: run `add-location-model.ts` BEFORE deploying._
 
 _Written 2026-07-18 (v752). The apex David named: "where location is entered, changed, lives
 in the UX, and where it is stored is the apex of the issue." This specs the single source of
