@@ -23,8 +23,18 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
     { enabled: entitled, staleTime: 1000 * 30 },
   );
   const locked = lock?.locked === true;
+  // OPTIMISTIC (David 2026-07-18: "nothing changes visually. I have no idea if it works"):
+  // the button flips gold the instant it's tapped; the server's ensure-generate can take
+  // seconds, and onSettled re-syncs to the real state (a failed pin reverts itself).
   const setLock = trpc.narrative.setLock.useMutation({
-    onSuccess: () => { utils.narrative.lockStatus.invalidate({ profileId, date }); },
+    onMutate: async (vars) => {
+      await utils.narrative.lockStatus.cancel({ profileId, date });
+      const prev = utils.narrative.lockStatus.getData({ profileId, date });
+      utils.narrative.lockStatus.setData({ profileId, date }, { locked: vars.locked } as any);
+      return { prev };
+    },
+    onError: (_e, _v, ctxm: any) => { if (ctxm?.prev) utils.narrative.lockStatus.setData({ profileId, date }, ctxm.prev); },
+    onSettled: () => { utils.narrative.lockStatus.invalidate({ profileId, date }); },
   });
 
   useEffect(() => {

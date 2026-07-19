@@ -258,8 +258,10 @@ export async function morningBellTick(): Promise<void> {
     if (anyRungToday) continue;       // a device added mid-morning: stamp it, don't re-ring the user
     const first = (u.name ?? "").trim().split(/\s+/)[0] || "friend";
     await sendPushToUser(userId, {
-      title: `Good morning, ${first}!`,
-      body: await skyLineFor(clock.date), // the day's sky picks the line — David's words, engine-chosen
+      // Title is the BRAND line ("Velea" above the greeting — David 2026-07-18: the
+      // "Good morning" title made iOS render a redundant "from Velea" second line).
+      title: "Velea",
+      body: `Good morning, ${first}! ${await skyLineFor(clock.date)}`, // the day's sky picks the line — David's words, engine-chosen
       url: "/",
     });
   }

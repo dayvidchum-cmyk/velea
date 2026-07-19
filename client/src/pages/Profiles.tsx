@@ -630,8 +630,11 @@ function CreateLoginModal({ profile, onClose, onCreated }: CreateLoginModalProps
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: "oklch(0 0 0 / 0.5)" }}>
-      <div className="w-full max-w-sm rounded-2xl p-6 space-y-4" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)" }}>
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4" style={{ background: "oklch(0 0 0 / 0.5)" }}>
+      {/* Dead-center ALWAYS (David 2026-07-18: the bottom-sheet variant fought the keyboard +
+          nav bar and "didn't come up all the way"). Centered, above the nav, scrolls within
+          itself if the keyboard squeezes the viewport. */}
+      <div className="w-full max-w-sm rounded-2xl p-6 space-y-4" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", maxHeight: "82dvh", overflowY: "auto" }}>
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-sm">Set up login</p>

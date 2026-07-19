@@ -474,4 +474,10 @@
 // (4) reflections.get returned undefined → console error on every un-journaled day. Also:
 // scripts/sync-local-dev-db.ts (additive-only local mirror sync — drifted mirrors were masking
 // the real bugs during reproduction).
-export const APP_VERSION = "1.1.763";
+// v1.1.764 = 2026-07-19 — the three newest field notes, each verified before ship: (1) Morning
+// Bell title is the brand line again ("Velea" above the greeting — the "Good morning" title made
+// iOS add a redundant "from Velea" row); greeting moved into the body. (2) "Pin this reading"
+// flips optimistically the instant it's tapped (server ensure-generate takes seconds; a failed
+// pin reverts itself) — DRIVEN: flip observed at +200ms. (3) Profile-login modal is dead-center
+// always, above the nav, scrolls within itself under the keyboard — DRIVEN: screenshot verified.
+export const APP_VERSION = "1.1.764";
