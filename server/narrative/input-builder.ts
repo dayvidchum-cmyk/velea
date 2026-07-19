@@ -656,7 +656,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         const { getUserById: getUV } = await import("../db.js");
         const uV = (p as any).userId ? await getUV((p as any).userId) : null;
         // The solar return is cast at the CURRENT residence — same precedence as every day-layer.
-        const skyV = resolveDaySky({ user: uV, profile: p, dateStr: yearStartIso });
+        const skyV = await resolveDaySky({ user: uV, profile: p, profileId: p.id, dateStr: yearStartIso });
         const { computeVarshaphala } = await import("../vedic/varshaphala.js");
         varshaphala = await computeVarshaphala({
           profileKey: `${p.id}|${yearStartIso}|${skyV.lat.toFixed(2)},${skyV.lon.toFixed(2)}`,

@@ -13,6 +13,7 @@
  * IMPORTANT: run this BEFORE deploying the commit that adds these columns to schema.ts —
  * drizzle selects every declared column, so code-first would break profile reads.
  */
+import "dotenv/config";
 import mysql from "mysql2/promise";
 
 async function main() {

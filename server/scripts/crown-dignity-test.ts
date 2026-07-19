@@ -41,7 +41,7 @@ async function main() {
     const date = `${ym}-${String(d).padStart(2, "0")}`;
     const ch: any = await calculateBirthChart(date, "12:00", 0, 0, "UTC");
     const T: Record<string, number> = Object.fromEntries(GRAHAS.map((g) => [g, si(ch[g.toLowerCase()].longitude)]));
-    const daySky = resolveDaySky({ dateStr: date });
+    const daySky = await resolveDaySky({ dateStr: date });
     const majIdx = await majorityDayStarIdx(date, daySky.lat, daySky.lon, daySky.utcOffset);
     const cd = crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, ashtakavarga: anchors.ashtakavarga, dayNakIdxOverride: majIdx ?? undefined });
     count.current[cd.rating as keyof typeof count.current]++;

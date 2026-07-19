@@ -13,7 +13,8 @@ import { eq, and, isNull } from "drizzle-orm";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { profiles, profileNatalBodies } from "../../drizzle/schema";
+import { profiles, profileNatalBodies, profileDayLocations } from "../../drizzle/schema";
+import { invalidateDayOverrides } from "../panchang/resolve-day-sky.js";
 import { timezoneForCoords } from "../geo/timezone.js";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
@@ -190,6 +191,12 @@ const BirthInputSchema = z.object({
   birthLocationLat: z.string().optional(),
   birthLocationLon: z.string().optional(),
   birthTimezone: z.string().optional(),
+  // Hometown — the day-layer default when not traveling (resolver tier 3). NOT birth data:
+  // editing it never trips the 24h birth-data cooldown and never recomputes the chart.
+  hometownCity: z.string().optional(),
+  hometownLat: z.string().optional(),
+  hometownLon: z.string().optional(),
+  hometownTimezone: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -498,6 +505,12 @@ export const profilesRouter = router({
         birthLocationLat: input.birthLocationLat ?? null,
         birthLocationLon: input.birthLocationLon ?? null,
         birthTimezone: input.birthTimezone ?? null,
+        // Hometown seeds from the birth place on create (Q5) unless explicitly given —
+        // mirrors the migration's backfill so new profiles are never hometown-less.
+        hometownCity: input.hometownCity ?? input.birthLocationCity ?? null,
+        hometownLat: input.hometownLat ?? input.birthLocationLat ?? null,
+        hometownLon: input.hometownLon ?? input.birthLocationLon ?? null,
+        hometownTimezone: input.hometownTimezone ?? input.birthTimezone ?? null,
         birthDataUpdatedAt: input.birthDate ? new Date() : null, // start the 24h lock on first save
         notes: input.notes ?? null,
         isActive: input.makeActive,
@@ -539,6 +552,10 @@ export const profilesRouter = router({
       if (fields.birthLocationLat !== undefined) updateData.birthLocationLat = fields.birthLocationLat;
       if (fields.birthLocationLon !== undefined) updateData.birthLocationLon = fields.birthLocationLon;
       if (fields.birthTimezone !== undefined) updateData.birthTimezone = fields.birthTimezone;
+      if (fields.hometownCity !== undefined) updateData.hometownCity = fields.hometownCity;
+      if (fields.hometownLat !== undefined) updateData.hometownLat = fields.hometownLat;
+      if (fields.hometownLon !== undefined) updateData.hometownLon = fields.hometownLon;
+      if (fields.hometownTimezone !== undefined) updateData.hometownTimezone = fields.hometownTimezone;
       if (fields.notes !== undefined) updateData.notes = fields.notes;
       if (changed) updateData.birthDataUpdatedAt = new Date(); // start/refresh the lock
 
@@ -578,6 +595,57 @@ export const profilesRouter = router({
     }),
 
   /** Set a profile as the active one (deactivates all others) */
+  /** Per-date location override — "on THIS date I was in Tokyo" (resolver tier 1, spec phase 5). */
+  getDayLocation: protectedProcedure
+    .input(z.object({ profileId: z.number().int(), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
+    .query(async ({ ctx, input }) => {
+      await assertOwnsProfile(ctx.user.id, input.profileId);
+      const db = await getDb();
+      if (!db) return null;
+      const rows = await db.select().from(profileDayLocations)
+        .where(and(eq(profileDayLocations.profileId, input.profileId), eq(profileDayLocations.onDate, input.date)))
+        .limit(1);
+      const r = rows[0];
+      return r ? { city: r.city, lat: r.lat, lon: r.lon, timezone: r.timezone } : null;
+    }),
+
+  setDayLocation: protectedProcedure
+    .input(z.object({
+      profileId: z.number().int(),
+      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      city: z.string().min(1).max(128),
+      lat: z.string().refine((v) => Math.abs(parseFloat(v)) <= 90, "invalid latitude"),
+      lon: z.string().refine((v) => Math.abs(parseFloat(v)) <= 180, "invalid longitude"),
+      timezone: z.string().min(1).max(64),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await assertOwnsProfile(ctx.user.id, input.profileId);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+      await db.insert(profileDayLocations)
+        .values({ profileId: input.profileId, onDate: input.date, city: input.city, lat: input.lat, lon: input.lon, timezone: input.timezone })
+        .onDuplicateKeyUpdate({ set: { city: input.city, lat: input.lat, lon: input.lon, timezone: input.timezone } });
+      // The next resolve must see it, and the memoized narrative input for that sky is stale.
+      invalidateDayOverrides(input.profileId);
+      const { invalidateNarrativeInput } = await import("../narrative/input-builder.js");
+      invalidateNarrativeInput(input.profileId);
+      return { saved: true as const };
+    }),
+
+  clearDayLocation: protectedProcedure
+    .input(z.object({ profileId: z.number().int(), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
+    .mutation(async ({ ctx, input }) => {
+      await assertOwnsProfile(ctx.user.id, input.profileId);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+      await db.delete(profileDayLocations)
+        .where(and(eq(profileDayLocations.profileId, input.profileId), eq(profileDayLocations.onDate, input.date)));
+      invalidateDayOverrides(input.profileId);
+      const { invalidateNarrativeInput } = await import("../narrative/input-builder.js");
+      invalidateNarrativeInput(input.profileId);
+      return { cleared: true as const };
+    }),
+
   setActive: protectedProcedure
     .input(z.object({ id: z.number().int() }))
     .mutation(async ({ ctx, input }) => {

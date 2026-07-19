@@ -3,7 +3,7 @@ import { resolveDaySky } from './panchang/resolve-day-sky.js';
 
 async function run() {
   const date = '2026-06-17';
-  const sky = resolveDaySky({ dateStr: date }); // app default — explicit, not silent
+  const sky = await resolveDaySky({ dateStr: date }); // app default — explicit, not silent
 
   console.log('=== David (Virgo Lagna) ===');
   const davidField = await getDayField(date, false, sky, 'Virgo');

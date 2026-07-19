@@ -7,29 +7,39 @@ interface LocationSheetProps {
   onClose: () => void;
   /** Why the sheet opened (set by AppHeader from the velea-open-location event detail):
    *  "profile-switch" = confirm/change where the newly viewed person is (David's Q2);
-   *  "missing" = no location entered at all. null = a plain chip tap. */
-  context?: { reason: "profile-switch" | "missing"; name?: string } | null;
+   *  "missing" = no location entered at all;
+   *  "day-override" = pick-a-date "where were you on this day?" — writes a per-profile-per-date
+   *  row (profiles.setDayLocation), never the account's current-location slot.
+   *  null = a plain chip tap. */
+  context?: { reason: "profile-switch" | "missing" | "day-override"; name?: string; profileId?: number; date?: string } | null;
 }
 
 type Status = "idle" | "locating" | "geocoding" | "success" | "error";
 
 export default function LocationSheet({ open, onClose, context }: LocationSheetProps) {
+  const utils = trpc.useUtils();
   const [cityInput, setCityInput] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [savedCity, setSavedCity] = useState<string | null>(null);
 
+  const isDayOverride = context?.reason === "day-override" && context.profileId != null && !!context.date;
+
   const { data: locationData } = trpc.settings.getLocation.useQuery(undefined, {
-    enabled: open,
+    enabled: open && !isDayOverride,
   });
+  // In override mode "currently set" means THIS day's stored place, not the account slot.
+  const { data: dayOverride } = trpc.profiles.getDayLocation.useQuery(
+    { profileId: context?.profileId ?? 0, date: context?.date ?? "" },
+    { enabled: open && isDayOverride },
+  );
 
   useEffect(() => {
-    if (locationData?.city) {
-      setSavedCity(locationData.city);
-    }
-  }, [locationData]);
+    if (isDayOverride) setSavedCity(dayOverride?.city ?? null);
+    else if (locationData?.city) setSavedCity(locationData.city);
+  }, [locationData, dayOverride, isDayOverride]);
 
-  const setLocation = trpc.settings.setLocation.useMutation({
+  const onSaved = {
     onSuccess: () => {
       setStatus("success");
       setTimeout(() => {
@@ -38,11 +48,23 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
         window.location.reload();
       }, 1200);
     },
-    onError: (err) => {
+    onError: (err: { message: string }) => {
       setStatus("error");
       setErrorMsg(err.message);
     },
-  });
+  };
+  const setLocation = trpc.settings.setLocation.useMutation(onSaved);
+  const setDayLocation = trpc.profiles.setDayLocation.useMutation(onSaved);
+  const clearDayLocation = trpc.profiles.clearDayLocation.useMutation(onSaved);
+
+  /** One save door — routes to the account slot or the per-date override by context. */
+  async function saveLocation(v: { city: string; lat: string; lon: string; timezone: string }) {
+    if (isDayOverride) {
+      await setDayLocation.mutateAsync({ profileId: context!.profileId!, date: context!.date!, ...v });
+    } else {
+      await setLocation.mutateAsync(v);
+    }
+  }
 
   async function handleUseMyLocation() {
     if (!navigator.geolocation) {
@@ -71,7 +93,7 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
             data.address?.county ||
             "My Location";
           const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          await setLocation.mutateAsync({
+          await saveLocation({
             city,
             lat: latitude.toFixed(6),
             lon: longitude.toFixed(6),
@@ -111,8 +133,14 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
       const { lat, lon, display_name } = data[0];
       // Extract city name from display_name (first segment)
       const city = display_name.split(",")[0].trim();
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      await setLocation.mutateAsync({
+      // Resolve the tz from the CITY'S coordinates, not the device (a manually searched city can
+      // be far from where the phone sits — device tz gave that city's sky on the wrong clock).
+      let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      try {
+        const r = await utils.settings.resolveTimezone.fetch({ lat: parseFloat(lat).toFixed(6), lon: parseFloat(lon).toFixed(6) });
+        if (r.timezone) timezone = r.timezone;
+      } catch { /* fall back to device tz */ }
+      await saveLocation({
         city,
         lat: parseFloat(lat).toFixed(6),
         lon: parseFloat(lon).toFixed(6),
@@ -181,6 +209,11 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
                   The day is sampled where the body wakes up — set the place this reading should
                   live in{savedCity ? <>, or close to keep <strong>{savedCity}</strong></> : ""}.
                 </>
+              ) : context.reason === "day-override" ? (
+                <>
+                  Where in the world was this day lived? Its sky — sunrise, the day's turn, the
+                  reading — is sampled there. Only this date changes.
+                </>
               ) : (
                 <>
                   No location set yet — today's timing is running on the app default. Set it once
@@ -190,8 +223,19 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
             </p>
           )}
 
+          {/* Day-override: existing row + the way back to the usual place */}
+          {isDayOverride && dayOverride && status === "idle" && (
+            <button
+              onClick={() => { setStatus("geocoding"); clearDayLocation.mutate({ profileId: context!.profileId!, date: context!.date! }); }}
+              className="w-full text-left px-3 py-2 rounded-lg text-sm"
+              style={{ background: "var(--color-secondary)", border: "1px solid var(--color-border)", color: "var(--color-foreground)" }}
+            >
+              This day is pinned to <strong>{dayOverride.city}</strong> — tap to remove and use the usual place.
+            </button>
+          )}
+
           {/* Current location display */}
-          {savedCity && status === "idle" && (
+          {!isDayOverride && savedCity && status === "idle" && (
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
               style={{
@@ -207,7 +251,9 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
             </div>
           )}
 
-          {/* Use my location button */}
+          {/* Use my location button — hidden for a day-override (GPS says where you ARE,
+              not where that day was lived) */}
+          {!isDayOverride && (
           <button
             onClick={handleUseMyLocation}
             disabled={status === "locating" || status === "geocoding" || status === "success"}
@@ -248,8 +294,10 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
               )}
             </div>
           </button>
+          )}
 
           {/* Divider */}
+          {!isDayOverride && (
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
             <span
@@ -260,6 +308,7 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
             </span>
             <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
           </div>
+          )}
 
           {/* City text input */}
           <div className="flex gap-2">

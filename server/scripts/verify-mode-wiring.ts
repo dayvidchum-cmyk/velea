@@ -31,7 +31,7 @@ async function main() {
   let pass = 0, fail = 0;
   for (let d = 1; d <= 31; d++) {
     const date = `2026-07-${String(d).padStart(2, "0")}`;
-    const pd = await personalDayForDate(anchors, date, resolveDaySky({ dateStr: date }));
+    const pd = await personalDayForDate(anchors, date, await resolveDaySky({ dateStr: date }));
     const got = pd?.mode ?? "(null)";
     const want = EXPECTED[date.slice(5)];
     const ok = got === want;

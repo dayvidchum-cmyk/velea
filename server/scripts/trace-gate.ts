@@ -6,7 +6,7 @@ import { calcPanchang } from "../panchang/astronomy.js";
 const anchors = anchorsFromBodies([{ planet: "Moon", nakshatra: "Jyeshtha", sign: "Scorpio" }], "Virgo")!;
 (async () => {
   for (const date of ["2026-07-13", "2026-07-09", "2026-07-20"]) {
-    const sky = resolveDaySky({ dateStr: date });
+    const sky = await resolveDaySky({ dateStr: date });
     const rating = await personalRatingForDate(anchors, date, sky);
     const raw = interpretPanchang(await calcPanchang(date, sky.lat, sky.lon, sky.utcOffset), "Virgo");
     const field = gateDayField(raw, rating);

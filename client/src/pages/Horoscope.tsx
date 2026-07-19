@@ -2,7 +2,7 @@ import GateMark from "@/components/GateMark";
 import ProseCard from "@/components/ProseCard";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { useLocation } from "wouter";
-import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Lock } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Lock, MapPin } from "lucide-react";
 import OctagramMark from "@/components/OctagramMark";
 import VeleaMark from "@/components/VeleaMark";
 import VeleaLoader from "@/components/VeleaLoader";
@@ -110,6 +110,11 @@ export default function Horoscope() {
 
   const [view, setView] = useState(() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; });
   const [selectedDate, setSelectedDate] = useState<string>(todayStr());
+  // Per-date place override ("where were you this day?") — resolver tier 1, spec phase 5.
+  const { data: dayPlace } = trpc.profiles.getDayLocation.useQuery(
+    { profileId: pid as number, date: selectedDate },
+    { enabled: entitled && pid != null && selectedDate !== today, staleTime: 60_000 },
+  );
   // The life area the reading is pointed at. Each (date, area) is its own purchase, so the calendar
   // marks and the reading both key on the selected area.
   const [selectedArea, setSelectedArea] = useState<string>("self");
@@ -498,6 +503,17 @@ export default function Horoscope() {
             {purchasedSet.has(selectedDate) && <OctagramMark size={16} color={GOLD} strokeWidth={1.2} />}
             <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--foreground)", margin: 0, letterSpacing: "-0.01em" }}>{fmtLong(selectedDate)}</h2>
           </div>
+          {/* Pick-a-date place — the day is read where it was LIVED (opens the one location sheet
+              in day-override mode; today's chip above the calendar handles today). */}
+          {pid != null && selectedDate !== today && (
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("velea-open-location", { detail: { reason: "day-override", profileId: pid, date: selectedDate } }))}
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "none", border: "none", padding: 0, margin: "0 0 0.35rem", cursor: "pointer", color: dayPlace ? modeColor : "var(--color-muted-foreground)", fontSize: "0.74rem", fontWeight: 600 }}
+            >
+              <MapPin size={12} />
+              {dayPlace ? `Lived in ${dayPlace.city}` : "Where were you this day?"}
+            </button>
+          )}
           <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.25rem", opacity: 0.85 }}>
             {areaLabel(selectedArea)}
           </p>

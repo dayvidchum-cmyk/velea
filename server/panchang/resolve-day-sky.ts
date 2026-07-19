@@ -8,10 +8,15 @@
  * only copy.
  *
  * Precedence (first hit wins):
- *   1. override — per-profile-per-date row (JOINS WHEN THE SCHEMA LANDS — spec §2, David-run)
- *   2. current  — the account's stored current location (the LocationSheet's single slot)
- *   3. hometown — per-profile hometown (JOINS WHEN THE SCHEMA LANDS)
- *   4. birth    — the profile's birth place (the chart's own sky; today's last resort)
+ *   1. override — a profile_day_locations row for (profile, date): "on THIS date I was in Tokyo".
+ *      Consulted whenever the caller passes `profileId` — every real reading path does, so the
+ *      sync-vs-async divergence class can't reopen.
+ *   2. current  — the account's stored current location (the LocationSheet's single slot).
+ *      Q3: only within ±CURRENT_WINDOW_DAYS of today — a stored "current" is meaningless for a
+ *      date last March. Skipped ONLY when a hometown exists to catch the fall-through (a stale
+ *      current beats the app default).
+ *   3. hometown — the profile's home base (seeded from birth by add-location-model.ts).
+ *   4. birth    — the profile's birth place (the chart's own sky; last resort).
  *   5. default  — Boston, only when a profile has no birth location. Warned, never silent.
  *
  * `utcOffset` is always computed for the READING's date (DST-correct) — never `now` — so a
@@ -19,20 +24,23 @@
  */
 import { getTimezoneOffset } from "./tz-offset.js";
 
-export type DaySkySource = "current" | "hometown" | "birth" | "default"; // "override" (per-date rows) wires in at phase 5 — UNIFORMLY, so the sync and async paths can never disagree
+export type DaySkySource = "override" | "current" | "hometown" | "birth" | "default";
 
 export interface DaySky {
   lat: number;
   lon: number;
   /** UTC offset IN HOURS (fractional, minute-precise) for the reading's date. */
   utcOffset: number;
-  /** IANA timezone when one is stored; null on the birth tier when the profile has none. */
+  /** IANA timezone when one is stored; null on the birth/hometown tiers when none is. */
   timezone: string | null;
   source: DaySkySource;
 }
 
 /** The app default (Boston). The ONLY place these coordinates may appear on the server. */
 export const DEFAULT_SKY = { city: "Boston", lat: 42.3601, lon: -71.0589, timezone: "America/New_York" } as const;
+
+/** Q3 (David's lean, spec §6): "current" is only true this many days either side of today. */
+export const CURRENT_WINDOW_DAYS = 3;
 
 export type UserLocFields = { locationLat?: string | null; locationLon?: string | null; locationTimezone?: string | null } | null | undefined;
 export type ProfileLocFields = {
@@ -42,14 +50,71 @@ export type ProfileLocFields = {
 
 const noonUTC = (dateStr: string) => new Date(dateStr + "T12:00:00Z");
 
+function isNearToday(dateStr: string, tz: string, now: Date): boolean {
+  const off = getTimezoneOffset(tz, now);
+  const localTodayStr = new Date(now.getTime() + off * 3600_000).toISOString().slice(0, 10);
+  const days = Math.abs(Date.parse(dateStr + "T00:00:00Z") - Date.parse(localTodayStr + "T00:00:00Z")) / 86400_000;
+  return days <= CURRENT_WINDOW_DAYS;
+}
+
+// ── Override tier: per-profile day-location rows, cached in-proc ──────────────
+// One SELECT per profile per minute at most; a travel log is sparse (dozens of rows).
+type OverrideRow = { onDate: string; city: string; lat: string; lon: string; timezone: string };
+const OVERRIDE_TTL_MS = 60_000;
+const OVERRIDE_CACHE = new Map<number, { at: number; rows: Map<string, OverrideRow> }>();
+
+async function overridesFor(profileId: number): Promise<Map<string, OverrideRow>> {
+  const hit = OVERRIDE_CACHE.get(profileId);
+  if (hit && Date.now() - hit.at < OVERRIDE_TTL_MS) return hit.rows;
+  const rows = new Map<string, OverrideRow>();
+  try {
+    const { getDb } = await import("../db.js");
+    const { profileDayLocations } = await import("../../drizzle/schema.js");
+    const { eq } = await import("drizzle-orm");
+    const db = await getDb();
+    if (db) {
+      for (const r of await db.select().from(profileDayLocations).where(eq(profileDayLocations.profileId, profileId))) {
+        rows.set(r.onDate, r);
+      }
+    }
+  } catch (e) {
+    console.warn(`[resolveDaySky] override lookup failed for profile ${profileId}:`, e);
+  }
+  OVERRIDE_CACHE.set(profileId, { at: Date.now(), rows });
+  return rows;
+}
+
+/** Call after writing/clearing a profile_day_locations row so the next resolve sees it. */
+export function invalidateDayOverrides(profileId: number): void {
+  OVERRIDE_CACHE.delete(profileId);
+}
+
 /**
- * The resolver. Pure and synchronous — pass the rows you already have. `user` is the account
- * owner (the current-location tier); `profile` is the chart being read (the birth tier).
+ * The resolver. Pass the rows you already have; pass `profileId` whenever the reading is for a
+ * profile so the per-date override tier is consulted (every real reading path should).
+ * `now` exists for tests only.
  */
-export function resolveDaySky(args: { user?: UserLocFields; profile?: ProfileLocFields; dateStr: string }): DaySky {
+export async function resolveDaySky(args: { user?: UserLocFields; profile?: ProfileLocFields; profileId?: number; dateStr: string; now?: Date }): Promise<DaySky> {
   const at = noonUTC(args.dateStr);
+  const now = args.now ?? new Date();
+
+  if (args.profileId != null) {
+    const o = (await overridesFor(args.profileId)).get(args.dateStr);
+    if (o) {
+      return {
+        lat: parseFloat(o.lat),
+        lon: parseFloat(o.lon),
+        utcOffset: getTimezoneOffset(o.timezone, at),
+        timezone: o.timezone,
+        source: "override",
+      };
+    }
+  }
+
   const u = args.user;
-  if (u?.locationLat && u?.locationLon && u?.locationTimezone) {
+  const p = args.profile;
+  const hasHometown = !!(p?.hometownLat && p?.hometownLon);
+  if (u?.locationLat && u?.locationLon && u?.locationTimezone && (isNearToday(args.dateStr, u.locationTimezone, now) || !hasHometown)) {
     return {
       lat: parseFloat(u.locationLat),
       lon: parseFloat(u.locationLon),
@@ -58,14 +123,13 @@ export function resolveDaySky(args: { user?: UserLocFields; profile?: ProfileLoc
       source: "current",
     };
   }
-  const p = args.profile;
-  if (p?.hometownLat && p?.hometownLon) {
-    const lon = parseFloat(p.hometownLon);
+  if (hasHometown) {
+    const lon = parseFloat(p!.hometownLon!);
     return {
-      lat: parseFloat(p.hometownLat),
+      lat: parseFloat(p!.hometownLat!),
       lon,
-      utcOffset: p.hometownTimezone ? getTimezoneOffset(p.hometownTimezone, at) : Math.round(lon / 15),
-      timezone: p.hometownTimezone ?? null,
+      utcOffset: p!.hometownTimezone ? getTimezoneOffset(p!.hometownTimezone, at) : Math.round(lon / 15),
+      timezone: p!.hometownTimezone ?? null,
       source: "hometown",
     };
   }
@@ -106,8 +170,8 @@ export function localToday(user?: UserLocFields, profile?: ProfileLocFields, now
 
 /**
  * Async convenience for call sites that hold only a profileId (narrative router, admin
- * diagnostics, scripts): loads the profile + its owner's user row, then resolves.
- * Falls back to the app default (source "default") if the profile can't be loaded.
+ * diagnostics, scripts): loads the profile + its owner's user row, then resolves (override
+ * tier included). Falls back to the app default if the profile can't be loaded.
  */
 export async function resolveDaySkyForProfileId(profileId: number, dateStr: string): Promise<DaySky> {
   try {
@@ -119,7 +183,7 @@ export async function resolveDaySkyForProfileId(profileId: number, dateStr: stri
     const rows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
     const profile = rows[0];
     const user = profile?.userId ? await getUserById(profile.userId) : null;
-    return resolveDaySky({ user, profile, dateStr });
+    return resolveDaySky({ user, profile, profileId, dateStr });
   } catch (e) {
     console.warn(`[resolveDaySky] lookup failed for profile ${profileId}:`, e);
     return resolveDaySky({ dateStr });

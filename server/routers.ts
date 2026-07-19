@@ -194,7 +194,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   // DST-aware offsets per date via the sky's timezone.
   const { getUserById: getU } = await import("./db.js");
   const u = await getU(userId);
-  const sky = resolveDaySky({ user: u, profile, dateStr: yearStart });
+  const sky = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: yearStart });
   const offsetFor = (date: string) => sky.timezone ? getTimezoneOffset(sky.timezone, new Date(date + "T12:00:00Z")) : sky.utcOffset;
   // Rounded to ~1km so a re-geocode of the same town never busts the year (time-stable law).
   const locKey = `${sky.lat.toFixed(2)},${sky.lon.toFixed(2)},${sky.timezone ?? sky.source}`;
@@ -562,7 +562,7 @@ export const appRouter = router({
         const today = localToday(targetUser, owner);
         try {
           const { buildNarrativeInput } = await import("./narrative/input-builder.js");
-          const built = await buildNarrativeInput(owner.id, today, { dayLoc: resolveDaySky({ user: targetUser, profile: owner, dateStr: today }) });
+          const built = await buildNarrativeInput(owner.id, today, { dayLoc: await resolveDaySky({ user: targetUser, profile: owner, profileId: owner.id, dateStr: today }) });
           try {
             const { generateGlance } = await import("./narrative/generate.js");
             const glance = await generateGlance(built as any);
@@ -1373,7 +1373,7 @@ export const appRouter = router({
       // current → birth → default, offset for the reading's date.
       const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
       const dateStr = localToday(user, opts.ctx.subject);
-      const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr });
+      const sky = await resolveDaySky({ user, profile: opts.ctx.subject, profileId: opts.ctx.subject?.profileId, dateStr });
       // Use active profile (or owner profile) lagna — single source of truth
       const lagnaSign = opts.ctx.subject?.lagnaSign ?? undefined;
       const pd = await subjectPersonalDay(opts.ctx.subject, dateStr, sky);
@@ -1386,7 +1386,7 @@ export const appRouter = router({
         rateLimit(opts.ctx.req, "panchang-date", { max: 240, windowMs: 15 * 60 * 1000 });
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
         // Resolver computes the offset for the READING's date (audit MEDIUM-8 lives there now).
-        const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr: opts.input.date });
+        const sky = await resolveDaySky({ user, profile: opts.ctx.subject, profileId: opts.ctx.subject?.profileId, dateStr: opts.input.date });
         // Use active profile (or owner profile) lagna — single source of truth
         const lagnaOverride = opts.ctx.subject?.lagnaSign ?? undefined;
         const pd = await subjectPersonalDay(opts.ctx.subject, opts.input.date, sky);
@@ -1407,7 +1407,7 @@ export const appRouter = router({
           const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
           // Per-day resolve keeps the offset DST-correct across a month that spans a transition
           // (audit MEDIUM-8 semantics, now owned by the resolver).
-          const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr });
+          const sky = await resolveDaySky({ user, profile: opts.ctx.subject, profileId: opts.ctx.subject?.profileId, dateStr });
           const field = await getDayField(dateStr, false, sky, lagnaOverride);
           if (field) results.push(field);
         }
@@ -1422,7 +1422,7 @@ export const appRouter = router({
         rateLimit(ctx.req, "panchang-recalc", { max: 30, windowMs: 15 * 60 * 1000 });
         // Was an unlocated call (silent Boston recompute overwriting the cached row) — resolve.
         const user = await getUserById(ctx.user.id);
-        const sky = resolveDaySky({ user, profile: ctx.subject, dateStr: input.date });
+        const sky = await resolveDaySky({ user, profile: ctx.subject, profileId: ctx.subject?.profileId, dateStr: input.date });
         const field = await getDayField(input.date, true, sky);
         return field;
       }),
@@ -1443,7 +1443,7 @@ export const appRouter = router({
         const user = await getUserById(ctx.user.id);
         // Get today's panchang — local date + day-sky from the one resolver.
         const dateStr = input?.date ?? localToday(user, subject);
-        const sky = resolveDaySky({ user, profile: subject, dateStr });
+        const sky = await resolveDaySky({ user, profile: subject, profileId: subject.profileId, dateStr });
         const pd = await subjectPersonalDay(subject, dateStr, sky);
         const dayField = await getDayField(dateStr, false, sky, subject.lagnaSign, pd.rating, pd.mode);
         if (!dayField) return null;
@@ -1508,7 +1508,7 @@ export const appRouter = router({
         // Resolve the local date + day-sky through the one resolver.
         const user = await getUserById(ctx.user.id);
         const dateStr = input?.date ?? localToday(user, subject);
-        const sky = resolveDaySky({ user, profile: subject, dateStr });
+        const sky = await resolveDaySky({ user, profile: subject, profileId: subject.profileId, dateStr });
 
         const pd = await subjectPersonalDay(subject, dateStr, sky);
         const dayField = await getDayField(dateStr, false, sky, subject.lagnaSign, pd.rating, pd.mode);
@@ -2215,7 +2215,7 @@ export const appRouter = router({
         const [y, m, d] = input.date.split("-").map(Number);
         // Master Mode's clock ticks where the USER is: explicit client override first, else
         // the resolved day-sky (current → birth → default).
-        const skyMM = resolveDaySky({ user: await getUserById(ctx.user.id), profile, dateStr: input.date });
+        const skyMM = await resolveDaySky({ user: await getUserById(ctx.user.id), profile, profileId: profile.id, dateStr: input.date });
         const lat = input.lat ?? skyMM.lat, lon = input.lon ?? skyMM.lon;
         const { computeMasterMode } = await import("./panchapakshi/compute.js");
         const master = await computeMasterMode({ birthNakshatra: moonNak, birthPaksha, lat, lon, year: y, month: m, day: d });
@@ -2251,7 +2251,7 @@ export const appRouter = router({
         if (!hasMasterMode(ctx.user)) return null;
 
         const { computeHoras, HORA_TONE } = await import("./panchang/hora.js");
-        const skyH = resolveDaySky({ user: await getUserById(ctx.user.id), profile: ctx.subject, dateStr: input.date });
+        const skyH = await resolveDaySky({ user: await getUserById(ctx.user.id), profile: ctx.subject, profileId: ctx.subject?.profileId, dateStr: input.date });
         const lat = input.lat ?? skyH.lat, lon = input.lon ?? skyH.lon;
         const now = input.nowMs ?? Date.now();
         let [y, m, d] = input.date.split("-").map(Number);
@@ -2548,7 +2548,7 @@ export const appRouter = router({
       const u = await getUserById(ctx.user.id);
       // Day-sky for the READING's date (the old inline block computed the offset at `now` —
       // a DST slip for pick-a-date). One resolver now.
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: input.date });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: input.date });
       const { getLifeAreaRead } = await import("./narrative/service.js");
       const res = await getLifeAreaRead(profile.id, input.date, resolved.parent as any, dayLoc, resolved.focus);
       if (!res.available || !res.read) return { available: false as const };
@@ -2577,7 +2577,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { getEclipseSeasonCached } = await import("./narrative/service.js");
       return await getEclipseSeasonCached(profile.id, today, false, dayLoc);
     }),
@@ -2592,7 +2592,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { peekEclipseSeasonCached } = await import("./narrative/service.js");
       return await peekEclipseSeasonCached(profile.id, today, dayLoc);
     }),
@@ -2608,7 +2608,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { getPlanetRxCached } = await import("./narrative/service.js");
       return await getPlanetRxCached(profile.id, input.planet, today, false, dayLoc);
     }),
@@ -2623,7 +2623,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { peekPlanetRxCached } = await import("./narrative/service.js");
       return await peekPlanetRxCached(profile.id, input.planet, today, dayLoc);
     }),
@@ -2636,7 +2636,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { getMercuryRxCached } = await import("./narrative/service.js");
       return await getMercuryRxCached(profile.id, today, false, dayLoc);
     }),
@@ -2650,7 +2650,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { peekMercuryRxCached } = await import("./narrative/service.js");
       return await peekMercuryRxCached(profile.id, today, dayLoc);
     }),
@@ -2666,7 +2666,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { getMonthCached } = await import("./narrative/service.js");
       return await getMonthCached(profile.id, today, false, dayLoc);
     }),
@@ -2682,7 +2682,7 @@ export const appRouter = router({
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
       const today = localToday(u, profile);
-      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
+      const dayLoc = await resolveDaySky({ user: u, profile, profileId: profile.id, dateStr: today });
       const { peekMonthCached } = await import("./narrative/service.js");
       return await peekMonthCached(profile.id, today, dayLoc);
     }),
@@ -2711,7 +2711,7 @@ export const appRouter = router({
       // Was reading locationLat off the SESSION user object (which never carries it) — every
       // viewer got Boston's dawn/dusk. Resolve properly.
       const uC = await getUserById(ctx.user.id);
-      const skyC = resolveDaySky({ user: uC, profile: ctx.subject, dateStr });
+      const skyC = await resolveDaySky({ user: uC, profile: ctx.subject, profileId: ctx.subject?.profileId, dateStr });
       const timeOfDay = timeOfDayAt(Date.now(), skyC.lat, skyC.lon);
       // THIS MOMENT's sky — not noon-of-date. The Stage is live; anchor it to now.
       const { getSiderealLongitudesWithSpeed } = await import("./vedic/natal-chart-engine.js");
@@ -2962,7 +2962,7 @@ export const appRouter = router({
       .input(z.object({ date: z.string() }))
       .query(async (opts) => {
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
-        const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr: opts.input.date });
+        const sky = await resolveDaySky({ user, profile: opts.ctx.subject, profileId: opts.ctx.subject?.profileId, dateStr: opts.input.date });
         let lagnaOverride = user?.lagnaSign ?? undefined;
         if (opts.ctx.user) {
           const subject = opts.ctx.subject;
@@ -3041,7 +3041,7 @@ export const appRouter = router({
         while (current <= end) {
           const dateStr = current.toISOString().split('T')[0];
           // Per-day resolve (DST-correct offsets across the range).
-          const field = await getDayField(dateStr, false, resolveDaySky({ user, profile: opts.ctx.subject, dateStr }), lagnaOverride);
+          const field = await getDayField(dateStr, false, await resolveDaySky({ user, profile: opts.ctx.subject, profileId: opts.ctx.subject?.profileId, dateStr }), lagnaOverride);
           if (field) {
             const mr = field.modeReason;
             const rawScore = mr.baseScore + mr.nakshatraModifier + mr.tithiModifier + mr.fieldModifier;

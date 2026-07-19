@@ -102,6 +102,12 @@ interface ProfileFormData {
   birthLocationLat: string;
   birthLocationLon: string;
   birthTimezone: string;
+  // Hometown — the home base daily timing runs on when not traveling. Auto-seeded from the
+  // birth city; editing it never touches the birth chart (no cooldown, no recompute).
+  hometownCity: string;
+  hometownLat: string;
+  hometownLon: string;
+  hometownTimezone: string;
   notes: string;
 }
 
@@ -112,9 +118,12 @@ const EMPTY_FORM: ProfileFormData = {
   birthTimeApprox: false,
   birthLocationCity: "",
   birthLocationLat: "",
-  birthLocationLon:"",
-birthTimezone: "",
-
+  birthLocationLon: "",
+  birthTimezone: "",
+  hometownCity: "",
+  hometownLat: "",
+  hometownLon: "",
+  hometownTimezone: "",
   notes: "",
 };
 
@@ -164,6 +173,10 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
         birthLocationLat: data.birthLocationLat || undefined,
         birthLocationLon: data.birthLocationLon || undefined,
         birthTimezone: data.birthTimezone || undefined,
+        hometownCity: data.hometownCity || undefined,
+        hometownLat: data.hometownLat || undefined,
+        hometownLon: data.hometownLon || undefined,
+        hometownTimezone: data.hometownTimezone || undefined,
         notes: data.notes || undefined,
       });
       // Compute once date + place are present; time is optional (no time → Chandra chart).
@@ -226,6 +239,10 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
                 birthLocationLat: profile.birthLocationLat ?? "",
                 birthLocationLon: profile.birthLocationLon ?? "",
                 birthTimezone: profile.birthTimezone ?? "",
+                hometownCity: (profile as any).hometownCity ?? "",
+                hometownLat: (profile as any).hometownLat ?? "",
+                hometownLon: (profile as any).hometownLon ?? "",
+                hometownTimezone: (profile as any).hometownTimezone ?? "",
                 notes: profile.notes ?? "",
               }}
               onSave={handleSave}
@@ -247,6 +264,7 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
   const [form, setForm] = useState<ProfileFormData>({ ...EMPTY_FORM, ...initial });
   const [makeActive, setMakeActive] = useState(isNew ?? false);
   const [geocoding, setGeocoding] = useState(false);
+  const [geocodingHometown, setGeocodingHometown] = useState(false);
   const [showCoords, setShowCoords] = useState(false); // Lat/Lon tucked behind "Advanced" — the geocoder fills them
   // "No time at all" mode → Moon-framed. Start on only for a saved chart that has a date but no time
   // (a fresh, empty form defaults to entering a time).
@@ -314,6 +332,41 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
       toast.error(err?.message || "Geocoding failed. Check your connection.");
     } finally {
       setGeocoding(false);
+    }
+  }
+
+  // Same geocoder, hometown target. Kept separate so a hometown search can never
+  // overwrite the birth fields (they feed the chart; hometown never does).
+  async function handleGeocodeHometown() {
+    const query = form.hometownCity.trim();
+    if (!query) return;
+    setGeocodingHometown(true);
+    try {
+      const url = new URL("https://nominatim.openstreetmap.org/search");
+      url.searchParams.set("q", query);
+      url.searchParams.set("format", "jsonv2");
+      url.searchParams.set("limit", "1");
+      const res = await fetch(url.toString(), { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error(`Geocoder error (${res.status})`);
+      const data = await res.json();
+      const hit = Array.isArray(data) ? data[0] : null;
+      if (!hit) {
+        toast.error("Hometown not found. Try a more specific city name.");
+        return;
+      }
+      const lat = parseFloat(hit.lat).toFixed(6);
+      const lon = parseFloat(hit.lon).toFixed(6);
+      const shortName = typeof hit.display_name === "string" ? hit.display_name.split(",").slice(0, 2).join(",").trim() : query;
+      setForm((f) => ({ ...f, hometownLat: lat, hometownLon: lon, hometownCity: shortName || f.hometownCity }));
+      try {
+        const { timezone } = await utils.settings.resolveTimezone.fetch({ lat, lon });
+        if (timezone) setForm((f) => ({ ...f, hometownTimezone: timezone }));
+      } catch { /* non-fatal — resolver estimates from longitude if tz stays empty */ }
+      toast.success(`Hometown set: ${shortName}`);
+    } catch (err: any) {
+      toast.error(err?.message || "Geocoding failed. Check your connection.");
+    } finally {
+      setGeocodingHometown(false);
     }
   }
 
@@ -470,6 +523,35 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
             <option key={tz} value={tz}>{tz}</option>
           ))}
         </select>
+      </div>
+
+      {/* Hometown — home base for daily timing; separate from the birth place */}
+      <div className="space-y-1.5">
+        <Label htmlFor="pf-hometown">Hometown</Label>
+        <p className="text-xs" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>
+          The home base daily timing runs on when no current location is set. Starts as the birth
+          city — change it if life moved.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            id="pf-hometown"
+            value={form.hometownCity}
+            onChange={set("hometownCity")}
+            placeholder="Search for city"
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleGeocodeHometown}
+            disabled={geocodingHometown || !form.hometownCity.trim()}
+            className="shrink-0 px-3"
+          >
+            {geocodingHometown ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+            <span className="ml-1.5 text-xs">Find</span>
+          </Button>
+        </div>
       </div>
 
       {/* Notes */}
@@ -817,6 +899,10 @@ export default function Profiles() {
         birthLocationLat: data.birthLocationLat || undefined,
         birthLocationLon: data.birthLocationLon || undefined,
         birthTimezone: data.birthTimezone || undefined,
+        hometownCity: data.hometownCity || undefined,
+        hometownLat: data.hometownLat || undefined,
+        hometownLon: data.hometownLon || undefined,
+        hometownTimezone: data.hometownTimezone || undefined,
         notes: data.notes || undefined,
         makeActive,
       });
@@ -867,6 +953,10 @@ export default function Profiles() {
         birthLocationLat: data.birthLocationLat || undefined,
         birthLocationLon: data.birthLocationLon || undefined,
         birthTimezone: data.birthTimezone || undefined,
+        hometownCity: data.hometownCity || undefined,
+        hometownLat: data.hometownLat || undefined,
+        hometownLon: data.hometownLon || undefined,
+        hometownTimezone: data.hometownTimezone || undefined,
         notes: data.notes || undefined,
       });
 
@@ -993,6 +1083,10 @@ export default function Profiles() {
               birthLocationLat: editingProfile.birthLocationLat ?? "",
               birthLocationLon: editingProfile.birthLocationLon ?? "",
               birthTimezone: editingProfile.birthTimezone ?? "",
+              hometownCity: editingProfile.hometownCity ?? "",
+              hometownLat: editingProfile.hometownLat ?? "",
+              hometownLon: editingProfile.hometownLon ?? "",
+              hometownTimezone: editingProfile.hometownTimezone ?? "",
               notes: editingProfile.notes ?? "",
             }}
             showMakeActive={profileList.length > 1}
