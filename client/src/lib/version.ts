@@ -442,4 +442,10 @@
 // of login until the beat decision lands, true black + the spinning mark holds the screen; the
 // manifesto (first-run) or the etymology splash (returning) replaces it in the same render.
 // 6s timeout so a hung fetch can never hold the gate.
-export const APP_VERSION = "1.1.759";
+// v1.1.760 = 2026-07-18 — location friction killed (David's Linda/velea walk-through): (1) the
+// welcome's gold "Set my current location" now DOES it — one tap → GPS → saved → "{city} ✓ —
+// change it" on the button; the sheet opens only as the manual fallback (GPS denied) or to
+// change. (2) LocationSheet saves no longer window.location.reload() — queries invalidate in
+// place, so the flow that opened the sheet (welcome, Today, pick-a-date) keeps its state and
+// the chip updates live. Shared capture helper: lib/capture-location.ts.
+export const APP_VERSION = "1.1.760";

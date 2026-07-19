@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { MapPin, LocateFixed, X, Check, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { captureCurrentLocation } from "@/lib/capture-location";
 
 interface LocationSheetProps {
   open: boolean;
@@ -42,10 +43,15 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
   const onSaved = {
     onSuccess: () => {
       setStatus("success");
+      // Refresh IN PLACE — no window.location.reload(). The reload nuked whatever flow the
+      // sheet opened from (the first-run welcome most painfully: set location → app reloads →
+      // welcome gone → the ask comes around again. David: "friction much?"). Invalidating
+      // every query recomputes the panchang/readings for the new place while the underlying
+      // surface (welcome, Today, Horoscope) keeps its state.
+      utils.invalidate();
       setTimeout(() => {
         onClose();
-        // Reload to recalculate panchang with new location
-        window.location.reload();
+        setStatus("idle");
       }, 1200);
     },
     onError: (err: { message: string }) => {
@@ -67,53 +73,16 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
   }
 
   async function handleUseMyLocation() {
-    if (!navigator.geolocation) {
-      setStatus("error");
-      setErrorMsg("Geolocation is not supported by your browser.");
-      return;
-    }
     setStatus("locating");
     setErrorMsg("");
-
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        localStorage.setItem("velea-geo-ok", "1"); // remembers the grant → enables the "you've moved" nudge
-        const { latitude, longitude } = pos.coords;
-        setStatus("geocoding");
-        try {
-          // Reverse geocode using a free public API
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-          );
-          const data = await res.json();
-          const city =
-            data.address?.city ||
-            data.address?.town ||
-            data.address?.village ||
-            data.address?.county ||
-            "My Location";
-          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          await saveLocation({
-            city,
-            lat: latitude.toFixed(6),
-            lon: longitude.toFixed(6),
-            timezone,
-          });
-        } catch {
-          setStatus("error");
-          setErrorMsg("Could not determine your city. Please enter it manually.");
-        }
-      },
-      (err) => {
-        setStatus("error");
-        setErrorMsg(
-          err.code === 1
-            ? "Location access denied. Please allow location access or enter your city manually."
-            : "Could not get your location. Please enter your city manually."
-        );
-      },
-      { timeout: 10000 }
-    );
+    try {
+      const captured = await captureCurrentLocation();
+      setStatus("geocoding");
+      await saveLocation(captured);
+    } catch (e: any) {
+      setStatus("error");
+      setErrorMsg(`${e?.message ?? "Could not get your location."} Please enter your city manually.`);
+    }
   }
 
   async function handleCitySearch() {

@@ -1,5 +1,7 @@
-import { useEffect } from "react";
-import { MapPin, CalendarCheck, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MapPin, CalendarCheck, X, Loader2, Check } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { captureCurrentLocation } from "@/lib/capture-location";
 
 /**
  * First-run welcome — replaces the auto-forced tour. Compact + high-contrast: greets, has the
@@ -24,6 +26,31 @@ export default function FirstRunWelcome({
   // Count this as one lifetime "show" the moment it mounts — independent of how the user
   // leaves (button, ×, backdrop, or just closing the app). That's what caps it at 2.
   useEffect(() => { onShown?.(); }, []);
+
+  // ONE-TAP location (David, 2026-07-18 "friction much?"): the gold button DOES the thing it
+  // says — GPS → save — right here. The LocationSheet is only the fallback (GPS denied/failed →
+  // manual city entry) or the way to CHANGE an already-set location.
+  const utils = trpc.useUtils();
+  const setLocation = trpc.settings.setLocation.useMutation();
+  const [locStatus, setLocStatus] = useState<"idle" | "working" | "done">("idle");
+  const [localCity, setLocalCity] = useState<string | null>(null);
+  const cityShown = localCity ?? locationLabel;
+  const isSet = locStatus === "done" || locationSet;
+  async function handleLocationTap() {
+    if (isSet) { onSetLocation(); return; } // already set → open the sheet to change it
+    setLocStatus("working");
+    try {
+      const captured = await captureCurrentLocation();
+      await setLocation.mutateAsync(captured);
+      utils.invalidate();
+      setLocalCity(captured.city);
+      setLocStatus("done");
+    } catch {
+      // GPS refused/failed — fall back to the sheet's manual city entry.
+      setLocStatus("idle");
+      onSetLocation();
+    }
+  }
   const btn: React.CSSProperties = {
     width: "100%", minHeight: 52, borderRadius: 14, fontSize: "1.05rem", fontWeight: 700,
     display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", cursor: "pointer",
@@ -72,10 +99,11 @@ export default function FirstRunWelcome({
             <p style={{ fontSize: "0.92rem", color: "var(--color-foreground)", lineHeight: 1.45, margin: "0.4rem 0 0" }}>
               <strong>Separate from your birthplace</strong> — it's what tunes today's timing to you.
             </p>
-            <button onClick={onSetLocation} style={{ ...btn, marginTop: "0.65rem", minHeight: 46, fontSize: "0.98rem",
-              background: locationSet ? "transparent" : "var(--color-primary)", color: locationSet ? "var(--color-primary)" : "var(--color-primary-foreground)",
-              border: `1.5px solid var(--color-primary)` }}>
-              <MapPin size={16} /> {locationSet ? `${locationLabel ?? "Set"} — change it` : "Set my current location"}
+            <button onClick={handleLocationTap} disabled={locStatus === "working"} style={{ ...btn, marginTop: "0.65rem", minHeight: 46, fontSize: "0.98rem",
+              background: isSet ? "transparent" : "var(--color-primary)", color: isSet ? "var(--color-primary)" : "var(--color-primary-foreground)",
+              border: `1.5px solid var(--color-primary)`, opacity: locStatus === "working" ? 0.75 : 1 }}>
+              {locStatus === "working" ? <Loader2 size={16} className="animate-spin" /> : isSet ? <Check size={16} /> : <MapPin size={16} />}
+              {locStatus === "working" ? "Finding you…" : isSet ? `${cityShown ?? "Set"} — change it` : "Set my current location"}
             </button>
           </div>
         </div>
