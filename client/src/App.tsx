@@ -98,6 +98,21 @@ const { user, loading } = useAuth();
   useEffect(() => {
     if (!loading && !user) setShowWelcome(false);
   }, [loading, user]);
+
+  // THE GATE VEIL (David, 2026-07-18 "second beat was the entire today page"): a fresh login
+  // must never flash Today before its first beat. While the velea_splash flag is pending and
+  // the beat decision (tourState) is still in flight, hold true black with the spinning mark —
+  // the manifesto (first-run) or the etymology splash (returning) replaces it in the same
+  // render tourState lands (shared query cache with Onboarding). Read at render time because
+  // login navigates without remounting App. Timeout so a hung fetch can never hold the gate.
+  const freshLoginPending = (() => { try { return sessionStorage.getItem("velea_splash") === "1"; } catch { return false; } })();
+  const [veilTimedOut, setVeilTimedOut] = useState(false);
+  const bootVeilVisible = freshLoginPending && !showSplash && !firstRunState.data && !veilTimedOut;
+  useEffect(() => {
+    if (!bootVeilVisible) return;
+    const t = setTimeout(() => setVeilTimedOut(true), 6000);
+    return () => clearTimeout(t);
+  }, [bootVeilVisible]);
   const showNav = !location.startsWith("/404") && !location.startsWith("/login");
 
   // Ensure the owner's "My Chart" profile exists (idempotent migration)
@@ -274,6 +289,11 @@ const { user, loading } = useAuth();
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground star-bg">
+      {bootVeilVisible && (
+        <div data-velea-overlay className="fixed inset-0 z-[125] flex items-center justify-center" style={{ background: "#000" }}>
+          <VeleaLoader size={30} />
+        </div>
+      )}
       {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
       {showWelcome && <WelcomeScreen firstName={user?.name?.split(" ")[0] ?? null} onDone={() => setShowWelcome(false)} />}
       {/* The 3rd-open Morning Bell nudge — waits for the welcome/splash beats to finish. */}

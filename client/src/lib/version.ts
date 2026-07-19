@@ -437,4 +437,9 @@
 // velea-onboarded flag) instead of waiting for auth/tourState round-trips — the greeting mounts
 // before Today can flash. Hint cleared at login so a new account still gets first-run beats;
 // folded away if the session actually expired.
-export const APP_VERSION = "1.1.758";
+// v1.1.759 = 2026-07-18 — the gate veil: a fresh login never flashes Today before its first beat
+// (David: "second beat was the entire today page. then the manifesto started"). From the moment
+// of login until the beat decision lands, true black + the spinning mark holds the screen; the
+// manifesto (first-run) or the etymology splash (returning) replaces it in the same render.
+// 6s timeout so a hung fetch can never hold the gate.
+export const APP_VERSION = "1.1.759";
