@@ -19,7 +19,7 @@
  */
 import { getTimezoneOffset } from "./tz-offset.js";
 
-export type DaySkySource = "current" | "birth" | "default"; // "override" | "hometown" arrive with the location-model migration
+export type DaySkySource = "current" | "hometown" | "birth" | "default"; // "override" (per-date rows) wires in at phase 5 — UNIFORMLY, so the sync and async paths can never disagree
 
 export interface DaySky {
   lat: number;
@@ -35,7 +35,10 @@ export interface DaySky {
 export const DEFAULT_SKY = { city: "Boston", lat: 42.3601, lon: -71.0589, timezone: "America/New_York" } as const;
 
 export type UserLocFields = { locationLat?: string | null; locationLon?: string | null; locationTimezone?: string | null } | null | undefined;
-export type ProfileLocFields = { birthLocationLat?: string | null; birthLocationLon?: string | null; birthTimezone?: string | null } | null | undefined;
+export type ProfileLocFields = {
+  birthLocationLat?: string | null; birthLocationLon?: string | null; birthTimezone?: string | null;
+  hometownLat?: string | null; hometownLon?: string | null; hometownTimezone?: string | null;
+} | null | undefined;
 
 const noonUTC = (dateStr: string) => new Date(dateStr + "T12:00:00Z");
 
@@ -56,6 +59,16 @@ export function resolveDaySky(args: { user?: UserLocFields; profile?: ProfileLoc
     };
   }
   const p = args.profile;
+  if (p?.hometownLat && p?.hometownLon) {
+    const lon = parseFloat(p.hometownLon);
+    return {
+      lat: parseFloat(p.hometownLat),
+      lon,
+      utcOffset: p.hometownTimezone ? getTimezoneOffset(p.hometownTimezone, at) : Math.round(lon / 15),
+      timezone: p.hometownTimezone ?? null,
+      source: "hometown",
+    };
+  }
   if (p?.birthLocationLat && p?.birthLocationLon) {
     const lon = parseFloat(p.birthLocationLon);
     return {
@@ -82,7 +95,7 @@ export function resolveDaySky(args: { user?: UserLocFields; profile?: ProfileLoc
 
 /** The tz that defines "today" for this viewer/chart — same precedence as the sky. */
 export function timezoneFor(user?: UserLocFields, profile?: ProfileLocFields): string {
-  return user?.locationTimezone || profile?.birthTimezone || DEFAULT_SKY.timezone;
+  return user?.locationTimezone || profile?.hometownTimezone || profile?.birthTimezone || DEFAULT_SKY.timezone;
 }
 
 /** The viewer's local calendar date (YYYY-MM-DD) right now, by the same precedence. */

@@ -21,6 +21,15 @@ describe("resolveDaySky precedence", () => {
     expect(sky.utcOffset).toBe(5.5); // IST half-hour zone survives (H10)
   });
 
+  it("hometown tier sits between current and birth", () => {
+    const withHometown = { ...indiaBirth, hometownLat: "48.8566", hometownLon: "2.3522", hometownTimezone: "Europe/Paris" };
+    const sky = resolveDaySky({ profile: withHometown, dateStr: "2026-07-18" });
+    expect(sky.source).toBe("hometown");
+    expect(sky.utcOffset).toBe(2); // CEST
+    // current still beats hometown
+    expect(resolveDaySky({ user: seoulUser, profile: withHometown, dateStr: "2026-07-18" }).source).toBe("current");
+  });
+
   it("birth tier without a stored timezone estimates solar time from longitude, never Boston", () => {
     const sky = resolveDaySky({ profile: noTzBirth, dateStr: "2026-07-18" });
     expect(sky.source).toBe("birth");

@@ -363,6 +363,12 @@ export const profiles = mysqlTable("profiles", {
   birthLocationLat: varchar("birthLocationLat", { length: 24 }),
   birthLocationLon: varchar("birthLocationLon", { length: 24 }),
   birthTimezone: varchar("birthTimezone", { length: 64 }),
+  // The soul's home base — the day-layer default when not traveling (resolver tier 3,
+  // LOCATION_RESOLVER_SPEC §2). Seeded from the birth location by add-location-model.ts.
+  hometownCity: varchar("hometownCity", { length: 128 }),
+  hometownLat: varchar("hometownLat", { length: 24 }),
+  hometownLon: varchar("hometownLon", { length: 24 }),
+  hometownTimezone: varchar("hometownTimezone", { length: 64 }),
   // Last time the BIRTH DATA actually changed (not any edit) — drives the 24h edit
   // cooldown that stops profile "hijacking" (swapping to a friend's data and back).
   birthDataUpdatedAt: timestamp("birthDataUpdatedAt"),
@@ -390,6 +396,24 @@ export const profiles = mysqlTable("profiles", {
 
 export type Profile = typeof profiles.$inferSelect;
 export type InsertProfile = typeof profiles.$inferInsert;
+
+/**
+ * Sparse per-profile-per-date location overrides — "on THIS date I was in Tokyo"
+ * (resolver tier 1, LOCATION_RESOLVER_SPEC §2/§3; UX lands in phase 5 as the
+ * pick-a-date "where were you?" prompt). Created by scripts/add-location-model.ts.
+ */
+export const profileDayLocations = mysqlTable("profile_day_locations", {
+  id: int("id").autoincrement().primaryKey(),
+  profileId: int("profileId").notNull(),
+  onDate: varchar("onDate", { length: 10 }).notNull(), // YYYY-MM-DD
+  city: varchar("city", { length: 128 }).notNull(),
+  lat: varchar("lat", { length: 24 }).notNull(),
+  lon: varchar("lon", { length: 24 }).notNull(),
+  timezone: varchar("timezone", { length: 64 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ProfileDayLocation = typeof profileDayLocations.$inferSelect;
 
 /**
  * Profile Natal Bodies — natal chart planet data keyed to a profile (not userId).
