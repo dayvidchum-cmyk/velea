@@ -64,6 +64,7 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
 
   return (
     <div
+      data-velea-overlay
       onClick={onDone}
       style={{
         // TRUE inset — app-shell-height left a bottom strip on the PWA, and "cover"

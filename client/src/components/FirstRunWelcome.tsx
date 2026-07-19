@@ -1,43 +1,100 @@
-import { useEffect, useState } from "react";
-import { MapPin, CalendarCheck, X, Loader2, Check } from "lucide-react";
+import { useState } from "react";
+import { MapPin, CalendarCheck, X, Loader2, Check, Search } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { captureCurrentLocation } from "@/lib/capture-location";
+import { captureCurrentLocation, geocodeCity } from "@/lib/capture-location";
 
 /**
- * First-run welcome — replaces the auto-forced tour. Compact + high-contrast: greets, has the
- * user confirm birth data (catching the wrong-date error), drives current location + says WHY,
- * and OFFERS the tour. The two choices are PINNED in a non-scrolling footer so "explore on my
- * own" is always visible (never hidden below the fold). Built big for magnified screens.
+ * First-run capture — beat 6 of the choreography (login → manifesto → splash → THIS → reveal).
+ * ONE card takes everything the app needs to work properly (David, 2026-07-18): birth data
+ * (entered INLINE for a brand-new account — never a mid-onboarding bounce to /profiles) and
+ * current location (one tap, done in place). Then the app reveals; the tour is offered, never
+ * forced. Rendered ONLY by OverlaySequencer.
  */
 export default function FirstRunWelcome({
-  name, birthLine, locationSet, locationLabel, onShown, onFixBirth, onSetLocation, onTakeTour, onExplore, onDismiss,
+  profile, locationSet, locationLabel, onTakeTour, onExplore, onDismiss,
 }: {
-  name: string;
-  birthLine: string | null;
+  profile: { id: number; name?: string | null; birthDate?: string | null; birthTime?: string | null; birthLocationCity?: string | null } | null | undefined;
   locationSet: boolean;
   locationLabel: string | null;
-  onShown?: () => void;
-  onFixBirth: () => void;
-  onSetLocation: () => void;
   onTakeTour: () => void;
   onExplore: () => void;
   onDismiss: () => void;
 }) {
-  // Count this as one lifetime "show" the moment it mounts — independent of how the user
-  // leaves (button, ×, backdrop, or just closing the app). That's what caps it at 2.
-  useEffect(() => { onShown?.(); }, []);
-
-  // ONE-TAP location (David, 2026-07-18 "friction much?"): the gold button DOES the thing it
-  // says — GPS → save — right here. The LocationSheet is only the fallback (GPS denied/failed →
-  // manual city entry) or the way to CHANGE an already-set location.
   const utils = trpc.useUtils();
+  const btn: React.CSSProperties = {
+    width: "100%", minHeight: 52, borderRadius: 14, fontSize: "1.05rem", fontWeight: 700,
+    display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", cursor: "pointer",
+  };
+  const input: React.CSSProperties = {
+    width: "100%", minHeight: 44, borderRadius: 10, border: "1px solid var(--color-border)",
+    background: "var(--color-card)", color: "var(--color-foreground)", padding: "0 0.7rem", fontSize: "1rem",
+  };
+  const label: React.CSSProperties = { fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-muted-foreground)" };
+
+  // ── Birth capture (inline — the fresh-account path) ──
+  const hasBirth = !!profile?.birthDate;
+  const [bd, setBd] = useState("");
+  const [bt, setBt] = useState("");
+  const [noTime, setNoTime] = useState(false);
+  const [bCity, setBCity] = useState("");
+  const [bCoords, setBCoords] = useState<{ city: string; lat: string; lon: string } | null>(null);
+  const [bStatus, setBStatus] = useState<"idle" | "finding" | "saving" | "saved" | "error">("idle");
+  const [bError, setBError] = useState("");
+  const updateProfile = trpc.profiles.update.useMutation();
+  const calcChart = trpc.profiles.calculateChart.useMutation();
+
+  async function findBirthCity() {
+    if (!bCity.trim()) return;
+    setBStatus("finding"); setBError("");
+    try {
+      const hit = await geocodeCity(bCity.trim());
+      if (!hit) { setBStatus("idle"); setBError("City not found — try adding the state or country."); return; }
+      setBCoords(hit); setBCity(hit.city); setBStatus("idle");
+    } catch { setBStatus("idle"); setBError("Search failed — check your connection."); }
+  }
+
+  async function saveBirth() {
+    if (!profile?.id || !bd || !bCoords) return;
+    setBStatus("saving"); setBError("");
+    try {
+      let timezone: string | undefined;
+      try { timezone = (await utils.settings.resolveTimezone.fetch({ lat: bCoords.lat, lon: bCoords.lon })).timezone ?? undefined; } catch { /* server derives if absent */ }
+      const birth = {
+        birthDate: bd, birthTime: noTime ? undefined : bt || undefined, birthTimeApprox: false,
+        birthLocationCity: bCoords.city, birthLocationLat: bCoords.lat, birthLocationLon: bCoords.lon, birthTimezone: timezone,
+      };
+      // Q5: hometown seeds from the birth place at capture (same as profile-create), so the
+      // day-layer's hometown tier is never empty for accounts born in the app.
+      await updateProfile.mutateAsync({
+        id: profile.id, ...birth,
+        hometownCity: bCoords.city, hometownLat: bCoords.lat, hometownLon: bCoords.lon, hometownTimezone: timezone,
+      });
+      await calcChart.mutateAsync({ id: profile.id, ...birth, birthLocationCity: bCoords.city });
+      utils.invalidate();
+      setBStatus("saved");
+    } catch (e: any) {
+      setBStatus("error"); setBError(e?.message ?? "Could not save — try again.");
+    }
+  }
+
+  // profile must exist (created just after signup) — without it Save has nowhere to write,
+  // so the button stays visibly not-ready instead of silently doing nothing.
+  const birthReady = !!profile?.id && !!bd && !!bCoords && (noTime || !!bt);
+  const fmtBirthLine = () => {
+    if (!profile?.birthDate) return null;
+    const d = new Date(profile.birthDate + "T12:00:00");
+    const t = profile.birthTime ? ` · ${(() => { const [h, m] = profile.birthTime!.split(":").map(Number); const ap = h >= 12 ? "PM" : "AM"; return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")} ${ap}`; })()}` : "";
+    return `${d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}${t}${profile.birthLocationCity ? ` · ${profile.birthLocationCity}` : ""}`;
+  };
+
+  // ── One-tap current location (unchanged law: the button DOES it) ──
   const setLocation = trpc.settings.setLocation.useMutation();
   const [locStatus, setLocStatus] = useState<"idle" | "working" | "done">("idle");
   const [localCity, setLocalCity] = useState<string | null>(null);
   const cityShown = localCity ?? locationLabel;
   const isSet = locStatus === "done" || locationSet;
   async function handleLocationTap() {
-    if (isSet) { onSetLocation(); return; } // already set → open the sheet to change it
+    if (isSet) { window.dispatchEvent(new Event("velea-open-location")); return; }
     setLocStatus("working");
     try {
       const captured = await captureCurrentLocation();
@@ -46,25 +103,19 @@ export default function FirstRunWelcome({
       setLocalCity(captured.city);
       setLocStatus("done");
     } catch {
-      // GPS refused/failed — fall back to the sheet's manual city entry.
       setLocStatus("idle");
-      onSetLocation();
+      window.dispatchEvent(new Event("velea-open-location")); // manual city entry fallback
     }
   }
-  const btn: React.CSSProperties = {
-    width: "100%", minHeight: 52, borderRadius: 14, fontSize: "1.05rem", fontWeight: 700,
-    display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", cursor: "pointer",
-  };
+
+  const name = profile?.name ?? "";
   return (
     <div onClick={onDismiss} data-velea-welcome className="fixed inset-0 z-[130] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(3px)" }}>
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col" style={{ position: "relative", maxHeight: "92vh", background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 22, boxShadow: "0 24px 64px rgba(0,0,0,0.4)", overflow: "hidden" }}>
-
-        {/* dismiss — close without a tour; marks the welcome seen so it never returns (tap the × or outside) */}
         <button onClick={onDismiss} aria-label="Dismiss" style={{ position: "absolute", top: 10, right: 10, zIndex: 3, width: 34, height: 34, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-secondary)", color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)", cursor: "pointer" }}>
           <X size={18} />
         </button>
 
-        {/* scrollable content */}
         <div className="overflow-y-auto" style={{ padding: "1.5rem 1.4rem 0.5rem" }}>
           <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.6rem", fontWeight: 800, color: "var(--color-foreground)", margin: 0, lineHeight: 1.1 }}>
             Welcome{name ? `, ${name}` : ""}.
@@ -73,28 +124,65 @@ export default function FirstRunWelcome({
             Two things make Velea yours — let's make sure they're right.
           </p>
 
-          {/* 1 — confirm birth data */}
+          {/* 1 — birth data: confirm when present, capture inline when not */}
           <div style={{ marginTop: "1.1rem", padding: "0.9rem 1rem", borderRadius: 14, border: "1px solid var(--color-border)", background: "var(--color-secondary)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
               <CalendarCheck size={16} style={{ color: "var(--color-primary)" }} />
-              <span style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Your birth details</span>
+              <span style={label}>Your birth details</span>
             </div>
-            <p style={{ fontSize: "1.12rem", fontWeight: 700, color: "var(--color-foreground)", lineHeight: 1.3, margin: "0.4rem 0 0" }}>
-              {birthLine ?? "Not set yet"}
-            </p>
-            <p style={{ fontSize: "0.88rem", color: "var(--color-muted-foreground)", lineHeight: 1.45, margin: "0.25rem 0 0" }}>
-              If the date or time is even a little off, your whole chart is too.
-            </p>
-            <button onClick={onFixBirth} style={{ marginTop: "0.5rem", fontSize: "0.98rem", fontWeight: 700, color: "var(--color-primary)", background: "none", border: "none", padding: "0.25rem 0", cursor: "pointer" }}>
-              {birthLine ? "Not exactly right? Fix it →" : "Add your birth details →"}
-            </button>
+            {hasBirth || bStatus === "saved" ? (
+              <>
+                <p style={{ fontSize: "1.12rem", fontWeight: 700, color: "var(--color-foreground)", lineHeight: 1.3, margin: "0.4rem 0 0", display: "flex", alignItems: "center", gap: 6 }}>
+                  {bStatus === "saved" && <Check size={16} style={{ color: "var(--color-primary)" }} />}
+                  {fmtBirthLine() ?? `${bCoords?.city ?? ""} — chart calculated`}
+                </p>
+                <p style={{ fontSize: "0.88rem", color: "var(--color-muted-foreground)", lineHeight: 1.45, margin: "0.25rem 0 0" }}>
+                  {bStatus === "saved" ? "Your chart is cast. You can refine it any time in Profiles." : "If the date or time is even a little off, your whole chart is too. Refine it any time in Profiles."}
+                </p>
+              </>
+            ) : (
+              <div style={{ marginTop: "0.6rem", display: "grid", gap: "0.6rem" }}>
+                <p style={{ fontSize: "0.88rem", color: "var(--color-muted-foreground)", lineHeight: 1.45, margin: 0 }}>
+                  Velea reads your chart from your birth date, time, and place.
+                </p>
+                <div>
+                  <span style={label}>Date</span>
+                  <input type="date" value={bd} onChange={(e) => setBd(e.target.value)} style={{ ...input, marginTop: 4 }} />
+                </div>
+                <div>
+                  <span style={label}>Time</span>
+                  <input type="time" value={bt} disabled={noTime} onChange={(e) => setBt(e.target.value)} style={{ ...input, marginTop: 4, opacity: noTime ? 0.5 : 1 }} />
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, fontSize: "0.85rem", color: "var(--color-muted-foreground)" }}>
+                    <input type="checkbox" checked={noTime} onChange={(e) => setNoTime(e.target.checked)} />
+                    I don't know the time
+                  </label>
+                </div>
+                <div>
+                  <span style={label}>Birth city</span>
+                  <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                    <input value={bCity} onChange={(e) => { setBCity(e.target.value); setBCoords(null); }} onKeyDown={(e) => e.key === "Enter" && findBirthCity()} placeholder="City, Country" style={{ ...input, flex: 1 }} />
+                    <button onClick={findBirthCity} disabled={bStatus === "finding" || !bCity.trim()} style={{ minWidth: 74, borderRadius: 10, border: "1px solid var(--color-border)", background: "var(--color-card)", color: "var(--color-foreground)", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: "0.9rem", fontWeight: 700, cursor: "pointer" }}>
+                      {bStatus === "finding" ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Find
+                    </button>
+                  </div>
+                  {bCoords && <p style={{ fontSize: "0.82rem", color: "var(--color-primary)", margin: "0.3rem 0 0", display: "flex", alignItems: "center", gap: 4 }}><Check size={13} /> {bCoords.city}</p>}
+                </div>
+                {bError && <p style={{ fontSize: "0.82rem", color: "oklch(0.6 0.18 25)", margin: 0 }}>{bError}</p>}
+                <button onClick={saveBirth} disabled={!birthReady || bStatus === "saving"} style={{ ...btn, minHeight: 46, fontSize: "0.98rem",
+                  background: birthReady ? "var(--color-primary)" : "var(--color-secondary)",
+                  color: birthReady ? "var(--color-primary-foreground)" : "var(--color-muted-foreground)",
+                  border: "1.5px solid var(--color-border)", opacity: bStatus === "saving" ? 0.75 : 1 }}>
+                  {bStatus === "saving" ? <><Loader2 size={16} className="animate-spin" /> Casting your chart…</> : "Save my birth details"}
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* 2 — set current location */}
-          <div style={{ marginTop: "0.75rem", padding: "0.9rem 1rem", borderRadius: 14, border: `1px solid ${locationSet ? "var(--color-border)" : "color-mix(in srgb, var(--color-primary) 45%, transparent)"}`, background: "var(--color-secondary)" }}>
+          {/* 2 — current location: one tap, done in place */}
+          <div style={{ marginTop: "0.75rem", padding: "0.9rem 1rem", borderRadius: 14, border: `1px solid ${isSet ? "var(--color-border)" : "color-mix(in srgb, var(--color-primary) 45%, transparent)"}`, background: "var(--color-secondary)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
               <MapPin size={16} style={{ color: "var(--color-primary)" }} />
-              <span style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-muted-foreground)" }}>Where you are now</span>
+              <span style={label}>Where you are now</span>
             </div>
             <p style={{ fontSize: "0.92rem", color: "var(--color-foreground)", lineHeight: 1.45, margin: "0.4rem 0 0" }}>
               <strong>Separate from your birthplace</strong> — it's what tunes today's timing to you.

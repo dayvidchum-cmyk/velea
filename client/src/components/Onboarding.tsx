@@ -2,26 +2,11 @@ import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react
 import { useLocation } from "wouter";
 import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
-import FirstRunWelcome from "./FirstRunWelcome";
-import ManifestoIntro from "./ManifestoIntro";
-import BrandSplash from "./BrandSplash";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
 const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 /** "1982-02-03" + "20:39" + "West Islip" → "February 3, 1982 · 8:39 PM · West Islip" */
-function formatBirthLine(p: any): string | null {
-  if (!p?.birthDate) return null;
-  const [y, m, d] = String(p.birthDate).slice(0, 10).split("-").map(Number);
-  const datePart = (m && d && y) ? `${MONTHS_FULL[m - 1]} ${d}, ${y}` : String(p.birthDate);
-  let timePart = "";
-  if (p.birthTime) {
-    const [hh, mm] = String(p.birthTime).split(":").map(Number);
-    const ap = hh >= 12 ? "PM" : "AM"; const h12 = ((hh + 11) % 12) + 1;
-    timePart = ` · ${h12}:${String(mm ?? 0).padStart(2, "0")} ${ap}`;
-  }
-  return `${datePart}${timePart}${p.birthLocationCity ? ` · ${p.birthLocationCity}` : ""}`;
-}
 /** Fire the guided tour from anywhere (welcome card, Settings). */
 export function startTour() { window.dispatchEvent(new Event("velea-start-tour")); }
 
@@ -216,7 +201,6 @@ const PAGE_TOURS: { route: string; key: string; steps: TourStep[] }[] = [
 
 // Bump the server-side welcome-show counter at most once per app-open (module state
 // resets on a fresh JS load = a real reopen, so 2 opens → 2 shows → then never again).
-let welcomeBumped = false;
 
 export default function Onboarding({ active, userId }: Props) {
   const accent = useDayModeColor();
@@ -225,8 +209,6 @@ export default function Onboarding({ active, userId }: Props) {
   // Server-persisted tour state ({ seen: string[], enabled }). Reliable across
   // devices and iOS PWA localStorage clears — that's why it used to re-fire.
   const tourState = trpc.settings.getTourState.useQuery(undefined, { enabled: userId != null, staleTime: 60_000 });
-  const activeProfile = trpc.profiles.getActive.useQuery(undefined, { enabled: userId != null, staleTime: 60_000 });
-  const locationData = trpc.settings.getLocation.useQuery(undefined, { enabled: userId != null, staleTime: 60_000 });
   const utils = trpc.useUtils();
   const markSeen = trpc.settings.markTourSeen.useMutation({
     onSuccess: () => { utils.settings.getTourState.invalidate(); },
@@ -234,17 +216,11 @@ export default function Onboarding({ active, userId }: Props) {
   const setToursEnabled = trpc.settings.setToursEnabled.useMutation({
     onSuccess: () => { utils.settings.getTourState.invalidate(); },
   });
-  // Fire-and-forget: do NOT invalidate getTourState here, or the running count would
-  // hide the welcome mid-view. The higher count only gates the NEXT app-open.
-  const bumpWelcomeShows = trpc.settings.bumpWelcomeShows.useMutation();
 
   // The active per-page tour, plus the standalone "how to add a task" guide.
   const [running, setRunning] = useState<{ key: string; steps: TourStep[] } | null>(null);
   const [tourIndex, setTourIndex] = useState(0);
   const [taskGuide, setTaskGuide] = useState(false);
-  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
-  const [manifestoDismissed, setManifestoDismissed] = useState(false);
-  const [splashBeatDone, setSplashBeatDone] = useState(false); // beat 5: etymology splash played this load
   const taskKey = userId != null ? `${TASK_GUIDE_PREFIX}${userId}` : null;
 
   // Standalone task guide — fired via window event (Settings, zero-task nudge).
@@ -278,53 +254,8 @@ export default function Onboarding({ active, userId }: Props) {
     setTaskGuide(false);
   }, [taskKey]);
 
-  // Manifesto intro — the very first thing a new user sees (once), before the welcome:
-  // the Moon thesis, paced as beats, landing on sky ⊗ chart ⊗ inner-state → your task.
-  const showManifesto = !manifestoDismissed && active && userId != null && !running && !taskGuide
-    && !!tourState.data && !tourState.data.seen.includes("manifesto") && location === "/";
-  if (showManifesto) {
-    try { sessionStorage.setItem("velea-firstrun-session", "1"); } catch { /* ignore */ } // quiets nudges this session
-    return <ManifestoIntro onBegin={() => { setManifestoDismissed(true); markSeen.mutate({ key: "manifesto" }); }} />;
-  }
-
-  // BEAT 5 — the etymology splash (seashell on still water), AFTER the manifesto, BEFORE the
-  // welcome (David's first-run order, 2026-07-18). App.tsx leaves the fresh-login velea_splash
-  // flag unconsumed for first-run users precisely so it plays here, in sequence.
-  const splashPending = (() => { try { return sessionStorage.getItem("velea_splash") === "1"; } catch { return false; } })();
-  const showSplashBeat = !splashBeatDone && splashPending && active && userId != null && !running && !taskGuide
-    && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto"))
-    && !tourState.data.seen.includes("welcome") && location === "/";
-  if (showSplashBeat) {
-    try { sessionStorage.setItem("velea-firstrun-session", "1"); } catch { /* ignore */ }
-    return <BrandSplash onDone={() => { try { sessionStorage.removeItem("velea_splash"); } catch { /* ignore */ } setSplashBeatDone(true); }} />;
-  }
-
-  // First-run welcome — shown once on Today, after the manifesto + splash, before any tour.
-  // Replaces the auto-forced tour; drives birth-data + current-location, then OFFERS the tour.
-  const prof = activeProfile.data as any;
-  // Show ONCE (welcomeShows < 1), AND an explicit dismiss turns it off for good (seen "welcome").
-  // Both live server-side, so logout / a new device / a mid-flow re-render never re-fire it.
-  const showWelcome = !welcomeDismissed && active && userId != null && !running && !taskGuide
-    && !!tourState.data && (manifestoDismissed || tourState.data.seen.includes("manifesto"))
-    && !tourState.data.seen.includes("welcome") && (((tourState.data as any).welcomeShows ?? 0) < 1)
-    && location === "/";
-  if (showWelcome) {
-    try { sessionStorage.setItem("velea-firstrun-session", "1"); } catch { /* ignore */ }
-    return (
-      <FirstRunWelcome
-        name={prof?.name ?? ""}
-        birthLine={formatBirthLine(prof)}
-        locationSet={!!(locationData.data as any)?.city}
-        locationLabel={(locationData.data as any)?.city ?? null}
-        onShown={() => { if (welcomeBumped) return; welcomeBumped = true; bumpWelcomeShows.mutate(); }}
-        onFixBirth={() => navigate("/profiles")}
-        onSetLocation={() => window.dispatchEvent(new Event("velea-open-location"))}
-        onTakeTour={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: true }); startTour(); }}
-        onExplore={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: false }); }}
-        onDismiss={() => { setWelcomeDismissed(true); markSeen.mutate({ key: "welcome" }); setToursEnabled.mutate({ enabled: false }); }}
-      />
-    );
-  }
+  // The first-run beats (manifesto / splash / capture) live in OverlaySequencer now —
+  // this component owns ONLY the explicit-start tours and the task guide.
 
   if (running) {
     return (

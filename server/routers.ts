@@ -1045,6 +1045,22 @@ export const appRouter = router({
         await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
         return { ok: true };
       }),
+    // ONE atomic write for finishing the first-run capture (2026-07-18): the old client fired
+    // markTourSeen("welcome") + setToursEnabled() CONCURRENTLY — both read-modify-write the same
+    // tourState JSON, so the last writer clobbered the other and "welcome" kept vanishing from
+    // seen[]. That race was the welcome-zombie root cause all night.
+    completeWelcome: protectedProcedure
+      .input(z.object({ toursEnabled: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb(); if (!db) return { ok: false };
+        const user = await getUserById(ctx.user.id);
+        let state = { seen: [] as string[], enabled: true, welcomeShows: 0 };
+        try { if ((user as any)?.tourState) state = { ...state, ...JSON.parse((user as any).tourState) }; } catch { /* ignore */ }
+        if (!state.seen.includes("welcome")) state.seen.push("welcome");
+        state.enabled = input.toursEnabled;
+        await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
+        return { ok: true };
+      }),
     setToursEnabled: protectedProcedure
       .input(z.object({ enabled: z.boolean() }))
       .mutation(async ({ ctx, input }) => {
@@ -1780,7 +1796,9 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const subject = ctx.subject;
         const profileId = subject?.profileId ?? null;
-        return getReflectionByDate(ctx.user.id, input.date, profileId);
+        // null, never undefined — react-query treats undefined as an error on every day
+        // without a reflection (a console error on each first open of a date).
+        return (await getReflectionByDate(ctx.user.id, input.date, profileId)) ?? null;
       }),
 
     history: protectedProcedure

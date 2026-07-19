@@ -459,4 +459,19 @@
 // year walk no longer consults the per-date override tier (a yearStart override relocated the
 // whole year); (3) missing-location prompt gate was unreachable for show-cap-burned accounts
 // (welcome-seen → manifesto-seen); (4) LocationSheet resets stale status on open.
-export const APP_VERSION = "1.1.762";
+// v1.1.763 = 2026-07-19 — THE OVERLAY SEQUENCER: the whole self-firing-popup architecture is
+// dead, replaced by ONE owner (OverlaySequencer) — verified end-to-end in a real browser
+// (playwright, fresh signup, every beat screenshotted) BEFORE shipping. The choreography:
+// login → veil → manifesto (3 beats) → etymology splash → capture card → app; sunset greeting
+// alone on ordinary opens; max ONE nudge per session, only when idle, only post-onboarding.
+// ROOT CAUSES KILLED (not patched): (1) App's "/"→/profiles redirect exiled fresh signups from
+// the beats entirely and spawned the "3 birth data cards" war — the capture card now takes
+// birth date/time/city INLINE, geocodes, resolves tz, casts the chart (verified: Taurus lagna,
+// 9 natal bodies in DB from a typed signup), and seeds hometown (Q5). (2) markTourSeen +
+// setToursEnabled raced on the same tourState JSON — last writer clobbered seen[], the
+// welcome-zombie source all night; new atomic settings.completeWelcome. (3) Planner's zero-task
+// auto-fired task guide stacked over the greeting — killed; NOTHING tours uninvited.
+// (4) reflections.get returned undefined → console error on every un-journaled day. Also:
+// scripts/sync-local-dev-db.ts (additive-only local mirror sync — drifted mirrors were masking
+// the real bugs during reproduction).
+export const APP_VERSION = "1.1.763";

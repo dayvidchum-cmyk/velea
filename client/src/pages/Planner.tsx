@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
 import { useLocation } from "wouter";
-import { fireTaskGuide, hasSeenTaskGuide } from "@/components/Onboarding";
+
 import ProseLoading from "@/components/ProseLoading";
 import KeptReadings from "@/components/KeptReadings";
 import LocationChip from "@/components/LocationChip";
@@ -594,16 +594,9 @@ export default function Planner() {
     : undefined;
   const { data: allTasks = [], isSuccess: tasksLoaded } = trpc.tasks.list.useQuery(undefined, { enabled: isAuthenticated });
 
-  // First zero-task day → nudge the standalone "how to add a task" guide, once.
-  const taskGuideFiredRef = useRef(false);
-  useEffect(() => {
-    if (!isAuthenticated || !tasksLoaded || taskGuideFiredRef.current) return;
-    if (allTasks.length !== 0) return;
-    if (hasSeenTaskGuide(user?.id)) return;
-    taskGuideFiredRef.current = true;
-    const t = setTimeout(() => fireTaskGuide(), 900);
-    return () => clearTimeout(t);
-  }, [isAuthenticated, tasksLoaded, allTasks.length, user?.id]);
+  // KILLED (David, 2026-07-18 "the tour shouldn't even go on automatically"): the zero-task
+  // auto-fire stacked the task guide over the greeting on every fresh open. The guide remains
+  // available from Settings; nothing tours uninvited.
 
   // Ranked-for-today suggestions powering the "Aligned for today" list (ported from Home).
   // LOCAL date, not toISOString (audit 2026-07-17, H11 — the 8pm-Boston class David already

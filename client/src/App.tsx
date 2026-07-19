@@ -4,9 +4,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, Redirect, useLocation } from "wouter";
 import { Plus, RefreshCw } from "lucide-react";
-import BrandSplash from "@/components/BrandSplash";
-import MorningBellNudge from "@/components/MorningBellNudge";
-import WelcomeScreen from "@/components/WelcomeScreen";
+import OverlaySequencer from "@/components/OverlaySequencer";
 import { PANCHANG_TO_TASK_MODE, type TaskMode } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 
@@ -50,80 +48,19 @@ const { user, loading } = useAuth();
   // Post-login brand splash — the grand etymology, shown once when "velea_splash" is set by login.
   // Beach-ball law: even the Refresh-app button sweeps while it clears caches ("where is my spinning velea mark?").
   const [refreshing, setRefreshing] = useState(false);
-  const [showSplash, setShowSplash] = useState(false);
-  // Welcome moment on EVERY app open (any time of day): the sunset shell image + the viewer's own
-  // personalized greeting. Fresh login gets the etymology splash instead; every other open gets this.
-  // GLITCH FIX (David, 2026-07-18 "the today page flashes, then the greeting"): the decision must
-  // be SYNCHRONOUS at first paint — waiting for auth/tourState round-trips let Today flash first.
-  // Two local hints make it sync: useAuth mirrors auth.me into localStorage, and we keep a
-  // "velea-onboarded" flag (set once the first-run welcome has been seen; cleared at login so a
-  // new account on this device still gets its first-run beats, not the greeting).
-  const [showWelcome, setShowWelcome] = useState(() => {
-    try {
-      const authed = !!JSON.parse(localStorage.getItem("manus-runtime-user-info") || "null");
-      const onboarded = localStorage.getItem("velea-onboarded") === "1";
-      const freshLogin = sessionStorage.getItem("velea_splash") === "1";
-      return authed && onboarded && !freshLogin;
-    } catch { return false; }
-  });
-  const welcomeChecked = useRef(showWelcome); // a sync greeting IS the decision for this load
+  // All automatic overlays (veil / manifesto / splash / capture / greeting / nudges) are
+  // owned by ONE component now: <OverlaySequencer/>. Nothing here may self-fire.
 
-  // FIRST-RUN BEAT ORDER (David, 2026-07-18): login gate → manifesto (3 beats) → etymology
-  // splash → welcome pop-up → app reveals + tour. For a first-run user App must NOT consume
-  // the splash here — Onboarding plays it as beat 5, AFTER the manifesto. Returning users:
-  // fresh login → splash (async is fine, the login flow is already a loading moment).
-  const firstRunState = trpc.settings.getTourState.useQuery(undefined, { enabled: !!user, staleTime: 60_000 });
-  useEffect(() => {
-    if (!user || !firstRunState.data) return;
-    // Keep the sync-boot hint honest for the NEXT open. Keyed on the MANIFESTO (the true
-    // "has begun life in the app" marker) — welcome-seen was too strict: an account whose
-    // welcome burned by show-cap without an explicit dismiss never got the hint, so its
-    // reopens flashed Today forever (David's velea-profile recording).
-    try {
-      if (firstRunState.data.seen.includes("manifesto")) localStorage.setItem("velea-onboarded", "1");
-      else localStorage.removeItem("velea-onboarded");
-    } catch { /* ignore */ }
-    if (welcomeChecked.current) return;
-    welcomeChecked.current = true; // decide once per app load, not on every user-ref change
-    const firstRun = !firstRunState.data.seen.includes("manifesto");
-    try {
-      if (sessionStorage.getItem("velea_splash") === "1") {
-        if (firstRun) return; // Onboarding owns the splash beat (after the manifesto)
-        sessionStorage.removeItem("velea_splash");
-        setShowSplash(true);  // fresh login, returning user → the etymology splash
-      } else if (!firstRun) {
-        setShowWelcome(true); // returning open, no local hint yet (first open after this deploy)
-      }
-    } catch { setShowWelcome(true); }
-  }, [user, firstRunState.data]);
-
-  // If the sync hint was wrong (session actually expired), fold the greeting away.
-  useEffect(() => {
-    if (!loading && !user) setShowWelcome(false);
-  }, [loading, user]);
-
-  // THE GATE VEIL (David, 2026-07-18 "second beat was the entire today page"): a fresh login
-  // must never flash Today before its first beat. While the velea_splash flag is pending and
-  // the beat decision (tourState) is still in flight, hold true black with the spinning mark —
-  // the manifesto (first-run) or the etymology splash (returning) replaces it in the same
-  // render tourState lands (shared query cache with Onboarding). Read at render time because
-  // login navigates without remounting App. Timeout so a hung fetch can never hold the gate.
-  const freshLoginPending = (() => { try { return sessionStorage.getItem("velea_splash") === "1"; } catch { return false; } })();
-  const [veilTimedOut, setVeilTimedOut] = useState(false);
-  // AUDIT v762: keyed on the FLAG, not on tourState arrival — data lands one render before the
-  // effect mounts the splash, and that gap was one unveiled paint of Today. The flag is consumed
-  // in the same commit the splash (or beat 5) mounts, and every beat renders ABOVE the veil
-  // (manifesto z-140, splash/welcome z-9999/130 vs veil z-125), so the veil can never mask them.
-  const bootVeilVisible = freshLoginPending && !showSplash && !veilTimedOut;
-  useEffect(() => {
-    if (!bootVeilVisible) return;
-    const t = setTimeout(() => setVeilTimedOut(true), 6000);
-    return () => clearTimeout(t);
-  }, [bootVeilVisible]);
   const showNav = !location.startsWith("/404") && !location.startsWith("/login");
 
   // Ensure the owner's "My Chart" profile exists (idempotent migration)
-  const ensureOwnerProfile = trpc.profiles.ensureOwnerProfile.useMutation();
+  const trpcUtils = trpc.useUtils();
+  // Invalidate profile consumers once the owner profile exists — a brand-new account's
+  // getActive query fires BEFORE creation and would otherwise stay null (staleTime),
+  // silently disabling the first-run birth capture.
+  const ensureOwnerProfile = trpc.profiles.ensureOwnerProfile.useMutation({
+    onSuccess: () => { trpcUtils.profiles.invalidate(); },
+  });
   const hasEnsured = useRef(false);
   useEffect(() => {
     if (user && !hasEnsured.current) {
@@ -131,14 +68,6 @@ const { user, loading } = useAuth();
       ensureOwnerProfile.mutate();
     }
   }, [user]);
-
-  // New users have an (empty) owner profile but no birth data yet. Until they
-  // add it, the astrology features are blank — so route them to Profiles to
-  // finish onboarding instead of dropping them on a half-empty Home.
-  const { data: subject, isLoading: subjectLoading } = trpc.profiles.getSubject.useQuery(undefined, {
-    enabled: !!user,
-  });
-  const needsBirthData = !!user && !subjectLoading && !subject?.birthDate;
 
   // Derive today's mode for FAB pre-tagging
   const { data: todayPanchang } = trpc.panchang.today.useQuery(undefined, {
@@ -279,11 +208,9 @@ const { user, loading } = useAuth();
     return <Redirect to="/" />;
   }
 
-  // New user with no birth data → onboard via Profiles (only intercept Home,
-  // so they can still reach Settings/other pages if they want).
-  if (needsBirthData && location === "/") {
-    return <Redirect to="/profiles" />;
-  }
+  // The old "no birth data → bounce to /profiles" redirect is DEAD (2026-07-18): it exiled
+  // fresh signups from the first-run beats entirely and spawned competing birth-data surfaces.
+  // The capture card (OverlaySequencer) takes birth data inline instead.
 
   const hardRefresh = async () => {
     setRefreshing(true);
@@ -296,15 +223,7 @@ const { user, loading } = useAuth();
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground star-bg">
-      {bootVeilVisible && (
-        <div data-velea-overlay className="fixed inset-0 z-[125] flex items-center justify-center" style={{ background: "#000" }}>
-          <VeleaLoader size={30} />
-        </div>
-      )}
-      {showSplash && <BrandSplash onDone={() => setShowSplash(false)} />}
-      {showWelcome && <WelcomeScreen firstName={user?.name?.split(" ")[0] ?? null} onDone={() => setShowWelcome(false)} />}
-      {/* The 3rd-open Morning Bell nudge — waits for the welcome/splash beats to finish. */}
-      {user && !showSplash && !showWelcome && <MorningBellNudge />}
+      <OverlaySequencer />
       {/* Normal document flow — the page scrolls, the nav is fixed to the viewport bottom. */}
       <main className="overflow-x-hidden relative z-10 content-safe-area">
         <Switch>
@@ -407,7 +326,7 @@ const { user, loading } = useAuth();
 
       {/* First-run onboarding for newcomers (intro cards + guided tour) */}
       <Onboarding
-        active={!!user && !needsBirthData && !subjectLoading}
+        active={!!user}
         userId={user?.id}
       />
 
