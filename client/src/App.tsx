@@ -53,16 +53,34 @@ const { user, loading } = useAuth();
   const [showSplash, setShowSplash] = useState(false);
   // Welcome moment on EVERY app open (any time of day): the sunset shell image + the viewer's own
   // personalized greeting. Fresh login gets the etymology splash instead; every other open gets this.
-  const [showWelcome, setShowWelcome] = useState(false);
-  const welcomeChecked = useRef(false);
+  // GLITCH FIX (David, 2026-07-18 "the today page flashes, then the greeting"): the decision must
+  // be SYNCHRONOUS at first paint — waiting for auth/tourState round-trips let Today flash first.
+  // Two local hints make it sync: useAuth mirrors auth.me into localStorage, and we keep a
+  // "velea-onboarded" flag (set once the first-run welcome has been seen; cleared at login so a
+  // new account on this device still gets its first-run beats, not the greeting).
+  const [showWelcome, setShowWelcome] = useState(() => {
+    try {
+      const authed = !!JSON.parse(localStorage.getItem("manus-runtime-user-info") || "null");
+      const onboarded = localStorage.getItem("velea-onboarded") === "1";
+      const freshLogin = sessionStorage.getItem("velea_splash") === "1";
+      return authed && onboarded && !freshLogin;
+    } catch { return false; }
+  });
+  const welcomeChecked = useRef(showWelcome); // a sync greeting IS the decision for this load
 
   // FIRST-RUN BEAT ORDER (David, 2026-07-18): login gate → manifesto (3 beats) → etymology
   // splash → welcome pop-up → app reveals + tour. For a first-run user App must NOT consume
-  // the splash here — Onboarding plays it as beat 5, AFTER the manifesto. Returning users
-  // keep today's behavior (fresh login → splash immediately; other opens → sunset greeting).
+  // the splash here — Onboarding plays it as beat 5, AFTER the manifesto. Returning users:
+  // fresh login → splash (async is fine, the login flow is already a loading moment).
   const firstRunState = trpc.settings.getTourState.useQuery(undefined, { enabled: !!user, staleTime: 60_000 });
   useEffect(() => {
-    if (!user || welcomeChecked.current || !firstRunState.data) return;
+    if (!user || !firstRunState.data) return;
+    // Keep the sync-boot hint honest for the NEXT open.
+    try {
+      if (firstRunState.data.seen.includes("welcome")) localStorage.setItem("velea-onboarded", "1");
+      else localStorage.removeItem("velea-onboarded");
+    } catch { /* ignore */ }
+    if (welcomeChecked.current) return;
     welcomeChecked.current = true; // decide once per app load, not on every user-ref change
     const firstRun = !firstRunState.data.seen.includes("manifesto");
     try {
@@ -71,10 +89,15 @@ const { user, loading } = useAuth();
         sessionStorage.removeItem("velea_splash");
         setShowSplash(true);  // fresh login, returning user → the etymology splash
       } else if (!firstRun) {
-        setShowWelcome(true); // returning open → sunset shell + greeting
+        setShowWelcome(true); // returning open, no local hint yet (first open after this deploy)
       }
     } catch { setShowWelcome(true); }
   }, [user, firstRunState.data]);
+
+  // If the sync hint was wrong (session actually expired), fold the greeting away.
+  useEffect(() => {
+    if (!loading && !user) setShowWelcome(false);
+  }, [loading, user]);
   const showNav = !location.startsWith("/404") && !location.startsWith("/login");
 
   // Ensure the owner's "My Chart" profile exists (idempotent migration)

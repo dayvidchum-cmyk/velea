@@ -66,6 +66,10 @@ export default function Login() {
       // into the first render, auto-firing the page tour over the new user's first-run
       // beats. Reset wipes the cache so nothing renders from the wrong account.
       await queryClient.resetQueries();
+      // The onboarded hint belongs to the PREVIOUS account on this device — clear it so a
+      // new account gets its first-run beats, not the returning-user greeting. The effect in
+      // App.tsx re-sets it once this account's tourState shows the welcome was seen.
+      try { localStorage.removeItem("velea-onboarded"); } catch { /* ignore */ }
       try { sessionStorage.setItem("velea_splash", "1"); } catch { /* ignore */ }
       setLocation("/");
     } catch (err: any) {

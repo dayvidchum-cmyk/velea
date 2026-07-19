@@ -432,4 +432,9 @@
 // manifesto; for first-run users App.tsx now defers it and Onboarding plays it as beat 5.
 // (3) The missing-location prompt is now strictly a later-session surface (waits for "welcome"
 // seen + no overlay on screen). (4) The task guide waits for first-run completion too.
-export const APP_VERSION = "1.1.757";
+// v1.1.758 = 2026-07-18 — reopen glitch fix ("Today flashes, THEN the greeting"): the app-open
+// sunset greeting now decides SYNCHRONOUSLY at first paint from local hints (auth mirror +
+// velea-onboarded flag) instead of waiting for auth/tourState round-trips — the greeting mounts
+// before Today can flash. Hint cleared at login so a new account still gets first-run beats;
+// folded away if the session actually expired.
+export const APP_VERSION = "1.1.758";
