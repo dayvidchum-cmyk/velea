@@ -2,6 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 import { generateDeepRead, generateChapter } from "../narrative/generate.js";
 
 const date = process.argv[3] ?? "2026-06-29";
@@ -11,7 +12,7 @@ const want = process.argv[2] ?? "Linda";
   const rows = await db.select().from(profiles);
   for (const p of rows) {
     if (p.name !== want || !p.lagnaSign || !p.birthDate) continue;
-    const i: any = await buildNarrativeInput(p.id, date);
+    const i: any = await buildNarrativeInput(p.id, date, { dayLoc: await resolveDaySkyForProfileId(p.id, date) });
     console.log(`\n${"━".repeat(78)}\n${p.name} (#${p.id}) — ${i.natal.lagna} lagna · age ${i.profection.age} · H${i.profection.activatedHouse} ${i.profection.activatedSign} · TL ${i.profection.timeLord} (natal H${i.profection.timeLordNatal?.house}) · dasha ${i.dasha?.mahaDasha.lord}-${i.dasha?.antarDasha.lord}\n${"━".repeat(78)}`);
     const d = await generateDeepRead(i);
     if (!d) { console.log("(no read)"); continue; }

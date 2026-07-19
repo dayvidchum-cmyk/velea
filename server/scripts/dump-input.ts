@@ -2,6 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 
 const date = "2026-06-29";
 const NAMES = ["Lisa", "Linda", "David Chum"];
@@ -11,7 +12,7 @@ const NAMES = ["Lisa", "Linda", "David Chum"];
   for (const p of rows) {
     if (!NAMES.includes(p.name ?? "")) continue;
     if (!p.lagnaSign || !p.birthDate) continue;
-    const i: any = await buildNarrativeInput(p.id, date);
+    const i: any = await buildNarrativeInput(p.id, date, { dayLoc: await resolveDaySkyForProfileId(p.id, date) });
     console.log(`\n${"=".repeat(70)}\n${p.name} (#${p.id})  —  ${i.natal.lagna} lagna · age ${i.profection.age}`);
     console.log(`Year: H${i.profection.activatedHouse} ${i.profection.activatedSign} · TL ${i.profection.timeLord} (natal H${i.profection.timeLordNatal?.house})`);
     console.log(`Dasha: ${JSON.stringify(i.dasha)}`);

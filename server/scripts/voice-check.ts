@@ -2,6 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 
 (async () => {
   const db = await getDb(); if (!db) throw new Error("no db");
@@ -9,7 +10,7 @@ import { buildNarrativeInput } from "../narrative/input-builder.js";
   for (const p of rows) {
     if (!["Linda","Lisa","David Chum"].includes(p.name ?? "")) continue;
     if (!p.lagnaSign || !p.birthDate) continue;
-    const i: any = await buildNarrativeInput(p.id, p.id === 1 ? "2026-06-29" : "2026-06-29");
+    const i: any = await buildNarrativeInput(p.id, "2026-06-29", { dayLoc: await resolveDaySkyForProfileId(p.id, "2026-06-29") });
     const planets = i.natal.planets ?? i.natal.bodies ?? [];
     console.log(`\n${p.name} (${i.natal.lagna} lagna)`);
     // raw, with whatever name field exists

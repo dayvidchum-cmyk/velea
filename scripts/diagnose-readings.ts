@@ -84,7 +84,8 @@ async function main() {
   await stage("buildNarrativeInput(today)", async () => {
     const { buildNarrativeInput } = await import("../server/narrative/input-builder.js");
     const today = new Date().toISOString().slice(0, 10);
-    const input = await buildNarrativeInput(owner.id, today);
+    const { resolveDaySkyForProfileId } = await import("../server/panchang/resolve-day-sky.js");
+    const input = await buildNarrativeInput(owner.id, today, { dayLoc: await resolveDaySkyForProfileId(owner.id, today) });
     const size = JSON.stringify(input).length;
     return `input built, ${Math.round(size / 1024)}KB (${Math.round(size / 4 / 1000)}k tokens ≈)`;
   });

@@ -1,4 +1,4 @@
-# Location Resolver — spec for review (David decides; nothing built yet)
+# Location Resolver — APPROVED 2026-07-18 (David's answers in §7; build in progress)
 
 _Written 2026-07-18 (v752). The apex David named: "where location is entered, changed, lives
 in the UX, and where it is stored is the apex of the issue." This specs the single source of
@@ -149,3 +149,56 @@ Phases 1–3 fix the accuracy bug with ZERO new UX. Phases 4–5 are the feature
   or a full editable travel log? MVP could be just the pick-a-date prompt.
 - **Q5 — Backfill:** on migration, seed every profile's hometown from its birth location (so
   nothing changes for non-travelers until they set a hometown)? (My lean: yes.)
+
+---
+
+## 7. David's decisions (2026-07-18, in-session) — the build directive
+
+Direct quotes: "a pop-up should appear when the location isn't even entered" · "the issue is
+that the location was being recorded above the calendars, in the profile, etc. etc. you need to
+find every band-aid involving this and fix permanently. i want it all in one location, editable
+by the user/owner of the account. and yeah a pop-up during onboarding when they first sign in
+that asks for birth and location info" · "it remains an option in readings and on the today card
+to adjust quickly if need be."
+
+Resolved:
+- **One editing surface, owner-editable.** LocationSheet is the single home of current
+  location. Every other touchpoint (Settings row, Today-card chip, reading chips, calendar
+  header) is a SATELLITE that opens the same sheet — it may display, it may never own logic.
+- **Quick-adjust satellites stay** on the Today card and in readings (the existing
+  LocationChip → `velea-open-location` pattern is the right shape; keep it).
+- **Missing-location pop-up:** when a reading is requested and no location is entered, pop the
+  sheet — never a silent Boston fallback.
+- **Onboarding pop-up:** first sign-in collects birth + current location inline (upgrade
+  FirstRunWelcome from "points elsewhere" to "collects here").
+- **Q1** subsumed by the one-surface rule: hometown (when it lands) lives in the same surface.
+- **Q2** answered earlier: prompt to confirm/change location on profile-switch; stored back to
+  the single account-level slot.
+- **Q3/Q5** proceed on the spec leans (current = near-today only; seed hometown from birth).
+- **Q4** MVP: pick-a-date prompt only.
+
+## 8. The band-aid map (full sweep, 2026-07-18)
+
+What "every band-aid" turned out to be — all to collapse into `resolveDaySky` + one surface:
+
+**Server precedence derivations (8):** `dayLocFromUser` (narrative/router.ts:13) · inline
+blocks in routers.ts at 200 (almanac), 1400 (today), 1422 (byDate), ~1489 (today deep), 1562
+(whyToday) · life-area/arc inline blocks routers.ts:2610–2748 · input-builder.ts:660-663
+(current→birth→Boston with srcV) · `userLatLon` + input.lat override pattern (Master Mode,
+routers.ts:335/2278/2314).
+
+**Boston hardcodes (7 files/sites):** routers.ts:201-202, 2279, 2315 · crown.ts:296 ·
+input-builder.ts:149-150 ("42.36"/"-71.06") and 661-662 · service.ts:22-23 (PLANNER_LAT/LON —
+the canonical constant; the resolver becomes the only reader).
+
+**Unlocated call sites (3):** `subjectPersonalDay` (routers.ts:70; call sites 88, 1413, 1435,
+1501, 1576, 3057) · `testReadingForUser` (routers.ts:571) · calendar `majorityDayStarIdx`
+(routers.ts:1604).
+
+**Client — two divergent birth editors:** Profiles.tsx (geocoder + resolveTimezone auto-fill,
+COMMON_TIMEZONES) vs BirthChartSheet.tsx (manual lat/lon, no geocoder, separate
+TIMEZONE_OPTIONS list). Merge on the Profiles.tsx conventions.
+
+**Client — entry/display satellites (already correct shape, keep):** LocationChip
+(Horoscope.tsx:390, Planner.tsx:1450), Settings.tsx:651-672 row, LocationNudge toast,
+FirstRunWelcome/Onboarding first-run card.

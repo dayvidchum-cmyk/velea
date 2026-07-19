@@ -16,34 +16,6 @@ import { getPanchangByDate, upsertPanchang } from '../db.js';
 // Sign name → index (must match SIGN_INDEX in interpreter.ts)
 const SIGN_ORDER = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 
-// ─── Client config ────────────────────────────────────────────────────────────
-
-/** Boston, MA */
-const PLANNER_LAT = 42.3601;
-const PLANNER_LON = -71.0589;
-
-/**
- * UTC offset for Boston:
- *   EDT (Mar–Nov) = -4
- *   EST (Nov–Mar) = -5
- * Determined dynamically from the date.
- */
-export function getBostonUtcOffset(dateStr: string): number {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  // EDT: 2nd Sunday in March → 1st Sunday in November
-  const edtStart = nthSundayOfMonth(y, 3, 2); // 2nd Sunday of March
-  const edtEnd = nthSundayOfMonth(y, 11, 1);  // 1st Sunday of November
-  return date >= edtStart && date < edtEnd ? -4 : -5;
-}
-
-function nthSundayOfMonth(year: number, month: number, n: number): Date {
-  const d = new Date(year, month - 1, 1);
-  const dayOfWeek = d.getDay(); // 0 = Sunday
-  const firstSunday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
-  return new Date(year, month - 1, firstSunday + (n - 1) * 7);
-}
-
 // ─── Display string ───────────────────────────────────────────────────────────
 
 function formatDisplay(dateStr: string): string {
@@ -187,7 +159,10 @@ function finishDayMode(opts: {
 export async function getDayField(
   dateStr: string,
   forceRecalc = false,
-  locationOverride?: { lat: number; lon: number; utcOffset: number },
+  // REQUIRED — the resolved day-sky (see panchang/resolve-day-sky.ts). Optional-with-a-Boston-
+  // default was the latent-divergence class: every caller that forgot it silently read Boston's
+  // sky. Now an omission is a compile error, not a far-from-UTC user's wrong day.
+  locationOverride: { lat: number; lon: number; utcOffset: number },
   lagnaOverride?: string,
   personalRating?: string | null,
   interactionMode?: FinalMode | null
@@ -221,7 +196,7 @@ export async function getDayField(
       const baseMode = HOUSE_MODE[house] ?? 'Selective';
 
       // Astronomy first (transitions + karana feed the mode now, not just the display).
-      const utcOffset = locationOverride?.utcOffset ?? getBostonUtcOffset(dateStr);
+      const utcOffset = locationOverride.utcOffset;
       let nakshatraAtSunrise = cached.nakshatra;
       let nakshatraTransitionTime: string | null = null;
       let nakshatraAfterTransition: string | null = null;
@@ -230,9 +205,7 @@ export async function getDayField(
       let moonSignAfterTransition: string | null = null;
       let karana: DayField['karana'] = null;
       try {
-        const lat = locationOverride?.lat ?? PLANNER_LAT;
-        const lon = locationOverride?.lon ?? PLANNER_LON;
-        const astro = await calcPanchang(dateStr, lat, lon, utcOffset);
+        const astro = await calcPanchang(dateStr, locationOverride.lat, locationOverride.lon, utcOffset);
         nakshatraAtSunrise = astro.nakshatraAtSunrise;
         nakshatraTransitionTime = astro.nakshatraTransitionTime;
         nakshatraAfterTransition = astro.nakshatraAfterTransition;
@@ -297,10 +270,8 @@ export async function getDayField(
 
   // Calculate fresh
   try {
-    const utcOffset = locationOverride?.utcOffset ?? getBostonUtcOffset(dateStr);
-    const lat = locationOverride?.lat ?? PLANNER_LAT;
-    const lon = locationOverride?.lon ?? PLANNER_LON;
-    const astro = await calcPanchang(dateStr, lat, lon, utcOffset);
+    const utcOffset = locationOverride.utcOffset;
+    const astro = await calcPanchang(dateStr, locationOverride.lat, locationOverride.lon, utcOffset);
     // lagnaOverride is required for house-based mode calculation.
     // If not provided, fall back to a neutral lagna that produces a generic result.
     const lagna = lagnaOverride ?? 'Aries';

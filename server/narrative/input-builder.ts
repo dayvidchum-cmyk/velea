@@ -14,6 +14,7 @@ import { getDayField, gateDayField } from "../panchang/service.js";
 import { combustion, nodalAffliction, eclipseNear, eclipseSeason } from "../panchang/affliction.js";
 import { strength, dignityLabel, signLordOf } from "../panchang/dignity.js";
 import { crownDay } from "../panchang/crown.js";
+import { resolveDaySky, DEFAULT_SKY } from "../panchang/resolve-day-sky.js";
 import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { buildKnots, type NatalPlanet } from "../vedic/knots.js";
@@ -49,7 +50,6 @@ const threshold = (sign: string, deg: number | null) => {
 };
 const houseFromLagna = (s: string, lag: string) => ((ZODIAC.indexOf(s) - ZODIAC.indexOf(lag) + 12) % 12) + 1;
 const rulesHouses = (p: string, lag: string) => ZODIAC.filter((s) => SIGN_RULERS[s] === p).map((s) => houseFromLagna(s, lag));
-const utcOffsetFromLon = (lon: number) => Math.round(lon / 15);
 
 const PLANETS = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"];
 
@@ -61,29 +61,31 @@ export type NarrativeInput = Awaited<ReturnType<typeof buildNarrativeInput>>;
 const INPUT_CACHE = new Map<string, { at: number; value: any }>();
 const INPUT_TTL_MS = 5 * 60 * 1000;
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
+// `dayLoc` is REQUIRED (resolve-day-sky): the optional-with-fallback era meant every caller
+// that forgot it silently produced a Boston-sky reading — the audits' whole divergence class.
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
   // location (hora is "this hour where you are"), not the birth place.
-  if (opts?.nowMs != null) return buildNarrativeInputUncached(profileId, dateStr, opts);
+  if (opts.nowMs != null) return buildNarrativeInputUncached(profileId, dateStr, opts);
   // slowOnly = the STAGE input (yearly chapter, no fast/daily layers). Memoized under a
   // separate key so the stage and full inputs never overwrite each other.
-  const slow = !!opts?.slowOnly;
-  const dl = opts?.dayLoc;
+  const slow = !!opts.slowOnly;
+  const dl = opts.dayLoc;
   // dayLoc is part of the memo key: the day-mode depends on the viewer's location, so two
   // locations must not share a memoized input (mirrors the hero's location-aware panchang).
-  const locKey = dl ? `${dl.lat},${dl.lon},${dl.utcOffset}` : "def";
+  const locKey = `${dl.lat},${dl.lon},${dl.utcOffset}`;
   // lifeArea is part of the key: a Career lens and a Money lens are different inputs, so two
   // life areas must never share a memoized input (they'd produce the same reading otherwise).
-  const areaKey = `${opts?.lifeArea ?? "none"}${opts?.areaFocus ? ":" + opts.areaFocus.key : ""}`;
-  const eclKey = opts?.eclipseArc ? "ecl" : "no";
-  const merKey = opts?.rxArcPlanet ? `rx-${opts.rxArcPlanet}` : opts?.mercuryRxArc ? "mrx" : "no";
-  const monKey = opts?.monthArc ? "mon" : "no";
+  const areaKey = `${opts.lifeArea ?? "none"}${opts.areaFocus ? ":" + opts.areaFocus.key : ""}`;
+  const eclKey = opts.eclipseArc ? "ecl" : "no";
+  const merKey = opts.rxArcPlanet ? `rx-${opts.rxArcPlanet}` : opts.mercuryRxArc ? "mrx" : "no";
+  const monKey = opts.monthArc ? "mon" : "no";
   const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}|${monKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts?.lifeArea, areaFocus: opts?.areaFocus, eclipseArc: opts?.eclipseArc, mercuryRxArc: opts?.mercuryRxArc, rxArcPlanet: opts?.rxArcPlanet, monthArc: opts?.monthArc });
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts.lifeArea, areaFocus: opts.areaFocus, eclipseArc: opts.eclipseArc, mercuryRxArc: opts.mercuryRxArc, rxArcPlanet: opts.rxArcPlanet, monthArc: opts.monthArc });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   // Evict expired entries (audit L21): they were TTL-checked on read but never deleted, so the
   // memo grew unbounded between deploys (~50-100KB per (profile,date,variant)). Cheap amortized
@@ -102,7 +104,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment?: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc?: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -146,8 +148,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   if (!hasMoon(bodies)) throw new Error(`profile ${profileId} natal bodies missing the Moon (partial chart)`);
 
   const lagna = p.lagnaSign;
-  const lat = parseFloat(p.birthLocationLat || "42.36");
-  const lon = parseFloat(p.birthLocationLon || "-71.06");
+  // Birth place for the NATAL layer only (the chart's own, fixed sky). A profile with no birth
+  // location falls to the app default — resolve-day-sky owns those coordinates.
+  const lat = p.birthLocationLat ? parseFloat(p.birthLocationLat) : DEFAULT_SKY.lat;
+  const lon = p.birthLocationLon ? parseFloat(p.birthLocationLon) : DEFAULT_SKY.lon;
   const byPlanet = Object.fromEntries(bodies.map((b) => [b.planet, b]));
   // Natal conjunctions: planets within 10° of each other (a planet + a node is the
   // loudest — e.g. Moon conjunct Ketu). Surfaced so the read fuses them instead of
@@ -437,8 +441,8 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // from Boston split personalTara/personalApex off from panchang.nakshatra on star-boundary
     // days for located users (the "Selective vs Restrained Build" class the v742 fix closed one
     // call site down). personalDayForDate already threads dayLoc; this crownDay path did not.
-    const dl = moment?.dayLoc;
-    const majIdx = dl ? await majorityDayStarIdx(dateStr, dl.lat, dl.lon, dl.utcOffset) : await majorityDayStarIdx(dateStr);
+    const dl = moment.dayLoc;
+    const majIdx = await majorityDayStarIdx(dateStr, dl.lat, dl.lon, dl.utcOffset);
     // Same natal Ashtakavarga the calendar uses, from the natal bodies — keeps the reading's crown
     // in lockstep with the calendar's crown badge (both AV-refined).
     const natalSignIdx: Record<string, number> = {};
@@ -456,7 +460,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     };
     // Interaction mode off the same anchors + the viewer's day-location, so the mode reflects the
     // day as lived WHERE THE BODY IS (Seoul vs home), not a fixed noon-UTC reference (David).
-    interactionMode = (await personalDayForDate({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, ashtakavarga: natalAv }, dateStr, moment?.dayLoc))?.mode ?? null;
+    interactionMode = (await personalDayForDate({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, ashtakavarga: natalAv }, dateStr, moment.dayLoc))?.mode ?? null;
   }
   (natal as any).personalApex = personalApex;
 
@@ -466,16 +470,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // the read name different modes on the same day — the root of the "Selective vs Restrained
   // Build" split. Fall back to the birth-loc panchang only if getDayField yields nothing.
   const field = gateDayField(
-    (await getDayField(dateStr, false, moment?.dayLoc, lagna, personalRating, interactionMode)) ??
-      // Last-resort fallback: the viewer's day-location when known (matching the hero), the
-      // birth city only when nothing else exists — never the birth city's sky for a traveler.
+    (await getDayField(dateStr, false, moment.dayLoc, lagna, personalRating, interactionMode)) ??
+      // Last-resort fallback (getDayField returned null): same resolved day-sky, direct calc.
       interpretPanchang(
-        await calcPanchang(
-          dateStr,
-          moment?.dayLoc?.lat ?? lat,
-          moment?.dayLoc?.lon ?? lon,
-          moment?.dayLoc?.utcOffset ?? utcOffsetFromLon(lon)
-        ),
+        await calcPanchang(dateStr, moment.dayLoc.lat, moment.dayLoc.lon, moment.dayLoc.utcOffset),
         lagna
       ),
     personalRating,
@@ -657,14 +655,12 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         const yearStartIso = `${syV}-${String(bmV).padStart(2, "0")}-${String(bdV).padStart(2, "0")}`;
         const { getUserById: getUV } = await import("../db.js");
         const uV = (p as any).userId ? await getUV((p as any).userId) : null;
-        const hasCur = !!(uV?.locationLat && uV?.locationLon);
-        const latV = hasCur ? parseFloat(uV!.locationLat!) : ((p as any).birthLocationLat ? parseFloat((p as any).birthLocationLat) : 42.3601);
-        const lonV = hasCur ? parseFloat(uV!.locationLon!) : ((p as any).birthLocationLon ? parseFloat((p as any).birthLocationLon) : -71.0589);
-        const srcV = hasCur ? "current" : (p as any).birthLocationLat ? "birth" : "fallback";
+        // The solar return is cast at the CURRENT residence — same precedence as every day-layer.
+        const skyV = resolveDaySky({ user: uV, profile: p, dateStr: yearStartIso });
         const { computeVarshaphala } = await import("../vedic/varshaphala.js");
         varshaphala = await computeVarshaphala({
-          profileKey: `${p.id}|${yearStartIso}|${latV.toFixed(2)},${lonV.toFixed(2)}`,
-          natalSunLon: lonAll["Sun"], yearStart: yearStartIso, lat: latV, lon: lonV, locSource: srcV as any,
+          profileKey: `${p.id}|${yearStartIso}|${skyV.lat.toFixed(2)},${skyV.lon.toFixed(2)}`,
+          natalSunLon: lonAll["Sun"], yearStart: yearStartIso, lat: skyV.lat, lon: skyV.lon, locSource: (skyV.source === "default" ? "fallback" : skyV.source) as any,
         });
       }
     } catch (vErr) { console.warn("[narrative] varshaphala unavailable (year read continues):", vErr); }
@@ -705,7 +701,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Hemisphere follows the BODY: the viewer's day-location when known, birth latitude only as
   // the best guess when no location is stored. (A Sydney-born user wintering in Boston was
   // reading "summer" — the reading disagreeing with the world outside the window.)
-  const season = (moment?.dayLoc?.lat ?? lat) >= 0 ? northSeason : flip[northSeason];
+  const season = moment.dayLoc.lat >= 0 ? northSeason : flip[northSeason];
   const nearTurn = [321, 621, 922, 1221].some((t) => Math.abs(md - t) <= 6) ? "near a seasonal turn (solstice/equinox)" : null;
 
   const humanTime = { season, nearSeasonalTurn: nearTurn };

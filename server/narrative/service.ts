@@ -173,7 +173,7 @@ function planetCondition(research: any, L: string) {
   };
 }
 
-export async function getGlanceCached(profileId: number, date: string, refresh = false, moment?: { nowMs: number; lat?: number; lon?: number }, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<GlanceResult> {
+export async function getGlanceCached(profileId: number, date: string, refresh = false, moment: { nowMs: number; lat?: number; lon?: number } | undefined, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<GlanceResult> {
   if (!hasAnthropicKey()) return { available: false, content: null, generatedAt: null, cached: false };
   // A moment read (moment.nowMs) is hora-flavored and EPHEMERAL: never read from nor
   // written to the daily cache, so the stable per-day read stays clean and returns on reload.
@@ -210,7 +210,7 @@ export async function getGlanceCached(profileId: number, date: string, refresh =
 // deepened=false → the STAGE read: slow-only input (yearly chapter), stable across days.
 // deepened=true → the "stage + guests" read: full input incl. the fast/current-sky tier.
 // Cached under separate surfaces ("deep" vs "deep_full") so they never overwrite each other.
-export async function getDeepReadCached(profileId: number, date: string, refresh = false, deepened = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<DeepReadResult> {
+export async function getDeepReadCached(profileId: number, date: string, refresh = false, deepened = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<DeepReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = deepened ? "deep_full" : "deep";
   const input = await buildNarrativeInput(profileId, date, deepened ? { dayLoc } : { slowOnly: true, dayLoc });
@@ -261,7 +261,7 @@ export async function getDeepReadCached(profileId: number, date: string, refresh
 // The chapter good-for/avoid bullets — a small, cheap, AUTO-FIRING read (split out of the
 // big deep read). slowOnly input means it only regenerates when the chapter turns (the year
 // lord's transit house changes), not daily; cached under its own "chapter" surface.
-export async function getChapterCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<ChapterResult> {
+export async function getChapterCached(profileId: number, date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<ChapterResult> {
   if (!hasAnthropicKey()) return { available: false, chapter: null, generatedAt: null, cached: false };
   const surface = "chapter";
   const input = await buildNarrativeInput(profileId, date, { slowOnly: true, dayLoc });
@@ -303,7 +303,7 @@ export type DayReadResult = { available: boolean; read: DayRead | null; generate
 // fast tier: transit Moon, today's mode, live rx/eclipse). Powers BOTH the Today page
 // (date = today) and the Horoscope reveal (date = the picked day). Returns unavailable →
 // static fallback when the key is off / the wallet is dry, exactly like the glance.
-export async function getDayReadCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<DayReadResult> {
+export async function getDayReadCached(profileId: number, date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<DayReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = "day_read";
   const input = await buildNarrativeInput(profileId, date, { dayLoc });
@@ -339,7 +339,7 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
 // so this does NOT touch narrative_cache — it only builds the input and generates, deduped by
 // single-flight so a double-reveal never fires two (paid) calls. Returns unavailable → the reveal
 // reports failure and the user can retry, exactly like the day read.
-export async function getLifeAreaRead(profileId: number, date: string, lifeArea: LifeAreaKey, dayLoc?: { lat: number; lon: number; utcOffset: number }, areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }): Promise<DayReadResult> {
+export async function getLifeAreaRead(profileId: number, date: string, lifeArea: LifeAreaKey, dayLoc: { lat: number; lon: number; utcOffset: number }, areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }): Promise<DayReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const input = await buildNarrativeInput(profileId, date, { dayLoc, lifeArea, areaFocus });
   const read = await guardedGen(profileId, `life_area:${profileId}:${date}:${lifeArea}:${areaFocus?.key ?? "whole"}`, async () => generateLifeAreaRead(input));
@@ -354,7 +354,7 @@ export type EclipseSeasonResult = { available: boolean; read: DayRead | null; se
 // eclipse's date, and the hash covers the season's astronomy + this chart (NOT today/daysAway, which
 // drift daily) — so it generates ONCE per season and re-views free, instead of regenerating every
 // day. Returns unavailable when there's no eclipse season in range (nothing to read) or the key is off.
-export async function getEclipseSeasonCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<EclipseSeasonResult> {
+export async function getEclipseSeasonCached(profileId: number, date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<EclipseSeasonResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, season: null, generatedAt: null, cached: false };
   const input: any = await buildNarrativeInput(profileId, date, { dayLoc, eclipseArc: true });
   const arc = input.eclipseSeasonArc;
@@ -387,7 +387,7 @@ export async function getEclipseSeasonCached(profileId: number, date: string, re
 
 // PEEK — read-only: is there ALREADY a cached eclipse-season reading for the current season? Never
 // generates (no LLM, no cost), so the card/archive can show "already read" + list it without charging.
-export async function peekEclipseSeasonCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<EclipseSeasonResult> {
+export async function peekEclipseSeasonCached(profileId: number, date: string, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<EclipseSeasonResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, season: null, generatedAt: null, cached: false };
   const input: any = await buildNarrativeInput(profileId, date, { dayLoc, eclipseArc: true });
   const arc = input.eclipseSeasonArc;
@@ -416,7 +416,7 @@ export type MercuryRxResult = { available: boolean; read: DayRead | null; cycle:
 // retroshade), for this chart's house(s). Cached by CYCLE (key = the station-retrograde date), and the
 // hash covers the cycle's fixed astronomy + this chart (NOT today/daysAway, which drift) — so it
 // generates ONCE per cycle and re-views free. Unavailable when no cycle is active/approaching.
-export async function getMercuryRxCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+export async function getMercuryRxCached(profileId: number, date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
   const input: any = await buildNarrativeInput(profileId, date, { dayLoc, mercuryRxArc: true });
   const arc = input.mercuryRxArc;
@@ -507,7 +507,7 @@ export async function getCombinedReadCached(profileAId: number, pairKey: string,
 
 /** THE SLOW REVIEWS — Venus/Mars/Jupiter/Saturn cycle readings, cached once per cycle
  *  per planet (dateKey `rx-{planet}-{stationRetroDate}`); the Mercury pattern, familied. */
-export async function getPlanetRxCached(profileId: number, planet: "venus" | "mars" | "jupiter" | "saturn", date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+export async function getPlanetRxCached(profileId: number, planet: "venus" | "mars" | "jupiter" | "saturn", date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
   const input: any = await buildNarrativeInput(profileId, date, { dayLoc, rxArcPlanet: planet });
   const arc = input.planetRxArc;
@@ -543,7 +543,7 @@ export async function getPlanetRxCached(profileId: number, planet: "venus" | "ma
 //   • no arc            → available:false, cycle:null   → "running clear"
 //   • arc + cached read → available:true,  read, cycle  → show the review
 //   • arc, no read yet  → available:false, cycle:non-null → show a "Read this <planet> rx" DOOR (a tap)
-export async function peekPlanetRxCached(profileId: number, planet: "venus" | "mars" | "jupiter" | "saturn", date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+export async function peekPlanetRxCached(profileId: number, planet: "venus" | "mars" | "jupiter" | "saturn", date: string, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
   const input: any = await buildNarrativeInput(profileId, date, { dayLoc, rxArcPlanet: planet });
   const arc = input.planetRxArc;
@@ -597,7 +597,7 @@ export async function getVerdictCached(profileId: number, peek = false): Promise
 }
 
 // PEEK — read-only: is there ALREADY a cached Mercury-rx reading for the current cycle? Never generates.
-export async function peekMercuryRxCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
+export async function peekMercuryRxCached(profileId: number, date: string, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<MercuryRxResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, cycle: null, generatedAt: null, cached: false };
   const input: any = await buildNarrativeInput(profileId, date, { dayLoc, mercuryRxArc: true });
   const arc = input.mercuryRxArc;
@@ -622,7 +622,7 @@ export type MonthResult = { available: boolean; read: DayRead | null; month: str
 // THE MONTH — the full layered read expanded to a whole month (scenes/characters/conversations/arcs).
 // Cached by MONTH (key = "YYYY-MM"); the hash covers the month's beats + Time Lord + this chart, so it
 // generates ONCE per month and re-views free. Always available (every month has beats + a Time Lord).
-export async function getMonthCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MonthResult> {
+export async function getMonthCached(profileId: number, date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<MonthResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, month: null, generatedAt: null, cached: false };
   const input: any = await buildNarrativeInput(profileId, date, { dayLoc, monthArc: true });
   const arc = input.monthArc;
@@ -660,7 +660,7 @@ export async function getMonthCached(profileId: number, date: string, refresh = 
 }
 
 // PEEK — read-only: is there ALREADY a cached reading for the current month? Never generates.
-export async function peekMonthCached(profileId: number, date: string, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<MonthResult> {
+export async function peekMonthCached(profileId: number, date: string, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<MonthResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, month: null, generatedAt: null, cached: false };
   // Match the getter's hash + lock gate (re-audit — the one peek left out of the M19 pattern):
   // serving any complete row could report a month "already read" that the real open would
@@ -694,7 +694,7 @@ export type CastResult = { available: boolean; cast: Cast | null; generatedAt: D
 // specific date. LAZY: fires only when THE READ is tapped, so only opted-in views pay for it.
 // Caches under its own ("cast", date) row, salted by SURFACE_VERSION.cast so a cast prompt
 // change busts ONLY the cast. Returns unavailable → static fallback when the key is off.
-export async function getCastCached(profileId: number, date: string, refresh = false, dayLoc?: { lat: number; lon: number; utcOffset: number }): Promise<CastResult> {
+export async function getCastCached(profileId: number, date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<CastResult> {
   if (!hasAnthropicKey()) return { available: false, cast: null, generatedAt: null, cached: false };
   const surface = "cast";
   const input = await buildNarrativeInput(profileId, date, { dayLoc });

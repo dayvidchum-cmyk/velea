@@ -2,6 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 import { generateGlance, generateDeepRead, generateChapter } from "../narrative/generate.js";
 
 const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
@@ -14,7 +15,7 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
   for (const p of rows) {
     if (!p.lagnaSign || !p.birthDate) continue;
     let input: any;
-    try { input = await buildNarrativeInput(p.id, date); }
+    try { input = await buildNarrativeInput(p.id, date, { dayLoc: await resolveDaySkyForProfileId(p.id, date) }); }
     catch (e: any) { console.log(`\n${p.name} (#${p.id}) — skipped: ${e.message}`); continue; }
 
     const tlt = input.timeLordTransit;

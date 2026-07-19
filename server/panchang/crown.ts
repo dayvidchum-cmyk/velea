@@ -228,9 +228,9 @@ export function anchorsFromBodies(
   return { birthNakIdx, natalMoonSignIdx, lagnaSignIdx, ashtakavarga };
 }
 
-/** The native's crown-layer rating for a calendar date (noon UTC, same as the calendar). */
-export async function personalRatingForDate(anchors: CrownAnchors, dateStr: string): Promise<CrownRating | null> {
-  return (await personalDayForDate(anchors, dateStr))?.rating ?? null;
+/** The native's crown-layer rating for a calendar date, sampled at the resolved day-sky. */
+export async function personalRatingForDate(anchors: CrownAnchors, dateStr: string, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<CrownRating | null> {
+  return (await personalDayForDate(anchors, dateStr, dayLoc))?.rating ?? null;
 }
 
 /** The native's full day verdict for a date: the crown RATING and the interaction MODE, computed off
@@ -239,24 +239,25 @@ export async function personalRatingForDate(anchors: CrownAnchors, dateStr: stri
 export async function personalDayForDate(
   anchors: CrownAnchors,
   dateStr: string,
-  dayLoc?: { lat: number; lon: number; utcOffset: number },
+  dayLoc: { lat: number; lon: number; utcOffset: number },
 ): Promise<{ rating: CrownRating; mode: import("./interpreter.js").FinalMode } | null> {
   try {
     const { calculateBirthChart } = await import("../birthchart/calculator.js");
     const { interactionBaseMode } = await import("./interpreter.js");
     // Sample the day at LOCAL noon where the body actually is (Seoul vs home), not a fixed noon-UTC
     // reference — the Moon moves ~0.5°/hr, so a 9-13h offset can shift the day's nakshatra/tara and
-    // thus the mode. With no dayLoc this is exactly noon-UTC @ (0,0) — the prior behavior, unchanged.
-    const off = dayLoc?.utcOffset ?? 0;
+    // thus the mode. dayLoc is REQUIRED (resolve-day-sky): the old no-dayLoc path silently mixed a
+    // noon-UTC (0,0) chart with a Boston majority-star — two skies in one verdict.
+    const off = dayLoc.utcOffset;
     const utcMs = Date.parse(dateStr + "T12:00:00Z") - off * 3600_000;
     const dt = new Date(utcMs);
     const pad = (n: number) => String(n).padStart(2, "0");
     const chDate = `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
     const chTime = `${pad(dt.getUTCHours())}:${pad(dt.getUTCMinutes())}`;
-    const ch: any = await calculateBirthChart(chDate, chTime, dayLoc?.lat ?? 0, dayLoc?.lon ?? 0, "UTC");
+    const ch: any = await calculateBirthChart(chDate, chTime, dayLoc.lat, dayLoc.lon, "UTC");
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = { Sun: si(ch.sun.longitude), Moon: si(ch.moon.longitude), Mars: si(ch.mars.longitude), Mercury: si(ch.mercury.longitude), Jupiter: si(ch.jupiter.longitude), Venus: si(ch.venus.longitude), Saturn: si(ch.saturn.longitude), Rahu: si(ch.rahu.longitude), Ketu: si(ch.ketu.longitude) };
-    const majIdx = dayLoc ? await majorityDayStarIdx(dateStr, dayLoc.lat, dayLoc.lon, dayLoc.utcOffset) : await majorityDayStarIdx(dateStr);
+    const majIdx = await majorityDayStarIdx(dateStr, dayLoc.lat, dayLoc.lon, dayLoc.utcOffset);
     const rating = crownDay({ ...anchors, sunLon: ch.sun.longitude, moonLon: ch.moon.longitude, transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined }).rating;
 
     // ── Interaction mode ── the day-Moon (noon) read through both self-lenses + the live sky.
@@ -291,13 +292,13 @@ function parse12h(s: string | null | undefined): number | null {
 
 /** The nakshatra that rules the MAJORITY of the vedic day (sunrise → next sunrise).
  *  With at most one transition a day, that is: the sunrise star if the transition falls
- *  in the second half of the day, else the post-transition star. Location defaults to the
- *  planner's anchor (Boston) — the same anchor the panchang layer uses. */
-export async function majorityDayStarIdx(dateStr: string, lat = 42.3601, lon = -71.0589, utcOffset?: number): Promise<number | null> {
+ *  in the second half of the day, else the post-transition star. Location is REQUIRED —
+ *  callers resolve it through resolve-day-sky (no silent Boston default; that default was
+ *  the root of the "Selective vs Restrained Build" divergence class). */
+export async function majorityDayStarIdx(dateStr: string, lat: number, lon: number, utcOffset: number): Promise<number | null> {
   try {
     const { calcPanchang } = await import("./astronomy.js");
-    const { getBostonUtcOffset } = await import("./service.js");
-    const astro: any = await calcPanchang(dateStr, lat, lon, utcOffset ?? getBostonUtcOffset(dateStr));
+    const astro: any = await calcPanchang(dateStr, lat, lon, utcOffset);
     return majorityStarFromAstro(astro);
   } catch {
     return null;

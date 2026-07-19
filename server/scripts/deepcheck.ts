@@ -2,6 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 import { generateDeepRead } from "../narrative/generate.js";
 
 const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
@@ -11,7 +12,7 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
   for (const p of rows) {
     if (!p.lagnaSign || !p.birthDate) continue;
     try {
-      const input = await buildNarrativeInput(p.id, date);
+      const input = await buildNarrativeInput(p.id, date, { dayLoc: await resolveDaySkyForProfileId(p.id, date) });
       const d = await generateDeepRead(input);
       const ok = !!d && !!d.confidence;
       const words = d ? JSON.stringify(d).replace(/[{}\[\]",:]/g, " ").split(/\s+/).filter(Boolean).length : 0;

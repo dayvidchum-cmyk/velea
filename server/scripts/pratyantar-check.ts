@@ -13,6 +13,7 @@
 import "dotenv/config";
 import { currentPratyantardasha } from "../dasha-calculator.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 import { resolveAstrologySubject } from "../astrology-subject.js";
 
 const YEARS: Record<string, number> = { Ketu: 7, Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
@@ -69,7 +70,7 @@ async function main() {
 
   console.log("\n=== Live sanity — wired output via buildNarrativeInput (real chart) ===");
   const pid = (await resolveAstrologySubject(2) as any).profileId;
-  const ni: any = await buildNarrativeInput(pid, "2026-07-03");
+  const ni: any = await buildNarrativeInput(pid, "2026-07-03", { dayLoc: await resolveDaySkyForProfileId(pid, "2026-07-03") });
   const d = ni.dasha;
   if (d) {
     console.log(`  Maha ${d.mahaDasha.lord} → Antar ${d.antarDasha.lord} → Pratyantar ${d.pratyantarDasha?.lord ?? "(none)"}`);

@@ -4,6 +4,7 @@
  */
 import "dotenv/config";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 import { generateGlance, generateDeepRead, hasAnthropicKey } from "../narrative/generate.js";
 
 async function main() {
@@ -13,7 +14,7 @@ async function main() {
   if (!dates.length) { console.error("Pass at least one date."); process.exit(1); }
 
   for (const d of dates) {
-    const input = await buildNarrativeInput(profileId, d);
+    const input = await buildNarrativeInput(profileId, d, { dayLoc: await resolveDaySkyForProfileId(profileId, d) });
     console.log(`\n${"=".repeat(72)}`);
     console.log(`Profile ${input.subject.profileId} | ${d} | mode: ${input.panchang.mode} | profection H${input.profection.activatedHouse}/${input.profection.activatedSign} TL ${input.profection.timeLord} | dasha ${input.dasha?.mahaDasha.lord}-${input.dasha?.antarDasha.lord}`);
     console.log("=".repeat(72));

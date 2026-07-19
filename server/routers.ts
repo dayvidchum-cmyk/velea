@@ -60,7 +60,8 @@ import {
   listReferralActivity,
 } from "./db";
 import { getDayField, dayModeToTaskMode } from "./panchang/service.js";
-import { getTimezoneOffset, getBostonOffset } from "./panchang/tz-offset.js";
+import { getTimezoneOffset } from "./panchang/tz-offset.js";
+import { resolveDaySky, localToday, type DaySky } from "./panchang/resolve-day-sky.js";
 import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG, HOUSE_TO_BASE_MODE } from "./panchang/modifier-config.js";
 import { calculateFinalMode } from "./panchang/interpreter.js";
 
@@ -70,6 +71,7 @@ import { calculateFinalMode } from "./panchang/interpreter.js";
 async function subjectPersonalDay(
   subject: { profileId: number; lagnaSign: string | null } | null | undefined,
   dateStr: string,
+  sky: DaySky, // REQUIRED — the resolved day-sky (was one of the audits' unlocated sinks)
 ): Promise<{ rating: string | null; mode: import("./panchang/interpreter.js").FinalMode | null }> {
   try {
     if (!subject?.lagnaSign) return { rating: null, mode: null };
@@ -78,14 +80,9 @@ async function subjectPersonalDay(
     const bodies = await getProfileNatalBodies(subject.profileId);
     const anchors = anchorsFromBodies(bodies as any, subject.lagnaSign);
     if (!anchors) return { rating: null, mode: null };
-    const day = await personalDayForDate(anchors, dateStr);
+    const day = await personalDayForDate(anchors, dateStr, sky);
     return { rating: day?.rating ?? null, mode: day?.mode ?? null };
   } catch { return { rating: null, mode: null }; }
-}
-
-/** Rating-only convenience for callers that don't set the mode. */
-async function subjectPersonalRating(subject: { profileId: number; lagnaSign: string | null } | null | undefined, dateStr: string): Promise<string | null> {
-  return (await subjectPersonalDay(subject, dateStr)).rating;
 }
 
 import { generateTimeLordInfluence } from "./panchang/time-lord-influence.js";
@@ -193,19 +190,14 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;
 
   // LOCATION-TRUE ALMANAC (David 2026-07-16 "do it"): the panchang belongs to a PLACE —
-  // the day walk runs at the user's STORED current location (the chip's stable choice,
-  // never live GPS wobble), falling back to Boston. DST-aware offsets per date.
+  // the day walk runs at the resolved day-sky (current → birth → default, resolve-day-sky).
+  // DST-aware offsets per date via the sky's timezone.
   const { getUserById: getU } = await import("./db.js");
   const u = await getU(userId);
-  const hasLoc = !!(u?.locationLat && u?.locationLon && u?.locationTimezone);
-  const locLat = hasLoc ? parseFloat(u!.locationLat!) : 42.3601;
-  const locLon = hasLoc ? parseFloat(u!.locationLon!) : -71.0589;
-  const locTz = hasLoc ? u!.locationTimezone! : null;
-  const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-  const { getBostonUtcOffset: bosOff } = await import("./panchang/service.js");
-  const offsetFor = (date: string) => locTz ? getTimezoneOffset(locTz, new Date(date + "T12:00:00Z")) : bosOff(date);
+  const sky = resolveDaySky({ user: u, profile, dateStr: yearStart });
+  const offsetFor = (date: string) => sky.timezone ? getTimezoneOffset(sky.timezone, new Date(date + "T12:00:00Z")) : sky.utcOffset;
   // Rounded to ~1km so a re-geocode of the same town never busts the year (time-stable law).
-  const locKey = `${locLat.toFixed(2)},${locLon.toFixed(2)},${locTz ?? "boston"}`;
+  const locKey = `${sky.lat.toFixed(2)},${sky.lon.toFixed(2)},${sky.timezone ?? sky.source}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
   const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|${locKey}|yr-v9`;
@@ -216,7 +208,6 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   // the Moon sign, the tithi, and the karana — everything the ranking AND the day filter need.
   const { majorityStarFromAstro } = await import("./panchang/crown.js");
   const { calcPanchang } = await import("./panchang/astronomy.js");
-  const { getBostonUtcOffset } = await import("./panchang/service.js");
   const { karanaFromLongitudes } = await import("./panchang/karana.js");
   const { localToUtc, planetLongitudeSpeed } = await import("./birthchart/calculator.js");
   const NAKSPAN = 360 / 27;
@@ -226,7 +217,7 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   for (let ms = Date.parse(yearStart + "T00:00:00Z"); ms < Date.parse(yearEnd + "T00:00:00Z"); ms += 86400000) {
     const date = new Date(ms).toISOString().slice(0, 10);
     try {
-      const astro: any = await calcPanchang(date, locLat, locLon, offsetFor(date));
+      const astro: any = await calcPanchang(date, sky.lat, sky.lon, offsetFor(date));
       const maj = majorityStarFromAstro(astro);
       const dayNakIdx = maj ?? astro.nakshatraIndex ?? Math.floor((((astro.moonLongitude % 360) + 360) % 360) / NAKSPAN);
       const k = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
@@ -328,18 +319,6 @@ async function rankedSolarYearFor(userId: number, yearOffset: number): Promise<a
   return result;
 }
 
-
-// The viewer's stored current location (the LocationChip's write) — Master Mode's clock
-// must tick where the USER is, not where the server's default is (David set Phnom Penh,
-// nothing changed — the chip wrote, the clock never read). Boston only as last resort.
-async function userLatLon(userId: number): Promise<{ lat: number; lon: number } | null> {
-  try {
-    const { getUserById } = await import("./db.js");
-    const u = await getUserById(userId);
-    if (u?.locationLat && u?.locationLon) return { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon) };
-  } catch { /* fall through */ }
-  return null;
-}
 
 export const appRouter = router({
   system: systemRouter,
@@ -577,10 +556,13 @@ export const appRouter = router({
         const rows = await db.select().from(profiles).where(and(eq(profiles.userId, input.userId), eq(profiles.isOwner, true))).limit(1);
         const owner = rows[0];
         if (!owner) return { ok: false, stage: "no owner profile", error: "This user has no owner profile." };
-        const today = new Date().toISOString().split("T")[0];
+        // Diagnose with the SAME day-sky the user's real reading resolves (was unlocated —
+        // this probe could pass on Boston while the user's actual located read failed).
+        const targetUser = await getUserById(input.userId);
+        const today = localToday(targetUser, owner);
         try {
           const { buildNarrativeInput } = await import("./narrative/input-builder.js");
-          const built = await buildNarrativeInput(owner.id, today);
+          const built = await buildNarrativeInput(owner.id, today, { dayLoc: resolveDaySky({ user: targetUser, profile: owner, dateStr: today }) });
           try {
             const { generateGlance } = await import("./narrative/generate.js");
             const glance = await generateGlance(built as any);
@@ -1387,31 +1369,15 @@ export const appRouter = router({
     }),
 
     today: publicProcedure.query(async (opts) => {
-      // Use user's stored location for timing; use active profile lagna for interpretation
-      const now = new Date();
-      let dateStr: string;
-      let lat: number;
-      let lon: number;
-      let utcOffset: number;
+      // Local "today" + the day-sky both come from the ONE resolver (resolve-day-sky):
+      // current → birth → default, offset for the reading's date.
       const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
-      if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-        lat = parseFloat(user.locationLat);
-        lon = parseFloat(user.locationLon);
-        utcOffset = getTimezoneOffset(user.locationTimezone, now);
-        const localDate = new Date(now.getTime() + utcOffset * 60 * 60 * 1000);
-        dateStr = localDate.toISOString().split('T')[0];
-      } else {
-        const bostonOffset = getBostonOffset(now);
-        const bostonDate = new Date(now.getTime() + bostonOffset * 60 * 60 * 1000);
-        dateStr = bostonDate.toISOString().split('T')[0];
-        lat = 42.3601;
-        lon = -71.0589;
-        utcOffset = bostonOffset;
-      }
+      const dateStr = localToday(user, opts.ctx.subject);
+      const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr });
       // Use active profile (or owner profile) lagna — single source of truth
       const lagnaSign = opts.ctx.subject?.lagnaSign ?? undefined;
-      const pd = await subjectPersonalDay(opts.ctx.subject, dateStr);
-      return getDayField(dateStr, false, { lat, lon, utcOffset }, lagnaSign, pd.rating, pd.mode);
+      const pd = await subjectPersonalDay(opts.ctx.subject, dateStr, sky);
+      return getDayField(dateStr, false, sky, lagnaSign, pd.rating, pd.mode);
     }),
 
     byDate: publicProcedure
@@ -1419,21 +1385,12 @@ export const appRouter = router({
       .query(async (opts) => {
         rateLimit(opts.ctx.req, "panchang-date", { max: 240, windowMs: 15 * 60 * 1000 });
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
-        let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
-        if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-          // audit MEDIUM-8: offset for the READING's date, not `now` — else a browsed date in a
-          // different DST regime got a time-string shifted by the DST delta (Dec viewer opening July).
-          const at = new Date(opts.input.date + "T12:00:00Z");
-          locationOverride = {
-            lat: parseFloat(user.locationLat),
-            lon: parseFloat(user.locationLon),
-            utcOffset: getTimezoneOffset(user.locationTimezone, at),
-          };
-        }
+        // Resolver computes the offset for the READING's date (audit MEDIUM-8 lives there now).
+        const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr: opts.input.date });
         // Use active profile (or owner profile) lagna — single source of truth
         const lagnaOverride = opts.ctx.subject?.lagnaSign ?? undefined;
-        const pd = await subjectPersonalDay(opts.ctx.subject, opts.input.date);
-        return getDayField(opts.input.date, false, locationOverride, lagnaOverride, pd.rating, pd.mode);
+        const pd = await subjectPersonalDay(opts.ctx.subject, opts.input.date, sky);
+        return getDayField(opts.input.date, false, sky, lagnaOverride, pd.rating, pd.mode);
       }),
 
     byMonth: publicProcedure
@@ -1441,11 +1398,6 @@ export const appRouter = router({
       .query(async (opts) => {
         rateLimit(opts.ctx.req, "panchang-month", { max: 60, windowMs: 15 * 60 * 1000 }); // AUDIT M5: ~31 getDayField calls per request — bounded
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
-        // audit MEDIUM-8: offset is computed PER-DAY (below), not once at `now` — so a month that
-        // spans a DST transition, or a month browsed from another DST regime, gets correct times.
-        const loc = (user?.locationLat && user?.locationLon && user?.locationTimezone)
-          ? { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), tz: user.locationTimezone }
-          : null;
         // Use active profile (or owner profile) lagna — single source of truth
         const lagnaOverride = opts.ctx.subject?.lagnaSign ?? undefined;
         const [year, month] = opts.input.yearMonth.split('-').map(Number);
@@ -1453,10 +1405,10 @@ export const appRouter = router({
         const results = [];
         for (let d = 1; d <= daysInMonth; d++) {
           const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-          const locationOverride = loc
-            ? { lat: loc.lat, lon: loc.lon, utcOffset: getTimezoneOffset(loc.tz, new Date(dateStr + "T12:00:00Z")) }
-            : undefined;
-          const field = await getDayField(dateStr, false, locationOverride, lagnaOverride);
+          // Per-day resolve keeps the offset DST-correct across a month that spans a transition
+          // (audit MEDIUM-8 semantics, now owned by the resolver).
+          const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr });
+          const field = await getDayField(dateStr, false, sky, lagnaOverride);
           if (field) results.push(field);
         }
         return results;
@@ -1468,7 +1420,10 @@ export const appRouter = router({
         // AUDIT M5 (2026-07-18): was public + unlimited — a cookieless curl loop could force
         // full astronomy recomputes + DB writes at will. Auth + per-IP limit + format lock.
         rateLimit(ctx.req, "panchang-recalc", { max: 30, windowMs: 15 * 60 * 1000 });
-        const field = await getDayField(input.date, true);
+        // Was an unlocated call (silent Boston recompute overwriting the cached row) — resolve.
+        const user = await getUserById(ctx.user.id);
+        const sky = resolveDaySky({ user, profile: ctx.subject, dateStr: input.date });
+        const field = await getDayField(input.date, true, sky);
         return field;
       }),
 
@@ -1486,20 +1441,11 @@ export const appRouter = router({
           return null; // Not enough data to compute
         }
         const user = await getUserById(ctx.user.id);
-        // Get today's panchang
-        const now = new Date();
-        let dateStr = input?.date ?? now.toISOString().split('T')[0];
-        let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
-        if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-          const utcOffset = getTimezoneOffset(user.locationTimezone, now);
-          if (!input?.date) {
-            const localDate = new Date(now.getTime() + utcOffset * 60 * 60 * 1000);
-            dateStr = localDate.toISOString().split('T')[0];
-          }
-          locationOverride = { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), utcOffset };
-        }
-        const pd = await subjectPersonalDay(subject, dateStr);
-        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, pd.rating, pd.mode);
+        // Get today's panchang — local date + day-sky from the one resolver.
+        const dateStr = input?.date ?? localToday(user, subject);
+        const sky = resolveDaySky({ user, profile: subject, dateStr });
+        const pd = await subjectPersonalDay(subject, dateStr, sky);
+        const dayField = await getDayField(dateStr, false, sky, subject.lagnaSign, pd.rating, pd.mode);
         if (!dayField) return null;
         // Get current profection year Time Lord data from active profile
         const { calculateProfectionYear } = await import('./profection/calculator.js');
@@ -1559,22 +1505,13 @@ export const appRouter = router({
         const subject = ctx.subject;
         if (!subject?.birthDate || !subject?.lagnaSign) return null;
 
-        // Resolve the local date (user's stored location, else the app default).
+        // Resolve the local date + day-sky through the one resolver.
         const user = await getUserById(ctx.user.id);
-        const now = new Date();
-        let dateStr = input?.date ?? now.toISOString().split("T")[0];
-        let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
-        if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-          const utcOffset = getTimezoneOffset(user.locationTimezone, now);
-          if (!input?.date) {
-            const localDate = new Date(now.getTime() + utcOffset * 60 * 60 * 1000);
-            dateStr = localDate.toISOString().split("T")[0];
-          }
-          locationOverride = { lat: parseFloat(user.locationLat), lon: parseFloat(user.locationLon), utcOffset };
-        }
+        const dateStr = input?.date ?? localToday(user, subject);
+        const sky = resolveDaySky({ user, profile: subject, dateStr });
 
-        const pd = await subjectPersonalDay(subject, dateStr);
-        const dayField = await getDayField(dateStr, false, locationOverride, subject.lagnaSign, pd.rating, pd.mode);
+        const pd = await subjectPersonalDay(subject, dateStr, sky);
+        const dayField = await getDayField(dateStr, false, sky, subject.lagnaSign, pd.rating, pd.mode);
         if (!dayField) return null;
 
         const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
@@ -1601,7 +1538,8 @@ export const appRouter = router({
 
         const dq = dayQuality(ch.sun.longitude, ch.moon.longitude, 2);
         const { majorityDayStarIdx } = await import("./panchang/crown.js");
-        const dayNakIdx = (await majorityDayStarIdx(dateStr)) ?? dq.nakshatra; // majority-of-day star (David 2026-07-09)
+        // Majority star from the SAME resolved sky as the mode/panchang (was an unlocated Boston call).
+        const dayNakIdx = (await majorityDayStarIdx(dateStr, sky.lat, sky.lon, sky.utcOffset)) ?? dq.nakshatra; // majority-of-day star (David 2026-07-09)
         const dayMoonSignIdx = si(ch.moon.longitude);
         const tb = tarabala(birthNakIdx, dayNakIdx);
         const cb = chandrabala(natalMoonSignIdx, dayMoonSignIdx);
@@ -2275,8 +2213,10 @@ export const appRouter = router({
         const { pakshaFromSunMoon } = await import("./panchapakshi/tables.js");
         const birthPaksha = pakshaFromSunMoon(sunLon, moonLon);
         const [y, m, d] = input.date.split("-").map(Number);
-        const stored = await userLatLon(ctx.user.id);
-        const lat = input.lat ?? stored?.lat ?? 42.3601, lon = input.lon ?? stored?.lon ?? -71.0589;
+        // Master Mode's clock ticks where the USER is: explicit client override first, else
+        // the resolved day-sky (current → birth → default).
+        const skyMM = resolveDaySky({ user: await getUserById(ctx.user.id), profile, dateStr: input.date });
+        const lat = input.lat ?? skyMM.lat, lon = input.lon ?? skyMM.lon;
         const { computeMasterMode } = await import("./panchapakshi/compute.js");
         const master = await computeMasterMode({ birthNakshatra: moonNak, birthPaksha, lat, lon, year: y, month: m, day: d });
         if (!master) return null;
@@ -2311,8 +2251,8 @@ export const appRouter = router({
         if (!hasMasterMode(ctx.user)) return null;
 
         const { computeHoras, HORA_TONE } = await import("./panchang/hora.js");
-        const stored = await userLatLon(ctx.user.id);
-        const lat = input.lat ?? stored?.lat ?? 42.3601, lon = input.lon ?? stored?.lon ?? -71.0589;
+        const skyH = resolveDaySky({ user: await getUserById(ctx.user.id), profile: ctx.subject, dateStr: input.date });
+        const lat = input.lat ?? skyH.lat, lon = input.lon ?? skyH.lon;
         const now = input.nowMs ?? Date.now();
         let [y, m, d] = input.date.split("-").map(Number);
         let horas = computeHoras(y, m, d, lat, lon);
@@ -2606,10 +2546,9 @@ export const appRouter = router({
       // The varga-deep reading for THIS life area on THIS date: the area's house + lord + karakas
       // read both natally and in its topical varga, pointed at how the date's sky activates it.
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      // Day-sky for the READING's date (the old inline block computed the offset at `now` —
+      // a DST slip for pick-a-date). One resolver now.
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: input.date });
       const { getLifeAreaRead } = await import("./narrative/service.js");
       const res = await getLifeAreaRead(profile.id, input.date, resolved.parent as any, dayLoc, resolved.focus);
       if (!res.available || !res.read) return { available: false as const };
@@ -2637,12 +2576,9 @@ export const appRouter = router({
       if (!profile) return { available: false as const };
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { getEclipseSeasonCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
       return await getEclipseSeasonCached(profile.id, today, false, dayLoc);
     }),
 
@@ -2655,12 +2591,9 @@ export const appRouter = router({
       if (!profile) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { peekEclipseSeasonCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
       return await peekEclipseSeasonCached(profile.id, today, dayLoc);
     }),
 
@@ -2674,12 +2607,9 @@ export const appRouter = router({
       if (!profile) return { available: false as const };
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { getPlanetRxCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
       return await getPlanetRxCached(profile.id, input.planet, today, false, dayLoc);
     }),
 
@@ -2692,12 +2622,9 @@ export const appRouter = router({
       if (!profile) return { available: false as const };
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { peekPlanetRxCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
       return await peekPlanetRxCached(profile.id, input.planet, today, dayLoc);
     }),
 
@@ -2708,12 +2635,9 @@ export const appRouter = router({
       if (!profile) return { available: false as const };
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { getMercuryRxCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
       return await getMercuryRxCached(profile.id, today, false, dayLoc);
     }),
 
@@ -2725,12 +2649,9 @@ export const appRouter = router({
       if (!profile) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { peekMercuryRxCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
       return await peekMercuryRxCached(profile.id, today, dayLoc);
     }),
 
@@ -2744,12 +2665,9 @@ export const appRouter = router({
       if (!profile) return { available: false as const };
       const { getUserById } = await import("./db.js");
       const u = await getUserById(ctx.user.id);
-      const { getTimezoneOffset } = await import("./panchang/tz-offset.js");
-      const dayLoc = (u?.locationLat && u?.locationLon && u?.locationTimezone)
-        ? { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, new Date()) }
-        : undefined;
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { getMonthCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
       return await getMonthCached(profile.id, today, false, dayLoc);
     }),
 
@@ -2759,9 +2677,14 @@ export const appRouter = router({
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, month: null, generatedAt: null, cached: false };
+      // Was fully unlocated (no dayLoc at all) — the saved-month peek could disagree with the
+      // located month read it was peeking at.
+      const { getUserById } = await import("./db.js");
+      const u = await getUserById(ctx.user.id);
+      const today = localToday(u, profile);
+      const dayLoc = resolveDaySky({ user: u, profile, dateStr: today });
       const { peekMonthCached } = await import("./narrative/service.js");
-      const today = new Date().toISOString().slice(0, 10);
-      return await peekMonthCached(profile.id, today);
+      return await peekMonthCached(profile.id, today, dayLoc);
     }),
 
     // Save the user's notes under a purchased horoscope (per date + area).
@@ -2785,12 +2708,11 @@ export const appRouter = router({
       // Time-of-day for the Stage artwork — the viewer's current hour vs their real sunrise/sunset,
       // so each celestial image resolves to its dawn/day/dusk/night variant (client picks + falls back).
       const { timeOfDayAt } = await import("./sky/time-of-day.js");
-      const _loc = ctx.user as any;
-      const timeOfDay = timeOfDayAt(
-        Date.now(),
-        _loc?.locationLat ? parseFloat(_loc.locationLat) : 42.3601,
-        _loc?.locationLon ? parseFloat(_loc.locationLon) : -71.0589,
-      );
+      // Was reading locationLat off the SESSION user object (which never carries it) — every
+      // viewer got Boston's dawn/dusk. Resolve properly.
+      const uC = await getUserById(ctx.user.id);
+      const skyC = resolveDaySky({ user: uC, profile: ctx.subject, dateStr });
+      const timeOfDay = timeOfDayAt(Date.now(), skyC.lat, skyC.lon);
       // THIS MOMENT's sky — not noon-of-date. The Stage is live; anchor it to now.
       const { getSiderealLongitudesWithSpeed } = await import("./vedic/natal-chart-engine.js");
       const posNow = await getSiderealLongitudesWithSpeed(new Date(), ["Sun", "Moon"]);
@@ -3040,22 +2962,14 @@ export const appRouter = router({
       .input(z.object({ date: z.string() }))
       .query(async (opts) => {
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
-        let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
-        if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-          const now = new Date();
-          locationOverride = {
-            lat: parseFloat(user.locationLat),
-            lon: parseFloat(user.locationLon),
-            utcOffset: getTimezoneOffset(user.locationTimezone, now),
-          };
-        }
+        const sky = resolveDaySky({ user, profile: opts.ctx.subject, dateStr: opts.input.date });
         let lagnaOverride = user?.lagnaSign ?? undefined;
         if (opts.ctx.user) {
           const subject = opts.ctx.subject;
           if (subject?.lagnaSign) lagnaOverride = subject.lagnaSign;
         }
-        const pd2 = await subjectPersonalDay(opts.ctx.subject, opts.input.date);
-        const field = await getDayField(opts.input.date, false, locationOverride, lagnaOverride, pd2.rating, pd2.mode);
+        const pd2 = await subjectPersonalDay(opts.ctx.subject, opts.input.date, sky);
+        const field = await getDayField(opts.input.date, false, sky, lagnaOverride, pd2.rating, pd2.mode);
         if (!field) return null;
 
         // Calculate confidence
@@ -3112,16 +3026,7 @@ export const appRouter = router({
         // audit MEDIUM-5: was public + unbounded — a 2000→2100 range meant ~36,500 synchronous
         // ephemeris computations in one request. Now auth-required and span-capped (below).
         const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
-        let locationOverride: { lat: number; lon: number; utcOffset: number } | undefined;
-        if (user?.locationLat && user?.locationLon && user?.locationTimezone) {
-          const now = new Date();
-          locationOverride = {
-            lat: parseFloat(user.locationLat),
-            lon: parseFloat(user.locationLon),
-            utcOffset: getTimezoneOffset(user.locationTimezone, now),
-          };
-        }
-                let lagnaOverride = user?.lagnaSign ?? undefined;
+        let lagnaOverride = user?.lagnaSign ?? undefined;
         if (opts.ctx.user) {
           const subject = opts.ctx.subject;
           if (subject?.lagnaSign) lagnaOverride = subject.lagnaSign;
@@ -3135,7 +3040,8 @@ export const appRouter = router({
         const current = new Date(start);
         while (current <= end) {
           const dateStr = current.toISOString().split('T')[0];
-          const field = await getDayField(dateStr, false, locationOverride, lagnaOverride);
+          // Per-day resolve (DST-correct offsets across the range).
+          const field = await getDayField(dateStr, false, resolveDaySky({ user, profile: opts.ctx.subject, dateStr }), lagnaOverride);
           if (field) {
             const mr = field.modeReason;
             const rawScore = mr.baseScore + mr.nakshatraModifier + mr.tithiModifier + mr.fieldModifier;

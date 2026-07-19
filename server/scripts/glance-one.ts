@@ -2,6 +2,7 @@ import "dotenv/config";
 import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 import { generateGlance, hasAnthropicKey } from "../narrative/generate.js";
 const date = process.argv[3] ?? "2026-06-30";
 const want = process.argv[2] ?? "David Chum";
@@ -11,7 +12,7 @@ const want = process.argv[2] ?? "David Chum";
   const rows = await db.select().from(profiles);
   const p = rows.find(r => r.name === want);
   if (!p) { console.log("profile not found:", want); process.exit(1); }
-  const input: any = await buildNarrativeInput(p.id, date);
+  const input: any = await buildNarrativeInput(p.id, date, { dayLoc: await resolveDaySkyForProfileId(p.id, date) });
   console.log(`\n${p.name} — ${input.natal.lagna} · ${date}`);
   try {
     const g = await generateGlance(input);

@@ -10,6 +10,7 @@
 import "dotenv/config";
 import { dignityTier, strength, ucchaBala, fivefoldMaitri, temporalRelation } from "../panchang/dignity.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 import { resolveAstrologySubject } from "../astrology-subject.js";
 
 let fails = 0;
@@ -95,7 +96,7 @@ async function main() {
 
   console.log("\n=== 3. Live wired output — every transit carries a strength ===");
   const pid = (await resolveAstrologySubject(2) as any).profileId;
-  const ni: any = await buildNarrativeInput(pid, "2026-07-03");
+  const ni: any = await buildNarrativeInput(pid, "2026-07-03", { dayLoc: await resolveDaySkyForProfileId(pid, "2026-07-03") });
   const scored = ni.transits.filter((t: any) => t.strength);
   ok("all 7 non-node transits carry strength", scored.length === 7, `${scored.length}/7`);
   console.log("  " + ni.transits.map((t: any) => `${t.planet}:${t.strength ? t.strength.label + "(" + t.strength.score + ")" : "—"}`).join("  "));

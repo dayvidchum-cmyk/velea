@@ -20,7 +20,7 @@ const H = 60 * 60 * 1000;
  *   night = everything else
  * Location defaults to Boston (the app default) when unknown.
  */
-export function timeOfDayAt(nowMs: number, lat = 42.3601, lon = -71.0589): TimeOfDay {
+export function timeOfDayAt(nowMs: number, lat: number, lon: number): TimeOfDay {
   const d = new Date(nowMs);
   const { rise, set } = sunTimesJD(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), lat, lon);
   const riseMs = jdToMs(rise);

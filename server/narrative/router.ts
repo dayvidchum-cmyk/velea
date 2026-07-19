@@ -7,18 +7,10 @@ import { assertOwnsProfile } from "../routers/profiles.js";
 import { getTimezoneOffset } from "../panchang/tz-offset.js";
 import { rateLimit } from "../_core/rateLimit.js";
 
-// The day-mode's location basis — the viewer's stored location + real tz, matching the hero's
-// panchang (panchang.today / byDate). undefined → getDayField uses its built-in default. Keeping
-// these in lock-step is what stops the hero and the day card naming different modes on one day.
-function dayLocFromUser(u: { locationLat?: string | null; locationLon?: string | null; locationTimezone?: string | null } | null | undefined, dateStr?: string): { lat: number; lon: number; utcOffset: number } | undefined {
-  if (u?.locationLat && u?.locationLon && u?.locationTimezone) {
-    // Offset for the READING's date, not `now` (audit L5): a pick-a-date reading across a DST
-    // transition otherwise took now's offset → the wrong sunrise/tithi for that date.
-    const at = dateStr ? new Date(dateStr + "T12:00:00Z") : new Date();
-    return { lat: parseFloat(u.locationLat), lon: parseFloat(u.locationLon), utcOffset: getTimezoneOffset(u.locationTimezone, at) };
-  }
-  return undefined;
-}
+// The day-mode's location basis now comes from the ONE resolver (panchang/resolve-day-sky.ts),
+// the same source the hero's panchang reads — which is what stops the hero and the day card
+// naming different modes on one day. The old local dayLocFromUser derivation is gone.
+import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
 
 const todayUTC = () => new Date().toISOString().split("T")[0];
 
@@ -103,10 +95,9 @@ export const narrativeRouter = router({
     const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, content: null, generatedAt: null, cached: false };
     try {
-      const u = await getUserById(ctx.user.id);
       // Day-mode from the viewer's location basis (same as the hero) — so the read and the hero
       // never name different modes on the same day.
-      const dayLoc = dayLocFromUser(u, date);
+      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
       // METER THE FORCED REGENERATION (audit M2): the "update to the moment" refresh (nowMs) and
       // the refresh flag both force a fresh, un-persisted LLM call. The feature is admin-gated on
       // the client but the server enforced nothing — any user could spam it, an unmetered drain on
@@ -117,11 +108,8 @@ export const narrativeRouter = router({
       // you are" (default Boston, matching Master Mode's hora), not the birth place.
       let moment: { nowMs: number; lat?: number; lon?: number } | undefined;
       if (input.nowMs != null && canForce) {
-        moment = {
-          nowMs: input.nowMs,
-          lat: u?.locationLat ? parseFloat(u.locationLat) : 42.3601,
-          lon: u?.locationLon ? parseFloat(u.locationLon) : -71.0589,
-        };
+        // Hora is "this hour where you are" — the resolved day-sky, same basis as the day-mode.
+        moment = { nowMs: input.nowMs, lat: dayLoc.lat, lon: dayLoc.lon };
       }
       return await getGlanceCached(input.profileId, date, canForce && (input.refresh ?? false), moment, dayLoc);
     } catch (e) {
@@ -142,7 +130,7 @@ export const narrativeRouter = router({
     // non-admin can never obtain it, so the fast-tier detail stays behind the upsell.
     const deepened = (input.deepened ?? false) && ctx.user.role === "admin";
     try {
-      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
+      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
       const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2: meter forced regen
       return await getDeepReadCached(input.profileId, date, canForce && (input.refresh ?? false), deepened, dayLoc);
     } catch (e) {
@@ -160,7 +148,7 @@ export const narrativeRouter = router({
     const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, read: null, generatedAt: null, cached: false };
     try {
-      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
+      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
       const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
       return await getDayReadCached(input.profileId, date, canForce && (input.refresh ?? false), dayLoc);
     } catch (e) {
@@ -177,7 +165,7 @@ export const narrativeRouter = router({
     const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, cast: null, generatedAt: null, cached: false };
     try {
-      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
+      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
       const canForce = ctx.user.role === "admin" || (await (await import("../feature-flags.js")).hasFeature(ctx.user, "momentRefresh")); // audit M2
       return await getCastCached(input.profileId, date, canForce && (input.refresh ?? false), dayLoc);
     } catch (e) {
@@ -313,7 +301,7 @@ export const narrativeRouter = router({
     const date = await guardedDate(ctx, input.profileId, input.date);
     if (!date) return { available: false as const, locked: true as const, chapter: null, generatedAt: null, cached: false };
     try {
-      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
+      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
       return await getChapterCached(input.profileId, date, ctx.user.role === "admin" && (input.refresh ?? false), dayLoc);
     } catch (e) {
       console.error("[narrative.chapter]", e);
@@ -358,7 +346,7 @@ export const narrativeRouter = router({
     // one from the wrong-location data, overwrote it, and pinned content they never saw —
     // now a data-accuracy issue, since dayLoc drives the transit Moon (data-path #2).
     if (input.locked) {
-      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
+      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
       await getGlanceCached(input.profileId, date, false, undefined, dayLoc).catch(() => {});
       // Only ensure-generate the premium year read for the entitled — otherwise a free pin would
       // silently mint a billed deep read around the deepRead gate. The lock rows below are cheap
@@ -387,7 +375,7 @@ export const narrativeRouter = router({
       // transit sky at the viewer's local noon — not fixed noon-UTC. Without it a UTC+12 user saw
       // the Moon filed under the wrong house on ~1 day in 5 (the receipts contradicting the read).
       // Sharing dayLoc also shares the in-proc memo with the reading build (no second ephemeris run).
-      const dayLoc = dayLocFromUser(await getUserById(ctx.user.id), date);
+      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
       const ni = await buildNarrativeInput(input.profileId, date, { dayLoc });
       return {
         available: true,
