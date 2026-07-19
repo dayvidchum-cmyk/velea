@@ -498,4 +498,14 @@
 // "Sampat", never a mechanic — riding on top of the day's mode. Verified deterministically:
 // personalApex.tara="Sampat" reaches the model on real Sampat days (2026-07-26, 08-05). glance +
 // day_read surface salts bumped so it takes effect on next view.
-export const APP_VERSION = "1.1.766";
+// v1.1.767 = 2026-07-19 — MANDATORY POST-STRETCH AUDIT (v756-766, David's law #6): 4 parallel
+// audit agents across the 12 AUDITS.md lenses, every finding re-verified against real code before
+// fixing. 12 fixed (AUDIT_2026-07-19.md): HIGH — the task-guide tour crash (shared tourIndex not
+// reset → out-of-range step deref); the moment-upsell "Contact your Admin" dead-end → notify-me
+// waitlist; and my OWN v766 prosperity fix was incomplete (rule only in GLANCE_TAIL, not the hero
+// DAY_READ_TAIL, yet day_read's salt was bumped → costly + still silent) — now in both tails. MED —
+// "self-worth" banned framing purged; naked "House 9 is lit up" reworded; capture-card backdrop no
+// longer strands a chartless account; two-primary buttons resolved; nudge arming race fixed. LOW —
+// pinned gold→hero-ink; publicKey guard; profiles.create archived-count dead-end. Added AUDITS.md
+// lenses #13 (hook-order) & #14 (reading-rule placement/salt). 499 tests pass.
+export const APP_VERSION = "1.1.767";

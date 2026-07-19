@@ -226,7 +226,14 @@ export default function Onboarding({ active, userId }: Props) {
   // Standalone task guide — fired via window event (Settings, zero-task nudge).
   useEffect(() => {
     // Never during the first-run beats — the task guide waits until the welcome has run.
-    const onFire = () => setTaskGuide((on) => (running || !tourState.data?.seen.includes("welcome") ? on : true));
+    // AUDIT 2026-07-19 (HIGH): the task guide and page tours SHARE tourIndex. Starting the task
+    // guide without resetting it left index at a page-tour's value (e.g. 5); TASK_TOUR has 2 steps,
+    // so steps[5] was undefined and the step.route deref crashed the tour. Reset to 0 on fire.
+    const onFire = () => setTaskGuide((on) => {
+      if (running || !tourState.data?.seen.includes("welcome") || on) return on;
+      setTourIndex(0);
+      return true;
+    });
     window.addEventListener(TASK_GUIDE_EVENT, onFire);
     return () => window.removeEventListener(TASK_GUIDE_EVENT, onFire);
   }, [running, tourState.data]);

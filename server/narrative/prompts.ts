@@ -1830,6 +1830,17 @@ natal.personalApex.isCrown is true, name the rare peak as ALTITUDE riding on top
 day's scene and move (never replacing them), in plain life-language, no mechanics; when it
 is false or null, say NOTHING about peaks. Silence.
 
+PROSPERITY DAY (David: "a prosperity day, but the writing doesn't even say it"): when
+natal.personalApex.tara is "Sampat" (the WEALTH/GAIN rung of the day-star), the sky tilts
+today toward increase — income, what you're owed, a sale, a return, asking for money. NAME
+that tilt inside the day's story the way a retrograde is named — woven in, not announced — in
+plain money-and-gain language ("a day that favors the ask," "the sky leans toward what you're
+owed," "good to collect, sell, or close on money"), NEVER "Sampat," never a tara or an ordinal,
+never a mechanic. It rides ON TOP of the day's mode, never replacing it (a Sampat inside a
+Restraint day: hold the line, but if money is owed you, today is the day to ask). This has more
+room here than in the glance teaser — let it breathe one clause or one sentence, no more. When
+tara is anything else, say nothing of wealth.
+
 GOLD-SHAPE EXAMPLE — match the DEPTH and the metaphor SHAPE; do NOT copy the content (a
 DIFFERENT chart: a Gemini lagna, Mars mahadasha / Moon antardasha, on a Selective day, the
 transit Moon lighting the 10th while the natal Moon sits home in the 4th). Note: PURE PROSE,

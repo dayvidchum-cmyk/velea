@@ -91,6 +91,25 @@ which axis) and check the compression keeps all the decisive ones. Known thresho
 when touched: bigKnot/era, crown-day ladder ranks, second-handshake +55, rest-gate floors, muhurta
 vetoes, golden-hour peak pick. **Check:** any new or touched threshold in the stretch.
 
+### 13. Hook-order audit 🤖 — _protects: no whole-page crash from React's rules of hooks_
+Born 2026-07-19: `MeridianCard` called `useUtils`/`useState` AFTER `if (!data) return null`, so its
+hook count GREW the render the query resolved → "change in the order of Hooks" → the error boundary
+took the whole Chart page down ("Something went sideways"). LAW: in every component, EVERY hook
+(useState/useMemo/useEffect/useQuery/useUtils/useContext/custom) precedes EVERY conditional return —
+no exceptions. **Check:** read each component top-to-bottom; any hook after an early `return` is a
+latent crash the moment its guard flips. (Heuristic greps false-positive on sibling functions —
+confirm by reading the component body.)
+
+### 14. Reading-rule placement audit 🤖 — _protects: the fix lands where the reader sees it, and the salt matches_
+Born 2026-07-19 (the prosperity half-fix): a new reading rule was added to `GLANCE_TAIL` only, but the
+hero surface is `DAY_READ_TAIL` — so the rule David asked for never reached the read he was looking at,
+AND `day_read`'s `SURFACE_VERSION` salt was bumped anyway → a full paid regeneration of identical
+output. LAW: when you add/change a reading rule, (a) identify EVERY tail that renders the affected
+surface (glance vs day_read vs deep vs …) and put the rule in each; (b) bump ONLY the salts whose tail
+actually changed — a salt bump with no matching prompt change is a pure cash burn on next view.
+**Check:** each SURFACE_VERSION bump in the stretch has a corresponding edit in that surface's tail,
+and each new rule reached every tail that surface uses.
+
 ### 12. Explainer-prose audit 👁 — _protects: understanding over machinery on every teaching surface_
 Born 2026-07-16: the "Your year, explained" chain shipped VERBATIM as David's scaffolding sketch —
 a numbered decoder ring with arrow stacks. His verdict: "it's not clear. it makes me shut down.

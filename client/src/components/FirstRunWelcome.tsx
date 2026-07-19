@@ -109,8 +109,12 @@ export default function FirstRunWelcome({
   }
 
   const name = profile?.name ?? "";
+  const birthPending = !hasBirth && bStatus !== "saved"; // the inline capture form is showing
   return (
-    <div onClick={onDismiss} data-velea-welcome className="fixed inset-0 z-[130] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(3px)" }}>
+    // AUDIT 2026-07-19: NO backdrop-to-dismiss. This is the one card that captures the birth data
+    // the whole app needs; an accidental backdrop tap used to mark onboarding complete and strand a
+    // fresh account with no chart. Dismissing now requires an explicit choice (the × or a footer button).
+    <div data-velea-welcome className="fixed inset-0 z-[130] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(3px)" }}>
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col" style={{ position: "relative", maxHeight: "92vh", background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 22, boxShadow: "0 24px 64px rgba(0,0,0,0.4)", overflow: "hidden" }}>
         <button onClick={onDismiss} aria-label="Dismiss" style={{ position: "absolute", top: 10, right: 10, zIndex: 3, width: 34, height: 34, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-secondary)", color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)", cursor: "pointer" }}>
           <X size={18} />
@@ -198,7 +202,13 @@ export default function FirstRunWelcome({
 
         {/* pinned choices — always visible, no scrolling to find them */}
         <div style={{ padding: "0.9rem 1.4rem calc(env(safe-area-inset-bottom,0px) + 1rem)", borderTop: "1px solid var(--color-border)", background: "var(--color-card)" }}>
-          <button onClick={onTakeTour} style={{ ...btn, background: "var(--color-primary)", color: "var(--color-primary-foreground)", border: "none" }}>
+          {/* AUDIT 2026-07-19: while the birth form is still open, "Save my birth details" is the
+              lone primary — "Show me around" drops to outline so there aren't two filled primaries
+              competing (and it stops reading as the expected next tap before birth is entered). */}
+          <button onClick={onTakeTour} style={{ ...btn,
+            background: birthPending ? "transparent" : "var(--color-primary)",
+            color: birthPending ? "var(--color-primary)" : "var(--color-primary-foreground)",
+            border: birthPending ? "1.5px solid var(--color-primary)" : "none" }}>
             Show me around
           </button>
           <button onClick={onExplore} style={{ ...btn, marginTop: "0.55rem", minHeight: 48, background: "transparent", color: "var(--color-muted-foreground)", border: "1px solid var(--color-border)" }}>

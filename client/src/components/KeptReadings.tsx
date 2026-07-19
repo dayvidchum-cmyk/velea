@@ -91,13 +91,16 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
   }
 
   // ── Entitled: working pin + archive link ─────────────────────────────────
+  // AUDIT 2026-07-19: the pinned state used raw #C9A84C gold, invisible on the dark ruby/rose hero
+  // (the recurring gold-on-dark bug). The filled BookmarkCheck icon already signals pinned, so the
+  // label rides legible hero-ink in BOTH states — state shown by the icon, not by an unreadable color.
   return (
     <div style={{ ...rowStyle, color: ink }}>
       <button
         onClick={() => setLock.mutate({ profileId, date, locked: !locked })}
         disabled={setLock.isPending}
         title={locked ? "Pinned — tap to unpin" : "Pin this reading"}
-        style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", padding: 0, cursor: "pointer", color: locked ? "#C9A84C" : ink, font: "inherit", letterSpacing: "inherit", textTransform: "inherit" }}
+        style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", padding: 0, cursor: "pointer", color: ink, font: "inherit", letterSpacing: "inherit", textTransform: "inherit" }}
       >
         {locked ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
         <span>{locked ? "Pinned" : "Pin this reading"}</span>

@@ -96,12 +96,19 @@ export default function OverlaySequencer() {
   const nudgeArmed = useRef(false);
   useEffect(() => {
     if (!idle || nudge !== "none" || nudgeArmed.current) return;
+    // AUDIT 2026-07-19 (C4): wait until the location query has actually resolved, so "no location"
+    // is a real answer, not the still-loading undefined that used to send a location-less account
+    // down the bell branch and skip the prompt.
+    if (!locationData.isSuccess) return;
     try { if (sessionStorage.getItem("velea-nudged") || sessionStorage.getItem("velea-firstrun-session")) return; } catch { /* ignore */ }
-    nudgeArmed.current = true;
     const t = setTimeout(() => {
       if (document.querySelector("[data-velea-welcome], [data-velea-overlay]")) return;
+      // AUDIT 2026-07-19 (C2): mark armed only when the timer actually FIRES. Previously it was set
+      // before the timeout, so any query refresh in the 1.8s window ran the cleanup (killing the
+      // timer) then re-ran the effect, which early-returned on the ref — the nudge silently vanished.
+      nudgeArmed.current = true;
       try { sessionStorage.setItem("velea-nudged", "1"); } catch { /* ignore */ }
-      const noLocation = locationData.data && !(locationData.data as any).lat;
+      const noLocation = !(locationData.data as any)?.lat;
       if (noLocation) {
         window.dispatchEvent(new CustomEvent("velea-open-location", { detail: { reason: "missing" } }));
       } else {
@@ -110,7 +117,7 @@ export default function OverlaySequencer() {
     }, 1800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idle, nudge, locationData.data]);
+  }, [idle, nudge, locationData.isSuccess]);
 
   // ── Beat resolution (exactly one surface below renders) ──
   if (!user) return null;

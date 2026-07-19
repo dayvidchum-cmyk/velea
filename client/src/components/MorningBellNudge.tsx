@@ -72,8 +72,9 @@ export default function MorningBellNudge() {
       if (perm !== "granted") { setState("blocked"); return; }
     } catch { setState("blocked"); return; }
     try {
+      if (!status.publicKey) { setState("error"); return; } // AUDIT 2026-07-19: configured-but-no-key → clean error, not a crash
       const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(status.publicKey!) });
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(status.publicKey) });
       const json = sub.toJSON() as any;
       await subscribeMut.mutateAsync({ endpoint: sub.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth });
       try { localStorage.setItem(DONE_KEY, "1"); } catch {}

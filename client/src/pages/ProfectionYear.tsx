@@ -36,7 +36,7 @@ function renderWhy(text: string, muted: string, base: string) {
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 const HOUSE_GLOSS: Record<number, string> = {
   1: "self, body, how you are seen",
-  2: "money, possessions, self-worth, speech",
+  2: "money, what you own, what you earn, your voice",
   3: "communication, siblings & close circle, short trips, skill",
   4: "home, roots, mother, the inner ground",
   5: "creativity, children, romance, the heart's expression",
@@ -598,7 +598,7 @@ export default function ProfectionYear() {
         return panel("This year's life areas", areasOpen, setAreasOpen, (
           <>
             <p style={{ fontSize: "0.8rem", color: TEXT_MUTED, marginBottom: "1rem", lineHeight: 1.5 }}>
-              House {activatedHouse} is lit up this year, so these are the areas of life in focus — tap any to open the full house. Tasks you tag with them rise on days the year's themes are echoed.
+              These are the areas of life in focus this year — tap any to open it in full. Tasks you tag with them rise on days the year's themes are echoed.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               {yearAreas.map((a) => (

@@ -35,3 +35,10 @@ add latency. Correctness is fine (stateless calc, consistent ayanamsa). If/when
 load warrants: move ephemeris work to a worker thread/pool or precompute & cache.
 
 Status: open. Ship as-is for launch.
+
+## Deploy-ordering: migration-gated columns (noted 2026-07-19 audit)
+`profiles.hometown*`, `profile_day_locations`, and `waitlist` are created by DAVID-RUN scripts
+(add-location-model.ts / reconcile-prod-schema.ts), not auto-migrated. Because schema.ts declares
+these columns, a code deploy BEFORE the script runs makes every `select().from(profiles)` 500.
+RULE: run the migration script, THEN deploy the code. Prod migrations HAVE run (David, 2026-07-18),
+so this is a future-deploy caution, not a live issue. No runtime guard by design (no-auto-migrate law).

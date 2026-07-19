@@ -475,10 +475,12 @@ export const profilesRouter = router({
         const { hasFeature } = await import("../feature-flags.js");
         const cap = (await hasFeature(ctx.user, "secondProfile")) ? 2 : 1;
         const owned = await db
-          .select({ id: profiles.id })
+          .select({ id: profiles.id, archivedAt: profiles.archivedAt })
           .from(profiles)
           .where(eq(profiles.userId, ctx.user.id));
-        const activeCount = owned.length; // includes owner + any archived rows are rare; conservative
+        // AUDIT 2026-07-19: exclude archived rows — a cap-2 user who archived their 2nd profile was
+        // dead-ended (owned.length stayed 2), unable to add a replacement.
+        const activeCount = owned.filter((p) => !p.archivedAt).length;
         if (activeCount >= cap) {
           throw new TRPCError({
             code: "FORBIDDEN",

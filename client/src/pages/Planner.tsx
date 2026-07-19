@@ -35,6 +35,8 @@ import TheWhySheet from "@/components/TheWhySheet";
 import { createPortal } from "react-dom";
 import AddToHomeScreenNote from "@/components/AddToHomeScreenNote";
 import MeridianWhisper from "@/components/MeridianWhisper";
+import NotifyMeButton from "@/components/NotifyMeButton";
+import { PREMIUM_PRICING } from "@/lib/pricing";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -2440,7 +2442,7 @@ export default function Planner() {
                   onClick={() => setSubscribeTapped(true)}
                   style={{ marginTop: '0.3rem', width: '100%', background: 'linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)', border: 'none', borderRadius: 12, padding: '0.85rem', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '0.04em', color: '#1a1200', cursor: 'pointer' }}
                 >
-                  Subscribe · $2.99 / mo
+                  {PREMIUM_PRICING.momentRead ? `Subscribe · ${PREMIUM_PRICING.momentRead}` : 'Subscribe'}
                 </button>
                 <button
                   onClick={() => setMomentUpsellOpen(false)}
@@ -2451,14 +2453,18 @@ export default function Planner() {
               </>
             ) : (
               <>
-                <p style={{ margin: '0.4rem 0', fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-foreground)' }}>
-                  This feature is coming soon. Contact your Admin.
+                {/* AUDIT 2026-07-19: was a dead-end ("Contact your Admin" — no such person for a
+                    consumer, and it captured nothing). Now the same notify-me waitlist as every
+                    other locked feature, so the one user who tapped Subscribe gets told when it ships. */}
+                <p style={{ margin: '0.4rem 0 0.2rem', fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-foreground)' }}>
+                  Not open just yet — leave your name and I'll tell you the moment it goes live.
                 </p>
+                <div style={{ width: '100%' }}><NotifyMeButton feature="update-to-the-moment" /></div>
                 <button
                   onClick={() => setMomentUpsellOpen(false)}
-                  style={{ background: 'transparent', border: '1px solid color-mix(in srgb, var(--brand-gold) 45%, transparent)', borderRadius: 999, padding: '0.5rem 1.4rem', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--heading-ink)', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: 'none', fontSize: '0.78rem', color: 'var(--color-muted-foreground)', cursor: 'pointer', textDecoration: 'underline' }}
                 >
-                  Close
+                  Not now
                 </button>
               </>
             )}
