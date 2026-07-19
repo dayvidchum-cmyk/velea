@@ -131,14 +131,18 @@ export default function MeridianCard() {
   const { settings, saveSettings } = useSettingsContext();
   const { data } = trpc.meridian.current.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const [open, setOpen] = useState(false); // collapsed by default — matches the Chart page's other panels
+  // ALL hooks BEFORE the data guard (found 2026-07-19, the Chart-page "Something went
+  // sideways" crash class): useUtils + the openClosed state used to sit AFTER
+  // `if (!data) return null`, so the component's hook count GREW the render the query
+  // resolved — "change in the order of Hooks" → error boundary, whole page down.
+  const utils = trpc.useUtils();
+  const [openClosed, setOpenClosed] = useState<Set<number>>(new Set());
   if (!data) return null;
   const liftOn = settings.meridianLift;
-  const utils = trpc.useUtils();
   // The toggle now TAKES EFFECT immediately (David: "I hate that i have to keep turning
   // it on and off to effect my readings") — flipping it invalidates the ranked list, so
   // one flip is one result; no double-toggling to nudge a stale ranking.
   const toggleLift = () => { saveSettings({ ...settings, meridianLift: !liftOn }); setTimeout(() => utils.tasks.invalidate(), 250); };
-  const [openClosed, setOpenClosed] = useState<Set<number>>(new Set());
 
   const chapters = (data.chapters ?? []) as Chapter[];
   const hits = ((data as any).hits ?? []) as AxisHit[];

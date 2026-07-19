@@ -33,7 +33,7 @@ const HOUSE_THEMES: Record<number, { name: string; themes: string[] }> = {
   5:  { name: "5th House", themes: ["creativity", "self-expression", "romance", "children", "speculation", "performance"] },
   6:  { name: "6th House", themes: ["work", "service", "health", "daily routine", "problem-solving", "refinement"] },
   7:  { name: "7th House", themes: ["partnerships", "contracts", "open relationships", "negotiation", "collaboration"] },
-  8:  { name: "8th House", themes: ["transformation", "shared resources", "depth", "research", "endings", "hidden matters"] },
+  8:  { name: "8th House", themes: ["transformation", "shared resources", "depth", "research", "endings", "the hidden"] },
   9:  { name: "9th House", themes: ["belief systems", "higher learning", "travel", "philosophy", "expansion", "meaning"] },
   10: { name: "10th House", themes: ["career", "public role", "authority", "reputation", "achievement", "visibility"] },
   11: { name: "11th House", themes: ["networks", "community", "goals", "collective action", "alliances", "future vision"] },

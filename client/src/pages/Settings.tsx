@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, Compass, MapPin } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { DAILY_PUSH_NAME } from "@/lib/brand";
 import { resetOnboarding, fireTaskGuide, startTour } from "@/components/Onboarding";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import type { SettingsState, TodayTaskLimit } from "@/hooks/useSettings";
@@ -259,7 +260,7 @@ function MorningBellRow() {
       await subscribeMut.mutateAsync({ endpoint: sub.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth });
       setNote("The bell is set — it rings at 8 each morning.");
     } catch (e: any) {
-      setNote("Couldn't set the bell on this device. On iPhone, Velea must be added to your Home Screen first.");
+      setNote(`Couldn't turn on ${DAILY_PUSH_NAME} on this device. On iPhone, Velea must be added to your Home Screen first.`);
     } finally { setBusy(false); }
   };
 
@@ -279,10 +280,10 @@ function MorningBellRow() {
 
   return (
     <SettingRow
-      label="The Morning Bell"
+      label={DAILY_PUSH_NAME}
       description={supported
         ? "A morning notification at 8am your time: how the stage is set today. On iPhone, add Velea to your Home Screen first."
-        : "Your browser doesn't support notifications — on iPhone, add Velea to your Home Screen and set the bell from there."}
+        : `Your browser doesn't support notifications — on iPhone, add Velea to your Home Screen and turn ${DAILY_PUSH_NAME} on from there.`}
     >
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
         <TogglePair
@@ -298,7 +299,7 @@ function MorningBellRow() {
             disabled={testBell.isPending}
             style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--brand-gold, #B08D2E)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", padding: 0 }}
           >
-            {testBell.isPending ? "Ringing…" : testBell.data ? `Rang ${testBell.data.sent} device${testBell.data.sent === 1 ? "" : "s"}` : "Ring it now (admin test)"}
+            {testBell.isPending ? "Sending…" : testBell.data ? `Sent to ${testBell.data.sent} device${testBell.data.sent === 1 ? "" : "s"}` : "Send one now (admin test)"}
           </button>
         )}
       </div>

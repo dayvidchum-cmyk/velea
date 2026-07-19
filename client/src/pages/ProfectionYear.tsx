@@ -467,12 +467,13 @@ export default function ProfectionYear() {
 
   return (
     <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "7rem" }}>
-      <div style={{ marginBottom: "1.5rem" }}>
+      {/* Compressed run (David 2026-07-18): greeting → tabs → explainer sat too tall. */}
+      <div style={{ marginBottom: "0.85rem" }}>
         <AppHeader pageTitle="Your Charts" />
       </div>
 
       {/* Chart tabs — Time Lord · Natal · Dasha (3 clickable views, like before) */}
-      <div data-tour="chart-tabs" style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", borderRadius: "0.75rem", background: "transparent", marginBottom: "1.5rem" }}>
+      <div data-tour="chart-tabs" style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", borderRadius: "0.75rem", background: "transparent", marginBottom: "0.85rem" }}>
         {CHART_TABS.map(({ id, label }) => (
           <button
             key={id}
@@ -518,16 +519,18 @@ export default function ProfectionYear() {
               </button>
             </div>
             <div style={{ overflowY: "auto", padding: "1rem 1.3rem 1.3rem" }}>
+              {/* Glossary-linked (David 2026-07-18 "Glossary links? No?"): the terms explain
+                  themselves in place — bolds preserved, GlossaryText linkifies each string run. */}
               <p style={{ color: TEXT_PRIMARY, fontSize: "0.98rem", lineHeight: 1.65, margin: 0 }}>
-                <strong>Annual profection</strong> is a <strong>Hellenistic</strong> timing technique — one of
+                <strong><GlossaryText>Annual profection</GlossaryText></strong> is a <strong>Hellenistic</strong> timing technique — one of
                 the oldest in the Greek astrological tradition of the ancient Mediterranean. Each year of your
-                life it activates one house of your birth chart, counting from your <strong>Lagna</strong>{" "}
-                (Ascendant, Rising Sign): at birth, age 0, your <strong>1st house</strong> is activated; at age 1,
-                the 2nd; after 12 years the cycle repeats. The themes of the activated house become the focus of
-                the year, and its ruler is your <strong>Time Lord</strong> — the planet running your year.{" "}
-                <strong>Velea runs this ancient wheel on your Vedic chart</strong>: the houses and signs it turns
+                life it activates one house of your birth chart, counting from your <strong><GlossaryText>Lagna</GlossaryText></strong>{" "}
+                (<GlossaryText>Ascendant, Rising Sign</GlossaryText>): at birth, age 0, your <strong><GlossaryText>1st house</GlossaryText></strong> is activated; at age 1,
+                the 2nd; after 12 years the cycle repeats. <GlossaryText>The themes of the activated house become the focus of
+                the year, and its ruler is your</GlossaryText> <strong><GlossaryText>Time Lord</GlossaryText></strong> — the planet running your year.{" "}
+                <strong>Velea runs this ancient wheel on your Vedic chart</strong>: <GlossaryText>the houses and signs it turns
                 through are your sidereal ones, so the year-lord it crowns is read with the same precision as
-                everything else here — a Hellenistic clock, keeping Vedic time.
+                everything else here — a Hellenistic clock, keeping Vedic time.</GlossaryText>
               </p>
             </div>
           </div>
@@ -538,7 +541,7 @@ export default function ProfectionYear() {
         type="button"
         onClick={() => setExplainerOpen(true)}
         className="inline-flex items-center gap-1"
-        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", marginBottom: "1.25rem", color: modeColor, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
+        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.1rem 0", marginBottom: "0.8rem", color: modeColor, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
       >
         How profection works <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
       </button>

@@ -1092,7 +1092,7 @@ export default function Planner() {
         const notes: string[] = [];
         for (const p of skyMarks?.retro ?? []) for (const st of p.stations) { const d = dUntil(st.date);
           if (d === 0) notes.push(`${p.planet} ${st.type} today — the turn itself. Expect the wobble; sign nothing in the noise.`);
-          else if (d > 0 && d <= 3) notes.push(`${p.planet} ${st.type} in ${d} ${d === 1 ? "day" : "days"} — the approach is the roughest stretch. Land what matters before it.`); }
+          else if (d > 0 && d <= 3) notes.push(`${p.planet} ${st.type} in ${d} ${d === 1 ? "day" : "days"} — the approach is the roughest stretch. Land the heavy pieces before it.`); }
         for (const e of skyMarks?.eclipses ?? []) { const d = dUntil(e.date);
           if (d === 0) notes.push("An eclipse crosses today — keep the day quiet and let it pass.");
           else if (d > 0 && d <= 7) notes.push(`An eclipse arrives in ${d} ${d === 1 ? "day" : "days"} — the season is already open. Big launches wait.`); }
@@ -1155,7 +1155,7 @@ export default function Planner() {
                   disabled={refreshingRead}
                   title="Update to the moment"
                   aria-label="Update to the moment"
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: 'color-mix(in srgb, var(--hero-ink) 82%, transparent)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
                 >
                   <RefreshCw size={14} className={refreshingRead ? 'animate-spin' : ''} />
                 </button>
@@ -1171,7 +1171,7 @@ export default function Planner() {
                     fontWeight: 700,
                     letterSpacing: '0.14em',
                     textTransform: 'uppercase',
-                    color: 'color-mix(in srgb, var(--day-accent-deep) 75%, transparent)',
+                    color: 'color-mix(in srgb, var(--hero-ink) 82%, transparent)', // hero-ink — day-accent-deep was mud-on-mud on the red card
                   }}
                 >
                   {selectedDate === toDateStr(today) ? "TODAY'S READ" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
@@ -1185,7 +1185,7 @@ export default function Planner() {
               >
                 <ChevronDown
                   size={17}
-                  style={{ marginTop: -2, color: 'color-mix(in srgb, var(--day-accent-deep) 70%, transparent)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
+                  style={{ marginTop: -2, color: 'color-mix(in srgb, var(--hero-ink) 78%, transparent)', transform: heroOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
                 />
               </button>
             </div>

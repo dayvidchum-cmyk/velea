@@ -1085,6 +1085,27 @@ export const appRouter = router({
       await db.update(users).set({ tourState: JSON.stringify(state) }).where(eq(users.id, ctx.user.id));
       return { ok: true, welcomeShows: state.welcomeShows };
     }),
+    // Locked-feature waitlist (David 2026-07-18: "notify me button that adds them to a list").
+    // One row per email (unique); `source` accumulates the features they asked about.
+    joinWaitlist: protectedProcedure
+      .input(z.object({ feature: z.string().min(1).max(48) }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb(); if (!db) return { ok: false };
+        const user = await getUserById(ctx.user.id);
+        const email = (user?.email ?? "").trim().toLowerCase();
+        if (!email) return { ok: false };
+        const { waitlist } = await import("../drizzle/schema.js");
+        const feat = input.feature.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").slice(0, 48);
+        const existing = await db.select().from(waitlist).where(eq(waitlist.email, email)).limit(1);
+        if (existing[0]) {
+          const sources = new Set(String(existing[0].source ?? "").split(",").filter(Boolean));
+          sources.add(feat);
+          await db.update(waitlist).set({ source: [...sources].join(",").slice(0, 64) }).where(eq(waitlist.email, email));
+        } else {
+          await db.insert(waitlist).values({ email, source: feat.slice(0, 64) });
+        }
+        return { ok: true };
+      }),
     resetTours: protectedProcedure.mutation(async ({ ctx }) => {
       const db = await getDb(); if (!db) return { ok: false };
       await db.update(users).set({ tourState: JSON.stringify({ seen: [], enabled: true, welcomeShows: 0 }) }).where(eq(users.id, ctx.user.id));

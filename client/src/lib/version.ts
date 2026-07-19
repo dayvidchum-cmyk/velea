@@ -480,4 +480,16 @@
 // flips optimistically the instant it's tapped (server ensure-generate takes seconds; a failed
 // pin reverts itself) — DRIVEN: flip observed at +200ms. (3) Profile-login modal is dead-center
 // always, above the nav, scrolls within itself under the keyboard — DRIVEN: screenshot verified.
-export const APP_VERSION = "1.1.764";
+// v1.1.765 = 2026-07-19 — field-note batch (7:18 folder), every fix driven in a real browser first:
+// (1) FIXED CRASH: the Chart page "Something went sideways" — MeridianCard called useUtils +
+// useState AFTER an `if (!data) return null`, so its hook count grew when the query resolved
+// ("change in the order of Hooks"); all hooks moved before the guard. (2) Profection wheel hub
+// widened 16→30 so the inner ring's 2-digit ages stop touching ("common issue on all profiles").
+// (3) Year-calendar glyph cluster (crown + 2 planets) now steps down to fit its ~40px tile
+// (Jupiter-trio overflow). (4) Price + "Notify me when it's live" waitlist on every locked
+// feature (settings.joinWaitlist → waitlist table; price hidden until PREMIUM_PRICING is set —
+// never an invented number). (5) "matters/matter" purged (banned AI-tell). (6) Hero label +
+// chevron contrast off hero-ink, not the mud-on-red day-accent-deep. (7) Glossary links in the
+// profection explainer. (8) Chart header/tab spacing compressed. (9) The Morning Bell → FIRST
+// LIGHT (brand.ts). Also fixed a bug in scripts/sync-local-dev-db.ts (timestamp defaults).
+export const APP_VERSION = "1.1.765";

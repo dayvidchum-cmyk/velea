@@ -39,7 +39,7 @@ const HOUSE_BEST_USES: Record<number, string[]> = {
   1: ["Personal development", "Identity work", "Self-presentation", "New beginnings"],
   2: ["Financial planning", "Skill monetization", "Resource allocation", "Value clarification"],
   3: ["Writing", "Documentation", "Short-form communication", "Local connections"],
-  4: ["Home environment work", "Foundational stability", "Family matters", "Rest"],
+  4: ["Home environment work", "Foundational stability", "Family affairs", "Rest"],
   5: ["Creative projects", "Self-expression", "Speculative work", "Pleasure"],
   6: ["Service work", "Health routines", "Skill refinement", "Process improvement"],
   7: ["Relationship work", "Contracts", "Partnership evaluation", "Client work"],

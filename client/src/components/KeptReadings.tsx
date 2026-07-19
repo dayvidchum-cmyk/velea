@@ -1,4 +1,5 @@
 import GateMark from "@/components/GateMark";
+import NotifyMeButton from "@/components/NotifyMeButton";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
@@ -74,10 +75,13 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
                 <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--foreground)" }}>Kept Readings</span>
                 <button onClick={() => setTeaserOpen(false)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)" }}><X size={16} /></button>
               </div>
-              <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, color: "var(--foreground)", lineHeight: 1.4 }}>Pin the days that matter — and keep every reading, timestamped.</p>
+              <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, color: "var(--foreground)", lineHeight: 1.4 }}>Pin the days that land — and keep every reading, timestamped.</p>
               <p style={{ margin: "0.7rem 0 0", fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.5 }}>
                 Your daily readings are the long thread — the real Time Lord. Pin the ones that land, and revisit the whole archive of your days, each kept with its date and time. A premium layer, not yet unlocked.
               </p>
+              <div style={{ marginTop: "1rem" }}>
+                <NotifyMeButton feature="kept-readings" />
+              </div>
             </div>
           </div>,
           document.body,

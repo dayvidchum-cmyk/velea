@@ -56,7 +56,10 @@ export function ProfectionWheel({ lagnaSign, age, headingColor, whySlot }: { lag
   // LOW-VISION PASS (David 2026-07-18: "That entire wheel needs to be as big as the
   // black circle") — margins trimmed, every band and font grown; the ink fills the frame.
   const labelBand = 24;
-  const hole = 16;
+  // Hub grown 16→30 (David 2026-07-18 "common issue on all profiles"): the innermost ring's
+  // twelve 2-digit ages shared ~11px of arc each at the old radius — adjacent spokes touched.
+  // A wider hub gives the first ring ~18px per cell; the outer rings barely change.
+  const hole = 30;
   const ringOuter = SIZE / 2 - labelBand - 1;
   const ringW = (ringOuter - hole) / rings;
 

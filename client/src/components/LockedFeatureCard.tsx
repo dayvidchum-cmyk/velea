@@ -1,4 +1,6 @@
 import GateMark from "@/components/GateMark";
+import NotifyMeButton from "@/components/NotifyMeButton";
+import { PREMIUM_PRICING } from "@/lib/pricing";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -66,9 +68,17 @@ export default function LockedFeatureCard({
             </div>
             <h3 style={{ margin: 0, fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.35rem", fontWeight: 700, color: "var(--foreground)" }}>{title}</h3>
             <p style={{ margin: "0.6rem 0 0", fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-muted-foreground)" }}>{detail}</p>
+            {PREMIUM_PRICING.monthly && (
+              <p style={{ margin: "0.7rem 0 0", fontSize: "0.9rem", fontWeight: 700, color: "var(--foreground)" }}>
+                {PREMIUM_PRICING.monthly} when it opens.
+              </p>
+            )}
+            <div style={{ marginTop: "1.2rem" }}>
+              <NotifyMeButton feature={title} />
+            </div>
             <button
               onClick={() => setOpen(false)}
-              style={{ marginTop: "1.2rem", width: "100%", padding: "0.7rem", borderRadius: 12, border: "1px solid var(--color-border)", background: "color-mix(in srgb, var(--foreground) 6%, transparent)", color: "var(--foreground)", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer" }}
+              style={{ marginTop: "0.55rem", width: "100%", padding: "0.7rem", borderRadius: 12, border: "1px solid var(--color-border)", background: "color-mix(in srgb, var(--foreground) 6%, transparent)", color: "var(--foreground)", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer" }}
             >
               Got it
             </button>

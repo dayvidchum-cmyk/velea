@@ -221,7 +221,7 @@ export default function Horoscope() {
           <div style={{ marginBottom: "0.8rem" }}><LockedFeatureCard
             title="Read this month"
             teaser="The month's full layered reading, spined on your Time Lord."
-            detail="The whole month as one arc — your running chapter, the sky's turns, the days that matter — in a single deep reading. A premium reading, not yet unlocked."
+            detail="The whole month as one arc — your running chapter, the sky's turns, the days that land — in a single deep reading. A premium reading, not yet unlocked."
           /></div>
         )}
 

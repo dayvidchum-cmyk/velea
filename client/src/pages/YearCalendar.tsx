@@ -313,9 +313,12 @@ export default function YearCalendar() {
                                  the MONTH calendar's; here the crown owns the tile, centered. */
                               const markCount = (isDollar ? 1 : 0) + (isSummit ? 1 : 0) + (moonPhase ? 1 : 0) + marks.length;
                               const solo = markCount === 1;
-                              // ONE size for every glyph (David: "Size of glyphs is inconsistent.
-                              // Pick one and stick with it.") — 15 everywhere, solo or company.
-                              const mSize = 15;
+                              // ONE size for every glyph WITHIN a tile (David: "pick one and stick
+                              // with it") — but the CLUSTER must fit the ~40px tile (David 2026-07-18:
+                              // crown + ♃ + ♄ overflowed the box). Three-plus items step the whole
+                              // family down together; solo/pair keep the full size.
+                              const clusterN = (moonPhase ? 1 : 0) + (isDollar ? 1 : 0) + (isSummit ? 1 : 0) + Math.min(marks.length, 2);
+                              const mSize = clusterN >= 3 ? 12 : 15;
                               return (
                                 <>
                                   {eclipse ? (
@@ -328,10 +331,10 @@ export default function YearCalendar() {
                                       <OctagramMark size={20} color="#D4AF37" strokeWidth={1.4} style={{ filter: "drop-shadow(0 0 2px rgba(212,175,55,0.5))" }} />
                                     </span>
                                   ) : markCount > 0 ? (
-                                    <span className="absolute inset-0 flex items-center justify-center gap-[2px]" style={{ pointerEvents: "none", lineHeight: 1 }}>
-                                      {moonPhase && <span style={{ width: 13, height: 13, borderRadius: 999, background: moonPhase === "full" ? "#FDFBF3" : "#160f26", border: moonPhase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
+                                    <span className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none", lineHeight: 1, gap: clusterN >= 3 ? 1 : 2 }}>
+                                      {moonPhase && <span style={{ width: clusterN >= 3 ? 11 : 13, height: clusterN >= 3 ? 11 : 13, borderRadius: 999, background: moonPhase === "full" ? "#FDFBF3" : "#160f26", border: moonPhase === "full" ? "1.5px solid #8a8264" : "1.5px solid #160f26", display: "inline-block", flexShrink: 0 }} />}
                                       {isDollar && <span style={{ fontFamily: "Georgia, serif", fontSize: `${mSize}px`, fontWeight: 600, color: MARK_INK.dollar, lineHeight: 1 }}>€</span>}
-                                      {isSummit && <CrownMark size={markCount === 1 ? 22 : mSize + 4} />}
+                                      {isSummit && <CrownMark size={markCount === 1 ? 22 : clusterN >= 3 ? mSize + 2 : mSize + 4} />}
                                       {marks.slice(0, 2).map((mk) => (
                                         <PlanetMark key={mk.planet} planet={mk.planet} size={mSize} strokeWidth={2} />
                                       ))}

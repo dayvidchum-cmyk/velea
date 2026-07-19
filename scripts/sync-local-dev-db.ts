@@ -35,9 +35,11 @@ async function main() {
       if (c.notNull) ddl += " NOT NULL";
       if (c.hasDefault && c.default !== undefined && typeof c.default !== "object") {
         ddl += ` DEFAULT ${typeof c.default === "string" ? `'${c.default}'` : c.default}`;
-      } else if (c.hasDefault && (c as any).defaultFn == null && c.default === undefined) {
-        // e.g. defaultNow()/onUpdateNow are SQL-level in drizzle; approximate for timestamps
-        if (/timestamp/i.test(c.getSQLType())) ddl += " DEFAULT CURRENT_TIMESTAMP";
+      } else if (c.hasDefault && /timestamp/i.test(c.getSQLType())) {
+        // defaultNow()/onUpdateNow are SQL-level in drizzle (default is an object, not a literal),
+        // so the literal branch above skips them — a timestamp column then lands with NO default
+        // and rejects every insert that omits it (the waitlist bug, 2026-07-19). Emit the SQL default.
+        ddl += " DEFAULT CURRENT_TIMESTAMP";
       }
       if ((c as any).autoIncrement) ddl += " AUTO_INCREMENT";
       return ddl;

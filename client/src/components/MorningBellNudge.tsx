@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { trpc } from "@/lib/trpc";
 import VeleaMark from "@/components/VeleaMark";
+import { DAILY_PUSH_NAME } from "@/lib/brand";
 
 /**
  * THE 3RD-OPEN BELL NUDGE (David 2026-07-18: "a pop-up at some point today, perhaps 3rd opening
@@ -91,16 +92,16 @@ export default function MorningBellNudge() {
         <style>{`@keyframes slideUpDue { from { transform: translateY(40%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.6rem" }}>
           <VeleaMark size={20} color="var(--brand-gold, #B08D2E)" />
-          <span style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--brand-gold, #B08D2E)" }}>The Morning Bell</span>
+          <span style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--brand-gold, #B08D2E)" }}>{DAILY_PUSH_NAME}</span>
         </div>
         {state === "rung" ? (
           <p style={{ margin: 0, fontSize: "0.92rem", lineHeight: 1.5, color: "var(--color-foreground)" }}>
-            The bell is set. It rings at 8, your time. 🔔
+            {DAILY_PUSH_NAME} is on. It arrives at 8, your time. ✷
           </p>
         ) : state === "blocked" ? (
           <>
             <p style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.5, color: "var(--color-foreground)" }}>
-              Notifications are off for Velea on this phone — you can allow them in your device settings, then flip the bell on in Settings.
+              Notifications are off for Velea on this phone — you can allow them in your device settings, then turn {DAILY_PUSH_NAME} on in Settings.
             </p>
             <button onClick={dismiss} style={{ marginTop: "0.9rem", background: "none", border: "none", color: "var(--color-muted-foreground)", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}>Okay</button>
           </>
@@ -117,7 +118,7 @@ export default function MorningBellNudge() {
                 disabled={state === "busy"}
                 style={{ flex: 1, borderRadius: 999, padding: "0.65rem 1rem", fontSize: "0.85rem", fontWeight: 800, border: "none", cursor: "pointer", color: "#1a1305", background: "linear-gradient(180deg, #E7C766, #B8912F)", opacity: state === "busy" ? 0.7 : 1 }}
               >
-                {state === "busy" ? "Setting…" : state === "error" ? "Try again" : "Ring it"}
+                {state === "busy" ? "Turning on…" : state === "error" ? "Try again" : "Turn it on"}
               </button>
               <button onClick={dismiss} style={{ background: "none", border: "none", color: "var(--color-muted-foreground)", fontSize: "0.82rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}>
                 Not now
