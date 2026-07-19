@@ -5,11 +5,15 @@ import { trpc } from "@/lib/trpc";
 interface LocationSheetProps {
   open: boolean;
   onClose: () => void;
+  /** Why the sheet opened (set by AppHeader from the velea-open-location event detail):
+   *  "profile-switch" = confirm/change where the newly viewed person is (David's Q2);
+   *  "missing" = no location entered at all. null = a plain chip tap. */
+  context?: { reason: "profile-switch" | "missing"; name?: string } | null;
 }
 
 type Status = "idle" | "locating" | "geocoding" | "success" | "error";
 
-export default function LocationSheet({ open, onClose }: LocationSheetProps) {
+export default function LocationSheet({ open, onClose, context }: LocationSheetProps) {
   const [cityInput, setCityInput] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -168,6 +172,24 @@ export default function LocationSheet({ open, onClose }: LocationSheetProps) {
         </div>
 
         <div className="px-5 space-y-4">
+          {/* Context line — why the sheet opened on its own */}
+          {context && status === "idle" && (
+            <p className="text-sm px-1" style={{ color: "var(--color-foreground)", lineHeight: 1.5 }}>
+              {context.reason === "profile-switch" ? (
+                <>
+                  Now reading{context.name ? <> for <strong>{context.name}</strong></> : " another chart"}.
+                  The day is sampled where the body wakes up — set the place this reading should
+                  live in{savedCity ? <>, or close to keep <strong>{savedCity}</strong></> : ""}.
+                </>
+              ) : (
+                <>
+                  No location set yet — today's timing is running on the app default. Set it once
+                  and sunrise, the day's turn, and every reading are tuned to where you are.
+                </>
+              )}
+            </p>
+          )}
+
           {/* Current location display */}
           {savedCity && status === "idle" && (
             <div

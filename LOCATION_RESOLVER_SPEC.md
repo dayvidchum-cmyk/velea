@@ -175,6 +175,8 @@ Resolved:
 - **Q2** answered earlier: prompt to confirm/change location on profile-switch; stored back to
   the single account-level slot.
 - **Q3/Q5** proceed on the spec leans (current = near-today only; seed hometown from birth).
+  NOTE: the Q3 near-today window is implemented WITH the hometown tier (post-migration) — stale
+  "current" must fall to hometown, which doesn't exist until `add-location-model.ts` runs.
 - **Q4** MVP: pick-a-date prompt only.
 
 ## 8. The band-aid map (full sweep, 2026-07-18)

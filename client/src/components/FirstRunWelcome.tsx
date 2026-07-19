@@ -29,7 +29,7 @@ export default function FirstRunWelcome({
     display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", cursor: "pointer",
   };
   return (
-    <div onClick={onDismiss} className="fixed inset-0 z-[130] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(3px)" }}>
+    <div onClick={onDismiss} data-velea-welcome className="fixed inset-0 z-[130] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(3px)" }}>
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md flex flex-col" style={{ position: "relative", maxHeight: "92vh", background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 22, boxShadow: "0 24px 64px rgba(0,0,0,0.4)", overflow: "hidden" }}>
 
         {/* dismiss — close without a tour; marks the welcome seen so it never returns (tap the × or outside) */}

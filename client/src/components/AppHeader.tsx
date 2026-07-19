@@ -66,12 +66,35 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
   // veleal'or and the brand mark alone.
   const modeColor = "var(--day-accent)";
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
-  // The first-run welcome opens the location picker via this event ("Set my location").
+  // Why the sheet opened (null = user tapped a chip). "profile-switch" carries the new
+  // profile's name; "missing" is the no-location-entered prompt. Drives the sheet's context line.
+  const [locationContext, setLocationContext] = useState<{ reason: "profile-switch" | "missing"; name?: string } | null>(null);
+  // Every satellite (chips, Settings row, first-run welcome, profile switch) opens THE one
+  // sheet via this event — no surface owns its own location UI (the one-surface law).
   useEffect(() => {
-    const open = () => setLocationSheetOpen(true);
+    const open = (e: Event) => {
+      setLocationContext((e as CustomEvent).detail ?? null);
+      setLocationSheetOpen(true);
+    };
     window.addEventListener("velea-open-location", open);
     return () => window.removeEventListener("velea-open-location", open);
   }, []);
+
+  // MISSING-LOCATION PROMPT (David 2026-07-18: "a pop-up should appear when the location isn't
+  // even entered"). Once per session, when signed in with no stored current location, open the
+  // sheet — never a silent app-default day. Skipped while the first-run welcome is on screen
+  // (it already asks); the next session picks it up if they skipped there.
+  const { data: promptLoc } = trpc.settings.getLocation.useQuery(undefined, { enabled: isAuthenticated });
+  useEffect(() => {
+    if (!isAuthenticated || !promptLoc || promptLoc.lat) return;
+    if (sessionStorage.getItem("velea-loc-prompted")) return;
+    const t = setTimeout(() => {
+      if (document.querySelector("[data-velea-welcome]")) return;
+      sessionStorage.setItem("velea-loc-prompted", "1");
+      window.dispatchEvent(new CustomEvent("velea-open-location", { detail: { reason: "missing" } }));
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [isAuthenticated, promptLoc]);
   const [checkInSheetOpen, setCheckInSheetOpen] = useState(false);
   // The stale-task nudge (CheckInNudge) opens the check-in from anywhere via this event.
   useEffect(() => {
@@ -393,7 +416,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
       </div>
       <LocationSheet
         open={locationSheetOpen}
-        onClose={() => setLocationSheetOpen(false)}
+        context={locationContext}
+        onClose={() => { setLocationSheetOpen(false); setLocationContext(null); }}
       />
       <CheckInSheet
         open={checkInSheetOpen}

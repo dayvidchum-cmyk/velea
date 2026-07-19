@@ -918,6 +918,10 @@ export default function Profiles() {
       // Belt + suspenders: some surfaces held stale subject data past invalidate — reset wipes it.
       await queryClient.resetQueries();
       toast.success(`Switched to ${name}`);
+      // Q2 (David, 7/18): switching whose chart we read pops the ONE location sheet to
+      // confirm/change where that person is — the reading needs the chart-person's sky,
+      // not the owner's last-set city. Closing keeps the current value.
+      window.dispatchEvent(new CustomEvent("velea-open-location", { detail: { reason: "profile-switch", name } }));
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to switch profile");
     }
