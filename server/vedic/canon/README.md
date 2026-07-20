@@ -58,4 +58,5 @@ David drops source scans in iCloud `DCPC/FIELD NOTES/For Claude Code/<date>/`. S
 
 | File | What it is |
 |---|---|
+| `nakshatra-tables-provenance.md` | Which of the six live nakshatra tables actually has a source. Answer: one. The clash the audit reported is between two UNCITED constructions, and the one cited table sides against the engine's mode modifier on all four disputed stars. Records an OPEN RULING for David; nothing in the engine was changed. |
 | `neecha-bhanga-provenance.md` | Where each neecha-bhanga condition actually comes from, verse by verse. Written 2026-07-20 because the engine's four conditions and this canon's own one-line rule turned out to be two different systems, and neither was cited. Records an OPEN RULING for David; nothing in the engine was changed on its strength. |
