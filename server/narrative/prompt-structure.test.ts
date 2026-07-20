@@ -57,6 +57,17 @@ describe("the prompt's structure", () => {
   });
 });
 
+/**
+ * A law is DEFINED when its heading starts a line — not when its name appears somewhere in the
+ * text. Every cross-reference in this prompt quotes the heading verbatim ('See "X" below.'), so a
+ * bare `toContain(name)` is satisfied by the pointer alone and stays green while the definition it
+ * points at is renamed or deleted. Found by mutation probe at v841; it is the same shape as the
+ * assertion in bell-ladder.test.ts that matched a word in a comment instead of the call.
+ */
+function defines(prompt: string, heading: string): boolean {
+  return new RegExp(`^${heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m").test(prompt);
+}
+
 describe("the laws ARRIVE, not just appear in the file (v823)", () => {
   // Every finding of this run's reach audit had the same shape: the change was correct in its own
   // file and landed nowhere. A structural assertion over prompts.ts cannot tell the difference —
@@ -71,7 +82,13 @@ describe("the laws ARRIVE, not just appear in the file (v823)", () => {
 
   it("BASE_PROMPT carries the crown doctrine — orphaned by v805, restored in v819", async () => {
     const { BASE_PROMPT } = await import("./prompts.js");
-    expect(BASE_PROMPT).toContain("PERSONAL APEX — THE CROWN DAY");
+    // DEFINED, not merely mentioned. A MUTATION PROBE (v841) renamed the section heading itself and
+    // this test still passed, because BASE_PROMPT also contains the CROSS-REFERENCE
+    // ('See "PERSONAL APEX — THE CROWN DAY" below.') and toContain cannot tell a pointer from a
+    // definition. That is the v805 defect exactly — a tail citing a law that is no longer stated —
+    // so the test written to prevent it was blind to it. defines() below is the fix, and it is used
+    // for every law in this file: a heading counts only when it starts its own line.
+    expect(defines(BASE_PROMPT, "PERSONAL APEX — THE CROWN DAY")).toBe(true);
     expect(BASE_PROMPT).toContain("a crown, not confetti");
     expect(BASE_PROMPT).not.toContain("in the glance task");
   });
@@ -105,7 +122,22 @@ describe("no tail cites a law the model does not receive (v825)", () => {
   it("PROMPT_VERSION was bumped when the shared laws came back", async () => {
     // Restoring a law into BASE_PROMPT reaches nothing already cached unless this moves — the cache
     // key is keyed on it. A restoration that cannot reach a cached reading is not a restoration.
+    //
+    // The `not.toBe` on its own PASSES WHEN THE EXPORT IS GONE (v841 mutation probe): deleting
+    // PROMPT_VERSION makes it undefined, and undefined is indeed not that string. A negative
+    // assertion alone can never prove a value arrived — it has to be pinned positively first.
     const { PROMPT_VERSION } = await import("./prompts.js");
+    expect(typeof PROMPT_VERSION).toBe("string");
+    expect(PROMPT_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}-/);
     expect(PROMPT_VERSION).not.toBe("2026-07-18-audit4-law-reconcile");
+  });
+
+  it("the polar and no-single-move laws are DEFINED too, not just cited", async () => {
+    // Same probe, same fix, applied to the rest of the shared laws rather than only the one that
+    // happened to be caught. Fixing the instance is what let v805 recur as v825.
+    const { BASE_PROMPT } = await import("./prompts.js");
+    expect(defines(BASE_PROMPT, "WHEN THE SUN DID NOT RISE")).toBe(true);
+    expect(BASE_PROMPT).toMatch(/^NO SINGLE MOVE\./m);
+    expect(defines(BASE_PROMPT, "RECENT READS — ONE CONTINUING STORY, NEVER THE SAME PAGE TWICE")).toBe(true);
   });
 });

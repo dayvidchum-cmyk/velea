@@ -87,6 +87,39 @@ describe("the two tables are separate sources, not copies", () => {
     expect(lensOf("purpose")).not.toEqual([...houseTable["9"]].sort());
   });
 
+  it("pins the Vol II transcription itself, planet AND role", () => {
+    // A MUTATION TEST FOUND THIS GAP (v841). Everything above guards the RELATIONSHIP between the
+    // two tables and none of the content, so when I swapped career's primary from Saturn to Jupiter
+    // as a probe, every assertion still passed: the lists were still unequal to Ch.7, and Jupiter
+    // happens to be in Ch.7's 10th, so "the primary agrees" held too. A canon transcription needs
+    // its VALUES pinned, or an unreviewed edit to the book's own numbers passes silently.
+    //
+    // These are the values as transcribed from Vol II Appendix IV. Seven of the ten primaries are
+    // independently corroborated by the Vol I Ch.7 table (asserted above); changing any line here
+    // means changing what the book says, which is David's call, not a refactor.
+    const pin = (k: keyof typeof LIFE_AREAS) =>
+      LIFE_AREAS[k].karakas.map((x) => `${x.planet}:${x.role}`);
+    expect(pin("self")).toEqual(["Sun:primary"]);
+    expect(pin("money")).toEqual(["Moon:primary", "Jupiter:secondary", "Mars:secondary"]);
+    expect(pin("siblings")).toEqual(["Mars:primary", "Venus:secondary", "Ketu:secondary"]);
+    expect(pin("home")).toEqual(["Mercury:primary", "Moon:secondary", "Sun:secondary", "Saturn:secondary"]);
+    expect(pin("children")).toEqual(["Jupiter:primary", "Sun:secondary", "Mercury:secondary"]);
+    expect(pin("love")).toEqual(["Venus:primary", "Jupiter:secondary", "Mars:secondary"]);
+    expect(pin("career")).toEqual(["Saturn:primary", "Sun:secondary"]);
+    expect(pin("health")).toEqual(["Sun:primary", "Mars:secondary"]);
+    expect(pin("parents")).toEqual(["Rahu:primary", "Ketu:primary"]);
+    expect(pin("purpose")).toEqual(["Jupiter:primary", "Venus:secondary"]);
+  });
+
+  it("pins the Ch.7 house table too — the other half of the same exposure", () => {
+    expect(houseTable).toMatchObject({
+      "1": ["Sun"], "2": ["Jupiter"], "3": ["Mars"], "4": ["Moon", "Mercury"],
+      "5": ["Jupiter"], "6": ["Mars", "Saturn"], "7": ["Venus"], "8": ["Saturn"],
+      "9": ["Jupiter", "Sun"], "10": ["Mercury", "Sun", "Jupiter", "Saturn"],
+      "11": ["Jupiter"], "12": ["Saturn"],
+    });
+  });
+
   it("records the divergence where the transcription noticed it", () => {
     // health's note names the 6th-house step as its source for Sun. The provenance is the defence
     // against the next person calling it drift.

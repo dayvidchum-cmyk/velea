@@ -1879,4 +1879,25 @@
 // karaka-tables.test.ts now pins both directions AND pins that the two tables DIFFER, so the next
 // reader cannot "reconcile" them the way I nearly did.
 // 80 files, 863 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.840";
+// v1.1.841 = 2026-07-20 — THREE OF MY TESTS WERE GUARDING NOTHING, AND THE SUITE COULD NOT SAY SO.
+// v840 taught me I trust patterns instead of running enumerations. So I pointed that at my own
+// tests: broke each source on purpose and asked whether its test noticed. `npm run verify` cannot
+// tell a real guard from a decorative one — only breaking the thing can. Three survived:
+//   1. prompt-structure.test.ts stayed GREEN while I renamed the crown doctrine's DEFINING heading,
+//      because BASE_PROMPT also contains the cross-reference that quotes it verbatim, and
+//      toContain() cannot tell a pointer from a definition. THAT IS THE v805 BUG — the test written
+//      to prevent v805 was blind to v805. Fixed with defines(): a heading counts only at line start.
+//   2. the same file passed against a DELETED PROMPT_VERSION export: its only assertion was
+//      not.toBe("old-string"), and undefined satisfies that. A negative assertion can never prove a
+//      value arrived. Now pinned positively (typeof + date shape) before the inequality.
+//   3. DAILY_ROW_CAP could go 50 → 5000 with all 873 tests green. The daily spend cap — the only
+//      thing between one user's binge and the wallet, and the subject of a real defect at v806 —
+//      had NO TEST AT ALL. server/narrative/spend-caps.test.ts now pins both arms, their 3x
+//      derivation, the admin exemption and the fail-open on a DB error.
+// karaka-tables.test.ts (written yesterday) also had a hole: it guarded the RELATIONSHIP between
+// the two karaka tables and none of their CONTENT, so swapping career's primary from Saturn to
+// Jupiter passed everything. Both tables' values are now pinned exactly.
+// The harness is now tools/mutation-probe.sh (`npm run probe`), 14 probes across engine, money and
+// prompt-reach. It refuses to run on a dirty tree and restores after every probe. All 14 caught.
+// 81 files, 873 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.841";
