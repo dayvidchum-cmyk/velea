@@ -95,14 +95,31 @@ describe("buildLifeAreaLens — Money (D2, 2nd house) from Aries lagna", () => {
     expect(players).not.toContain("Rahu"); // in the 3rd, not a money player — touches nothing here
   });
 
-  it("a transiting KARAKA counts as activation even away from the house (Mars is a money significator)", () => {
-    // Prove the book's logic: Mars secondary-signifies money, so a transiting Mars activates the
-    // area wherever it is. Add a Mars transit sitting in the 5th, touching no natal point.
+  it("a KARAKA doing nothing today is roster, not news — but is named as a player once it moves", () => {
+    // REVERSED 2026-07-20. This case used to assert the opposite ("a transiting KARAKA counts as
+    // activation even away from the house"), justified in its own comment as "the book's logic"
+    // with no citation — written during the 07-12 life-area build, not from canon and not from a
+    // ruling of David's. It is what made "nothing much is touching this today" unsayable: every
+    // area's ruler and karakas are in the transit list every single day, so 0 of 14,400 measured
+    // area-days ever came back quiet. David's audit lists that as broken and mine to repair.
+    //
+    // Mars sits in the 5th, touching nothing. It is a money significator, and that fact still
+    // reaches the model in full via `karakas` (with dignity and live state) — it is simply not
+    // TODAY'S NEWS.
     const withMars = buildLifeAreaLens({
       ...FIX, area: "money",
       transits: [...FIX.transits, { planet: "Mars", sign: "Leo", houseFromLagna: 5, retrograde: false, combust: null, hitsNatalPoint: null, spotlight: false, spotlightReason: null }],
     });
-    const mars = withMars.activation.transitsOnArea.find((t) => t.planet === "Mars");
+    expect(withMars.activation.transitsOnArea.find((t) => t.planet === "Mars")).toBeUndefined();
+    expect(withMars.karakas.map((k) => k.planet)).toContain("Mars"); // still on the roster
+
+    // ...and the moment the sky gives it something to do, it activates AND is named a significator.
+    const marsWorking = buildLifeAreaLens({
+      ...FIX, area: "money",
+      transits: [...FIX.transits, { planet: "Mars", sign: "Taurus", houseFromLagna: 2, retrograde: false, combust: null, hitsNatalPoint: null, spotlight: false, spotlightReason: null }],
+    });
+    const mars = marsWorking.activation.transitsOnArea.find((t) => t.planet === "Mars");
+    expect(mars?.via).toMatch(/territory/);
     expect(mars?.via).toMatch(/significator/);
   });
 

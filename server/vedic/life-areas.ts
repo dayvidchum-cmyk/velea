@@ -333,8 +333,22 @@ export function buildLifeAreaLens(args: {
   const vargaHouseLord = SIGN_RULER[vargaHouseSign];
   const vargaOccupants = Object.keys(vargaHouseOf).filter((p) => vargaHouseOf[p] === A.primaryHouse);
 
-  // ── Activation (today) ── a transit bears on the area when it sits in the primary-house sign, or
-  // touches the house lord or a karaka natally (hitsNatalPoint), or is itself a karaka/house lord.
+  // ── Activation (today) ── a transit bears on the area when the SKY IS DOING SOMETHING to it:
+  // standing in the primary-house territory, or landing on the house lord or a karaka
+  // (hitsNatalPoint).
+  //
+  // IDENTITY IS NOT AN EVENT (audit, 2026-07-20). Being the area's ruler or karaka used to
+  // activate the area on its own — so Venus bore on love every day of every life, Mercury on
+  // livelihood, and so on. Measured over 14,400 area-days (120 days x 12 lagnas x 10 areas):
+  // 0.0% of them came back quiet, with a floor of two planets "touching" every area every day,
+  // and 58.3% of all activation marks rested on that clause alone. The prompt tells the model
+  // that "nothing much is touching this today" is an honest answer; the data never once let it
+  // say so, which is the shape of a generic horoscope.
+  //
+  // Nothing is lost by removing it: who rules and signifies the area still reaches the model in
+  // full, with dignity and live condition, as `rasi.houseLord` and `karakas`. That is the roster.
+  // This is the day's news. A player who is not doing anything today belongs in the roster only —
+  // and is still named as a player when the sky DOES move them (the suffix below).
   const karakaSet = new Set(A.karakas.map((k) => k.planet));
   const areaPlayers = new Set<string>([rasiHouseLord, ...A.karakas.map((k) => k.planet)]);
   const transitsOnArea = args.transits
@@ -342,8 +356,10 @@ export function buildLifeAreaLens(args: {
       const reasons: string[] = [];
       if (t.houseFromLagna === A.primaryHouse) reasons.push(`moving through the ${A.label.toLowerCase()} territory`);
       if (t.hitsNatalPoint && areaPlayers.has(t.hitsNatalPoint)) reasons.push(`landing on ${t.hitsNatalPoint}, a key player here`);
-      if (areaPlayers.has(t.planet)) reasons.push(`is itself ${t.planet === rasiHouseLord ? "the ruler of this area" : "a significator of this area"}`);
       if (!reasons.length) return null;
+      // It matters MORE when the mover is one of the area's own players — but only once the sky
+      // has given it something to do. Qualifier, never an activator.
+      if (areaPlayers.has(t.planet)) reasons.push(`and is itself ${t.planet === rasiHouseLord ? "the ruler of this area" : "a significator of this area"}`);
       return { planet: t.planet, via: reasons.join("; "), sign: t.sign, retrograde: t.retrograde, combust: t.combust, spotlight: t.spotlight, spotlightReason: t.spotlightReason };
     })
     .filter(Boolean) as LifeAreaLens["activation"]["transitsOnArea"];

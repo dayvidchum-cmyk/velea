@@ -114,6 +114,10 @@ run server/panchang/interpreter.ts "const NAKSHATRA_UPGRADE: string[] = byCatego
   server/panchang/nakshatra-one-table.test.ts "the interpreter keeps a private nakshatra list again"
 run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
   server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
+# Identity-as-activation: restoring it makes every area busy every day, which is what made
+# "nothing much is touching this today" unsayable for the model.
+run server/vedic/life-areas.ts 'if (!reasons.length) return null;' 'if (!reasons.length && !areaPlayers.has(t.planet)) return null;' \
+  server/vedic/quiet-area.test.ts "being the ruler alone activates an area again"
 
 run server/narrative/prompts.ts '\nTHE DAY THAT TURNS — READ IT IN TWO PARTS.\n' '\nTHE DAY THAT TURNS — READ IT IN TWO PARTSX.\n' \
   server/narrative/two-part-day.test.ts "the two-part day law is orphaned"
