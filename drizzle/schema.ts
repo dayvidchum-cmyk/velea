@@ -2,6 +2,7 @@ import {
   bigint,
   boolean,
   datetime,
+  double,
   index,
   int,
   mediumtext,
@@ -489,6 +490,16 @@ export const horoscopes = mysqlTable("horoscopes", {
   model: varchar("model", { length: 48 }).notNull(),
   content: text("content").notNull(), // the DeepRead JSON snapshot — immutable once written
   notes: text("notes"), // user's own notes under the reading (nullable)
+  // WHERE THIS SKY WAS CAST (David ran add-horoscope-location-columns.ts, 2026-07-20).
+  // The row used to record no location at all while the page printed a LIVE "Lived in {city}"
+  // above the frozen prose — so editing a date's location afterwards made a paid reading name a
+  // city its sky was never cast for, undetectably. NULL on every row frozen before that script:
+  // it means "not recorded", and the UI must then say nothing rather than guess.
+  computedLat: double("computedLat"),
+  computedLon: double("computedLon"),
+  computedTimezone: varchar("computedTimezone", { length: 64 }),
+  computedCity: varchar("computedCity", { length: 120 }),
+  computedSource: varchar("computedSource", { length: 16 }), // override | current | hometown | birth | default
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (t) => ({

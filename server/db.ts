@@ -847,7 +847,13 @@ export async function listHoroscopes(profileId: number, limit = 180) {
 }
 
 /** Freeze a purchased horoscope. No-op if the (profile,date,area) already exists (immutable). */
-export async function insertHoroscope(row: { userId: number; profileId: number; readingDate: string; lifeArea: string; promptVersion: string; model: string; content: string }): Promise<boolean> {
+export async function insertHoroscope(row: {
+  userId: number; profileId: number; readingDate: string; lifeArea: string;
+  promptVersion: string; model: string; content: string;
+  /** WHERE the sky was cast. Omitted = not recorded; the reader is told nothing rather than a guess. */
+  computedLat?: number | null; computedLon?: number | null; computedTimezone?: string | null;
+  computedCity?: string | null; computedSource?: string | null;
+}): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
   try {

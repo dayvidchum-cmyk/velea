@@ -140,6 +140,9 @@ export default function Horoscope() {
     { date: selectedDate, lifeArea: selectedArea },
     { enabled: entitled && !!selectedDate, staleTime: 1000 * 60 * 5 },
   );
+  // The city this frozen reading's sky was CAST for. Null when the row predates the location
+  // columns — then we say nothing rather than fall back to the live lookup, which is the bug.
+  const frozenPlace = (reading as any)?.computedCity ?? null;
 
   const reveal = trpc.horoscope.reveal.useMutation({
     // Invalidate get for the date/area the reveal was FOR — from the mutation variables, not the
@@ -537,7 +540,17 @@ export default function Horoscope() {
               style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "none", border: "none", padding: 0, margin: "0 0 0.35rem", cursor: "pointer", color: dayPlace ? modeColor : "var(--color-muted-foreground)", fontSize: "0.74rem", fontWeight: 600 }}
             >
               <MapPin size={12} />
-              {dayPlace ? `Lived in ${dayPlace.city}` : "Where were you this day?"}
+              {/* A FROZEN READING NAMES ITS OWN SKY (audit 2026-07-20). This used to print the
+                  LIVE day-location above immutable prose, so changing where you were after
+                  revealing a date made a paid reading claim a city it was never computed for.
+                  Once a reading exists we show the place it was cast for; when that was never
+                  recorded (rows frozen before the columns existed) we say nothing at all rather
+                  than guess — and only an UNREAD date still offers the picker. */}
+              {frozenPlace
+                ? `Read for ${frozenPlace}`
+                : reading?.exists
+                  ? "Read for your saved location"
+                  : dayPlace ? `Lived in ${dayPlace.city}` : "Where were you this day?"}
             </button>
           )}
           <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColorInk, margin: "0 0 0.25rem", opacity: 0.85 }}>

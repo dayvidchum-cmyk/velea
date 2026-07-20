@@ -2428,7 +2428,11 @@ export const appRouter = router({
       const row = await getHoroscope(profile.id, input.date, input.lifeArea);
       if (!row) return { exists: false as const };
       let read: any = null; try { read = JSON.parse(row.content); } catch { /* corrupt snapshot */ }
-      return { exists: true as const, date: row.readingDate, lifeArea: row.lifeArea ?? "day", read, notes: row.notes ?? "", createdAt: row.createdAt };
+      // The place this reading's sky was ACTUALLY cast for. NULL on rows frozen before the
+      // location columns existed — the client must then say nothing, never fall back to a live
+      // lookup, which is the bug this closes.
+      return { exists: true as const, date: row.readingDate, lifeArea: row.lifeArea ?? "day", read, notes: row.notes ?? "", createdAt: row.createdAt,
+        computedCity: (row as any).computedCity ?? null, computedSource: (row as any).computedSource ?? null };
     }),
 
     // Reveal ("purchase") a date + LIFE AREA: return the existing snapshot, or generate the
@@ -2509,7 +2513,10 @@ export const appRouter = router({
       // AUDIT M3: surface a failed freeze — the read was billed and IS served, but a snapshot that
       // silently never landed means the archive won't list it and every re-reveal re-bills. The
       // black box records it so the admin page shows the truth instead of a mystery.
-      const frozen = await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: PROMPT_VERSION, model: MODEL, content: JSON.stringify(res.read) });
+      // Freeze the LOCATION with the prose. dayLoc is the very sky this reading was computed from,
+      // three lines above — so the snapshot can never disagree with itself again.
+      const frozen = await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: PROMPT_VERSION, model: MODEL, content: JSON.stringify(res.read),
+        computedLat: dayLoc.lat, computedLon: dayLoc.lon, computedTimezone: dayLoc.timezone, computedCity: dayLoc.city, computedSource: dayLoc.source });
       if (!frozen) {
         const { recordServerError } = await import("./narrative/generate.js");
         recordServerError(`horoscope.reveal:freeze-failed:${input.date}:${input.lifeArea}`, new Error("insertHoroscope returned false — snapshot not persisted"));

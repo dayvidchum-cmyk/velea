@@ -33,6 +33,12 @@ export interface DaySky {
   utcOffset: number;
   /** IANA timezone when one is stored; null on the birth/hometown tiers when none is. */
   timezone: string | null;
+  /**
+   * The place NAME for this tier, when one is stored. Carried so a frozen reading can record
+   * WHERE its sky was cast (audit 2026-07-20: a paid reading recorded no location at all, while
+   * the page printed a live one above it). Null means "not stored" — say nothing rather than guess.
+   */
+  city: string | null;
   source: DaySkySource;
 }
 
@@ -42,10 +48,12 @@ export const DEFAULT_SKY = { city: "Boston", lat: 42.3601, lon: -71.0589, timezo
 /** Q3 (David's lean, spec §6): "current" is only true this many days either side of today. */
 export const CURRENT_WINDOW_DAYS = 3;
 
-export type UserLocFields = { locationLat?: string | null; locationLon?: string | null; locationTimezone?: string | null } | null | undefined;
+export type UserLocFields = { locationLat?: string | null; locationLon?: string | null; locationTimezone?: string | null; locationCity?: string | null } | null | undefined;
 export type ProfileLocFields = {
   birthLocationLat?: string | null; birthLocationLon?: string | null; birthTimezone?: string | null;
+  birthLocation?: string | null;
   hometownLat?: string | null; hometownLon?: string | null; hometownTimezone?: string | null;
+  hometownCity?: string | null;
 } | null | undefined;
 
 const noonUTC = (dateStr: string) => new Date(dateStr + "T12:00:00Z");
@@ -106,6 +114,7 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
         lon: parseFloat(o.lon),
         utcOffset: getTimezoneOffset(o.timezone, at),
         timezone: o.timezone,
+        city: o.city ?? null,
         source: "override",
       };
     }
@@ -120,6 +129,7 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
       lon: parseFloat(u.locationLon),
       utcOffset: getTimezoneOffset(u.locationTimezone, at),
       timezone: u.locationTimezone,
+      city: u.locationCity ?? null,
       source: "current",
     };
   }
@@ -130,6 +140,7 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
       lon,
       utcOffset: p!.hometownTimezone ? getTimezoneOffset(p!.hometownTimezone, at) : Math.round(lon / 15),
       timezone: p!.hometownTimezone ?? null,
+      city: p!.hometownCity ?? null,
       source: "hometown",
     };
   }
@@ -142,6 +153,7 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
       // (a Tokyo birth on Boston's clock would be nine hours of wrong sky).
       utcOffset: p.birthTimezone ? getTimezoneOffset(p.birthTimezone, at) : Math.round(lon / 15),
       timezone: p.birthTimezone ?? null,
+      city: p.birthLocation ?? null,
       source: "birth",
     };
   }
@@ -153,6 +165,7 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
     lon: DEFAULT_SKY.lon,
     utcOffset: getTimezoneOffset(DEFAULT_SKY.timezone, at),
     timezone: DEFAULT_SKY.timezone,
+    city: DEFAULT_SKY.city,
     source: "default",
   };
 }

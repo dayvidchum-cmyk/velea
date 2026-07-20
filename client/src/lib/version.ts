@@ -2597,4 +2597,15 @@
 // radial ticks, exactly 2 diagonals and only in the gold group, each ending on a corner, and no
 // tick reaching inside the inner ring. All three defects fail that guard on the old figure.
 // 110 files, 1139 tests, 0 failures. Build exits 0. Rendered and LOOKED at before shipping.
-export const APP_VERSION = "1.1.876";
+// v1.1.877 = 2026-07-20 — A PAID READING NOW NAMES ITS OWN SKY. David ran
+// add-horoscope-location-columns.ts, so the wiring lands: `horoscopes` records the lat/lon/tz/city
+// and TIER its sky was cast for, taken from the very same dayLoc object the reading was generated
+// from (not re-resolved at write time — that would rebuild the bug at one line's distance).
+// The page used to print a LIVE "Lived in {city}" directly above immutable prose: reveal a date
+// computed from the hometown, later set that date's location to Tokyo, and a purchased reading
+// claimed Tokyo. It now says "Read for {the place it was cast for}", and for rows frozen before
+// the columns existed it says "Read for your saved location" — NOT the live city. Null means
+// not recorded, and not recorded must never be answered with a guess.
+// resolve-day-sky now carries `city` through every tier so there is something true to record.
+// Guard fails on all five points against pre-wiring code. 110 files, 1141 tests. Build exits 0.
+export const APP_VERSION = "1.1.877";
