@@ -140,6 +140,11 @@ run server/vedic/research-store.ts 'dv: DASHA_ENGINE_VERSION,' '' \
 run server/panchang/service.ts 'const dominantNak = (astro as any)?.nakshatraAtSunrise ?? astro?.nakshatra' 'const dominantNak = astro?.nakshatra' \
   server/panchang/sunrise-naming.test.ts "the day goes back to being named by the majority star"
 
+run server/vedic/dignity.ts 'export const CANCEL_MIN_CONDITIONS = 2;' 'export const CANCEL_MIN_CONDITIONS = 1;' \
+  server/vedic/kendra-tautology.test.ts "the cancellation bar drops back to one condition"
+run server/vedic/dignity.ts 'export const SOLID_MIN_CONDITIONS = 3;' 'export const SOLID_MIN_CONDITIONS = 2;' \
+  server/vedic/kendra-tautology.test.ts "'solid' stops meaning three or more"
+
 run server/vedic/dignity.ts '(who !== "Moon" && KENDRA.has(houseFrom(moonIdx, lon)))' 'KENDRA.has(houseFrom(moonIdx, lon))' \
   server/vedic/kendra-tautology.test.ts "the Moon self-reference tautology comes back"
 run server/vedic/dignity.ts 'if (inKendra(pLon, planet)) {' 'if (false) {' \

@@ -73,12 +73,32 @@ export interface PlanetDignity {
   neechaBhanga: NeechaBhanga | null;
 }
 
+/**
+ * DAVID'S RULING, 2026-07-20: "two, with three+ as solid."
+ *
+ * It took ONE condition to cancel until now, which cancelled 96% of every debilitation in the app
+ * and let ~60% of fallen planets reach the reader as "acting as exalted" — only 4% of falls read as
+ * falls. That is his own criticism of other tools, and the cause was structural: cancellation is an
+ * OR across conditions that are each near coin-flips (an angle from either frame covers about half
+ * the zodiac), so stacking seven of them was close to a certainty.
+ *
+ * Raising the bar to two drops the cancellation rate to ~76% and keeps every classical condition he
+ * listed — nothing was removed, the evidence bar moved. He was given the full curve before ruling
+ * (≥1 → 96%, ≥2 → 76%, ≥3 → 55%, ≥4 → 25%).
+ */
+export const CANCEL_MIN_CONDITIONS = 2;
+export const SOLID_MIN_CONDITIONS = 3;
+
 export interface NeechaBhanga {
   cancelled: boolean;
   /** Human-readable conditions that fired. */
   reasons: string[];
-  /** How many classical conditions are met (more = stronger cancellation; ≥1 cancels, ≥2 is solid). */
+  /** How many classical conditions are met. ≥2 cancels; ≥3 is solid (his ruling). */
   count: number;
+  /** ≥3 conditions — a cancellation the chart states more than once. Still NOT a raja yoga: his
+   *  doctrine keeps those separate ("Not everyone with Neecha Bhanga experiences extraordinary
+   *  success"), so nothing downstream may read this as a promise of outcome. */
+  solid: boolean;
   /** The planets that FORM the cancellation — the dispositor, the exalter, the exaltation-lord. The
    *  canon's dashaGate rule turns on exactly this list: "a yoga is LATENT until its planets' period
    *  activates it", so a consumer cannot apply that gate without knowing whose period counts. */
@@ -98,7 +118,7 @@ export function planetDignity(planet: Graha, lon: number): DignityState {
 
 /**
  * Neecha-bhanga check for a DEBILITATED planet. Classical Parashari conditions (the commonly-cited
- * set): any ONE cancels; ≥2 is a solid cancellation.
+ * set): TWO cancel; ≥3 is a solid cancellation. See CANCEL_MIN_CONDITIONS for why the bar is two.
  *
  * NOT A RAJA YOGA (David's doctrine, 2026-07-20). This comment used to say "≥2 … often a raja
  * yoga", and he is explicit that they are SEPARATE CONCEPTS: "Neecha Bhanga is not automatically
@@ -119,7 +139,7 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   // `cancelled: true` for a planet in its OWN SIGN is a footgun waiting for a third caller, and a
   // test I wrote to check his Step 1 found exactly that behaviour.
   if (planetDignity(planet, pLon) !== "debilitated") {
-    return { cancelled: false, reasons: [], count: 0, by: [] };
+    return { cancelled: false, reasons: [], count: 0, solid: false, by: [] };
   }
   const debilSign = signName(pLon);
   const lagIdx = signIndex(lagnaLon);
@@ -233,7 +253,13 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   }
 
   const uniq = Array.from(new Set(reasons));
-  return { cancelled: uniq.length > 0, reasons: uniq, count: uniq.length, by: Array.from(new Set(by)) };
+  return {
+    cancelled: uniq.length >= CANCEL_MIN_CONDITIONS,
+    reasons: uniq,
+    count: uniq.length,
+    solid: uniq.length >= SOLID_MIN_CONDITIONS,
+    by: Array.from(new Set(by)),
+  };
 }
 
 /** Full dignity (with neecha-bhanga when debilitated) for one planet. */

@@ -65,8 +65,16 @@ describe("what the doctrine says this function must NOT claim", () => {
     // "Neecha Bhanga is not automatically Raja Yoga… Not everyone with Neecha Bhanga experiences
     // extraordinary success." The returned shape must carry no such promise.
     const r = neechaBhanga("Sun", chart({ Venus: deg(LEO) }), deg(TAURUS));
-    expect(Object.keys(r).sort()).toEqual(["by", "cancelled", "count", "reasons"]);
+    // `solid` joined the shape on 2026-07-20 with David's "two, with three+ as solid" ruling. It
+    // measures how many times the CHART states the cancellation — never how the life turns out.
+    expect(Object.keys(r).sort()).toEqual(["by", "cancelled", "count", "reasons", "solid"]);
     expect(JSON.stringify(r)).not.toMatch(/raja/i);
+    // PIN THE INTENT, NOT THE LIST. The list above only stops shape drift; this stops the actual
+    // thing the doctrine forbids — a field that promises an outcome. Widening the list without this
+    // would have quietly turned a doctrine guard into a snapshot.
+    for (const k of Object.keys(r)) {
+      expect(k, `${k} reads as a promise of outcome`).not.toMatch(/raja|success|fortun|guarantee|luck|great/i);
+    }
   });
 
   it("a planet that is not debilitated is not cancelled", () => {

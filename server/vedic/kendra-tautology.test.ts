@@ -130,14 +130,85 @@ describe("the base rate is pinned, because 'cancelled' has to MEAN something", (
   };
 
   it("records today's cancellation rate — change this number ONLY on purpose", () => {
+    // CHANGED ON PURPOSE, 2026-07-20: David ruled "two, with three+ as solid", and the rate moved
+    // from 96% to ~76%. He was shown the whole curve first (>=1 -> 96%, >=2 -> 76%, >=3 -> 55%,
+    // >=4 -> 25%) and picked the bar. Nothing was removed; the evidence bar moved.
     const r = rate();
-    expect(r).toBeGreaterThan(0.93);
-    expect(r).toBeLessThan(0.98);
+    expect(r).toBeGreaterThan(0.72);
+    expect(r).toBeLessThan(0.80);
   });
 
   it("the tautology fix stays fixed — the rate cannot climb back toward certainty", () => {
-    // Before the fix this sat at 97.0%. If a future edit drops the `who` argument at any call site,
-    // the rate rises and this fails.
-    expect(rate()).toBeLessThan(0.965);
+    // At a one-condition bar this sat at 97%. If a future edit drops the `who` argument at any call
+    // site, or lowers the threshold, the rate rises and this fails.
+    expect(rate()).toBeLessThan(0.85);
+  });
+
+  it("a fallen planet actually reads as fallen a meaningful share of the time", () => {
+    // The point of the ruling. At the old bar only ~3% of debilitations survived as plain falls,
+    // which made "debilitated" a word Velea never really said.
+    expect(1 - rate()).toBeGreaterThan(0.15);
+  });
+});
+
+describe("David's ruling: two conditions cancel, three or more is solid", () => {
+  /**
+   * Ruled 2026-07-20 after being shown the curve: ≥1 → 96%, ≥2 → 76%, ≥3 → 55%, ≥4 → 25%.
+   * He chose two. Nothing classical was removed — the EVIDENCE BAR moved, which is the difference
+   * between this and dropping a condition.
+   */
+  // Saturn falls in Aries (20°). Ascendant Aries (0°) makes that the 1st — a kendra — so his
+  // condition 7 fires. Every possible rescuer sits in Leo (130°), the 5th from both the ascendant
+  // and the Moon, so none of them qualifies.
+  //
+  // MY FIRST ATTEMPT AT THIS FIXTURE WAS WRONG and the control below caught it. I had parked the
+  // rescuers at 130° AND put the Moon at 130° too — which placed every one of them in the 1st house
+  // from the Moon, a kendra. It fired four conditions, not one. That is the whole argument for
+  // asserting the fixture's own count before asserting anything about the threshold.
+  const base = (moon: number) =>
+    ({ Sun: 130, Moon: moon, Mars: 130, Mercury: 130, Jupiter: 130, Venus: 130, Saturn: 20 }) as any;
+  const one = () => neechaBhanga("Saturn", base(0), 0);
+
+  it("CONTROL: the one-condition fixture really does fire exactly one condition", () => {
+    // Without this the next assertion could pass because zero conditions fired, not one.
+    expect(one().count).toBe(1);
+  });
+
+  it("one condition is no longer enough", () => {
+    expect(one().cancelled).toBe(false);
+    expect(one().solid).toBe(false);
+  });
+
+  it("two conditions cancel, but are not yet solid", () => {
+    // Sweeping the Moon alone off `base` never lands on exactly two — it jumps 1 → 3. Found by
+    // searching where the rescuers sit instead: parked in Virgo (160°), Mars aspects the fallen
+    // Saturn (its 8th) while none of them reaches a kendra, so exactly two conditions hold.
+    const c = { Sun: 160, Moon: 0, Mars: 160, Mercury: 160, Jupiter: 160, Venus: 160, Saturn: 20 } as any;
+    const found = neechaBhanga("Saturn", c, 0);
+    expect(found.count, "fixture no longer fires exactly two conditions").toBe(2);
+    expect(found.cancelled).toBe(true);
+    expect(found.solid).toBe(false);
+  });
+
+  it("three conditions is solid", () => {
+    let found: any = null;
+    for (let m = 0; m < 360 && !found; m += 1) {
+      const nb = neechaBhanga("Saturn", base(m), 0);
+      if (nb.count >= 3) found = nb;
+    }
+    expect(found, "no 3-condition chart in the sweep").toBeTruthy();
+    expect(found.cancelled).toBe(true);
+    expect(found.solid).toBe(true);
+  });
+
+  it("solid never implies an outcome — it counts evidence, not fortune", () => {
+    // His doctrine keeps cancellation and raja yoga separate: "Not everyone with Neecha Bhanga
+    // experiences extraordinary success."
+    let found: any = null;
+    for (let m = 0; m < 360 && !found; m += 1) {
+      const nb = neechaBhanga("Saturn", base(m), 0);
+      if (nb.solid) found = nb;
+    }
+    expect(JSON.stringify(found)).not.toMatch(/raja|guarantee|success/i);
   });
 });
