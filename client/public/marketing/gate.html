@@ -99,6 +99,39 @@
   footer .fm { font-family: var(--serif); font-size: 0.95rem; color: var(--champ); text-transform: none; letter-spacing: 0.02em; }
   footer .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; }
   @media (max-width: 560px) { .nav { gap: 0.35rem 0.9rem; } .nav a.item { font-size: 0.6rem; letter-spacing: 0.08em; } }
+
+  /* ── The night band ────────────────────────────────────────────────
+     The guardians section runs on black so David's gate — a starfield
+     drawing whose own corners are rgb(1,1,1) — beds into the page with
+     no visible edge. Art at the top right of the opening words; the
+     cream page resumes below the band. */
+  /* #080808 = the art's own measured edge tone (mean rgb 7.6), so the file
+     does not read as a rectangle pasted onto a darker page. */
+  .night { background: #080808; }
+  .night-inner { display: flex; align-items: flex-start; gap: clamp(1.6rem, 4vw, 3.4rem);
+    max-width: 78rem; padding: clamp(2.4rem, 6vw, 4rem) var(--pad) clamp(2.6rem, 7vw, 4.4rem); }
+  @media (min-width: 900px) { .night-inner { margin-left: clamp(2.5rem, 5.5vw, 5.5rem); } }
+  .night-say { flex: 1 1 54%; min-width: 0; }
+  .night-art { flex: 0 1 42%; min-width: 0; margin: 0; }
+  /* Whole, never cropped — his file, shown as drawn. */
+  .night-art img { width: 100%; height: auto; display: block;
+    /* The last of the seam: the bottom and right edges run brighter (11-12) than
+       the top and left (7.6), so a flat backdrop cannot match all four. Feather
+       the outermost sliver and the drawing emerges from the dark instead.
+       The radii are 50%/50% ON PURPOSE: radial-gradient sizes each radius from
+       the CENTRE, so 100% would reach a full box-width past the edge and fade
+       nothing at all (measured: edge pixels unchanged). */
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%);
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
+  .night h1 { color: var(--gold); }
+  .night .label { color: #C9A84C; }
+  .night .big { color: #F3EADB; }
+  .night p { color: rgba(243,234,219,0.82); }
+  .night strong { color: #F3EADB; }
+  @media (max-width: 860px) {
+    .night-inner { flex-direction: column-reverse; gap: 1.6rem; }
+    .night-art { flex: 1 1 auto; width: 100%; }
+  }
 </style>
 
 </head>
@@ -109,15 +142,21 @@
   <nav class="links"><a class="item" href="/velea">About</a><a class="item" href="/why">Why This Exists</a><a class="item" href="/system">The System</a><a class="item on" href="/gate">The Time Gate</a><a class="item" href="/access">Request Access</a></nav>
 </header>
 
+<section class="night">
+  <div class="night-inner">
+    <div class="night-say">
+      <h1>The Time Gate</h1>
+      <div class="label">The Guardians</div>
+      <p class="big">Every culture that made time a being gave it a gate &mdash; and set guardians on it.</p>
+      <p><strong>K&#257;la</strong>, Sanskrit Time personified &mdash; Velea&rsquo;s own first name &mdash; is the face carved over the gates of Khmer temples: Time itself guarding every threshold at Angkor. <strong>Aker</strong>, Egypt&rsquo;s twin-lion horizon god: two lions back to back named <em>Yesterday</em> and <em>Tomorrow</em>, the sun passing between them. <strong>Janus</strong> at Rome&rsquo;s gates, looking both ways. The <strong>Sphinx</strong>, whose riddle is the morning, noon and evening of a life.</p>
+    </div>
+    <figure class="night-art">
+      <img src="/marketing/img/gate.jpg" alt="The Time Gate drawn as a Khmer prasat doorway under a starfield: the k&#257;la face over the lintel, two guardian lions flanking the empty threshold, geometry ruled over the whole." />
+    </figure>
+  </div>
+</section>
+
 <main>
-  <h1>The Time Gate</h1>
-
-  <div class="label">The Guardians</div>
-  <p class="big">Every culture that made time a being gave it a gate &mdash; and set guardians on it.</p>
-  <p><strong>K&#257;la</strong>, Sanskrit Time personified &mdash; Velea&rsquo;s own first name &mdash; is the face carved over the gates of Khmer temples: Time itself guarding every threshold at Angkor. <strong>Aker</strong>, Egypt&rsquo;s twin-lion horizon god: two lions back to back named <em>Yesterday</em> and <em>Tomorrow</em>, the sun passing between them. <strong>Janus</strong> at Rome&rsquo;s gates, looking both ways. The <strong>Sphinx</strong>, whose riddle is the morning, noon and evening of a life.</p>
-
-  <hr class="rule" />
-
   <div class="label">Where You Stand</div>
   <p>Velea is built the same way. You stand at the gate. The past is open &mdash; it is yours, already walked. The month ahead is lived in. The far future is guarded: real, dated, visible as potential, and kept behind the gate until you ask for it.</p>
   <p class="big">The past is free because it builds faith.<br />The near future is rented because it&rsquo;s lived in.<br />The far future is precious because it&rsquo;s still being written.</p>
