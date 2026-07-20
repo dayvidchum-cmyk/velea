@@ -1228,4 +1228,24 @@
 // column), and schema changes are hand-run scripts here, never automatic. Half-fixing it in memory
 // would be a band-aid over the same hole.
 // 60 files, 597 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.806";
+// v1.1.807 = 2026-07-20 — THE INK SOLVER OVERSHOT, AND ITS OWN TEST COULD NOT SEE IT.
+// accentInk promises, in its own comment, "the closest to the original that works". It did not
+// deliver that: the lightness sweep STARTED AT 0.5 and walked outward, skipping the whole range
+// between the colour and mid-grey. A mid-dark accent on the espresso ground could not be returned
+// below 0.5 no matter how small a move would have cleared the bar. Measured on the real palette:
+// restore #3C8A7A on espresso needs 4.5 and landed at 6.70 — a visibly brighter teal than the
+// palette colour, across 71 call sites. Starting the sweep at the accent's OWN lightness makes the
+// promise true: the first clearing step IS the nearest lightness that clears. restore now lands at
+// 4.53, and every mode accent on both grounds lands in [4.5, 6.0).
+// THE TEST THAT EXISTED COULD NOT CATCH IT, and that is the more useful finding. Its
+// "moves as little as it has to" case used build-on-parchment — an accent whose lightness happens
+// to sit near 0.5, so the broken sweep gave nearly the right answer — with a ceiling of 6.5 that
+// never tripped. A loose bound on a convenient fixture is exactly how a real defect passes a green
+// suite. Added the case that fails (restore on espresso, ceiling 5.5) plus the general form over
+// every accent × both grounds, and VERIFIED the pair fails against the old solver and passes
+// against the new one, rather than assuming it.
+// NOT TOUCHED, because they are David's palette calls and not bugs: the crown octagram at 1.18–1.61
+// on its own gold coin, and the dimmed-parchment muted ink at 2.29. Both now have measured numbers
+// and a working tool; the decision is his.
+// 64 files, 650 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.807";

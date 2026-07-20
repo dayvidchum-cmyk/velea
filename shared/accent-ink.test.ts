@@ -75,6 +75,33 @@ describe("accentInk — every mode reads on every ground", () => {
     expect(r).toBeLessThan(6.5); // not driven all the way to near-black
   });
 
+  // THIS TEST EXISTED AND COULD NOT CATCH THE BUG (v807). The case above is build-on-parchment,
+  // where the accent's own lightness happens to sit near 0.5 — so the old sweep, which STARTED at
+  // 0.5 instead of at the colour, gave nearly the right answer and the 6.5 ceiling never tripped.
+  // The failure only shows on an accent whose lightness is far from mid-grey. A loose ceiling on a
+  // convenient fixture is how a real defect passes a green suite.
+  it("does not overshoot on an accent whose lightness is nowhere near mid-grey", () => {
+    // restore (#3C8A7A, L≈0.39) on espresso: needs 4.5, and the old sweep — forced to start at 0.5
+    // and walk UP — could not return anything below it. Measured 7.80 before, ~4.5 after.
+    const ink = accentInk(MODES.restore, ESPRESSO);
+    const r = contrastRatio(ink, ESPRESSO);
+    expect(r).toBeGreaterThanOrEqual(4.5);
+    expect(r).toBeLessThan(5.5);
+  });
+
+  it("every accent that needs fixing lands just past the bar, on both grounds", () => {
+    // The general form of the same law, so no single fixture can hide it again.
+    for (const [name, hex] of Object.entries(MODES)) {
+      for (const ground of [PARCHMENT, ESPRESSO]) {
+        const ink = accentInk(hex, ground);
+        if (ink === hex) continue; // already readable — nothing to overshoot
+        const r = contrastRatio(ink, ground);
+        expect(r, `${name} on ${ground === PARCHMENT ? "parchment" : "espresso"}`).toBeGreaterThanOrEqual(4.5);
+        expect(r, `${name} on ${ground === PARCHMENT ? "parchment" : "espresso"} overshot`).toBeLessThan(6.0);
+      }
+    }
+  });
+
   it("accepts a lower bar for marks whose shape already carries the meaning", () => {
     const ink = accentInk(MODES.restore, ESPRESSO, 3);
     expect(contrastRatio(ink, ESPRESSO)).toBeGreaterThanOrEqual(3);

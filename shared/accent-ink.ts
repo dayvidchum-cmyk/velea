@@ -114,13 +114,21 @@ export function mixHex(a: string, b: string, weightA: number): string {
 export function accentInk(accent: string, ground: string, target = 4.5): string {
   if (!/^#[0-9a-f]{6}$/i.test(accent) || !/^#[0-9a-f]{6}$/i.test(ground)) return accent;
   if (contrastRatio(accent, ground) >= target) return accent; // already readable — do not touch it
-  const { h, s } = hexToHsl(accent);
+  const { h, s, l: l0 } = hexToHsl(accent);
   // Move AWAY from the ground: darken on a light ground, lighten on a dark one.
   const groundIsLight = luminance(ground) > 0.18;
   let best = accent, bestRatio = contrastRatio(accent, ground);
-  // 100 steps across the full lightness range is finer than the eye resolves, and cheap.
+  // START AT THE ACCENT'S OWN LIGHTNESS (v807), not at 0.5. The sweep used to begin at mid-grey and
+  // walk outward, which skipped the entire range between the colour and 0.5 — so a PALE accent on a
+  // light ground was slammed from L≈0.85 straight past everything that would have worked and down
+  // into the 0.5s, and a mid-dark accent on a dark ground was pushed up to at least 0.5. Measured:
+  // restore #2E8B8B on espresso needs 4.5 and landed at 7.80; pale gold #EBD79A on parchment was
+  // dragged to #886d1b. Both contradict this function's own promise two lines below — "the closest
+  // to the original that works". Starting at l0 makes that promise true: the first clearing step IS
+  // the nearest lightness that clears.
+  // 100 steps across the REMAINING range is finer than the eye resolves, and cheap.
   for (let i = 0; i <= 100; i++) {
-    const l = groundIsLight ? 0.5 - (i / 100) * 0.5 : 0.5 + (i / 100) * 0.5;
+    const l = groundIsLight ? l0 - (i / 100) * l0 : l0 + (i / 100) * (1 - l0);
     const candidate = hslToHex(h, s, l);
     const r = contrastRatio(candidate, ground);
     if (r > bestRatio) { best = candidate; bestRatio = r; }
