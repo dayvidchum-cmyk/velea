@@ -2,8 +2,8 @@
 
 *Started 2026-07-20, during the audit fix run.*
 
-> **Both open questions were answered on 2026-07-20 and are now BUILT. Nothing is waiting on you
-> in this file right now.**
+> **The two original questions were answered on 2026-07-20 and are BUILT. ONE new question is open
+> — question 3 at the bottom.**
 > 1. *"what do the text books say"* → the canon says the personal pair decides a day (METHOD.md
 >    Step 0) and "the native's tara standing overrides the collective" (muhurta veto note). No canon
 >    rule lets a rough collective sky cancel a personal peak. Shipped as **v781**: the reading now
@@ -88,3 +88,31 @@ mass regeneration — it is not a money reason to wait.
 ---
 
 *See also `BLOCKED_ON_STRIPE.md` — the separate list of things parked because they need billing.*
+
+
+---
+
+## 3. When someone CORRECTS their birth data, what happens to a reading they PINNED? (open)
+
+**Found 2026-07-20** while auditing the birth-data edit cascade. Everything else in that cascade is
+sound: the chart, the research, the dashas, the convergence and the profection all recompute, and
+unpinned readings can't survive because the natal data is inside their cache hash. Two exceptions:
+
+1. The ranked solar year was memoised on a key that couldn't see a birth-TIME correction. **Fixed
+   (v786)** — not a question, just a bug.
+2. **A PINNED reading is served regardless of its hash.** That is the whole point of a pin ("a
+   locked read NEVER regenerates"). But if the birth data was wrong and has now been corrected, the
+   pinned prose was computed from a chart that is not theirs — and per v776 the pin covers the year
+   read too, so that stays stale as well.
+
+- **A — accuracy wins.** A chart recompute unpins. The corrected reading generates on next open.
+  Cost: the exact words they chose to keep are replaced on that date.
+- **B — their words win.** Pinned prose is theirs; leave it. Cost: a reading from a superseded
+  chart keeps being served as today's reading, silently.
+- **C — keep it AND say so.** Leave the pin, mark the row as "read from your earlier chart" and
+  show that in the UI. Honest and non-destructive — but it needs a new column, so it waits for a
+  hand-run migration (your rule: no auto-migrations, ever).
+
+I lean **C**, with **A** as the interim if you don't want to wait for the migration. I have not
+implemented any of them — replacing prose someone deliberately kept is not a call I should make
+alone, and it is rare enough (the 24h edit cooldown) that guessing buys nothing.

@@ -819,4 +819,23 @@
 // LEFT FOR DAVID (a palette value he chose, not an internal contradiction): light-mode
 // --muted-foreground #8D8171 measures 3.48:1 on the card and 3.16:1 on the background, under the
 // 4.5 floor for small text. Same hue 15% darker (#786E60) reaches 4.56/4.14. His call.
-export const APP_VERSION = "1.1.785";
+// v1.1.786 = 2026-07-20 — A CORRECTED BIRTH TIME COULD KEEP SERVING THE OLD CHART'S CROWN DAYS.
+// Audit of the birth-data edit cascade (a blind spot nobody had checked). Most of it is sound: the
+// chart, research, dashas, convergence, profection and transits all recompute, and unpinned
+// narrative rows cannot survive because the natal data sits inside their cache hash.
+// THE HOLE: the ranked solar year is memoised per profile, and its key carried the birth DATE and
+// the Moon's star/sign — but the walk ALSO reads birthTime, lagnaSign and ascendantDegree through
+// the convergence timeline that supplies its windows and chains. So correcting a birth TIME while
+// the Moon stayed in the same nakshatra and sign — the common case for a small fix — hit the stale
+// entry and kept handing out crown days computed from the pre-correction chart until the process
+// restarted. That got sharper in v781, when the READING started taking its crown from here too.
+// Fixed at both levels: the key now carries every field the walk reads (yr-v10), AND a chart
+// recompute clears the profile's entries outright via invalidateRankedYear() — so the next cache
+// field added to that function cannot silently reintroduce this.
+// (The typecheck caught my first attempt shadowing the local `p2` pad helper — which is exactly why
+// the build gate is on the exit code and not on grepping the log.)
+// STILL OPEN, deliberately unimplemented — see DECISIONS_FOR_DAVID.md #3: a PINNED reading is
+// served regardless of its hash, by design, so after a birth-data correction it keeps showing prose
+// computed from a chart that is no longer theirs. Replacing words someone chose to keep is not a
+// call to make alone.
+export const APP_VERSION = "1.1.786";

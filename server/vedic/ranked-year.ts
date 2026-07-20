@@ -20,6 +20,14 @@ import { getTimezoneOffset } from "../panchang/tz-offset.js";
 // so a birth-data edit misses the cache; everything else is almanac-stable for the year.
 const yearRankCache = new Map<string, any>();
 
+/** Drop every cached year for a profile — called when its chart is recomputed, so a corrected
+ *  birth time can never keep serving crown days from the chart it replaced. */
+export function invalidateRankedYear(profileId: number): void {
+  for (const k of Array.from(yearRankCache.keys())) {
+    if (k.startsWith(`${profileId}|`)) yearRankCache.delete(k);
+  }
+}
+
 /**
  * The ONE ranked solar year (birthday → birthday) for a user's active profile — the single
  * source behind the month calendar's marks AND the /year overview, so they can never tell
@@ -63,7 +71,16 @@ export async function rankedSolarYearForProfile(
   const locKey = `${sky.lat.toFixed(2)},${sky.lon.toFixed(2)},${sky.timezone ?? sky.source}`;
 
   // Key includes the natal inputs — a birth-data edit changes them and misses the cache.
-  const cacheKey = `${profile.id}|${yearStart}|${(profile as any).birthDate}|${birthNakIdx}|${natalMoonSignIdx}|${locKey}|yr-v9`;
+  // THE KEY MUST CARRY EVERYTHING THE WALK READS (2026-07-20). It carried the birth DATE and the
+  // Moon's star/sign — but this function also reads birthTime, lagnaSign and ascendantDegree, via
+  // the convergence timeline that supplies the windows and chains feeding the ranking. So a birth
+  // TIME correction that left the Moon in the same nakshatra and sign — the common case for a small
+  // fix — hit the stale entry and kept serving crown days computed from the pre-correction chart
+  // until the process restarted. That matters more since v781, when the reading started taking its
+  // crown from here too. Belt and braces: the key now covers them, AND a chart recompute clears the
+  // profile's entries outright (invalidateRankedYear, called from recomputeProfileChart).
+  const pf = profile as any;
+  const cacheKey = `${profile.id}|${yearStart}|${pf.birthDate}|${pf.birthTime ?? "-"}|${pf.birthTimezone ?? "-"}|${pf.lagnaSign ?? "-"}|${pf.ascendantDegree ?? "-"}|${birthNakIdx}|${natalMoonSignIdx}|${locKey}|yr-v10`;
   const cached = yearRankCache.get(cacheKey);
   if (cached) return cached;
 

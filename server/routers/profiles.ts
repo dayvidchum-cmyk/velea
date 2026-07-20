@@ -429,6 +429,14 @@ async function recomputeProfileChart(
     const { invalidateNarrativeInput } = await import('../narrative/input-builder.js');
     invalidateNarrativeInput(profileId);
   } catch { /* ignore */ }
+  // ...and the ranked solar year, which is memoised per profile and supplies the crown days to
+  // BOTH the calendar and (since v781) the reading. Its key could not see a birth-TIME correction
+  // whose Moon stayed in the same star and sign, so without this a corrected chart kept handing
+  // out the old chart's twelve crowned days until the process restarted.
+  try {
+    const { invalidateRankedYear } = await import('../vedic/ranked-year.js');
+    invalidateRankedYear(profileId);
+  } catch { /* ignore */ }
 
   return chart;
 }
