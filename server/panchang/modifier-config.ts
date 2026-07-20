@@ -18,22 +18,13 @@
  */
 
 // ─── HOUSE → BASE MODE ──────────────────────────────────────────────────────
-// Moon's house from Lagna determines the starting mode.
-
-export const HOUSE_TO_BASE_MODE: Record<number, string> = {
-  1: 'Action',     // Score: 3
-  2: 'Flex',       // Score: resolved by context
-  3: 'Build',      // Score: 2
-  4: 'Restraint',  // Score: 0
-  5: 'Selective',  // Score: 1
-  6: 'Build',      // Score: 2
-  7: 'Selective',  // Score: 1
-  8: 'Restraint',  // Score: 0
-  9: 'Flex',       // Score: resolved by context
-  10: 'Action',    // Score: 3
-  11: 'Action',    // Score: 3
-  12: 'Restraint', // Score: 0
-};
+// DELETED v810. This was a private COPY of interpreter.ts's HOUSE_MODE that stopped being updated
+// on 2026-07-12, when David corrected the 3rd/5th/9th assignments. It disagreed with the live map on
+// exactly those three houses — 3: Build vs Selective, 5: Selective vs Build, 9: Flex vs Action — and
+// it was still being SERVED, unauthenticated, by the /config endpoint. It corrupted no computation
+// (nothing else imported it) but anything reading that API got three houses wrong for eight days.
+// A second copy of a table is not a config file, it is a bug with a delay. There is one map, in
+// interpreter.ts, and the endpoint now serves that one.
 
 // ─── NAKSHATRA MODIFIERS ─────────────────────────────────────────────────────
 // Each nakshatra falls into one of four categories:

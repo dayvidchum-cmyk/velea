@@ -62,8 +62,8 @@ import {
 import { getDayField, dayModeToTaskMode } from "./panchang/service.js";
 import { getTimezoneOffset } from "./panchang/tz-offset.js";
 import { resolveDaySky, localToday, type DaySky } from "./panchang/resolve-day-sky.js";
-import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG, HOUSE_TO_BASE_MODE } from "./panchang/modifier-config.js";
-import { calculateFinalMode } from "./panchang/interpreter.js";
+import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG } from "./panchang/modifier-config.js";
+import { calculateFinalMode, HOUSE_MODE } from "./panchang/interpreter.js";
 
 /** Personal-weather rating (crown layer) + interaction MODE for a subject on a date — null when
  *  anchors are missing. The rating feeds the weather gate; the mode is David's two-lens precision
@@ -3020,7 +3020,9 @@ export const appRouter = router({
     /** Return all modifier configuration values */
     config: publicProcedure.query(() => {
       return {
-        houseToBaseMode: HOUSE_TO_BASE_MODE,
+        // THE one map (interpreter.ts HOUSE_MODE), not the stale private copy this endpoint used
+        // to publish — see modifier-config.ts for what it had been serving since 2026-07-12.
+        houseToBaseMode: HOUSE_MODE,
         nakshatraModifiers: NAKSHATRA_MODIFIERS,
         tithiPhaseModifier: TITHI_PHASE_MODIFIER,
         strongRestraintTithis: STRONG_RESTRAINT_TITHIS,

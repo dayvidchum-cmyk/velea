@@ -161,7 +161,16 @@ export default function OverlaySequencer() {
         locationLabel={(locationData.data as any)?.city ?? null}
         onTakeTour={() => done(true)}
         onExplore={() => done(false)}
-        onDismiss={() => done(false)}
+        // THE X IS NOT A COMPLETION (v810). done() fires completeWelcome unconditionally, so tapping
+        // the X marked onboarding finished whether or not birth data had ever been saved — and the
+        // capture beat then never renders again. We removed backdrop-dismiss for exactly this
+        // reason and left the X on the same path; the fix closed one door and left the other open.
+        // With no chart the X now closes the card for THIS session only, so the beat returns on the
+        // next open. With a chart it completes as before — the card has done its job.
+        onDismiss={() => {
+          if (!(captureProfile as any)?.birthDate) { setCaptureDone(true); return; }
+          done(false);
+        }}
       />
     );
   }

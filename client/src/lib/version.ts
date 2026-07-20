@@ -1300,4 +1300,19 @@
 // kendra" as textual, then withdrew it against the Sanskrit — the correction was the useful part. I
 // re-derived 7.30 from the Devanagari myself before writing any of it down.
 // 65 files, 657 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.809";
+// v1.1.810 = 2026-07-20 — A SECOND COPY OF A TABLE IS NOT A CONFIG FILE.
+// modifier-config.ts carried a private COPY of interpreter.ts's HOUSE_MODE that stopped being
+// updated on 2026-07-12, when David corrected the 3rd/5th/9th assignments. It disagreed with the
+// live map on exactly those three houses — 3: Build vs Selective, 5: Selective vs Build, 9: Flex vs
+// Action — and the /config endpoint was still SERVING it, unauthenticated. It corrupted no
+// computation, because nothing else imported it; it simply published three wrong houses to anyone
+// who asked, for eight days. Copy deleted, endpoint repointed at the one map, and a test pins the
+// three corrected values BY VALUE so a drift back toward the old copy fails loudly.
+// ALSO: THE WELCOME CARD'S X IS NOT A COMPLETION. done() fired completeWelcome unconditionally, so
+// tapping the X marked onboarding finished whether or not birth data had ever been saved — and the
+// capture beat then never rendered again. We removed backdrop-dismiss for exactly this reason and
+// left the X on the same path; that fix closed one door and left the other open. With no chart the
+// X now closes the card for THIS session only, so the beat returns on the next open. With a chart
+// it completes as before, because the card has done its job.
+// 66 files, 661 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.810";
