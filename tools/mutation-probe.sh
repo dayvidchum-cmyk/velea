@@ -112,6 +112,10 @@ run server/panchang/modifier-config.ts "  Magha:             { score: -1," "  Ma
 # a private list in interpreter.ts holding Magha as expansion while the cited table said fierce.
 run server/panchang/interpreter.ts "const NAKSHATRA_UPGRADE: string[] = byCategory('Upgrade');" "const NAKSHATRA_UPGRADE: string[] = ['Magha', ...byCategory('Upgrade')];" \
   server/panchang/nakshatra-one-table.test.ts "the interpreter keeps a private nakshatra list again"
+# The THIRD copy of the 27 stars — the collective day-quality scoring. It agrees with canon today;
+# nothing was stopping it drifting away, which is exactly how the interpreter's copy went wrong.
+run server/panchang/auspiciousness.ts "  -1, // 9  Magha" "  +1, // 9  Magha" \
+  server/panchang/auspiciousness-canon.test.ts "day-quality scoring drifts from the cited natures"
 run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
   server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
 # A computed-but-SIMPLIFIED strength source going back to publishing as though it were exact.
