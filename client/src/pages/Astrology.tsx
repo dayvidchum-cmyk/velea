@@ -1,4 +1,7 @@
 import GateMark from "@/components/GateMark";
+import NotifyMeButton from "@/components/NotifyMeButton";
+import { accentInk } from "@shared/accent-ink";
+import { cardGround } from "@/lib/card-ground";
 import ProseCard from "@/components/ProseCard";
 import { useState, useMemo, useEffect, useRef } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
@@ -206,6 +209,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
   // The House Reader: which house the user asked to hear (tap-gated LLM, cached natal-stable).
   const [voicedHouse, setVoicedHouse] = useState<number | null>(null);
   const [canonOpen, setCanonOpen] = useState(false);
+  const cardGroundHex = cardGround();
   const houseReadQ = trpc.narrative.houseRead.useQuery(
     { house: voicedHouse ?? 1 },
     { enabled: voicedHouse != null && voicedHouse === selectedHouse, staleTime: Infinity, retry: false },
@@ -395,6 +399,30 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                   <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.6rem 0 0" }}>
                     {houseReadQ.data.read.question}
                   </p>
+                </div>
+              ) : (houseReadQ.data as any)?.locked ? (
+                // THE ROOM GATE, SHOWN AS A GATE (2026-07-20). Three rooms read free — the 1st,
+                // the Sun's and the Moon's — and the server locks the other nine. The client knew
+                // nothing about that, so a locked room fell through to the failure branch below and
+                // read as "The room is quiet right now" with an "Ask again" button that could never
+                // succeed. Nine of twelve rooms presented the app as broken instead of presenting
+                // the premium layer, and invited a retry that was guaranteed to fail.
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "0.45rem" }}>
+                    {/* The mark keeps the raw accent — its SHAPE carries the meaning, so it only
+                        needs 3:1. The label is small bold text and needs the full 4.5:1, which the
+                        raw day-mode colour never clears on one ground or the other (see
+                        shared/accent-ink.ts for the measured table). */}
+                    <GateMark size={18} style={{ color: accentInk(accent, cardGroundHex, 3) }} />
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accentInk(accent, cardGroundHex) }}>
+                      A locked room
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: "0 0 0.5rem" }}>
+                    Three rooms of your chart are open to read: the room you rise in, the room your Sun sits in,
+                    and the room your Moon sits in. This one waits behind the full reading of the house.
+                  </p>
+                  <NotifyMeButton feature="house-reader" />
                 </div>
               ) : (
                 <div>

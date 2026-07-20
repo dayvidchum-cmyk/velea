@@ -775,4 +775,28 @@
 // heldNarrativeCount() so a table rejecting writes is visible instead of silent.
 // PROVEN: 6 controls, run through the same getDb()-is-null branch a broken table takes; 5 of the 6
 // fail against the old code ("expected undefined to be false", "expected undefined to be defined").
-export const APP_VERSION = "1.1.783";
+// v1.1.784 = 2026-07-20 — A LOCKED ROOM NOW LOOKS LOCKED, AND THE ACCENT BECAME READABLE INK.
+// (1) THE ROOM GATE WAS INVISIBLE TO THE CLIENT. Three rooms read free (the 1st, the Sun's, the
+// Moon's); the server locks the other nine. The client knew nothing about that, so a locked room
+// fell through to the FAILURE branch and read "The room is quiet right now" with an "Ask again"
+// button that could never succeed. Nine rooms out of twelve presented the app as broken instead of
+// presenting the premium layer, and invited a retry guaranteed to fail. Locked rooms now show the
+// gate, honestly: which three rooms are open, and that this one waits behind the full reading.
+// (2) MEASURING THAT NEW GATE TURNED UP A CLASS BUG. The day-mode accent is a SURFACE colour used
+// directly as INK, and every accent fails WCAG on one ground or the other (4.5:1 for small text):
+//        parchment  espresso            parchment  espresso
+//   gold   2.75 X     5.79       wine     6.82      2.34 X
+//   lime   2.74 X     5.82       red      5.46      2.92 X
+//   teal   3.84 X     4.15 X     slate    5.11      3.12 X
+//                                green    4.72      3.38 X
+// One table explaining both long-running complaints at once — "gold not showing up on darker value
+// colors" AND gold washing out on light — as ONE root cause, not two skins.
+// shared/accent-ink.ts walks the colour's LIGHTNESS until it clears the ratio, preserving hue and
+// saturation exactly: a Build day stays gold, it just becomes a gold you can read. It stops at the
+// first colour that passes (smallest possible shift) and returns an already-readable accent
+// untouched. 21 tests, incl. hue drift < 3 degrees for all 7 modes on both grounds.
+// The three existing ad-hoc helpers (tonalInk, tonalInkY, DARK_LIFT — a hand-maintained table of 12
+// hex pairs that silently no-ops for anything not listed) are the predecessors of this; none of
+// them measures contrast. Applied here ONLY to the new gate. Sweeping it across the app is a
+// VISUAL decision and therefore David's call, not mine — the measurement is in his hands.
+export const APP_VERSION = "1.1.784";
