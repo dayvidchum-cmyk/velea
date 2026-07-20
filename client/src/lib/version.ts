@@ -1704,4 +1704,15 @@
 // Both documents now open with the correction: everything called "shipped and deployed" before v829
 // meant PUSHED. velealor.com is verified serving v829.
 // 76 files, 824 tests, 0 failures. Build exits 0. tsc clean. Deploy VERIFIED, not assumed.
-export const APP_VERSION = "1.1.830";
+// v1.1.831 = 2026-07-20 — A VERSION NUMBER PROVES THE BUILD SHIPPED, NOT THAT THE FIX DID.
+// v830 made "pushed" and "deployed" different words. This makes "deployed" and "working" different
+// words too, because they are: the sw.js version only says a build landed.
+// So the deploy check now asks the LIVE API a question only the corrected code answers right — the
+// house→mode map whose stale private copy was deleted in v810 while a public endpoint went on
+// serving it. Production returns 3 Selective / 5 Build / 9 Action; the stale table said
+// 3 Build / 5 Selective / 9 Flex. That is the FIRST fix from this entire run verified end to end:
+// written, committed, pushed, built, deployed, and then CONFIRMED CORRECT BY ASKING THE SERVER.
+// Everything else I have called done today rests on a local test and a version number.
+// Proven to fail by pointing it at a host that does not answer that shape — exit 1.
+// 76 files, 824 tests, 0 failures. Build exits 0. tsc clean. Deploy AND fix verified live.
+export const APP_VERSION = "1.1.831";
