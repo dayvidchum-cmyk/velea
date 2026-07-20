@@ -1834,4 +1834,21 @@
 // (The one real disagreement in this table remains the parents HOUSE — 12 in the lens, [4,9] in
 // knots and in the canon. Pinned at its current value so a change is a decision, not a drift.)
 // 79 files, 853 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.838";
+// v1.1.839 = 2026-07-20 — I CLOSED THE KARAKA DRIFT IN ONE MODULE AND NEVER OPENED THE OTHER ONE.
+// v790 and v799 fixed karakas.json drift in knots.ts — Jupiter restored to career, Saturn to health
+// — and I called the class closed. server/vedic/life-areas.ts carries its OWN per-area karaka list,
+// the one that decides WHICH TRANSITS COUNT as touching an area in the paid lens, and I never
+// opened it. Against the canon's houseKarakaTable:
+//   · CAREER (10th): lens [Saturn, Sun] · canon [Mercury, Sun, JUPITER, Saturn] — Jupiter missing,
+//     the identical omission I called serious in v790, still live in a different file.
+//   · HEALTH (6th): lens [Sun, Mars] · canon [Mars, SATURN] — the identical omission fixed in v799.
+//   · PURPOSE (9th): lens [Jupiter, Venus] · canon [Jupiter, SUN].
+// NOTHING CHANGED, and the reason matters: these lists are CURATED, not transcribed. Each entry
+// carries a role (primary/secondary) and a `signifies` gloss — and the same file's planetInVarga
+// ALREADY glosses Mercury and Jupiter for the 10th. The module knows they matter; it just does not
+// count them as players. Adding them means deciding a role and writing a gloss, which is content and
+// David's, not a transcription fix I can make quietly.
+// This is the same shape as the reach failures: I fixed the mechanism in the place I was looking and
+// declared the CLASS shut. "Fix the class, not the instance" only works if you find every instance.
+// 79 files, 853 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.839";

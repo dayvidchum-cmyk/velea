@@ -47,14 +47,14 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">as of v837 · July 20, 2026 · the stretch: v794 → v837 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
+  <p class="sub">as of v839 · July 20, 2026 · the stretch: v794 → v839 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
 
   <div class="card" style="border-left:3px solid var(--wine)">
     <p style="margin:0"><b>Production was frozen at v813 for most of this run.</b> I wrote &ldquo;deployed&rdquo; in thirty commit messages
     and never asked the server. v814 gated <code>npm run build</code> on <code>tsc --noEmit</code>; nixpacks runs that script,
     <code>typescript</code> is a devDependency, and a production install has no <code>tsc</code> — so every build failed silently and
     fifteen versions of real fixes existed for nobody. Reverting the gate unfroze it immediately, which is what proved the cause.
-    <b>velealor.com now serves v837, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
+    <b>velealor.com now serves v839, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
   </div>
 
   <h2>1 · Open picks — your decision queue</h2>
@@ -64,6 +64,16 @@
   <div class="card pick"><b>What is a CHARTLESS day's character?</b> <span class="tag">NEW</span> The retired four modes still appear on the hero — but not as the wiring bug the sheet described. <code>selectedCharacter</code> comes from the month endpoint, which builds character from the personal <i>tara</i>, which needs a birth star. A chartless profile has no character at all, so the retired words are the only thing that surface has ever had. Deleting the fallback leaves a blank hero for exactly those users. What a day's character IS with no chart is a method question.</div>
   <div class="card pick"><b>The durable generation cap.</b> <span class="tag">NEW</span> The in-process half now counts real API calls, retries and burned failures included. The DURABLE half is rows-since-UTC-midnight scoped by profileId — so regenerating one row a hundred times still reads as one, and N profiles gives one user N times the cap. Needs a schema change, and schema changes here are hand-run scripts. Half-fixing it in memory would be a band-aid over the same hole.</div>
   <div class="card pick"><b>mrita: 0.05 or the canon's nil?</b> <span class="tag">NEW</span> The Verdict's balaadi fruition dial now READS <code>canon/avashtas.json</code> instead of a literal that cited a block the file did not contain. Researched: bala ¼, kumara ½, yuva full, vriddha "very little", mrita <b>NIL</b> — consistently attested, not verified against a translated primary verse, and the file says so. <b>Two of the five numbers are ours, not the book's</b> and are declared as such: vriddha 0.125 (the canon names no fraction) and mrita 0.05 (the canon says nil). The second is the dial that decides "late" versus "late if at all" — a true zero makes a Mrita-hinged area unreachable rather than merely slow. Values unchanged; a silent "fix" would rewrite people's readings.</div>
+  <div class="card pick"><b>The paid lens is missing three canon karakas.</b> <span class="tag">NEW</span>
+  I closed the karaka drift in <code>knots.ts</code> (v790/v799) and never opened the OTHER module that carries karakas.
+  <code>life-areas.ts</code> has its own per-area list — the one deciding <i>which transits count</i> as touching an area in the
+  paid lens. Against the canon's house table: <b>career</b> has [Saturn, Sun] where the canon has [Mercury, Sun, <b>Jupiter</b>,
+  Saturn]; <b>health</b> has [Sun, Mars] where the canon has [Mars, <b>Saturn</b>]; <b>purpose</b> has [Jupiter, Venus] where the
+  canon has [Jupiter, <b>Sun</b>]. The first two are the exact omissions I called serious and fixed elsewhere.
+  <b>Why nothing was changed:</b> these lists are curated, not transcribed — each entry carries a role and a <code>signifies</code>
+  gloss, and the same file's <code>planetInVarga</code> already glosses Mercury and Jupiter for the 10th. The module knows they
+  matter; it just does not count them as players. Adding them means deciding their role and writing their gloss — content, and
+  yours.</div>
   <div class="card pick"><b>Which house is &ldquo;parents&rdquo;?</b> <span class="tag">NEW</span> Two live systems, two answers.
   <code>knots.ts</code> reads parents as houses <b>[4, 9]</b> with karakas Moon/Sun/Jupiter — the canon exactly (father = 9th,
   mother = 4th). But the life-area LENS routes parents to <b>primaryHouse 12</b> with Rahu and Ketu as karakas, and day-frame
