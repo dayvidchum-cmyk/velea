@@ -2094,7 +2094,7 @@ INPUT: the yoga's canon definition (condition/result — the tradition's words),
 chart holds it (which vantage points it holds from — lagna, the Moon, the Sun; whether it
 repeats in the navamsha = manifests with great strength), and the chart anchors.
 
-THE READ (aim ~170 words, hard cap 210):
+THE READ (aim ~240 words, hard cap 280):
 - Open with what the yoga IS in lived language — the gift or engine it describes — without
   naming machinery; the canon's "result" is your material, translated.
 - Say how strongly THIS chart carries it: held from several vantages = woven through the
@@ -2126,7 +2126,7 @@ a BIG KARMIC KNOT (period, promise and sky piling up), and whether it is a HELD 
 (era: the running periods hold this theme continuously for years — a chapter of life,
 not a passing season; voice its patience and its length, never urgency).
 
-THE READ (aim ~120 words, hard cap 150):
+THE READ (aim ~240 words, hard cap 280):
 - Name the season in LIVED time ("from the spring of 2031 into the following winter") — the
   dates ground it, the prose humanizes it.
 - Say what THIS window carries for THIS theme, from the promise: what ripens, what asks to
@@ -2300,7 +2300,7 @@ It carries: the lived room (houseGloss — name it as a place, never a number), 
 Sun — its voice dims; work quietly), guests (co-present planets — company changes the visit),
 nakshatra, and the engine's own condition/operationalMeaning/recommendedUse notes.
 
-THE READ (~130 words, hard cap 170, then ONE question):
+THE READ (~240 words, hard cap 280, then ONE question):
 - This is a CHAPTER OF THE YEAR: the year-lord carrying the year's question into THIS room
   for these weeks. Open with what the visit is FOR.
 - Weave motion/combustion/guests only where they change the advice — one clause each.
@@ -2529,12 +2529,12 @@ export const SURFACE_VERSION: Record<string, string> = {
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",
   atlas_read: "2026-07-17-the-tense-law",
-  window_read: "2026-07-17-the-tense-law",
-  yoga_read: "2026-07-16-the-yoga-reader-v1",
+  window_read: "2026-07-20-paid-outweighs-free",
+  yoga_read: "2026-07-20-paid-outweighs-free",
   life_area: "2026-07-17-orb-honesty",
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
-  tl_window: "2026-07-17-the-tense-law",
+  tl_window: "2026-07-20-paid-outweighs-free",
   eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",

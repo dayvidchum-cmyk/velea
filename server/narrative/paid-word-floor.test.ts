@@ -80,6 +80,74 @@ describe("his rule", () => {
     }
   });
 
+  // ── THE HALF THIS FILE USED TO MISS (audit, 2026-07-20) ───────────────────────────────────────
+  // Everything above reads generate.ts, where maxWords is a CEILING — guardViolation only rejects
+  // a draft for being TOO LONG. Raising it does not make the model write more. What the reader
+  // actually receives is set by the instruction in prompts.ts, and those were never touched:
+  // the Life Atlas window still said "aim ~120 words, hard cap 150" while this file asserted 280
+  // and passed. The row was marked fixed on the strength of a test that could not see the defect.
+  const PROMPTS = readFileSync(new URL("./prompts.ts", import.meta.url), "utf8");
+
+  /** The word instruction inside a tail constant, and the surface it belongs to. */
+  function aims(): Array<{ tail: string; aim: number; cap: number }> {
+    const out: Array<{ tail: string; aim: number; cap: number }> = [];
+    for (const m of PROMPTS.matchAll(/THE READ \(~?(?:aim ~)?(\d+) words, hard cap (\d+)/g)) {
+      const before = PROMPTS.slice(0, m.index!);
+      const owner = [...before.matchAll(/export const (\w+_TAIL) =/g)].at(-1)?.[1] ?? "?";
+      out.push({ tail: owner, aim: Number(m[1]), cap: Number(m[2]) });
+    }
+    return out;
+  }
+
+  /** The free day read's own instruction — the bar every paid surface must clear. */
+  function freeAim(): number {
+    const m = PROMPTS.match(/HARD LENGTH LIMIT — (\d+) WORDS TOTAL/);
+    if (!m) throw new Error("free day read's length instruction not found — this test is blind");
+    return Number(m[1]);
+  }
+
+  const TAIL_TO_GENERATOR: Record<string, string> = {
+    WINDOW_READ_TAIL: "WindowRead",
+    YOGA_READ_TAIL: "YogaRead",
+    TL_WINDOW_TAIL: "TlWindowRead",
+  };
+
+  it("the extraction can be trusted — every tail is found and named", () => {
+    const a = aims();
+    expect(a.length).toBeGreaterThanOrEqual(3);
+    expect(a.every((x) => x.tail !== "?")).toBe(true);
+    expect(freeAim()).toBe(175); // anchor: if this moves, the bar below moved with it
+  });
+
+  it("NO paid surface is INSTRUCTED to write fewer words than the free day read", () => {
+    const bar = freeAim();
+    const under = aims().filter((x) => TAIL_TO_GENERATOR[x.tail] && x.aim <= bar)
+      .map((x) => `${x.tail} (aims ${x.aim} vs free ${bar})`);
+    expect(under, `paid prompts at or below the free read: ${under.join(", ")}`).toEqual([]);
+  });
+
+  it("the prompt's hard cap matches the ceiling the code enforces — two numbers, one truth", () => {
+    // A prompt cap BELOW maxWords silently makes the enforced budget unreachable; a prompt cap
+    // ABOVE it means every draft gets rejected and retried at cost.
+    const by = Object.fromEntries(budgets().map((x) => [x.name, x.words]));
+    for (const x of aims()) {
+      const gen = TAIL_TO_GENERATOR[x.tail];
+      if (!gen) continue;
+      expect(x.cap, `${x.tail} caps at ${x.cap} but ${gen} enforces ${by[gen]}`).toBe(by[gen]);
+    }
+  });
+
+  it("a prompt change to these three moved their cache salt, or readers keep the old prose", () => {
+    // Changing the instruction without moving SURFACE_VERSION leaves every cached paid read
+    // serving the shorter prose forever. Per-surface salt, never PROMPT_VERSION — a global bump
+    // regenerates (and re-bills) every surface for every profile.
+    for (const s of ["window_read", "yoga_read", "tl_window"]) {
+      const m = PROMPTS.match(new RegExp(`${s}: "([^"]+)"`));
+      expect(m?.[1], `${s} has no salt`).toBeTruthy();
+      expect(m![1], `${s} still on the pre-fix salt`).not.toMatch(/tense-law|yoga-reader-v1/);
+    }
+  });
+
   it("the three raised surfaces kept headroom in line with their siblings", () => {
     // They landed at 4.11, next to HouseRead and DashaRead at 4.17 — the short-read convention.
     // If a later edit raises words without raising tokens, this catches it before the model starts

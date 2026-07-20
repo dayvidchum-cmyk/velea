@@ -118,6 +118,10 @@ run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Pare
 # "nothing much is touching this today" unsayable for the model.
 run server/vedic/life-areas.ts 'if (!reasons.length) return null;' 'if (!reasons.length && !areaPlayers.has(t.planet)) return null;' \
   server/vedic/quiet-area.test.ts "being the ruler alone activates an area again"
+# The ceiling in generate.ts is not what the reader gets — the INSTRUCTION is. This mutation is the
+# exact state the sheet called "fixed" while a paying reader still got less prose than a free one.
+run server/narrative/prompts.ts 'THE READ (aim ~240 words, hard cap 280):\n- Name the season in LIVED time' 'THE READ (aim ~120 words, hard cap 150):\n- Name the season in LIVED time' \
+  server/narrative/paid-word-floor.test.ts "a paid read is instructed shorter than the free one again"
 
 run server/narrative/prompts.ts '\nTHE DAY THAT TURNS — READ IT IN TWO PARTS.\n' '\nTHE DAY THAT TURNS — READ IT IN TWO PARTSX.\n' \
   server/narrative/two-part-day.test.ts "the two-part day law is orphaned"
