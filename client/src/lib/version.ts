@@ -2582,4 +2582,19 @@
 // per-FILE and passed with the bug present; the per-endpoint version then false-positived on a
 // `const d: any =` alias its regex could not follow. Every one would have been a wrong claim.
 // 110 files, 1137 tests, 0 failures. 66 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.875";
+// v1.1.876 = 2026-07-20 — THE YANTRA: DAVID CAUGHT THREE THINGS IN ONE LOOK. He asked why the
+// north-indian chart's lines were GREY after being extended. Because they had been extended into
+// the RING'S group: the full-length diagonals were drawn with the tick stroke, while the original
+// short gold diagonals were left in place underneath. Two sets of diagonals, the visible pair the
+// wrong colour. That is the band-aid he named — made bigger, not made right.
+// He also said the corners overlap instead of touching. It was never the square: corners sit at
+// 158.96 and the inner ring is 159, but the TICKS ran inward to 156 — three units inside both —
+// so the ring cut across the corners.
+// AND, found while measuring rather than by eye: the ring had 25 divisions, not 27, while the
+// figure's own title says twenty-seven.
+// THE GUARD HID ALL OF IT WITH ONE NUMBER. It asserted 29 <line> elements as "27 ticks + 2
+// diagonals" — and 25 ticks + 4 diagonals is also 29. Now counted per GROUP and per KIND: 27 short
+// radial ticks, exactly 2 diagonals and only in the gold group, each ending on a corner, and no
+// tick reaching inside the inner ring. All three defects fail that guard on the old figure.
+// 110 files, 1139 tests, 0 failures. Build exits 0. Rendered and LOOKED at before shipping.
+export const APP_VERSION = "1.1.876";
