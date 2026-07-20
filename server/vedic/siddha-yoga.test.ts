@@ -160,11 +160,18 @@ describe("the Siddha Yoga grid is a transcription, not an invention", () => {
     // the model "Start nothing, grow nothing" in the same payload as
     // supports: ["finishing what already stands", ...] — the identical self-contradiction, and
     // input-builder.ts ships BOTH fields to the prompt. Measured over 2026: 12 days, all 12 wrong.
-    const d = dayFilter({ nakshatra: "Swati", tithiNumber: 4, varaLord: "Saturn", vishti: false });
+    // A TENDER fixture on purpose: tender is one of the seven natures that carries David's own
+    // plain line ("Love, mending, the making of beautiful work. A day of gentle…"), so this can
+    // tell the three outcomes apart — the old contradiction, the day's real grammar, and the
+    // nature's ordinary line printed on a day that was emptied.
+    const d = dayFilter({ nakshatra: "Mrigashira", tithiNumber: 4, varaLord: "Mars", vishti: false });
+    expect(d.nature, "fixture must be a nature that has its own plain line").toBe("tender");
     expect(d.siddhaYoga, "fixture must actually form the yoga").not.toBeNull();
     expect(d.supports.length, "the yoga must be speaking").toBeGreaterThan(0);
     expect(d.sentence, "the sentence still tells the model the day gives nothing").not.toMatch(/Start nothing, grow nothing/);
-    // and it names what the day DOES carry, rather than the nature's ordinary line
+    // ...nor the nature's ordinary line, which speaks for an ordinary tender day, not an empty one
+    expect(d.sentence, "an emptied day printed the nature's ordinary line").not.toMatch(/Love, mending/i);
+    // it names what the day DOES carry
     expect(d.sentence).toMatch(/finishing what already stands/);
 
     // CONTROL, the other direction: an emptied day with NO yoga must still say exactly that.
