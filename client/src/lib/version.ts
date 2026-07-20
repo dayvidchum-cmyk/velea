@@ -1748,4 +1748,22 @@
 // `npm run deployed` now asks four questions: the service worker, the client bundle, the running
 // server, and one live API value only the corrected code answers right.
 // 76 files, 824 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.833";
+// v1.1.834 = 2026-07-20 — THE DEEP DIVE, DONE SYSTEMATICALLY INSTEAD OF WHERE SOMETHING BROKE.
+// I have only opened the book where a bug dragged me there. So I swept the engine for constant
+// tables with no citation near them: 205 tables, 165 "uncited". THAT NUMBER IS MISLEADING AND I AM
+// NOT REPORTING IT AS A FINDING — the probe flags the zodiac, planet lists, ephemeris flags and
+// English label maps, none of which need a source. A crude scan producing an alarming number is the
+// same false finding I have made three times today; the honest move is to classify, not to publish
+// the raw count.
+// What the sweep DID surface is real: server/vedic/dignity.ts and server/panchang/dignity.ts BOTH
+// hand-copy the exaltation, own-sign and moolatrikona tables. That is precisely the shape of
+// HOUSE_TO_BASE_MODE — a private second copy that drifted for eight days and was still being served
+// publicly when v810 found it — and of the karakas drift that lost Jupiter from career.
+// I compared them BEHAVIOURALLY, not by eye: every planet × sign × degree, 252 points. ZERO
+// disagreements. The tables are honest today, and nothing was enforcing that.
+// Now enforced, with two denominators: one asserting the sweep actually EXERCISES all four strong
+// dignities (a refactor returning "neutral" for everything would otherwise pass in silence), and
+// one pinning the classical anchors BY VALUE, so editing both copies the same wrong way still
+// fails. Proven to bite by drifting Saturn's exaltation in one copy only.
+// 77 files, 827 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.834";
