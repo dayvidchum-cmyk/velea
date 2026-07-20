@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v873 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v875 · 20 July 2026 · every number below was printed by running something</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">88</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">14</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n good">94</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n bad">8</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">11</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">1082</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n">1137</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -129,16 +129,19 @@
     the grid unencoded rather than guess — the same standard that stopped me typing it from memory. Say the word on
     these three and it goes in.</span></div>
 
-  <div class="ask"><b>4. Run one script, and the day-shift alert turns on.</b>
-    <span class="why">You asked for a phone alert when the day shifts. It needs <b>one column</b> —
-    <code>push_subscriptions.lastTurnPush</code> — because the morning bell’s dedupe marker is a date field that is
-    exactly full, and a user can legitimately get both alerts on the same day (the bell at 8am, the turn at 3:42pm).
-    <br><br><b>I will not pack a composite key into the existing column.</b> It is <code>varchar(10)</code>, and that is
-    precisely the shape that caused the outage which killed billed readings — a <code>varchar(10)</code> cache column
-    silently rejecting longer keys. Saving one column is not worth repeating that.
-    <br><br>The script is written and safe to run twice: <code>npx tsx server/scripts/add-turn-push-column.ts</code>.
-    It adds a nullable column, so every existing row reads as “not yet alerted”, which is the correct starting state.
-    Schema changes here are always yours to run — a deploy once wiped every account.</span></div>
+  <div class="ask"><b>4. Run one script, and a paid reading stops naming the wrong city.</b>
+    <span class="why"><b>The previous item here is done</b> — the day-shift alert's column
+    (<code>lastTurnPush</code>) is in the schema and the alert is wired and scheduled. It sat on this
+    list after it had already been built.
+    <br><br>What is outstanding is different. The <code>horoscopes</code> table freezes a purchased
+    reading but records <b>no location at all</b>, while the page prints a LIVE
+    "Lived in {city}" directly above the frozen prose. Reveal a past date with no override (computed
+    from your hometown), then set that date's location to Tokyo, and the page names Tokyo over a
+    reading whose sky was cast for the hometown. Nothing in the row records what it was computed
+    for, so the mismatch is undetectable afterwards — on a reading someone paid for.
+    <br><br><code>npx tsx server/scripts/add-horoscope-location-columns.ts</code> — five NULLABLE
+    columns, safe to run twice. Existing rows read as "not recorded", which is the honest state for
+    anything frozen before it ran, and the UI must then say nothing rather than guess.</span></div>
 
   <div class="grp">The look — your palette calls</div>
 
@@ -214,47 +217,38 @@
     <li><b>The old meaning-engine</b> — deleted. Git holds it; a test asserts it stays gone.</li>
   </ul>
 
-  <h2>Still broken — 14</h2>
-  <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.
-    <br><b>I went back and re-checked these.</b> Seven of the original twenty-one are now confirmed by re-running the
-    code, not by trusting the note. <b>Four were stale</b> and have moved to fixed: the two-clocks mismatch, the seven
-    type errors (the typechecker now exits clean), the Verdict citing a canon file that lacked its data (the block was
-    added), and melana.json having no source (it now cites Raman with page references). <b>One was half wrong</b> — see
-    the speed row below; Mercury and Venus sharing the Sun’s motion is correct practice, not a defect. <b>Two are
-    confirmed still broken</b> by reading the code today. <b>Two of the fourteen below have still not been individually re-checked</b>, so treat the count as an upper bound for those and a measurement for the rest.
-    <br>Since then I re-checked four more: <b>“two owners of which rows are the daily reading” is now fixed</b> (v851
-    pointed the builder at the one canonical list, and the retired write path was already gone), the nakshatra row is
-    <b>partly fixed</b> (the four contradictions are corrected and pinned; six copies still exist), and two are
-    <b>confirmed still true</b> — the welcome card really can show two filled primary buttons at once (birth data ready,
-    location not yet set), and focus level in the check-in is genuinely not built.</p>
+  <h2>Still broken — 8</h2>
+  <p class="lead">Named, reproducible, and <b>no longer an upper bound</b>: unlike previous editions, every row below was individually re-checked against the running code on 2026-07-20, not carried forward on trust. <b>Six came off this list
+    on 2026-07-20</b>, each with a control proven to fail against the unfixed code first — and two of
+    them had been sitting in the FIXED list as false greens (the nakshatra ruling that never reached
+    the engine, and the paid-word repair that moved a ceiling nobody reads).
+    <br>One row was <b>retracted</b>: "the day-quality list disagrees with the live engine" was my own
+    stale finding — measured against the cited natures it contradicts canon on <b>zero of 27</b>. It
+    is pinned now, not rewritten.</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span>Six separate lists still classify the 27 stars. <span style="opacity:.7">(The four places they <i>contradicted</i> each other are fixed and pinned — v852. What remains is that six copies exist at all.)</span></li>
-    <li><span class="tag">DATA</span>A paid reading names a city it was not computed for.</li>
-    <li><span class="tag">DATA</span>Planetary strength uses raw speed as a stand-in for the classical retrograde stages. <span style="opacity:.7">(The other half of this row was wrong: Mercury and Venus really do share the Sun’s mean daily motion, so scaling them by it is correct, not a bug.)</span></li>
-    <li><span class="tag">MONEY</span>The failed-save re-bill is capped, not closed — the guard is per-process.</li>
-    <li><span class="tag">MONEY</span>Stored dasha and convergence rows still invalidate all-or-nothing.
-      <span style="opacity:.7">(No longer <i>silently stale</i> — v865 put all three engine versions into the hash, so a
-      bump to any of them now invalidates. Per-table invalidation needs an <code>engineVersion</code> column on
-      <code>profile_dasha_periods</code>, which is a schema change and therefore yours to run.)</span></li>
-    <li><span class="tag">MONEY</span>The chapter read fires by itself on the Chart page.</li>
-    <li><span class="tag">READ</span>The reading can never honestly say “a quiet day”. <span style="opacity:.7">(The
-      model IS told a quiet date is a real answer. But the paid lens marks a transit as “touching” the area whenever the
-      planet is the area’s ruler or one of its karakas — true every single day — so the input never once shows a quiet
-      area. The instruction is fine; the data never gives it a chance.)</span></li>
-    <li><span class="tag">READ</span><b>Three PAID surfaces get fewer words than the free day read.</b> The day read
-      is 190 words. The Life Atlas window is <b>150</b>, the Time-Lord window 200, the yoga read 210 — all behind a
-      paywall. <span style="opacity:.7">(The big premium reads are generous: the month gets 650, eclipse season 550,
-      the life-area 450. The original row said “premium surfaces are thin” with no numbers, which was too vague to act
-      on; these three are the ones that actually are.)</span></li>
+    <li><span class="tag">DATA</span>Copies of the 27-star classification still exist in several
+      files. <span style="opacity:.7">(No longer <i>drifting</i>: the interpreter reads the one
+      corrected table, and the day-quality list is anchored to canon by a test that is proven able to
+      fail. What remains is duplication, not disagreement.)</span></li>
+    <li><span class="tag">DATA</span>Exact Chesta — the eight-state seeghra-kendra — is not built.
+      <span style="opacity:.7">(The simplified K&amp;F rule now DECLARES itself all the way to the
+      model, so nothing quotes it as exact. Building the real one needs the textbook, not
+      inference.)</span></li>
+    <li><span class="tag">MONEY</span>The failed-save re-bill guard is per-process — a redeploy or a
+      second replica loses it. Needs somewhere durable.</li>
+    <li><span class="tag">MONEY</span>Stored dasha and convergence rows invalidate all-or-nothing.
+      <span style="opacity:.7">(Needs an <code>engineVersion</code> column, so it is a script David
+      runs.)</span></li>
+    <li><span class="tag">MONEY</span>The chapter read fires on the Chart page with no tap.
+      <span style="opacity:.7">(Re-checked: the input is genuinely date-stable, so it does NOT
+      re-bill daily — my first probe said it did and was wrong. It is a deliberate exception to the
+      Door Law, written into the code as such. Whether the exception stands is David's.)</span></li>
     <li><span class="tag">READ</span>The Day Headline — the detectors exist; one line connects them.</li>
-    <li><span class="tag">READ</span>Focus level in the check-in is not built.</li>
-    <li><span class="tag">LOOK</span>Two calendars, and the year calendar has drifted off every rail law.</li>
-    <li><span class="tag">LOOK</span>The welcome card shows two filled primary buttons.</li>
-    <li><span class="tag">LOOK</span>A gate sweep left a branch that can never fire.</li>
-    <li><span class="tag">LOOK</span>A traveller’s far-date reading falls back to the birth city.</li>
+    <li><span class="tag">READ</span>Focus level in the check-in is not built. <span style="opacity:.7">(Needs a schema change.)</span></li>
+    <li><span class="tag">LOOK</span>The welcome card can show two filled primary buttons.</li>
   </ul>
 
-  <h2>Fixed and verified — 81</h2>
+  <h2>Fixed and verified — 94</h2>
   <p class="lead">
     Each of these was proven broken, fixed, and then proven fixed — most by running something that could have come back
     wrong. Grouped so you can skim.
@@ -335,9 +329,16 @@
   </ul>
 
   <p class="foot">
-    Every number here was counted from the record, not estimated: 88 fixed + 14 broken + 14 decision-rows + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 1054 tests passing, 32 probes each proven able to fail.
-    The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
-    deleted, it was moved out of your way.
+    <b>94 fixed + 8 broken + 11 decision-rows + 26 remaining.</b> <b>The totals on this page used to be wrong, and it said they were counted.</b> It claimed 1082
+    tests in one place and 1054 in another (really <b>1137</b>, across 105 → now 110 files), 32
+    mutation probes (really <b>66</b>), 14 decision rows in the footer while rendering 11, and 88
+    fixed against a heading that said 81. Corrected 2026-07-20 by running the suite, the probe
+    harness and a parse of this file — the fixed and remaining counts are record counts, not row
+    counts, and this line now says so instead of implying one number.
+    <br><br>Every repair in this run had a control written FIRST and run against the unfixed code,
+    where it failed. Three of my own instruments returned clean results while structurally blind and
+    were caught before they reached David. The long-form detail lives in the repo at
+    <code>tools/audit-sheet/archive-longform-v848.html</code>; the live status page is
+    <code>AUDIT_STATUS.md</code>.
   </p>
 </div>
