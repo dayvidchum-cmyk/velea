@@ -87,7 +87,12 @@ const THEMES: Record<KnotTheme, ThemeDef> = {
   // Not in the canon's THEME index — Velea's own themes, but their karakas are still the canon's,
   // read from houseKarakaTable rather than re-typed (see above).
   wealth:   { label: "Wealth / income", houses: [2, 11], karakas: fromHouseTable([2, 11]) },
-  parents:  { label: "Parents / roots", houses: [4, 9],  karakas: ["Moon", "Sun", "Jupiter"] }, // = canon father ∪ mother
+  // DAVID'S RULING (2026-07-20): the 4th and 9th are the PARENTS THEMSELVES — mother and father —
+  // while "roots" is the OTHER question: ancestry, what they inherited and passed on, which the
+  // life-area lens reads through the 12th and the nodes. Both stay; neither collapses into the
+  // other. The old label here said "Parents / roots" and the lens chip says "Parents & Roots", so
+  // BOTH claimed both words and the model could blur them into one theme.
+  parents:  { label: "Parents — mother and father", houses: [4, 9],  karakas: ["Moon", "Sun", "Jupiter"] }, // canon father ∪ mother
   home:     { label: "Home / land",     houses: [4],     karakas: fromHouseTable([4]) },
   health:   { label: "Health / vitality", houses: [6, 1], karakas: fromHouseTable([6, 1]) },
 };

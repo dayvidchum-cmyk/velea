@@ -132,6 +132,28 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     expect(PROMPT_VERSION).not.toBe("2026-07-18-audit4-law-reconcile");
   });
 
+  it("the 2nd house does not default to self-worth", async () => {
+    // David's standing law: the 2nd is money, livelihood and belief FIRST. Self-worth is the second
+    // face, surfaced only when a self-planet actually links to the 2nd.
+    //
+    // This assertion used to live in quarantine.test.ts, guarding the dead meaning-engine that
+    // contradicted it. When David ruled "delete it" at v851 I deleted the module AND its describe
+    // block — and took the only guard on the law with it. A mutation probe caught that the doctrine
+    // could be removed from prompts.ts with the whole suite green. Deleting a stale thing must not
+    // delete the rule it was violating.
+    // I first asserted both halves against BASE_PROMPT and it failed — the fuller rule lives in
+    // DEEP_READ_TAIL. Before reporting that as a reach gap I checked what BASE_PROMPT actually
+    // says, and it carries the law in its own words: the 2nd leads with earned money and
+    // possessions, and worth is read THROUGH them, "never as a bare label". So every read is
+    // covered and there was no gap to report. Asserting each where it genuinely lives.
+    const { BASE_PROMPT, DEEP_READ_TAIL } = await import("./prompts.js");
+    expect(BASE_PROMPT).toMatch(/earned money and possessions/);
+    expect(BASE_PROMPT).toMatch(/never as a bare label/);
+    expect(BASE_PROMPT).toMatch(/not\s+a feeling to announce/);
+    expect(DEEP_READ_TAIL).toMatch(/do NOT reach for\s+"worth"\s+or\s+"self-worth"\s+as a default theme/);
+    expect(DEEP_READ_TAIL).toMatch(/2nd house = MONEY/);
+  });
+
   it("the polar and no-single-move laws are DEFINED too, not just cited", async () => {
     // Same probe, same fix, applied to the rest of the shared laws rather than only the one that
     // happened to be caught. Fixing the instance is what let v805 recur as v825.

@@ -105,6 +105,11 @@ run server/narrative/prompts.ts '- transits: [{ planet, sign, houseFromLagna, re
 run server/narrative/input-builder.ts 'for (const surface of DAILY_SURFACES) {\n        row = await getNarrativeCache(p.id, surface, ds);\n        if (row?.content) break;\n      }' 'row = (await getNarrativeCache(p.id, "day_read", ds)) ?? (await getNarrativeCache(p.id, "glance", ds));' \
   server/narrative/daily-surface.test.ts "the daily-reading surface list gets re-typed inline again"
 
+run server/panchang/modifier-config.ts "  Magha:             { score: -1," "  Magha:             { score: +1," \
+  server/panchang/nakshatra-canon.test.ts "a fierce star is scored as expansion again"
+run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
+  server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
@@ -130,7 +135,7 @@ run server/db.ts 'const SESSION_SLIDE_AFTER_MS =' 'const SESSION_SLIDE_AFTER_MS_
   server/session-slide.test.ts "session sliding renewal"
 
 run server/narrative/prompts.ts 'do NOT reach for "worth" or' 'do NOT reach for "wealth" or' \
-  server/vedic/quarantine.test.ts "2nd-house self-worth doctrine removed from the prompt"
+  server/narrative/prompt-structure.test.ts "2nd-house self-worth doctrine removed from the prompt"
 
 echo "=== the prompt: laws that must ARRIVE, not merely exist ==="
 run server/narrative/prompts.ts '\nPERSONAL APEX — THE CROWN DAY\n' '\nPERSONAL APEXX — THE CROWN DAY\n' \

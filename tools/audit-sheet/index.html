@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v852 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v853 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">948</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n">954</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -88,7 +88,14 @@
   <div class="ask"><b>1. Which house are “parents”?</b>
     <span class="why">Two parts of the engine disagree. One reads parents as the 4th and 9th houses (mother and father —
     this is what the textbook says). The other sends the paid “Parents &amp; Roots” reading to the 12th house with the
-    lunar nodes as ancestry. <b>YOUR RULING (20 July): both are correct and both stay.</b> The 4th and 9th are specifically mother and father; ancestry is roots — what your parents inherited and passed to you. They answer different questions, so neither collapses into the other. I will make the prose keep them distinct.</span></div>
+    lunar nodes as ancestry. <b>YOUR RULING (20 July): both are correct and both stay.</b> The 4th and 9th are specifically mother and father; ancestry is roots — what your parents inherited and passed to you. They answer different questions, so neither collapses into the other.
+    <b>DONE:</b> the defect was never that one was wrong — it was that <i>both claimed both words</i>
+    (“Parents / roots” on the 4th+9th, “Parents &amp; Roots” on the 12th), which let the reading fold them into one
+    theme. The convergence engine now says <b>“Parents — mother and father”</b>, and the lens area now leads with
+    <b>ancestry and roots — what your parents themselves inherited and handed on</b>. A test keeps them apart.
+    <br><br><b>One small thing left, and it is yours because it is visible:</b> the chip a user taps still reads
+    <b>“Parents &amp; Roots”</b> on an area that is now explicitly about ancestry. <b>“Roots &amp; Ancestry”</b> would
+    match your ruling. I did not rename a chip you look at without asking.</span></div>
 
   <div class="ask"><b>2. Which nakshatra table wins?</b>
     <span class="why">There are six lists in the app classifying the 27 stars, and only one has a source citation. On four
@@ -282,7 +289,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 948 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 954 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

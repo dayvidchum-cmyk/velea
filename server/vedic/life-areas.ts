@@ -181,7 +181,12 @@ export const LIFE_AREAS: Record<LifeAreaKey, LifeArea> = {
   },
   parents: {
     key: "parents", label: "Parents & Roots", varga: "D12", primaryHouse: 12,
-    domain: "parents, heredity and ancestry, and the karma carried in from before this life",
+    // DAVID'S RULING (2026-07-20): this area is ANCESTRY AND ROOTS — heredity, what your parents
+    // themselves inherited and handed on, the karma carried in from before this life. The parents
+    // AS PEOPLE (mother = 4th, father = 9th) are a different question and are read there, by the
+    // convergence engine. Leading this domain with the word "parents" invited the model to fold the
+    // two into one theme, which is the conflation his ruling separates.
+    domain: "ancestry and roots — heredity, the line you come from, what your parents themselves inherited and handed on, and the karma carried in from before this life",
     karakas: [
       { planet: "Rahu", role: "primary", signifies: "the strength of your maternal ancestry" },
       { planet: "Ketu", role: "primary", signifies: "the strength of your paternal ancestry" },

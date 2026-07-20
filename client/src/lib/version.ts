@@ -2144,4 +2144,27 @@
 // computed side by side (nakshatra = majority, nakshatraAtSunrise = anchor), so it is a switch of
 // which one NAMES the day, not a rebuild. Waiting on one word.
 // 948 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.852";
+// v1.1.853 = 2026-07-20 — PARENTS ARE NOT ROOTS. AND DELETING A STALE THING DELETED THE RULE IT BROKE.
+// David ruled BOTH parents readings stay: the 4th and 9th are mother and father themselves; ancestry
+// is roots — what they inherited and handed on. So the defect was never that one was wrong. It was
+// that BOTH CLAIMED BOTH WORDS: knots said "Parents / roots" on houses [4,9], the lens chip says
+// "Parents & Roots" on the 12th, and the model could fold two readings into one theme.
+//   knots      → "Parents — mother and father"
+//   life-areas → domain now leads "ancestry and roots — heredity, the line you come from, what your
+//                parents themselves inherited and handed on"
+// The user-facing CHIP still reads "Parents & Roots" on an ancestry area. That is visible, so it is
+// his rename to make, not mine. Flagged on the sheet.
+// THEN A PROBE CAUGHT A REGRESSION I CREATED AT v851: the assertion guarding his 2nd-house law
+// ("money and livelihood first; self-worth is the second face") lived inside the quarantine block
+// for the dead meaning-engine. He ruled "delete it", I deleted the module AND its describe — and
+// took the only guard on the LAW with it. Deleting a stale thing must never delete the rule it was
+// violating. Re-guarded in prompt-structure.test.ts, where prompt laws belong.
+// AND I NEARLY REPORTED A FALSE REACH GAP OFF IT. My first assertion targeted BASE_PROMPT and failed,
+// because the fuller rule lives in DEEP_READ_TAIL — which looked like "the day read never gets the
+// law". Before reporting it I read BASE_PROMPT, and it carries the law in its own words: the 2nd
+// leads with earned money and possessions, worth read THROUGH them, "never as a bare label". No gap.
+// Each half is now asserted where it actually lives.
+// Also: the probe harness itself broke — single quotes inside a single-quoted shell argument — and
+// reported a parse error rather than a green run. It is supposed to fail loudly. It did.
+// 34 probes, all caught. 89 files, 954 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.853";
