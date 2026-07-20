@@ -974,4 +974,23 @@
 // proves the gate and the interaction mode reach the day scale. 31 files, 317 tests, 0 failures.
 // EXPECTED SIDE EFFECT: on days where the two disagreed, the narrative input hash changes, so those
 // readings regenerate once. That is the wrong data being replaced, not churn.
-export const APP_VERSION = "1.1.794";
+// v1.1.795 = 2026-07-20 — THE CACHED PANCHANG ROW STILL NAMED SOMEONE ELSE'S SKY.
+// The `panchang` table is keyed on DATE ALONE, so the row belongs to whoever opened that date
+// first, at THEIR coordinates. The 2026-07-19 mitigation recomputed the sky at the CALLER's
+// coordinates and used it for everything derived — house, mode, day filter — and then handed back
+// the STORED moonSign, nakshatra, pada and sunrise anyway. That is worse than the bug it was
+// closing: a Seoul reader got Seoul's day character printed over Boston's star, so the reading's
+// derived character and the sky it names disagreed with each other. The recomputed values were
+// sitting in scope, already fallback-guarded, and were being discarded at the emit. Now emitted.
+// AND THE FALLBACK IT PROMISED WAS NOT REAL. calcPanchang does not throw on unusable coordinates —
+// it returns NaN longitudes, which then threw out of karanaFromLongitudes BELOW the catch and
+// killed the whole read, cached row and all. "A degraded read beats no read" was a crash. A
+// non-finite recompute is now discarded exactly like a throw. Found by writing the third control
+// rather than by reading the code — the fallback branch had never been exercised.
+// Control: cached-sky-location.test.ts poisons the row with a sky no location produces (sunrise
+// 11:47 PM) and asserts the emitted field matches an INDEPENDENT calcPanchang at Seoul, that the
+// derived house still agrees with the emitted sign, and that an impossible recompute serves the
+// stored row instead of throwing. 33 files, 326 tests, 0 failures. Build exits 0.
+// STILL TRUE, and David's to run: a location column on the panchang table is the real fix. This
+// closes the leak at the read; the row is still shared.
+export const APP_VERSION = "1.1.795";

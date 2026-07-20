@@ -210,6 +210,14 @@ export async function getDayField(
       } catch {
         // Non-fatal: fall back to the stored row below. A degraded read beats no read.
       }
+      // A RECOMPUTE THAT RETURNS GARBAGE IS A FAILED RECOMPUTE (v795). calcPanchang does not throw
+      // on unusable coordinates — it returns NaN longitudes, which then threw out of
+      // karanaFromLongitudes BELOW this catch and killed the entire read, cached row and all. So
+      // the fallback promised one line up was not real: the degraded path was a crash. Anything
+      // non-finite is now discarded exactly like a throw, and the stored row serves.
+      if (astro && !(Number.isFinite(astro.sunLongitude) && Number.isFinite(astro.moonLongitude))) {
+        astro = null;
+      }
 
       const cachedPaksha = ((astro?.tithiPaksha as 'Shukla' | 'Krishna' | undefined)
         ?? (cached.tithiPaksha as 'Shukla' | 'Krishna') ?? 'Shukla');
@@ -298,14 +306,21 @@ export async function getDayField(
       return gateDayField({
         date: cached.date,
         dayOfWeek: getDayOfWeek(dateStr),
-        moonSign: cached.moonSign,
+        // THE EMITTED SKY IS THE CALLER'S SKY (v795). The 2026-07-19 mitigation recomputed all of
+        // these at the caller's coordinates and then handed back the STORED ones anyway — so the
+        // derived values (house, mode, day filter) were location-correct while the sky they were
+        // derived FROM was still whoever opened this date first. A Seoul reader saw Boston's star
+        // named in their reading, and the mismatch is worse than the original bug because the two
+        // halves now disagree with each other. effMoonSign / dominantNak / sunriseLocal are the
+        // recomputed values, each already falling back to the cached one when calcPanchang threw.
+        moonSign: effMoonSign,
         houseActivated: house,
-        nakshatra: cached.nakshatra,
-        nakshatraPada: cached.nakshatraPada ?? 1,
+        nakshatra: dominantNak,
+        nakshatraPada: astro?.nakshatraPada ?? cached.nakshatraPada ?? 1,
         tithi: cachedTithi,
         tithiPaksha: cachedPaksha,
         karana,
-        sunriseLocal: cached.sunrise,
+        sunriseLocal: sunriseLocal ?? cached.sunrise,
         mode: finalMode,
         baseMode,
         baseModeAtSunrise,
