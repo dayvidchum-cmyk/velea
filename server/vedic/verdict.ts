@@ -42,12 +42,23 @@ const MATURITY: Record<string, number> = (timingJson as any).maturityOfPlanets?.
 // Mrita-hinged area unreachable rather than merely slow. Values UNCHANGED here; the deviation is
 // recorded rather than quietly corrected, because which way it goes is David's call.
 const BALAADI_CANON = (avashtasCanon as any).balaadi?.states as Record<string, { fruition: number }> | undefined;
+// THE GUARD I WROTE IN v816 FAILED OPEN, and a regression hunt over my own run caught it (v819).
+// It counted KEYS and the consumer below reads `BALAADI_FRUIT[bal] ?? 1`. So a state whose fruition
+// was null, or a key renamed (yuva → yuvaa), still gave five keys, still passed, and then scored
+// that state at 1.0 — FULL fruition. On `mrita`, whose canon value is nil, that is the exact
+// inversion of the dial the comment claims to protect: "late if at all" would have become
+// "delivers in full". A guard that turns a missing value into the maximum is worse than no guard.
+// It now checks the five NAMES and that each carries a finite number in [0,1].
+const BALAADI_STATES = ["bala", "kumara", "yuva", "vriddha", "mrita"] as const;
 const BALAADI_FRUIT: Record<string, number> = (() => {
   const out: Record<string, number> = {};
-  for (const [state, v] of Object.entries(BALAADI_CANON ?? {})) out[state] = v.fruition;
-  // Five states or the canon block has been damaged — fail loudly at load rather than silently
-  // scoring every chart against a half-empty table.
-  if (Object.keys(out).length !== 5) throw new Error("canon/avashtas.json: balaadi.states must carry all five states");
+  for (const state of BALAADI_STATES) {
+    const v = (BALAADI_CANON ?? {})[state]?.fruition;
+    if (typeof v !== "number" || !Number.isFinite(v) || v < 0 || v > 1) {
+      throw new Error(`canon/avashtas.json: balaadi.states.${state}.fruition must be a number in [0,1], got ${JSON.stringify(v)}`);
+    }
+    out[state] = v;
+  }
   return out;
 })();
 

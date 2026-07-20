@@ -2,7 +2,7 @@
 // (six structured sections). Returns null when ANTHROPIC_API_KEY is absent so
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
-import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, ATLAS_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, PLANET_RX_TAIL, COMBINED_READ_TAIL, TL_WINDOW_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+import { BASE_PROMPT, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, ATLAS_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, PLANET_RX_TAIL, COMBINED_READ_TAIL, TL_WINDOW_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
 // Every model call is metered so the daily cap counts CALLS, not results — retries
 // included, and a burned-but-failed generation included. (The 8-token liveness probe at
 // the top of this file is deliberately NOT metered: it is not a reading.)

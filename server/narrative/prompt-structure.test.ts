@@ -23,7 +23,12 @@ const HEADING = "RECENT READS — ONE CONTINUING STORY, NEVER THE SAME PAGE TWIC
 describe("the prompt's structure", () => {
   it("keeps the crown cross-reference whole", () => {
     // The sentence must point at the crown section, not open a quote it never closes.
-    expect(SRC).toContain('See "PERSONAL APEX — THE CROWN DAY" in the glance task.');
+    // v819: this used to assert the pointer read "in the glance task" — which, after v805 deleted
+    // the glance, was a pointer to a section no prompt carried. The test was DEFENDING the
+    // regression. It now asserts the doctrine is present in the prompt that cites it.
+    expect(SRC).toContain('See "PERSONAL APEX — THE CROWN DAY" below.');
+    expect(SRC).not.toContain("in the glance task");
+    expect(SRC).not.toContain("as the glance defines it");
     expect(SRC).not.toContain(`See "${HEADING}`);
   });
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import avashtas from "./canon/avashtas.json";
 import { readFileSync } from "node:fs";
 
@@ -57,5 +57,41 @@ describe("balaadi fruition", () => {
     expect(s.kumara.fruition).toBeGreaterThan(s.bala.fruition);
     expect(s.bala.fruition).toBeGreaterThan(s.vriddha.fruition);
     expect(s.vriddha.fruition).toBeGreaterThan(s.mrita.fruition);
+  });
+});
+
+describe("the guard fails CLOSED, not open (v819)", () => {
+  // The v816 guard counted keys, and the consumer reads `BALAADI_FRUIT[bal] ?? 1`. A null value or
+  // a renamed key therefore scored 1.0 — full fruition — which on `mrita` (canon: nil) is the exact
+  // inversion of the dial it claims to protect. Found by a regression hunt over my own run.
+  const load = async (states: any) => {
+    vi.resetModules();
+    vi.doMock("./canon/avashtas.json", () => ({ default: { balaadi: { states } } }));
+    return import("./verdict.js");
+  };
+  const GOOD = {
+    bala: { fruition: 0.25 }, kumara: { fruition: 0.5 }, yuva: { fruition: 1 },
+    vriddha: { fruition: 0.125 }, mrita: { fruition: 0.05 },
+  };
+
+  it("loads with a well-formed block", async () => {
+    await expect(load(GOOD)).resolves.toBeTruthy();
+  });
+
+  it("REFUSES a null fruition instead of scoring it 1.0", async () => {
+    await expect(load({ ...GOOD, mrita: { fruition: null } })).rejects.toThrow(/mrita/);
+  });
+
+  it("REFUSES a renamed state instead of falling through to 1.0", async () => {
+    const { yuva, ...rest } = GOOD as any;
+    await expect(load({ ...rest, yuvaa: { fruition: 1 } })).rejects.toThrow(/yuva/);
+  });
+
+  it("REFUSES a value outside [0,1]", async () => {
+    await expect(load({ ...GOOD, bala: { fruition: 4 } })).rejects.toThrow(/bala/);
+  });
+
+  it("still refuses a missing block entirely", async () => {
+    await expect(load(undefined)).rejects.toThrow();
   });
 });

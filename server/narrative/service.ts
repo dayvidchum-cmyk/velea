@@ -72,7 +72,19 @@ function singleFlight<T>(key: string, fn: () => Promise<T>): Promise<T> {
 // under 10 generations; the cap is set far above that). A binger simply plateaus for the day and
 // everything they already made stays cached and free forever. The $20 wallet cap is the ultimate
 // backstop beneath this; this stops one user from starving the pool.
-const DAILY_GEN_CAP = 50; // tunable; set above heavy first-day exploration (all houses+chapters+year ≈ 30-40), below pool-starvation. The $20 wallet cap is the true money ceiling beneath this.
+// THE CAP IS IN MODEL CALLS, NOT GENERATIONS (v819 — corrected the same day I broke it).
+// 50 was calibrated against ONE EVENT PER GENERATION: "heavy first-day exploration (all houses +
+// chapters + year ~ 30-40), below pool-starvation." v806 changed the METER's unit to API calls —
+// correctly, because callGuarded makes up to three per generation and a burned failure spent money
+// too — and LEFT THE NUMBER ALONE. That silently cut the cap to roughly a third: the same first-day
+// explorer, at ~1.7 calls per generation once guard trips are counted, reaches 50 at about 29
+// generations and then gets static copy on every surface for the rest of the UTC day, with no
+// message. Changing a unit without re-deriving the constant is how a safety limit becomes an outage.
+// 150 = the old 50-generation ceiling expressed in the new unit (3 calls is callGuarded's hard max).
+// The $20 wallet cap is still the true money ceiling beneath this; this only stops one user from
+// starving the pool.
+const DAILY_CALL_CAP = 150;   // in-process arm: MODEL CALLS (callGuarded makes up to 3 per generation)
+const DAILY_ROW_CAP = 50;     // durable arm: distinct narrative_cache ROWS minted today
 // In-process event counter — counts EVERY generation event (incl. forced refresh and the
 // ephemeral moment read, which never touch narrative_cache and so are invisible to the durable
 // DB count). We take max(DB-count, in-proc-count): the DB count is the restart-proof floor
@@ -98,8 +110,14 @@ export function markProfileUncapped(profileId: number): void { uncappedProfiles.
 
 async function overDailyCap(profileId: number): Promise<boolean> {
   if (uncappedProfiles.has(profileId)) return false;
+  // TWO ARMS, TWO UNITS, TWO LIMITS (v819). These count different things and must not share a
+  // threshold: `durable` is distinct narrative_cache ROWS since UTC midnight (restart-proof, but
+  // blind to regeneration and to the ephemeral surfaces), while the in-process arm now counts MODEL
+  // CALLS. v806 changed the second unit and left one shared constant, which either throttles the
+  // caller at a third of the intended ceiling or — once the constant is raised for calls — lets the
+  // durable arm drift to three times its own. Whichever arm trips first still stops the read.
   const durable = await countGenerationsToday(profileId).catch(() => 0);
-  return Math.max(durable, inProcGenCount(profileId)) >= DAILY_GEN_CAP;
+  return durable >= DAILY_ROW_CAP || inProcGenCount(profileId) >= DAILY_CALL_CAP;
 }
 // Wraps a generation in the cap. Over the cap → returns null WITHOUT generating, so the caller
 // degrades exactly like the dry-wallet path (available:false → static copy). The event is counted

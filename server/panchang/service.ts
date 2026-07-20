@@ -438,6 +438,13 @@ export function gateDayField(field: DayField, personalRating?: string | null, in
       // reading the Moon-only day mode while the hero shows the interaction mode.
       dayFinalMode: interactionMode,
       dayQualifier: generateQualifier(interactionMode, nak, field.tithi, field.tithiPaksha),
+      // THE TRIPLET MUST ACTUALLY TRAVEL TOGETHER (v819). interpreter.ts documents that the
+      // day-scale mode, qualifier and REASON move as one so an explainer cannot narrate one
+      // scale's numbers beside another scale's mode — and v794 rewrote two of the three here.
+      // routers.ts derives the day card's CONFIDENCE % from dayModeReason's score ladder, so an
+      // interaction mode of Restraint over a Moon-only Action left a confidence figure computed
+      // from the mode that is no longer being shown.
+      dayModeReason: { ...(field.dayModeReason ?? field.modeReason), finalMode: interactionMode, baseMode: interactionMode },
       qualifier: generateQualifier(interactionMode, nak, field.tithi, field.tithiPaksha),
       nakshatraModifier: nakMod,
       instruction: composeInstructionFromParts(interactionMode, nakMod),
@@ -458,6 +465,11 @@ export function gateDayField(field: DayField, personalRating?: string | null, in
     finalMode: gate.finalMode,
     dayFinalMode: dayGate.gated ? dayGate.finalMode : dayBase,
     dayQualifier: dayGate.gated ? `Contained ${dayBase}` : (field.dayQualifier ?? field.qualifier),
+    // Same law on the weather gate: a contained day's reason must say Restraint, or the confidence
+    // beside "Contained Build" is read off the ungated Build ladder.
+    dayModeReason: dayGate.gated
+      ? { ...(field.dayModeReason ?? field.modeReason), finalMode: dayGate.finalMode }
+      : (field.dayModeReason ?? field.modeReason),
     qualifier: `Contained ${field.finalMode}`,
     instruction: composeInstructionFromParts(gate.finalMode, field.nakshatraModifier),
     // A contained day is contained ALL day — but the sky still turns, and that is true

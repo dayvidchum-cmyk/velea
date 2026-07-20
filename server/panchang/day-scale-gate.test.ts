@@ -87,4 +87,21 @@ describe("gateDayField keeps both scales honest", () => {
     const r = gateDayField(legacy, "caution", null);
     expect(r.dayFinalMode).toBe("Restraint");
   });
+  it("carries the day-scale REASON through both gates, not just the mode (v819)", () => {
+    // interpreter.ts documents the triplet as travelling together; v794 rewrote the mode and the
+    // qualifier and left the reason behind. routers.ts derives the day card's confidence % from
+    // that reason's score ladder, so a gated day showed a number read off the ungated ladder.
+    const gated = gateDayField(field(), "caution", null);
+    expect(gated.dayFinalMode).toBe("Restraint");
+    expect((gated.dayModeReason as any).finalMode).toBe("Restraint");
+
+    const interaction = gateDayField(field(), null, "Selective");
+    expect(interaction.dayFinalMode).toBe("Selective");
+    expect((interaction.dayModeReason as any).finalMode).toBe("Selective");
+    expect((interaction.dayModeReason as any).baseMode).toBe("Selective");
+
+    // Ungated days keep the reason they came in with — the denominator.
+    const clean = gateDayField(field(), null, null);
+    expect((clean.dayModeReason as any).baseMode).toBe("Build");
+  });
 });

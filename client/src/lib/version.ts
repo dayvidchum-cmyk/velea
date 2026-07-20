@@ -1471,4 +1471,45 @@
 // grade vocabulary is "little". A wording difference, not a regrade, so the assertion tests the
 // GRADE as a prefix of the canon phrase — a real regrade still fails.
 // 74 files, 729 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.818";
+// v1.1.819 = 2026-07-20 — I RE-AUDITED MY OWN RUN AND IT CAUGHT FOUR THINGS, TWO OF THEM MINE TO
+// BE ASHAMED OF. Two adversarial hunts over the whole v794-v818 diff. Every finding below was
+// re-verified in the code by hand before a line was changed.
+//
+// 1. v794'S HEADLINE CLAIM WAS FALSE. I said the narrative was being handed the ruling house beside
+// the moment's mode. It was not: input-builder.ts sets `panchang.mode = undefined` eighty lines
+// after I assign it — deliberately, since 2026-07-15, because David saw the prose echo "A Corrective
+// Build day". The model has not received a mode at all since the vocabulary was retired. The engine
+// split IS real and the diagnostics fix IS real, but the sentence I put in the commit, in this file,
+// in the audit sheet and in the working brief was wrong. Corrected in all four.
+//
+// 2. v805 ORPHANED DAVID'S CROWN DOCTRINE — the exact bug v804 fixed, re-created four commits
+// later. "PERSONAL APEX — THE CROWN DAY" lived inside GLANCE_TAIL. Deleting generateGlance left
+// nothing sending that tail, while BASE_PROMPT still said "see it in the glance task" and
+// DAY_READ_TAIL still said "obey it exactly as the glance defines it". On a crown day the reader's
+// hero read was told to obey a section that was not in its context — the translate-into-plain-life
+// rules, the fuse-with-the-mode rule, "a crown, not confetti", all gone. AND MY OWN
+// prompt-structure.test.ts ASSERTED THE DANGLING POINTER, so the suite defended the regression.
+// The doctrine now lives in BASE_PROMPT, which every surface receives; both cross-references point
+// there; GLANCE_TAIL is deleted BY NAMED BOUNDARY with an assertion that the doctrine had already
+// been moved out first (v805's own lesson); the test now asserts the pointer resolves.
+//
+// 3. v806 CHANGED THE CAP'S UNIT AND LEFT ITS NUMBER. 50 was calibrated as GENERATIONS ("heavy
+// first-day exploration ~ 30-40"). Counting CALLS against the same 50 cuts it to roughly a third:
+// a first-day explorer hits it at ~29 generations and then gets static copy on every surface for
+// the rest of the UTC day, silently. Worse, the two arms measure different things — the durable arm
+// counts ROWS — so one constant could not be right for both. Now two arms, two units, two limits:
+// 50 rows, 150 calls, whichever trips first.
+//
+// 4. THE GUARD I WROTE IN v816 FAILED OPEN. It counted KEYS, and the consumer reads
+// `BALAADI_FRUIT[bal] ?? 1` — so a null fruition or a renamed key passed the check and then scored
+// that state at 1.0, FULL fruition. On `mrita`, whose canon value is nil, that is the exact
+// inversion of the dial the comment claims to protect. Now checks the five names and that each
+// carries a finite number in [0,1], with tests that feed it a null, a rename and an out-of-range.
+//
+// ALSO: the day-scale triplet did not travel together. interpreter.ts documents mode+qualifier+
+// REASON moving as one; v794 rewrote two of three in gateDayField, and routers.ts derives the day
+// card's confidence % from that reason — so a contained or interaction-mode day showed a number read
+// off the ladder of a mode it was no longer showing.
+//
+// 75 files, 735 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.819";
