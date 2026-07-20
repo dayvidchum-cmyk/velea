@@ -17,6 +17,7 @@ PAGES = [
     ('/velea',     'marketing/velea.html',    'About'),
     ('/why',       'marketing/why.html',      'Why This Exists'),
     ('/system',    'marketing/system.html',   'The System'),
+    ('/gate',      'marketing/gate.html',     'The Time Gate'),
     ('/access',    'marketing/access.html',   'Request Access'),
     ('/confirmed', 'marketing/confirmed.html','Confirmed'),
 ]

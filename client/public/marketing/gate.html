@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>You're on the list — Velea</title>
-<meta name="description" content="When Velea opens, it opens to everyone — one email the day it does." />
-<link rel="canonical" href="https://velealor.com/confirmed" />
-<meta property="og:title" content="You're on the list — Velea" />
-<meta property="og:description" content="When Velea opens, it opens to everyone — one email the day it does." />
+<title>The Time Gate — Velea</title>
+<meta name="description" content="Every culture that made time a being gave it a gate — and set guardians on it." />
+<link rel="canonical" href="https://velealor.com/gate" />
+<meta property="og:title" content="The Time Gate — Velea" />
+<meta property="og:description" content="Every culture that made time a being gave it a gate — and set guardians on it." />
 <meta property="og:image" content="https://velealor.com/og.jpg" />
 <meta name="theme-color" content="#F6F1E5" />
 <link rel="icon" type="image/png" href="/velea-logo.png" />
@@ -54,13 +54,13 @@
   @media (min-width: 900px) { main { margin-left: clamp(2.5rem, 5.5vw, 5.5rem); } }
   .kicker { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; }
   .kicker .km { font-family: var(--khmer); letter-spacing: normal; text-transform: none; font-size: 1rem; }
-  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(2.5rem, 8.5vw, 3.8rem); letter-spacing: 0.12em; line-height: 1.08; margin: 1.3rem 0 2.4rem; text-wrap: balance; }
+  h1 { font-family: var(--sans); font-weight: 600; font-size: 0.75rem; letter-spacing: 0.3em; line-height: 1.35; color: var(--champ); text-transform: uppercase; margin: 0 0 1.8rem; text-wrap: balance; }
   h2.sub { font-family: var(--serif); font-weight: 500; font-size: clamp(1.45rem, 4.8vw, 1.95rem); line-height: 1.38; color: var(--ink); margin: 1.6rem 0 0; text-wrap: balance; }
   .lede { font-size: clamp(1.05rem, 2.6vw, 1.2rem); line-height: 1.7; color: var(--ink-dim); margin: 1.6rem 0 0; }
-  .label { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; margin: 0 0 1.1rem; }
+  .label { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; margin: 0 0 1.1rem; text-wrap: balance; }
   .rule { border: none; height: 1px; background: var(--gold-line); margin: clamp(2.6rem, 7vw, 4rem) 0; width: 100%; }
   @media (min-width: 900px) { .rule { width: calc(100vw - 2 * clamp(2.5rem, 5.5vw, 5.5rem) - 2 * var(--pad)); max-width: none; } }
-  p { font-size: 1.04rem; line-height: 1.75; color: var(--ink-dim); margin: 0 0 1.1rem; }
+  p { font-size: 1.04rem; line-height: 1.75; color: var(--ink-dim); margin: 0 0 1.1rem; text-wrap: pretty; }
   strong { color: var(--ink); font-weight: 600; }
   ul { padding-left: 1.15rem; margin: 0 0 1.1rem; }
   li { font-size: 1.02rem; line-height: 1.7; color: var(--ink-dim); margin-bottom: 0.45rem; }
@@ -100,22 +100,34 @@
   footer .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; }
   @media (max-width: 560px) { .nav { gap: 0.35rem 0.9rem; } .nav a.item { font-size: 0.6rem; letter-spacing: 0.08em; } }
 </style>
-<style>body { background: #0d0713 url("/marketing/img/night.jpg") center/cover no-repeat fixed; } main, .nav, footer { position: relative; } body::before { content:""; position: fixed; inset: 0; background: rgba(13,7,19,0.55); } .nav, main, footer { z-index: 1; }</style>
+
 </head>
 <body>
 <header class="nav">
   <a class="brand" href="/"><span class="vmark"></span><span class="bname">Velea</span></a>
   <button class="burger" aria-label="Menu" onclick="document.querySelector('.nav').classList.toggle('open')"><span></span><span></span><span></span></button>
-  <nav class="links"><a class="item" href="/velea">About</a><a class="item" href="/why">Why This Exists</a><a class="item" href="/system">The System</a><a class="item" href="/gate">The Time Gate</a><a class="item" href="/access">Request Access</a></nav>
+  <nav class="links"><a class="item" href="/velea">About</a><a class="item" href="/why">Why This Exists</a><a class="item" href="/system">The System</a><a class="item on" href="/gate">The Time Gate</a><a class="item" href="/access">Request Access</a></nav>
 </header>
 
-<main style="min-height: 66vh; display: flex; flex-direction: column; justify-content: center;">
-  <div class="label">Confirmed</div>
-  <h1>You&rsquo;re on the list.</h1>
-  <p class="lede">When Velea opens, it opens to everyone &mdash; and you&rsquo;ll get one email the day it does.</p>
-  <p>In the meantime, the work continues &mdash; quietly, in the background, the way all of it does.</p>
-  <p class="note" style="margin-top:1.6rem;">Questions or anything else: <a href="mailto:hello@davidchum.com">hello@davidchum.com</a></p>
-  <p style="margin-top:2.2rem;"><a href="/" style="font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;border-bottom:1px solid var(--gold-line);padding-bottom:2px;">Return home</a></p>
+<main>
+  <h1>The Time Gate</h1>
+
+  <div class="label">The Guardians</div>
+  <p class="big">Every culture that made time a being gave it a gate &mdash; and set guardians on it.</p>
+  <p><strong>K&#257;la</strong>, Sanskrit Time personified &mdash; Velea&rsquo;s own first name &mdash; is the face carved over the gates of Khmer temples: Time itself guarding every threshold at Angkor. <strong>Aker</strong>, Egypt&rsquo;s twin-lion horizon god: two lions back to back named <em>Yesterday</em> and <em>Tomorrow</em>, the sun passing between them. <strong>Janus</strong> at Rome&rsquo;s gates, looking both ways. The <strong>Sphinx</strong>, whose riddle is the morning, noon and evening of a life.</p>
+
+  <hr class="rule" />
+
+  <div class="label">Where You Stand</div>
+  <p>Velea is built the same way. You stand at the gate. The past is open &mdash; it is yours, already walked. The month ahead is lived in. The far future is guarded: real, dated, visible as potential, and kept behind the gate until you ask for it.</p>
+  <p class="big">The past is free because it builds faith.<br />The near future is rented because it&rsquo;s lived in.<br />The far future is precious because it&rsquo;s still being written.</p>
+
+  <hr class="rule" />
+
+  <div class="label">The Keeper</div>
+  <p>Nothing is hidden from you &mdash; the structure renders for everyone, the dates are visible, the counts are real. What sits behind the gate is the reading itself. It is not a paywall. It is a gate, and Velea is its keeper.</p>
+
+  <div class="ctaRow"><a class="cta" href="/access">Request access</a></div>
 </main>
 <footer><span class="fm">Velea</span><span class="km">វេលាល្អ</span> · The Golden Moment · © 2026</footer>
 </body>

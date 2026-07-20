@@ -74,7 +74,7 @@ async function startServer() {
   // Marketing sub-pages (velealor.com only): static editorial pages generated into
   // client/public/marketing/. Paths chosen to never collide with SPA routes.
   const marketingPages: Record<string, string> = {
-    "/velea": "velea.html", "/why": "why.html", "/system": "system.html",
+    "/velea": "velea.html", "/why": "why.html", "/system": "system.html", "/gate": "gate.html",
     "/receive": "receive.html", "/access": "access.html", "/confirmed": "confirmed.html",
   };
   app.get(Object.keys(marketingPages), (req, res, next) => {
