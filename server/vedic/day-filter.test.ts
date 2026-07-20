@@ -40,7 +40,7 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
     expect(soft.sentence).not.toMatch(/severing/);
     expect(soft.sentence).toMatch(/start nothing.*let it pass quietly/i);
     const sharp = dayFilter({ ...base, nakshatra: "Mula", tithiNumber: 4 });
-    expect(sharp.supports.join(" ")).toMatch(/decisive cuts|endings/);
+    expect(sharp.supports.join(" ")).toMatch(/surgery|uprooting|severing/); // per-star now (Mula): his own cutting words
   });
 
   it("vishti strips beginnings without walling the day; Mercury never touches the character", () => {
@@ -161,7 +161,7 @@ describe("David's plain movement line on cutting days (2026-07-15)", () => {
     const d = dayFilter({ varaLord: "Mercury", vishti: false, tara: null, nakshatra: "Ashlesha", tithiNumber: 2 });
     expect(d.sentence).toMatch(/^A day for decisive cuts and clean, deliberate endings/);
     expect(d.sentence).not.toMatch(/surgery/);
-    expect(d.supports.join(" ")).toMatch(/surgery and incisive procedures/); // the literal election stays for detail + the reading
+    expect(d.supports.join(" ")).toMatch(/investigation and problem solving|psychology|occult work/); // per-star now (Ashlesha)
   });
 
   it("the sharp-day sentence speaks his words, not the book's item-list", () => {
@@ -195,10 +195,27 @@ describe("David's fixed-day supportsPool (the 2026-07-18 Rosetta lines)", () => 
     expect(new Set(week).size).toBeGreaterThan(1); // different faces across days
   });
 
-  it("no seed still speaks his words (first line), and the canon lists survive underneath", () => {
+  it("no seed still speaks his words (first line), and a supports list survives underneath", () => {
     const d = dayFilter({ ...FIXED });
     expect(d.sentence).toMatch(/^Foundations must be carefully constructed/);
-    expect(d.supports.join(" ")).toMatch(/commitments meant to last/); // detail views + the reading keep the items
+    // This asserted the NATURE's wording ("commitments meant to last"). Uttara Phalguni is one of
+    // the seven stars David gave specific supports for (2026-07-20), so it now carries HIS list —
+    // "long-term commitments", patronage, contracts. The test's intent is unchanged: a real supports
+    // list still rides under his sentence.
+    expect(d.supports.join(" ")).toMatch(/long-term commitments/);
+    expect(d.supports.join(" ")).toMatch(/contracts and legal agreements/);
     expect(d.avoid.join(" ")).toMatch(/travel/);
+  });
+
+  it("the canon nature still owns what the day AVOIDS, and the classification itself", () => {
+    // This control used to be "a fixed star he did NOT specify keeps the canon wording", with Rohini
+    // as the example. He has since given supports for all 27, so no unspecified star is left and
+    // that control is obsolete. Replacing it rather than deleting it, because what it guarded is
+    // still real: the per-star supports must not have swallowed the cited table whole. The canon
+    // still decides the NATURE, and still supplies the AVOID list.
+    const d = dayFilter({ ...FIXED, nakshatra: "Rohini" });
+    expect(d.supports.join(" ")).toMatch(/wealth and gain/);   // his per-star list
+    expect(d.avoid.join(" ")).toMatch(/travel/);               // the canon's fixed-nature avoid
+    expect(d.nature).toBe("fixed");                            // the canon's classification
   });
 });

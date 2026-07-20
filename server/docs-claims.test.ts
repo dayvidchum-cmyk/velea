@@ -99,7 +99,6 @@ describe("both documents carry the same open decisions", () => {
   // queue once he has ruled — "take it off if it is fixed… less friction for me to process" — so
   // this list is now the OPEN set only, and the resolved ones are asserted separately below.
   it.each([
-    ["the nakshatra follow-up", /cited nature drive/i],
     ["naming the day by sunrise", /named by the sunrise star|NAMED.{0,20}sunrise/i],
     ["the cancelled-fall rules", /cancelled-fall/i],
     ["which yogas the reader hears", /yogas/i],
@@ -126,6 +125,7 @@ describe("both documents carry the same open decisions", () => {
     ["mrita: 0.05 or the canon's nil", /0\.05 as/i],
     ["a chartless day's character", /no birth data means no app/i],
     ["delete or rebuild meaning-engine", /meaning-engine.{0,40}deleted/i],
+    ["should the nature drive every star", /neither\.<\/b> They are favourable/i],
   ])("still RECORDS the settled decision: %s", (_label, re) => {
     expect(SHEET, "a settled decision vanished instead of being recorded").toMatch(re);
   });

@@ -93,8 +93,91 @@ export interface DayCharacter {
 // So each canon supports-string is classified once, here, by what KIND of act it is. This
 // mapping is Velea's reading of the canon's own list — it is deliberately NOT written into
 // muhurta-tables.json, because that file is the cited source and this is inference on top of it.
+// ── PER-STAR SUPPORTS (David's doctrine, 2026-07-20, canon/seven-favorable-stars.md) ──────────
+// The canon classifies 27 stars into 7 natures, and the day's `supports` came from the NATURE. For
+// some stars that is not merely coarse, it is WRONG: Shatabhisha is classed movable, so the app told
+// the reader a Shatabhisha day supports "travel, moves and relocations, vehicles" — the star of the
+// Hundred Physicians, read as a good day to buy a car, because it shares a class with Swati.
+//
+// He gave the specific supports for seven stars traditionally named favourable in Muhurta, and was
+// explicit that they are NOT universally lucky days: "the suitability of a day depends on the
+// complete Muhurta… and the specific activity being undertaken." That is why the answer to "should
+// the nature drive every star's score" was neither yes nor no — a single score is the wrong
+// instrument. What the day supports is a LIST, and it belongs to the star.
+//
+// These OVERRIDE the nature list for these seven only. The other twenty keep the nature-level list,
+// which is cited and correct at that grain. SOURCE: his method statement, recorded verbatim in
+// canon/seven-favorable-stars.md — not a classical citation, and not to be mistaken for one.
+const STAR_SUPPORTS: Record<string, string[]> = {
+  "Uttara Phalguni":   ["marriage and partnerships", "contracts and legal agreements", "leadership responsibilities", "long-term commitments"],
+  "Uttara Ashadha":    ["beginning long-term enterprises", "leadership responsibilities", "public responsibilities", "important life decisions"],
+  "Uttara Bhadrapada": ["spiritual practice", "long-term financial planning", "research", "education", "building enduring foundations"],
+  Hasta:               ["learning new skills", "beginning business activities", "artistic work", "writing", "negotiations", "healing and remedies", "crafts and technical work"],
+  Punarvasu:           ["travel", "moves and relocations", "restarting projects", "education", "beginning business activities", "recovery and renewal"],
+  Shravana:            ["studying", "teaching", "public speaking", "seeking advice", "organizing systems", "administrative work", "travel"],
+  Shatabhisha:         ["medical treatment", "research", "scientific work", "meditation", "detoxification", "investigation and problem solving"],
+  // ── THE REMAINING TWENTY (his complete table, 2026-07-20) ─────────────────────────────────────
+  // He then gave all 27: "The remaining nakshatras are not 'good' or 'bad.' In classical Muhurta,
+  // each belongs to a functional category. The question is what kind of work is the star designed
+  // to support?" His nature for every star AGREES WITH THE CITED CANON on all 27 — checked, no
+  // disagreements — so this adds specificity without contradicting the sourced table underneath.
+  Ashwini:             ["healing and remedies", "travel", "new beginnings", "medicine"],
+  Bharani:             ["difficult tasks", "discipline", "removing obstacles"],
+  Krittika:            ["purification", "cutting away", "decisive action"],
+  Rohini:              ["wealth and gain", "farming and planting", "starting construction", "marriage and partnerships", "beginning business activities"],
+  Mrigashira:          ["romance", "networking", "artistic work", "education"],
+  Ardra:               ["surgery", "research", "dismantling", "deep transformation"],
+  Pushya:              ["education", "initiation", "nearly any constructive work"],
+  Ashlesha:            ["investigation and problem solving", "psychology", "strategy", "occult work"],
+  Magha:               ["leadership responsibilities", "ancestral rites", "authority"],
+  "Purva Phalguni":    ["pleasure", "entertainment", "creative work"],
+  Chitra:              ["design", "architecture", "beauty", "making things"],
+  Swati:               ["trade and sales", "travel", "independence", "networking"],
+  Vishakha:            ["growth", "ambition", "competition"],
+  Anuradha:            ["friendship", "devotion", "diplomacy"],
+  Jyeshtha:            ["protection", "leadership under pressure"],
+  Mula:                ["research", "uprooting", "surgery", "spiritual inquiry"],
+  "Purva Ashadha":     ["campaigns", "publicity", "competition"],
+  // NOTE THE SPELLING. His table writes "Dhanishta"; the canon and the engine emit "Dhanishtha".
+  // A key that does not match the emitted name is a silent no-op — the exact bug audit M11 found in
+  // the nakshatra modifiers, where 'Dhanishta' never once matched. Canon spelling wins here.
+  Dhanishtha:          ["beginning business activities", "music", "finance", "movement"],
+  "Purva Bhadrapada":  ["austerity", "deep spiritual work", "intense change"],
+  Revati:              ["travel", "completion and fulfilment", "prosperity", "protection"],
+};
+
 type ActClass = "initiate" | "journey" | "union" | "celebrate" | "sever" | "complete" | "continue";
 const ACT_CLASS: Record<string, ActClass> = {
+  // per-star acts (STAR_SUPPORTS above)
+  "new beginnings": "initiate", "medicine": "complete", "difficult tasks": "continue",
+  "discipline": "continue", "removing obstacles": "sever", "purification": "sever",
+  "cutting away": "sever", "decisive action": "sever", "wealth and gain": "initiate",
+  "farming and planting": "initiate", "romance": "union", "surgery": "sever",
+  "dismantling": "sever", "deep transformation": "sever", "initiation": "initiate",
+  "nearly any constructive work": "initiate", "psychology": "continue", "strategy": "continue",
+  "occult work": "continue", "ancestral rites": "celebrate", "authority": "continue",
+  "pleasure": "celebrate", "entertainment": "celebrate", "creative work": "continue",
+  "design": "continue", "architecture": "continue", "beauty": "celebrate",
+  "making things": "continue", "independence": "initiate", "growth": "continue",
+  "ambition": "continue", "competition": "continue", "friendship": "union",
+  "devotion": "continue", "diplomacy": "continue", "protection": "continue",
+  "leadership under pressure": "continue", "uprooting": "sever", "spiritual inquiry": "continue",
+  "campaigns": "initiate", "publicity": "celebrate", "music": "celebrate", "finance": "continue",
+  "movement": "journey", "austerity": "continue", "deep spiritual work": "continue",
+  "intense change": "sever", "prosperity": "celebrate",
+  "marriage and partnerships": "union", "contracts and legal agreements": "initiate",
+  "leadership responsibilities": "continue", "long-term commitments": "initiate",
+  "beginning long-term enterprises": "initiate", "public responsibilities": "continue",
+  "important life decisions": "initiate", "spiritual practice": "continue",
+  "long-term financial planning": "initiate", "research": "continue", "education": "continue",
+  "building enduring foundations": "initiate", "learning new skills": "continue",
+  "beginning business activities": "initiate", "artistic work": "continue", "writing": "continue",
+  "negotiations": "continue", "crafts and technical work": "continue",
+  "restarting projects": "initiate", "recovery and renewal": "complete", "studying": "continue",
+  "teaching": "continue", "public speaking": "continue", "seeking advice": "continue",
+  "organizing systems": "continue", "administrative work": "continue",
+  "medical treatment": "complete", "scientific work": "continue", "meditation": "continue",
+  "detoxification": "sever", "investigation and problem solving": "continue",
   // beginnings — anything that starts a thing that must endure
   "foundations": "initiate", "commitments meant to last": "initiate", "starting construction": "initiate",
   "gentle beginnings": "initiate", "beginnings of enjoyable things": "initiate", "planting": "initiate",
@@ -148,7 +231,10 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   const famDef = (tables as any).tithiFamily[family];
   const varaColors = ((tables as any).vara[input.varaLord]?.colors as string) ?? "";
 
-  let supports: string[] = [...natDef.supports, ...famDef.supports];
+  // The STAR's own supports outrank the nature's where he specified them (see STAR_SUPPORTS).
+  const starSupports = input.nakshatra ? STAR_SUPPORTS[input.nakshatra] : undefined;
+  const baseSupports = starSupports ?? natDef.supports;
+  let supports: string[] = [...baseSupports, ...famDef.supports];
   const avoid: string[] = [...(natDef.avoid ?? []), ...(famDef.avoid ?? [])];
   const vetoes: string[] = [];
 
@@ -158,7 +244,7 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // own avoid-lists: David's July 12, "supports cutting… keep away from cutting").
   if (family === "rikta") {
     supports = nature === "sharp" || nature === "fierce"
-      ? [...natDef.supports, ...famDef.supports]
+      ? [...baseSupports, ...famDef.supports]
       : [];
     vetoes.push("the day runs on empty — nothing new unless it severs");
   }

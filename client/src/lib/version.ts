@@ -2312,4 +2312,50 @@
 // Six of sixteen still unverified. Across this run: fifteen carried rows re-checked, five stale, two
 // half-wrong, two too vague to act on. Carried notes rot in more than one way.
 // 92 files, 997 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.860";
+// v1.1.861 = 2026-07-20 — "SHOULD THE NATURE DRIVE EVERY STAR?" — HIS ANSWER WAS NEITHER, AND IT
+// FOUND A REAL BUG. He said the seven are not universally lucky; they are favourable FOR PARTICULAR
+// KINDS OF WORK, because "the suitability of a day depends on the complete Muhurta… and the specific
+// activity being undertaken." So a single mode-score was the wrong instrument. What a day supports is
+// a LIST, and it belongs to the STAR, not the seven-way class the star sits in.
+// THE DEFECT: `supports` came from the NATURE. Shatabhisha is classed movable — so the app told the
+// reader that the star of the Hundred Physicians was a good day for TRAVEL AND BUYING A VEHICLE.
+// Shravana, also movable, said travel instead of studying and teaching. Uttara Phalguni said
+// "planting" instead of contracts and marriage. Not coarse — WRONG.
+// FIXED: per-star supports for the seven he specified, overriding the nature where he gave one; the
+// other twenty keep the cited nature list, which is correct at that grain. Each new act is classified
+// in ACT_CLASS so the Vishti and rikta vetoes still bite. Verified live: Shatabhisha now returns
+// medical treatment · research · scientific work · meditation, and Swati still returns travel.
+// SOURCE DISCIPLINE: his method statement, recorded verbatim in canon/seven-favorable-stars.md, and
+// labelled there as HIS doctrine — not a classical citation, so the remaining twenty cannot be
+// filled in later by pretending this file was one.
+// TWO OF MY OWN ASSERTIONS WERE WRONG BEFORE THE THIRD WAS RIGHT — both inferred which stars were
+// overridden from their WORDING. The first used comma-joined phrases against a " · " join and missed
+// every fierce star; the second broke because Punarvasu legitimately keeps "moves and relocations".
+// The working version asserts the fact directly: each signature phrase belongs to exactly one star.
+// An existing day-filter test also changed, correctly — and it now carries a control proving the
+// override is scoped to the seven and has not replaced the canon everywhere.
+// 93 files, 1008 tests, 0 failures. tsc clean. Build exits 0.
+// v1.1.862 = 2026-07-20 — ALL 27 STARS NOW SAY WHAT THEY ARE FOR. THE COARSENESS WAS PRODUCING LIES.
+// He answered "should the nature drive every star's score?" with NEITHER, then gave the whole table:
+// "The remaining nakshatras are not 'good' or 'bad.' Each belongs to a functional category. The
+// question is what kind of work is the star designed to support?"
+// THE BUG THAT EXPOSED: `supports` came from the seven-way NATURE, so 27 stars shared 7 lists.
+// Shatabhisha is classed movable — the app told the reader THE STAR OF THE HUNDRED PHYSICIANS was a
+// good day for travel and buying a vehicle. Shravana said travel instead of studying and teaching.
+// Uttara Phalguni said planting instead of contracts and marriage. Not coarse — WRONG.
+// FIXED: per-star supports for all 27, from his table, each act classified in ACT_CLASS so the
+// Vishti and rikta vetoes still bite. Verified star by star: Ardra now surgery, Mula uprooting,
+// Magha ancestral rites, Bharani removing obstacles — the sharp and fierce stars finally have real
+// work instead of a shrug.
+// THE CHECK THAT MATTERED: his nature for every one of the 27 AGREES WITH THE CITED CANON. Zero
+// disagreements, verified programmatically and pinned. So this adds specificity ON TOP OF the
+// sourced table rather than overruling it — the only way it was safe to take. The canon still owns
+// the classification and the AVOID list; a test asserts exactly that.
+// ONE SPELLING TRAP CAUGHT: his table writes "Dhanishta", the canon and the engine emit "Dhanishtha".
+// A key that misses the emitted name is a silent no-op — the exact bug audit M11 found, where
+// 'Dhanishta' never once matched and a star carried no modifier at all.
+// THREE OF MY OWN ASSERTIONS were stale after this and one was OBSOLETE — the control "a star he did
+// NOT specify keeps the canon wording" has no subject left now that all 27 are specified. Replaced,
+// not deleted, because what it guarded is still real.
+// 93 files, 1010 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.862";
