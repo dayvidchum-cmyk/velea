@@ -203,6 +203,16 @@ run server/narrative/prompts.ts 'const PROMPT_VERSION' 'const PROMPT_VERSION_X' 
 run server/push.ts 'if (isCrownDay) return pickLine(POOL.crown' 'if (false && isCrownDay) return pickLine(POOL.crown' \
   server/bell-ladder.test.ts "bell's crown rung stops being read"
 
+echo "=== the public site ==="
+run client/public/sw.js '"/system", "/gate", "/receive"' '"/system", "/receive"' \
+  server/marketing-sw-parity.test.ts "a marketing route missing from sw.js (cached as the app shell)"
+run server/_core/index.ts '"/gate": "gate.html",' '"/gate": "gate.html", "/ghost": "ghost.html",' \
+  server/marketing-sw-parity.test.ts "a new marketing route the service worker never hears about"
+run client/public/marketing/system.html 'points="87.6,77.6 312.4,77.6 312.4,302.4 87.6,302.4"' 'points="108,98 292,98 292,282 108,282"' \
+  server/marketing-figure.test.ts "the yantra square shrinks off the ring (the bug David caught)"
+run client/public/marketing/system.html '<circle cx="200" cy="190" r="159"' '<circle cx="200" cy="190" r="140"' \
+  server/marketing-figure.test.ts "the inner ring moves and the square stops being inscribed"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."
