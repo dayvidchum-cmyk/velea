@@ -47,7 +47,18 @@ export async function createContext(
     const cookies = parseCookie(cookieHeader);
     const sessionToken = cookies[COOKIE_NAME];
     if (sessionToken) {
-      user = (await db.getUserBySessionToken(sessionToken)) ?? null;
+      const resolved = await db.getUserBySessionToken(sessionToken);
+      user = resolved?.user ?? null;
+      // SLIDING RENEWAL (v811): the row's expiry just moved, so the COOKIE has to move with it —
+      // sliding the session alone would still leave the browser dropping the cookie on day 7 and
+      // logging out a daily user. Re-issued only when the row actually slid (past halfway), so an
+      // active session costs one Set-Cookie a day rather than one per request.
+      if (resolved?.slid) {
+        try {
+          const { getSessionCookieOptions } = await import("./cookies.js");
+          opts.res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(opts.req), maxAge: db.SESSION_TTL_MS });
+        } catch { /* a cookie we could not refresh is not worth losing the request over */ }
+      }
     }
   }
 

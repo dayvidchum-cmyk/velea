@@ -11,7 +11,7 @@ export function registerStorageProxy(app: Express) {
     // authenticated upload flows (server/storage.ts), so the objects are user content.
     // Same-origin <img> requests carry the cookie, so authed users' content still loads.
     const token = parseCookie(req.headers.cookie ?? "")[COOKIE_NAME];
-    const user = token ? await getUserBySessionToken(token).catch(() => null) : null;
+    const user = token ? (await getUserBySessionToken(token).catch(() => null))?.user ?? null : null;
     if (!user) {
       res.status(401).send("Unauthorized");
       return;

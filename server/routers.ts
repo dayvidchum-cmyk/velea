@@ -64,6 +64,7 @@ import { getTimezoneOffset } from "./panchang/tz-offset.js";
 import { resolveDaySky, localToday, type DaySky } from "./panchang/resolve-day-sky.js";
 import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG } from "./panchang/modifier-config.js";
 import { calculateFinalMode, HOUSE_MODE } from "./panchang/interpreter.js";
+import { SESSION_TTL_MS } from "./db.js";
 
 /** Personal-weather rating (crown layer) + interaction MODE for a subject on a date — null when
  *  anchors are missing. The rating feeds the weather gate; the mode is David's two-lens precision
@@ -236,7 +237,7 @@ export const appRouter = router({
         const email = input.email.trim().toLowerCase();
         const user = await verifyLogin(email, input.password);
         if (!user) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid email or password" });
-        const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
+        const SESSION_TTL = SESSION_TTL_MS; // one owner (db.ts) — this was four copies of the same number
         const token = await createSession(user.id, SESSION_TTL);
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: SESSION_TTL });
@@ -281,7 +282,7 @@ export const appRouter = router({
         }
 
         // Auto-login: issue a session + cookie (same as login).
-        const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
+        const SESSION_TTL = SESSION_TTL_MS; // one owner (db.ts) — this was four copies of the same number
         const token = await createSession(newUserId, SESSION_TTL);
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: SESSION_TTL });
@@ -547,7 +548,7 @@ export const appRouter = router({
         await deleteAllSessionsForUser(ctx.user.id);
 
         // …and issue a fresh session so the current device stays signed in.
-        const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
+        const SESSION_TTL = SESSION_TTL_MS; // one owner (db.ts) — this was four copies of the same number
         const token = await createSession(ctx.user.id, SESSION_TTL);
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: SESSION_TTL });

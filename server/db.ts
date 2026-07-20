@@ -97,18 +97,42 @@ export async function createSession(userId: number, ttlMs: number): Promise<stri
   return token;
 }
 
-/** Resolve a session token to its user, deleting it if expired. */
-export async function getUserBySessionToken(token: string): Promise<User | null> {
+/** How long a session lives from its LAST USE. The window is the same 7 days it always was; what
+ *  changed in v811 is that it now counts from activity rather than from login. */
+export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+/** Only re-stamp once the session is past halfway, so an active user costs one write a day, not one
+ *  per request. Returned to the caller so it can re-issue the cookie on the same schedule. */
+const SESSION_SLIDE_AFTER_MS = SESSION_TTL_MS / 2;
+
+/** Resolve a session token to its user, deleting it if expired.
+ *  SLIDING RENEWAL (v811): the TTL was fixed at login and never extended, so a session died exactly
+ *  seven days after sign-in no matter how much the person used the app. On day 8 the installed PWA
+ *  opened on the marketing site — whose "unlisted app" design means there is deliberately no login
+ *  link — and the only way back in was to know to type /login. A daily user was being logged out
+ *  weekly by a timer that never noticed them.
+ *  @returns `slid` true when the expiry was just extended, so the caller can refresh the cookie too:
+ *           sliding the row alone would still leave the BROWSER dropping the cookie on day 7. */
+export async function getUserBySessionToken(token: string): Promise<{ user: User; slid: boolean } | null> {
   const db = await getDb();
   if (!db) return null;
   const rows = await db.select().from(sessions).where(eq(sessions.token, token)).limit(1);
   const session = rows[0];
   if (!session) return null;
-  if (session.expiresAt.getTime() < Date.now()) {
+  const now = Date.now();
+  if (session.expiresAt.getTime() < now) {
     await db.delete(sessions).where(eq(sessions.token, token));
     return null;
   }
-  return (await getUserById(session.userId)) ?? null;
+  const user = await getUserById(session.userId);
+  if (!user) return null;
+  let slid = false;
+  if (session.expiresAt.getTime() - now < SESSION_SLIDE_AFTER_MS) {
+    try {
+      await db.update(sessions).set({ expiresAt: new Date(now + SESSION_TTL_MS) }).where(eq(sessions.token, token));
+      slid = true;
+    } catch { /* a failed slide must never cost a valid session — the old expiry still stands */ }
+  }
+  return { user, slid };
 }
 
 /** Delete a single session (logout). */

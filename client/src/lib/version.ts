@@ -1315,4 +1315,23 @@
 // X now closes the card for THIS session only, so the beat returns on the next open. With a chart
 // it completes as before, because the card has done its job.
 // 66 files, 661 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.810";
+// v1.1.811 = 2026-07-20 — A SESSION NOW DIES FROM DISUSE, NOT FROM AGE.
+// The TTL was fixed at login and never extended, so a session expired exactly seven days after
+// sign-in no matter how much the person used the app. On day 8 the installed PWA opened on the
+// marketing site — and velealor.com deliberately has NO login link anywhere, because the app is
+// unlisted — so the only way back in was knowing to type /login. A daily user was being logged out
+// weekly by a timer that never noticed them.
+// The window is still seven days; what changed is that it counts from ACTIVITY. The row re-stamps
+// only once past halfway, so an active session costs one write a day rather than one per request,
+// and the CONTEXT re-issues the cookie on exactly the same schedule — sliding the row alone would
+// still have the browser dropping the cookie on day 7, which is the half of this fix that is easy
+// to miss. A failed slide never costs a valid session: the old expiry stands and the caller is told
+// not to re-issue.
+// Sliding is not immortality — an unused session still expires and is still deleted, and a test
+// asserts that alongside the "does not write on every request" denominator.
+// Also: SESSION_TTL existed as FOUR copies of the same number (three in routers.ts, one new in
+// db.ts). One owner now. I was about to add the fifth.
+// Controls: 6 assertions driving the REAL resolver against a mocked drizzle connection; verified to
+// fail against the pre-v811 db.ts by reverting only that file.
+// 67 files, 667 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.811";
