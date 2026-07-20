@@ -2408,4 +2408,24 @@
 // David-run scripts, never automatic. Recomputing more than strictly needed is the safe direction;
 // serving a stale clock is not. The audit row is narrowed to what is actually left, and it is his.
 // 94 files, 1020 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.865";
+// v1.1.866 = 2026-07-20 — HIS RULING WAS CONDITIONAL, SO I ENFORCED THE CONDITION.
+// He chose A — the day's LABEL shifts with the star, its character holds — "if the prose already
+// honestly covers both." That conditional is the whole ruling, and I could not verify it by reading
+// code: a law being in the prompt is NOT the prose obeying it, which is the distinction this entire
+// run has been about.
+// So it is enforced, not assumed. missingTurn() joins the existing guard chain (same shape as the
+// roll call that catches a vanished Venus): on a day the Moon changes star, the prose must NAME THE
+// HOUR or name the second star, or the model gets one corrective retry with the actual clock time in
+// the correction. Matched loosely — "3:42 PM", "3:42pm", "3:42" all count, because a model writing
+// "until about 3:42" is obeying him and demanding an exact rendering would reject honest prose.
+// Whole-word star matching, so "hastens" cannot satisfy "Hasta". Six tests, including the two that
+// matter: it FAILS on flattened prose, and it is silent on a day that does not turn.
+// THE PHONE ALERT: he asked for one when the day shifts. It needs ONE COLUMN —
+// push_subscriptions.lastTurnPush — because the bell's dedupe marker is a varchar(10) date that is
+// exactly full, and a user can legitimately get both alerts on one day (bell at 8am, turn at 3:42pm).
+// I WILL NOT PACK A COMPOSITE KEY INTO IT: varchar(10) silently rejecting a longer key is precisely
+// what caused the outage that killed billed readings on 2026-07-17. Saving one column is not worth
+// repeating that. Script written, safe to run twice, nullable column so every existing row reads as
+// "not yet alerted" — and it is HIS to run, because a deploy once wiped every account.
+// 95 files, 1026 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.866";

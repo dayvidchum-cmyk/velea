@@ -446,11 +446,37 @@ export function missingCast(fullText: string, requiredNames?: string[]): string 
   return null;
 }
 
+/** THE TWO-PART DAY, ENFORCED (David's condition, 2026-07-20).
+ *
+ *  He ruled the day's LABEL should shift with the star — "A if the prose already honestly covers
+ *  both." That conditional is the whole point: the label may only follow the sky if the reading
+ *  genuinely reads the day in two parts. Otherwise a reader watches the header change at 3:42 and
+ *  gets prose that never mentions a turn.
+ *
+ *  I could not verify the OUTPUT by inspection — a law being in the prompt is not the prose obeying
+ *  it, which is the distinction this entire run has been about. So the condition is ENFORCED rather
+ *  than assumed: on a turning day the prose must name the hour (his "favourable for creative work
+ *  until 3:00 PM" shape) or name the second star. One corrective retry, same as the roll call; if it
+ *  still misses, the best draft ships rather than nothing.
+ *
+ *  The clock is matched loosely — "3:42 PM", "3:42pm" and "3:42" all count, because a model writing
+ *  "until about 3:42" is obeying him, and demanding the exact rendering would reject honest prose.
+ */
+export function missingTurn(fullText: string, starTurn?: { toStar?: string; atLocalTime?: string } | null): string | null {
+  if (!starTurn?.atLocalTime) return null;
+  const hhmm = starTurn.atLocalTime.replace(/\s*[AP]M$/i, "").trim();
+  if (fullText.includes(hhmm)) return null;
+  if (starTurn.toStar && new RegExp(`\\b${starTurn.toStar}\\b`, "i").test(fullText)) return null;
+  return `THE DAY TURNS AND YOUR PROSE DOES NOT SAY SO: the Moon changes star at ${starTurn.atLocalTime}, so this day is NOT one mood. Write it in two parts and NAME THE HOUR in plain clock language — what holds until ${starTurn.atLocalTime}, and what the day wants after it. Do not flatten it into a single tone.`;
+}
+
 // One tool call, validated against the guards, with a single corrective retry if it trips one.
 async function callGuarded<T>(o: {
   c: Anthropic; tail: string; toolName: string; schema: any; input: NarrativeInput;
   maxTokens: number; maxWords: number; complete: (x: any) => x is T; textOf: (x: T) => string;
   bannedPhrases?: string[];
+  /** Present only on a day the Moon changes star — see missingTurn. */
+  starTurn?: { toStar?: string; atLocalTime?: string } | null;
   requiredNames?: string[];
   skipMachinery?: boolean;
 }): Promise<T | null> {
@@ -476,7 +502,7 @@ async function callGuarded<T>(o: {
   };
   let best = await run();
   if (!best) return null;
-  let bad = guardViolation(o.textOf(best), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(best), o.requiredNames);
+  let bad = guardViolation(o.textOf(best), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(best), o.requiredNames) ?? missingTurn(o.textOf(best), o.starTurn);
   if (!bad) return best;
   // Up to TWO corrective retries (3 attempts total), each naming the exact violation. Return the
   // first CLEAN result; if none comes back clean, serve the last best-effort rather than a blank
@@ -485,7 +511,7 @@ async function callGuarded<T>(o: {
   for (let attempt = 1; attempt <= 2 && bad; attempt++) {
     console.warn(`[narrative] ${o.toolName} tripped a guard (attempt ${attempt}), regenerating: ${bad}`);
     const next = await run(`CRITICAL — your previous attempt was REJECTED. ${bad} Return the ${o.toolName} tool again, fully corrected.`);
-    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(next), o.requiredNames); }
+    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(next), o.requiredNames) ?? missingTurn(o.textOf(next), o.starTurn); }
   }
   return best;
 }
@@ -501,6 +527,8 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
       maxTokens: 620, maxWords: 190,
       // Law 3 with teeth: the day headline may not reappear inside the prose.
       bannedPhrases: [(input as any).dayFilter?.headline].filter(Boolean) as string[],
+      // His condition for letting the label shift: the prose must actually read the day in two parts.
+      starTurn: (input as any).panchang?.starTurn ?? null,
       // The roll call with teeth: the year's guide + the running lords must appear by name.
       // Audit 2026-07-16: the ANTAR lord joined — "Venus vanished twice" could still ship
       // when the vanished lord was the antardasha. Pratyantar stays soft (trigger-level

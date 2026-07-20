@@ -55,16 +55,16 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v865 · 20 July 2026 · where the app actually stands</p>
+  <p class="sub">v866 · 20 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> The engine is in good shape and now proves it: 1020 tests, and 32 checks that each
+    <b>Where things stand.</b> The engine is in good shape and now proves it: 1026 tests, and 32 checks that each
     deliberately break something to confirm the test notices. The reading pipeline, the canon tables, the dasha clock,
     the paid gates and the per-user data isolation were all audited this run and came back clean.
     What stands between here and opening is <b>your price and your Stripe keys</b> — not code.
   </div>
 
-  <h2>1 · Your decisions — 12</h2>
+  <h2>1 · Your decisions — 13</h2>
   <p class="lead">
     Only what is still open — anything you ruled on is off this list. The full “what to choose and why” for each is on
     the <a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">audit sheet</a>.
@@ -79,22 +79,26 @@
     <li>The crown mark: the 11th is not the peak, the Siddhi yogas do not exist, Shubha Tithi uses the family rule.</li>
   </ol>
 
-  <div class="grp">The look</div>
   <ol class="asks" start="6" style="counter-reset:a 5">
+    <li>Run one script and the <b>day-shift phone alert</b> turns on — it needs a dedupe column the morning bell's cannot share. <code>npx tsx server/scripts/add-turn-push-column.ts</code></li>
+  </ol>
+
+  <div class="grp">The look</div>
+  <ol class="asks" start="7" style="counter-reset:a 6">
     <li>The crown mark is gold on a gold coin — 1.6:1 light, 1.2:1 dark.</li>
     <li>Parchment ink in dark mode sits at 2.3:1 on the month calendar.</li>
     <li>Rename the “Parents &amp; Roots” chip to “Roots &amp; Ancestry”?</li>
   </ol>
 
   <div class="grp">The business</div>
-  <ol class="asks" start="9" style="counter-reset:a 8">
+  <ol class="asks" start="10" style="counter-reset:a 9">
     <li>Set the price — waiting on Mercury clearing post-shadow.</li>
     <li>Stripe keys — Railway config, yours.</li>
     <li>Did the production schema reconcile run? I cannot verify it from here.</li>
   </ol>
 
   <div class="grp">Cleanup</div>
-  <ol class="asks" start="12" style="counter-reset:a 11">
+  <ol class="asks" start="13" style="counter-reset:a 12">
     <li>The pick-a-date precision layer: wire it, or delete it? 170 lines nothing calls.</li>
   </ol>
 
