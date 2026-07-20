@@ -86,13 +86,28 @@ export interface DayField {
    *  is what finishDayMode starts from before walking the day's boundaries forward. Never show
    *  this as "the day's mode" — that is baseMode. */
   baseModeAtSunrise?: DayMode;
-  /** Final mode after all modifiers applied (equals baseMode in most cases) */
+  /** Final mode after all modifiers applied (equals baseMode in most cases).
+   *  MOMENT-SCALE on today: finishDayMode evaluates it at the current segment, so it moves as the
+   *  day's boundaries are crossed. Correct for the hero and the timeline; WRONG for any surface
+   *  that also names the day's ruling house or majority star — use dayFinalMode there. */
   finalMode: FinalMode;
-  /** Human-readable qualifier, e.g. 'Assertive Restraint', 'Productive Build' */
+  /** DAY-SCALE final mode: the same computation evaluated at the configuration ruling the MAJORITY
+   *  of the vedic day, on every date including today. This is the field that pairs with
+   *  houseActivated and with the majority nakshatra, and the one the narrative must read: a reading
+   *  that names the ruling house beside a mid-morning mode is the "two clocks in one verdict" bug
+   *  (v789 → v794). Equal to finalMode on the ~79% of days nothing crosses. */
+  dayFinalMode?: FinalMode;
+  /** Human-readable qualifier for finalMode (moment-scale on today). */
   qualifier: string;
+  /** Human-readable qualifier for dayFinalMode. */
+  dayQualifier?: string;
   instruction: string;
-  /** Full modifier chain explanation */
+  /** Full modifier chain explanation for finalMode (moment-scale on today). */
   modeReason: ModeReason;
+  /** Full modifier chain explanation for dayFinalMode — the day-scale triplet (mode, qualifier,
+   *  reason) always travels together, so an explainer can never narrate one scale's house beside
+   *  another scale's mode. */
+  dayModeReason?: ModeReason;
   /** Layer 2: Nakshatra behavioral modifier */
   nakshatraModifier: NakshatraModifier;
   /** Layer 3: Tithi pacing modifier */
@@ -1056,7 +1071,12 @@ export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayF
     mode: finalMode, // backward compat: mode = finalMode
     baseMode,
     finalMode,
+    // This path has no intraday timeline — it interprets one configuration — so the day-scale
+    // answer and the moment-scale answer are the same. finishDayMode is where they diverge.
+    dayFinalMode: finalMode,
     qualifier,
+    dayQualifier: qualifier,
+    dayModeReason: modeReason,
     instruction,
     modeReason,
     nakshatraModifier,

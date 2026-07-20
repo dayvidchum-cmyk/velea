@@ -2868,7 +2868,7 @@ export const appRouter = router({
         if (!field) return null;
 
         // Calculate confidence
-        const mr = field.modeReason;
+        const mr = field.dayModeReason ?? field.modeReason; // day-scale, so it agrees with field.houseActivated (v794)
         const rawScore = mr.baseScore + mr.nakshatraModifier + mr.tithiModifier + mr.fieldModifier;
         const distance = Math.abs(rawScore - mr.finalScore);
         const modifiers = [mr.nakshatraModifier, mr.tithiModifier, mr.fieldModifier];
@@ -2938,7 +2938,7 @@ export const appRouter = router({
           // Per-day resolve (DST-correct offsets across the range).
           const field = await getDayField(dateStr, false, await resolveDaySky({ user, profile: opts.ctx.subject, profileId: opts.ctx.subject?.profileId, dateStr }), lagnaOverride);
           if (field) {
-            const mr = field.modeReason;
+            const mr = field.dayModeReason ?? field.modeReason; // day-scale, so it agrees with field.houseActivated (v794)
             const rawScore = mr.baseScore + mr.nakshatraModifier + mr.tithiModifier + mr.fieldModifier;
             const distance = Math.abs(rawScore - mr.finalScore);
             const modifiers = [mr.nakshatraModifier, mr.tithiModifier, mr.fieldModifier];

@@ -76,7 +76,7 @@ function parse12hLocal(t: string | null | undefined): number | null {
  *  star ruling the MAJORITY of the day (same school as the knot layer). Recomputes the
  *  mode for that star, applies the field-condition / Vishti-karana steps, and — when the
  *  mid-day star change flips the MODE itself — emits the turn note. */
-function finishDayMode(opts: {
+export function finishDayMode(opts: {
   baseMode: import("./interpreter.js").DayMode;
   baseModeAfterSign?: import("./interpreter.js").DayMode | null; // when the Moon crosses SIGNS mid-day
   signTransitionTime?: string | null;
@@ -120,6 +120,15 @@ function finishDayMode(opts: {
     return { nak, base };
   };
 
+  // THE DAY'S OWN MINUTE — the configuration ruling the MAJORITY of the vedic day, computed for
+  // every date including today. This is the day-scale reading: it pairs with `houseActivated`
+  // (the ruling house) and with the majority star, and it does not move as the clock moves.
+  // The moment-scale `readMinute` below is a different question with a different answer, and
+  // v789 proved that letting one field answer both is how a verdict ends up with two clocks.
+  const majNakMin = starAt != null && starAt <= 720 && opts.afterNak ? 1441 : 0;
+  const majSignMin = signAt != null && signAt <= 720 && opts.baseModeAfterSign ? 1441 : 0;
+  const majorityMinute = Math.max(majNakMin, majSignMin, 0) > 0 ? 1441 : 0;
+
   // Which moment rules this read?
   const nowUtcMs = Date.now();
   const local = new Date(nowUtcMs + opts.utcOffset * 3600_000);
@@ -135,12 +144,10 @@ function finishDayMode(opts: {
     readMinute = nowMin < sr ? 0 : nowMin - sr;
   } else {
     // Majority configuration: the sign/star ruling more than half the vedic day.
-    const majNak = starAt != null && starAt <= 720 && opts.afterNak ? 1441 : 0;
-    const majSign = signAt != null && signAt <= 720 && opts.baseModeAfterSign ? 1441 : 0;
-    readMinute = Math.max(majNak, majSign, 0) > 0 ? 1441 : 0;
     // (1441 = after all boundaries when the after-half rules; 0 = sunrise config.
     //  If only one of the two flips majority, evaluating at 1441 still applies both
     //  boundaries — acceptable: past mid-day both new configs rule the working day.)
+    readMinute = majorityMinute;
   }
   const cfg = configAt(readMinute);
   const active = readFor(cfg.base, cfg.nak);
@@ -153,7 +160,17 @@ function finishDayMode(opts: {
     if (before !== after) sentences.push(`The day turns at ${b.label} — ${before} gives way to ${after}.`);
   }
   const turnsAtNote = sentences.length ? sentences.join(" ") : null;
-  return { ...active, activeNakshatra: cfg.nak, turnsAtNote };
+
+  // The day-scale answer, always computed, never dependent on when the read happens.
+  const dayCfg = configAt(majorityMinute);
+  const dayActive = readFor(dayCfg.base, dayCfg.nak);
+  return {
+    ...active, activeNakshatra: cfg.nak, turnsAtNote,
+    dayMode: dayActive.mode,
+    dayModeReason: dayActive.modeReason,
+    dayStepReasons: dayActive.stepReasons,
+    dayNakshatra: dayCfg.nak,
+  };
 }
 
 export async function getDayField(
@@ -293,6 +310,13 @@ export async function getDayField(
         baseMode,
         baseModeAtSunrise,
         finalMode,
+        // The day-scale mode and its qualifier, computed at the majority configuration. The
+        // narrative reads THESE; the hero and the timeline read finalMode/qualifier above.
+        dayFinalMode: fin.dayMode,
+        dayModeReason: fin.dayModeReason,
+        dayQualifier: fin.dayStepReasons.length
+          ? generateQualifier(fin.dayMode, fin.dayNakshatra, cachedTithi, cachedPaksha)
+          : fin.dayModeReason.qualifier,
         qualifier: fin.stepReasons.length ? generateQualifier(finalMode, fin.activeNakshatra, cachedTithi, cachedPaksha) : modeReason.qualifier,
         instruction,
         modeReason,
@@ -341,6 +365,12 @@ export async function getDayField(
       field.mode = fin.mode;
       field.finalMode = fin.mode;
       field.modeReason = fin.modeReason;
+      // The day-scale pair, same finisher, evaluated at the majority configuration.
+      field.dayFinalMode = fin.dayMode;
+      field.dayModeReason = fin.dayModeReason;
+      field.dayQualifier = fin.dayStepReasons.length
+        ? generateQualifier(fin.dayMode, fin.dayNakshatra, field.tithi, field.tithiPaksha)
+        : fin.dayModeReason.qualifier;
       if (fin.stepReasons.length) field.qualifier = generateQualifier(fin.mode, fin.activeNakshatra, field.tithi, field.tithiPaksha);
       field.nakshatraModifier = getNakshatraModifier(fin.activeNakshatra);
       field.instruction = composeInstructionFromParts(fin.mode, field.nakshatraModifier);
@@ -389,6 +419,10 @@ export function gateDayField(field: DayField, personalRating?: string | null, in
       mode: interactionMode,
       finalMode: interactionMode,
       baseMode: interactionMode,
+      // A single whole-day verdict supersedes BOTH scales — otherwise the narrative would keep
+      // reading the Moon-only day mode while the hero shows the interaction mode.
+      dayFinalMode: interactionMode,
+      dayQualifier: generateQualifier(interactionMode, nak, field.tithi, field.tithiPaksha),
       qualifier: generateQualifier(interactionMode, nak, field.tithi, field.tithiPaksha),
       nakshatraModifier: nakMod,
       instruction: composeInstructionFromParts(interactionMode, nakMod),
@@ -398,10 +432,17 @@ export function gateDayField(field: DayField, personalRating?: string | null, in
   }
   const gate = applyWeatherGate(field.finalMode, personalRating);
   if (!gate.gated) return { ...field, weatherGated: false, weatherGateReason: null };
+  // A contained day is contained ALL day, so the gate must reach the day-scale mode too — one
+  // rule, both scales (the Personal Weather Gate law). Gated independently because the day mode
+  // and the moment mode can differ; each is contained from its own starting point.
+  const dayBase = field.dayFinalMode ?? field.finalMode;
+  const dayGate = applyWeatherGate(dayBase, personalRating);
   return {
     ...field,
     mode: gate.finalMode,
     finalMode: gate.finalMode,
+    dayFinalMode: dayGate.gated ? dayGate.finalMode : dayBase,
+    dayQualifier: dayGate.gated ? `Contained ${dayBase}` : (field.dayQualifier ?? field.qualifier),
     qualifier: `Contained ${field.finalMode}`,
     instruction: composeInstructionFromParts(gate.finalMode, field.nakshatraModifier),
     // A contained day is contained ALL day — but the sky still turns, and that is true

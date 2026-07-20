@@ -37,7 +37,9 @@ async function getOwnerSubject(email:string){
 async function panchangFor(dateStr:string, lat:number, lon:number, lagna:string){
   const astro=await calcPanchang(dateStr,lat,lon,utcOffsetFromLon(lon));
   const field=interpretPanchang(astro,lagna);
-  return { mode:field.finalMode, qualifier:field.qualifier, activatedHouse:field.houseActivated, nakshatra:field.nakshatra, tithi:field.tithi, paksha:field.tithiPaksha, moonSign:field.moonSign };
+  // day-scale, exactly as input-builder ships it (v794) — a diagnostic that showed the moment's
+  // mode beside the ruling house would hide the very bug it exists to surface.
+  return { mode:field.dayFinalMode ?? field.finalMode, qualifier:field.dayQualifier ?? field.qualifier, activatedHouse:field.houseActivated, nakshatra:field.nakshatra, tithi:field.tithi, paksha:field.tithiPaksha, moonSign:field.moonSign };
 }
 
 async function buildInput(email:string, dateStr:string){

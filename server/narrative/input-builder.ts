@@ -542,7 +542,16 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   }
 
   const panchang = {
-    mode: field.finalMode, qualifier: field.qualifier, activatedHouse: field.houseActivated,
+    // THE DAY'S MODE, NOT THE MINUTE'S (v794). field.finalMode is evaluated at the current segment
+    // for today, while activatedHouse below is always the day's RULING house — so pairing them fed
+    // the model a house that did not match its mode on the ~21% of days the Moon changes sign, the
+    // same "two clocks in one verdict" class v789 closed inside the engine and left open here.
+    // dayFinalMode is the identical computation taken at the majority configuration, so it agrees
+    // with activatedHouse AND with the majority nakshatra a few lines down, and it does not move as
+    // the clock does — the hero and the timeline still read finalMode.
+    mode: field.dayFinalMode ?? field.finalMode,
+    qualifier: field.dayQualifier ?? field.qualifier,
+    activatedHouse: field.houseActivated,
     // tithi is now BARE both paths (data-path audit #3); paksha travels EXPLICITLY so the LLM
     // always gets the waxing(Shukla)/waning(Krishna) direction — it was only ever embedded in
     // the cached tithi's prefix and absent entirely on freshly-computed days.

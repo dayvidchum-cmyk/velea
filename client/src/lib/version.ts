@@ -954,4 +954,24 @@
 // state, so a failure fails honestly. Checked the rest: the Atlas uses isLoading, which is false on
 // error under React Query v5 (isPending && isFetching), so it already fell through — the Horoscope
 // hub's two reads were the only surfaces with this gate.
-export const APP_VERSION = "1.1.793";
+// v1.1.794 = 2026-07-20 — THE READING WAS STILL BEING HANDED TWO CLOCKS.
+// Found by re-auditing the audit sheet itself: v789 split the engine's base mode into the day's
+// (from the RULING house) and the timeline's opening (from the SUNRISE house) — and the narrative
+// never read either of them. input-builder shipped `mode: field.finalMode`, which finishDayMode
+// evaluates at the CURRENT SEGMENT for today, beside `activatedHouse: field.houseActivated`, which
+// is always the day's ruling house. So on the ~21% of days the Moon changes sign inside the vedic
+// day, the model was handed a house and a mode describing two different halves of that day — the
+// exact class the 2026-07-20 ruling exists to remove, alive in the one path that bills.
+// finishDayMode now always computes the MAJORITY configuration as well and returns it as
+// dayMode/dayQualifier/dayModeReason — the day-scale triplet travels together, so no explainer can
+// narrate one scale's house beside another scale's mode. The narrative, the /audit diagnostics and
+// the narrative-input script read the day scale; the hero and the intraday timeline still read
+// finalMode, which is correct for them. gateDayField carries BOTH scales through the interaction
+// mode and the Personal Weather Gate — a contained day is contained all day, on both clocks.
+// Controls that fail against the old code: day-scale-mode.test.ts stands at 3:00 AM local (before
+// a 6:30 AM sign crossing) and proves the moment reads Action while the day reads Restraint, and
+// that the day's answer is identical to the same date read as "not today"; day-scale-gate.test.ts
+// proves the gate and the interaction mode reach the day scale. 31 files, 317 tests, 0 failures.
+// EXPECTED SIDE EFFECT: on days where the two disagreed, the narrative input hash changes, so those
+// readings regenerate once. That is the wrong data being replaced, not churn.
+export const APP_VERSION = "1.1.794";
