@@ -78,7 +78,11 @@ describe("the audit sheet still says what it must", () => {
     // The archive holds the detail, but he should not have to open it to learn I was wrong.
     expect(SHEET).toMatch(/Where I was wrong/i);
     expect(SHEET).toMatch(/my own tests were guarding nothing/i);
-    expect(SHEET).toMatch(/upper bound, not a measurement/i);
+    // PIN THE FACT, NOT THE PHRASE — third time this file has taught me that. What must survive is
+    // that the page states how far the broken count has actually been VERIFIED, not the wording it
+    // uses to say so.
+    expect(SHEET).toMatch(/upper bound/i);
+    expect(SHEET).toMatch(/re-check|not been individually re-checked/i);
   });
 });
 

@@ -60,11 +60,11 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v849 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v850 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">82</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">20</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
     <div class="score"><div class="n">944</div><div class="l">Tests passing</div></div>
   </div>
@@ -115,8 +115,8 @@
     <span class="why">The Verdict scores a planet in its final stage at 0.05 of its strength. The corpus says
     <i>nil</i> — zero. The same applies to an “old” planet, where we say 0.125 and the corpus says “very little”.
     Both numbers are mine, not the book’s, and both are live on The Verdict right now. Neither has been changed; they
-    are written down in the canon file so the choice is visible rather than buried. <span style="opacity:.75">(This
-    one lives inside a broken row below rather than being its own, so the totals do not move.)</span></span></div>
+    are written down in the canon file so the choice is visible rather than buried. <span style="opacity:.75">(It is a ruling
+    written into the canon file, not an audit row of its own, so the totals below do not move.)</span></span></div>
 
   <div class="grp">The look — your palette calls</div>
 
@@ -161,24 +161,23 @@
     rebuild, and it still hardcodes “self-worth” as a default 2nd-house theme — which your own prompt doctrine forbids
     unless the chart actually points there. I put a tripwire on it so it cannot be switched on by accident.</span></div>
 
-  <h2>Still broken — 20</h2>
+  <h2>Still broken — 17</h2>
   <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.
-    <br><b>One caveat I owe you:</b> most of these were written earlier in the run and carried forward. I re-checked the
-    one that was labelled the biggest — “the two-clocks fix does not reach the paid reading” — and it is <b>no longer
-    true</b>: the reading now gets the day-scale mode, and that field is removed before the model sees it anyway. It has
-    moved to fixed, which is why this list is 20 and not 21. The rest have not each been re-checked, so treat the count
-    as an upper bound, not a measurement.</p>
+    <br><b>I went back and re-checked these.</b> Seven of the original twenty-one are now confirmed by re-running the
+    code, not by trusting the note. <b>Four were stale</b> and have moved to fixed: the two-clocks mismatch, the seven
+    type errors (the typechecker now exits clean), the Verdict citing a canon file that lacked its data (the block was
+    added), and melana.json having no source (it now cites Raman with page references). <b>One was half wrong</b> — see
+    the speed row below; Mercury and Venus sharing the Sun’s motion is correct practice, not a defect. <b>Two are
+    confirmed still broken</b> by reading the code today. <b>Fourteen of the seventeen below have still not been
+    individually re-checked</b>, so treat the count as an upper bound for those, and a measurement for the rest.</p>
   <ul class="plain">
     <li><span class="tag">DATA</span>The nakshatra tables contradict each other — six of them, not four.</li>
     <li><span class="tag">DATA</span>A paid reading names a city it was not computed for.</li>
-    <li><span class="tag">DATA</span>The Verdict cites a canon file that does not hold the data it claims.</li>
-    <li><span class="tag">DATA</span>Planetary speed is a proxy, and Mercury and Venus are scaled by the Sun’s motion.</li>
+    <li><span class="tag">DATA</span>Planetary strength uses raw speed as a stand-in for the classical retrograde stages. <span style="opacity:.7">(The other half of this row was wrong: Mercury and Venus really do share the Sun’s mean daily motion, so scaling them by it is correct, not a bug.)</span></li>
     <li><span class="tag">DATA</span>Two owners of “which rows are today’s reading”, and the retired surface still writes.</li>
-    <li><span class="tag">DATA</span><code>melana.json</code> is a record of what was built, not a source it was built from.</li>
     <li><span class="tag">MONEY</span>The failed-save re-bill is capped, not closed — the guard is per-process.</li>
     <li><span class="tag">MONEY</span>Stored dasha and convergence rows can only be invalidated all-or-nothing.</li>
     <li><span class="tag">MONEY</span>The chapter read fires by itself on the Chart page.</li>
-    <li><span class="tag">BUILD</span>Seven server type errors the build will never catch.</li>
     <li><span class="tag">READ</span>The reading can never say “this is a quiet day”.</li>
     <li><span class="tag">READ</span>The premium surfaces are thin on words; the day read is fine.</li>
     <li><span class="tag">READ</span>The Day Headline — the detectors exist; one line connects them.</li>
@@ -207,6 +206,9 @@
       <li>Karaka tables restored from the canon in the convergence engine — Jupiter to career, Saturn to health.</li>
       <li>Polar days (no sunrise) are now described to the model instead of silently computed around.</li>
       <li>The day’s mode and the day’s ruling house now come from the same clock everywhere — the “two clocks in one verdict” bug, closed and re-verified 20 July.</li>
+      <li>The seven server type errors are gone — <code>tsc</code> exits clean.</li>
+      <li>The Verdict’s canon citation is real now: the strength-by-stage block exists in the file it points at.</li>
+      <li><code>melana.json</code> cites its source (Raman’s <i>Muhurtha</i>, with page references) instead of recording what was built.</li>
     </ul>
   </details>
 
@@ -256,7 +258,7 @@
   </ul>
 
   <p class="foot">
-    Every number here was counted from the record, not estimated: 82 fixed + 20 broken + 14 for you + 26 remaining = 142
+    Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
     rows, the same 142 the sheet has always held. 88 test files, 944 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.

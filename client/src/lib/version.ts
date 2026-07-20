@@ -2077,4 +2077,27 @@
 // forward from earlier in the run and have NOT each been re-checked, so the count is an upper bound,
 // not a measurement. One re-check found one stale; there may be more.
 // 32 probes, all caught. 88 files, 932 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.849";
+// v1.1.850 = 2026-07-20 — I PUBLISHED "20 BROKEN" AS AN UPPER BOUND. I WENT BACK AND MEASURED.
+// Seven of the twenty-one original broken rows re-checked against the code rather than trusted:
+//   STALE, moved to fixed (4): the two-clocks mismatch (v849); the seven server type errors (tsc
+//   exits 0); the Verdict citing a canon file that lacked its data (the balaadi block exists now);
+//   melana.json having no source (it cites Raman with page refs).
+//   HALF WRONG (1): "chesta is a speed proxy AND Mercury/Venus are scaled by the SUN's motion" —
+//   the first half stands, the second is NOT a defect. Mercury and Venus genuinely share the Sun's
+//   mean daily motion (~0.9856°/day); that is why they are never far from it. Scaling them by it is
+//   correct classical practice. I had carried someone's (my own) wrong astronomy for versions.
+//   CONFIRMED STILL BROKEN (2): DASHA_ENGINE_VERSION is declared, exported and read by NOTHING —
+//   house-research.ts:54 even says so in a comment; and the chapter read still auto-fires on the
+//   Chart page (`enabled: !!deepProfileId`, no tap), which is a deliberate design note that
+//   nonetheless contradicts the Door Law.
+// 85 fixed / 17 broken / 15 decisions / 26 remaining = 142. Fourteen of the seventeen are still
+// unverified and the page says exactly that, per row-group, instead of one blanket hedge.
+// GETTING HERE TOOK FOUR WRONG PARSES of my own archive — regex bleeding across rows, then two
+// wrong guesses at the data structure — before I stopped guessing and read the file. Eighth through
+// eleventh failed extraction of this run.
+// AND MY OWN GUARD CAUGHT TWO THINGS: a footer arithmetic replace that FAILED SILENTLY (no assert,
+// so the page still read "82 fixed + 20 broken" under a header saying 85/17), and a caveat pinned to
+// exact prose that fired when I reworded it — the third time this file has taught me to pin the fact
+// and not the phrase.
+// 32 probes, all caught. 88 files, 944 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.850";
