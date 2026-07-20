@@ -160,11 +160,23 @@ same thing in October as in July. But which dimension breaks the tie is your met
 that, the contact is erased from the payload — the model cannot know it exists. **Line 170 of the
 same file uses 10°** for natal-to-natal conjunctions. One file, two answers to the same question.
 
-**Measured** (5 charts × 365 days × 9 planets = 16,425 planet-days): of every contact within 10°,
-**53.2% is dropped at the 4° cutoff**. Per planet, the longest UNBROKEN stretch where a planet sat
-4–10° from a natal point and the payload never said so once:
+**Measured** — 5 real natal charts (1966, 1971, 1982, 1994, 2001) × the 365 days from 2026-07-20 ×
+9 planets = 16,425 planet-days, transits at noon UTC, nearest natal point by minimum separation,
+which is exactly what `input-builder.ts:405` does:
 
-    Rahu 188 days · Saturn 142 · Jupiter 129 · Ketu 114 · Mercury 21 · Venus 20 · Mars 36
+    orb ≤2: 1258   2–4: 1135   4–6: 1059   6–8: 1014   8–10: 758   >10: 11201
+
+Of every contact within 10°, **54.2% is dropped at the 4° cutoff** (2831 of 5224 planet-days). Per
+planet, the longest UNBROKEN stretch where it sat 4–10° from a natal point and the payload never
+said so once:
+
+    Jupiter 182 days · Ketu 129 · Mars 116 · Rahu 113 · Venus 78 · Mercury 49 · Saturn 48 · Sun 33 · Moon 4
+
+*(CORRECTION, same day: an earlier edition of this row said "Rahu 188 · Saturn 142 · Jupiter 129",
+numbers that came from a subagent's synthetic charts and that I published without re-running. My own
+run on real charts gives the table above — Saturn is 48, not 142. The finding holds and the shape
+holds; those three figures were not mine to state. The v882 commit message carries the old numbers
+and cannot be amended, so the correction lives here.)*
 
 For the Moon and the Sun, 4° is defensible. For the slow lords — the ones a chapter is built on —
 the classical orb is 8–9°, and a Saturn transit within 8° of your natal Meridian is exactly the

@@ -6,7 +6,7 @@ was written at v790 and left standing for 84 versions, listing three finished th
 you.*
 
 **113 test files · 1169 tests passing · 4 skipped · 77 mutation probes, all proven able to fail ·
-tsc clean · build exit 0 · v881 verified live on velealor.com.**
+tsc clean · build exit 0 · v882 verified live on velealor.com (bundle + /healthz).**
 
 ---
 
@@ -53,9 +53,9 @@ including the ones allowed their machinery — they may name a sign, never a fat
 | | What | Why it is yours |
 |---|---|---|
 | 1 | **Your twelve crown days are picked by calendar date, not merit** — `DECISIONS_FOR_DAVID.md` #4 | Measured, 324 charts: a median 101 days a year meet the apex condition, ~30 are tied with the 12th on every ranked dimension, and 85.6% of all crowns land in the first half of the year because the tie-break is `localeCompare(date)`. Which dimension breaks the tie is your method. |
-| 2 | **A transit only counts as touching a natal point within 4°** — `DECISIONS_FOR_DAVID.md` #5 | The same file uses 10° for natal conjunctions. Saturn sat 4–10° from a natal point for 142 unbroken days and the model was never told. The inconsistency is mine to report; the number is yours. |
+| 2 | **A transit only counts as touching a natal point within 4°** — `DECISIONS_FOR_DAVID.md` #5 | The same file uses 10° for natal conjunctions. Measured on 5 real charts: **54.2% of all contacts within 10° are dropped at the cutoff**, and Jupiter sat 4–10° from a natal point for 182 unbroken days without the model ever being told (Ketu 129, Mars 116, Rahu 113). The inconsistency is mine to report; the number is yours. |
 | 3 | **A pinned reading after a birth-data correction** — `DECISIONS_FOR_DAVID.md` #3 | Still open. Pins bypass the hash by design, so corrected chart or kept words — your call. |
-| 4 | **"The proof is in the specifics" reaches 10 of 16 prompt tails** | Your words, your "MOST IMPORTANT LAW ON THIS PAGE" — but stated in the tail you were looking at when you made it. Missing from four PAID surfaces (year read, chapter, yoga, window, atlas, cast). Adding it changes paid prose and costs a regeneration, so it waits for your yes. |
+| 4 | **"The proof is in the specifics" is missing from SIX prompt tails** | I scanned all 17 constants myself: it is missing from `DEEP_READ_TAIL` (your year — PAID), `CHAPTER_TAIL`, `YOGA_READ_TAIL` (paid), `WINDOW_READ_TAIL` (paid), `ATLAS_READ_TAIL` (paid) and `CAST_TAIL`. BASE_PROMPT's only mention is a parenthetical inside the knots block, not a stated law. It is your words and your "MOST IMPORTANT LAW ON THIS PAGE" — but stated in the tail you were looking at when you made it. Adding it changes paid prose and costs a regeneration, so it waits for your yes. |
 | 5 | **Two paid tails promise "no house numbers" with the enforcement switched off** | `yoga_read` and `window_read` pass `skipMachinery` and are never scrubbed, unlike the three surfaces where naming machinery is deliberate. Either the promise goes or the enforcement comes back — a voice call. |
 | 6 | **The Verdict surface bypasses BASE_PROMPT** and so carries none of the shared laws (siblings, the Moon's pronoun, "never one single move"). | It is a first-class cached surface. Folding it into BASE is a prompt rewrite. |
 | 7 | **Three star spellings · the crown mark's gold-on-gold · parchment day numbers in dark · the year calendar's three divergences · knot thresholds · pick-a-date precision layer (wire or delete) · price + Stripe keys** | Unchanged from the last edition — all yours, all still open. |
