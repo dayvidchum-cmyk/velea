@@ -116,6 +116,9 @@ run server/panchang/interpreter.ts "const NAKSHATRA_UPGRADE: string[] = byCatego
 # nothing was stopping it drifting away, which is exactly how the interpreter's copy went wrong.
 run server/panchang/auspiciousness.ts "  -1, // 9  Magha" "  +1, // 9  Magha" \
   server/panchang/auspiciousness-canon.test.ts "day-quality scoring drifts from the cited natures"
+# A server lock rendering as an outage again — the half of the gate sweep that was done by hand.
+run client/src/pages/LifeAtlas.tsx '(windowReadQ.data as any)?.locked ? (' 'false ? (' \
+  server/locked-gate-client.test.ts "a locked season falls through to try-again"
 run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
   server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
 # A computed-but-SIMPLIFIED strength source going back to publishing as though it were exact.

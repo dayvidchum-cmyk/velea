@@ -201,6 +201,21 @@ export default function LifeAtlas() {
                 <VeleaLoader size={24} label="Reading the season…" />
               ) : windowReadQ.data?.available && windowReadQ.data.read ? (
                 <ProseCard color="#B08D2E">{windowReadQ.data.read.read}</ProseCard>
+              ) : (windowReadQ.data as any)?.locked ? (
+                // The season read has the SAME server lock as the theme read (routers.ts:1958,
+                // the hasFeature("lifeAtlas") gate) but the sweep that added the theme's branch
+                // never added this one, so a locked season fell through to "quiet — try again",
+                // which reads as an outage and offers a retry that can never succeed.
+                //
+                // REACHABLE, not dead: `entitled` comes from atlas.windows with staleTime 30min,
+                // so it can still say true while the server has already said no. That window is
+                // exactly when a paying-then-lapsed reader sees this.
+                <LockedRead
+                  accent="#B08D2E"
+                  title="A locked season"
+                  body="Each season carries its own reading — what ripens, what asks to be done, what may arrive. It opens with the Atlas."
+                  feature="life-atlas"
+                />
               ) : (
                 <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>The season is quiet — try again in a moment.</p>
               )}
