@@ -163,7 +163,14 @@ function calcSid(se: any, jd: number, name: string): { longitude: number; longit
       longitudeSpeed: r.longitudeSpeed ?? 0,
     };
   }
-  const idx = SE_INDEX[name] ?? 0;
+  // SE_INDEX.Sun is 0, so `?? 0` made every unknown name silently RETURN THE SUN — the identical
+  // trap that made Rahu report the Sun's longitude before v550. That rule ("unknown planets now
+  // throw instead of impersonating the Sun") was applied in birthchart/calculator.ts and missed
+  // here. Every current caller passes a known lord, so this is latent rather than live — which is
+  // exactly when it is cheapest to close. A throw is the honest failure: a wrong longitude is
+  // indistinguishable from a right one downstream, and this one feeds transit and profection reads.
+  const idx = SE_INDEX[name];
+  if (idx === undefined) throw new Error(`transit-calculator: unknown planet "${name}" — refusing to impersonate the Sun`);
   const r = se.calc(jd, idx, se.SEFLG_SIDEREAL | se.SEFLG_SPEED);
   return { longitude: ((r.longitude % 360) + 360) % 360, longitudeSpeed: r.longitudeSpeed ?? 0 };
 }

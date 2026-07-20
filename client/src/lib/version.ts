@@ -1118,4 +1118,22 @@
 // degenerate (six planets stacked in one sign) and proved nothing; it was replaced with a targeted
 // pair where combustion is the only thing that can satisfy the arm.
 // 35 files, 362 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.800";
+// v1.1.801 = 2026-07-20 — TWO PLACES THE ENGINE INVENTED DATA RATHER THAN ADMITTING IT COULD NOT.
+// One class, two instances, both about refusing to fabricate.
+// (1) POLAR DAY AND NIGHT. Above the Arctic circle the Sun does not cross the horizon for weeks. The
+// solver clamped the hour-angle cosine into range and returned a time anyway, so the app reported a
+// sunrise that never happened — and the whole vedic day is anchored to that instant, so the
+// nakshatra, tithi, paksha, karana and the majority walk were all keyed to a fiction with nothing
+// saying so. The clamp STAYS (every caller needs a number, and solar transit ± 12h is the
+// least-wrong anchor) but the fabrication is now declared: AstronomyData.noSunrise is "polar-day" /
+// "polar-night" / null. Shadbala already refused honestly here; this path now at least admits it.
+// Verified against real latitudes: Longyearbyen at 78.22°N reports polar-night on 21 Dec and
+// polar-day on 21 Jun and NULL at the equinox — the denominator that makes the flag mean something
+// — and Boston reports null on all three.
+// (2) THE UNKNOWN PLANET THAT BECAME THE SUN. transit-calculator did `SE_INDEX[name] ?? 0`, and
+// index 0 is the Sun, so any unknown name silently returned the Sun's longitude and speed. That is
+// the identical trap that made Rahu report the Sun before v550, whose rule — "unknown planets now
+// throw instead of impersonating the Sun" — was applied in birthchart/calculator.ts and missed here.
+// Latent (every current caller passes a known lord), which is exactly when it is cheapest to close.
+// 39 files, 397 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.801";

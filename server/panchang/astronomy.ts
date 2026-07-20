@@ -21,6 +21,11 @@ export interface AstronomyData {
   sunriseLocal: string;
   /** Sunrise as Julian Day (UT) */
   sunriseJD: number;
+  /** Set when the Sun does not cross the horizon at this latitude on this date, so `sunriseLocal`
+   *  and `sunriseJD` are a NOMINAL anchor rather than an observed event — and every value keyed to
+   *  the vedic day (nakshatra, tithi, paksha, karana, the majority walk) inherits that. null
+   *  everywhere the Sun actually rises, which is everywhere the app currently has users. */
+  noSunrise?: "polar-day" | "polar-night" | null;
   /** Moon sidereal longitude in degrees (0–360) at sunrise */
   moonLongitude: number;
   /** Moon sign index 0–11 (0=Aries … 11=Pisces) — the sign that RULES the vedic day by majority,
@@ -115,7 +120,7 @@ async function getSwe(): Promise<any> {
  * @param lon   longitude in decimal degrees (negative = west)
  * @returns Julian Day number (UT) of sunrise
  */
-function calcSunriseJD(year: number, month: number, day: number, lat: number, lon: number): number {
+function calcSunriseSolve(year: number, month: number, day: number, lat: number, lon: number): { jd: number; noSunrise: "polar-day" | "polar-night" | null } {
   // Julian Day Number for the date at noon UT
   const a = Math.floor((14 - month) / 12);
   const y = year + 4800 - a;
@@ -155,13 +160,26 @@ function calcSunriseJD(year: number, month: number, day: number, lat: number, lo
     (Math.sin((-0.833 * Math.PI) / 180) - Math.sin(latRad) * sinDec) /
     (Math.cos(latRad) * Math.cos(dec));
 
-  // Clamp to handle polar day/night
+  // POLAR DAY / POLAR NIGHT (v801). |cosOmega| > 1 means the Sun does not cross the horizon at this
+  // latitude on this date — there IS no sunrise. Clamping and returning a time anyway makes the
+  // engine assert an event that did not happen, and the whole vedic day is anchored to it: the
+  // nakshatra, tithi, paksha, karana and the majority walk all start from this instant. Shadbala
+  // refuses honestly in the same situation; this path invented an answer instead.
+  // The clamp STAYS — every downstream caller needs a number and a nominal anchor (solar transit ±
+  // 12h) is the least-wrong one — but the fabrication is now VISIBLE, so a reading can say so
+  // instead of silently asserting it. Zero effect anywhere the Sun actually rises.
+  const noSunrise = cosOmega > 1 ? "polar-night" : cosOmega < -1 ? "polar-day" : null;
   const clampedCosOmega = Math.max(-1, Math.min(1, cosOmega));
   const omega = (Math.acos(clampedCosOmega) * 180) / Math.PI;
 
   // Sunrise Julian Day (UT)
   const Jsunrise = Jtransit - omega / 360.0;
-  return Jsunrise;
+  return { jd: Jsunrise, noSunrise };
+}
+
+/** Backwards-compatible accessor: the anchor instant alone, fabricated or not. */
+function calcSunriseJD(year: number, month: number, day: number, lat: number, lon: number): number {
+  return calcSunriseSolve(year, month, day, lat, lon).jd;
 }
 
 /**
@@ -426,7 +444,8 @@ export async function calcPanchang(
   const [year, month, day] = dateStr.split('-').map(Number);
 
   // Calculate sunrise JD for this day and next day
-  const sunriseJD = calcSunriseJD(year, month, day, lat, lon);
+  const sunriseSolve = calcSunriseSolve(year, month, day, lat, lon);
+  const sunriseJD = sunriseSolve.jd;
 
   // Next day sunrise for majority-of-day calculation
   const nextDate = new Date(Date.UTC(year, month - 1, day + 1));
@@ -503,6 +522,7 @@ export async function calcPanchang(
     date: dateStr,
     sunriseLocal: jdToLocalTime(sunriseJD, utcOffset),
     sunriseJD,
+    noSunrise: sunriseSolve.noSunrise,
     moonLongitude: moonLonAtSunrise,
     signTransitionTime,
     moonSignAfterTransition,
