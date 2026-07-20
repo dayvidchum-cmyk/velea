@@ -48,7 +48,14 @@ import yogasJson from "./canon/yogas.json";
 // chara karakas + karakamsha, birth panchang, the named-yoga detection, upagrahas
 // (Dhooma group + kalavelas), and Bhava Chalit placements. Bumping this invalidates
 // every stored inputHash, so existing rows recompute on their next touch.
-export const RESEARCH_ENGINE_VERSION = "research-v2";
+// BUMP THIS TO INVALIDATE STORED RESEARCH — and, because getStoredResearch returns null on a
+// mismatch and both downstream writers gate their skip on status "unchanged", it cascades to the
+// stored dasha tree and the convergence timeline too. That is the only lever that reaches them:
+// DASHA_ENGINE_VERSION and CONVERGENCE_ENGINE_VERSION are declared and read by nothing.
+// v3 (v798): the convergence gate stopped counting WEIGHT and went back to counting LORDS, so every
+// row stored between v639 and v798 can carry standing chapters lit by a single axis-seated maha lord
+// with nobody agreeing with it. Those rows are wrong and must be rebuilt, not merged with.
+export const RESEARCH_ENGINE_VERSION = "research-v3-lordgate";
 
 const YOGA_TYPE: Record<string, string> = Object.fromEntries(
   ((yogasJson as any).yogas as Array<{ name: string; type?: string }>).map((y) => [y.name, y.type ?? ""]),

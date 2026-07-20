@@ -26,8 +26,13 @@ export function mergeThemeWindows(rows: Array<{ startAt: any; endAt: any; themes
       const t = sp.themes[th];
       const lit = t?.lit;
       const inHeld = !!(sp.pair && held.has(sp.pair));
-      if (lit && !open) open = { s: sp.s, e: sp.e, peak: t?.convergence ?? 1, era: inHeld };
-      else if (lit && open) { open.e = sp.e; open.peak = Math.max(open.peak, t?.convergence ?? 1); open.era = open.era || inHeld; }
+      // PEAK IS LOUDNESS, so it reads `weight` — the heavy-lord law belongs here, where the question
+      // is how big a window is, not at the gate that decides whether it exists at all (v798). Legacy
+      // rows written before v798 have no `weight` and their `convergence` already held the weighted
+      // number, so falling back to it keeps those rows reading exactly as they did.
+      const loud = t?.weight ?? t?.convergence ?? 1;
+      if (lit && !open) open = { s: sp.s, e: sp.e, peak: loud, era: inHeld };
+      else if (lit && open) { open.e = sp.e; open.peak = Math.max(open.peak, loud); open.era = open.era || inHeld; }
       else if (!lit && open) { push(out, th, open); open = null; }
     }
     if (open) push(out, th, open);

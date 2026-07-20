@@ -1043,4 +1043,30 @@
 // STILL OPEN, and David's to rule: the code's cancellation CONDITIONS are the four commonly-cited
 // Parashari ones, while the ingested canon states a narrower rule (association with an exalted
 // planet). Engine and book disagree about WHEN a fall is cancelled, before what it means.
-export const APP_VERSION = "1.1.797";
+// v1.1.798 = 2026-07-20 — THE HEAVY LORD WAS MANUFACTURING CHAPTERS OUT OF ONE LORD.
+// The sheet said the live knots and the stored timeline disagree about the same chart, and they did:
+// the heavy-lord law (David 2026-07-17, the Simone proving case — "when a dasha lord lands on the
+// Meridian, it's the whole reading") was applied in convergence.ts AFTER buildKnots returned, so the
+// live layer never obeyed it. knots.ts even carried a comment saying the meridian is "never a
+// convergence line", two days older than the law that says it is. I moved the weighting into
+// buildKnots so both paths compute one law — and the founding-wound test in knots.test.ts failed
+// immediately, which is the finding neither the sheet nor five audit agents had reached:
+// GATING ON THE WEIGHT LETS ONE LORD LIGHT A CHAPTER ALONE. A single axis-seated maha lord doubles
+// to 2, clears the >= 2 gate, and stands as a "standing chapter" with NOBODY agreeing with it — the
+// exact phantom the v430 rebuild removed. And the STORED timeline has gated on weight since v639,
+// so every profile stored since then can carry chapters lit by one lord.
+// The law reads correctly as INTENSITY, not agreement: "it's the whole reading" is about how loud a
+// real chapter is, not about inventing one. So: `weight` (convergence + one per axis-seated tied
+// lord) RANKS, and the honest lord COUNT GATES. Both paths compute both numbers in buildKnots.
+// convergence.ts now passes meridianOnAxis in and stores the head-count as `convergence` — it had
+// been storing the WEIGHTED number in that field, so a stored row claimed more tied lords than it
+// listed. windows.ts takes `peak` from weight, which is where loudness belongs, with a fallback that
+// leaves pre-v798 rows reading exactly as they did.
+// RESEARCH_ENGINE_VERSION → "research-v3-lordgate". That is the only lever that reaches stored dasha
+// and convergence rows (DASHA_ENGINE_VERSION and CONVERGENCE_ENGINE_VERSION are read by nothing), so
+// every profile rebuilds all three layers on next read. Pure computation — no LLM, no billing.
+// Controls: 4 new convergence assertions including a founding-wound probe that COUNTS what it
+// checked and fails if it checked nothing, plus a live-vs-stored equality test that asserts the
+// weighting was actually exercised so the agreement cannot be vacuous.
+// 34 files, 342 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.798";

@@ -27,15 +27,19 @@ import { dashaTree } from "./dasha-tree";
 import { GRAHAS, type Graha, SIGN_RULER, planetDignity } from "./dignity";
 import { signIndexOf, signName } from "./vargas";
 
-export const CONVERGENCE_ENGINE_VERSION = "convergence-v2-heavylord";
+export const CONVERGENCE_ENGINE_VERSION = "convergence-v3-heavylord-in-knots";
 
 /** Per-theme convergence inside one pratyantar span (compact — only themes with a tie). */
 export interface ThemeConvergence {
-  /** Distinct period-lords (maha/antar/praty) actively tied to the theme. */
+  /** Distinct period-lords (maha/antar/praty) actively tied to the theme — an honest head-count. */
   convergence: number;
+  /** convergence + one per axis-seated tied lord (the heavy-lord law). `lit` reads THIS. */
+  weight: number;
   /** The maha lord itself is one of them — Step 15 reads outward from the maha. */
   mahaTied: boolean;
-  /** The standing rule: mahaTied ∧ convergence ≥ 2. Event-tier needs a live transit (runtime). */
+  /** The standing rule: mahaTied ∧ convergence ≥ 2 — LORDS, not weight. Gating on weight (what this
+   *  did from v639 to v798) let a single axis-seated maha lord light a chapter alone.
+   *  Event-tier needs a live transit (runtime). */
   lit: boolean;
   /** Which period-lords are tied (deduped planet names). */
   lords: string[];
@@ -99,6 +103,10 @@ export function computeConvergenceTimeline(input: ConvergenceInput): Convergence
   // a period lord SEATED on the degree-true MC/IC axis (sign-level occupancy, matching
   // meridianOnAxis semantics) has each of its ACTIVE ties count double. Timed charts
   // only — no MC, no weighting (Chandra charts skip, as everywhere).
+  // v798: this list is now PASSED INTO buildKnots instead of being applied to its output. The
+  // weighting used to live here and nowhere else, so the live knot layer never obeyed the law while
+  // this stored timeline did — the same chart, two answers, both reaching the same prompt. The file
+  // header says ONE LAW, NOT TWO; it is now true of the weighting as well as of the tie definition.
   const axisSeated = new Set<string>();
   if (input.mcLon != null) {
     const mcIdx = signIndexOf(input.mcLon), icIdx = (mcIdx + 6) % 12;
@@ -117,19 +125,25 @@ export function computeConvergenceTimeline(input: ConvergenceInput): Convergence
       const { all } = buildKnots({
         natal,
         dashaLords: { maha, antar, praty },
-        // Runtime-only reinforcers stay off: timelord (different system — never tallies),
-        // transits (the dated event arm), meridian/yogas (prose reinforcers).
+        // The heavy-lord law is birth-stable, so it belongs in the stored timeline. Runtime-only
+        // reinforcers stay off: timelord (different system — never tallies), transits (the dated
+        // event arm), yogas (prose reinforcer).
+        meridianOnAxis: Array.from(axisSeated),
       });
       themes = {};
       for (const k of all) {
         if (k.convergence >= 1) {
-          // Heavy-lord weighting: each axis-seated ACTIVE lord adds one more line.
-          const heavy = (k.activeLords ?? []).filter((L: string) => axisSeated.has(L)).length;
-          const convergence = k.convergence + heavy;
           themes[k.theme] = {
-            convergence,
+            // The honest head-count, and the weighted number separately — storing the weighted one
+            // AS `convergence` (what this did before v798) meant a stored row claimed more tied
+            // lords than the chart has.
+            convergence: k.convergence,
+            weight: k.weight,
             mahaTied: k.mahaTied,
-            lit: k.mahaTied && convergence >= 2,
+            // STANDING rule only: this timeline never sees a transit, so the event arm cannot fire
+            // here. Stated explicitly rather than inherited from k.lit, so a later change to the
+            // event arm cannot silently write dated events into birth-stable rows.
+            lit: k.mahaTied && k.convergence >= 2,
             lords: k.activeLords,
           };
         }

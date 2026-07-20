@@ -82,7 +82,7 @@ describe("convergence timeline — Step 15 agreement with buildKnots (one law)",
     const natal = natalMapOf(CHART.lonBy, CHART.lagnaLon);
     const { all } = buildKnots({ natal, dashaLords: { maha: "Venus", antar: "Rahu", praty: "Jupiter" } });
     const direct = Object.fromEntries(all.filter((k) => k.convergence >= 1)
-      .map((k) => [k.theme, { convergence: k.convergence, mahaTied: k.mahaTied, lit: k.lit, lords: k.activeLords }]));
+      .map((k) => [k.theme, { convergence: k.convergence, weight: k.weight, mahaTied: k.mahaTied, lit: k.lit, lords: k.activeLords }]));
     const span = spans.find((s) => s.maha === "Venus" && s.antar === "Rahu" && s.pratyantar === "Jupiter");
     expect(span).toBeDefined();
     expect(span!.themes).toEqual(direct);
@@ -108,5 +108,68 @@ describe("convergence timeline — Step 15 agreement with buildKnots (one law)",
         expect(t!.convergence).toBeGreaterThanOrEqual(1);
       }
     }
+  });
+});
+
+describe("the heavy lord — one law, and it ranks rather than gates (v798)", () => {
+  // Aries lagna, MC in Libra: Venus (7th lord, in Libra) and Rahu (also Libra) are AXIS-SEATED.
+  const MC_LON = 190; // Libra — so the MC/IC axis is Libra/Aries
+  const WITH_MC = { ...CHART, mcLon: MC_LON };
+
+  it("weights an axis-seated tied lord, and the stored row says so", () => {
+    const spans = computeConvergenceTimeline(WITH_MC);
+    const span = spans.find((s) => s.maha === "Venus" && s.antar === "Rahu" && s.pratyantar === "Venus");
+    const m = span!.themes.marriage!;
+    // Venus and Rahu both tie AND both sit on the axis → 2 lords, +2 weight.
+    expect(m.convergence).toBe(2);
+    expect(m.weight).toBeGreaterThan(m.convergence);
+  });
+
+  it("stores the honest LORD COUNT as convergence, never the weighted number", () => {
+    const spans = computeConvergenceTimeline(WITH_MC);
+    for (const s of spans) {
+      for (const t of Object.values(s.themes)) {
+        // Before v798 the weighted number was stored AS `convergence`, so a row could claim more
+        // tied lords than it listed. The list is the proof.
+        expect(t!.convergence).toBe(t!.lords.length);
+        expect(t!.weight).toBeGreaterThanOrEqual(t!.convergence);
+      }
+    }
+  });
+
+  it("A SINGLE axis-seated maha lord does NOT light a standing chapter alone", () => {
+    // The founding wound. One tied lord, doubled by the meridian, reaches 2 — and must still not
+    // light, because nobody agrees with it. This is what knots.test.ts caught when the gate briefly
+    // read `weight`, and what the STORED timeline had been getting wrong since v639.
+    const spans = computeConvergenceTimeline(WITH_MC);
+    let checked = 0;
+    for (const s of spans) {
+      for (const t of Object.values(s.themes)) {
+        if (t!.lords.length === 1 && t!.weight >= 2) {
+          expect(t!.lit).toBe(false);
+          checked++;
+        }
+      }
+    }
+    // The probe must be able to fail: if no such span exists, this asserts nothing.
+    expect(checked).toBeGreaterThan(0);
+  });
+
+  it("live buildKnots and the stored timeline agree on the same triple, weights included", () => {
+    const spans = computeConvergenceTimeline(WITH_MC);
+    const natal = natalMapOf(CHART.lonBy, CHART.lagnaLon);
+    // The axis-seated set the timeline derives, restated here from the chart itself.
+    const axis = Object.entries(CHART.lonBy)
+      .filter(([, lon]) => Math.floor(lon / 30) === 6 || Math.floor(lon / 30) === 0)
+      .map(([p]) => p);
+    const { all } = buildKnots({
+      natal, dashaLords: { maha: "Venus", antar: "Rahu", praty: "Jupiter" }, meridianOnAxis: axis,
+    });
+    const direct = Object.fromEntries(all.filter((k) => k.convergence >= 1)
+      .map((k) => [k.theme, { convergence: k.convergence, weight: k.weight, mahaTied: k.mahaTied, lit: k.lit, lords: k.activeLords }]));
+    const span = spans.find((s) => s.maha === "Venus" && s.antar === "Rahu" && s.pratyantar === "Jupiter");
+    expect(span!.themes).toEqual(direct);
+    // And it must actually be exercising the weighting, or the agreement is vacuous.
+    expect(Object.values(direct).some((t: any) => t.weight > t.convergence)).toBe(true);
   });
 });

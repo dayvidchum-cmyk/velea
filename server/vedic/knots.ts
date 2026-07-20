@@ -90,6 +90,16 @@ export type Knot = {
    *  the house / conjunct or aspecting the house-lord). "The more sub cycles that indicate a certain
    *  event, the better probability." This is the count, NOT an invented weight-sum. */
   convergence: number; lit: boolean; tier: KnotTier; signals: KnotSignal[];
+  /** THE HEAVY LORD (David's law, 2026-07-17, decided on the Simone proving case: "when a dasha lord
+   *  lands on the Meridian, it's the whole reading"). A period lord SEATED on the MC/IC axis has its
+   *  active tie count double: `weight` = convergence + one per axis-seated active lord.
+   *  INTENSITY, NOT AGREEMENT. `lit` gates on the honest lord COUNT, never on this — a weighted gate
+   *  lets one axis-seated maha lord reach ≥2 and light a chapter with nobody agreeing with it, which
+   *  is the phantom v430 removed. Use `weight` to rank how loud a lit chapter is. Equal to
+   *  convergence on charts with no MC and whenever no tied lord sits on the axis. */
+  weight: number;
+  /** The active lords that are axis-seated — the ones doubling. Empty unless meridianOnAxis is given. */
+  heavyLords: string[];
   /** The distinct period-lords behind `convergence` (the tally members, deduped). */
   activeLords: string[];
   /** The maha lord itself is tied — Step 15's anchor (the chapter frame). */
@@ -218,8 +228,13 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
       }
     }
 
-    // ── C) meridian ── structural (true all year) → reinforces prose only; the meridian is the
-    //     reference every reading hangs off, but it is a NATAL standing fact, never a convergence line.
+    // ── C) meridian ── a natal standing fact, so it is never its OWN convergence line: an axis-seated
+    //     planet that is not otherwise tied adds nothing. But when a period lord is BOTH actively tied
+    //     AND seated on the dharma axis, David's heavy-lord law (2026-07-17, the Simone engagement —
+    //     "when a dasha lord lands on the Meridian, it's the whole reading") doubles that tie. That law
+    //     lived only in convergence.ts, applied AFTER this function returned, so the live knot layer
+    //     ignored it while the stored timeline obeyed it and the two disagreed about the same chart.
+    //     One law, one place (v798).
     for (const p of args.meridianOnAxis ?? []) {
       if (isPlayer(p)) signals.push({ kind: "meridian", text: `${p}, ${roleOf(p)} here, sits on the meridian (the dharma axis)` });
     }
@@ -246,11 +261,23 @@ export function buildKnots(args: BuildKnotsArgs): { lit: Knot[]; all: Knot[]; ar
     // landing on the ruler (section B). A static natal dasha-conjunction establishes the chapter, it
     // does not date it. A transit merely through a house (not onto the ruler) never lights an event.
     const convergence = activeLords.size;
+    // Heavy-lord weighting: each ACTIVE tie belonging to an axis-seated lord counts twice. This is
+    // INTENSITY, not agreement — see the gate below.
+    const heavyLords = Array.from(activeLords).filter((L) => (args.meridianOnAxis ?? []).includes(L));
+    const weight = convergence + heavyLords.length;
     const mahaTied = args.dashaLords.maha != null && activeLords.has(args.dashaLords.maha);
+    // THE GATE COUNTS LORDS, NOT WEIGHT (v798). Step 15 lights a standing chapter when the maha lord
+    // is tied AND AT LEAST ONE MORE PERIOD-LORD AGREES. A weighted gate breaks that: a single
+    // axis-seated maha lord doubles to 2 and lights the chapter alone, with nobody agreeing with it
+    // — the phantom the v430 rebuild exists to prevent, and knots.test.ts caught it the moment the
+    // weighting was wired to `lit`. The stored timeline HAS been gating on weight since v639, so it
+    // has been manufacturing standing chapters from one lord on every axis-seated maha.
+    // David's law is "when a dasha lord lands on the Meridian, it's the whole reading" — that is
+    // about how loud a real chapter is, not about inventing agreement. So weight ranks; lords gate.
     const lit = (mahaTied && convergence >= 2) || (convergence >= 1 && datedRulerHit);
     const tier: KnotTier = datedRulerHit ? "event" : "standing";
     knots.push({
-      theme: key, label: def.label, houses, karakas, convergence, lit, tier, signals, comboProse,
+      theme: key, label: def.label, houses, karakas, convergence, weight, heavyLords, lit, tier, signals, comboProse,
       activeLords: Array.from(activeLords), mahaTied,
     });
   }
