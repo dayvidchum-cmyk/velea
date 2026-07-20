@@ -127,7 +127,7 @@ export interface TimeLordMovementTimeline {
 // House interpretations for Time Lord transits
 const HOUSE_INTERPRETATIONS: Record<number, string> = {
   1: "self-direction, body, visibility, identity, personal agency",
-  2: "money, values, resources, voice, self-worth, material stability",
+  2: "money, what you own, what you earn, voice, material stability",
   3: "communication, writing, repetition, siblings & close circle, short trips, skill-building",
   4: "home, roots, privacy, emotional foundation, family, inner stability",
   5: "creativity, romance, pleasure, children, visibility through expression",

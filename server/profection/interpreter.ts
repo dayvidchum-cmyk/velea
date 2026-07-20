@@ -26,7 +26,7 @@ const HOUSE_INTERPRETATIONS: Record<number, {
   },
   2: {
     name: "2nd House",
-    themes: "money, values, resources, voice, self-worth, material stability",
+    themes: "money, what you own, what you earn, voice, material stability",
     growth: "The 2nd House brings financial depth and value clarification. Use this year to build security and refine what matters most to you. Speaking your truth becomes easier.",
     friction: "Overattachment to possessions or undervaluing yourself can create stagnation. Greed or scarcity thinking may surface—use as information to recalibrate."
   },

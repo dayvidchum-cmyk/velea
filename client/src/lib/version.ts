@@ -610,4 +610,16 @@
 // of the same window — by the same control that failed the first attempt. The pada is taken from the
 // middle of the RULING star's own window (no pada can hold a majority of a day; the Moon crosses
 // 3-4). Note: the day pada reaches no prose and no screen — stored only. 264 tests pass.
-export const APP_VERSION = "1.1.774";
+// v1.1.775 = 2026-07-19 — THE BANNED 2nd-HOUSE FRAMING, PURGED PROPERLY (audit section 1). v767
+// fixed "self-worth" in two places and missed seven, including one on the SAME screen. All live
+// sites now read "money, what you own, what you earn, your voice": WhyNowChain, TheWhySheet,
+// CurrentTriggerBreakdown, ReasoningChain, the Astrology 2nd-house card, the Glossary entry, and
+// the three profection theme strings. In the PROMPT, only the two DEFINITIONS were changed — the
+// bald "The 2nd is what you own AND your self-worth" and the lead of the 2nd-house gloss. The
+// nuanced GATE (prompts.ts:445-449 and 1439-1447) is deliberately UNTOUCHED: it already enforces
+// David's law correctly — worth is reached only through the money, the speech, the possessions and
+// the mouths you feed, and only when a self-planet genuinely links to the 2nd. Deleting that would
+// have removed the enforcement along with the phrase. Also recorded in astronomy.ts what the CANON
+// says about pada (it defines pada only as a property of a MOMENT — melana's nadi reckoning and the
+// Arudha bhava padas, both natal; there is no canonical "day's pada"), so no ruling is pending.
+export const APP_VERSION = "1.1.775";

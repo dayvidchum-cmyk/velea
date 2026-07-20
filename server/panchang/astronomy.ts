@@ -268,9 +268,15 @@ async function getDominantByMajority(
   const dominantTithiIdx = pickMax(durations(sunriseJD, nextSunriseJD, tithiIdxAt));
 
   // The pada of the RULING star, taken from the middle of the window that star actually holds.
-  // (A pada is a quarter-nakshatra and the Moon crosses 3-4 a day, so no pada holds a majority
-  // of a DAY — "the day's pada" is only meaningful relative to the ruling star's own hours.
-  // This value currently reaches no prose and no screen; it is stored only.)
+  //
+  // WHAT THE CANON SAYS (checked 2026-07-19, so this is not an invented convention): the canon set
+  // defines pada only as a property of a MOMENT — melana's nadi-by-pada reckoning and the
+  // same-star-different-pada rule (melana.json), both NATAL, plus the Arudha bhava padas. There is
+  // no canonical "day's pada", and classical panchang quotes nakshatra-and-pada at a reference
+  // instant rather than as a daily majority. A pada is a quarter-nakshatra and the Moon crosses
+  // 3-4 of them per day, so no pada can hold a majority of a day in any case.
+  // So this stays coherent with the ruling star rather than claiming a day-level meaning it does
+  // not have. It currently reaches no prose and no screen; it is stored only.
   let padaWinStart = sunriseJD, padaWinEnd = nextSunriseJD;
   {
     let segStart = sunriseJD, cur = moonIdxAt(sunriseJD), guard = 0;

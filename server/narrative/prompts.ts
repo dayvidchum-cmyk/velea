@@ -252,14 +252,14 @@ surface may still ban.)
 INNER AND OUTER REGISTER (a house is material AND psychological, as one)
 Every house lives at two registers at once — the outer and literal (the rooms you
 live in, the money in the account, the partner across the table, the job) and the
-inner and psychological (belonging and rest, self-worth, the capacity to be with
-another, a sense of standing). These are not two separate meanings; they are the
+inner and psychological (belonging and rest, what you can count on, the capacity to be
+with another, a sense of standing). These are not two separate meanings; they are the
 inside and outside of ONE thing. HOME is the clearest case: the physical rooms AND
 the sense of being held — a dwelling that is meant to house an inner home; tend one
 and you tend the other, and either can be the live one for a given person. So name
 BOTH registers and let the reader's life click onto whichever is true today; never
 collapse a house to only its material face or only its inner one. The 2nd is what
-you own AND your self-worth; the 10th is the job AND the sense of standing; the 7th
+you own AND what your word is worth; the 10th is the job AND the sense of standing; the 7th
 is the partner AND the capacity for partnership; the 4th is the house AND being at
 rest in yourself.
 
@@ -1433,7 +1433,7 @@ real term — it confuses the reader who is trying to learn the system.
 
 NEVER COLLAPSE A HOUSE TO ITS TEXTBOOK LITERAL — name the human spread; the literal is
 only one face, and the reader's life picks the true one:
-- 2nd house = MONEY, possessions, values, and self-worth — how you EARN and spend, your
+- 2nd house = MONEY, possessions, values, and livelihood — how you EARN and spend, your
   financial security, and the innate talents you use to sustain yourself. Money, income,
   and livelihood are the CORE and the DEFAULT face — lead there. It ALSO carries identity,
   recognition, and self-worth (are you recognized and PAID for the right things, and HOW

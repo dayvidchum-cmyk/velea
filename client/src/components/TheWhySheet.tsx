@@ -17,7 +17,7 @@ import VeleaLoader from "@/components/VeleaLoader";
  */
 const HOUSE_GLOSS: Record<number, string> = {
   1: "self, body, how you are seen",
-  2: "money, possessions, self-worth, speech",
+  2: "money, what you own, what you earn, your voice",
   3: "communication, siblings & close circle, short trips, skill",
   4: "home, roots, mother, the inner ground",
   5: "creativity, children, romance, the heart's expression",

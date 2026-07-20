@@ -27,7 +27,7 @@ import { ChevronDown } from "lucide-react";
 
 const HOUSE_THEMES: Record<number, { name: string; themes: string[] }> = {
   1:  { name: "1st House", themes: ["identity", "body", "visibility", "self-direction", "personal agency"] },
-  2:  { name: "2nd House", themes: ["money", "values", "resources", "voice", "self-worth", "material stability"] },
+  2:  { name: "2nd House", themes: ["money", "what you own", "what you earn", "voice", "material stability"] },
   3:  { name: "3rd House", themes: ["communication", "short travel", "siblings & close friends", "writing", "outreach", "local movement"] },
   4:  { name: "4th House", themes: ["foundations", "home base", "stabilization", "repair", "consolidation", "internal security"] },
   5:  { name: "5th House", themes: ["creativity", "self-expression", "romance", "children", "speculation", "performance"] },
