@@ -537,8 +537,33 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   let dayFilterBlock: any = null;
   try {
     const { dayFilter } = await import("../vedic/day-filter.js");
+    // ONE SOURCE FOR THE DAY'S TITHI (2026-07-19 audit). This used to recompute the tithi from the
+    // Sun/Moon longitudes sampled at LOCAL NOON, while the calendar/hero used the MAJORITY-of-day
+    // tithi (astro.tithiIndex + 1). Two derivations of one quantity: a 60-day probe measured them
+    // landing in DIFFERENT tithi FAMILIES on 9 of 60 days — e.g. 2026-08-01, where the hero read
+    // rikta ("start nothing") while the reading beneath it was generated from jaya ("bold moves
+    // land well"). The nakshatra directly above was already moved to the day-stable majority for
+    // exactly this reason; the tithi was left behind.
+    //
+    // The majority tithi is already on this input as panchang.tithi + paksha, so derive the number
+    // from it rather than resampling the sky. Name+paksha is a bijection over the 30 tithis
+    // (index 14 resolves to Purnima in Shukla, Amavasya in Krishna). If a name ever fails to
+    // match, fall back to the noon computation — a wrong family is bad, no reading is worse.
     const sunLon = a.Sun, moonLon = a.Moon;
-    const tithiNumber = Math.floor(((((moonLon - sunLon) % 360) + 360) % 360) / 12) + 1;
+    const noonTithiNumber = Math.floor(((((moonLon - sunLon) % 360) + 360) % 360) / 12) + 1;
+    const tithiNumber = ((): number => {
+      const TITHI_NAMES = [
+        "pratipada", "dwitiya", "tritiya", "chaturthi", "panchami",
+        "shashthi", "saptami", "ashtami", "navami", "dashami",
+        "ekadashi", "dwadashi", "trayodashi", "chaturdashi",
+      ];
+      const raw = String(panchang.tithi ?? "").trim().toLowerCase()
+        .replace(/^(shukla|krishna)\s+/, "");           // one service path prefixes the paksha
+      const inPaksha = raw === "purnima" || raw === "amavasya" ? 14 : TITHI_NAMES.indexOf(raw);
+      if (inPaksha < 0) return noonTithiNumber;
+      const krishna = String((panchang as any).paksha ?? "").toLowerCase() === "krishna";
+      return (krishna ? inPaksha + 15 : inPaksha) + 1;   // 1..30, same contract as the calendar
+    })();
     const WEEKDAY_LORD_7 = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
     const c = dayFilter({
       nakshatra: String(panchang.nakshatra ?? ""),

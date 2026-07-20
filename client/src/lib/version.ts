@@ -543,4 +543,16 @@
 // it said stored rows need a re-run — they do NOT. `Graha` is the seven classical planets, so
 // combustion, yoga-detect and chesta never read a node's speed; the wrong value was written and
 // never consumed. 298 tests pass, build exits 0.
-export const APP_VERSION = "1.1.769";
+// v1.1.770 = 2026-07-19 — ONE SOURCE FOR THE DAY'S TITHI (audit section 7). The calendar/hero used
+// the MAJORITY-of-day tithi (astro.tithiIndex + 1) while the READING recomputed it from Sun/Moon
+// longitudes sampled at local noon — two derivations of one quantity. MEASURED over 120 days:
+// they land in DIFFERENT tithi FAMILIES on 26 of them (21.7%). 2026-08-01 is the clean example —
+// the hero reads rikta ("start nothing") while the reading directly beneath it was generated from
+// jaya ("bold moves land well"). The nakshatra immediately above in input-builder had already been
+// moved to the day-stable majority for exactly this reason; the tithi was left behind.
+// FIX: derive the number from panchang.tithi + paksha (the majority values already on the input)
+// instead of resampling the sky. Name+paksha is a bijection over the 30 tithis (index 14 = Purnima
+// in Shukla, Amavasya in Krishna); an unmatched name falls back to the old noon computation, since
+// a wrong family is bad but no reading is worse. VERIFIED across 120 days: the reconstruction
+// reproduces the calendar's number 120/120, zero fallbacks. 284 tests pass, build exits 0.
+export const APP_VERSION = "1.1.770";
