@@ -3,7 +3,7 @@
 import { getDb } from "../db.js";
 import { profiles, profileNatalBodies, users } from "../../drizzle/schema.js";
 import { dayFrameReading, type DayFrameReading } from "../vedic/day-frame.js";
-import { readingProse } from "./daily-surface.js";
+import { readingProse, DAILY_SURFACES } from "./daily-surface.js";
 import { eq } from "drizzle-orm";
 import { calculateProfectionYear } from "../profection/calculator.js";
 import { calculateDashaTimeline, currentPratyantardasha, pratyantardashaList } from "../dasha-calculator.js";
@@ -756,7 +756,16 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     for (let i = 1; i <= 3; i++) {
       const d = new Date(dateStr + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() - i);
       const ds = d.toISOString().slice(0, 10);
-      const row = (await getNarrativeCache(p.id, "day_read", ds)) ?? (await getNarrativeCache(p.id, "glance", ds));
+      // ONE OWNER FOR "WHICH ROWS ARE THE DAILY READING" (v851). This re-typed the pair inline —
+      // day_read ?? glance — while daily-surface.ts exists precisely to declare it once, in
+      // priority order, and this file already imports readingProse from there. Two copies of one
+      // list is the same class as the karaka and friendship duplicates: correct today, and nothing
+      // watching if a third surface is added to one and not the other.
+      let row: Awaited<ReturnType<typeof getNarrativeCache>> | undefined;
+      for (const surface of DAILY_SURFACES) {
+        row = await getNarrativeCache(p.id, surface, ds);
+        if (row?.content) break;
+      }
       if (row?.content) {
         try {
           // glance = {narrative}; day_read = {scene, story, tilt, …} — the story IS the read.

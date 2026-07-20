@@ -105,6 +105,9 @@ run server/narrative/input-builder.ts 'strength: +merRx.strength.toFixed(2)' 'po
 run server/narrative/prompts.ts '- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal, strength,' '- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal,' \
   server/narrative/payload-contract.test.ts "the transits field doc drifts from the emitted shape"
 
+run server/narrative/input-builder.ts 'for (const surface of DAILY_SURFACES) {\n        row = await getNarrativeCache(p.id, surface, ds);\n        if (row?.content) break;\n      }' 'row = (await getNarrativeCache(p.id, "day_read", ds)) ?? (await getNarrativeCache(p.id, "glance", ds));' \
+  server/narrative/daily-surface.test.ts "the daily-reading surface list gets re-typed inline again"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"

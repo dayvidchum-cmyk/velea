@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { DAILY_SURFACES, PINNED_SURFACES, pickDailyRows, readingProse } from "./daily-surface";
 
 // CONTROLS for the retired-surface bug: every assertion below FAILS against the old code
@@ -61,5 +62,30 @@ describe("the surface lists themselves", () => {
     expect(PINNED_SURFACES).toContain("day_read"); // the whole bug: the pin wrote glance + deep only
     expect(PINNED_SURFACES).toContain("deep");
     expect(PINNED_SURFACES).toContain("glance"); // legacy pins must still UNPIN
+  });
+});
+
+describe("one owner for 'which rows are the daily reading' (v851)", () => {
+  // input-builder re-typed the pair inline — `getNarrativeCache(day_read) ?? getNarrativeCache(glance)`
+  // — while THIS module exists to declare it once, and that file already imported readingProse from
+  // here. Two copies of one list, correct today, with nothing watching if a third surface is added
+  // to one and not the other. Same class as the karaka and friendship duplicates found this run.
+  const BUILDER = readFileSync(new URL("./input-builder.ts", import.meta.url), "utf8");
+
+  it("input-builder walks DAILY_SURFACES instead of naming the rows itself", () => {
+    expect(BUILDER).toContain("DAILY_SURFACES");
+    expect(BUILDER).toMatch(/for \(const surface of DAILY_SURFACES\)/);
+  });
+
+  it("does not hardcode the day_read/glance pair anywhere", () => {
+    expect(BUILDER).not.toMatch(/getNarrativeCache\([^)]*"day_read"[^)]*\)\s*\?\?\s*await getNarrativeCache\([^)]*"glance"/);
+  });
+
+  it("keeps the live surface FIRST — order is the fallback, not a set", () => {
+    // A history that prefers the retired surface would re-introduce the bug this ordering fixed:
+    // for every user who never pinned a day, recentReads was ALWAYS empty and the anti-repetition
+    // guard had been silently off since the retirement.
+    expect(DAILY_SURFACES[0]).toBe("day_read");
+    expect(DAILY_SURFACES).toContain("glance");
   });
 });
