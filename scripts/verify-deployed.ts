@@ -25,6 +25,33 @@ async function liveVersion(): Promise<string | null> {
   } catch { return null; }
 }
 
+/** sw.js is a STATIC file copied from client/public — it can update while the compiled app bundle
+ *  does not, so matching it proves less than it looks. This fetches the page, finds the hashed JS
+ *  asset it actually loads, and checks that APP_VERSION is inside it. If it is, every line of client
+ *  code from that commit is in production — which is the only categorical statement available for
+ *  the whole client category (a rail geometry or a hook order leaves no queryable trace). */
+async function verifyClientBundle(expectedVersion: string): Promise<boolean> {
+  try {
+    const page = await fetch(`${SITE}/login`, { cache: "no-store" as any });
+    if (!page.ok) { console.error(`  bundle check: HTTP ${page.status} fetching the page`); return false; }
+    const asset = /src="(\/assets\/[^"]+\.js)"/.exec(await page.text())?.[1];
+    if (!asset) { console.error("  bundle check: no hashed JS asset found on the page"); return false; }
+    const js = await fetch(`${SITE}${asset}`, { cache: "no-store" as any });
+    if (!js.ok) { console.error(`  bundle check: HTTP ${js.status} fetching ${asset}`); return false; }
+    const text = await js.text();
+    if (!text.includes(expectedVersion)) {
+      console.error(`  bundle check FAILED — ${asset} does not contain ${expectedVersion}.`);
+      console.error("  The service worker updated but the app bundle did not: a stale client is live.");
+      return false;
+    }
+    console.log(`  bundle check: ${asset} contains ${expectedVersion} — the client code is live.`);
+    return true;
+  } catch (e: any) {
+    console.error("  bundle check: could not reach the client bundle —", e?.message ?? e);
+    return false;
+  }
+}
+
 /** A version number proves the BUILD shipped. It does not prove the FIX did. This asks the live API
  *  a question only the corrected code answers right — the house→mode map whose stale private copy
  *  was deleted in v810 while a public endpoint was still serving it (3 Build / 5 Selective / 9 Flex
@@ -63,9 +90,10 @@ async function main() {
     const live = await liveVersion();
     if (live === expected) {
       console.log(`DEPLOYED — ${SITE} is serving ${live}, matching APP_VERSION ${APP_VERSION}.`);
-      // The version says the BUILD landed. This says a FIX landed with it.
+      // The service-worker version says a BUILD landed. These say the CLIENT and a FIX landed too.
+      const bundleOk = await verifyClientBundle(String(APP_VERSION));
       const fixOk = await verifyLiveFix();
-      process.exit(fixOk ? 0 : 1);
+      process.exit(bundleOk && fixOk ? 0 : 1);
     }
     const detail = live ? `serving ${live}, expected ${expected}` : `no version readable from ${SITE}/sw.js`;
     if (!wait) {

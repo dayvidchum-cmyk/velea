@@ -1715,4 +1715,21 @@
 // Everything else I have called done today rests on a local test and a version number.
 // Proven to fail by pointing it at a host that does not answer that shape — exit 1.
 // 76 files, 824 tests, 0 failures. Build exits 0. tsc clean. Deploy AND fix verified live.
-export const APP_VERSION = "1.1.831";
+// v1.1.832 = 2026-07-20 — sw.js IS A STATIC FILE, SO MATCHING IT PROVES LESS THAN IT LOOKS.
+// v829 caught production frozen at v813 by reading the service worker. But sw.js is copied verbatim
+// out of client/public — it can update while the COMPILED app bundle does not, and then the version
+// check would go green over a stale client. That is the same shape as everything else this run has
+// found: a signal that looks like proof and is not.
+// The deploy check now fetches the page, finds the hashed JS asset it actually loads, and confirms
+// APP_VERSION is inside it. If it is, EVERY line of client code from that commit is in production —
+// which is the only categorical statement available for the client category, since a rail geometry
+// or a hook order leaves no queryable trace the way an API value does.
+// Live: /assets/index-Cdx-XYTp.js contains 1.1.831. So v812's hook order, v813's rail geometry,
+// v815's inked accents and v822's ground override are all genuinely in front of a user — verified
+// as a category, not assumed.
+// Proven to fail by asking for a version production does not have: "the service worker updated but
+// the app bundle did not: a stale client is live", exit 1.
+// `npm run deployed` now checks three things: the service worker, the client bundle, and one live
+// API value only the corrected code answers right.
+// 76 files, 824 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.832";
