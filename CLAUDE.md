@@ -44,7 +44,14 @@ A passing test proves nothing until you have broken the thing it guards and watc
 
 - `npm run probe` — the mutation harness. It breaks each source on purpose and asserts the test
   notices. **Every new guard gets a probe in the same commit.**
-- Probes need a clean tree; commit first, then probe.
+- Probes need a clean tree; commit first, then probe. **If David has uncommitted work in the tree,
+  do NOT stash it** — clone to a temp dir at HEAD, symlink `node_modules`, and run the harness
+  there. His in-progress files are never worth the risk, and "I couldn't run it" is not an
+  acceptable substitute when a zero-risk way exists:
+  `git clone --no-hardlinks --depth 1 file://$PWD /tmp/x && cd /tmp/x && ln -s <repo>/node_modules . && npm run probe`
+- **Never `git add -A`.** Stage the specific files you changed. David works in this repo at the same
+  time, and `add -A` once swept two untracked images from his in-progress marketing page into a
+  commit of mine. Check `git status` before every commit and commit only your own paths.
 - `npm run build` — gate on the **exit code**, never on `build | grep error` (grep exits 0 on a
   failed build).
 - `npx vitest run` — the whole suite, not just the file you touched. A test that passes alone and
