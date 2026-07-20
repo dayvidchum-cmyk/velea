@@ -89,7 +89,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const MARKETING = ["/", "/velea", "/why", "/system", "/receive", "/access", "/confirmed"];
+          const MARKETING = ["/", "/velea", "/why", "/system", "/gate", "/receive", "/access", "/confirmed"];
           if (!MARKETING.includes(url.pathname) && !url.pathname.startsWith("/marketing/") && res.ok) {
             const copy = res.clone();
             caches.open(CACHE).then((c) => c.put("/", copy));

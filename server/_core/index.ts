@@ -12,8 +12,10 @@ import { recordServerError } from "../narrative/generate";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { rateLimit } from "./rateLimit";
-import { addWaitlistSignup } from "../db";
+import { addWaitlistSignup, getUserBySessionToken } from "../db";
 import { COOKIE_NAME } from "@shared/const";
+import { parse as parseCookie } from "cookie";
+import { getSessionCookieOptions } from "./cookies";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -61,9 +63,27 @@ async function startServer() {
   // app routes, /api — falls through to the SPA, and the landing links to
   // none of them, so the app stays invisible from the marketing page.
   const landingHosts = new Set(["velealor.com", "www.velealor.com"]);
-  app.get("/", (req, res, next) => {
+  app.get("/", async (req, res, next) => {
     if (!landingHosts.has(req.hostname)) return next();
-    if (new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=`).test(req.headers.cookie ?? "")) return next(); // AUDIT LOW: substring matched any *suffix-named* cookie
+    // PRESENCE IS NOT VALIDITY (2026-07-20). This used to fall through on the mere
+    // EXISTENCE of the cookie, so a stale token — an expired session, a wiped session
+    // table, a tester's leftover from a previous account — sent a visitor typing
+    // "velealor.com" into the SPA, which has no session and lands them on /login.
+    // The marketing site was unreachable from its own domain until they cleared cookies.
+    // Resolve the token instead: only a LIVE session earns the app.
+    const token = parseCookie(req.headers.cookie ?? "")[COOKIE_NAME];
+    if (token) {
+      let live = false;
+      try {
+        live = !!(await getUserBySessionToken(token));
+      } catch {
+        // The session store being unreachable must not blank the landing page; a
+        // logged-in user seeing marketing for one request is the harmless failure.
+      }
+      if (live) return next();
+      // A dead token would keep doing this on every visit — clear it on the way out.
+      res.clearCookie(COOKIE_NAME, getSessionCookieOptions(req));
+    }
     const file =
       process.env.NODE_ENV === "development"
         ? path.resolve(import.meta.dirname, "../..", "client", "public", "landing.html")
