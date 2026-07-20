@@ -1087,4 +1087,35 @@
 // name that does not exist in the file ("houseKarakas") and a line number that is not the table. The
 // VALUE it quoted was right and the finding was real. Checked before acting, not after.
 // 34 files, 347 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.799";
+// v1.1.800 = 2026-07-20 — GAJA KESHARI COULD NEVER FORM. FOR ANY CHART. EVER.
+// I set out to add the canon cancellations to Kemadruma and Sakata — both ship a verdict about a
+// person's whole life ("loneliness, a poor or difficult life") and both were missing the neutralizing
+// clause stated in their OWN canon entry. Writing the control for the Gaja-Keshari cancellation is
+// what exposed the real bug underneath: the test could not make Gaja Keshari form at all.
+// combustion() returns a REPORT — { combust, orbDeg, limitDeg } — for every orb-bearing planet, and
+// yoga-detect did `!!combustion(...)`. An object is always truthy, so isCombust() was TRUE for every
+// planet except the Sun, on every chart. Consequences, in opposite directions:
+//   · GAJA KESHARI is gated on !isCombust("Jupiter") → it could NEVER fire. One of the best-known
+//     benefic yogas, permanently dark — and it is also one of the three cancellers of Kemadruma, so
+//     its absence made the loneliness verdict fire MORE often.
+//   · "Dur" is gated on isCombust(l) || … → its arm was always true, so it fired far too readily.
+// natal-states.ts:84 carries a comment warning about exactly this trap and golden-hour.ts reads
+// `?.combust` correctly. This file was the one that fell in. Swept the other callers: no others.
+// THE CANCELLATIONS, from canon/yogas.json: Kemadruma is neutralized by the Moon in a kendra/trine,
+// conjunct another planet, or forming Gaja Keshari; Sakata is not formed with the Moon in an angle
+// to the Ascendant. Both clauses are measured FROM THE ASCENDANT, so they read the lagna sign rather
+// than the running frame — referencing them to the frame would make the Moon trivially house-1 in
+// the chandra frame and auto-cancel both afflictions for every chart, while silently breaking the
+// FRAME_INDEPENDENT contract these two are declared under. detectInFrame now takes the ascendant
+// explicitly, and the navamsha run passes the D9 lagna rather than the D1 one.
+// One judgement flagged rather than made silently: the canon excludes the Sun and the nodes from
+// Kemadruma's own 2nd/12th condition but states no exclusion for "conjunct another planet", so the
+// Sun counts as a canceller here — the literal reading, and the one that prints the bad verdict at
+// fewer people.
+// Controls: 15 assertions in the first test file these 42 detectors have ever had, each with a
+// denominator — the yoga is shown FORMING before each cancellation is shown stopping it, and Gaja
+// Keshari is shown still refusing when Jupiter genuinely is combust. My first "Dur" probe was
+// degenerate (six planets stacked in one sign) and proved nothing; it was replaced with a targeted
+// pair where combustion is the only thing that can satisfy the arm.
+// 35 files, 362 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.800";

@@ -78,11 +78,25 @@ function sambandha(f: Frame, a: Graha, b: Graha): boolean {
  * Detect every codable canon yoga in one frame set. Returns name → holds?
  * `frameKind` matters only for prose-notes; the math is identical per frame.
  */
-function detectInFrame(f: Frame, input: YogaInput, dignities: Record<Graha, string>): Record<string, boolean> {
+/** @param lagnaSign  the ASCENDANT's sign index for the chart being read (D1 lagna for the three D1
+ *                    frames, D9 lagna for the navamsha run). A few canon clauses are stated "from
+ *                    the Ascendant" and must not be re-referenced to the running frame — see the
+ *                    Kemadruma / Sakata cancellations below. */
+function detectInFrame(f: Frame, input: YogaInput, dignities: Record<Graha, string>, lagnaSign: number): Record<string, boolean> {
   const out: Record<string, boolean> = {};
   const strongSign = (g: Graha) => ["exalted", "moolatrikona", "own"].includes(dignities[g]);
+  // combustion() returns a REPORT — { combust, orbDeg, limitDeg } — for every orb-bearing planet,
+  // so `!!combustion(...)` is true whenever the planet has an orb at all. natal-states.ts:84 carries
+  // a comment warning about exactly this ("the VERDICT is `.combust`") and golden-hour.ts reads
+  // `?.combust`; this file was the one that fell in. The consequence was not cosmetic:
+  //   · GAJA KESHARI — gated on `!isCombust("Jupiter")` — could NEVER form, for any chart ever. One
+  //     of the best-known benefic yogas, permanently dark, and it is also one of the three things
+  //     that cancel Kemadruma, so its absence made the "loneliness" verdict fire more often too.
+  //   · "Dur" — gated on `isCombust(l) || ...` — fired for EVERY chart, because the left arm was
+  //     always true.
+  // A yoga that can never fire and a yoga that always fires, from one missing property access.
   const isCombust = (g: Graha) =>
-    g !== "Sun" && !!combustion(g, input.lonBy[g], input.lonBy.Sun, (input.speedBy?.[g] ?? 0) < 0);
+    g !== "Sun" && combustion(g, input.lonBy[g], input.lonBy.Sun, (input.speedBy?.[g] ?? 0) < 0)?.combust === true;
 
   // Pancha Mahapurusha: own/exaltation sign AND kendra or trine.
   const MAHAPURUSHA: Array<[string, Graha]> = [
@@ -107,13 +121,41 @@ function detectInFrame(f: Frame, input: YogaInput, dignities: Record<Graha, stri
   out["Sunapha"] = nonSunNonNode.some((g) => moonHouseFrom(g) === 2);
   out["Anapha"] = nonSunNonNode.some((g) => moonHouseFrom(g) === 12);
   out["Durudhara"] = out["Sunapha"] && out["Anapha"];
-  out["Kemadruma"] = !out["Sunapha"] && !out["Anapha"];
-  out["Sakata / Shataka"] = [6, 8, 12].includes(((f.signOf.Moon - f.signOf.Jupiter + 12) % 12) + 1);
   out["Gaja Keshari"] =
     KENDRA.includes(moonHouseFrom("Jupiter")) &&
     dignities.Jupiter !== "debilitated" && !isCombust("Jupiter") &&
     BENEFICS.some((b) => b !== "Jupiter" &&
       (f.signOf[b] === f.signOf.Jupiter || grahaAspectsSign(b, f.signOf[b], f.signOf.Jupiter)));
+
+  // ── THE AFFLICTION YOGAS CARRY THEIR CANON CANCELLATIONS (v800) ──────────────────────────────
+  // These two are the only detectors here whose RESULT text is bad news about a person's whole life,
+  // and both shipped without the neutralizing clause their own canon entry states — so a free shelf
+  // could print "loneliness, a poor or difficult life" at a chart the canon exempts. Gaja Keshari
+  // was already being computed two lines away and simply not consulted; it now precedes Kemadruma
+  // because Kemadruma reads it.
+  //
+  // canon/yogas.json Kemadruma.note: "Neutralized if the Moon is in a kendra/trine, conjunct another
+  // planet, or forms Gaja Keshari."
+  // "In a kendra/trine" and "in an angle to the Ascendant" are both measured FROM THE ASCENDANT, so
+  // they use lagnaSign rather than the running frame. Referencing them to f.refSign would make the
+  // Moon trivially house-1 in the chandra frame — auto-cancelling both afflictions for every chart —
+  // and would break the FRAME_INDEPENDENT contract these two are declared under.
+  const moonHouseFromLagna = ((f.signOf.Moon - lagnaSign + 12) % 12) + 1;
+  // "Conjunct another planet" read literally: any graha sharing the Moon's sign. The nodes are not
+  // in GRAHAS, so this is the seven. NOTE the canon excludes the Sun and the nodes from the yoga's
+  // OWN 2nd/12th condition but states no exclusion for the cancellation, so the Sun counts here.
+  // Flagged rather than narrowed: the narrower reading would print "loneliness, a poor or difficult
+  // life" at more people, and that is not a call to make silently.
+  const moonConjunct = GRAHAS.some((g) => g !== "Moon" && f.signOf[g] === f.signOf.Moon);
+  const kemadrumaCancelled = KENDRA.includes(moonHouseFromLagna) || TRINE.includes(moonHouseFromLagna)
+    || moonConjunct || out["Gaja Keshari"];
+  out["Kemadruma"] = !out["Sunapha"] && !out["Anapha"] && !kemadrumaCancelled;
+
+  // canon/yogas.json "Sakata / Shataka".note: "NOT formed if the Moon is in an angle to the
+  // Ascendant." An angle is a kendra, and it is to the ASCENDANT — so this one clause is frame-
+  // dependent while the yoga's own condition is measured from Jupiter.
+  out["Sakata / Shataka"] = [6, 8, 12].includes(((f.signOf.Moon - f.signOf.Jupiter + 12) % 12) + 1)
+    && !KENDRA.includes(moonHouseFromLagna);
 
   // Solar yogas (Sun-relative).
   const sunHouseFrom = (body: string) => ((f.signOf[body] - f.signOf.Sun + 12) % 12) + 1;
@@ -222,7 +264,8 @@ export function detectYogas(input: YogaInput): DetectedYoga[] {
     { kind: "chandra", f: { refSign: signOf.Moon, signOf } },
     { kind: "surya", f: { refSign: signOf.Sun, signOf } },
   ];
-  const byFrame = frames.map(({ kind, f }) => ({ kind, hits: detectInFrame(f, input, dignities) }));
+  const lagnaSign = signIndexOf(input.lagnaLon);
+  const byFrame = frames.map(({ kind, f }) => ({ kind, hits: detectInFrame(f, input, dignities, lagnaSign) }));
 
   // Navamsha frame: every body re-mapped to its D9 sign; D9 lagna = navamsha of the lagna.
   const d9SignOf: Record<string, number> = {};
@@ -232,12 +275,15 @@ export function detectYogas(input: YogaInput): DetectedYoga[] {
     const d = planetDignity(g, d9SignOf[g] * 30 + 15);
     d9Dignities[g] = d === "neutral" ? signDignity(g, d9SignOf[g]) : d;
   }
+  const d9LagnaSign = vargaSignOf(input.lagnaLon, "D9");
   const d9Hits = detectInFrame(
-    { refSign: vargaSignOf(input.lagnaLon, "D9"), signOf: d9SignOf },
-    input, d9Dignities,
+    { refSign: d9LagnaSign, signOf: d9SignOf },
+    input, d9Dignities, d9LagnaSign, // the navamsha's own ascendant, not the D1 one
   );
 
-  // Frame-independent yogas (identical math in every frame) report a single "natal" frame.
+  // Frame-independent yogas (identical math in every frame) report a single "natal" frame. Kemadruma
+  // and Sakata stay in this set because their cancellations reference the ASCENDANT explicitly, so
+  // all three D1 frames still compute them identically — verified in yoga-cancellations.test.ts.
   const FRAME_INDEPENDENT = new Set([
     "Sunapha", "Anapha", "Durudhara", "Kemadruma", "Sakata / Shataka", "Gaja Keshari",
     "Veshi", "Vashi", "Ubhayachari", "Parivartana", "Kala Sarpa", "Buddhaditya",
