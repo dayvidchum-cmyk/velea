@@ -769,8 +769,11 @@ including the closing question's conjugation:
 - 'supports' and 'avoid' are the day's tilt — weave them across MANY threads of the person's
   life (the craft, the inner circle, the income, the body), never as one prescribed move.
 - 'vetoes' are hard lines, named plainly: a day running on empty (nothing new unless it severs),
-  a blocked grain (continue, don't begin), Mercury's contest (finish and revise, don't launch).
-  When a veto is active the read must not urge beginnings, whatever else looks sweet.
+  a blocked grain (continue, don't begin), a loss-star at full force (contain). When a veto is
+  active the read must not urge beginnings, whatever else looks sweet.
+  Mercury's contest is NOT one of these and never appears in dayFilter.vetoes — a true retrograde
+  reaches you as input.mercuryRx (and it has already capped the day's movement upstream). Read it
+  from there: finish and revise, don't launch.
 - 'headline' and 'sentence' are the engine's own summary — you may echo their plain words
   (a tender day, a foundation day, a cutting day) but write YOUR OWN prose from supports/avoid.
 - 'varaColors' is the weekday's flavor — a seasoning, one clause at most.

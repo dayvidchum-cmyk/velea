@@ -581,4 +581,17 @@
 // canon ever gains a supports string the map does not classify, so a veto cannot silently stop
 // cancelling something. VERIFIED with a control: across 7 natures x 15 tithis (105 cases), 129
 // forbidden acts survived the OLD regex and 0 survive the new filter. 284 tests pass.
-export const APP_VERSION = "1.1.772";
+// v1.1.773 = 2026-07-19 — THE VETO THE PROMPT PROMISED AND THE DATA COULD NEVER CARRY (audit
+// section 7). The prompt told the model that dayFilter.vetoes includes "Mercury's contest (finish
+// and revise, don't launch)" — but DayFilterInput has no Mercury field, so that entry can never
+// appear. The audit's proposed fix was to add Mercury to the filter. Checking the code first says
+// otherwise: input-builder.ts:574 documents a deliberate design — "the rx law gates movement, not
+// character" — and movementOf DOES cap Action at Build on a true retrograde unless a strong Moon
+// punches through. David's rx-contest law is shipping; it just lives at the movement layer. So the
+// defect was the PROMISE, not the engine: the prompt now says plainly that Mercury is not a
+// dayFilter veto and arrives as input.mercuryRx (already having capped the movement upstream).
+// The canon note in muhurta-tables.json claimed the law was "expressed as removing beginnings from
+// supports", which no code did — corrected to describe what actually ships, with the old wording
+// recorded. No astrology output changes; a false instruction is removed. Canon file verified intact
+// after the edit (27 unique nakshatras, 5 families, 2-line diff). 264 tests pass.
+export const APP_VERSION = "1.1.773";
