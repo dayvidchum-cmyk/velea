@@ -213,6 +213,23 @@ day read, which has room), NEVER a license to add length to this teaser:
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
 
+THE DAY THAT TURNS — READ IT IN TWO PARTS.
+When panchang.starTurn is present, the Moon changes nakshatra partway through this day, and the day
+is NOT one mood. starTurn gives you { fromStar (the star at sunrise, which sets the day's blueprint),
+toStar (what it becomes), atLocalTime (the exact clock time it changes), rulesMostOfDay (the star
+holding the majority — useful context, NOT the answer) }.
+
+Write the day in two parts, and NAME THE HOUR in plain clock language: the first star governs from
+waking until that time, the second governs after it. "Steady for close work until about 3pm, and
+after that it wants people" is the shape — not "today is mixed", which tells the reader nothing.
+Where the two stars pull differently, say what changes; where they agree, say the day holds its
+line and do not manufacture a contrast.
+
+Do NOT flatten the day into whichever star holds the majority. That is the standard shortcut and it
+is exactly why an ordinary horoscope feels wrong in the morning or wrong in the evening — it was
+written for the half of the day the reader is not in. When starTurn is ABSENT the day genuinely does
+not turn; say nothing about a shift and do not invent one.
+
 NO SINGLE MOVE. The guidance is the day's TILT, never one prescribed act. Modern life runs many
 threads at once; "move the one thing," "give it one committed hour," "the one piece to finish"
 each read SMALLER than the day actually is — they collapse a direction into an errand and undersell
@@ -2439,7 +2456,7 @@ export const MODEL = "claude-sonnet-4-6";
 // have made all three restorations another fix that lands nowhere, which is the failure this run
 // keeps finding. v804 deliberately did NOT bump, and that was right: the text there was moved, not
 // changed. Here the laws genuinely came back.
-export const PROMPT_VERSION = "2026-07-20-laws-restored";
+export const PROMPT_VERSION = "2026-07-20-two-part-day";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

@@ -110,6 +110,11 @@ run server/panchang/modifier-config.ts "  Magha:             { score: -1," "  Ma
 run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
   server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
 
+run server/narrative/prompts.ts '\nTHE DAY THAT TURNS — READ IT IN TWO PARTS.\n' '\nTHE DAY THAT TURNS — READ IT IN TWO PARTSX.\n' \
+  server/narrative/two-part-day.test.ts "the two-part day law is orphaned"
+run server/narrative/input-builder.ts 'atLocalTime: (field as any).nakshatraTransitionTime,' 'atLocalTime: null,' \
+  server/narrative/two-part-day.test.ts "the turn time stops reaching the model"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"

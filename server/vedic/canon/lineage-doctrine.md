@@ -126,4 +126,30 @@ bigger one:
 planets that the reading should draw on wherever it is lit?**
 
 The current lens gives it one varga (D12) and one house (12). His doctrine describes something much
-wider. That is a design decision, not a transcription, and it is his.
+wider.
+
+## HIS ANSWER (2026-07-20): the latter.
+
+> "latter."
+
+**Ancestry is a SPREAD, not a chip.** The reading draws on it wherever it is lit — across the seven
+houses and three karakas above — rather than living behind one tap on one life-area.
+
+### What that means structurally
+
+This makes lineage a **theme detector**, the same shape as `knots.ts` — something that fires when
+its houses or planets are lit by transit, dasha or natal condition, and hands the reading a thread
+to pull. It is not a varga lens with a chip.
+
+The existing pieces and what they become:
+
+| Now | Under the ruling |
+|---|---|
+| `knots.ts` theme `parents` = houses [4, 9], karakas Moon/Sun/Jupiter | stays — that is the PARENTS-as-people thread |
+| `life-areas.ts` `parents` = D12 / house 12 / Rahu+Ketu, chip "Parents & Roots" | the ancestry READING, but no longer the only place ancestry appears |
+| nothing reads the 2nd, 5th, 8th or 10th as lineage | a lineage spread that watches all seven houses + Moon/Sun/Ketu |
+
+### Not yet built
+
+The spread itself. This entry records the ruling so the next pass builds the whole thing at once
+rather than one house per commit — which is the failure mode this file was created to avoid.

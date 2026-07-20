@@ -2195,4 +2195,22 @@
 // building house 2 while house 8 is still coming is how a method gets half-applied. The engine
 // reads two of those eight.
 // 90 files, 959 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.854";
+// v1.1.855 = 2026-07-20 — THE TWO-PART DAY LAW NOW REACHES THE MODEL, AND ANCESTRY IS A SPREAD.
+// v854 shipped starTurn as DATA with no instruction attached — which is the exact reach failure I
+// spent this whole run cataloguing, and I would have been committing it knowingly. BASE_PROMPT now
+// carries "THE DAY THAT TURNS — READ IT IN TWO PARTS": name the hour in plain clock language, first
+// star until then, second star after; do NOT flatten to whichever star holds the majority (David:
+// that is what the generic apps do and why they feel wrong in the morning or the evening); and when
+// starTurn is absent, say nothing about a shift. PROMPT_VERSION bumped, or the law reaches nothing
+// already cached.
+// A PROBE CAUGHT MY OWN TEST BEING DECORATIVE. It asserted the KEY `atLocalTime:` existed. The probe
+// rewrote the value to `null` and the test stayed green — a key name proves nothing about what flows
+// through it. Every starTurn field is now asserted against its SOURCE EXPRESSION, not its name.
+// DAVID'S RULING ON ANCESTRY: the SPREAD, not the chip. Lineage is a theme detector — the same shape
+// as the convergence engine, firing wherever its houses or planets are lit — across 2nd (Kula), 4th
+// (mother), 5th (Purva Punya), 8th (genetic inheritance, ancestral trauma), 9th (father as first
+// teacher), 10th (his standing), 12th (the departed, Pitri Dosha), plus Moon / Sun / Ketu. The engine
+// reads two of those eight today. Recorded in canon/lineage-doctrine.md; NOT BUILT, and it will be
+// built in one pass rather than a house per commit — which is the failure that file exists to stop.
+// 90 files, 964 tests, 0 failures. 36 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.855";

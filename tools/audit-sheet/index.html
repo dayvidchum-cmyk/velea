@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v854 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v855 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">959</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n">964</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -101,8 +101,7 @@
     standing), 12th (the departed, Pitri Dosha) — plus the karakas: Moon the mother, Sun the father, Ketu the ancestral
     root. It is captured verbatim in <code>canon/lineage-doctrine.md</code>. <b>I stopped implementing when I saw it was
     still arriving</b>, because building house 2 while house 8 was still coming is how a method gets half-applied.
-    <b>The engine reads two of those eight.</b> The real question it opens: is ancestry one chip and one lens, or a
-    spread across seven houses and three planets the reading draws on wherever it is lit? That is yours.</span></div>
+    <b>The engine reads two of those eight.</b> I asked whether ancestry is one chip and one lens, or a spread across seven houses and three planets the reading draws on wherever it is lit. <b>YOUR RULING (20 July): the spread.</b> That makes lineage a THEME DETECTOR — the same shape as the convergence engine, firing wherever its houses or planets are lit — not a varga lens behind one tap. <b>Not built yet</b>, and it will be built in one pass rather than a house per commit.</span></div>
 
   <div class="ask"><b>2. Which nakshatra table wins?</b>
     <span class="why">There are six lists in the app classifying the 27 stars, and only one has a source citation. On four
@@ -130,9 +129,7 @@
     transition day where the mode holds, the model never learned the star turned at all.
     <br><br><b>DONE:</b> both stars and the clock time now travel to the model on every turning day
     (<code>starTurn: { fromStar, toStar, atLocalTime, rulesMostOfDay }</code>).
-    <b>NOT DONE:</b> the prompt does not yet instruct the two-part reading, and the day is still <i>named</i> by the
-    majority star rather than the sunrise one. Those two change what every reading says on 47% of days, and I am not
-    flipping that without you seeing it first.</span></div>
+    <b>ALSO DONE:</b> the prompt now carries the law — name the hour, first star until then, second after, and never flatten to the majority. <b>STILL NOT DONE:</b> the day is <i>named</i> by the majority star rather than the sunrise one. That one changes every reading title on 47% of days, and I am not flipping it without you seeing it.</span></div>
 
   <div class="ask"><b>4. Which cancelled-fall rules are Velea’s?</b>
     <span class="why">You asked what the book says and I wrote it out verse by verse. Two of the four rules the engine
@@ -295,7 +292,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 959 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 964 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>
