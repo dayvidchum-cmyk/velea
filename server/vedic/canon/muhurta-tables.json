@@ -254,5 +254,27 @@
     "rikta": "A Rikta tithi is a built-in nothing-new day unless the act itself is a severing.",
     "personalLadder": "The native's tara standing overrides the collective: a loss-star day at full force stays quiet however sweet the limbs (the Personal Weather Gate's law, now with canon underneath).",
     "mercuryContest": "A true Mercury retrograde caps beginnings/launches (David's rx-contest law, 2026-07-13) — a CONTEST, never a wall. NOTE 2026-07-19: this is shipped at the MOVEMENT layer (movementOf caps Action at Build unless a strong Moon punches through), NOT as an entry in dayFilter.vetoes. This note previously said 'expressed as removing beginnings from supports', which no code did — the prompt was promising the model a veto the data never carried."
+  },
+  "amritaSiddhiYoga": {
+    "_source": "B.V. Raman, *Muhurtha (Electional Astrology)*, Chapter VI 'On Certain Special Yogas', p.40 — indexed there as 'Amita Siddha Yoga', an OCR rendering of Amrita Siddha. Verified in two independent text extractions of David's own scan, plus the book's index entry.",
+    "_verse": "\"Sunday to Saturday respectively coinciding with the constellations Hasta, Sravana, Aswini, Anuradha, Pushya, Revati and Rohini will give rise to Amita Siddha Yoga.\"",
+    "_note": "One nakshatra per weekday — the pairing IS the yoga. Raman adds: 'The above special Yogas can be applied with advantage to important elections and if in addition to the general strength of the day due to a special yoga, the lagna is also rendered strong, chances of success of the enterprise would be by far the greatest.' Note CHANCES, not certainty — which is David's own calibration (2026-07-20): these improve probability, they do not ensure outcomes.",
+    "_transcription": "Raman's spellings normalised to the names this engine emits: Sravana→Shravana, Aswini→Ashwini, Roliini→Rohini. No pairing was altered.",
+    "byWeekday": {
+      "Sunday": "Hasta",
+      "Monday": "Shravana",
+      "Tuesday": "Ashwini",
+      "Wednesday": "Anuradha",
+      "Thursday": "Pushya",
+      "Friday": "Revati",
+      "Saturday": "Rohini"
+    },
+    "supports": [
+      "beginning long-term enterprises",
+      "important life decisions",
+      "contracts and legal agreements",
+      "healing and remedies",
+      "spiritual practice"
+    ]
   }
 }

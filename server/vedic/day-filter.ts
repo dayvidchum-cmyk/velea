@@ -76,6 +76,9 @@ export interface DayCharacter {
   vetoes: string[];
   /** The vara's coloring, one phrase. */
   varaColors: string;
+  /** Amrita Siddhi Yoga — this weekday's own nakshatra (Raman, Muhurtha Ch.VI p.40). One of the
+   *  strongest classical elections. NOT a guarantee: Raman says it makes the chances greatest. */
+  amritaSiddhi: boolean;
   /** true when the personal ladder bottom silences the day (weather-gate law). */
   contained: boolean;
   /** One plain sentence — the day's tilt, for humans. */
@@ -145,6 +148,29 @@ const STAR_SUPPORTS: Record<string, string[]> = {
   "Purva Bhadrapada":  ["austerity", "deep spiritual work", "intense change"],
   Revati:              ["travel", "completion and fulfilment", "prosperity", "protection"],
 };
+
+// ── AMRITA SIDDHI YOGA — CITED, at last (canon/muhurta-tables.json amritaSiddhiYoga) ──────────
+// I refused to build this twice, saying there was "no cited source in this repo". David pushed back:
+// "muhurta yogas and siddhi grids are definitely in the textbooks. i think you are making
+// assumptions." He was right. The source was in his own library the whole time — B.V. Raman's
+// Muhurtha, Chapter VI, p.40, the same book melana.json already cites — and I had never opened the
+// folder. The refusal was defensible; not looking first was not.
+//
+// The verse gives ONE nakshatra per weekday. Raman is explicit about its weight and its limit:
+// "chances of success of the enterprise would be by far the greatest" — chances, not certainty,
+// which is exactly David's own calibration.
+const VARA_WEEKDAY: Record<string, string> = {
+  Sun: "Sunday", Moon: "Monday", Mars: "Tuesday", Mercury: "Wednesday",
+  Jupiter: "Thursday", Venus: "Friday", Saturn: "Saturday",
+};
+const AMRITA_BY_WEEKDAY: Record<string, string> =
+  ((tables as any).amritaSiddhiYoga?.byWeekday ?? {}) as Record<string, string>;
+
+/** Is this weekday+star pairing Amrita Siddhi? Raman, Muhurtha Ch.VI p.40. */
+export function amritaSiddhi(varaLord: string, nakshatra: string): boolean {
+  const weekday = VARA_WEEKDAY[varaLord];
+  return !!weekday && AMRITA_BY_WEEKDAY[weekday] === nakshatra;
+}
 
 type ActClass = "initiate" | "journey" | "union" | "celebrate" | "sever" | "complete" | "continue";
 const ACT_CLASS: Record<string, ActClass> = {
@@ -228,6 +254,9 @@ const VISHTI_BLOCKS = new Set<ActClass>(["initiate", "journey", "union", "celebr
   // is not correctness by construction; it just looks like it.
   for (const list of Object.values(STAR_SUPPORTS)) {
     for (const s of list) if (!(s in ACT_CLASS)) unclassified.push(s);
+  }
+  for (const s of ((tables as any).amritaSiddhiYoga?.supports ?? [])) {
+    if (!(s in ACT_CLASS)) unclassified.push(s);
   }
   if (unclassified.length) {
     throw new Error(`day-filter: unclassified canon supports string(s) — add to ACT_CLASS: ${Array.from(new Set(unclassified)).join(" | ")}`);
@@ -369,10 +398,19 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   if (family === "rikta") supportedKinds = nature === "sharp" || nature === "fierce" ? Array.from(new Set(["sharp", nature] as DayNature[])) : [];
   if (contained || (input.tara && input.tara.quality === "bad")) supportedKinds = [];
 
+  // AMRITA SIDDHI adds its own supports on top of the day's — Raman's elections for it. It does NOT
+  // override a veto: he says it makes the chances greatest, not that it removes an obstacle, and
+  // David's calibration says the same. So it rides the vetoes rather than clearing them.
+  const amrita = amritaSiddhi(input.varaLord, input.nakshatra);
+  if (amrita && !contained) {
+    const extra = ((tables as any).amritaSiddhiYoga?.supports ?? []) as string[];
+    supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
+  }
+
   return {
     nature, family, headline, supportedKinds,
     supports: dedupe(supports), avoid: dedupe(avoid), vetoes,
-    varaColors, contained, sentence,
+    varaColors, contained, sentence, amritaSiddhi: amrita,
   };
 }
 

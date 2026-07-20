@@ -140,6 +140,11 @@ run server/vedic/research-store.ts 'dv: DASHA_ENGINE_VERSION,' '' \
 run server/panchang/service.ts 'const dominantNak = (astro as any)?.nakshatraAtSunrise ?? astro?.nakshatra' 'const dominantNak = astro?.nakshatra' \
   server/panchang/sunrise-naming.test.ts "the day goes back to being named by the majority star"
 
+run server/vedic/canon/muhurta-tables.json '"Sunday": "Hasta"' '"Sunday": "Rohini"' \
+  server/vedic/amrita-siddhi.test.ts "the Amrita Siddhi table drifts from Raman's verse"
+run server/vedic/day-filter.ts 'const amrita = amritaSiddhi(input.varaLord, input.nakshatra);' 'const amrita = false;' \
+  server/vedic/amrita-siddhi.test.ts "Amrita Siddhi stops being detected"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
