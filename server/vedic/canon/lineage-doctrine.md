@@ -149,7 +149,28 @@ The existing pieces and what they become:
 | `life-areas.ts` `parents` = D12 / house 12 / Rahu+Ketu, chip "Parents & Roots" | the ancestry READING, but no longer the only place ancestry appears |
 | nothing reads the 2nd, 5th, 8th or 10th as lineage | a lineage spread that watches all seven houses + Moon/Sun/Ketu |
 
-### Not yet built
+### BUILT (v856), in one pass
 
-The spread itself. This entry records the ruling so the next pass builds the whole thing at once
-rather than one house per commit — which is the failure mode this file was created to avoid.
+`server/vedic/lineage.ts` — a detector, not a lens. All seven strands, each with its house, his
+karakas, and the question it carries in the reader's language. A strand lights only when a running
+period-lord or the TIME LORD is genuinely tied to it (seated in the house, ruling it, or being one of
+its karakas), or when a SLOW transit lands on it.
+
+**Fast transits are excluded on purpose.** Ancestry is a standing theme. If the Moon could light
+"the departed" every third day, the spread would be noise and the reading would find ancestral
+trauma on a Tuesday.
+
+**It reaches the reading.** `input.lineage` is emitted only when something is lit, and BASE_PROMPT
+carries the law: read the lit strand as part of the day, never as a header, never naming the house
+number, and never reach for the ancestors when the field is absent. PROMPT_VERSION bumped, or the
+law would reach nothing already cached.
+
+**What it does NOT do:** score, rank or weigh. It reports which strands are lit and why. How loud a
+strand should be is a method call David has not made, and inventing one here is the unowned
+weighting this run has been removing.
+
+### Still not done
+
+- The 12th-house LENS domain still does not say Pitrus, Moksha or Pitri Dosha.
+- The chip still reads "Parents & Roots" on an ancestry area — his rename to make.
+- The 2nd, 5th, 8th and 10th now have a lineage READING but no varga lens of their own.

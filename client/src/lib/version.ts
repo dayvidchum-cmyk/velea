@@ -2213,4 +2213,28 @@
 // reads two of those eight today. Recorded in canon/lineage-doctrine.md; NOT BUILT, and it will be
 // built in one pass rather than a house per commit — which is the failure that file exists to stop.
 // 90 files, 964 tests, 0 failures. 36 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.855";
+// v1.1.856 = 2026-07-20 — THE LINEAGE SPREAD IS BUILT, AND IT REACHES THE READING.
+// David ruled: ancestry is a SPREAD, not a chip. server/vedic/lineage.ts is a detector in the shape
+// of knots.ts — seven strands, each with its house, HIS karakas, and the question it carries:
+//   2nd  the family line (Kula)      · 4th  the mother          · 5th  what you carry forward
+//   8th  what came down in the blood · 9th  the father          · 10th his standing over you
+//   12th the departed, what is owed backwards
+// plus Moon the mother, Sun the father, Ketu the ancestral root — because "houses only tell half
+// the story".
+// A strand lights only when a running period-lord or the year lord is genuinely tied to it — seated,
+// ruling, or being its karaka — or when a SLOW transit lands on it. FAST TRANSITS ARE EXCLUDED ON
+// PURPOSE: ancestry is a standing theme, and a Moon that lights "the departed" every third day makes
+// the spread noise and finds ancestral trauma on a Tuesday.
+// IT IS WIRED, and that was the whole risk. Every reach failure this run had the same shape —
+// correct in its own file, arriving nowhere — so building the spread and not wiring it would have
+// been that failure committed knowingly on the day I finished cataloguing it. input.lineage is
+// emitted only when lit; BASE_PROMPT carries the law (read it as part of the day, never a header,
+// never the house number, and never reach for the ancestors when the field is absent);
+// PROMPT_VERSION bumped or the law reaches nothing cached. Six tests assert the reach specifically.
+// IT DOES NOT SCORE OR RANK. How loud a strand should be is a method call he has not made, and
+// inventing one is the unowned weighting this run has been removing.
+// TWO OF MY OWN TESTS BROKE ON IT, both brittle in the same way: they pinned PROMPT_VERSION to an
+// exact string, so adding the SECOND law broke the FIRST test against correct code — the version had
+// moved, which is what it is for. Both now pin the invariant: dated, and not any pre-law value.
+// 91 files, 981 tests, 0 failures. 39 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.856";

@@ -108,7 +108,14 @@ describe("the law ARRIVES — the data is useless without it (v855)", () => {
   });
 
   it("PROMPT_VERSION moved, or the law reaches no cached reading", async () => {
+    // PIN THE FACT, NOT THE STRING. This asserted PROMPT_VERSION === "2026-07-20-two-part-day",
+    // so adding the NEXT law (the lineage spread) broke it against correct code — the version had
+    // moved, which is exactly what it is supposed to do. What must hold is that it is dated and is
+    // not any value that predates a law now in the prompt.
     const { PROMPT_VERSION } = await import("./prompts.js");
-    expect(PROMPT_VERSION).toBe("2026-07-20-two-part-day");
+    expect(PROMPT_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}-/);
+    for (const stale of ["2026-07-18-audit4-law-reconcile", "2026-07-20-laws-restored"]) {
+      expect(PROMPT_VERSION).not.toBe(stale);
+    }
   });
 });

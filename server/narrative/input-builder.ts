@@ -19,6 +19,7 @@ import { resolveDaySky, DEFAULT_SKY } from "../panchang/resolve-day-sky.js";
 import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { buildKnots, type NatalPlanet } from "../vedic/knots.js";
+import { buildLineage } from "../vedic/lineage.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
 import { mercuryRxState, mercuryRxCycle , planetRxCycle } from "../sky/retrograde-phase.js";
 import { monthEvents } from "../sky/month-events.js";
@@ -902,6 +903,22 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     meridianOnAxis,
     partnerGender: null,
   });
+  // THE LINEAGE SPREAD (David's ruling, 2026-07-20: ancestry is a SPREAD, not a chip). Seven
+  // strands — the family line (2nd), the mother (4th), what you carry forward (5th), what came
+  // down through the blood (8th), the father (9th), his standing (10th), the departed (12th) —
+  // plus the karakas he named: Moon the mother, Sun the father, Ketu the ancestral root. It fires
+  // wherever a running period-lord or a SLOW transit is genuinely tied to a strand. Reuses the
+  // exact inputs the knots use, so the two can never disagree about the chart.
+  const lineageResult = buildLineage({
+    natal: knotNatal,
+    dashaLords: { maha: (dasha as any)?.mahaDasha?.lord ?? null, antar: (dasha as any)?.antarDasha?.lord ?? null, praty: (dasha as any)?.pratyantarDasha?.lord ?? null },
+    timeLord: pf.timeLord,
+    transitsHitting: (transits as any[]).map((t) => ({ planet: t.planet, hitsNatalPoint: t.hitsNatalPoint ?? null, houseFromLagna: t.houseFromLagna ?? null, slow: SLOW_TRANSITS.has(t.planet) })),
+  });
+  const lineage = lineageResult.lit.length
+    ? lineageResult.lit.map((t) => ({ strand: t.strand, label: t.label, asks: t.question, why: t.signals.map((s) => s.text) }))
+    : undefined;
+
   // THE OPEN WINDOWS (David 2026-07-15: "how would someone like Simone wake up… and get a
   // hint she may be engaged by the end of the day"): the STORED Step-15 convergence
   // timeline — natal promise + dasha + transit agreeing — carries which life-themes stand
@@ -1125,5 +1142,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

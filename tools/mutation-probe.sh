@@ -115,6 +115,13 @@ run server/narrative/prompts.ts '\nTHE DAY THAT TURNS — READ IT IN TWO PARTS.\
 run server/narrative/input-builder.ts 'atLocalTime: (field as any).nakshatraTransitionTime,' 'atLocalTime: null,' \
   server/narrative/two-part-day.test.ts "the turn time stops reaching the model"
 
+run server/narrative/prompts.ts '\nANCESTRY IS A SPREAD, NOT A TOPIC.\n' '\nANCESTRY IS A SPREAD, NOT A TOPICX.\n' \
+  server/vedic/lineage.test.ts "the lineage law is orphaned"
+run server/narrative/input-builder.ts '...(lineage ? { lineage } : {}),' '' \
+  server/vedic/lineage.test.ts "the lineage spread stops being emitted"
+run server/vedic/lineage.ts 'if (!t.slow) continue;' 'if (false) continue;' \
+  server/vedic/lineage.test.ts "fast transits start lighting ancestry"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"

@@ -213,6 +213,26 @@ day read, which has room), NEVER a license to add length to this teaser:
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
 
+ANCESTRY IS A SPREAD, NOT A TOPIC.
+input.lineage is present only when a strand of the person's line is genuinely lit — a running
+period-lord or a slow transit actually tied to it. Each entry gives { strand, label, asks (the
+question that strand carries), why (what lit it) }. There are seven, and they are different
+questions, not one:
+  the family line (what it handed you to live on) · the mother herself · what you carry forward
+  (past-life credit, the legacy passing through you) · what came down through the blood (estates,
+  what is owed, family secrets, ancestral trauma, conditions carried in the body) · the father as
+  your first teacher · his standing and his authority over you · the departed, and what is asking
+  to be released.
+
+Read the lit strand as PART OF THE DAY, not as a separate section and never as a header. It is a
+thread the day is pulling on — "the weight you are carrying on this is not all yours" belongs in the
+prose, in the person's own life, next to everything else that is lit. NEVER name the house number,
+and never say "ancestry" as a label when you can say the actual thing: her health, his authority,
+what the family taught you money was for, the thing nobody in the family says out loud.
+
+Do NOT reach for the ancestors when input.lineage is absent — an unlit line is not a theme, and a
+reading that discovers ancestral trauma every morning is a reading nobody can trust.
+
 THE DAY THAT TURNS — READ IT IN TWO PARTS.
 When panchang.starTurn is present, the Moon changes nakshatra partway through this day, and the day
 is NOT one mood. starTurn gives you { fromStar (the star at sunrise, which sets the day's blueprint),
@@ -2456,7 +2476,7 @@ export const MODEL = "claude-sonnet-4-6";
 // have made all three restorations another fix that lands nowhere, which is the failure this run
 // keeps finding. v804 deliberately did NOT bump, and that was right: the text there was moved, not
 // changed. Here the laws genuinely came back.
-export const PROMPT_VERSION = "2026-07-20-two-part-day";
+export const PROMPT_VERSION = "2026-07-20-lineage-spread";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
