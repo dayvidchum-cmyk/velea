@@ -646,4 +646,22 @@
 // by running the OLD logic against the same fixtures (JSON blob leaked, prose came back "", the
 // archive query returned 1 row of 3, PINNED_SURFACES lacked day_read). Cache identity is
 // unaffected — dayStableHash already excludes recentReads (audit H1), so no re-bill.
-export const APP_VERSION = "1.1.776";
+// v1.1.777 = 2026-07-20 — THE GLYPHS, LOOKED AT. Not reasoned about: rendered at the true phone
+// cell (390px viewport → 48.8px cell), measured, and screenshotted before and after.
+// WHAT WAS WRONG: the mark rail's slot width was chosen from the mark count alone, but the crown
+// renders in that same row at 17px and was never in the budget. "5 marks + ♛" asked for 5×8+17 =
+// 57px of rail inside a 48.8px cell; "3 marks + ♛" asked for 53px. Nothing clamped it — the rail is
+// absolutely positioned with nowrap, so the excess spilled silently into the days either side.
+// Measured on the old code: three cells put their glyphs up to 4.1px OUTSIDE their own cell, which
+// with the neighbour doing the same left ~0px between two clusters. That is why loaded days ran
+// together into one strip and you could not tell which glyph belonged to which day.
+// THE FIX IS THE BUDGET, not a nudge: RAIL_BUDGET = 40px is a hard ceiling and the slot width is
+// SOLVED from it with the crown included (crown 17 alone, yielding to 14 when it shares the rail;
+// one fewer slotted mark when a crown is present). Moon dot and € now ride their slot too. Measured
+// after: 0 cells overflow, 3.4px of air on each side — ~7px of gutter between two fully-loaded
+// neighbours. The common 0-2 mark day is pixel-identical; only crown rows and 3-mark rows change.
+// WHY IT HID SO LONG: /audit rendered each coin in a ~116px tile — 2.4x the real cell — so this
+// class of bug could not fail there. /audit now opens with a TRUE-cell-width strip: the same coins
+// in a real 7-column grid at 48.86px, worst loads adjacent, each cell outlined. A rail that
+// outgrows its day now crosses a visible line.
+export const APP_VERSION = "1.1.777";

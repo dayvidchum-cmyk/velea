@@ -80,10 +80,34 @@ export default function CalendarCoin(p: CalendarCoinProps) {
         // trio read cramped/odd. LAW: a glyph NEVER exceeds its slot (glyph = slot width). The
         // real width budget is the CELL (~44px on a phone), not the 32px coin — so 3 marks get
         // honest 12px slots (36px total) instead of being crushed into the coin.
-        const markCount = stations.length + windows.length + shadows.length + (moonPhase ? 1 : 0) + (prosperity ? 1 : 0);
-        const slotW = markCount >= 5 ? 8 : markCount === 4 ? 10 : markCount === 3 ? 12 : 13;
+        // 2026-07-20, EYES ON IT at true phone width: the rail overflowed into the NEIGHBOURING
+        // day and two loaded days ran together into one illegible strip of glyphs. Two causes,
+        // both structural:
+        //   (a) the CROWN was never in the width budget. It renders inside this same row at 17px,
+        //       but slotW was chosen from markCount alone — so "5 marks + ♛" asked for 5×8+17 =
+        //       57px inside a ~48px cell, and "3 marks + ♛" asked for 53px.
+        //   (b) nothing CLAMPED the row to the cell. It is absolutely positioned with nowrap, so
+        //       any excess silently spills both ways into the days either side.
+        // THE RAIL BUDGET is now a hard ceiling and the slot width is SOLVED from it, crown
+        // included. The measured phone cell is 48.8px (390px viewport), so a 40px rail leaves
+        // ~4.4px of air on each side — nearly a glyph of gutter between two fully-loaded
+        // neighbours, which is what makes them read as two days instead of one strip.
+        // The glyph = its slot (the standing law) still holds.
+        const RAIL_BUDGET = 40;
+        const hasCrown = !!achievement;
+        // With a crown in the row, one fewer slotted mark — the build order below IS the priority
+        // order, so the quietest mark yields rather than every glyph shrinking to a smudge.
+        const maxSlots = hasCrown ? 4 : 5;
+        const rawCount = stations.length + windows.length + shadows.length + (moonPhase ? 1 : 0) + (prosperity ? 1 : 0);
+        const markCount = Math.min(rawCount, maxSlots);
+        // A crown ALONE keeps its full 17px (the common achievement day is unchanged); it yields to
+        // 14 only when it has to share the rail with glyphs.
+        const crownW = !hasCrown ? 0 : markCount === 0 ? 17 : 14;
+        const slotW = markCount === 0 ? 0
+          : Math.max(7, Math.min(13, Math.floor((RAIL_BUDGET - crownW) / markCount)));
         const g = slotW;
-        const dotSz = markCount >= 4 ? 7 : 9;
+        // Moon dot and € ride their slot too — a 9px dot in a 7px slot is the same overlap bug.
+        const dotSz = Math.max(6, Math.min(9, slotW - 1));
         for (const pl of stations) others.push(<PlanetMark key={`st-${pl}`} planet={pl} size={g} strokeWidth={2.1} />);
         // Shadow thresholds: the glyph, FULL ink like every rail glyph (David 2026-07-18: "the
         // glyph does not need to change opacity ever" — the quiet is that it appears ONLY on the
@@ -94,27 +118,26 @@ export default function CalendarCoin(p: CalendarCoinProps) {
             background: moonPhase === "full" ? "#FDFBF3" : "#160f26",
             border: moonPhase === "full" ? "1px solid #8a8264" : "1px solid #160f26", display: "inline-block" }} />
         );
-        if (prosperity) others.push(<span key="$" style={{ fontFamily: "Georgia, serif", fontSize: `${g + 1}px`, fontWeight: 600, color: DOLLAR_INK, alignSelf: "center", lineHeight: 1 }}>€</span>);
+        if (prosperity) others.push(<span key="$" style={{ fontFamily: "Georgia, serif", fontSize: `${g}px`, fontWeight: 600, color: DOLLAR_INK, alignSelf: "center", lineHeight: 1 }}>€</span>);
         for (const pl of windows) others.push(<PlanetMark key={pl} planet={pl} size={g} strokeWidth={2.1} />);
-        const hasCrownMark = !!achievement;
-        const mid = Math.floor(others.length / 2);
         const slot = (node: ReactNode, key: React.Key) => (
           <span key={key} style={{ width: slotW, display: "flex", justifyContent: "center", alignItems: "center" }}>{node}</span>
         );
         // AUDIT LOW (2026-07-18): unbounded mark counts (2 stations + windows + moon + € + crown)
-        // could outgrow the cell. Hard cap at 5 slotted marks — the build order above IS the
-        // priority order (stations first), so the least-loud marks are the ones that yield.
-        const slotted = others.slice(0, 5).map((n, i) => slot(n, i));
+        // could outgrow the cell. Hard cap at maxSlots — the build order above IS the priority
+        // order (stations first), so the least-loud marks are the ones that yield.
+        const slotted = others.slice(0, maxSlots).map((n, i) => slot(n, i));
+        const mid = Math.floor(slotted.length / 2); // split the SLOTTED marks, not the pre-cap list
         return (
           <span style={{ position: "absolute", top: -17, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
-            {hasCrownMark ? (
+            {hasCrown ? (
               // David's 11/16 catch: the old 1fr|auto|1fr grid hard-pinned the crown to the coin's
               // axis and split flanks floor/ceil — an ODD mark count dumped the extra glyph on the
               // right and the cluster never re-centered. Now the WHOLE cluster (crown mid, marks
               // around) centers as one unit; with even flanks the crown still sits exactly on-axis.
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1, whiteSpace: "nowrap" }}>
                 {slotted.slice(0, mid)}
-                <CrownMark size={17} style={{ transform: "translateY(-2px)" }} />
+                <CrownMark size={crownW} style={{ transform: "translateY(-2px)", flexShrink: 0 }} />
                 {slotted.slice(mid)}
               </span>
             ) : (

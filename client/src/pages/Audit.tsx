@@ -62,6 +62,31 @@ const COIN_CASES: Array<{ note: string; props: CalendarCoinProps }> = [
   { note: "Track continuity (middle empty)", props: { day: 27, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD, bindis: [{ planet: "Mercury", strength: 2 }, null, { planet: "Saturn", strength: 3 }] } },
 ];
 
+// TRUE-CELL-WIDTH STRIP — the worst mark loads, adjacent, in a real 7-column month grid. This is
+// where a rail that outgrows its cell collides with its neighbour; the roomy matrix below cannot
+// show it. Row 1 = crown/glyph pileups, row 2 = crowns, eclipse, today, and the bindi ladders.
+const ring = (c: string) => `1.5px solid color-mix(in srgb, ${c} 62%, transparent)`;
+const TRUE_WIDTH_ROWS: CalendarCoinProps[][] = [
+  [
+    { day: 8, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, achievement: true, numberColor: GOLD, restingBg: "transparent", border: ring(GOLD), accent: GOLD },
+    { day: 9, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", prosperity: true, numberColor: GOLD, restingBg: "transparent", border: ring(GOLD), accent: GOLD },
+    { day: 10, achievement: true, stations: ["Mercury"], windows: ["Saturn"], moonPhase: "full", numberColor: TEAL, restingBg: "transparent", border: ring(TEAL), accent: TEAL },
+    { day: 11, stations: ["Saturn"], windows: ["Mercury", "Venus"], moonPhase: "full", numberColor: TEAL, restingBg: "transparent", border: ring(TEAL), accent: TEAL },
+    { day: 12, isCrown: true, pulse: "lakshmi", stations: ["Mercury"], achievement: true, numberColor: "#3A2E12", restingBg: "color-mix(in srgb, #FFD429 62%, var(--parchment))", border: "1.5px solid #D4AF37", accent: "#D4AF37" },
+    { day: 13, stations: ["Mercury"], windows: ["Saturn"], moonPhase: "full", numberColor: TEAL, restingBg: "transparent", border: ring(TEAL), accent: TEAL },
+    { day: 14, achievement: true, prosperity: true, numberColor: GOLD, restingBg: "transparent", border: ring(GOLD), accent: GOLD },
+  ],
+  [
+    { day: 15, moonPhase: "full", numberColor: GREY, restingBg: "transparent", border: ring(GREY), accent: GREY },
+    { day: 16, isToday: true, filled: true, hasMode: true, pulse: "today", stations: ["Mercury"], windows: ["Venus"], moonPhase: "new", numberColor: "#FBF7ED", restingBg: `color-mix(in srgb, ${TEAL} 62%, var(--parchment))`, border: "1.5px solid transparent", accent: TEAL, bindis: [{ planet: "Mercury", strength: 5 }, { planet: "Jupiter", strength: 3 }, { planet: "Saturn", strength: 2 }] },
+    { day: 17, achievement: true, numberColor: TEAL, restingBg: "transparent", border: ring(TEAL), accent: TEAL, bindis: [{ planet: "Mercury", strength: 5 }, null, { planet: "Saturn", strength: 4 }] },
+    { day: 18, isEclipse: true, achievement: true, prosperity: true, moonPhase: "new", numberColor: GOLD, restingBg: "transparent", border: ring(GOLD), accent: GOLD },
+    { day: 19, prosperity: true, achievement: true, stations: ["Venus"], windows: ["Mars"], numberColor: GOLD, restingBg: "transparent", border: ring(GOLD), accent: GOLD },
+    { day: 20, shadows: ["Mercury"], moonPhase: "full", numberColor: TEAL, restingBg: "transparent", border: ring(TEAL), accent: TEAL, bindis: [{ planet: "Mercury", strength: 2 }] },
+    { day: 21, numberColor: GOLD, restingBg: "transparent", border: "1.5px solid transparent", accent: GOLD },
+  ],
+];
+
 // Each case is a labeled Dateline prop-set. The label says what edge it exercises.
 const CASES: Array<{ note: string; props: DatelineProps }> = [
   { note: "Full · short hora", props: { dateLabel: "FRI, 07-17-2026", time: "11:33 PM", modeColor: "#5C6B7A", modeLabel: "SELECTIVE", activity: "ENERGIZE", activityColor: ACT_GREEN, horaLord: "MOON" } },
@@ -119,6 +144,28 @@ export default function Audit() {
               <Dateline dateLabel="FRI, 07-17-2026" time="11:33 PM" modeColor={m.color} modeLabel={m.label} activity="ENERGIZE" activityColor={ACT_GREEN} horaLord="MOON" />
             </Tile>
           ))}
+        </div>
+
+        {/* THE ROW THAT CAN FAIL (2026-07-20). The matrix below renders each coin in a ~116px tile —
+            2.4x the real 48.8px calendar cell — so a rail that overflows into the NEXT DAY is
+            structurally invisible there. It hid a real bug for days: a crown + 5 marks asked for
+            57px of rail inside a 48.8px cell, and two loaded neighbours ran together into one
+            illegible strip of glyphs. This strip renders the SAME coins at the TRUE cell width, in
+            a real 7-column grid, worst cases ADJACENT — the only arrangement where a collision can
+            show. Marks must stay inside their own dashed cell. */}
+        <h2 style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--heading-ink)", margin: "2.5rem 0 0.3rem" }}>The Calendar Coin · TRUE cell width</h2>
+        <p style={{ fontSize: "0.75rem", color: "var(--color-muted-foreground)", margin: "0 0 1rem" }}>
+          The real phone cell (48.8px), worst mark combinations side by side. Every glyph must stay inside its own dashed box — anything crossing a line is a rail overflowing into the next day.
+        </p>
+        <div style={{ width: 358, maxWidth: "100%", borderRadius: 12, background: "var(--parchment)", border: "1px solid var(--color-border)", padding: "0.25rem 0.5rem 1.5rem", marginBottom: "2.5rem" }}>
+          <div className="grid grid-cols-7" style={{ rowGap: "2.7rem", paddingTop: "1.4rem" }}>
+            {TRUE_WIDTH_ROWS.flat().map((props, i) => (
+              <div key={`tw-${i}`} className="flex flex-col items-center" style={{ width: "100%", gap: "0.2rem", position: "relative" }}>
+                <span style={{ position: "absolute", inset: "-16px 0 -14px", outline: "1px dashed color-mix(in srgb, #C41E3A 45%, transparent)", pointerEvents: "none" }} />
+                <CalendarCoin {...props} />
+              </div>
+            ))}
+          </div>
         </div>
 
         <h2 style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--heading-ink)", margin: "2.5rem 0 0.3rem" }}>The Calendar Coin</h2>
