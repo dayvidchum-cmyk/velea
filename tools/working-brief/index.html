@@ -55,10 +55,10 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v850 · 20 July 2026 · where the app actually stands</p>
+  <p class="sub">v851 · 20 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> The engine is in good shape and now proves it: 944 tests, and 32 checks that each
+    <b>Where things stand.</b> The engine is in good shape and now proves it: 942 tests, and 32 checks that each
     deliberately break something to confirm the test notices. The reading pipeline, the canon tables, the dasha clock,
     the paid gates and the per-user data isolation were all audited this run and came back clean.
     What stands between here and opening is <b>your price and your Stripe keys</b> — not code.
@@ -73,9 +73,9 @@
 
   <div class="grp">The astrology — how Velea reads a chart</div>
   <ol class="asks">
-    <li>Which house are “parents”? Two parts of the engine disagree, and both are live.</li>
-    <li>Which nakshatra table wins? Six lists, one citation, four stars in dispute.</li>
-    <li>When does a day “become” its star — majority of the day, or the star at sunrise?</li>
+    <li>Which house are “parents”? <b>RULED:</b> both stay — 4th/9th are mother and father; ancestry is roots, what they inherited and passed on.</li>
+    <li>Which nakshatra table wins? <b>RULED:</b> the cited tables win. Real work to implement, not a switch — not done yet.</li>
+    <li>Majority star or the star at sunrise? <b>RULED:</b> majority. (They disagree on 47.1% of days, measured — not the “third” I had estimated.)</li>
     <li>Which cancelled-fall rules are Velea’s? Two of the four are one verse read twice.</li>
     <li>Which yogas should the reader actually hear?</li>
     <li>The knot thresholds — I set them, never checked them, and have now said so twice.</li>
@@ -86,7 +86,7 @@
   <ol class="asks" start="8" style="counter-reset:a 7">
     <li>The crown mark is gold on a gold coin — measured at 1.6:1, effectively invisible.</li>
     <li>Parchment ink in dark mode sits at 2.3:1 on the month calendar.</li>
-    <li>What does a chartless day say, if not the retired four modes?</li>
+    <li>What does a chartless day say? <b>RULED:</b> no birth data means no app — an onboarding gate, bigger than hero copy, not built.</li>
   </ol>
 
   <div class="grp">The business — money and launch</div>
@@ -99,7 +99,7 @@
   <div class="grp">Cleanup — keep or kill</div>
   <ol class="asks" start="14" style="counter-reset:a 13">
     <li>The pick-a-date precision layer: wire it, or delete it? 170 lines nothing calls.</li>
-    <li>The old meaning-engine: delete it, or rebuild it? It still carries a doctrine you overturned.</li>
+    <li>The old meaning-engine — <b>DONE:</b> deleted. Git holds it if it is ever wanted back.</li>
   </ol>
 
   <h2>2 · The price list — locked</h2>

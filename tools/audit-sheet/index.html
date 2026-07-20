@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v850 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v851 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">944</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n">942</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -79,24 +79,26 @@
   </p>
 
   <h2>What I need from you — 15 decisions</h2>
-  <p class="lead">Plain English. Each one is a choice only you can make; I have done the measuring already.</p>
+  <p class="lead">Plain English. Each one is a choice only you can make; I have done the measuring already.
+    <br><b>You ruled on six of these on 20 July</b> — 1, 2, 3, 10 and 15 are marked below with what you decided, and 7
+    turns out to have been your ruling already. Two are done; three are now work for me, not questions for you.</p>
 
   <div class="grp">The astrology — how Velea reads a chart</div>
 
   <div class="ask"><b>1. Which house are “parents”?</b>
     <span class="why">Two parts of the engine disagree. One reads parents as the 4th and 9th houses (mother and father —
     this is what the textbook says). The other sends the paid “Parents &amp; Roots” reading to the 12th house with the
-    lunar nodes as ancestry. Both are live. Both are defensible. Pick one.</span></div>
+    lunar nodes as ancestry. <b>YOUR RULING (20 July): both are correct and both stay.</b> The 4th and 9th are specifically mother and father; ancestry is roots — what your parents inherited and passed to you. They answer different questions, so neither collapses into the other. I will make the prose keep them distinct.</span></div>
 
   <div class="ask"><b>2. Which nakshatra table wins?</b>
     <span class="why">There are six lists in the app classifying the 27 stars, and only one has a source citation. On four
     stars — Magha, Purva Phalguni, Purva Ashadha and Vishakha — the cited book calls them fierce or mixed while the mode
-    engine treats them as expansive. Right now the uncited list is the one users feel.</span></div>
+    engine treats them as expansive. <b>YOUR RULING (20 July): the cited tables win.</b> (And you are right to balk — “fierce” is not “expansive”.) This is real work, not a switch: the mode engine has to defer to the canon table and its numbers re-derived. Not done yet.</span></div>
 
   <div class="ask"><b>3. When does a day “become” its star?</b>
     <span class="why">The Moon changes nakshatra partway through most days. The calendar names the day by whichever star
-    holds the majority of it; a stricter classical reading names it by the star at sunrise. They disagree on roughly a
-    third of days. I built it the majority way — confirm or flip it.</span></div>
+    holds the majority of it; a stricter classical reading names it by the star at sunrise. They disagree on <b>47.1%</b> of days, measured across a full year — I had written “roughly a third” and that was
+    an estimate, not a measurement. <b>YOUR RULING (20 July): majority.</b> Already built that way; no change needed.</span></div>
 
   <div class="ask"><b>4. Which cancelled-fall rules are Velea’s?</b>
     <span class="why">You asked what the book says and I wrote it out verse by verse. Two of the four rules the engine
@@ -132,7 +134,7 @@
   <div class="ask"><b>10. What does a chartless day say?</b>
     <span class="why">The retired four modes still appear on the hero for people with no birth data — not from a bug, but
     because a chartless profile has no day-character at all, so those words are the only thing that surface has ever had.
-    Deleting them leaves it blank. What should it say?</span></div>
+    Deleting them leaves it blank. <b>YOUR RULING (20 July): a person with no birth data should not be in the app at all.</b> That makes this an onboarding gate, not a hero-copy question — bigger than a fallback string, and not yet built.</span></div>
 
   <div class="grp">The business — money and launch</div>
 
@@ -156,10 +158,10 @@
     strength score. Wiring it changes what a paid reading says, so it is your call. Leaving it is the only option that
     keeps costing.</span></div>
 
-  <div class="ask"><b>15. The old meaning-engine: delete it, or rebuild it?</b>
-    <span class="why">159 lines, imported by nothing but its own test. It is the invented meaning layer from before the
-    rebuild, and it still hardcodes “self-worth” as a default 2nd-house theme — which your own prompt doctrine forbids
-    unless the chart actually points there. I put a tripwire on it so it cannot be switched on by accident.</span></div>
+  <div class="ask" style="border-left-color:#2E7D4F"><b>15. The old meaning-engine — DELETED.</b>
+    <span class="why"><b>YOUR RULING (20 July): delete it.</b> Done. 159 lines, imported by nothing but its own test,
+    still hardcoding “self-worth” as a default 2nd-house theme against your own prompt doctrine. Git holds it if it is
+    ever wanted back; a test now asserts it stays gone.</span></div>
 
   <h2>Still broken — 17</h2>
   <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.
@@ -259,7 +261,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 944 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 942 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

@@ -76,11 +76,8 @@ run server/vedic/life-areas.ts '{ planet: "Saturn", role: "primary", signifies: 
 run server/narrative/day-read-signals.ts 'const comb = combustion(planet, lon, daySunLon, retro);\n    const combust = planet !== "Sun" && comb?.combust === true;' 'const combust = planet !== "Sun" && sep(lon, daySunLon) < 8;' \
   server/narrative/day-read-signals.test.ts "combustion hand-rolled as a flat 8 orb again"
 
-# NOTE: the first version of this probe added an import INTO meaning-engine, which is the reverse of
 # what the tripwire watches, so it "survived" against correct code. The probe was wrong, not the test.
 # It now does what wiring the module would actually look like: a production file importing it.
-run server/vedic/knots.ts 'import houseLordCombos from "./canon/house-lord-combinations.json";' 'import type { ExpectedMeaning } from "./meaning-engine.js";\nimport houseLordCombos from "./canon/house-lord-combinations.json";' \
-  server/vedic/quarantine.test.ts "quarantine tripwire: a production file wires meaning-engine"
 
 run server/panchang/dignity.ts 'Mercury:["Sun","Venus"]' 'Mercury:["Sun"]' \
   server/vedic/friendships-canon.test.ts "dignity.ts private friendship copy drifts from canon"

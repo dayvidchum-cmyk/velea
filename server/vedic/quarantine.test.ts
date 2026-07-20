@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 /**
@@ -68,30 +68,13 @@ describe("the reach sweep can tell reached from unreached", () => {
   });
 });
 
-describe("meaning-engine.ts is quarantined", () => {
-  const SRC = readFileSync(join(ROOT, "server/vedic/meaning-engine.ts"), "utf8");
-  const importers = importersOf("meaning-engine", "meaning-engine.ts");
-
-  it("carries a 2nd-house theme the live prompt doctrine bans as a default", () => {
-    // prompts.ts: "do NOT reach for 'worth' or 'self-worth' as a default theme" — self-worth is the
-    // SECOND face of the 2nd, surfaced only when a self-planet (Sun / Moon / 1st) actually links to
-    // it. meaning-engine hardcodes it as one of four unconditional themes.
-    expect(SRC).toMatch(/2: \{ name: "2nd House", themes: \[[^\]]*"self-worth"/);
-    // Pinned as a FACT, not as prose. An earlier guard in this repo (docs-claims) pinned exact
-    // wording and fired every time a correction was reworded while fully present. Whitespace-
-    // tolerant regex: the rule can be re-typeset, it just cannot disappear.
-    const PROMPTS = readFileSync(join(ROOT, "server/narrative/prompts.ts"), "utf8");
-    expect(PROMPTS).toMatch(/do NOT reach for\s+"worth"\s+or\s+"self-worth"\s+as a default theme/);
-  });
-
-  it("is imported by NOTHING in production — and if that changes, this test is the alarm", () => {
-    // THE TRIPWIRE. The moment someone wires this module, the stale doctrine ships with it. Failing
-    // here is the intended behaviour: fix the content (or delete the module), then delete this test.
-    expect(
-      importers,
-      `meaning-engine is now imported by ${importers.join(", ")} — it still hardcodes "self-worth" ` +
-      `as a default 2nd-house theme, which the prompt doctrine forbids. Reconcile before wiring.`,
-    ).toEqual([]);
+describe("meaning-engine.ts is DELETED (David's call, 2026-07-20)", () => {
+  // It was 159 lines imported by nothing but its own test — the pre-rebuild invented meaning layer,
+  // still hardcoding "self-worth" as a default 2nd-house theme against the live prompt doctrine.
+  // David: "Delete it?" It is gone, and git holds it if it is ever wanted back.
+  it("is really gone, and nothing imports it", () => {
+    expect(existsSync(join(ROOT, "server/vedic/meaning-engine.ts"))).toBe(false);
+    expect(importersOf("meaning-engine", "meaning-engine.ts")).toEqual([]);
   });
 });
 

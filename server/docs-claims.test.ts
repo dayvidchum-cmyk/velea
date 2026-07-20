@@ -47,7 +47,10 @@ describe("the audit sheet still says what it must", () => {
     const fixed = n("Fixed"), broken = n("Still broken"), asks = n("Your call");
     expect(SHEET).toContain(`${fixed} fixed + ${broken} broken`);
     // the decision cards rendered must equal the number advertised at the top
-    expect((SHEET.match(/<div class="ask">/g) ?? []).length).toBe(asks);
+    // Count cards by CLASS, not by the exact tag text — adding a style attribute to one card made
+    // this miss it and report 14 against a header of 15. The guard was right that they disagreed;
+    // it was my counter that was brittle.
+    expect((SHEET.match(/<div class="ask"[ >]/g) ?? []).length).toBe(asks);
     // and the broken list must have as many rows as it claims
     expect((SHEET.match(/<span class="tag">(?:DATA|MONEY|BUILD|READ|LOOK)<\/span>/g) ?? []).length).toBe(broken);
   });

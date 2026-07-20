@@ -2100,4 +2100,26 @@
 // exact prose that fired when I reworded it — the third time this file has taught me to pin the fact
 // and not the phrase.
 // 32 probes, all caught. 88 files, 944 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.850";
+// v1.1.851 = 2026-07-20 — DAVID RULED ON SIX. TWO ARE DONE, THREE BECOME MY WORK, ONE WAS ALREADY HIS.
+//  1 PARENTS: both stay. 4th/9th are mother and father specifically; ancestry is roots — what they
+//    inherited and passed on. Different questions; neither collapses into the other.
+//  2 NAKSHATRA TABLES: the CITED tables win. ("fierce is not expansive" — he is right.) Real work:
+//    the mode engine must defer to the canon table and its numbers be re-derived. NOT done.
+//  3 MAJORITY vs SUNRISE: majority — already built that way. BUT I HAD PUBLISHED "roughly a third of
+//    days" AS AN ESTIMATE AND HE WAS DECIDING ON IT. Measured properly across a full year
+//    (server/scripts/sunrise-vs-majority.ts, comparing calcPanchang's own nakshatra vs
+//    nakshatraAtSunrise): 172/365 = 47.1%. Nearly half, not a third. Corrected on the page.
+// 10 CHARTLESS: "a person with no birth data shouldn't even be allowed into the app" — that makes it
+//    an ONBOARDING GATE, not hero copy. Bigger than the row said. NOT built.
+// 15 MEANING-ENGINE: deleted, with its test; quarantine.test.ts now asserts it stays gone.
+//  7 DEAD PLANET: the book says NIL. The canon file already records 0.05 as DAVID'S ruling, not a
+//    transcription error — so this was never mine to ask. Answering with the quote instead.
+// ALSO FIXED: input-builder re-typed the daily-reading surface pair inline (day_read ?? glance) while
+// daily-surface.ts exists to own that list and this file already imported from it. Now walks
+// DAILY_SURFACES. Same duplicate class as the karaka and friendship tables.
+// MY OWN TESTS BROKE TWICE, BOTH MY FAULT: payload-contract indexed payload lines by LITERAL LINE
+// NUMBER, so editing input-builder above them failed three assertions against correct code; and the
+// docs guard counted decision cards with /<div class="ask">/ , which stopped matching when I added a
+// style attribute to one. Both were the instrument, not the code. Fixed to find rather than index.
+// 942 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.851";

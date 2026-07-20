@@ -89,8 +89,14 @@ describe("the extraction can be trusted (controls run first)", () => {
   });
 });
 
-const DAY = emittedKeys(LINES[1095] ?? "");
-const YEAR = emittedKeys(LINES[741] ?? "");
+// FIND the payload lines, never index them (v851). These were LINES[1095] and LINES[741] — literal
+// line numbers — and the moment I edited input-builder above them, all three assertions failed
+// against correct code. A test that breaks when unrelated lines move is a test that will be
+// "fixed" by deleting it. The two builders are distinguishable by what they carry: the year read
+// has no panchang.
+const PAYLOADS = payloadLines.map(([, l]) => l);
+const DAY = PAYLOADS.map(emittedKeys).find((k) => k.has("panchang")) ?? new Set<string>();
+const YEAR = PAYLOADS.map(emittedKeys).find((k) => !k.has("panchang")) ?? new Set<string>();
 const EITHER = new Set([...DAY, ...YEAR]);
 
 describe("the day payload", () => {
