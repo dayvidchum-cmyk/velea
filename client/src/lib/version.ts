@@ -1732,4 +1732,20 @@
 // `npm run deployed` now checks three things: the service worker, the client bundle, and one live
 // API value only the corrected code answers right.
 // 76 files, 824 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.832";
+// v1.1.833 = 2026-07-20 — THE SERVER CAN NOW SAY WHAT IT IS.
+// Every other deploy check reads an ARTIFACT: sw.js is a static file, the JS bundle is client code,
+// and diagnostics.config only proves the server is newer than v810. None of them is the running
+// process speaking for itself. /healthz answered {ok:true} — enough for Railway's healthcheck and
+// nothing else. On this run production served v813 for fifteen versions while every push reported
+// success, and the ONLY reason it was caught is that sw.js happens to carry a version string. A
+// static file was the sole witness. If the bundle had updated and the node process had not, nothing
+// in the system would have disagreed.
+// /healthz now reports APP_VERSION, imported from the client's version file on purpose: ONE number
+// for the whole release, so a client/server split shows up as a mismatch instead of hiding. The
+// check treats a missing version as SKIPPED rather than failed, because a server predating this
+// endpoint has no version to give and must not read as a failure — the live run says exactly that
+// right now, which is the check being honest about an older build.
+// `npm run deployed` now asks four questions: the service worker, the client bundle, the running
+// server, and one live API value only the corrected code answers right.
+// 76 files, 824 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.833";

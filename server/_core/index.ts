@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { APP_VERSION } from "../../client/src/lib/version.js";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -43,7 +44,15 @@ async function startServer() {
   app.use(express.json({ limit: "5mb" }) /* AUDIT LOW: 50mb accepted everywhere incl. tRPC; kilobytes suffice */);
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // Lightweight health check for the host (no DB, no auth).
-  app.get("/healthz", (_req, res) => res.status(200).json({ ok: true }));
+  // HEALTH REPORTS THE SERVER'S OWN VERSION (v833). {ok:true} answers "is it up", which is what
+  // Railway's healthcheck needs — and nothing else. It cannot tell you WHICH build is up.
+  // On 2026-07-20 production ran v813 for fifteen versions while every push reported success, and
+  // the only reason it was caught is that sw.js happens to carry a version string. sw.js is a
+  // STATIC file: it can update while the compiled server does not, and then nothing in the system
+  // would disagree. The server has to be able to say what it is.
+  // APP_VERSION is imported from the client's version file deliberately — one number for the whole
+  // release, so a client/server split shows up as a mismatch instead of hiding.
+  app.get("/healthz", (_req, res) => res.status(200).json({ ok: true, version: APP_VERSION }));
 
   // ── velealor.com marketing landing ─────────────────────────────
   // The marketing domain's root serves the landing page for VISITORS ONLY;

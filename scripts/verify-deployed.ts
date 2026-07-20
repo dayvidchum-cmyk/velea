@@ -25,6 +25,22 @@ async function liveVersion(): Promise<string | null> {
   } catch { return null; }
 }
 
+/** THE SERVER'S OWN ANSWER (v833). Everything else here reads an artifact: sw.js is a static file,
+ *  the JS bundle is client code, and diagnostics.config only proves the server is newer than v810.
+ *  /healthz now reports APP_VERSION, so the running SERVER states its own build. A client/server
+ *  split — the bundle updated, the node process not restarted — becomes a visible mismatch instead
+ *  of a silence. Tolerated as a soft check while an older build is still live, because a server that
+ *  predates this endpoint has no version to give and must not read as a failure. */
+async function verifyServerVersion(expected: string): Promise<"match" | "mismatch" | "absent"> {
+  try {
+    const res = await fetch(`${SITE}/healthz`, { cache: "no-store" as any });
+    if (!res.ok) return "absent";
+    const body: any = await res.json();
+    if (!body?.version) return "absent";
+    return body.version === expected ? "match" : "mismatch";
+  } catch { return "absent"; }
+}
+
 /** sw.js is a STATIC file copied from client/public — it can update while the compiled app bundle
  *  does not, so matching it proves less than it looks. This fetches the page, finds the hashed JS
  *  asset it actually loads, and checks that APP_VERSION is inside it. If it is, every line of client
@@ -92,8 +108,12 @@ async function main() {
       console.log(`DEPLOYED — ${SITE} is serving ${live}, matching APP_VERSION ${APP_VERSION}.`);
       // The service-worker version says a BUILD landed. These say the CLIENT and a FIX landed too.
       const bundleOk = await verifyClientBundle(String(APP_VERSION));
+      const server = await verifyServerVersion(String(APP_VERSION));
+      if (server === "match") console.log(`  server check: /healthz reports ${APP_VERSION} — the running server is this build.`);
+      else if (server === "mismatch") console.error("  server check FAILED — /healthz reports a DIFFERENT version: the client and server are split.");
+      else console.log("  server check: /healthz carries no version yet (pre-v833 build) — skipped, not failed.");
       const fixOk = await verifyLiveFix();
-      process.exit(bundleOk && fixOk ? 0 : 1);
+      process.exit(bundleOk && fixOk && server !== "mismatch" ? 0 : 1);
     }
     const detail = live ? `serving ${live}, expected ${expected}` : `no version readable from ${SITE}/sw.js`;
     if (!wait) {
