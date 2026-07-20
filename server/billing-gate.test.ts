@@ -139,3 +139,31 @@ describe("every billing endpoint has a server-side gate", () => {
     expect(deep!.gates).toContain("assertOwnsProfile");
   });
 });
+
+describe("a gated surface must SAY it is locked (v867)", () => {
+  // A gate that refuses silently cannot convert. Eleven of fifteen premium reads returned
+  // `available: false` with no `locked` flag, so a non-subscriber saw "quiet, try again in a
+  // moment" — indistinguishable from a real outage. Three were worse: they returned NULL, so the
+  // client had nothing at all to render.
+  //
+  // The client already branches on `.locked` and renders a gate (Horoscope, Astrology, LifeAtlas,
+  // ProfectionYear all do). The endpoints simply were not telling it. This is his standing
+  // public-but-locked pattern, and it was only half wired.
+  it("every premium READ refusal carries locked: true", () => {
+    const premium = ALL.filter((p) => p.gates.some((g) => g === "hasHoroscope" || g === "hasFeature"))
+      .filter((p) => /(get|peek)\w+Cached\(|getLifeAreaRead\(/.test(p.body));
+    expect(premium.length).toBeGreaterThan(10);
+    const silent = premium.filter((p) => !/locked: true/.test(p.body)).map((p) => p.name);
+    expect(silent, `these refuse without saying they are locked: ${silent.join(", ")}`).toEqual([]);
+  });
+
+  it("no gated READ returns a bare null — the client cannot render a gate from nothing", () => {
+    const premium = ALL.filter((p) => p.gates.includes("hasHoroscope"))
+      .filter((p) => /(get|peek)\w+Cached\(|getLifeAreaRead\(/.test(p.body));
+    for (const p of premium) {
+      expect(p.body, `${p.name} refuses with null`).not.toMatch(
+        /hasHoroscope\(ctx\.user\)\)\) return null;/,
+      );
+    }
+  });
+});

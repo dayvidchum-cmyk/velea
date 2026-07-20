@@ -1971,7 +1971,7 @@ export const appRouter = router({
       .input(z.object({ theme: z.string().min(2).max(20), refresh: z.boolean().optional(), peek: z.boolean().optional() }))
       .query(async ({ ctx, input }) => {
         const { hasFeature } = await import("./feature-flags.js");
-        if (!(await hasFeature(ctx.user, "lifeAtlas"))) return { available: false, read: null, windows: [], generatedAt: null, cached: false } as const;
+        if (!(await hasFeature(ctx.user, "lifeAtlas"))) return { available: false, locked: true, read: null, windows: [], generatedAt: null, cached: false } as const;
         const { getActiveProfile } = await import("./routers/profiles.js");
         const profile = await getActiveProfile(ctx.user.id);
         if (!profile) return { available: false, read: null, windows: [], generatedAt: null, cached: false } as const;
@@ -2289,7 +2289,7 @@ export const appRouter = router({
   verdict: router({
     access: protectedProcedure.query(async ({ ctx }) => ({ entitled: await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict") })),
     peek: protectedProcedure.query(async ({ ctx }) => {
-      if (!(await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict"))) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
+      if (!(await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict"))) return { available: false as const, locked: true as const, read: null, data: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
@@ -2297,7 +2297,7 @@ export const appRouter = router({
       return await getVerdictCached(profile.id, true);
     }),
     read: protectedProcedure.mutation(async ({ ctx }) => {
-      if (!(await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict"))) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
+      if (!(await (await import("./feature-flags.js")).hasFeature(ctx.user, "chartVerdict"))) return { available: false as const, locked: true as const, read: null, data: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, data: null, generatedAt: null, cached: false };
@@ -2438,7 +2438,10 @@ export const appRouter = router({
     // (an ISO datetime from a client bug) makes strict MySQL reject the freeze-insert: the exact
     // 7/17 outage class, and every re-reveal then re-bills. Format-locked + lifeArea capped.
     reveal: protectedProcedure.input(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), lifeArea: z.string().max(24) })).mutation(async ({ ctx, input }) => {
-      if (!(await hasHoroscope(ctx.user))) return null;
+      // Returned NULL on a gate refusal, so a non-subscriber got nothing to render — not a locked
+      // card, not a message, nothing. A locked feature that cannot say it is locked cannot
+      // convert, which is the entire point of the public-but-locked pattern.
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const };
       const { isLifeAreaKey } = await import("./vedic/life-areas.js");
       const { resolveArea } = await import("../shared/life-area-shelves.js");
       // Parent areas (legacy keys) still read whole; sub-areas resolve to parent + FOCUS.
@@ -2523,7 +2526,7 @@ export const appRouter = router({
     // by season in narrative_cache, so re-tapping the same season is free (no re-charge). Returns
     // unavailable when there's no eclipse season in range or the key is off.
     eclipseSeason: protectedProcedure.mutation(async ({ ctx }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2538,7 +2541,7 @@ export const appRouter = router({
     // Read-only: is there ALREADY a saved eclipse-season reading for the current season? Never
     // generates — lets the card show "already read" + the archive list it, with no charge.
     eclipseSeasonSaved: protectedProcedure.query(async ({ ctx }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const, read: null, season: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, season: null, generatedAt: null, cached: false };
@@ -2554,7 +2557,7 @@ export const appRouter = router({
     // active/approaching Mercury rx, read for this chart's house(s). Generates + caches per cycle;
     // unavailable when Mercury is clear (no cycle in range).
     planetRx: protectedProcedure.input(z.object({ planet: z.enum(["venus", "mars", "jupiter", "saturn"]) })).mutation(async ({ ctx, input }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2569,7 +2572,7 @@ export const appRouter = router({
     // PEEK — read-only: the slow-review state for a planet WITHOUT generating (Door Law). The card
     // peeks all four on expand (cheap), then generates one only when its door is tapped (planetRx).
     planetRxPeek: protectedProcedure.input(z.object({ planet: z.enum(["venus", "mars", "jupiter", "saturn"]) })).mutation(async ({ ctx, input }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2582,7 +2585,7 @@ export const appRouter = router({
     }),
 
     mercuryRx: protectedProcedure.mutation(async ({ ctx }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2596,7 +2599,7 @@ export const appRouter = router({
 
     // Read-only: is there ALREADY a saved Mercury-rx reading for the current cycle? Never generates.
     mercuryRxSaved: protectedProcedure.query(async ({ ctx }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const, read: null, cycle: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, cycle: null, generatedAt: null, cached: false };
@@ -2612,7 +2615,7 @@ export const appRouter = router({
     // arcs, spined on the Time Lord). Generates + caches per month. A subscriber core benefit (for now
     // gated to the horoscope entitlement until subscription billing lands).
     month: protectedProcedure.mutation(async ({ ctx }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const };
@@ -2626,7 +2629,7 @@ export const appRouter = router({
 
     // Read-only: is there ALREADY a saved reading for the current month? Never generates.
     monthSaved: protectedProcedure.query(async ({ ctx }) => {
-      if (!(await hasHoroscope(ctx.user))) return { available: false as const, read: null, month: null, generatedAt: null, cached: false };
+      if (!(await hasHoroscope(ctx.user))) return { available: false as const, locked: true as const, read: null, month: null, generatedAt: null, cached: false };
       const { getActiveProfile } = await import("./routers/profiles.js");
       const profile = await getActiveProfile(ctx.user.id);
       if (!profile) return { available: false as const, read: null, month: null, generatedAt: null, cached: false };

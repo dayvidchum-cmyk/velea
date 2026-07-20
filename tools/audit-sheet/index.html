@@ -60,11 +60,11 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v866 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v867 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">86</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">16</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n good">88</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n bad">14</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">13</div><div class="l">Your call</div></div>
     <div class="score"><div class="n">1026</div><div class="l">Tests passing</div></div>
   </div>
@@ -187,15 +187,14 @@
     <li><b>The old meaning-engine</b> — deleted. Git holds it; a test asserts it stays gone.</li>
   </ul>
 
-  <h2>Still broken — 16</h2>
+  <h2>Still broken — 14</h2>
   <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.
     <br><b>I went back and re-checked these.</b> Seven of the original twenty-one are now confirmed by re-running the
     code, not by trusting the note. <b>Four were stale</b> and have moved to fixed: the two-clocks mismatch, the seven
     type errors (the typechecker now exits clean), the Verdict citing a canon file that lacked its data (the block was
     added), and melana.json having no source (it now cites Raman with page references). <b>One was half wrong</b> — see
     the speed row below; Mercury and Venus sharing the Sun’s motion is correct practice, not a defect. <b>Two are
-    confirmed still broken</b> by reading the code today. <b>Six of the sixteen below have still not been individually
-    re-checked</b>, so treat the count as an upper bound for those and a measurement for the rest.
+    confirmed still broken</b> by reading the code today. <b>Two of the fourteen below have still not been individually re-checked</b>, so treat the count as an upper bound for those and a measurement for the rest.
     <br>Since then I re-checked four more: <b>“two owners of which rows are the daily reading” is now fixed</b> (v851
     pointed the builder at the one canonical list, and the retired write path was already gone), the nakshatra row is
     <b>partly fixed</b> (the four contradictions are corrected and pinned; six copies still exist), and two are
@@ -223,9 +222,7 @@
     <li><span class="tag">READ</span>The Day Headline — the detectors exist; one line connects them.</li>
     <li><span class="tag">READ</span>Focus level in the check-in is not built.</li>
     <li><span class="tag">LOOK</span>Two calendars, and the year calendar has drifted off every rail law.</li>
-    <li><span class="tag">LOOK</span>The accent-ink solver overshoots and recolours light accents.</li>
     <li><span class="tag">LOOK</span>The welcome card shows two filled primary buttons.</li>
-    <li><span class="tag">LOOK</span>Three premium surfaces still do not render as locked gates.</li>
     <li><span class="tag">LOOK</span>A gate sweep left a branch that can never fire.</li>
     <li><span class="tag">LOOK</span>A traveller’s far-date reading falls back to the birth city.</li>
   </ul>
@@ -250,6 +247,12 @@
       <li>The Verdict’s canon citation is real now: the strength-by-stage block exists in the file it points at.</li>
       <li><code>melana.json</code> cites its source (Raman’s <i>Muhurtha</i>, with page references) instead of recording what was built.</li>
       <li>One owner for “which rows are today’s reading” — the builder walks the canonical surface list instead of re-typing the pair inline.</li>
+      <li><b>Eleven premium reads refused without saying they were locked</b> — a non-subscriber saw “quiet, try again”,
+        indistinguishable from an outage, and three returned <i>null</i> so the client had nothing to render. The client
+        already draws gates from that flag; the endpoints were not setting it. All do now.</li>
+      <li>The accent-ink solver no longer overshoots — readable accents are left alone, and an unreadable one stops at
+        the first value that clears rather than being dragged past it. <span style="opacity:.7">(Fixed at v807; the row
+        was stale. Verified by measurement, not by reading the comment.)</span></li>
       <li><b>A dasha-engine change used to leave the stored 120-year clock untouched.</b> The invalidation hash carried
         only the research version, so the status came back “unchanged” and the dasha rewrite was skipped — stale periods
         persisting across an engine change, silently. All three engine versions now ride the hash.</li>
@@ -302,7 +305,7 @@
   </ul>
 
   <p class="foot">
-    Every number here was counted from the record, not estimated: 86 fixed + 16 broken + 14 decision-rows + 26 remaining = 142
+    Every number here was counted from the record, not estimated: 88 fixed + 14 broken + 14 decision-rows + 26 remaining = 142
     rows, the same 142 the sheet has always held. 88 test files, 1026 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.

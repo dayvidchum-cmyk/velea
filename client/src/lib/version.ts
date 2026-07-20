@@ -2428,4 +2428,22 @@
 // repeating that. Script written, safe to run twice, nullable column so every existing row reads as
 // "not yet alerted" — and it is HIS to run, because a deploy once wiped every account.
 // 95 files, 1026 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.866";
+// v1.1.867 = 2026-07-20 — ELEVEN PAID SURFACES REFUSED WITHOUT SAYING THEY WERE LOCKED.
+// The audit row said "three premium gates still do not render as gates". Measured: ELEVEN of fifteen
+// premium reads returned `available: false` with NO locked flag, so a non-subscriber saw "the atlas
+// is quiet — try again in a moment", indistinguishable from an outage. THREE WERE WORSE: reveal,
+// and two others, returned NULL on the gate refusal, so the client had nothing at all to render.
+// The client already draws a gate from `.locked` — Horoscope, Astrology, LifeAtlas and ProfectionYear
+// all branch on it. The endpoints simply were not telling it. His public-but-locked pattern was half
+// wired, and the missing half is the half that converts. All fifteen now report it; a guard fails if
+// a new gated read is added silent, and a second guard forbids the bare-null refusal.
+// TSC CAUGHT MY OVER-BROAD EDIT: the first pass rewrote three LIST endpoints (list/get/saveNotes)
+// that return arrays, not read shapes. The compiler was the control — reverted, and only genuine
+// read surfaces changed.
+// ALSO MEASURED, and the row was STALE: "the accent-ink solver overshoots". Fixed at v807. Verified
+// by running it, not by reading its comment — restore teal (4.56) and brand gold (8.78) now pass
+// through untouched where the old sweep dragged them to 7.80, and a genuinely unreadable pale gold
+// at 1.27 stops at 4.53 instead of overshooting. Recolouring THAT one is correct, not a bug.
+// Two rows off the broken list, moved to fixed rather than annotated in place — his rule.
+// 88 fixed / 14 broken. 95 files, 1026 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.867";
