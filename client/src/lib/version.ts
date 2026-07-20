@@ -2564,4 +2564,22 @@
 // where his scans land — I checked both. They do not contain the muhurta tables, but I should have
 // LOOKED before refusing, and should simply have asked him for the pages.
 // 99 files, 1054 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.874";
+// v1.1.875 = 2026-07-20 — THE AUDIT RE-AUDITED. Six repairs, each with a control proven to fail
+// against the unfixed code first. Two of the sheet's "FIXED" rows were false greens:
+//   · the v852 nakshatra ruling never reached the engine — interpreter.ts kept private literals
+//     and imported nothing from the corrected table. Magha, Purva Phalguni and Purva Ashadha
+//     (canon: fierce) and Vishakha (mixed) read as EXPANSION on 57 of 365 real days, measured.
+//     nakshatra-canon.test.ts passed the whole time by asserting against the dead copy.
+//   · the paid-word repair moved maxWords in generate.ts, which is only a ceiling. The prompts
+//     still said "aim ~120 words, hard cap 150" against the free read's 175. The test read
+//     generate.ts and never opened prompts.ts.
+// Also: a quiet life area was unreachable (0 of 14,400 area-days; now 19.2%, identical to the
+// control that deletes the clause); a simplified Chesta published as though exact; a locked
+// season rendered as an outage with a retry that could never work; the third nakshatra list
+// pinned to canon (it was RIGHT — that row's "4 disagreements" was my own stale finding).
+// THREE INSTRUMENTS LIED FIRST and were caught before they counted: a hash probe fed a
+// fabricated input carrying `date` (the real stage input has none); a lock scan that checked
+// per-FILE and passed with the bug present; the per-endpoint version then false-positived on a
+// `const d: any =` alias its regex could not follow. Every one would have been a wrong claim.
+// 110 files, 1137 tests, 0 failures. 66 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.875";
