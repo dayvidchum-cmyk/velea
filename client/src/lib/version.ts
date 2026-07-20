@@ -664,4 +664,28 @@
 // class of bug could not fail there. /audit now opens with a TRUE-cell-width strip: the same coins
 // in a real 7-column grid at 48.86px, worst loads adjacent, each cell outlined. A rail that
 // outgrows its day now crosses a visible line.
-export const APP_VERSION = "1.1.777";
+// v1.1.778 = 2026-07-20 — THE CROWN DAYS WERE LANDING ON THE WEAKEST MOON OF THE YEAR.
+// The doctrine is convergence: a crown day is Velea's OWN tarabala AND chandrabala together. The
+// year ranking sorted tara class → tara RUNG → and only then the Moon, and that ordering quietly
+// made the Moon irrelevant — because tara and chandra are the SAME MOON. A tara rung pins the
+// day-star to a narrow band of the zodiac, which pins the day's Moon SIGN to a near-fixed set of
+// houses from the natal Moon. So "best star" decided the Moon's house before chandra was consulted.
+// MEASURED, three real charts × a full year of real sky (crown-probe, 365 days each):
+//   • EVERY Parama Mitra (rung 9) day of the year carried BAD chandrabala — 43/43, 41/41, 40/40.
+//   • So all twelve "crowning days of your year" sat on houses 4/8/12 from the native's own Moon.
+//   • The reading's own crown gate agreed with 0 of those 12, on all three charts.
+//   • Two of one chart's twelve were rated CAUTION by the personal-weather layer on the same date.
+//   • Meanwhile 82–101 days a year DID converge — and the calendar crowned none of them.
+// FIXED at the definition: the top-12 pool is now the apex condition itself (tara favorable AND
+// chandra favorable), ranked by the same ladder inside that pool. A year with fewer than twelve
+// convergences gets fewer crowns, never padding — the count is reported as summary.convergent.
+// WHY IT SURVIVED: it does not misfire on David's own chart. Whether the best rung lands on a good
+// or an adverse chandra house depends on where the birth star sits inside its sign — the old
+// ranking looked correct on the one profile the app is tested from and was 12-for-12 wrong on
+// others. The regression test now asserts BOTH anchor sets against a real captured 365-day sky
+// (the idealised generator locks tara and chandra together and cannot show this at all).
+// Still open and NOT changed here: the reading's crown additionally requires a clean COLLECTIVE
+// day (universal score ≥ 0), which the calendar's ranking does not consider — so ~9 of the 12
+// still read as "favorable" rather than "crown" in the prose. That is a method question for David
+// (his stated split is: golden = the collective sky, crown = the personal apex), not a code call.
+export const APP_VERSION = "1.1.778";

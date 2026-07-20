@@ -90,7 +90,10 @@ export interface YearRank {
     favorable: number;   // tara quality "good"
     softened: number;    // "mixed" (janma + rounds 2-3 hostiles)
     hostile: number;     // first-round Vipat/Pratyak/Naidhana
-    topDates: string[];  // the 12 crowning days
+    /** How many days of the year reached the crown's apex condition (both Moon strengths
+     *  favorable) — the denominator behind the twelve. */
+    convergent: number;
+    topDates: string[];  // up to 12 crowning days, drawn ONLY from the convergent ones
     quietDates: string[];// full-force Naidhana — nothing forward, nothing new
   };
 }
@@ -148,13 +151,28 @@ export function rankYear(opts: {
   const sorted = [...days].sort((a, b) => key(a) - key(b) || a.date.localeCompare(b.date));
   sorted.forEach((x, i) => { x.rank = i + 1; });
 
+  // THE CROWN IS THE CONVERGENCE (David's doctrine: a crown day is Velea's OWN tarabala AND
+  // chandrabala landing together). The rank ladder above sorts tara class, then tara RUNG, and
+  // only then the Moon — and that ordering silently made chandra irrelevant to the crown, because
+  // the two are the SAME MOON: a tara rung pins the day-star to a narrow band, which pins the day
+  // Moon to a near-fixed set of houses from the natal Moon. MEASURED over three charts × a full
+  // year of real sky: EVERY Parama Mitra (rung 9) day of the year had BAD chandrabala — 43/43,
+  // 41/41, 40/40 — so the top 12 was always drawn from that pool, and all twelve "crowning days of
+  // your year" landed on houses 4/8/12 from the native's own Moon. Two of chart A's twelve were
+  // rated CAUTION by the personal-weather layer on the same date.
+  // The pool is now the apex condition itself (the same predicate crownDay uses for its crown),
+  // ranked by the ladder inside that pool. If a year holds fewer than 12 convergence days, it gets
+  // fewer crowns — a thin year is a true answer; padding it with the best of the bad is not.
+  const converged = sorted.filter((x) => x.tara.favorable && x.chandra.favorable);
+
   return {
     days,
     summary: {
       favorable: days.filter((x) => x.tara.quality === "good").length,
       softened: days.filter((x) => x.tara.quality === "mixed").length,
       hostile: days.filter((x) => x.tara.quality === "bad").length,
-      topDates: sorted.slice(0, 12).map((x) => x.date),
+      convergent: converged.length, // how many days the year actually offered (see threshold-honesty)
+      topDates: converged.slice(0, 12).map((x) => x.date),
       quietDates: days.filter((x) => x.tara.quality === "bad" && x.tara.taraNum === 7).map((x) => x.date),
     },
   };
