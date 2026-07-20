@@ -228,6 +228,13 @@ const DAY_READ_SCHEMA = {
 // twelve SIGN names (a sign must appear only as its life-territory, never by name).
 const MACHINERY = /\b(\d+\s*(?:st|nd|rd|th)\s+house|(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\s+house|exalt\w*|debilitat\w*|retrograde|combust\w*|moolatrikona|nakshatra|Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces)\b/i;
 
+// FATE, banned on every surface. BASE_PROMPT already bends fate-verbs back into the reader's hands
+// ("AGENCY — FATE BECOMES POTENTIAL"), but the words themselves were enforced nowhere: not in a
+// tail's bannedPhrases, not in MACHINERY, not in SCRUB. Kept narrow on purpose — "fate" and
+// "destiny" as nouns are part of the tradition's own vocabulary when discussing karma; what is
+// banned is the DECREE about this person ("you are destined to…", "it is fated that…").
+const FATE_DECREE = /\b(?:destined|preordained|foreordained|predestined|it is (?:your )?fate\b|fated to)\b/i;
+
 const wordCount = (s: string): number => (s.trim().match(/\S+/g) ?? []).length;
 
 // DETERMINISTIC LAST-RESORT SCRUB. The retries below catch most machinery, but a dignity/motion
@@ -430,6 +437,13 @@ export function guardViolation(fullText: string, maxWords: number, bannedPhrases
       return `RESTATED THE DAY SENTENCE: your prose contains "${p}", which is already printed above your story. Remove it — steer through a character's ask instead, and spend the words on the cast.`;
     }
   }
+  // THE FATE BAN HOLDS EVERYWHERE, including the surfaces that name machinery by design (audit
+  // 2026-07-20). "the path is COMPUTED, NOT FIXED" is the brand's own metaphysics and the reason
+  // "destined" is banned in copy — but the word appeared in no tail's ban list, in MACHINERY, or
+  // in SCRUB, so nothing in the pipeline could stop it. It sits ABOVE the skipMachinery return
+  // because the atlas and the house explorer are allowed their jargon, never a decree.
+  const fate = fullText.match(FATE_DECREE);
+  if (fate) return `BANNED — THIS APP DOES NOT DEAL IN FATE: your last attempt printed "${fate[0]}". The path is computed from where the planets actually are, not fixed in advance. Rewrite that sentence so the result sits in this person's hands: what the sky tilts toward, what they can meet it with.`;
   if (skipMachinery) return null;
   const mm = fullText.match(MACHINERY);
   if (mm) return `BANNED CHART JARGON: your last attempt printed "${mm[0]}". Rewrite with ZERO machinery — no house numbers, no sign names, no dignity/motion terms (exalted, debilitated, retrograde, combust). Translate every one into plain felt language.`;

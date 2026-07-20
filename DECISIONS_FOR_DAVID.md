@@ -116,3 +116,62 @@ unpinned readings can't survive because the natal data is inside their cache has
 I lean **C**, with **A** as the interim if you don't want to wait for the migration. I have not
 implemented any of them — replacing prose someone deliberately kept is not a call I should make
 alone, and it is rare enough (the 24h edit cooldown) that guessing buys nothing.
+
+---
+
+## 4. Your twelve crown days are picked by CALENDAR DATE, not by merit (open)
+
+**Found 2026-07-20**, auditing every threshold in the engine. v778 fixed the pool — the top twelve
+now come from days where tara AND chandra are both favorable, which is your split exactly. What was
+never looked at is the **cutoff**.
+
+**Measured** (real Boston sky, 2026-07-20 → 2027-07-19, all 324 birth-star × natal-Moon-sign
+combinations — I re-ran this myself after an agent reported it):
+
+- a chart gets a **median 101 convergent days a year** (min 81, max 124). Not one of the 324 has
+  fewer than 12.
+- inside that pool the ladder barely discriminates — tara class and rung are near-identical for all
+  of them — so the final `|| a.date.localeCompare(b.date)` decides. **A mean of 29.9 days are tied
+  with the 12th on every ranked dimension**, and the cutoff falls inside a tie in **324 of 324**
+  charts.
+- consequence: **85.6% of all crowns land in the first half of the solar year** (3327 of 3888;
+  50% if unbiased). On the sample chart all twelve fall between 21 Jul and 30 Oct, while 69
+  equally-convergent days in the other eight months wear nothing.
+- and BASE_PROMPT tells the model, of a crowned day: *"one of the TWELVE crowned days of this
+  person's whole solar year… Genuinely rare: twelve days out of three hundred and sixty-five."*
+  The count is true. The **selection** is an artifact of how the list was sorted.
+
+- **A — twelve stays, but earn it.** Add a real tie-break inside the pool (Ashtakavarga bindus on
+  the day-Moon's sign is the obvious candidate — it is already computed) so the twelve are the
+  twelve strongest, not the twelve earliest.
+- **B — crown every convergent day.** Honest to the predicate, but that is ~101 days a year, and the
+  prompt's "genuinely rare" line and the calendar's whole look would change with it.
+- **C — spread them.** Take the best of each month, so the year reads as a year.
+- **D — leave it.** Twelve is twelve; which twelve matters less than that they are real apex days.
+
+I lean **A**: it keeps your number and your rarity claim, and it makes the word "crown" mean the
+same thing in October as in July. But which dimension breaks the tie is your method, not mine.
+
+---
+
+## 5. A transit is only reported as touching a natal point within 4° — the slow lords vanish (open)
+
+`input-builder.ts:421` reports `hitsNatalPoint` / `orbDeg` only when the orb is **≤ 4°**. Outside
+that, the contact is erased from the payload — the model cannot know it exists. **Line 170 of the
+same file uses 10°** for natal-to-natal conjunctions. One file, two answers to the same question.
+
+**Measured** (5 charts × 365 days × 9 planets = 16,425 planet-days): of every contact within 10°,
+**53.2% is dropped at the 4° cutoff**. Per planet, the longest UNBROKEN stretch where a planet sat
+4–10° from a natal point and the payload never said so once:
+
+    Rahu 188 days · Saturn 142 · Jupiter 129 · Ketu 114 · Mercury 21 · Venus 20 · Mars 36
+
+For the Moon and the Sun, 4° is defensible. For the slow lords — the ones a chapter is built on —
+the classical orb is 8–9°, and a Saturn transit within 8° of your natal Meridian is exactly the
+kind of thing the Arc and the year read exist to name.
+
+- **A — one orb, 8°, for the slow planets** (Jupiter, Saturn, Rahu, Ketu), keep 4° for the fast ones.
+- **B — 8° for everything**, matching the tradition's conjunction orb.
+- **C — keep 4°**, and I write down why, so no future audit re-raises it.
+
+I lean **A**. But the number is a method ruling — the inconsistency is mine to report, not to settle.

@@ -2696,4 +2696,18 @@
 //   Moved to shared/ because the suite collects server/** and shared/** — a transformer no test
 //   could reach is how it drifted. Control: the new test fails 3/3 against the old function.
 // 113 files, 1167 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.881";
+// v1.1.882 = 2026-07-20 — THE FATE BAN WAS ENFORCED NOWHERE. "Destined" is banned in copy because
+// the path is COMPUTED, not fixed — that is the brand's own metaphysics. BASE_PROMPT bends
+// fate-verbs back into the reader's hands, but the words themselves appeared in no tail's
+// bannedPhrases, not in MACHINERY, and not in SCRUB, so nothing in the pipeline could stop a decree
+// from shipping. Now rejected on every surface, ABOVE the skipMachinery return: the atlas and the
+// house explorer are allowed their jargon, never a fate. Kept narrow deliberately — "karma",
+// "destiny point" and the tradition's own nouns pass; "you were destined", "fated to" do not, and
+// a control in the other direction proves the regex did not just swallow the glossary.
+// ALSO: AUDIT_STATUS.md rewritten at this version with what four independent sweeps found, and
+// DECISIONS_FOR_DAVID gains the two method forks this pass turned up — the crown-day tie-break
+// (measured: 324 charts, ~30 days tied with the 12th, 85.6% of crowns landing in the first half of
+// the year because the tie-break is the calendar date) and the 4° transit orb (Saturn 142 unbroken
+// days of live natal contact the model was never told about, in a file that uses 10° elsewhere).
+// 113 files, 1169 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.882";

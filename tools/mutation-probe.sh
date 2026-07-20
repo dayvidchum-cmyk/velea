@@ -267,6 +267,10 @@ run client/public/marketing/system.html 'points="87.6,77.6 312.4,77.6 312.4,302.
 run client/public/marketing/system.html '<circle cx="200" cy="190" r="159"' '<circle cx="200" cy="190" r="140"' \
   server/marketing-figure.test.ts "the inner ring moves and the square stops being inscribed"
 
+# The fate ban going quiet again — it was enforced NOWHERE until 2026-07-20.
+run server/narrative/generate.ts 'const fate = fullText.match(FATE_DECREE);' 'const fate = null as any;' \
+  server/narrative/guard.test.ts "a decree about this person can ship again"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."

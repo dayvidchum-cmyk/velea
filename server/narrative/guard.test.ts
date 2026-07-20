@@ -78,3 +78,25 @@ describe("guardViolation — the day-sentence restatement ban (David's law 3, en
     expect(guardViolation("Any prose at all.", 200, [])).toBeNull();
   });
 });
+
+describe("guardViolation — the fate ban, which was enforced NOWHERE", () => {
+  // "the path is COMPUTED, NOT FIXED" is the brand's own metaphysics and the reason "destined" is
+  // banned in copy. BASE_PROMPT bends fate-verbs back into the reader's hands, but the words
+  // themselves appeared in no tail's ban list, in no guard and in no scrub — so a decree could
+  // ship. Found by auditing the law-by-tail matrix, 2026-07-20.
+  it("rejects a decree about this person, on every surface", () => {
+    expect(guardViolation("You were destined for this work.", 200)).toMatch(/DOES NOT DEAL IN FATE/);
+    expect(guardViolation("She is fated to meet him again.", 200)).toMatch(/DOES NOT DEAL IN FATE/);
+    // ...INCLUDING the surfaces that are allowed their machinery: the atlas and the house explorer
+    // may name a sign, never a fate.
+    expect(guardViolation("Your predestined year in Scorpio.", 200, [], true)).toMatch(/DOES NOT DEAL IN FATE/);
+  });
+
+  it("leaves the tradition's own vocabulary alone — the ban is the DECREE, not the noun", () => {
+    // CONTROL in the other direction. Without this, widening the regex to /fate|destiny/ would
+    // pass the test above while silently banning half the glossary.
+    expect(guardViolation("Karma is the ledger, not a sentence handed down.", 200)).toBeNull();
+    expect(guardViolation("What you do with the season is yours.", 200)).toBeNull();
+    expect(guardViolation("The destiny point in this tradition is Rahu.", 200)).toBeNull();
+  });
+});
