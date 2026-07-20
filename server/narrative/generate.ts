@@ -609,7 +609,13 @@ export async function generateTlWindowRead(input: any): Promise<DayRead | null> 
   try {
     const r = await callGuarded<DayRead>({
       c, tail: TL_WINDOW_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
-      maxTokens: 650, maxWords: 200,
+      // PAID MUST OUTWEIGH FREE (David's ruling, 2026-07-20): "paid surfaces must always be more
+      // words than the free day read. people are paying for deeper insight." The free day read is
+      // 190 words. This surface was BELOW it — a paying reader got less prose than a free one.
+      // 280 is the floor for the three FOCUSED paid reads (this, the time-lord window, the yoga
+      // read); the broad ones already sit at 360-650. The number is a proposal, the ORDERING is his
+      // rule and is enforced by paid-word-floor.test.ts.
+      maxTokens: 1150, maxWords: 280,
       complete: isCompleteDayRead,
       textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
     });
@@ -802,7 +808,10 @@ export async function generateYogaRead(input: any): Promise<YogaRead | null> {
     return await callGuarded<YogaRead>({
       c, tail: YOGA_READ_TAIL, toolName: "yoga_read",
       schema: { type: "object", properties: { read: { type: "string" } }, required: ["read"] } as any,
-      input, maxTokens: 900, maxWords: 210, skipMachinery: true,
+      // PAID MUST OUTWEIGH FREE (David 2026-07-20): the free day read is 190 words; a paying
+      // reader must never get less prose. 280 is the floor for the focused paid reads; the broad
+      // ones already sit at 360-650. Ordering enforced by paid-word-floor.test.ts.
+      input, maxTokens: 1150, maxWords: 280, skipMachinery: true,
       complete: isCompleteYogaRead, textOf: (r) => r.read,
     });
   } catch (err) {
@@ -823,7 +832,10 @@ export async function generateWindowRead(input: any): Promise<WindowRead | null>
     return await callGuarded<WindowRead>({
       c, tail: WINDOW_READ_TAIL, toolName: "window_read",
       schema: { type: "object", properties: { read: { type: "string" } }, required: ["read"] } as any,
-      input, maxTokens: 700, maxWords: 150, skipMachinery: true,
+      // PAID MUST OUTWEIGH FREE (David 2026-07-20): the free day read is 190 words; a paying
+      // reader must never get less prose. 280 is the floor for the focused paid reads; the broad
+      // ones already sit at 360-650. Ordering enforced by paid-word-floor.test.ts.
+      input, maxTokens: 1150, maxWords: 280, skipMachinery: true,
       complete: isCompleteWindowRead, textOf: (r) => r.read,
     });
   } catch (err) {

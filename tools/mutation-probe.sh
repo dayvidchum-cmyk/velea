@@ -137,6 +137,9 @@ run server/vedic/day-filter.ts 'Shatabhisha:         ["medical treatment"' 'Shat
 run server/vedic/research-store.ts 'dv: DASHA_ENGINE_VERSION,' '' \
   server/vedic/engine-versions.test.ts "a dasha-engine bump stops invalidating stored periods"
 
+run server/panchang/service.ts 'const dominantNak = (astro as any)?.nakshatraAtSunrise ?? astro?.nakshatra' 'const dominantNak = astro?.nakshatra' \
+  server/panchang/sunrise-naming.test.ts "the day goes back to being named by the majority star"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
@@ -146,8 +149,8 @@ run server/narrative/service.ts 'countGenerationsToday(profileId).catch(() => 0)
   server/narrative/spend-caps.test.ts "cap failing closed on a DB error"
 run server/narrative/service.ts 'if (uncappedProfiles.has(profileId)) return false;' 'if (false) return false;' \
   server/narrative/spend-caps.test.ts "admin exemption removed"
-run server/routers.ts 'month: protectedProcedure.mutation(async ({ ctx }) => {\n      if (!(await hasHoroscope(ctx.user))) return { available: false as const };' 'month: protectedProcedure.mutation(async ({ ctx }) => {' \
-  server/billing-gate.test.ts "a premium reading endpoint loses its entitlement gate"
+run server/routers.ts 'locked: true as const, read: null, month: null,' 'read: null, month: null,' \
+  server/billing-gate.test.ts "a premium read stops saying it is locked"
 run server/narrative/router.ts 'if (!(await canYearSight(ctx.user)))' 'if (false)' \
   server/billing-gate.test.ts "the year read stops enforcing year-sight server-side"
 
@@ -163,6 +166,9 @@ run server/db.ts 'const SESSION_SLIDE_AFTER_MS =' 'const SESSION_SLIDE_AFTER_MS_
 
 run server/narrative/prompts.ts 'do NOT reach for "worth" or' 'do NOT reach for "wealth" or' \
   server/narrative/prompt-structure.test.ts "2nd-house self-worth doctrine removed from the prompt"
+
+run server/narrative/generate.ts "      maxTokens: 1150, maxWords: 280," "      maxTokens: 1150, maxWords: 150," \
+  server/narrative/paid-word-floor.test.ts "a paid surface drops below the free day read"
 
 echo "=== the prompt: laws that must ARRIVE, not merely exist ==="
 run server/narrative/prompts.ts '\nPERSONAL APEX — THE CROWN DAY\n' '\nPERSONAL APEXX — THE CROWN DAY\n' \

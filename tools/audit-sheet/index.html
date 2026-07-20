@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v868 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v869 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">88</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">14</div><div class="l">Still broken</div></div>
-    <div class="score"><div class="n warn">13</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">1043</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n warn">12</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n">1054</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -78,27 +78,14 @@
     Every correction I made to my own earlier claims is preserved there in full.
   </p>
 
-  <h2>What I need from you — 13</h2>
+  <h2>What I need from you — 12</h2>
   <p class="lead">Only what is still open. Anything you ruled on has been taken off this list —
     <b>you decided six today</b> (parents, the nakshatra tables, the two-part day, the chartless day, the dead planet,
     and deleting the old meaning-engine); those are done or now my work, and they live in the fixed list below.</p>
 
   <div class="grp">The astrology — how Velea reads a chart</div>
 
-  <div class="ask"><b>1. Should the day be NAMED by the sunrise star — and it is bigger than the name.</b>
-    <span class="why">You asked <i>“named how? Build, selective, action, restraint?”</i> — and you were right to. The
-    star does not just label the day, <b>it feeds the mode</b>. Measured across a full year:
-    <br>· the day’s <b>star name</b> changes on <b>172 days (47.1%)</b>
-    <br>· its <b>mode score</b> changes on <b>118 days (32.3%)</b> — and <b>15 of those swing a full point</b>, from
-    containment to expansion or back
-    <br>· on the other 54 days the name changes and the mode holds
-    <br><br>So switching the anchor to sunrise re-titles half the year and re-characterises a third of it. The two-part
-    reading is already live and does not depend on this. <b>Say the word and I will flip it and re-derive everything
-    downstream; it is a big enough change that I want it from you, not inferred.</b>
-    <br><span style="opacity:.7">(My first measurement said 0% of modes change. It read a field that does not exist on
-    that object, so both sides came back zero. The number above is from the table that actually carries the score.)</span></span></div>
-
-  <div class="ask"><b>2. Which cancelled-fall rules are Velea’s?</b>
+  <div class="ask"><b>1. Which cancelled-fall rules are Velea’s?</b>
     <span class="why">One verse carries the whole thing — Phaladeepika 7.30: <i>the lord of the fall-sign and the lord of
     the exaltation-sign, both or even one, in an angle.</i> Two LORDS. Consequences: the popular rule “a debilitated
     planet in an angle is cancelled” is a mistranslation (we never built it — good); <b>two of our four conditions are
@@ -106,7 +93,7 @@
     condition that IS in the text (7.27) is not implemented; and BPHS gives none of these, so citing Parashara for them
     cites the wrong book.</span></div>
 
-  <div class="ask"><b>3. Which yogas the reader hears — ANSWERED, and it found two defects.</b>
+  <div class="ask"><b>2. Which yogas the reader hears — ANSWERED, and it found two defects.</b>
     <span class="why">You answered with a structure, not a list: <b>natal yogas are lifelong potentials; transits
     TRIGGER them, they do not create or replace them.</b> So a Raja or Mahapurusha yoga is never a Tuesday’s news — it
     may appear only when the day is actually touching it, and then as “this is lit today”.
@@ -122,18 +109,18 @@
     descriptions are recorded in <code>canon/yoga-layers-doctrine.md</code>; they are not a citation, and I will not
     encode a table that will look authoritative forever without one.</span></div>
 
-  <div class="ask"><b>4. The knot thresholds.</b>
+  <div class="ask"><b>3. The knot thresholds.</b>
     <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked. You asked
     how we test them with your eyes — I owe you that method, and it is the next thing I build if you want it.</span></div>
 
-  <div class="ask"><b>5. The crown mark — three pieces of your spec are missing.</b>
+  <div class="ask"><b>4. The crown mark — three pieces of your spec are missing.</b>
     <span class="why">Your tārā list and your six lucky Moon houses match the engine <i>exactly</i>, and are now pinned.
     Missing: <b>the 11th is not treated as the peak</b> (it weighs the same as the 3rd); <b>Amrita Siddhi / Sarvartha
     Siddhi Yoga do not exist at all</b> — a 7×27 weekday-by-nakshatra grid I refused to type from memory without a
     citation; and <b>Shubha Tithi</b> is handled by the cited family rule rather than your list. Audit in
     <code>canon/crown-doctrine.md</code>.</span></div>
 
-  <div class="ask"><b>6. Run one script, and the day-shift alert turns on.</b>
+  <div class="ask"><b>5. Run one script, and the day-shift alert turns on.</b>
     <span class="why">You asked for a phone alert when the day shifts. It needs <b>one column</b> —
     <code>push_subscriptions.lastTurnPush</code> — because the morning bell’s dedupe marker is a date field that is
     exactly full, and a user can legitimately get both alerts on the same day (the bell at 8am, the turn at 3:42pm).
@@ -146,36 +133,36 @@
 
   <div class="grp">The look — your palette calls</div>
 
-  <div class="ask"><b>7. The crown mark is gold on a gold coin.</b>
+  <div class="ask"><b>6. The crown mark is gold on a gold coin.</b>
     <span class="why">1.6:1 in light, 1.2:1 in dark — effectively invisible, and the border is the same gold. A darker
     gold reads fine but turns the mark olive, and the crown is your brand. The alternative is keeping the gold and giving
     it a real shadow instead of the gold one it has now.</span></div>
 
-  <div class="ask"><b>8. Parchment ink in dark mode.</b>
+  <div class="ask"><b>7. Parchment ink in dark mode.</b>
     <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night. Light modes are fine. One value
     in the theme block.</span></div>
 
-  <div class="ask"><b>9. Rename the “Parents &amp; Roots” chip?</b>
+  <div class="ask"><b>8. Rename the “Parents &amp; Roots” chip?</b>
     <span class="why">Following your ruling, that area is now explicitly ancestry — the departed, what came down the
     line. The chip still says Parents. <b>“Roots &amp; Ancestry”</b> would match. I do not rename what you look at
     without asking.</span></div>
 
   <div class="grp">The business — money and launch</div>
 
-  <div class="ask"><b>10. Set the price.</b>
+  <div class="ask"><b>9. Set the price.</b>
     <span class="why">Your list is locked. Nothing charges yet. Waiting on Mercury clearing post-shadow, per you.</span></div>
 
-  <div class="ask"><b>11. Stripe keys.</b>
+  <div class="ask"><b>10. Stripe keys.</b>
     <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config,
     yours.</span></div>
 
-  <div class="ask"><b>12. Did the production schema reconcile run?</b>
+  <div class="ask"><b>11. Did the production schema reconcile run?</b>
     <span class="why">You thought you ran something last night. I cannot verify it from here — that needs the production
     database. If it ran, this comes off the list; if not, the script is ready and it is hand-run by you.</span></div>
 
   <div class="grp">Cleanup</div>
 
-  <div class="ask"><b>13. The pick-a-date precision layer: wire it, or delete it?</b>
+  <div class="ask"><b>12. The pick-a-date precision layer: wire it, or delete it?</b>
     <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing calls
     them. What only they carry is transit-level precision — the exact house each transiting planet occupies and its
     strength score. You asked whether it is built off the textbooks: Bhava Chalit and Ashtakavarga both are, but I have
@@ -189,6 +176,9 @@
     <li><b>Should the cited nature drive every star</b> — <b>neither.</b> They are favourable for particular kinds of
       work, so a single score was the wrong instrument. All 27 stars now carry their own supports, and your natures
       agree with the cited canon on every one. A Shatabhisha day no longer reads as a good day to buy a vehicle.</li>
+    <li><b>Named by the sunrise star</b> — <b>yes, and done.</b> The civil day keeps the sunrise star's name; blending
+      to the majority is what the generic apps do. It re-titled 47% of days and re-characterised 32%, because the star
+      feeds the mode. The two-part reading is untouched, and the majority star still reaches the model.</li>
     <li><b>Which nakshatra table wins</b> — the cited tables. Four contradicted stars corrected; 57 days a year.</li>
     <li><b>When a day becomes its star</b> — named at sunrise, <i>read in two parts</i> with the hour named. The reading
       law is live; only the day’s <i>title</i> is still open (decision 2).</li>
@@ -259,6 +249,9 @@
       <li>The Verdict’s canon citation is real now: the strength-by-stage block exists in the file it points at.</li>
       <li><code>melana.json</code> cites its source (Raman’s <i>Muhurtha</i>, with page references) instead of recording what was built.</li>
       <li>One owner for “which rows are today’s reading” — the builder walks the canonical surface list instead of re-typing the pair inline.</li>
+      <li><b>A PAID surface gave fewer words than the free day read.</b> The Life Atlas window was 150 against the free
+        read's 190 — forty words fewer, for money. Two more cleared it by ten and twenty. All three raised; the ordering
+        is now enforced by a test.</li>
       <li><b>Eleven premium reads refused without saying they were locked</b> — a non-subscriber saw “quiet, try again”,
         indistinguishable from an outage, and three returned <i>null</i> so the client had nothing to render. The client
         already draws gates from that flag; the endpoints were not setting it. All do now.</li>
@@ -318,7 +311,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 88 fixed + 14 broken + 14 decision-rows + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 1043 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 1054 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

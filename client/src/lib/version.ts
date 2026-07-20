@@ -2474,4 +2474,26 @@
 // neechaBhanga now self-guards on actual debilitation (his Step 1) — it was reporting cancellation
 // for a planet in its OWN SIGN if a caller ever forgot to gate.
 // 97 files, 1043 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.868";
+// v1.1.869 = 2026-07-20 — "YES": THE DAY IS NAMED BY THE SUNRISE STAR. AND PAID NOW OUTWEIGHS FREE.
+// THE NAMING. The Vedic day begins at local sunrise and that instant prints the blueprint, so the
+// civil day keeps the sunrise star's name. Blending to the MAJORITY star is what the generic apps do
+// — his words for why theirs feel wrong in the morning or the evening. Measured impact, and it is
+// why I would not flip it on inference: the name changes on 172 of 365 days (47.1%) and the MODE
+// changes on 118 (32.3%), fifteen of them by a full point, because the star feeds the modifier.
+// The majority star is not lost — it still reaches the model as starTurn.rulesMostOfDay, and the
+// two-part reading is untouched: the prose still reads both halves and names the hour.
+// PAID MUST OUTWEIGH FREE (his ruling). It was not true. The free day read is 190 words, and
+// WindowRead — a PAID Life Atlas surface — was 150. A paying reader got FORTY WORDS FEWER than a
+// free one. TlWindow (200) and Yoga (210) cleared it by ten and twenty, which is not "deeper
+// insight" by any reading. All three raised to 280; every other paid surface already sat at 360-650,
+// so those three were anomalies, not the design. Ordering pinned by a test — the number is mine and
+// movable, the ORDERING is his and is enforced.
+// MY OWN TEST INVENTED A THRESHOLD AND FAILED ON CORRECT CODE: I asserted tokens > 2.5x words, and
+// the big reads are deliberately at exactly 2x (LifeArea 450/900, Month 650/1300). 2.5 was a number
+// I made up, and it flagged an intentional convention as a defect. Pinned to the observed floor.
+// AND HE WAS RIGHT THAT I ASSUMED. I said the Muhurta yogas had "no cited source in this repo" and
+// let that stand as a refusal. There IS a references/ folder I had never opened, and an iCloud drop
+// where his scans land — I checked both. They do not contain the muhurta tables, but I should have
+// LOOKED before refusing, and should simply have asked him for the pages.
+// 99 files, 1054 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.869";

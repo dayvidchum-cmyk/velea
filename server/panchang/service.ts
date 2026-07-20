@@ -226,7 +226,21 @@ export async function getDayField(
       // every consumer — and to the LLM — is shape-consistent regardless of cache state; paksha
       // travels separately in cachedPaksha.
       const cachedTithi = (astro?.tithi ?? cached.tithi ?? "").replace(/^(Shukla|Krishna)\s+/, "");
-      const dominantNak = astro?.nakshatra ?? cached.nakshatra;
+      // THE DAY IS NAMED BY THE SUNRISE STAR (David's ruling, 2026-07-20: "yes").
+      //
+      // The Vedic day begins at local sunrise, and the configuration at that instant prints the
+      // blueprint for the whole cycle — so the CIVIL DAY keeps the sunrise star's name. The
+      // majority star (astro.nakshatra) is what the generic apps use, and he was explicit that
+      // blending to it is why their horoscopes feel wrong in the morning or the evening.
+      //
+      // This is NOT the two-part reading, which is separate and already live: the prose still reads
+      // the day in two halves around the turn, naming the hour. This decides only what the day is
+      // CALLED, and therefore which star feeds the mode.
+      //
+      // MEASURED IMPACT before the flip: the name changes on 172 of 365 days (47.1%), and the mode
+      // score changes on 118 (32.3%), fifteen of them by a full point. The majority star is still
+      // carried to the model as starTurn.rulesMostOfDay, so nothing loses it.
+      const dominantNak = (astro as any)?.nakshatraAtSunrise ?? astro?.nakshatra ?? cached.nakshatra;
       const effMoonSign = (astro as any)?.moonSign ?? cached.moonSign;
       const nakshatraModifier = getNakshatraModifier(dominantNak);
       const tithiPacing = getTithiPacing(cachedTithi, cachedPaksha);
