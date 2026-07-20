@@ -34,6 +34,33 @@ describe("knot themes vs the canon", () => {
     }
   });
 
+  // The canon indexes six THEMES — and it also carries houseKarakaTable, the karaka(s) of every
+  // house. Three of the four local themes are house-defined, so their karakas are the union of that
+  // table over their houses. Hand-listing them was drift waiting to happen, and health had already
+  // drifted: [Sun, Mars], with the 6th's SATURN missing. Same shape as career's missing Jupiter.
+  const HOUSE_KARAKAS = (karakas as any).houseKarakaTable as Record<string, string[]>;
+  const unionFor = (houses: number[]) => [...new Set(houses.flatMap((h) => HOUSE_KARAKAS[String(h)] ?? []))].sort();
+
+  it.each([["wealth", [2, 11]], ["home", [4]], ["health", [6, 1]]] as const)(
+    "%s takes its karakas from the canon's house table", (theme, houses) => {
+      const t = (THEME_TABLE_FOR_TEST as any)[theme];
+      expect([...t.houses].sort()).toEqual([...houses].sort());
+      expect([...t.karakas].sort()).toEqual(unionFor([...houses]));
+    });
+
+  it("health carries SATURN — the second drift this file exists to catch", () => {
+    expect((THEME_TABLE_FOR_TEST as any).health.karakas).toContain("Saturn");
+    expect(HOUSE_KARAKAS["6"]).toContain("Saturn"); // denominator: the canon really does say so
+  });
+
+  it("`parents` deliberately does NOT use the house table — the two canon tables disagree", () => {
+    // houseKarakaTable would add Mercury via the 4th; knotSignificatorMap's father ∪ mother would
+    // not. Where the canon has a purpose-built index for the question, it outranks the general
+    // table, so this asserts the divergence is CHOSEN rather than another drift.
+    expect(unionFor([4, 9])).toContain("Mercury");
+    expect((THEME_TABLE_FOR_TEST as any).parents.karakas).not.toContain("Mercury");
+  });
+
   it("`parents` is exactly the canon's father ∪ mother, not an invention", () => {
     const father = CANON.father, mother = CANON.mother;
     const houses = new Set([...(father.houses ?? []), ...(mother.houses ?? [])]);

@@ -55,6 +55,28 @@ const fromCanon = (theme: string, label: string, extra?: Partial<ThemeDef>): The
   if (!c?.houses?.length || !c?.karakas?.length) throw new Error(`karakas.json lost its "${theme}" entry`);
   return { label, houses: [...c.houses], karakas: [...c.karakas], ...extra };
 };
+// THE SECOND CANON TABLE (v799). knotSignificatorMap indexes only six themes, so the other four were
+// hand-listed — and karakas.json ALSO carries houseKarakaTable (Vol I Ch.7, p66-90), the karaka(s) of
+// every house 1..12. Three of the four local themes are house-defined, so their karakas are simply
+// the union of that table over their houses, and hand-listing them was drift waiting to happen. It
+// had already happened: health (houses 6 and 1) carried [Sun, Mars] while the canon gives the 6th to
+// [Mars, SATURN] and the 1st to [Sun]. SATURN WAS MISSING FROM HEALTH — the karaka of chronic
+// illness, depletion and longevity, absent from the vitality theme, so a Saturn dasha never tied to
+// health through the karaka path. Exactly the shape of career's missing Jupiter, one table over.
+// `parents` stays on knotSignificatorMap (father ∪ mother): the two canon tables disagree there —
+// the house table would add Mercury via the 4th — and the derived knot index is the one written for
+// this purpose. Where the canon has a purpose-built answer, it outranks the general table.
+const HOUSE_KARAKAS = (karakasCanon as any).houseKarakaTable as Record<string, string[]>;
+const fromHouseTable = (houses: number[]): string[] => {
+  const out: string[] = [];
+  for (const h of houses) {
+    const ks = HOUSE_KARAKAS[String(h)];
+    if (!ks?.length) throw new Error(`karakas.json houseKarakaTable lost house ${h}`);
+    for (const k of ks) if (!out.includes(k)) out.push(k);
+  }
+  return out;
+};
+
 const THEMES: Record<KnotTheme, ThemeDef> = {
   marriage: fromCanon("marriage", "Marriage / union", { partnerKaraka: { husband: "Jupiter", wife: "Venus" } }),
   children: fromCanon("children", "Children / creativity"),
@@ -62,11 +84,12 @@ const THEMES: Record<KnotTheme, ThemeDef> = {
   identity: fromCanon("identity", "Identity — how you're received"),
   fame:     fromCanon("fame",     "Fame / recognition"),
   siblings: fromCanon("siblings", "Inner circle / siblings"),
-  // Not in the canon's index — Velea's own, kept explicit so nothing silently vanishes:
-  wealth:   { label: "Wealth / income",               houses: [2, 11], karakas: ["Jupiter"] },
-  parents:  { label: "Parents / roots",               houses: [4, 9],  karakas: ["Moon", "Sun", "Jupiter"] }, // = canon father ∪ mother
-  home:     { label: "Home / land",                   houses: [4],     karakas: ["Moon", "Mercury"] },
-  health:   { label: "Health / vitality",             houses: [6, 1],  karakas: ["Sun", "Mars"] },
+  // Not in the canon's THEME index — Velea's own themes, but their karakas are still the canon's,
+  // read from houseKarakaTable rather than re-typed (see above).
+  wealth:   { label: "Wealth / income", houses: [2, 11], karakas: fromHouseTable([2, 11]) },
+  parents:  { label: "Parents / roots", houses: [4, 9],  karakas: ["Moon", "Sun", "Jupiter"] }, // = canon father ∪ mother
+  home:     { label: "Home / land",     houses: [4],     karakas: fromHouseTable([4]) },
+  health:   { label: "Health / vitality", houses: [6, 1], karakas: fromHouseTable([6, 1]) },
 };
 
 /** Exposed for the canon-drift test only (knots.canon.test.ts). Not part of the public API. */

@@ -1069,4 +1069,22 @@
 // checked and fails if it checked nothing, plus a live-vs-stored equality test that asserts the
 // weighting was actually exercised so the agreement cannot be vacuous.
 // 34 files, 342 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.798";
+// v1.1.799 = 2026-07-20 — SATURN WAS MISSING FROM HEALTH, ONE CANON TABLE OVER.
+// v790 wired karakas.json's knotSignificatorMap and found career missing Jupiter. That index covers
+// only six themes, so the other four stayed hand-listed — and karakas.json ALSO carries
+// houseKarakaTable (Vol I Ch.7, p66-90): the karaka(s) of every house 1..12. Three of the four local
+// themes are house-defined, so their karakas ARE that table's union over their houses, and the
+// hand-listing had already drifted: health (houses 6 and 1) carried [Sun, Mars] while the canon
+// gives the 6th to [Mars, SATURN]. Saturn — chronic illness, depletion, longevity — was absent from
+// the vitality theme, so a Saturn dasha never tied to health through the karaka path. Identical
+// shape to career's missing Jupiter, in the table nobody had opened.
+// wealth, home and health now derive from houseKarakaTable and a test asserts the equality, so
+// three coincidences became three enforced facts. `parents` deliberately does NOT: the two canon
+// tables disagree there (the house table would add Mercury via the 4th) and knotSignificatorMap's
+// father ∪ mother is the index written for this question — where the canon has a purpose-built
+// answer it outranks the general table. A test asserts that divergence is chosen, not drift.
+// AUDIT NOTE, since I was told to question the agents: the audit agent that raised this cited a key
+// name that does not exist in the file ("houseKarakas") and a line number that is not the table. The
+// VALUE it quoted was right and the finding was real. Checked before acting, not after.
+// 34 files, 347 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.799";
