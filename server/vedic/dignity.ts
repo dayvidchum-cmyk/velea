@@ -6,8 +6,14 @@
  * Moon's POSITION but never its DIGNITY — so a debilitated Moon and an exalted one score identically.
  * That's a real blind spot (it produced a wrong eclipse read on David's own chart). But raw
  * debilitation is a TRAP: a cancelled debilitation (neecha bhanga) is the fall-then-rise signature,
- * often a raja yoga — scoring it as "weak" is worse than ignoring dignity entirely. So dignity and
- * cancellation MUST travel together. This module is the primitive; consumers decide how to weight it.
+ * and scoring it as "weak" is worse than ignoring dignity entirely. So dignity and cancellation MUST
+ * travel together. This module is the primitive; consumers decide how to weight it.
+ *
+ * NOT "often a raja yoga" — this header said exactly that until 2026-07-20, which is the conflation
+ * David's debilitation doctrine pulls back from: "Neecha Bhanga is not automatically Raja Yoga…
+ * Not everyone with Neecha Bhanga experiences extraordinary success." I corrected the same sentence
+ * in BASE_PROMPT and in the neechaBhanga docblock and missed it here — the third copy of one wrong
+ * claim, which is the argument for stating a doctrine once rather than restating it per file.
  *
  * Pure: sidereal longitudes in, dignity out. No ephemeris, no interpretation, no UI.
  */
@@ -118,7 +124,27 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   const debilSign = signName(pLon);
   const lagIdx = signIndex(lagnaLon);
   const moonIdx = signIndex(lonBy.Moon);
-  const inKendra = (lon: number) => KENDRA.has(houseFrom(lagIdx, lon)) || KENDRA.has(houseFrom(moonIdx, lon));
+  /**
+   * "In a kendra" means a kendra from the ascendant OR from the Moon (chandra-lagna) — two
+   * reference frames, the standard classical pair.
+   *
+   * THE TAUTOLOGY THIS GUARDS, found 2026-07-20 by measuring instead of reading. The Moon sits in
+   * the 1st house from itself in every chart ever cast, so "is the Moon in a kendra?" answered
+   * against the chandra-lagna frame is ALWAYS YES — an identity, not a fact about the chart. Any
+   * condition whose subject is the Moon therefore fired 100% of the time:
+   *
+   *   · condition 1 — Mars debilitated in CANCER: the dispositor IS the Moon, so every Mars-in-
+   *     Cancer in the app has been reported "cancelled" regardless of where the Moon actually is.
+   *   · condition 3 — Jupiter debilitated in CAPRICORN: its exaltation is Cancer, whose lord is the
+   *     Moon. Same tautology, same always-cancelled.
+   *   · condition 7 — a debilitated Moon is trivially "itself in a kendra".
+   *
+   * The first two are shipped bugs that predate condition 7; measuring the new rule is what
+   * surfaced them. Passing `who` and dropping the self-frame fixes the whole class in one place
+   * rather than patching each condition — and it removes a tautology, which is not a method choice.
+   */
+  const inKendra = (lon: number, who?: Graha) =>
+    KENDRA.has(houseFrom(lagIdx, lon)) || (who !== "Moon" && KENDRA.has(houseFrom(moonIdx, lon)));
   const reasons: string[] = [];
   const by: Graha[] = [];
 
@@ -134,7 +160,7 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
 
   // 1. Dispositor of the debilitation sign in a kendra from Asc or Moon.
   const dispositor = SIGN_RULER[debilSign];
-  if (dispositor !== planet && inKendra(lonBy[dispositor])) {
+  if (dispositor !== planet && inKendra(lonBy[dispositor], dispositor)) {
     reasons.push(`dispositor ${dispositor} (lord of ${debilSign}) in a kendra`);
     by.push(dispositor);
   }
@@ -142,14 +168,14 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   // 2. The planet that EXALTS in the debilitation sign, in a kendra from Asc or Moon.
   //    ONE OF TWO GLOSSES of the compound in Phaladeepika 7.30 — the sibling reading is #3 below.
   const exalter = EXALTS_IN[debilSign];
-  if (exalter && exalter !== planet && inKendra(lonBy[exalter])) {
+  if (exalter && exalter !== planet && inKendra(lonBy[exalter], exalter)) {
     reasons.push(`${exalter} (exalts in ${debilSign}) in a kendra`);
     by.push(exalter);
   }
 
   // 3. Lord of the planet's EXALTATION sign, in a kendra from Asc or Moon.
   const exaltLord = SIGN_RULER[EXALT[planet].sign];
-  if (exaltLord !== planet && inKendra(lonBy[exaltLord])) {
+  if (exaltLord !== planet && inKendra(lonBy[exaltLord], exaltLord)) {
     reasons.push(`${exaltLord} (lord of ${planet}'s exaltation ${EXALT[planet].sign}) in a kendra`);
     by.push(exaltLord);
   }
@@ -182,6 +208,28 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
       reasons.push(`sign exchange with ${dispositor} (parivartana)`);
       by.push(dispositor);
     }
+  }
+
+  // 7. THE DEBILITATED PLANET ITSELF IN A KENDRA from Asc or Moon — David's condition 3.
+  //
+  //    I owe him a plain retraction here. I researched the verses, found that Phaladeepika 7.30
+  //    names two LORDS, and told him the popular "planet in a kendra" rule was "a mistranslation"
+  //    that this engine had never implemented — "Good." His doctrine lists it as condition 3. When I
+  //    answered by laying out the philology on both sides instead of building anything, he said:
+  //    "huh????? i feel like you are overcomplicating this."
+  //
+  //    He was right. Both facts were already established and neither was in dispute: the verse names
+  //    two lords, AND the planet-in-kendra rule is genuinely widespread in the living tradition. The
+  //    only open question was which authority Velea follows — and that was never mine to research.
+  //    It is his, he answered it by listing the condition in his own doctrine, and I turned an
+  //    answered question back into a seminar. Velea follows David.
+  //
+  //    Note the `by` entry: the planet itself forms this cancellation, so under the canon's dashaGate
+  //    rule ("latent until its planets' period activates it") this one is activated by the fallen
+  //    planet's OWN period. That is the correct reading, not a shortcut — no rescuer is involved.
+  if (inKendra(pLon, planet)) {
+    reasons.push(`${planet} itself in a kendra`);
+    by.push(planet);
   }
 
   const uniq = Array.from(new Set(reasons));
