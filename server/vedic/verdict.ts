@@ -19,6 +19,7 @@
  * the LLM only VOICES. Nothing here is invented scoring — every factor cites its canon source.
  */
 import { eq, and } from "drizzle-orm";
+import avashtasCanon from "./canon/avashtas.json";
 import { getDb } from "../db.js";
 import { profiles, profileDashaPeriods } from "../../drizzle/schema.js";
 import { getStoredResearch } from "./research-store.js";
@@ -30,8 +31,25 @@ const MATURITY: Record<string, number> = (timingJson as any).maturityOfPlanets?.
   Jupiter: 16, Sun: 22, Moon: 24, Venus: 25, Mars: 28, Mercury: 32, Saturn: 36, Rahu: 42, Ketu: 48,
 };
 
-// Balaadi fruition (canon: infant ¼ · adolescent ½ · adult full · old ⅛ · dead ~none).
-const BALAADI_FRUIT: Record<string, number> = { bala: 0.25, kumara: 0.5, yuva: 1, vriddha: 0.125, mrita: 0.05 };
+// BALAADI FRUITION — READ FROM THE CANON FILE THIS COMMENT ALWAYS CITED (v816).
+// It cited canon/avashtas.json for these numbers and that file did not contain them: they were a
+// bare literal here, and the citation was decoration. The block now exists, with each state's
+// classical wording beside its number, and this reads it — so editing the canon changes the engine,
+// which is the whole point of having a canon directory.
+// TWO OF THE FIVE ARE VELEA'S, NOT THE CORPUS'S, and the file says so: vriddha 0.125 where the
+// canon says "very little" and names no fraction, and mrita 0.05 where the canon says NIL. The
+// second one is the dial that decides "late" versus "late if at all" — a true zero makes any
+// Mrita-hinged area unreachable rather than merely slow. Values UNCHANGED here; the deviation is
+// recorded rather than quietly corrected, because which way it goes is David's call.
+const BALAADI_CANON = (avashtasCanon as any).balaadi?.states as Record<string, { fruition: number }> | undefined;
+const BALAADI_FRUIT: Record<string, number> = (() => {
+  const out: Record<string, number> = {};
+  for (const [state, v] of Object.entries(BALAADI_CANON ?? {})) out[state] = v.fruition;
+  // Five states or the canon block has been damaged — fail loudly at load rather than silently
+  // scoring every chart against a half-empty table.
+  if (Object.keys(out).length !== 5) throw new Error("canon/avashtas.json: balaadi.states must carry all five states");
+  return out;
+})();
 
 // Dignity base weights (exalt > moolatrikona > own > friend > neutral > enemy > fall;
 // neecha bhanga lifts a cancelled debilitation to workable).

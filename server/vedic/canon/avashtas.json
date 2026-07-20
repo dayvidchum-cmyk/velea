@@ -1,64 +1,155 @@
 {
-  "_source": "Kurczak & Fish, Art & Science of Vedic Astrology Vol II, Ch.10 'Introduction to Lajjitaadi Avashtas' + the Jagradaadi avashtas.",
-  "_note": "The 'live condition' engine — Velea's canonical backing for the LAW that planets are not fixed benefic/malefic but judged by their live state (see memory velea-planet-philosophy-no-black-and-white). A planet's ability to DELIVER what it signifies depends on the company it keeps. Two layers: (1) Lajjitaadi = WHICH emotional state a planet is in (shamed/proud/starved/thirsty/delighted/agitated), computed from conjunction/aspect/sign vs its friends & enemies; (2) Jagradaadi = HOW STRONGLY that state bites, from the planet's own dignity (awake/sleepy/asleep). Requires planetary-friendships.json.",
-
-  "lajjitaadi": {
-    "_desc": "The six emotional states. Formulas are deterministic (need the friendship table + dignity). A planet may hold more than one state at once.",
-    "states": [
-      { "id": "lajjita", "english": "Ashamed", "valence": "difficult",
-        "formula": ["A planet in the 5th house conjunct Sun, Saturn or Mars (must be the 5th house specifically)", "OR a planet conjunct Rahu or Ketu AND conjunct Sun, Saturn or Mars (any house)"],
-        "meaning": "Shame, a stigma of failure; expectations that outrun reality, then the let-down. The 5th (mind/optimism) or a node inflates the expectation." },
-      { "id": "garvita", "english": "Proud", "valence": "excellent",
-        "formula": ["A planet in its exaltation sign or moolatrikona"],
-        "meaning": "Confident, dignified, able to deliver its significations fully and with pride." },
-      { "id": "kshudita", "english": "Starved", "valence": "difficult",
-        "formula": ["A planet in an enemy's sign", "OR conjunct an enemy", "OR aspected by an enemy", "OR conjunct Saturn"],
-        "meaning": "Deprived, under-resourced, thwarted — cannot get what it needs to produce its significations; lack, want, difficulty." },
-      { "id": "trishita", "english": "Thirsty", "valence": "difficult",
-        "formula": ["A planet aspected by an enemy AND not influenced by any auspicious planet AND in a water sign (Cancer, Scorpio, Pisces)"],
-        "meaning": "Emotionally unquenched, longing, dissatisfied; craving fulfilment it cannot reach." },
-      { "id": "mudita", "english": "Delighted", "valence": "excellent",
-        "formula": ["A planet in a friend's sign", "OR conjunct a friend (excluding Saturn)", "OR aspected by a natural friend", "OR conjunct Jupiter"],
-        "meaning": "Happy, supported, at ease — free to express its nature and deliver its significations with grace." },
-      { "id": "kshobhita", "english": "Agitated", "valence": "difficult",
-        "formula": ["A planet conjunct the Sun (combust-adjacent)", "OR aspected by an enemy that is ALSO a cruel planet (Mars, Saturn, Sun, or waning Moon)"],
-        "meaning": "Restless, frustrated, pushed off its natural rhythm; forced to act against its will, then destabilized." }
-    ]
-  },
-
-  "jagradaadi": {
-    "_desc": "The strength qualifier — how much a Lajjitaadi state actually bites, set by the planet's own DIGNITY. Awake = full force, sleepy = half, asleep = little/none. Apply to BOTH the afflicting planet (how hard it hurts) and the afflicted (how much it can bear).",
-    "states": [
-      { "id": "jagrat", "english": "Awake", "impact": "full", "formula": "Planet in exaltation, moolatrikona, or own sign." },
-      { "id": "svapna", "english": "Sleepy", "impact": "half", "formula": "Planet in a natural friend's or neutral's sign." },
-      { "id": "sushupti", "english": "Asleep", "impact": "little to none", "formula": "Planet in a natural enemy's or debilitation sign." }
+ "_source": "Kurczak & Fish, Art & Science of Vedic Astrology Vol II, Ch.10 'Introduction to Lajjitaadi Avashtas' + the Jagradaadi avashtas.",
+ "_note": "The 'live condition' engine — Velea's canonical backing for the LAW that planets are not fixed benefic/malefic but judged by their live state (see memory velea-planet-philosophy-no-black-and-white). A planet's ability to DELIVER what it signifies depends on the company it keeps. Two layers: (1) Lajjitaadi = WHICH emotional state a planet is in (shamed/proud/starved/thirsty/delighted/agitated), computed from conjunction/aspect/sign vs its friends & enemies; (2) Jagradaadi = HOW STRONGLY that state bites, from the planet's own dignity (awake/sleepy/asleep). Requires planetary-friendships.json.",
+ "lajjitaadi": {
+  "_desc": "The six emotional states. Formulas are deterministic (need the friendship table + dignity). A planet may hold more than one state at once.",
+  "states": [
+   {
+    "id": "lajjita",
+    "english": "Ashamed",
+    "valence": "difficult",
+    "formula": [
+     "A planet in the 5th house conjunct Sun, Saturn or Mars (must be the 5th house specifically)",
+     "OR a planet conjunct Rahu or Ketu AND conjunct Sun, Saturn or Mars (any house)"
     ],
-    "notes": [
-      "A planet can be jagrat in one varga and sushupti in another (dignity differs per divisional chart) — awake for one area of life, asleep for another.",
-      "Why all-exalted is not ideal: an exalted (awake) Sun is great, but exalted+awake Venus and Saturn (its enemies) starving it can still cause grief.",
-      "Why a debilitated planet may not act debilitated: if its enemies are asleep (sushupti) or absent and only friends cause avashtas, an asleep planet still functions with its friends' help."
-    ]
+    "meaning": "Shame, a stigma of failure; expectations that outrun reality, then the let-down. The 5th (mind/optimism) or a node inflates the expectation."
+   },
+   {
+    "id": "garvita",
+    "english": "Proud",
+    "valence": "excellent",
+    "formula": [
+     "A planet in its exaltation sign or moolatrikona"
+    ],
+    "meaning": "Confident, dignified, able to deliver its significations fully and with pride."
+   },
+   {
+    "id": "kshudita",
+    "english": "Starved",
+    "valence": "difficult",
+    "formula": [
+     "A planet in an enemy's sign",
+     "OR conjunct an enemy",
+     "OR aspected by an enemy",
+     "OR conjunct Saturn"
+    ],
+    "meaning": "Deprived, under-resourced, thwarted — cannot get what it needs to produce its significations; lack, want, difficulty."
+   },
+   {
+    "id": "trishita",
+    "english": "Thirsty",
+    "valence": "difficult",
+    "formula": [
+     "A planet aspected by an enemy AND not influenced by any auspicious planet AND in a water sign (Cancer, Scorpio, Pisces)"
+    ],
+    "meaning": "Emotionally unquenched, longing, dissatisfied; craving fulfilment it cannot reach."
+   },
+   {
+    "id": "mudita",
+    "english": "Delighted",
+    "valence": "excellent",
+    "formula": [
+     "A planet in a friend's sign",
+     "OR conjunct a friend (excluding Saturn)",
+     "OR aspected by a natural friend",
+     "OR conjunct Jupiter"
+    ],
+    "meaning": "Happy, supported, at ease — free to express its nature and deliver its significations with grace."
+   },
+   {
+    "id": "kshobhita",
+    "english": "Agitated",
+    "valence": "difficult",
+    "formula": [
+     "A planet conjunct the Sun (combust-adjacent)",
+     "OR aspected by an enemy that is ALSO a cruel planet (Mars, Saturn, Sun, or waning Moon)"
+    ],
+    "meaning": "Restless, frustrated, pushed off its natural rhythm; forced to act against its will, then destabilized."
+   }
+  ]
+ },
+ "jagradaadi": {
+  "_desc": "The strength qualifier — how much a Lajjitaadi state actually bites, set by the planet's own DIGNITY. Awake = full force, sleepy = half, asleep = little/none. Apply to BOTH the afflicting planet (how hard it hurts) and the afflicted (how much it can bear).",
+  "states": [
+   {
+    "id": "jagrat",
+    "english": "Awake",
+    "impact": "full",
+    "formula": "Planet in exaltation, moolatrikona, or own sign."
+   },
+   {
+    "id": "svapna",
+    "english": "Sleepy",
+    "impact": "half",
+    "formula": "Planet in a natural friend's or neutral's sign."
+   },
+   {
+    "id": "sushupti",
+    "english": "Asleep",
+    "impact": "little to none",
+    "formula": "Planet in a natural enemy's or debilitation sign."
+   }
+  ],
+  "notes": [
+   "A planet can be jagrat in one varga and sushupti in another (dignity differs per divisional chart) — awake for one area of life, asleep for another.",
+   "Why all-exalted is not ideal: an exalted (awake) Sun is great, but exalted+awake Venus and Saturn (its enemies) starving it can still cause grief.",
+   "Why a debilitated planet may not act debilitated: if its enemies are asleep (sushupti) or absent and only friends cause avashtas, an asleep planet still functions with its friends' help."
+  ]
+ },
+ "combinationLogic": {
+  "_desc": "How avashtas + house-lordship read together — the bridge from live condition to lived outcome, and to TIMING.",
+  "houseLordCapacity": "A house lord that is awake (jagrat) has full capacity to produce that house's affairs; sleepy = half; asleep = cannot alone.",
+  "helpedOrHurt": "Overlay the lajjitaadi state: awake house-lord + only positive (mudita/garvita) avashtas → that area of life runs clean; awake but starved/agitated by awake enemies → that area suffers; asleep house-lord + only positive avashtas → uplifted by the helping planets; asleep + awake negative avashtas → severely hampered.",
+  "timingHook": "The suffering/uplift FIRES during the sub-periods (bhukti/antara) of the offending or supporting planets, and during their TRANSITS over the natal position of the house lord. This is the deterministic knot-timing bridge: an afflicted marriage/career lord's difficulty surfaces in the dasha and transit of the planet afflicting it."
+ },
+ "planetSignifications_avasthaList": {
+  "_note": "The chapter's own broader signification list (extends karakas.json with body/tissue + a few extras). Jupiter = the husband; Venus = the wife (apply the non-heteronormative partner rule — see karakas.json _partnerKarakaRule). Rahu notably = fame here.",
+  "Sun": "father, authority figures, bones, the body, one's kingdom, government, status/power",
+  "Moon": "individuality, music, blood, inner satisfaction, the mother, popularity, dreams, bodily growth",
+  "Mars": "character, gold & gems, siblings, nervous system, neighbors, weapons, overseers, enemies' actions, surgery, logic",
+  "Mercury": "communication, skin, cognition, travel, discernment, games, relatives, craftsmanship, mantra, commerce, corporations, learning",
+  "Jupiter": "wealth, children, happiness, the bigger picture, the brain, adipose tissue, the husband, guru, banks, teachers, scripture, education, charity",
+  "Venus": "recuperation, DNA, muscles, genetics, jewelry, art, entertainment, massage, romance, pools, students, fulfilling decisions, conjugal bond, the wife, women, vehicles, diplomacy",
+  "Saturn": "elder siblings, prison, longevity, connective tissue, immune system, pets, servants, hard work, debts, loss, illness, duty, weaknesses, focus, perseverance",
+  "Rahu": "drugs, poison, confusion, foreign places & things, deception, technology, snakes, fame",
+  "Ketu": "bacteria, plagues, liberation of consciousness, mathematics, minute detail, what we bring from past lives"
+ },
+ "_pending": "Per-planet detailed avastha narratives (e.g. 'Mars shaming the Sun', 'Saturn shaming the Sun', each planet × each state, ~1800 lines in Vol II Ch.10) NOT transcribed — the formulas above let the engine COMPUTE the state; feed the state + a short gloss to the narrative. Deep per-pair prose can be pulled on demand from both-books.txt Ch.10 if a surface needs it.",
+ "balaadi": {
+  "_source": "NOT from Vol II Ch.10 like the rest of this file. The BANDS (5 x 6-degree states, order reversed in even signs) are canon-cited in code to Ch.3 p.253 and implemented in vedic/avashtas.ts. The FRUITION PROPORTIONS below were carried as a bare literal in vedic/verdict.ts, which cited THIS FILE for them while this file did not contain them. Researched and recorded 2026-07-20.",
+  "_provenance": "The proportions are stated near-identically across the secondary corpus and attributed to the Baladi avastha material in BPHS: one fourth for Bala, half for Kumara, FULL in Yuva, 'very little' for Vriddha, NIL for Mrita. Verified as widely and consistently attested; NOT verified against a translated primary verse — treat as strong secondary until a chapter and verse is nailed down.",
+  "states": {
+   "bala": {
+    "english": "infant",
+    "fruition": 0.25,
+    "canon": "one fourth",
+    "deviation": null
+   },
+   "kumara": {
+    "english": "adolescent",
+    "fruition": 0.5,
+    "canon": "one half",
+    "deviation": null
+   },
+   "yuva": {
+    "english": "adult",
+    "fruition": 1,
+    "canon": "full",
+    "deviation": null
+   },
+   "vriddha": {
+    "english": "old",
+    "fruition": 0.125,
+    "canon": "very little",
+    "deviation": "The canon says 'very little' and names no fraction. 1/8 is Velea's reading of 'very little'. Defensible, but it is ours, not the book's."
+   },
+   "mrita": {
+    "english": "dead",
+    "fruition": 0.05,
+    "canon": "nil",
+    "deviation": "THE CANON SAYS NIL. 0.05 is deliberately non-zero. It is the dial that decides whether a chart reads 'late' or 'late if at all', because a true zero makes any Mrita-hinged area unreachable rather than merely slow. David's ruling, not a transcription error — flagged so it is never mistaken for one."
+   }
   },
-
-  "combinationLogic": {
-    "_desc": "How avashtas + house-lordship read together — the bridge from live condition to lived outcome, and to TIMING.",
-    "houseLordCapacity": "A house lord that is awake (jagrat) has full capacity to produce that house's affairs; sleepy = half; asleep = cannot alone.",
-    "helpedOrHurt": "Overlay the lajjitaadi state: awake house-lord + only positive (mudita/garvita) avashtas → that area of life runs clean; awake but starved/agitated by awake enemies → that area suffers; asleep house-lord + only positive avashtas → uplifted by the helping planets; asleep + awake negative avashtas → severely hampered.",
-    "timingHook": "The suffering/uplift FIRES during the sub-periods (bhukti/antara) of the offending or supporting planets, and during their TRANSITS over the natal position of the house lord. This is the deterministic knot-timing bridge: an afflicted marriage/career lord's difficulty surfaces in the dasha and transit of the planet afflicting it."
-  },
-
-  "planetSignifications_avasthaList": {
-    "_note": "The chapter's own broader signification list (extends karakas.json with body/tissue + a few extras). Jupiter = the husband; Venus = the wife (apply the non-heteronormative partner rule — see karakas.json _partnerKarakaRule). Rahu notably = fame here.",
-    "Sun": "father, authority figures, bones, the body, one's kingdom, government, status/power",
-    "Moon": "individuality, music, blood, inner satisfaction, the mother, popularity, dreams, bodily growth",
-    "Mars": "character, gold & gems, siblings, nervous system, neighbors, weapons, overseers, enemies' actions, surgery, logic",
-    "Mercury": "communication, skin, cognition, travel, discernment, games, relatives, craftsmanship, mantra, commerce, corporations, learning",
-    "Jupiter": "wealth, children, happiness, the bigger picture, the brain, adipose tissue, the husband, guru, banks, teachers, scripture, education, charity",
-    "Venus": "recuperation, DNA, muscles, genetics, jewelry, art, entertainment, massage, romance, pools, students, fulfilling decisions, conjugal bond, the wife, women, vehicles, diplomacy",
-    "Saturn": "elder siblings, prison, longevity, connective tissue, immune system, pets, servants, hard work, debts, loss, illness, duty, weaknesses, focus, perseverance",
-    "Rahu": "drugs, poison, confusion, foreign places & things, deception, technology, snakes, fame",
-    "Ketu": "bacteria, plagues, liberation of consciousness, mathematics, minute detail, what we bring from past lives"
-  },
-
-  "_pending": "Per-planet detailed avastha narratives (e.g. 'Mars shaming the Sun', 'Saturn shaming the Sun', each planet × each state, ~1800 lines in Vol II Ch.10) NOT transcribed — the formulas above let the engine COMPUTE the state; feed the state + a short gloss to the narrative. Deep per-pair prose can be pulled on demand from both-books.txt Ch.10 if a surface needs it."
+  "_openRuling": "Two numbers here are Velea's, not the corpus's: vriddha 0.125 (canon: 'very little') and mrita 0.05 (canon: 'nil'). Both are live on The Verdict. Neither has been changed; they are recorded so the choice is visible."
+ }
 }

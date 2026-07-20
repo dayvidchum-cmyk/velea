@@ -1410,4 +1410,25 @@
 // a regex that can never match reads as a clean sweep forever. Verified by reverting all three
 // files: it flags all three, and passes once they are back.
 // 70 files, 694 tests, 0 failures. Build exits 0 and now typechecks. tsc: zero errors.
-export const APP_VERSION = "1.1.815";
+// v1.1.816 = 2026-07-20 — THE VERDICT'S FRUITION DIAL NOW READS THE CANON IT ALWAYS CITED.
+// verdict.ts named canon/avashtas.json for the balaadi fruition fractions and that file did not
+// contain them — they were a bare literal in the module and the citation was decoration. Same
+// "cited but not executed" class as the karakas drift, sitting on the dial that decides whether a
+// chart reads "late" or "late if at all".
+// The block exists now, with each state's classical wording beside its number, and the engine reads
+// it — so editing the canon changes the engine, which is the point of having a canon directory. It
+// throws at load if the block is not five states, rather than silently scoring every chart against
+// a half-empty table.
+// RESEARCHED: bala one fourth, kumara one half, yuva FULL, vriddha "very little", mrita NIL — stated
+// near-identically across the secondary corpus and attributed to the BPHS Baladi material. Widely
+// and consistently attested; NOT verified against a translated primary verse, and the file says so
+// rather than implying a chapter I have not read.
+// TWO OF THE FIVE ARE OURS, NOT THE BOOK'S, and both are now declared in the canon file: vriddha
+// 0.125 where the corpus says "very little" and names no fraction, and mrita 0.05 where the corpus
+// says NIL. The second is deliberate — a true zero makes any Mrita-hinged area unreachable rather
+// than merely slow. VALUES UNCHANGED. The deviation is recorded, not quietly corrected, because
+// which way it goes is David's call and a silent "fix" here would rewrite people's readings.
+// Checked what the last canon-wiring lesson taught: the block is INLINED in dist/index.js by the
+// static import, so production cannot lose it the way a runtime file read would.
+// 71 files, 700 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.816";
