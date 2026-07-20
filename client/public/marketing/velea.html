@@ -66,7 +66,10 @@
   h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(2.5rem, 8.5vw, 3.8rem); letter-spacing: 0.12em; line-height: 1.08; margin: 1.3rem 0 2.4rem; text-wrap: balance; }
   h2.sub { font-family: var(--serif); font-weight: 500; font-size: clamp(1.45rem, 4.8vw, 1.95rem); line-height: 1.38; color: var(--ink); margin: 1.6rem 0 0; text-wrap: balance; }
   .lede { font-size: clamp(1.05rem, 2.6vw, 1.2rem); line-height: 1.7; color: var(--ink-dim); margin: 1.6rem 0 0; }
-  .label { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; margin: 0 0 1.1rem; }
+  /* Section heads: serif, larger than the line they introduce (see system.html). */
+  .label { font-family: var(--serif); font-size: clamp(1.8rem, 5.6vw, 2.5rem); line-height: 1.18;
+           letter-spacing: normal; text-transform: none; color: var(--champ); font-weight: 500;
+           margin: 0 0 1.1rem; text-wrap: balance; }
   .rule { border: none; height: 1px; background: var(--gold-line); margin: clamp(2.6rem, 7vw, 4rem) 0; width: 100%; }
   @media (min-width: 900px) { .rule { width: calc(100vw - 2 * clamp(2.5rem, 5.5vw, 5.5rem) - 2 * var(--pad)); max-width: none; } }
   p { font-size: 1.04rem; line-height: 1.75; color: var(--ink-dim); margin: 0 0 1.1rem; }
