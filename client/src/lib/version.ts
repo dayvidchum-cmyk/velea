@@ -1766,4 +1766,20 @@
 // one pinning the classical anchors BY VALUE, so editing both copies the same wrong way still
 // fails. Proven to bite by drifting Saturn's exaltation in one copy only.
 // 77 files, 827 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.834";
+// v1.1.835 = 2026-07-20 — I SAID "THE LAST DUPLICATED TABLE I CAN FIND". THAT WAS AN ASSERTION,
+// SO I WENT AND CHECKED, AND THERE WERE TWENTY-TWO MORE.
+// Three duplicated tables have already bitten this project: HOUSE_TO_BASE_MODE (drifted eight days
+// on houses 3/5/9, still being served publicly when v810 found it), karakas (lost Jupiter from
+// career), and the exaltation tables (locked in v834). A sweep for constants declared in more than
+// one module found 22 further names — after removing the structural lists, which are not judgement
+// and calling them findings would be the false-alarm trap again.
+// THE BIG ONE: the sign→ruler map exists in EIGHT modules under THREE names (SIGN_RULER,
+// SIGN_LORD, SIGN_RULERS). It is the most load-bearing table in the engine — dignity, vargas,
+// eclipses, melana, the narrative input, profection and varshaphala all carry their own copy. I
+// compared all eight by value. They AGREE. So does STRONG_RESTRAINT_TITHIS across its two copies —
+// and its sibling in that very file is HOUSE_TO_BASE_MODE, the one that drifted.
+// Nothing was enforcing any of it. Now locked, while they agree — which is the only time you can
+// write a test like this honestly. The baseline is also pinned BY VALUE, so all eight drifting
+// together still fails. Proven to bite by making Scorpio's ruler Pluto in one copy.
+// 78 files, 836 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.835";
