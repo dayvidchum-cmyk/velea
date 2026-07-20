@@ -55,16 +55,22 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v873 · 20 July 2026 · where the app actually stands</p>
+  <p class="sub">v879 · 20 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> The engine is in good shape and now proves it: 1082 tests, and 32 checks that each
-    deliberately break something to confirm the test notices. The reading pipeline, the canon tables, the dasha clock,
-    the paid gates and the per-user data isolation were all audited this run and came back clean.
-    What stands between here and opening is <b>your price and your Stripe keys</b> — not code.
+    <b>Where things stand.</b> 1154 tests, and <b>70 checks that each deliberately break something</b> to confirm the
+    test notices — that second number is the one that matters, and today it earned its keep: it caught two guards I had
+    just written that were not guarding anything.
+    <br><br>The audit was RE-audited today. Two rows sitting in the "fixed" list were <b>false greens</b>: your v852
+    nakshatra ruling had never reached the engine (four stars read as expansion on 57 real days a year), and the
+    paid-length fix had raised a ceiling nobody reads while the prompts still asked for fewer words than the free read.
+    Both are genuinely fixed now, each proven against a control that failed on the old code first.
+    <br><br>Two long-standing blind spots CLOSED because you ran two scripts: a paid reading now records the sky it was
+    actually cast for, and <b>production matches the schema — 25 tables, no drift</b>.
+    <br><br>What stands between here and opening is still <b>your price and your Stripe keys</b> — not code.
   </div>
 
-  <h2>1 · Your decisions — 11</h2>
+  <h2>1 · Your decisions — 9</h2>
   <p class="lead">
     Only what is still open — anything you ruled on is off this list. The full “what to choose and why” for each is on
     the <a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">audit sheet</a>.
@@ -75,17 +81,21 @@
         <li><b>RULED &amp; DONE:</b> two conditions to cancel, three+ is “solid.” Built, tested, deployed. A fallen planet now reads as fallen <b>27%</b> of the time instead of <b>4%</b>. It also exposed that <b>Mars in Cancer</b> and <b>Jupiter in Capricorn</b> had been auto-cancelled for every user — fixed. You then asked why I was flagging the last piece instead of fixing it; there was no good reason, so <b>one verse now counts once</b> too.</li>
     <li><b>ANSWERED &amp; DONE:</b> yogas belong to layers — natal ones are lifelong, transits only <i>trigger</i> them. The prompt now says so; it did not before. <b>And you were right about the textbooks:</b> the siddhi grid was in Raman’s <i>Muhurtha</i> Ch.VI all along, a book we already cite. <b>Amrita Siddhi is built</b> — it lifts a day, never clears a veto.</li>
     <li>The knot thresholds — and how we test them with your eyes.</li>
-    <li>The crown mark: the 11th is not the peak, Shubha Tithi uses the family rule — and <b>the Siddha grid needs three words from you</b>, where Raman’s 1941 scan is too smudged to read and I won’t guess.</li>
+    <li>The crown mark: the 11th is not the peak, Shubha Tithi uses the family rule. <b>The three smudged star names are RULED</b> — match the spellings we use elsewhere — so the <b>Siddha grid is encoded</b>: 88 days a year form one, against Amrita Siddhi’s 12.</li>
   </ol>
 
   <ol class="asks" start="6" style="counter-reset:a 5">
     <li><b>DONE:</b> you ran the column; the day-shift alert is built and scheduled. It rings once at the turn, within 20 minutes or not at all.</li>
+    <li><b>DONE:</b> you ran the location columns — a paid reading now names the sky it was cast for, not a live lookup.</li>
+    <li><b>DONE:</b> you ran the schema reconcile — <b>25 tables, no drift</b>, on an instrument I first proved could detect drift.</li>
   </ol>
 
   <div class="grp">The look</div>
   <ol class="asks" start="7" style="counter-reset:a 6">
-    <li>The crown mark is gold on a gold coin — 1.6:1 light, 1.2:1 dark.</li>
-    <li>Parchment ink in dark mode sits at 2.3:1 on the month calendar.</li>
+    <li>The crown mark is gold on a gold coin — <b>1.61 light, 1.17 dark</b>, recomputed.
+      <a href="https://claude.ai/code/artifact/72bc0ee7-4748-462f-8882-1df95556fa17">See the four options rendered</a>.</li>
+    <li>Parchment ink in dark mode — the day numbers. “One value in the theme block” was wrong: the plain grey number (2.28) is the
+      BEST case — green measures <b>1.05</b> and gold <b>1.24</b>. Same strips, section 2.</li>
     <li>Rename the “Parents &amp; Roots” chip to “Roots &amp; Ancestry”?</li>
   </ol>
 
@@ -93,7 +103,7 @@
   <ol class="asks" start="10" style="counter-reset:a 9">
     <li>Set the price — waiting on Mercury clearing post-shadow.</li>
     <li>Stripe keys — Railway config, yours.</li>
-    <li>Did the production schema reconcile run? I cannot verify it from here.</li>
+
   </ol>
 
   <div class="grp">Cleanup</div>

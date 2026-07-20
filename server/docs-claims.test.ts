@@ -107,7 +107,6 @@ describe("both documents carry the same open decisions", () => {
     ["the chip rename", /Roots &amp; Ancestry|Roots & Ancestry/i],
     ["set the price", /Set the price/i],
     ["stripe keys", /Stripe keys/i],
-    ["the schema reconcile", /schema reconcile/i],
     ["wire or delete the precision layer", /precision layer/i],
   ])("keeps the OPEN decision: %s", (_label, re) => {
     expect(SHEET, "missing from the audit sheet").toMatch(re);
@@ -131,6 +130,15 @@ describe("both documents carry the same open decisions", () => {
     ["naming the day by sunrise", /Named by the sunrise star<\/b> — <b>yes, and done/i],
     // RULED 2026-07-20: "two, with three+ as solid." Off the open queue the moment he said it.
     ["the cancelled-fall bar", /two conditions to cancel, three or more is/i],
+    // RAN 2026-07-20. It left the OPEN list because it was DONE, not forgotten: David ran the
+    // report and it came back 25 tables / 25 live / no drift, on an instrument first proven able
+    // to detect a too-short varchar and a missing column.
+    ["the production schema reconcile", /25 tables declared, 25 live, NO DRIFT/i],
+    // RULED 2026-07-20: the three OCR-smudged star names take the spellings used everywhere else.
+    ["the smudged star names", /match the spellings we use elsewhere/i],
+    // RULED 2026-07-20: what the year calendar carries, and what a yoga may say on an emptied day.
+    ["the year calendar's laws", /no bindi ladder there, no shadow-threshold glyphs/i],
+    ["a yoga on an emptied day", /it speaks, in the day.{0,3}s own grammar/i],
   ])("still RECORDS the settled decision: %s", (_label, re) => {
     expect(SHEET, "a settled decision vanished instead of being recorded").toMatch(re);
   });

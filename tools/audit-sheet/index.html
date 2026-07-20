@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v875 · 20 July 2026 · every number below was printed by running something</p>
+  <p class="sub">v879 · 20 July 2026 · every number below was printed by running something</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">94</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n good">99</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">8</div><div class="l">Still broken</div></div>
-    <div class="score"><div class="n warn">11</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">1137</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n warn">9</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n">1154</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -78,10 +78,12 @@
     Every correction I made to my own earlier claims is preserved there in full.
   </p>
 
-  <h2>What I need from you — 11</h2>
+  <h2>What I need from you — 9</h2>
   <p class="lead">Only what is still open. Anything you ruled on has been taken off this list —
-    <b>you decided seven today</b> (parents, the nakshatra tables, the two-part day, the chartless day, the dead
-    planet, deleting the old meaning-engine, and the cancelled-fall bar); those are done or now my work, and they live in the fixed list below.</p>
+    <b>you ruled on twelve today</b> — the seven earlier ones plus the three star spellings, what the year
+    calendar carries, and what a yoga may say on an emptied day. Two more came off because you RAN something (the
+    location columns, the schema reconcile). All of them are recorded below, one line each, so nothing leaves this
+    queue by being forgotten.</p>
 
   <div class="grp">The astrology — how Velea reads a chart</div>
 
@@ -105,76 +107,56 @@
     10 tests and 2 mutation probes. Per Raman’s own wording — success <i>“by far the greatest”</i>, not guaranteed —
     it lifts a day but <b>never clears a veto</b>, matching your correction that these raise probability rather than
     ensure outcomes.
-    <br><br><b>The full Siddha Yoga grid is found too</b> (pp.38–39, weekday × tithi × star, all seven days),
-    transcribed verbatim to <code>canon/siddha-yoga-source.md</code> — but <b>not encoded</b>, for the reason in
-    decision 3 below. Sarvartha Siddhi, Ravi, Dwipushkar and Tripushkar are still not located; that is now a search
-    that came back empty rather than an assumption.</span></div>
+    <br><br><b>The full Siddha Yoga grid is now ENCODED</b> (pp.38–39), on your ruling about the three smudged names.
+    Raman's two claims are kept apart because the book makes them separately, and Tuesday's missing tithi list is stored
+    as "no requirement stated" rather than "any tithi", which would invent a rule the page does not make.
+    <b>Measured: 88 days a year (24.1%) form one</b> — 41 by the grid, 47 by the weekday-tithi claim — against Amrita
+    Siddhi's 12. It is the common signal, not the rare one, and worth deciding how loudly it should speak.
+    Sarvartha Siddhi, Ravi, Dwipushkar and Tripushkar are still not located; that is a search that came back empty
+    rather than an assumption.</span></div>
 
   <div class="ask"><b>2. The knot thresholds.</b>
     <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked. You asked
     how we test them with your eyes — I owe you that method, and it is the next thing I build if you want it.</span></div>
 
-  <div class="ask"><b>3. The crown mark — three pieces of your spec are missing.</b>
-    <span class="why">Your tārā list and your six lucky Moon houses match the engine <i>exactly</i>, and are now pinned.
-    Missing: <b>the 11th is not treated as the peak</b> (it weighs the same as the 3rd) and <b>Shubha Tithi</b> is
+  <div class="ask"><b>3. The crown mark — two pieces of your spec are still missing.</b>
+    <span class="why">Your tārā list and your six lucky Moon houses match the engine <i>exactly</i>, and are pinned.
+    Still missing: <b>the 11th is not treated as the peak</b> (it weighs the same as the 3rd) and <b>Shubha Tithi</b> is
     handled by the cited family rule rather than your list. Audit in <code>canon/crown-doctrine.md</code>.
-    <br><br><b>Amrita Siddhi now exists</b> (see 2 above). <b>The bigger Siddha grid needs three words from you.</b>
-    Raman’s 1941 scan is dirty — it prints “Anuradha” as <i>Anuradlia</i> and “Rohini” as <i>Roliini</i>. Three
-    readings can’t be recovered from spelling, and each one changes which real days light up on your calendar:
-    <br>· a bare <b>“Uttara”</b> (four of the seven days) — almost certainly <b>Uttara Phalguni</b>, since
-    Uttarashadha and Uttarabhadra are spelled out separately in the same sentences.
-    <br>· <b>“Blwvishta”</b> on Monday — almost certainly <b>Sravishtha</b>, the old name for <b>Dhanishtha</b>.
-    <br>· <b>“Animidha”</b> on Wednesday — almost certainly <b>Anuradha</b>, which that same page misspells twice.
-    <br>Each is likely right. None is certain. A wrong entry here quietly mislabels a real day forever, so I’ve left
-    the grid unencoded rather than guess — the same standard that stopped me typing it from memory. Say the word on
-    these three and it goes in.</span></div>
-
-  <div class="ask"><b>4. Run one script, and a paid reading stops naming the wrong city.</b>
-    <span class="why"><b>The previous item here is done</b> — the day-shift alert's column
-    (<code>lastTurnPush</code>) is in the schema and the alert is wired and scheduled. It sat on this
-    list after it had already been built.
-    <br><br>What is outstanding is different. The <code>horoscopes</code> table freezes a purchased
-    reading but records <b>no location at all</b>, while the page prints a LIVE
-    "Lived in {city}" directly above the frozen prose. Reveal a past date with no override (computed
-    from your hometown), then set that date's location to Tokyo, and the page names Tokyo over a
-    reading whose sky was cast for the hometown. Nothing in the row records what it was computed
-    for, so the mismatch is undetectable afterwards — on a reading someone paid for.
-    <br><br><code>npx tsx server/scripts/add-horoscope-location-columns.ts</code> — five NULLABLE
-    columns, safe to run twice. Existing rows read as "not recorded", which is the honest state for
-    anything frozen before it ran, and the UI must then say nothing rather than guess.</span></div>
+    <br><br><b>The three smudged star names are RULED and built</b> — "match the spellings we use elsewhere", so
+    Uttara Phalguni, Dhanishtha and Anuradha. The OCR originals stay visible in the source file so the inference is
+    never lost.</span></div>
 
   <div class="grp">The look — your palette calls</div>
 
-  <div class="ask"><b>5. The crown mark is gold on a gold coin.</b>
+  <div class="ask"><b>4. The crown mark is gold on a gold coin.</b>
     <span class="why">1.6:1 in light, 1.2:1 in dark — effectively invisible, and the border is the same gold. A darker
     gold reads fine but turns the mark olive, and the crown is your brand. The alternative is keeping the gold and giving
     it a real shadow instead of the gold one it has now.</span></div>
 
-  <div class="ask"><b>6. Parchment ink in dark mode.</b>
+  <div class="ask"><b>5. Parchment ink in dark mode.</b>
     <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night. Light modes are fine. One value
     in the theme block.</span></div>
 
-  <div class="ask"><b>7. Rename the “Parents &amp; Roots” chip?</b>
+  <div class="ask"><b>6. Rename the “Parents &amp; Roots” chip?</b>
     <span class="why">Following your ruling, that area is now explicitly ancestry — the departed, what came down the
     line. The chip still says Parents. <b>“Roots &amp; Ancestry”</b> would match. I do not rename what you look at
     without asking.</span></div>
 
   <div class="grp">The business — money and launch</div>
 
-  <div class="ask"><b>8. Set the price.</b>
+  <div class="ask"><b>7. Set the price.</b>
     <span class="why">Your list is locked. Nothing charges yet. Waiting on Mercury clearing post-shadow, per you.</span></div>
 
-  <div class="ask"><b>9. Stripe keys.</b>
+  <div class="ask"><b>8. Stripe keys.</b>
     <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config,
     yours.</span></div>
 
-  <div class="ask"><b>10. Did the production schema reconcile run?</b>
-    <span class="why">You thought you ran something last night. I cannot verify it from here — that needs the production
-    database. If it ran, this comes off the list; if not, the script is ready and it is hand-run by you.</span></div>
+  
 
   <div class="grp">Cleanup</div>
 
-  <div class="ask"><b>11. The pick-a-date precision layer: wire it, or delete it?</b>
+  <div class="ask"><b>9. The pick-a-date precision layer: wire it, or delete it?</b>
     <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing calls
     them. What only they carry is transit-level precision — the exact house each transiting planet occupies and its
     strength score. You asked whether it is built off the textbooks: Bhava Chalit and Ashtakavarga both are, but I have
@@ -183,6 +165,24 @@
   <h2>Settled today — off the list</h2>
   <p class="lead">One line each, so nothing vanishes silently. These are no longer questions for you.</p>
   <ul class="plain">
+    <li><b>Where a paid reading was computed</b> — <b>you ran the script; it is wired.</b> A frozen
+      reading now records the lat/lon/timezone/city and tier its sky was cast for, taken from the
+      same object the reading was generated from. The page says "Read for {that place}". Rows frozen
+      before the columns existed say "Read for your saved location" — never the live city, because
+      "not recorded" must never be answered with a guess.</li>
+    <li><b>The production schema reconcile</b> — <b>you ran it: 25 tables declared, 25 live, NO DRIFT.</b>
+      Before calling a clean zero clean I proved the instrument could fail — against a deliberately
+      drifted table it catches a too-short varchar (the exact 2026-07-17 outage shape) and a missing
+      column. That blind spot is closed.</li>
+    <li><b>The three smudged star names</b> — <b>your ruling: match the spellings we use elsewhere.</b>
+      So Uttara Phalguni, Dhanishtha, Anuradha. Raman's Siddha grid is encoded and measured: 88 days
+      a year (24.1%) form one, against Amrita Siddhi's 12. It lifts a day and never clears a veto.</li>
+    <li><b>The year calendar</b> — <b>your ruling: no bindi ladder there, no shadow-threshold glyphs.</b>
+      Recorded in the code so a future audit stops calling them gaps. Its hardcoded paper was a real
+      bug and is fixed — six literals were overriding the class that themes it, so it never dimmed.</li>
+    <li><b>A yoga on an emptied rikta day</b> — <b>your ruling: it speaks, in the day's own grammar.</b>
+      Finishing, never beginning. Measured: 12 days a year, and the severing half is withheld on the
+      five tender ones, whose own canon avoid-list refuses cutting.</li>
     <li><b>The cancelled fall</b> — your ruling: <b>two conditions to cancel, three or more is “solid.”</b> Built,
       tested, probed, deployed. Velea used to cancel <b>96%</b> of every debilitation, so only <b>4%</b> of fallen
       planets ever read as fallen; now a fall reads as a fall <b>24%</b> of the time. <b>No classical condition was
@@ -248,7 +248,7 @@
     <li><span class="tag">LOOK</span>The welcome card can show two filled primary buttons.</li>
   </ul>
 
-  <h2>Fixed and verified — 94</h2>
+  <h2>Fixed and verified — 99</h2>
   <p class="lead">
     Each of these was proven broken, fixed, and then proven fixed — most by running something that could have come back
     wrong. Grouped so you can skim.
@@ -329,7 +329,7 @@
   </ul>
 
   <p class="foot">
-    <b>94 fixed + 8 broken + 11 decision-rows + 26 remaining.</b> <b>The totals on this page used to be wrong, and it said they were counted.</b> It claimed 1082
+    <b>99 fixed + 8 broken + 9 decision-rows + 26 remaining.</b> <b>The totals on this page used to be wrong, and it said they were counted.</b> It claimed 1082
     tests in one place and 1054 in another (really <b>1137</b>, across 105 → now 110 files), 32
     mutation probes (really <b>66</b>), 14 decision rows in the footer while rendering 11, and 88
     fixed against a heading that said 81. Corrected 2026-07-20 by running the suite, the probe
