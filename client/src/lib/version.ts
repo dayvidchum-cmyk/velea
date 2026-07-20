@@ -2122,4 +2122,26 @@
 // docs guard counted decision cards with /<div class="ask">/ , which stopped matching when I added a
 // style attribute to one. Both were the instrument, not the code. Fixed to find rather than index.
 // 942 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.851";
+// v1.1.852 = 2026-07-20 — THE CITED NAKSHATRA TABLE NOW WINS, ON EXACTLY THE FOUR STARS IT SHOULD.
+// David ruled "cited tables from the textbooks win", and balked that a FIERCE star was scored as
+// expansion. canon/muhurta-tables.json (Muhurta Chintamani + Brihat Samhita 98) is the only one of
+// the six 27-star lists with a citation. Four stars in NAKSHATRA_MODIFIERS asserted the OPPOSITE:
+//   Magha, Purva Phalguni, Purva Ashadha — canon FIERCE — were +1 "supports expansion". Now -1.
+//   Vishakha — canon MIXED — was +1. Now 0.
+// The replacement values are read off the canon's own supports/avoid text, not my taste: fierce
+// "supports force, demolition, ruthlessness; avoid almost everything gentle, beginnings, journeys"
+// → containment. mixed "supports routine; avoid the extremes, neither launch nor cut" → no shift.
+// Measured impact: 57 days a year (15.6%).
+// WHAT I REFUSED TO DO. Deriving every score from its nature would have moved ELEVEN stars. The
+// other seven (Hasta, Punarvasu, Shravana, Shatabhisha, the three Uttaras) are merely Selective or
+// Neutral against a swift/movable/fixed nature — that is not a contradiction, it is saying less.
+// Changing them would be me rewriting his method under cover of his ruling, which his standing
+// instruction forbids. Left alone, and a test fails if anyone "finishes" the remap.
+// DECISION 3 REOPENED, NOT IMPLEMENTED. He first said "majority makes sense", then sent the doctrine:
+// the Vedic day begins at sunrise, that instant prints the blueprint, and the CIVIL day keeps the
+// SUNRISE star's name for ritual continuity — while muhurta/dynamic time shifts in real time. The
+// two statements disagree and it moves 47% of days, so nothing changed. Both values are already
+// computed side by side (nakshatra = majority, nakshatraAtSunrise = anchor), so it is a switch of
+// which one NAMES the day, not a rebuild. Waiting on one word.
+// 948 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.852";

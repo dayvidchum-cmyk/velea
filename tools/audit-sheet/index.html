@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v851 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v852 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">942</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n">948</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -93,12 +93,33 @@
   <div class="ask"><b>2. Which nakshatra table wins?</b>
     <span class="why">There are six lists in the app classifying the 27 stars, and only one has a source citation. On four
     stars — Magha, Purva Phalguni, Purva Ashadha and Vishakha — the cited book calls them fierce or mixed while the mode
-    engine treats them as expansive. <b>YOUR RULING (20 July): the cited tables win.</b> (And you are right to balk — “fierce” is not “expansive”.) This is real work, not a switch: the mode engine has to defer to the canon table and its numbers re-derived. Not done yet.</span></div>
+    engine treats them as expansive. <b>YOUR RULING (20 July): the cited tables win.</b> (And you are right to balk —
+    “fierce” is not “expansive”.) <b>DONE.</b> Magha, Purva Phalguni and Purva Ashadha now read as containment; Vishakha
+    reads as no-shift. The replacement values come from what the canon says each nature <i>supports and avoids</i> —
+    fierce is “force, demolition, ruthlessness… avoid beginnings and journeys”; mixed is “avoid the extremes, neither
+    launch nor cut” — not from my taste. <b>This touches 57 days a year (15.6%).</b>
+    <br><br><b>One thing I deliberately did NOT do, and it is a question back to you.</b> Deriving every star’s score
+    from its nature would have moved <i>eleven</i> stars, not four. The other seven — Hasta, Punarvasu, Shravana,
+    Shatabhisha and the three Uttaras — are currently “no shift” against a canon nature of swift, movable or fixed.
+    That is not a contradiction, it is just saying less, so changing it would be me rewriting your method under cover of
+    your ruling. <b>Should the cited nature DRIVE every score, or only overrule the ones that contradict it?</b>
+    They are left alone until you say, and a test stops anyone finishing the job by accident.</span></div>
 
-  <div class="ask"><b>3. When does a day “become” its star?</b>
-    <span class="why">The Moon changes nakshatra partway through most days. The calendar names the day by whichever star
-    holds the majority of it; a stricter classical reading names it by the star at sunrise. They disagree on <b>47.1%</b> of days, measured across a full year — I had written “roughly a third” and that was
-    an estimate, not a measurement. <b>YOUR RULING (20 July): majority.</b> Already built that way; no change needed.</span></div>
+  <div class="ask" style="border-left-color:#8B3A62"><b>3. When does a day “become” its star? — REOPENED, and I need one word from you.</b>
+    <span class="why">You said “majority makes sense to me”. Then you sent me the doctrine, and it points the other way:
+    <i>the Vedic day begins at local sunrise; the configuration at that moment prints the blueprint for the whole cycle;
+    the civil day KEEPS THE NAME of the sunrise star for consistency — while dynamic time (muhurta, elections, births)
+    shifts in real time.</i> Ritual continuity is the reason: a day whose identity changed at 2pm would make coordinating
+    anything impossible.
+    <br><br><b>I have not changed anything on the strength of my own reading of that</b>, because the two things you told
+    me disagree and this moves 47% of days. Here is what I think you are actually describing, in Velea’s terms:
+    <br>· <b>The day’s NAME and character</b> — calendar, Today, the reading’s frame — anchored at <b>sunrise</b>.
+    <br>· <b>The moment layer</b> — Time Master, hora, golden hour, “is now a good time” — already shifts in <b>real
+    time</b>, and would not change.
+    <br><br>Velea already computes both, side by side, on every day (<code>nakshatra</code> = majority,
+    <code>nakshatraAtSunrise</code> = the anchor). So this is a switch of which one names the day, not a rebuild.
+    <b>Say “sunrise” and I will move the naming to it and re-derive everything downstream; say “majority” and it stays as
+    built.</b></span></div>
 
   <div class="ask"><b>4. Which cancelled-fall rules are Velea’s?</b>
     <span class="why">You asked what the book says and I wrote it out verse by verse. Two of the four rules the engine
@@ -261,7 +282,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 942 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 948 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

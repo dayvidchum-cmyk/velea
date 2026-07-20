@@ -38,12 +38,32 @@ export const NAKSHATRA_MODIFIERS: Record<string, { score: number; category: stri
   Ashwini:           { score: +1, category: 'Upgrade' },
   Rohini:            { score: +1, category: 'Upgrade' },
   Pushya:            { score: +1, category: 'Upgrade' },
-  Magha:             { score: +1, category: 'Upgrade' },
-  'Purva Phalguni':  { score: +1, category: 'Upgrade' },
   Swati:             { score: +1, category: 'Upgrade' },
-  Vishakha:          { score: +1, category: 'Upgrade' },
-  'Purva Ashadha':   { score: +1, category: 'Upgrade' },
   Dhanishtha:        { score: +1, category: 'Upgrade' }, // audit M11: was 'Dhanishta' — never matched the emitted name
+
+  // ─── CORRECTED AGAINST THE CITED CANON (David's ruling, 2026-07-20) ───
+  // These four sat in UPGRADE (+1 = "supports expansion/outward movement") while the ONE table in
+  // this app with a source citation — canon/muhurta-tables.json, from Muhurta Chintamani and
+  // Brihat Samhita 98 — classifies them as FIERCE or MIXED. David: "Cited tables from the textbooks
+  // win. I'm not sure how something described as fierce or mixed is expansive because fierce makes
+  // me think danger, bad, aggressive."
+  //
+  // The replacement scores are taken from what the canon says each nature SUPPORTS and AVOIDS, not
+  // from taste:
+  //   FIERCE (Ugra)  supports "force, demolition, hard confrontation, acts requiring ruthlessness";
+  //                  avoids "almost everything gentle, beginnings, journeys"  → containment, -1.
+  //   MIXED (Misra)  supports "routine and mundane work, day-to-day duties";
+  //                  avoids "the extremes — neither launch nor cut"           → no shift, 0.
+  //
+  // SCOPE, deliberately narrow: this changes ONLY the stars where the hand-made table asserted the
+  // OPPOSITE of the cited one. A wholesale remap of nature→score would have moved eleven stars, and
+  // the other seven were Selective/Neutral — which does not contradict "fixed" or "movable", it just
+  // says less. Those seven are a method question for David, not a correction I get to make. See the
+  // audit sheet.
+  Magha:             { score: -1, category: 'Downgrade' },  // canon: fierce
+  'Purva Phalguni':  { score: -1, category: 'Downgrade' },  // canon: fierce
+  'Purva Ashadha':   { score: -1, category: 'Downgrade' },  // canon: fierce
+  Vishakha:          { score:  0, category: 'Neutral' },    // canon: mixed — avoid the extremes
 
   // ─── DOWNGRADE (-1) ───
   Bharani:              { score: -1, category: 'Downgrade' },
