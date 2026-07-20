@@ -2057,4 +2057,24 @@
 // "admin-gated" and was excused from the ownership requirement. A probe deleted assertOwnsProfile
 // from it and the test stayed green. Admin-only now means REFUSES non-admins, not mentions the word.
 // 32 probes, all caught. 88 files, 932 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.848";
+// v1.1.849 = 2026-07-20 — THE BRIEF AND THE SHEET DISAGREED ABOUT WHAT DAVID HAS TO DECIDE.
+// The sheet listed 14 decisions; the brief listed 20. Two answers to "what needs you" is worse than
+// either one alone. Each document now has ONE job: the SHEET is the state of the WORK (fixed /
+// broken / decisions), the BRIEF is the state of the APP (price list, engine capability, launch,
+// standing laws). They carry the SAME fourteen, and the brief links to the sheet for the detail
+// instead of restating it. 41k chars → 11.5k.
+// THEN I TOOK THE ITEM THE SHEET CALLED "THE BIGGEST ONE STILL BROKEN" — the two-clocks fix not
+// reaching the paid reading — AND IT IS STALE. All three parts are resolved:
+//   · input-builder emits `mode: field.dayFinalMode ?? field.finalMode` (day-scale, v819/v826), so
+//     it agrees with activatedHouse;
+//   · and `panchang.mode` is set to undefined before the payload ships, so the field never reaches
+//     the model at all;
+//   · routers.ts `day` reads `field.dayModeReason ?? field.modeReason`, day-scale, agreeing with
+//     field.houseActivated.
+// Covered by day-scale-mode.test.ts and two probes. SO THE "21 BROKEN" I PUBLISHED THIS MORNING WAS
+// WRONG — it is 20, and fixed is 82. Corrected on the page, with the arithmetic restated.
+// I also put the caveat on the page rather than leaving it implied: the other 20 were carried
+// forward from earlier in the run and have NOT each been re-checked, so the count is an upper bound,
+// not a measurement. One re-check found one stale; there may be more.
+// 32 probes, all caught. 88 files, 932 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.849";

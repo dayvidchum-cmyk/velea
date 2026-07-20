@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v848 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v849 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">81</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">21</div><div class="l">Still broken</div></div>
-    <div class="score"><div class="n warn">14</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">932</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n good">82</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n bad">20</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n">944</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -75,9 +75,10 @@
     Nothing here is a guess. Where I was wrong earlier in this run, the row says so instead of quietly changing.
     The long technical version of every row is kept in the repo at
     <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was deleted, it was moved out of your way.
+    Every correction I made to my own earlier claims is preserved there in full.
   </p>
 
-  <h2>What I need from you — 14 decisions</h2>
+  <h2>What I need from you — 15 decisions</h2>
   <p class="lead">Plain English. Each one is a choice only you can make; I have done the measuring already.</p>
 
   <div class="grp">The astrology — how Velea reads a chart</div>
@@ -110,53 +111,64 @@
     <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked against
     anything. I have flagged this twice without resolving it. They need your eye, not mine.</span></div>
 
+  <div class="ask"><b>7. Is a “dead” planet worth 5%, or nothing?</b>
+    <span class="why">The Verdict scores a planet in its final stage at 0.05 of its strength. The corpus says
+    <i>nil</i> — zero. The same applies to an “old” planet, where we say 0.125 and the corpus says “very little”.
+    Both numbers are mine, not the book’s, and both are live on The Verdict right now. Neither has been changed; they
+    are written down in the canon file so the choice is visible rather than buried. <span style="opacity:.75">(This
+    one lives inside a broken row below rather than being its own, so the totals do not move.)</span></span></div>
+
   <div class="grp">The look — your palette calls</div>
 
-  <div class="ask"><b>7. The crown mark is gold on a gold coin.</b>
+  <div class="ask"><b>8. The crown mark is gold on a gold coin.</b>
     <span class="why">Measured at 1.6:1 in light mode and 1.2:1 in dark — effectively invisible. A darker gold reads fine
     but turns the mark olive, and the crown is your brand. The alternative is keeping the gold and letting a real shadow
     carry the edge (it is currently a gold shadow, which is why nothing separates). One line either way.</span></div>
 
-  <div class="ask"><b>8. Parchment ink in dark mode.</b>
+  <div class="ask"><b>9. Parchment ink in dark mode.</b>
     <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night — too faint to read comfortably.
     Light modes are fine. It is one value in the theme block, and the value is yours.</span></div>
 
-  <div class="ask"><b>9. What does a chartless day say?</b>
+  <div class="ask"><b>10. What does a chartless day say?</b>
     <span class="why">The retired four modes still appear on the hero for people with no birth data — not from a bug, but
     because a chartless profile has no day-character at all, so those words are the only thing that surface has ever had.
     Deleting them leaves it blank. What should it say?</span></div>
 
   <div class="grp">The business — money and launch</div>
 
-  <div class="ask"><b>10. Set the price.</b>
+  <div class="ask"><b>11. Set the price.</b>
     <span class="why">Your locked list exists (free · $2.99 · $4.99 · $1.49) but nothing charges yet. Everything below
     waits on this.</span></div>
 
-  <div class="ask"><b>11. Stripe keys.</b>
+  <div class="ask"><b>12. Stripe keys.</b>
     <span class="why">The entitlement resolver is built and tested; it has no billing source to read from. This is
     configuration in Railway, which is yours to enter, not mine.</span></div>
 
-  <div class="ask"><b>12. Run the production schema reconcile.</b>
+  <div class="ask"><b>13. Run the production schema reconcile.</b>
     <span class="why">The live database has drifted from the schema file. There is a script ready. Schema changes are
     always hand-run by you — a deploy once wiped every account, and I will not automate this.</span></div>
 
   <div class="grp">Cleanup — two things to keep or kill</div>
 
-  <div class="ask"><b>13. The pick-a-date precision layer: wire it, or delete it?</b>
+  <div class="ask"><b>14. The pick-a-date precision layer: wire it, or delete it?</b>
     <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing in the app
     calls them. What only they carry is transit-level precision — the exact house each transiting planet occupies and its
     strength score. Wiring it changes what a paid reading says, so it is your call. Leaving it is the only option that
     keeps costing.</span></div>
 
-  <div class="ask"><b>14. The old meaning-engine: delete it, or rebuild it?</b>
+  <div class="ask"><b>15. The old meaning-engine: delete it, or rebuild it?</b>
     <span class="why">159 lines, imported by nothing but its own test. It is the invented meaning layer from before the
     rebuild, and it still hardcodes “self-worth” as a default 2nd-house theme — which your own prompt doctrine forbids
     unless the chart actually points there. I put a tripwire on it so it cannot be switched on by accident.</span></div>
 
-  <h2>Still broken — 21</h2>
-  <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.</p>
+  <h2>Still broken — 20</h2>
+  <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.
+    <br><b>One caveat I owe you:</b> most of these were written earlier in the run and carried forward. I re-checked the
+    one that was labelled the biggest — “the two-clocks fix does not reach the paid reading” — and it is <b>no longer
+    true</b>: the reading now gets the day-scale mode, and that field is removed before the model sees it anyway. It has
+    moved to fixed, which is why this list is 20 and not 21. The rest have not each been re-checked, so treat the count
+    as an upper bound, not a measurement.</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span>The two-clocks fix does not reach the paid reading.</li>
     <li><span class="tag">DATA</span>The nakshatra tables contradict each other — six of them, not four.</li>
     <li><span class="tag">DATA</span>A paid reading names a city it was not computed for.</li>
     <li><span class="tag">DATA</span>The Verdict cites a canon file that does not hold the data it claims.</li>
@@ -194,6 +206,7 @@
       <li>The pick-a-date module used one flat 8° orb for every planet; the engine already owns the classical per-planet orbs.</li>
       <li>Karaka tables restored from the canon in the convergence engine — Jupiter to career, Saturn to health.</li>
       <li>Polar days (no sunrise) are now described to the model instead of silently computed around.</li>
+      <li>The day’s mode and the day’s ruling house now come from the same clock everywhere — the “two clocks in one verdict” bug, closed and re-verified 20 July.</li>
     </ul>
   </details>
 
@@ -231,7 +244,8 @@
   <p class="lead">Not forgotten and not broken — each is waiting on something specific.</p>
   <ul class="plain">
     <li><span class="tag">10</span><b>Parked on purpose.</b> Waiting on Stripe, the price, or the database reconcile —
-      the three decisions above. One needs a new field before a partner rule can ever fire; three are blind spots I have
+      the three decisions above. One of them is <b>the durable generation cap</b>: the in-process half is honest now,
+      but the lasting half needs a schema change, and half-fixing it in memory would be a band-aid over the same hole. One needs a new field before a partner rule can ever fire; three are blind spots I have
       named but cannot test without production access.</li>
     <li><span class="tag">11</span><b>Analysis, not tasks.</b> The root-cause write-ups — where the textbook does and
       does not speak, the six recurring chains, and the honest list of my own claims that did not survive re-checking.
@@ -242,8 +256,8 @@
   </ul>
 
   <p class="foot">
-    Every number here was counted from the record, not estimated: 81 fixed + 21 broken + 14 for you + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 932 tests passing, 32 probes each proven able to fail.
+    Every number here was counted from the record, not estimated: 82 fixed + 20 broken + 14 for you + 26 remaining = 142
+    rows, the same 142 the sheet has always held. 88 test files, 944 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

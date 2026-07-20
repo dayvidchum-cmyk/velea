@@ -18,10 +18,38 @@ import { readFileSync } from "node:fs";
  */
 const SHEET = readFileSync(new URL("../tools/audit-sheet/index.html", import.meta.url), "utf8");
 const BRIEF = readFileSync(new URL("../tools/working-brief/index.html", import.meta.url), "utf8");
+// v849: David said the sheet was confusing to read, so the long forensic form — including every
+// correction I made to my own claims — moved to an archive file that the sheet links to. The
+// corrections were NOT dropped, so this guard follows them instead of being loosened. RECORD is
+// where a correction may live; SHEET is what he actually opens.
+const ARCHIVE = readFileSync(new URL("../tools/audit-sheet/archive-longform-v848.html", import.meta.url), "utf8");
+// The BRIEF was rewritten in the same pass, and its long form needed archiving too — this test
+// caught that I had preserved the sheet's history and let the brief's corrections fall out of the
+// record entirely. Archiving one of two is not archiving.
+const BRIEF_ARCHIVE = readFileSync(new URL("../tools/working-brief/archive-longform-v848.html", import.meta.url), "utf8");
+const RECORD = SHEET + ARCHIVE + BRIEF + BRIEF_ARCHIVE;
 
 describe("the audit sheet still says what it must", () => {
-  it("declares itself NOT clear", () => {
-    expect(SHEET).toContain("not clear");
+  it("still says out loud that the work is not finished", () => {
+    // Was toContain("not clear") against the old prose. Same fact, pinned to the new page: a
+    // non-zero broken count and a non-zero decision count, both stated as numbers he can see.
+    expect(SHEET).toMatch(/<div class="n bad">([1-9]\d*)<\/div><div class="l">Still broken/);
+    expect(SHEET).toMatch(/<div class="n warn">([1-9]\d*)<\/div><div class="l">Your call/);
+  });
+
+  it("points at the archive, so the long form is findable and not merely gone", () => {
+    expect(SHEET).toContain("archive-longform-v848.html");
+    expect(SHEET).toMatch(/nothing was deleted/i);
+  });
+
+  it("the counts on the page reconcile with each other", () => {
+    const n = (label: string) => Number(SHEET.match(new RegExp(`<div class="n[^"]*">(\\d+)</div><div class="l">${label}`))![1]);
+    const fixed = n("Fixed"), broken = n("Still broken"), asks = n("Your call");
+    expect(SHEET).toContain(`${fixed} fixed + ${broken} broken`);
+    // the decision cards rendered must equal the number advertised at the top
+    expect((SHEET.match(/<div class="ask">/g) ?? []).length).toBe(asks);
+    // and the broken list must have as many rows as it claims
+    expect((SHEET.match(/<span class="tag">(?:DATA|MONEY|BUILD|READ|LOOK)<\/span>/g) ?? []).length).toBe(broken);
   });
 
   // PIN THE FACT, NOT THE PROSE (v827). The first version of this guard matched exact sentences,
@@ -38,30 +66,63 @@ describe("the audit sheet still says what it must", () => {
     ["a self-audit is recorded", /RE-AUDITED|self-audit/i],
     ["PROMPT_VERSION reaching cached readings", /PROMPT_VERSION/],
   ])("keeps the correction: %s", (_label, re) => {
-    expect(SHEET).toMatch(re);
+    expect(RECORD).toMatch(re);
   });
 
-  it("keeps a header correction that COUNTS my own failures", () => {
+  it("keeps a correction that COUNTS my own failures", () => {
     // The number changes as more are found; that it is stated at all must not.
-    expect(SHEET).toMatch(/(\w+) of my own (claims or )?fixes[\s\S]{0,80}(wrong|landed nowhere)/i);
+    expect(RECORD).toMatch(/(\w+) of my own (claims or )?fixes[\s\S]{0,80}(wrong|landed nowhere)/i);
+  });
+
+  it("the reader-facing page still owns up, in its own words", () => {
+    // The archive holds the detail, but he should not have to open it to learn I was wrong.
+    expect(SHEET).toMatch(/Where I was wrong/i);
+    expect(SHEET).toMatch(/my own tests were guarding nothing/i);
+    expect(SHEET).toMatch(/upper bound, not a measurement/i);
   });
 });
 
-describe("the working brief still carries every open decision", () => {
+describe("both documents carry the same open decisions", () => {
+  // PIN THE FACT, NOT THE PROSE — the same lesson this file already learned at v827, relearned at
+  // v849 when the readability rewrite reworded every decision and eight assertions fired on wording
+  // while the decisions were all still there. These match on the ONE word that cannot change
+  // without changing the question, and they check BOTH pages, because the pages disagreeing about
+  // what David owes an answer to is exactly the bug this rewrite fixed.
   it.each([
-    ["neecha bhanga conditions", "Which neecha bhanga conditions are Velea"],
-    ["the crown mark's colour", "The crown mark's colour"],
-    ["the dark-parchment ink", "The dark-parchment ink"],
-    ["a chartless day's character", "What is a CHARTLESS day's character"],
-    ["the durable cap", "The durable generation cap"],
-    ["mrita vs the canon's nil", "mrita: 0.05 or the canon"],
-    ["which nakshatra table wins", "Which nakshatra table wins"],
-    ["which yogas the reader hears", "Which yogas does the reader actually hear"],
-  ])("keeps the decision: %s", (_label, needle) => {
-    expect(BRIEF).toContain(needle);
+    ["which house is parents", /parents/i],
+    ["which nakshatra table wins", /nakshatra table/i],
+    ["majority star vs sunrise", /sunrise/i],
+    ["the cancelled-fall rules", /cancelled-fall|neecha/i],
+    ["which yogas the reader hears", /yogas/i],
+    ["the knot thresholds", /knot threshold/i],
+    ["mrita: 0.05 or the canon's nil", /0\.05/],
+    ["the crown mark's colour", /crown mark/i],
+    ["the dark-parchment ink", /parchment ink/i],
+    ["a chartless day's character", /chartless/i],
+    ["set the price", /Set the price/i],
+    ["stripe keys", /Stripe keys/i],
+    ["the schema reconcile", /schema reconcile/i],
+    ["wire or delete the precision layer", /precision layer/i],
+    ["delete or rebuild meaning-engine", /meaning-engine/i],
+  ])("keeps the decision: %s", (_label, re) => {
+    expect(SHEET, "missing from the audit sheet").toMatch(re);
+    expect(BRIEF, "missing from the working brief").toMatch(re);
+  });
+
+  it("both pages advertise the SAME number of decisions", () => {
+    const sheetN = Number(SHEET.match(/<div class="n warn">(\d+)<\/div>/)![1]);
+    const briefN = Number(BRIEF.match(/Your decisions — (\d+)/)![1]);
+    expect(briefN).toBe(sheetN);
+  });
+
+  it("the durable cap is still visible, even though it is parked not decided", () => {
+    // It waits on a schema change rather than on a choice, so it moved out of the decision list.
+    // Moved is fine; disappeared is not.
+    expect(SHEET).toMatch(/durable generation cap/i);
   });
 
   it("keeps the v794 correction rather than the original claim", () => {
-    expect(BRIEF).toContain("my claim about the narrative was FALSE");
+    // Lives in the record now — the brief is the state of the APP, not of my mistakes.
+    expect(RECORD).toContain("my claim about the narrative was FALSE");
   });
 });
