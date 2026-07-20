@@ -1351,4 +1351,23 @@
 // EVERY page rather than pinning the one file that was broken, so the next one cannot come back.
 // Verified by reverting only Users.tsx: the two assertions fail against the old file.
 // 68 files, 671 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.812";
+// v1.1.813 = 2026-07-20 — THE CROWN IS ON THE AXIS, AND THE RAIL STOPPED FLOATING.
+// v777 closed the OVERFLOW. It did not close the two things David actually keeps seeing.
+// (1) THE CROWN WAS OFF-AXIS on every ODD mark count: mid = floor(n/2) put the extra slot on the
+// right, so the crown hung 4-6.5px LEFT of the date number under it. The code conceded it — "with
+// even flanks the crown still sits exactly on-axis" is another way of saying it does not on odd
+// ones. Both flanks now hold ceil(n/2) slots, the short side padded with an empty one, and the slot
+// width solves against that symmetric count. Re-derived across every case: the widest rail is
+// UNCHANGED at 42px and the crown is centred for 1, 2, 3 and 4 marks. The axis cost nothing.
+// (2) THE RAIL FLOATED: top:-17 with no height made the row as tall as its tallest child, and
+// glyphs shrink 13 → 7 as marks are added, so the baseline swung between a light day and a loaded
+// one and again against a crowned day. A fixed 17px box (a lone crown is the tallest thing that can
+// ride it) with children aligned to its BOTTOM pins one baseline for every day.
+// I HAVE NOT LOOKED AT THIS RENDERED. David's standing law is that a visual is not shipped until it
+// has been SEEN, and by that standard this is NOT closed — it is 20 assertions of arithmetic,
+// including a denominator that proves the old formula really was off-axis, and nothing more. The
+// /audit matrix on the deployed build is where it gets confirmed or sent back. Flagged on the sheet
+// as awaiting his eye rather than marked done, because v777 is the standing proof that a correct
+// instrument does not help if nobody reads it.
+// 69 files, 691 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.813";

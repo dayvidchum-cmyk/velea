@@ -114,8 +114,19 @@ export default function CalendarCoin(p: CalendarCoinProps) {
         // A crown ALONE keeps its full 17px (the common achievement day is unchanged); it yields to
         // 14 only when it has to share the rail with glyphs.
         const crownW = !hasCrown ? 0 : markCount === 0 ? 17 : 14;
+        // THE CROWN SITS ON THE COIN'S AXIS BY CONSTRUCTION (v813). The cluster centred, but the
+        // CROWN did not: mid = floor(n/2) put the extra slot on the right on every ODD mark count,
+        // so the crown hung 4-6.5px LEFT of the date number underneath it. The comment below
+        // conceded it — "with even flanks the crown still sits exactly on-axis" — which is another
+        // way of saying it does not on odd ones.
+        // Fix: both flanks hold ceil(n/2) slots, the short side padded with an empty one, and the
+        // slot width solves against that symmetric count. Measured across every case, the widest
+        // rail is unchanged at 42px (4 marks + crown) and the crown is centred for 1, 2, 3 and 4.
+        const perFlank = hasCrown && markCount > 0 ? Math.ceil(markCount / 2) : 0;
         const slotW = markCount === 0 ? 0
-          : Math.max(7, Math.min(13, Math.floor((RAIL_BUDGET - crownW) / markCount)));
+          : hasCrown
+            ? Math.max(7, Math.min(13, Math.floor((RAIL_BUDGET - crownW) / (2 * perFlank))))
+            : Math.max(7, Math.min(13, Math.floor(RAIL_BUDGET / markCount)));
         const g = slotW;
         // Moon dot and € ride their slot too — a 9px dot in a 7px slot is the same overlap bug.
         const dotSz = Math.max(6, Math.min(9, slotW - 1));
@@ -138,21 +149,32 @@ export default function CalendarCoin(p: CalendarCoinProps) {
         // could outgrow the cell. Hard cap at maxSlots — the build order above IS the priority
         // order (stations first), so the least-loud marks are the ones that yield.
         const slotted = others.slice(0, maxSlots).map((n, i) => slot(n, i));
-        const mid = Math.floor(slotted.length / 2); // split the SLOTTED marks, not the pre-cap list
+        // Equal slot COUNT either side of the crown; the short side gets an empty slot so the two
+        // flanks are the same WIDTH and the crown lands on the axis.
+        const leftSlots = slotted.slice(0, perFlank);
+        const rightSlots = slotted.slice(perFlank);
+        const pad = (arr: ReactNode[], key: string) =>
+          arr.length >= perFlank ? arr : [...arr, <span key={key} style={{ width: slotW, display: "inline-block" }} />];
+        // THE RAIL NO LONGER FLOATS (v813). top:-17 with no height made the row's height equal its
+        // TALLEST CHILD, and glyphs shrink 13 → 7 as marks are added — so the glyph row's baseline
+        // swung several px between a light day and a loaded one, and again against a crowned day.
+        // That is the misalignment David kept seeing. A fixed 17px box (the tallest thing that can
+        // ride the rail: a lone crown) with the children aligned to its BOTTOM pins one baseline
+        // for every day, whatever the rail is carrying.
         return (
-          <span style={{ position: "absolute", top: -17, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1 }}>
+          <span style={{ position: "absolute", top: -17, left: 0, right: 0, height: 17, display: "flex", justifyContent: "center", alignItems: "flex-end", pointerEvents: "none", zIndex: 1 }}>
             {hasCrown ? (
               // David's 11/16 catch: the old 1fr|auto|1fr grid hard-pinned the crown to the coin's
               // axis and split flanks floor/ceil — an ODD mark count dumped the extra glyph on the
               // right and the cluster never re-centered. Now the WHOLE cluster (crown mid, marks
               // around) centers as one unit; with even flanks the crown still sits exactly on-axis.
-              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1, whiteSpace: "nowrap" }}>
-                {slotted.slice(0, mid)}
+              <span style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", lineHeight: 1, whiteSpace: "nowrap" }}>
+                {pad(leftSlots, "padL")}
                 <CrownMark size={crownW} style={{ transform: "translateY(-2px)", flexShrink: 0 }} />
-                {slotted.slice(mid)}
+                {pad(rightSlots, "padR")}
               </span>
             ) : (
-              <span style={{ display: "flex", alignItems: "center", lineHeight: 1, whiteSpace: "nowrap" }}>{slotted}</span>
+              <span style={{ display: "flex", alignItems: "flex-end", lineHeight: 1, whiteSpace: "nowrap" }}>{slotted}</span>
             )}
           </span>
         );
