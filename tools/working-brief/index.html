@@ -48,14 +48,14 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">as of v844 · July 20, 2026 · the stretch: v794 → v844 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
+  <p class="sub">as of v845 · July 20, 2026 · the stretch: v794 → v845 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
 
   <div class="card" style="border-left:3px solid var(--wine)">
     <p style="margin:0"><b>Production was frozen at v813 for most of this run.</b> I wrote &ldquo;deployed&rdquo; in thirty commit messages
     and never asked the server. v814 gated <code>npm run build</code> on <code>tsc --noEmit</code>; nixpacks runs that script,
     <code>typescript</code> is a devDependency, and a production install has no <code>tsc</code> — so every build failed silently and
     fifteen versions of real fixes existed for nobody. Reverting the gate unfroze it immediately, which is what proved the cause.
-    <b>velealor.com now serves v844, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
+    <b>velealor.com now serves v845, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
   </div>
 
   <h2>1 · Open picks — your decision queue</h2>
@@ -65,6 +65,19 @@
   <div class="card pick"><b>What is a CHARTLESS day's character?</b> <span class="tag">NEW</span> The retired four modes still appear on the hero — but not as the wiring bug the sheet described. <code>selectedCharacter</code> comes from the month endpoint, which builds character from the personal <i>tara</i>, which needs a birth star. A chartless profile has no character at all, so the retired words are the only thing that surface has ever had. Deleting the fallback leaves a blank hero for exactly those users. What a day's character IS with no chart is a method question.</div>
   <div class="card pick"><b>The durable generation cap.</b> <span class="tag">NEW</span> The in-process half now counts real API calls, retries and burned failures included. The DURABLE half is rows-since-UTC-midnight scoped by profileId — so regenerating one row a hundred times still reads as one, and N profiles gives one user N times the cap. Needs a schema change, and schema changes here are hand-run scripts. Half-fixing it in memory would be a band-aid over the same hole.</div>
   <div class="card pick"><b>mrita: 0.05 or the canon's nil?</b> <span class="tag">NEW</span> The Verdict's balaadi fruition dial now READS <code>canon/avashtas.json</code> instead of a literal that cited a block the file did not contain. Researched: bala ¼, kumara ½, yuva full, vriddha "very little", mrita <b>NIL</b> — consistently attested, not verified against a translated primary verse, and the file says so. <b>Two of the five numbers are ours, not the book's</b> and are declared as such: vriddha 0.125 (the canon names no fraction) and mrita 0.05 (the canon says nil). The second is the dial that decides "late" versus "late if at all" — a true zero makes a Mrita-hinged area unreachable rather than merely slow. Values unchanged; a silent "fix" would rewrite people's readings.</div>
+  <div class="card done"><b>The canon layer is clean — and now it is guarded.</b> <span class="tag">v845</span>
+  The four canon files with production readers and no test are now checked, all by hand first, all clean.
+  <code>house-lord-combinations</code> really is 144/144 with no blank bodies. <code>muhurta-tables</code> puts all 27
+  nakshatras in exactly one of seven natures, and the five tithi families are the classical allocation.
+  <code>timing</code>'s Vimshottari sums to 120 — and <code>dasha-calculator.ts</code>, which keeps its <i>own</i> copy without
+  importing the canon, agrees exactly, <b>including all 27 star&rarr;lord assignments</b>. That map decides which dasha a life
+  <i>begins</i> in; one wrong entry offsets a chart's whole 120-year clock, silently. And
+  <code>bhava-significations</code> carries its own house-karaka list citing the <i>same</i> chapter and pages as
+  <code>karakas.json</code> — same source, so they must agree, and all twelve do. <b>That last check is the one v839 should
+  have been</b>: there I compared two tables citing <i>different</i> chapters and called the difference drift.
+  <b>Nothing needed fixing; everything needed a guard.</b> Plus the class fix — a meta-test now fails if any canon file
+  arrives without a test naming it, verified by dropping a junk file in and watching it name it.</div>
+
   <div class="card done"><b>A null result, reported as one.</b> <span class="tag">v844</span>
   <code>panchang/dignity.ts</code> — whose <code>dignityLabel()</code> feeds every reading — hand-rolls its own friend/enemy
   tables instead of importing <code>canon/planetary-friendships.json</code>. That is the exact shape of the karakas drift I
@@ -171,7 +184,7 @@
     <p style="margin:0" class="quiet"><b>And now the meter under it is honest.</b> The gates began reading as gates in the last run; this run fixed what sat behind them — a paid pick-a-date reading that re-billed for ever after a failed freeze, a Verdict that re-billed ten times a year on a clock, a pin that could be overwritten, a retired surface still callable as a billed endpoint, and a daily cap that counted results instead of calls.</p>
   </div>
 
-  <h2>3 · The re-audit fix run — v794 → v844 (51 versions, deployed)</h2>
+  <h2>3 · The re-audit fix run — v794 → v845 (52 versions, deployed)</h2>
   <div class="card done">
     <p style="margin:0 0 0.5rem"><b>The sheet was re-verified against the code, and its own "FIXED" rows were where it was weakest.</b> Suite <b class="ok num">691 passing</b> across 69 files, build exits 0, and <b>zero</b> type errors introduced across twenty versions (the 7 that exist are pre-existing and the build never typechecks — that is itself on the list). Every fix carries a control that was <i>shown to fail</i> against the old code before it was called fixed.</p>
     <p style="margin:0.6rem 0 0.3rem"><b>Accurate data to the model — the first priority</b></p>

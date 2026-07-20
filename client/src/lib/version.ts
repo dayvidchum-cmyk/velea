@@ -1968,4 +1968,27 @@
 // The harness earned its v843 fix twice this run: a stale probe anchor was reported as ANCHOR-FAIL
 // and exited 1 instead of printing green. That is the whole point of the arity/anchor guards.
 // 20 probes, all caught. 84 files, 893 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.844";
+// v1.1.845 = 2026-07-20 — THE CANON LAYER IS CLEAN. THAT IS THE THIRD NULL RESULT IN A ROW.
+// v844 left four canon files with production readers and no test. All four checked by hand first;
+// all four came back clean:
+//   · house-lord-combinations.json claims "144/144, _gaps: []" — TRUE. All 144 keys, none empty.
+//   · muhurta-tables.json puts all 27 nakshatras in exactly one of seven natures — none missing,
+//     none duplicated — and the five tithi families are the classical allocation covering 1-15.
+//   · timing.json's Vimshottari is classical and sums to 120 — and dasha-calculator.ts, which
+//     hand-rolls its OWN copy without importing the canon, agrees exactly, including all 27
+//     star→lord assignments following the nine-lord cycle. That map decides which dasha a life
+//     BEGINS in; one wrong entry offsets that chart's entire 120-year clock.
+//   · bhava-significations.json carries its own house-karaka list and cites the SAME source and
+//     pages as karakas.json (Vol I Ch.7, p66-90). Same source ⇒ they must agree. All twelve do.
+// THAT LAST CHECK IS THE ONE v839 SHOULD HAVE BEEN. There I compared two tables citing DIFFERENT
+// chapters and called the difference drift. Here they cite the SAME chapter, so agreement is a real
+// invariant instead of a coincidence. Read the provenance before comparing the values.
+// Nothing needed fixing. What everything needed was a GUARD: each of these is a duplicate of
+// something, and an unwatched duplicate is a drift that has not happened yet.
+// THE CLASS FIX: a meta-test asserts every canon/*.json is named by at least one test, so the next
+// canon file cannot arrive unguarded. Verified by dropping a junk canon file in — it failed and
+// named the file. Fixing five instances without this is how the same gap reopens.
+// My own first draft misread muhurta's shape (natures are objects, not arrays) and the assertion
+// caught me — 7 where it wanted 27.
+// 24 probes, all caught. 85 files, 906 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.845";

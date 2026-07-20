@@ -89,6 +89,15 @@ run server/panchang/dignity.ts 'Sun: 10, Moon: 33' 'Sun: 10, Moon: 63' \
 run server/vedic/canon/planetary-friendships.json '"enemies": ["Venus", "Saturn"] }' '"enemies": ["Venus"] }' \
   server/vedic/friendships-canon.test.ts "the friendship canon itself drifts from BPHS"
 
+run server/dasha-calculator.ts '{ planet: "Rahu",    years: 18 },' '{ planet: "Rahu",    years: 17 },' \
+  server/vedic/canon-integrity.test.ts "dasha-calculator's private Vimshottari copy drifts"
+run server/dasha-calculator.ts '"Mula":             "Ketu",' '"Mula":             "Venus",' \
+  server/vedic/canon-integrity.test.ts "a birth star starts the 120-year clock on the wrong lord"
+run server/vedic/canon/muhurta-tables.json '"Krittika",\n        "Vishakha"' '"Krittika"' \
+  server/vedic/canon-integrity.test.ts "a nakshatra loses its muhurta nature"
+run server/vedic/canon/bhava-significations.json '"karakas": ["Mars", "Saturn"]' '"karakas": ["Mars"]' \
+  server/vedic/canon-integrity.test.ts "two same-source canon tables disagree on a house karaka"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
