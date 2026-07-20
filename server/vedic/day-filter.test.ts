@@ -31,7 +31,7 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
     expect(d.avoid.join(" ")).toMatch(/confrontation|cutting/);
   });
 
-  it("rikta empties every nature except the cutting ones (David's July 12: no self-contradiction)", () => {
+  it("rikta empties every nature except the cutting ones (remedy chosen here; David's July 12 ruling was the no-self-contradiction rule it serves)", () => {
     const soft = dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 });
     expect(soft.supports).toEqual([]);
     expect(soft.vetoes.join(" ")).toMatch(/runs on empty/);

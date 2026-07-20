@@ -318,10 +318,20 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
 
   // Rikta: the empty tithi keeps only severing acts — the family's own law. On a sharp or
   // fierce day the two agree (the cut is supported); on any other nature the day EMPTIES —
-  // no supports at all (the old "severing only" line contradicted the gentle natures'
-  // own avoid-lists: David's July 12, "supports cutting… keep away from cutting").
-  // EMPTIED means emptied — no yoga may refill it (audit 2026-07-20). Both special yogas add
-  // their own supports later, and BOTH used to repopulate a day this law had just emptied:
+  // no supports at all.
+  //
+  // ATTRIBUTION, CORRECTED 2026-07-20 (David: "i deliberately emptied? me???"). What he ruled on
+  // July 12 is that the day must not CONTRADICT ITSELF — it was saying "supports cutting" while
+  // its own avoid-list said "keep away from cutting". Emptying the supports outright was the
+  // remedy an assistant chose to satisfy that, and it had since been written up, and repeated back
+  // to him, as though HE had ruled it. He did not. His commit message for v454 is the whole
+  // record: "rikta sentence on gentle natures no longer self-contradicts (David's July 12)".
+  // The emptying stands because it does serve the real ruling, not because he asked for it.
+  // EMPTIED means emptied — no yoga may refill it (audit 2026-07-20). This follows from David's
+  // ACTUAL July 12 ruling (no self-contradiction), not from the emptying itself: a day whose
+  // verdict reads "nothing new unless it severs" cannot also offer "beginning long-term
+  // enterprises". That is the identical contradiction he objected to, one layer up.
+  // Both special yogas add their own supports later, and BOTH used to repopulate such a day:
   // Saturday + Rohini on a rikta tithi came back carrying "beginning long-term enterprises" on a
   // day whose own verdict is "nothing new unless it severs". That contradiction shipped in Amrita
   // Siddhi and no test caught it; encoding Raman's Siddha grid (where Saturday-on-Riktha is
