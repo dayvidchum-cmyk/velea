@@ -2374,4 +2374,22 @@
 // blocks nothing is decorative) and must EMPTY none of them (a day that says nothing at all).
 // Verified across all 27 — no star fails either way.
 // 93 files, 1013 tests, 0 failures. 46 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.863";
+// v1.1.864 = 2026-07-20 — "NAMED BY THE SUNRISE STAR HOW? BUILD, SELECTIVE, ACTION, RESTRAINT?"
+// He was right to ask. The star does not just LABEL the day — it feeds the mode. Measured across a
+// full year at Boston: the star NAME changes on 172 days (47.1%); the MODE SCORE changes on 118
+// (32.3%); and 15 of those swing a full point, containment to expansion or back. On the other 54
+// the name changes and the mode holds. So sunrise-anchoring re-titles half the year and
+// re-characterises a third of it. Recorded; NOT flipped — that is his call, not my inference.
+// MY FIRST MEASUREMENT SAID 0% OF MODES CHANGE. getNakshatraModifier returns a PROSE object with no
+// score field, so `?? 0` gave zero on both sides and every day compared equal. A clean, confident,
+// meaningless number. The score lives in NAKSHATRA_MODIFIERS (modifier-config.ts) — the table
+// corrected at v852. The script now throws on an unmapped star rather than defaulting.
+// AND I FOUND A THIRD PER-STAR SUPPORTS TABLE — one I had just created the second of.
+// interpreter.ts's NAKSHATRA_LIBRARY carries its own `supports`/`avoid` per star (Rohini: "visibility,
+// aesthetics, relationship-building"; David's: wealth, farming, construction). That is the exact
+// duplicate-table class I have spent this run removing, made by me, unnoticed.
+// It is smaller than it looked: those arrays are read by NOTHING — only `toneModifier` is consumed,
+// and the object never reaches the model. Dead data inside a live object. Pinned precisely, because
+// the next person to find it will reasonably assume it is the source of truth.
+// 93 files, 1015 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.864";

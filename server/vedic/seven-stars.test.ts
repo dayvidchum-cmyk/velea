@@ -172,3 +172,31 @@ describe("every per-star act is CLASSIFIED — the vetoes depend on it", () => {
     }
   });
 });
+
+describe("only ONE per-star supports table is live (v864)", () => {
+  // Measuring the sunrise question, I found interpreter.ts's NAKSHATRA_LIBRARY also carries
+  // per-star `supports` and `avoid` arrays — a THIRD opinion on what each star is for, and I had
+  // just added a second without noticing it. That is the duplicate-table class I have spent this
+  // run removing, created by me.
+  //
+  // It turned out smaller than it looked: those arrays are read by NOTHING. Only `toneModifier` is
+  // consumed (composeInstruction), and the object never reaches the model. So it is dead data
+  // inside a live object — which is worth pinning precisely, because the next person to find it
+  // will reasonably assume it is the source of truth.
+  const INTERP = readFileSync(new URL("../panchang/interpreter.ts", import.meta.url), "utf8");
+  const BUILDER = readFileSync(new URL("../narrative/input-builder.ts", import.meta.url), "utf8");
+
+  it("the library's per-star supports still exist but reach nobody", () => {
+    expect(INTERP).toMatch(/NAKSHATRA_LIBRARY/);
+    // The payload never carries the prose object, so its lists cannot reach the reading.
+    expect(BUILDER).not.toMatch(/nakshatraModifier/);
+  });
+
+  it("the LIVE per-star supports are the day-filter's, and they are David's table", () => {
+    expect(supportsOf("Shatabhisha")).toMatch(/medical treatment/);
+    // The library's Rohini says "visibility, aesthetics, relationship-building"; his says wealth and
+    // farming. If the library ever became the source, this would catch the swap.
+    expect(supportsOf("Rohini")).toMatch(/wealth and gain/);
+    expect(supportsOf("Rohini")).not.toMatch(/aesthetics/);
+  });
+});
