@@ -665,6 +665,23 @@ export async function upsertNarrativeCache(profileId: number, surface: string, c
   const db = await getDb();
   if (!db) { hold(); return false; }
   try {
+    // A PINNED READING IS NOT OVERWRITABLE (v802). The pin was enforced only by the READ paths
+    // refusing to regenerate — this write, the last line of defence, never looked at the flag. Any
+    // path that reached generation for a locked row (a refresh, an admin regenerate, a new surface
+    // added without the guard) silently replaced prose the user had explicitly kept. The whole
+    // point of a pin is that the words stop moving, so the check belongs where the words are
+    // written, not only where they are read.
+    const existing = await db
+      .select({ locked: narrativeCache.locked })
+      .from(narrativeCache)
+      .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, surface), eq(narrativeCache.cacheDate, cacheDate)))
+      .orderBy(desc(narrativeCache.id))
+      .limit(1);
+    if (existing[0]?.locked) {
+      // The pinned row IS the truth for this key — report success (a row is there) and change
+      // nothing. Never hold() here: holding would serve the new prose over the pin on the next read.
+      return true;
+    }
     await db
       .insert(narrativeCache)
       .values({ profileId, surface, cacheDate, inputHash, model, content, generatedAt: new Date() })

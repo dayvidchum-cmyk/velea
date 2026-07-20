@@ -2566,6 +2566,9 @@ export const PROMPT_VERSION = "2026-07-18-audit4-law-reconcile";
 // vs …). Only bump PROMPT_VERSION itself when BASE_PROMPT or a shared law changes and EVERY
 // surface must regenerate. A surface with no entry here just rides the global version.
 export const SURFACE_VERSION: Record<string, string> = {
+  // The verdict had NO key here, so the only lever that could bust it was PROMPT_VERSION — which
+  // regenerates every surface for every profile. A verdict-prompt change now costs one surface.
+  verdict: "2026-07-20-verdict-v1",
   glance: "2026-07-19-prosperity-named", // + Sampat/prosperity-day naming rule
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",

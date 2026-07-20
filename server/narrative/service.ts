@@ -579,7 +579,17 @@ export async function getVerdictCached(profileId: number, peek = false): Promise
   const surface = "verdict";
   const dateKey = "verdict-v1";
   const salt = SURFACE_VERSION[surface] ?? "";
-  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(data)).digest("hex");
+  // THE VERDICT IS NATAL — IT MUST NOT REGENERATE ON A CLOCK (v802). verdict.ts computes
+  // `currentAge` from new Date(), rounded to 0.1 of a year, and returns it in the payload. Hashing
+  // the whole payload therefore flipped the hash every 36.5 days with NO change in meaning: the
+  // reading regenerated (billed), and the peek's hash comparison failed so the door reappeared
+  // claiming an already-read verdict was unread. Ten times a year, per profile.
+  // The age is excluded from the CACHE IDENTITY only — the model still receives it, and everything
+  // the age actually decides stays hashed: each area's `tense` (past / current / future) is computed
+  // FROM currentAge and lives in `areas`, so a genuine crossing still busts the cache. Same law as
+  // dayStableHash: hash only what is stable for the cache window.
+  const { currentAge: _volatileAge, ...stableForHash } = (data as any);
+  const hash = createHash("sha256").update(PROMPT_VERSION + "|" + salt + "|" + JSON.stringify(stableForHash)).digest("hex");
   const row = await getNarrativeCache(profileId, surface, dateKey);
   if (row && (row.locked || row.inputHash === hash)) {
     try {

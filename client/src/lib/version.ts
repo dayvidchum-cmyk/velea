@@ -1136,4 +1136,26 @@
 // throw instead of impersonating the Sun" — was applied in birthchart/calculator.ts and missed here.
 // Latent (every current caller passes a known lord), which is exactly when it is cheapest to close.
 // 39 files, 397 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.801";
+// v1.1.802 = 2026-07-20 — TWO MONEY LEAKS, BOTH FROM A CHECK THAT WAS IN THE WRONG PLACE.
+// (1) THE VERDICT REGENERATED ON A CLOCK. verdict.ts computes currentAge from new Date() rounded to
+// 0.1 of a year and returns it in the payload; getVerdictCached hashed the WHOLE payload, so the
+// hash flipped every 36.5 days with no change in meaning — the reading regenerated and billed, and
+// the peek's hash comparison failed so the door reappeared claiming an already-read verdict was
+// unread. Ten times a year, per profile. The age is now excluded from the cache IDENTITY only: the
+// model still receives it, and everything the age actually decides stays hashed — each area's
+// `tense` is computed FROM currentAge and lives in `areas`, so a genuine crossing still busts the
+// cache. Same law as dayStableHash. SURFACE_VERSION also gained a `verdict` key: it had none, so
+// the only lever that could bust this surface was PROMPT_VERSION, which regenerates EVERY surface
+// for EVERY profile.
+// (2) A PINNED READING WAS OVERWRITABLE. The pin was enforced only by the read paths refusing to
+// regenerate; upsertNarrativeCache — the last line of defence and the only code that touches the
+// words — never looked at `locked`. Any path that reached generation for a locked row silently
+// replaced prose the user had explicitly kept. It now checks before it writes, and deliberately
+// does NOT park the rejected prose in the held-rows map: holding it would serve the new words from
+// memory on the very next read and defeat the pin from the other side.
+// Controls: the verdict hash test proves the age ticking does NOT move the hash while a real tense
+// crossing DOES (without that second half the fix is indistinguishable from "never bust"); the pin
+// test mocks drizzle at the connection and drives the REAL upsert, asserting a locked row takes no
+// insert, an unlocked row does, and nothing is held behind a refused write.
+// 59 files, 588 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.802";
