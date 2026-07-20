@@ -93,6 +93,17 @@ export default function CalendarCoin(p: CalendarCoinProps) {
         // ~4.4px of air on each side — nearly a glyph of gutter between two fully-loaded
         // neighbours, which is what makes them read as two days instead of one strip.
         // The glyph = its slot (the standing law) still holds.
+        //
+        // WHAT THIS FIXED BUDGET ASSUMES, stated rather than left silent (threshold-honesty):
+        // the cell is (viewport - 32px page padding - 16px card padding) / 7, so
+        //   430px → 54.6   ·   390px → 48.8   ·   375px → 46.7   ·   360px → 44.6   ✓ all clear
+        //   320px → 38.9   ✗ narrower than the budget
+        // Solving (W - 48)/7 = 40 puts the break-even viewport at 328px. Every iPhone from the
+        // SE 2nd-gen (375px) up is clear with room; the only common device below the line is the
+        // 2016 SE / iPhone 5 at 320px, where a FULLY loaded rail (5 marks, or 4 + a crown) could
+        // touch its neighbour again. A pure-CSS responsive scale is not expressible here (the
+        // ratio would need a length divided by a length), so if a 320px user ever matters this
+        // wants a measured cell width passed in, not a smaller constant for everybody.
         const RAIL_BUDGET = 40;
         const hasCrown = !!achievement;
         // With a crown in the row, one fewer slotted mark — the build order below IS the priority
