@@ -133,9 +133,14 @@ describe("the base rate is pinned, because 'cancelled' has to MEAN something", (
     // CHANGED ON PURPOSE, 2026-07-20: David ruled "two, with three+ as solid", and the rate moved
     // from 96% to ~76%. He was shown the whole curve first (>=1 -> 96%, >=2 -> 76%, >=3 -> 55%,
     // >=4 -> 25%) and picked the bar. Nothing was removed; the evidence bar moved.
+    // Two purposeful moves, in order:
+    //   96.0% -> 76.1%  his ruling, the bar went from one condition to two
+    //   76.1% -> 73.8%  Phaladeepika 7.30 counted once instead of twice
+    // The band was 0.72-0.80 when the second change landed, which was wide enough to MISS it. A
+    // pin that cannot see a real 2-point move is not a pin, so it is tightened to the measurement.
     const r = rate();
-    expect(r).toBeGreaterThan(0.72);
-    expect(r).toBeLessThan(0.80);
+    expect(r).toBeGreaterThan(0.715);
+    expect(r).toBeLessThan(0.760);
   });
 
   it("the tautology fix stays fixed — the rate cannot climb back toward certainty", () => {
@@ -210,5 +215,69 @@ describe("David's ruling: two conditions cancel, three or more is solid", () => 
       if (nb.solid) found = nb;
     }
     expect(JSON.stringify(found)).not.toMatch(/raja|guarantee|success/i);
+  });
+});
+
+
+describe("Phaladeepika 7.30 is one verse, so it counts once", () => {
+  /**
+   * The compound `nīca-ucca-bha-īśau` has two competing glosses — "the planet exalted in the
+   * debilitation sign" vs "the lord of the debilitated planet's exaltation sign". Sastri's note
+   * records the dispute. They are ONE verse read two ways.
+   *
+   * Both fired independently until 2026-07-20, so a chart could clear David's two-condition bar on
+   * a single verse counted twice (2.4% of fallen charts) — silently defeating the ruling he had
+   * just made. Merging them does NOT pick a gloss: either reading satisfies the same clause, so
+   * counting it once is neutral on the dispute that genuinely is unresolved.
+   */
+  const G = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"] as const;
+
+  it("never emits the exaltation-side condition more than once, in any chart", () => {
+    let seed = 31337;
+    const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+    let sawIt = 0;
+    for (let t = 0; t < 20000; t++) {
+      const p = G[Math.floor(rnd() * 7)];
+      const lonBy: any = {};
+      for (const g of G) lonBy[g] = rnd() * 360;
+      lonBy[p] = (DEBIL as any)[p];
+      if (planetDignity(p as any, lonBy[p]) !== "debilitated") continue;
+      const hits = neechaBhanga(p as any, lonBy, rnd() * 360)
+        .reasons.filter((r) => r.startsWith("exaltation lord in a kendra"));
+      expect(hits.length).toBeLessThanOrEqual(1);
+      if (hits.length === 1) sawIt++;
+    }
+    // CONTROL: the condition must actually occur, or the assertion above is vacuous.
+    expect(sawIt, "the merged condition never fired — the test proves nothing").toBeGreaterThan(100);
+  });
+
+  it("keeps BOTH candidate rescuers in `by` — dropping one would pick a gloss", () => {
+    // Whichever reading is right, THAT planet is the rescuer and we cannot tell which. Under the
+    // dashaGate rule either one's period may activate it, so both must remain eligible.
+    let seed = 8675309;
+    const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+    let found = false;
+    for (let t = 0; t < 20000 && !found; t++) {
+      const p = G[Math.floor(rnd() * 7)];
+      const lonBy: any = {};
+      for (const g of G) lonBy[g] = rnd() * 360;
+      lonBy[p] = (DEBIL as any)[p];
+      if (planetDignity(p as any, lonBy[p]) !== "debilitated") continue;
+      const nb = neechaBhanga(p as any, lonBy, rnd() * 360);
+      const r = nb.reasons.find((x) => x.startsWith("exaltation lord in a kendra"));
+      if (r && r.includes(" / ")) {
+        // both glosses fired: one reason, but two named planets, and both credited in `by`
+        found = true;
+        // Parse the RESCUER slots only. My first version scraped every planet name out of the
+        // string and picked up the FALLEN planet from "lord of Sun's exaltation Aries" — then
+        // failed, correctly, because the fallen planet is not its own rescuer. The rescuer is the
+        // name that opens each gloss segment, after "— " or " / ".
+        const named = [...r.matchAll(/(?:— |\/ )(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn) \(/g)]
+          .map((m) => m[1]);
+        expect(named.length, "both glosses fired, so both rescuers must be named").toBe(2);
+        for (const planet of new Set(named)) expect(nb.by).toContain(planet);
+      }
+    }
+    expect(found, "no chart in the sweep had both glosses firing").toBe(true);
   });
 });

@@ -2474,6 +2474,20 @@
 // neechaBhanga now self-guards on actual debilitation (his Step 1) — it was reporting cancellation
 // for a planet in its OWN SIGN if a caller ever forgot to gate.
 // 97 files, 1043 tests, 0 failures. tsc clean. Build exits 0.
+// v1.1.873 = 2026-07-20 — ONE VERSE, COUNTED ONCE. And a lesson about what to defer.
+// I flagged the Phaladeepika 7.30 double-count for David instead of fixing it, on the grounds that
+// the philology was his call. He asked: "what is the advantage of doing this?" There wasn't one.
+// MERGING DOES NOT PICK A GLOSS -- either reading satisfies the same clause, so counting the verse
+// once is neutral on the dispute that actually is unresolved. And the double-count silently
+// DEFEATED THE RULING HE HAD JUST MADE: "two conditions" means two INDEPENDENT pieces of evidence,
+// and 2.4% of fallen charts were clearing that bar on one idea wearing two hats.
+// Both candidate rescuers stay in `by` -- dropping either would pick a gloss through the back door.
+// Cancellation 76.1% -> 73.8%; a fall now reads as a fall 26.7% of the time (was 4% this morning).
+// THE PIN THAT DIDN'T PIN: the base-rate band was 0.72-0.80, wide enough to miss this 2.3-point
+// move entirely. Tightened to the measurement. A guard that cannot see a real change is decoration.
+// Phaladeepika 7.27 stays FLAGGED, and that one is defensible: adding a textual condition he has
+// never seen would RAISE the cancellation rate right after he deliberately lowered it.
+// The line: flag what needs his authority; fix what has a remedy that takes no side.
 // v1.1.872 = 2026-07-20 — HIS RULING: TWO CONDITIONS TO CANCEL A FALL, THREE+ IS "SOLID".
 // Shown the whole curve (>=1 -> 96%, >=2 -> 76%, >=3 -> 55%, >=4 -> 25%) David chose two. Velea had
 // been cancelling 96% of every debilitation, so only ~4% of fallen planets ever read as fallen --
@@ -2538,4 +2552,4 @@
 // where his scans land — I checked both. They do not contain the muhurta tables, but I should have
 // LOOKED before refusing, and should simply have asked him for the pages.
 // 99 files, 1054 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.872";
+export const APP_VERSION = "1.1.873";

@@ -13,7 +13,10 @@ Nothing here is licensed to change the engine — see THE OPEN RULING at the bot
 
 ## What the engine currently does
 
-`server/vedic/dignity.ts` → `neechaBhanga()` fires on any ONE of four conditions:
+`server/vedic/dignity.ts` → `neechaBhanga()` now requires **TWO** conditions to cancel and treats
+**three or more as "solid"** (David's ruling, 2026-07-20). The table below is the original four; three
+more have since been added — conjunction with the dispositor, parivartana, and his condition 3 (the
+fallen planet itself in a kendra) — and conditions 2 and 3 below are now emitted as ONE.
 
 | # | Condition in code | Provenance |
 |---|---|---|
@@ -90,8 +93,17 @@ aspecting" (K.S. Charak) · "dispositor exalted or with digbala" (Seshadri Iyer)
 
 1. **Which conditions are Velea's?** The two textual ones (dispositor in kendra, aspect by
    dispositor) plus 7.27? Or K&F's single "associated with an exalted planet"? Or both systems?
-2. **Conditions 2 and 3 must not both fire.** Whichever gloss wins, they are one verse. Today both
-   fire and inflate `count`.
+2. ~~**Conditions 2 and 3 must not both fire.**~~ **CLOSED 2026-07-20 — this was never his call.**
+   Merging them does not pick a gloss: either reading satisfies the same clause, so counting the
+   verse once is neutral on the dispute that genuinely is unresolved. I flagged it for him anyway;
+   he asked what the advantage of that was, and there wasn't one. Worse, the double-count silently
+   defeated the ruling he had just made — "two conditions" means two INDEPENDENT pieces of evidence,
+   and 2.4% of fallen charts were clearing that bar on one idea wearing two hats. Now emitted as a
+   single condition, with BOTH candidate rescuers kept in `by` (dropping either would pick a gloss
+   through the back door). Cancellation 76.1% → 73.8%.
+
+   *The line worth keeping:* flag what needs his authority; fix what has a remedy that takes no
+   side. "It has Sanskrit in it" is not the same as "it is his call".
 
 Nothing in the engine has been changed on the strength of this file. It is here so the decision is
 made against the sources instead of against a memory.

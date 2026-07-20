@@ -140,6 +140,9 @@ run server/vedic/research-store.ts 'dv: DASHA_ENGINE_VERSION,' '' \
 run server/panchang/service.ts 'const dominantNak = (astro as any)?.nakshatraAtSunrise ?? astro?.nakshatra' 'const dominantNak = astro?.nakshatra' \
   server/panchang/sunrise-naming.test.ts "the day goes back to being named by the majority star"
 
+run server/vedic/dignity.ts 'if (glossA || glossB) {' 'if (glossA) {' \
+  server/vedic/kendra-tautology.test.ts "one gloss of Phaladeepika 7.30 stops counting"
+
 run server/vedic/dignity.ts 'export const CANCEL_MIN_CONDITIONS = 2;' 'export const CANCEL_MIN_CONDITIONS = 1;' \
   server/vedic/kendra-tautology.test.ts "the cancellation bar drops back to one condition"
 run server/vedic/dignity.ts 'export const SOLID_MIN_CONDITIONS = 3;' 'export const SOLID_MIN_CONDITIONS = 2;' \

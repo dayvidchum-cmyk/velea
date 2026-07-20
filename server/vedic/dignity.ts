@@ -185,19 +185,40 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
     by.push(dispositor);
   }
 
-  // 2. The planet that EXALTS in the debilitation sign, in a kendra from Asc or Moon.
-  //    ONE OF TWO GLOSSES of the compound in Phaladeepika 7.30 — the sibling reading is #3 below.
+  // 2. THE EXALTATION SIDE OF PHALADEEPIKA 7.30 — counted ONCE, however it is read.
+  //
+  //    The verse names `nīca-ucca-bha-īśau`: the lord of the debilitation sign and the lord of the
+  //    exaltation sign. The second half of that compound has two competing glosses, and Sastri's own
+  //    note records the dispute — "according to some, taduccanātha means the planet that is exalted
+  //    in that Rasi." So:
+  //      gloss A — the planet that is EXALTED IN the debilitation sign
+  //      gloss B — the LORD OF the debilitated planet's exaltation sign
+  //    They are ONE VERSE read two ways, not two independent conditions.
+  //
+  //    Until 2026-07-20 both fired separately, so a chart could clear David's two-condition bar on a
+  //    single verse counted twice — 2.4% of all fallen charts. That silently defeated the ruling he
+  //    had just made: "two conditions" means two independent pieces of evidence, and this was one
+  //    piece wearing two hats.
+  //
+  //    I originally flagged this for him instead of fixing it, on the grounds that the philology was
+  //    his call. He asked what the advantage of that was. There wasn't one: MERGING DOES NOT PICK A
+  //    GLOSS. Either reading satisfies the same clause, so counting it once is neutral on the
+  //    dispute that is actually unresolved. Deferring it was friction I invented.
+  //
+  //    Both planets stay in `by`. Whichever gloss is correct, THAT planet is the rescuer, and we
+  //    cannot tell which — so under the dashaGate rule either one's period may activate it. Dropping
+  //    one would be picking a gloss through the back door.
   const exalter = EXALTS_IN[debilSign];
-  if (exalter && exalter !== planet && inKendra(lonBy[exalter], exalter)) {
-    reasons.push(`${exalter} (exalts in ${debilSign}) in a kendra`);
-    by.push(exalter);
-  }
-
-  // 3. Lord of the planet's EXALTATION sign, in a kendra from Asc or Moon.
   const exaltLord = SIGN_RULER[EXALT[planet].sign];
-  if (exaltLord !== planet && inKendra(lonBy[exaltLord], exaltLord)) {
-    reasons.push(`${exaltLord} (lord of ${planet}'s exaltation ${EXALT[planet].sign}) in a kendra`);
-    by.push(exaltLord);
+  const glossA = !!exalter && exalter !== planet && inKendra(lonBy[exalter], exalter);
+  const glossB = exaltLord !== planet && inKendra(lonBy[exaltLord], exaltLord);
+  if (glossA || glossB) {
+    const who = [glossA ? `${exalter} (exalts in ${debilSign})` : null,
+                 glossB ? `${exaltLord} (lord of ${planet}'s exaltation ${EXALT[planet].sign})` : null]
+      .filter(Boolean).join(" / ");
+    reasons.push(`exaltation lord in a kendra — ${who}`);
+    if (glossA) by.push(exalter!);
+    if (glossB) by.push(exaltLord);
   }
 
   // 4. The debilitated planet aspected by its dispositor.
