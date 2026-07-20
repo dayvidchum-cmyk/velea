@@ -216,7 +216,23 @@ export async function getDayField(
           try { house = moonSignToHouse(moonIdx, lagnaOverride); } catch { /* unknown lagna — keep cached */ }
         }
       }
-      const baseMode = HOUSE_MODE[house] ?? 'Selective';
+      // THE TIMELINE OPENS AT SUNRISE (2026-07-20). `house` above is now the day's RULING sign
+      // (majority, per David's ruling) — right for the day's house and for chandrabala. But
+      // baseMode is the OPENING configuration of the intraday timeline, which then applies the
+      // sign/star boundaries in order; deriving it from the ruling sign would make the day open in
+      // the sign it only reaches at midday and then "flip" to itself. The timeline already picks
+      // the majority-ruling mode on its own (configAt evaluates past the boundaries when the
+      // after-half rules), so this must stay the sunrise config. Getting this backwards is the
+      // "Build moves to Selective at 10:59 PM — so why is Selective showing?" bug.
+      const sunriseSign = (astro as any)?.moonSignAtSunrise ?? effMoonSign;
+      let houseAtSunrise = house;
+      if (lagnaOverride && sunriseSign) {
+        const srIdx = SIGN_ORDER.indexOf(sunriseSign);
+        if (srIdx !== -1) {
+          try { houseAtSunrise = moonSignToHouse(srIdx, lagnaOverride); } catch { /* keep */ }
+        }
+      }
+      const baseMode = HOUSE_MODE[houseAtSunrise] ?? 'Selective';
 
       // Astronomy first (transitions + karana feed the mode now, not just the display).
       const utcOffset = locationOverride.utcOffset;

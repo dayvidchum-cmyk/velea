@@ -6,6 +6,7 @@ import { generateGlance, generateDeepRead, generateChapter, generateDayRead, gen
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import canonYogasJson from "../vedic/canon/yogas.json";
+import PLANET_IN_HOUSE_CANON from "../vedic/canon/planet-in-house.json";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache, countGenerationsToday } from "../db.js";
 
 // PROMPT_VERSION is part of the key so a prompt change busts the cache — otherwise a
@@ -748,10 +749,34 @@ export function buildHouseReadInput(research: any, house: number) {
   const data = research?.houses?.[house - 1];
   if (!data) return null;
   const lordCondition = data.lord?.planet ? planetCondition(research, data.lord.planet) : null;
-  const occupantConditions = (data.occupants ?? [])
+  const occupantNames: string[] = (data.occupants ?? [])
     .map((o: any) => (typeof o === "string" ? o : o?.planet))
-    .filter((p: any): p is string => typeof p === "string" && p.length > 0)
-    .map((p: string) => planetCondition(research, p));
+    .filter((p: any): p is string => typeof p === "string" && p.length > 0);
+  const occupantConditions = occupantNames.map((p) => planetCondition(research, p));
+
+  // THE CANON, WIRED IN (2026-07-20). canon/planet-in-house.json is a complete 12x7 table from
+  // Vol II Appendix III — what each graha INDICATES in each natal house — and its own note says
+  // "Feed to the narrative as concrete specifics; do NOT paraphrase into 'work'." It was imported
+  // by nothing. So the one surface whose entire job is a ROOM was inferring what its occupants
+  // mean there, with the book sitting unread in the repo (the standing law: build from canon, not
+  // inference; and the proof is in the specifics).
+  // Deliberately NOT wired: canon/bhava-significations.json. What a HOUSE means is David's own
+  // living house doctrine, already carried in the prompt — his doctrine outranks the book there,
+  // and that file is merge-never-replace territory, not a drop-in.
+  // The table covers the seven grahas only; nodes fall through silently (they are read as the axis
+  // they sit on, which is what planetCondition already says about them).
+  const indicationsFor = (h: number, planet: string): string | null =>
+    (PLANET_IN_HOUSE_CANON as any)?.houses?.[String(h)]?.[planet] ?? null;
+  const canonIndications: Array<{ planet: string; house: number; indicates: string }> = [];
+  for (const p of occupantNames) {
+    const ind = indicationsFor(house, p);
+    if (ind) canonIndications.push({ planet: p, house, indicates: ind });
+  }
+  // The keeper, read in the room he actually lives in — the "two houses shake hands" beat.
+  const lordPlacement = data.lord?.planet && data.lord?.placedHouse
+    ? indicationsFor(data.lord.placedHouse, data.lord.planet)
+    : null;
+
   return {
     house,
     lagnaSign: research?.anchors?.lagna?.sign ?? null,
@@ -759,6 +784,8 @@ export function buildHouseReadInput(research: any, house: number) {
     data,
     ...(lordCondition ? { lordCondition } : {}),
     ...(occupantConditions.length ? { occupantConditions } : {}),
+    ...(canonIndications.length ? { canonIndications } : {}),
+    ...(lordPlacement ? { lordPlacementIndicates: { planet: data.lord.planet, house: data.lord.placedHouse, indicates: lordPlacement } } : {}),
   };
 }
 

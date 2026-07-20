@@ -998,9 +998,15 @@ function buildExplanation(
  * @returns Complete day field ready for display
  */
 export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayField {
-  // Layer 1: base mode from Moon house
+  // Layer 1: base mode from Moon house.
+  // `houseActivated` (below) is the day's house, from the sign that RULES the vedic day by
+  // majority (David 2026-07-20). baseMode is different: it is the OPENING configuration of the
+  // intraday timeline, which finishDayMode then walks forward across the sign/star boundaries —
+  // so it must be the SUNRISE sign, or the day opens in a sign it does not reach until midday and
+  // then "flips" to itself. (The timeline still lands on the majority-ruling mode by itself.)
   const house = moonSignToHouse(astro.moonSignIndex, lagnaSign);
-  const baseMode = HOUSE_MODE[house];
+  const sunriseSignIdx = (astro as any).moonSignAtSunriseIndex ?? astro.moonSignIndex;
+  const baseMode = HOUSE_MODE[moonSignToHouse(sunriseSignIdx, lagnaSign)];
 
   // Layer 2: nakshatra behavioral modifier (for instruction text)
   const nakshatraModifier = getNakshatraModifier(astro.nakshatra);

@@ -23,10 +23,16 @@ export interface AstronomyData {
   sunriseJD: number;
   /** Moon sidereal longitude in degrees (0–360) at sunrise */
   moonLongitude: number;
-  /** Moon sign index 0–11 (0=Aries … 11=Pisces) */
+  /** Moon sign index 0–11 (0=Aries … 11=Pisces) — the sign that RULES the vedic day by majority,
+   *  sunrise to sunrise, on the same clock as the day's nakshatra (David 2026-07-20). */
   moonSignIndex: number;
-  /** Moon sign name */
+  /** Moon sign name (the day's ruling sign) */
   moonSign: string;
+  /** The sign at the sunrise INSTANT — usually identical; differs on the 21% of days where the
+   *  Moon crosses a sign boundary early enough that the second sign owns most of the day. */
+  moonSignAtSunriseIndex: number;
+  /** Sign name at the sunrise instant */
+  moonSignAtSunrise: string;
   /** Nakshatra index 0–26 */
   nakshatraIndex: number;
   /** Nakshatra name */
@@ -267,6 +273,17 @@ async function getDominantByMajority(
   const dominantNakshatraIdx = pickMax(nakHeld);
   const dominantTithiIdx = pickMax(durations(sunriseJD, nextSunriseJD, tithiIdxAt));
 
+  // THE MOON'S SIGN, BY MAJORITY TOO (David 2026-07-20: "2. majority").
+  // The day's STAR was ruled majority on 2026-07-09 and made exact in v774, but the day's SIGN was
+  // left on the sunrise instant — one Moon read on two different clocks. That sign is what
+  // chandrabala counts from, so it drives the crown, the day mode and the house.
+  // MEASURED over 365 real days: the Moon changes sign inside the vedic day on 43.8% of days, and
+  // on 21.1% of ALL days the sunrise sign was NOT the sign that ruled the day — worst case
+  // (2026-08-02) the sunrise sign held 1% of the day and decided all of it.
+  // Same engine, same trap-avoidance: every boundary walked, real durations summed.
+  const signIdxAt = (jd: number) => Math.floor(((swe.calc_ut(jd, SE_MOON, flags)[0] % 360) + 360) % 360 / 30);
+  const dominantMoonSignIdx = pickMax(durations(sunriseJD, nextSunriseJD, signIdxAt));
+
   // The pada of the RULING star, taken from the middle of the window that star actually holds.
   //
   // WHAT THE CANON SAYS (checked 2026-07-19, so this is not an invented convention): the canon set
@@ -306,13 +323,15 @@ async function getDominantByMajority(
   const sunriseMoonResult = swe.calc_ut(sunriseJD, SE_MOON, flags);
   const sunriseMoon = moonDataFromLongitude(sunriseMoonResult[0]);
 
-  // Use dominant nakshatra but sunrise moon sign (sign changes are less frequent)
+  // The dominant nakshatra AND the dominant sign — the same Moon, on one clock (David 2026-07-20).
   const dominantMoon: MoonData = {
     ...sunriseMoon,
     nakshatraIndex: dominantNakshatraIdx,
     nakshatra: NAKSHATRAS[dominantNakshatraIdx],
     // Pada from WITHIN the dominant nakshatra (audit M14), not lastMoon's end-of-day pada.
     nakshatraPada: padaByNak[dominantNakshatraIdx] ?? sunriseMoon.nakshatraPada,
+    signIndex: dominantMoonSignIdx,
+    sign: SIGNS[dominantMoonSignIdx],
   };
 
   const dominantTithi: TithiData = {
@@ -434,8 +453,14 @@ export async function calcPanchang(
     nextSunriseJD
   );
 
-  // Moon sign is determined at sunrise (more stable than nakshatra)
-  const moonSignIndex = Math.floor(moonLonAtSunrise / 30);
+  // THE DAY'S MOON SIGN = the sign that RULES the day, sunrise to sunrise (David 2026-07-20:
+  // "2. majority"). It was the sunrise instant, justified as "more stable than nakshatra" — the
+  // same reasoning the 2026-07-09 majority ruling overturned for the star. Since chandrabala counts
+  // from this sign, the sunrise instant was setting the crown, the day mode and the house from a
+  // sign that on 21.1% of days ruled a MINORITY of the day (as little as 1% of it).
+  // The sunrise sign is kept below as `moonSignAtSunriseIndex` for anything that wants the instant.
+  const moonSignIndex = dominantMoon.signIndex;
+  const moonSignAtSunriseIndex = Math.floor(moonLonAtSunrise / 30);
 
   // Nakshatra at sunrise (before any mid-day transition)
   const moonAtSunriseData = moonDataFromLongitude(moonLonAtSunrise);
@@ -463,7 +488,10 @@ export async function calcPanchang(
   // so this is the day's biggest possible turn (David's literal-switch school, extended).
   let signTransitionTime: string | null = null;
   let moonSignAfterTransition: string | null = null;
-  const signTransJD = await findSignTransition(sunriseJD, nextSunriseJD, moonSignIndex);
+  // NOTE: this asks "when does the Moon LEAVE the sign it was in at sunrise", so it must use the
+  // SUNRISE sign, not the day's ruling sign — with the majority sign (which is often the second
+  // sign of the day) it would hunt for a crossing that never happens and report no transition.
+  const signTransJD = await findSignTransition(sunriseJD, nextSunriseJD, moonSignAtSunriseIndex);
   if (signTransJD !== null) {
     signTransitionTime = jdToLocalTime(signTransJD, utcOffset);
     const afterResult = swe.calc_ut(signTransJD + 1 / 1440, SE_MOON, flags);
@@ -480,6 +508,10 @@ export async function calcPanchang(
     moonSignAfterTransition,
     moonSignIndex,
     moonSign: SIGNS[moonSignIndex],
+    /** The sign at the sunrise INSTANT — kept for anything that genuinely wants the moment
+     *  (and for the transition math above). The day's sign is the majority one. */
+    moonSignAtSunriseIndex,
+    moonSignAtSunrise: SIGNS[moonSignAtSunriseIndex],
     nakshatraIndex: dominantMoon.nakshatraIndex,
     nakshatra: dominantMoon.nakshatra,
     nakshatraPada: dominantMoon.nakshatraPada,

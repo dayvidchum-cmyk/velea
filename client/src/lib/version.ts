@@ -704,4 +704,24 @@
 // Input assembly extracted to buildHouseReadInput() so it is provable without a database:
 // 5 controls, incl. an exalted vs fallen keeper yielding demonstrably different data.
 // House reads re-hash and regenerate once on next open (a handful of rooms, not a mass regen).
-export const APP_VERSION = "1.1.779";
+// v1.1.780 = 2026-07-20 — ONE MOON, ONE CLOCK (David: "2. majority").
+// The day's STAR has been the star that rules the majority of the vedic day since the 2026-07-09
+// ruling (made exact in v774). The day's SIGN was never revisited — it was still read at the
+// sunrise INSTANT, justified in a comment as "more stable than nakshatra", which is the very
+// reasoning the majority ruling overturned. That sign is what chandrabala counts from, so it was
+// setting the crown, the day mode and the house.
+// MEASURED, 365 real days: the Moon changes sign inside the vedic day on 43.8% of days, and on
+// 21.1% of ALL days the sunrise sign was NOT the sign that ruled the day. Worst case 2026-08-02:
+// the sunrise sign held 1% of the day and decided all of it.
+// The day's sign now comes from the same boundary-walking majority engine as the star, with the
+// same trap avoided (every crossing walked, real durations summed — not one assumed crossing).
+// VERIFIED like v774 was: 120/120 days match INDEPENDENT 10-minute dense sampling, on a probe
+// proven able to fail (27 of those 120 days, 22.5%, actually moved).
+// THE SUBTLE HALF: baseMode is NOT the day's sign. It is the OPENING configuration of the intraday
+// timeline, which finishDayMode walks forward across the sign/star boundaries — and the timeline
+// already lands on the majority-ruling mode by itself. Deriving it from the ruling sign would open
+// the day in a sign it only reaches at midday and then "flip" to itself: the "Build moves to
+// Selective at 10:59 PM — so why is Selective showing?" bug. So the day's HOUSE now comes from the
+// ruling sign while the timeline still opens on the SUNRISE sign, and calcPanchang exposes both.
+// No migration: the cached-row path already prefers the freshly computed values (v771).
+export const APP_VERSION = "1.1.780";
