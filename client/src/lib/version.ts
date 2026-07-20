@@ -1189,4 +1189,24 @@
 // that the doctrine's teeth are all still present (a move, not a delete), and that the gloss no
 // longer leaves an unterminated quote.
 // 59 files, 592 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.804";
+// v1.1.805 = 2026-07-20 — THE GLANCE IS ACTUALLY RETIRED NOW.
+// v776 "closed by retirement" was my claim and it was false — the re-audit found two live paths
+// still standing. (1) An ADMIN BUTTON called generateGlance DIRECTLY: no guard, no corrective
+// retry, no scrub, no daily-cap accounting, and it exercised the RETIRED surface, so a green result
+// said nothing about the reading the user actually opens. It now runs the LIVE day read through the
+// normal cached path, so the probe answers the question it claims to answer and a repeat press
+// costs nothing. (2) narrative.glance was still an exposed tRPC procedure — a billed endpoint any
+// authenticated client could call to generate prose no human would ever see, and the last path in
+// the app that could still WRITE glance rows.
+// Procedure, getGlanceCached, generateGlance, GLANCE_SCHEMA and GlanceContent: gone. Four dev
+// scripts repointed to the day read and two deleted outright.
+// DELIBERATELY KEPT: "glance" in DAILY_SURFACES and PINNED_SURFACES, so legacy rows already in the
+// table still appear in Kept Readings and still honour their pins. Retiring a surface must never
+// delete what someone already saved.
+// PROCESS NOTE, because it nearly shipped: my first removal cut by "start marker → next export",
+// which silently swallowed DEEP_READ_SCHEMA and SECTION — code the deep read depends on. tsc went
+// 7 → 16 and caught it. I reverted the file and re-cut by three explicit named boundaries instead
+// of by offset. Net type errors introduced: zero. The lesson is the same one this audit keeps
+// teaching — an offset is not a boundary.
+// 59 files, 592 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.805";

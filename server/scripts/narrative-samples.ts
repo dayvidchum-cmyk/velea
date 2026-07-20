@@ -5,7 +5,7 @@
 import "dotenv/config";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
 import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
-import { generateGlance, generateDeepRead, hasAnthropicKey } from "../narrative/generate.js";
+import { generateDayRead, generateDeepRead, hasAnthropicKey } from "../narrative/generate.js";
 
 async function main() {
   if (!hasAnthropicKey()) { console.error("No ANTHROPIC_API_KEY in env."); process.exit(1); }
@@ -19,13 +19,16 @@ async function main() {
     console.log(`Profile ${input.subject.profileId} | ${d} | mode: ${input.panchang.mode} | profection H${input.profection.activatedHouse}/${input.profection.activatedSign} TL ${input.profection.timeLord} | dasha ${input.dasha?.mahaDasha.lord}-${input.dasha?.antarDasha.lord}`);
     console.log("=".repeat(72));
 
-    const glance = await generateGlance(input);
-    if (glance) {
-      console.log("\nGLANCE:");
-      console.log("  Narrative: " + glance.narrative);
-      console.log("  Question:  " + glance.question);
+    const day = await generateDayRead(input); // the glance is retired (v805) — sample the live surface
+    if (day) {
+      console.log("\nDAY READ:");
+      console.log("  Scene: " + day.scene);
+      console.log("  Story: " + day.story);
+      console.log("  Tilt:  " + day.tilt);
+      console.log("  Close: " + day.closeLine);
+      console.log("  Question: " + day.question);
     } else {
-      console.log("\nGLANCE:\n  (null)");
+      console.log("\nDAY READ:\n  (null)");
     }
 
     const deep = await generateDeepRead(input);

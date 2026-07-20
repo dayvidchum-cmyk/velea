@@ -420,11 +420,24 @@ export const appRouter = router({
           const { buildNarrativeInput } = await import("./narrative/input-builder.js");
           const built = await buildNarrativeInput(owner.id, today, { dayLoc: await resolveDaySky({ user: targetUser, profile: owner, profileId: owner.id, dateStr: today }) });
           try {
-            const { generateGlance } = await import("./narrative/generate.js");
-            const glance = await generateGlance(built as any);
-            return { ok: !!glance, stage: glance ? "generated OK" : "input built fine, but generateGlance returned null (model refused/incomplete for this input)", error: null };
+            // THIS PROBE USED TO CALL generateGlance DIRECTLY (v805). Three problems, all from that
+            // one line: it billed a full generation with NO guard, NO corrective retry, NO scrub and
+            // NO daily-cap accounting; it exercised the RETIRED surface, so a green result said
+            // nothing about the reading the user actually opens; and it regenerated on every press
+            // even when today's read was already cached. It now runs the LIVE day read through the
+            // normal cached path, so the probe answers the question it claims to answer and a
+            // repeat press of an admin button costs nothing.
+            const { getDayReadCached } = await import("./narrative/service.js");
+            const res = await getDayReadCached(owner.id, today, false, await resolveDaySky({ user: targetUser, profile: owner, profileId: owner.id, dateStr: today }));
+            return {
+              ok: !!res.available,
+              stage: res.available
+                ? (res.cached ? "OK — served from cache (no new generation)" : "generated OK")
+                : "input built fine, but the day read came back unavailable (model refused/incomplete, or the daily cap is reached)",
+              error: null,
+            };
           } catch (genErr: any) {
-            return { ok: false, stage: "generateGlance threw", error: genErr?.message ?? String(genErr) };
+            return { ok: false, stage: "the day read threw", error: genErr?.message ?? String(genErr) };
           }
         } catch (inErr: any) {
           return { ok: false, stage: "buildNarrativeInput threw", error: inErr?.message ?? String(inErr) };

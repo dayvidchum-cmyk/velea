@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
-import { getGlanceCached, getDeepReadCached, getChapterCached, getDayReadCached, getCastCached, markProfileUncapped } from "./service.js";
+import { getDeepReadCached, getChapterCached, getDayReadCached, getCastCached, markProfileUncapped } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
 import { readingProse } from "./daily-surface.js";
 import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
@@ -91,33 +91,14 @@ async function canYearSight(user: { role?: string | null; email?: string | null 
 
 export const narrativeRouter = router({
   // One-sentence daily signal for the Today page. Falls back to null on any error.
-  glance: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {
-    await assertOwnsProfile(ctx.user.id, input.profileId);
-    const date = await guardedDate(ctx, input.profileId, input.date);
-    if (!date) return { available: false as const, locked: true as const, content: null, generatedAt: null, cached: false };
-    try {
-      // Day-mode from the viewer's location basis (same as the hero) — so the read and the hero
-      // never name different modes on the same day.
-      const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
-      // METER THE FORCED REGENERATION (audit M2): the "update to the moment" refresh (nowMs) and
-      // the refresh flag both force a fresh, un-persisted LLM call. The feature is admin-gated on
-      // the client but the server enforced nothing — any user could spam it, an unmetered drain on
-      // the capped wallet. Gate both behind the momentRefresh entitlement (admins today).
-      const { hasFeature } = await import("../feature-flags.js");
-      const canForce = ctx.user.role === "admin" || (await hasFeature(ctx.user, "momentRefresh"));
-      // Moment read: attach the user's CURRENT location so the hora is "this hour where
-      // you are" (default Boston, matching Master Mode's hora), not the birth place.
-      let moment: { nowMs: number; lat?: number; lon?: number } | undefined;
-      if (input.nowMs != null && canForce) {
-        // Hora is "this hour where you are" — the resolved day-sky, same basis as the day-mode.
-        moment = { nowMs: input.nowMs, lat: dayLoc.lat, lon: dayLoc.lon };
-      }
-      return await getGlanceCached(input.profileId, date, canForce && (input.refresh ?? false), moment, dayLoc);
-    } catch (e) {
-      console.error("[narrative.glance]", e);
-      return { available: false, content: null, generatedAt: null, cached: false } as const;
-    }
-  }),
+  // THE GLANCE IS RETIRED (v805). It was the original Today surface; the hero has read `dayRead`
+  // since the switch, and a repo-wide grep found ZERO client callers of narrative.glance. What it
+  // still was, until this commit, is a LIVE BILLED ENDPOINT any authenticated client could call to
+  // generate prose no human would ever see — and the one generation path in the app that could
+  // still write `glance` rows. The procedure, getGlanceCached and generateGlance are all gone.
+  // What deliberately STAYS: `glance` in DAILY_SURFACES and PINNED_SURFACES, so the legacy rows
+  // already in the table keep appearing in Kept Readings and keep honouring their pins. Retiring a
+  // surface must not delete what people already saved.
 
   // Structured six-section + synthesis read for the Profection page.
   deepRead: protectedProcedure.input(inputSchema).query(async ({ ctx, input }) => {

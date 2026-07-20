@@ -2,7 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
-import { generateGlance, generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateMercuryRxRead, generateMonthRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast, type GlanceContent } from "./generate.js";
+import { generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateMercuryRxRead, generateMonthRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast } from "./generate.js";
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import canonYogasJson from "../vedic/canon/yogas.json";
@@ -47,7 +47,6 @@ export function dayStableHash(input: any, surface?: string): string {
   return hashInput({ ...rest, panchang: stablePanchang }, surface);
 }
 
-export type GlanceResult = { available: boolean; content: GlanceContent | null; generatedAt: Date | null; cached: boolean };
 export type DeepReadResult = { available: boolean; read: DeepRead | null; generatedAt: Date | null; cached: boolean };
 export type ChapterResult = { available: boolean; chapter: Chapter | null; generatedAt: Date | null; cached: boolean };
 
@@ -174,43 +173,7 @@ function planetCondition(research: any, L: string) {
   };
 }
 
-export async function getGlanceCached(profileId: number, date: string, refresh = false, moment: { nowMs: number; lat?: number; lon?: number } | undefined, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<GlanceResult> {
-  if (!hasAnthropicKey()) return { available: false, content: null, generatedAt: null, cached: false };
-  // A moment read (moment.nowMs) is hora-flavored and EPHEMERAL: never read from nor
-  // written to the daily cache, so the stable per-day read stays clean and returns on reload.
-  const isMoment = moment != null;
-  // dayLoc = the viewer's location basis for the day-mode, so the read matches the hero.
-  const input = await buildNarrativeInput(profileId, date, isMoment ? { ...moment, dayLoc } : { dayLoc });
-  const hash = dayStableHash(input, "glance");
-
-  // audit LOW: honor the pin even on refresh — a LOCKED read NEVER regenerates (the pin invariant);
-  // only an unlocked read respects `refresh` + the hash match. (Moment reads are ephemeral, skip.)
-  if (!isMoment) {
-    const row = await getNarrativeCache(profileId, "glance", date);
-    if (row && (row.locked || (!refresh && row.inputHash === hash))) {
-      try {
-        return { available: true, content: JSON.parse(row.content) as GlanceContent, generatedAt: row.generatedAt, cached: true };
-      } catch {
-        /* old plain-text or corrupt cache — fall through to regenerate */
-      }
-    }
-  }
-  const content = await guardedGen(profileId, `glance:${profileId}:${date}:${hash}`, async () => {
-    const c = await generateGlance(input);
-    // Persist inside the single-flight so the one generation writes the cache once; coalesced
-    // callers then share it (and every later request hits the cache, fast).
-    if (c && !isMoment) await upsertNarrativeCache(profileId, "glance", date, hash, MODEL, JSON.stringify(c));
-    return c;
-  });
-  // No content (dry wallet / API error / parse fail) → signal unavailable so the client shows
-  // static copy, exactly like the no-API-key path above. Never a blank day.
-  if (!content) return { available: false, content: null, generatedAt: null, cached: false };
-  return { available: true, content, generatedAt: new Date(), cached: false };
-}
-
-// deepened=false → the STAGE read: slow-only input (yearly chapter), stable across days.
-// deepened=true → the "stage + guests" read: full input incl. the fast/current-sky tier.
-// Cached under separate surfaces ("deep" vs "deep_full") so they never overwrite each other.
+// getGlanceCached removed in v805 — see narrative/router.ts for why the surface is retired.
 export async function getDeepReadCached(profileId: number, date: string, refresh = false, deepened = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<DeepReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = deepened ? "deep_full" : "deep";

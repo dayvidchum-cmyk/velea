@@ -3,7 +3,7 @@ import { getDb } from "../db.js";
 import { profiles } from "../../drizzle/schema.js";
 import { buildNarrativeInput } from "../narrative/input-builder.js";
 import { resolveDaySkyForProfileId } from "../panchang/resolve-day-sky.js";
-import { generateGlance, generateDeepRead, generateChapter } from "../narrative/generate.js";
+import { generateDayRead, generateDeepRead, generateChapter } from "../narrative/generate.js";
 
 const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
 
@@ -26,14 +26,15 @@ const date = process.argv[2] ?? new Date().toISOString().split("T")[0];
     if (tlt) console.log(`Chapter: ${tlt.planet} transiting H${tlt.currentHouse} (${tlt.currentSign})`);
     console.log("━".repeat(80));
 
-    const [g, d, ch] = await Promise.all([generateGlance(input), generateDeepRead(input), generateChapter(input)]);
+    const [g, d, ch] = await Promise.all([generateDayRead(input), generateDeepRead(input), generateChapter(input)]); // glance retired v805
 
-    console.log(`\n  THE SIGNAL`);
-    console.log("  " + (g?.narrative ?? "(none)"));
+    console.log(`\n  THE DAY READ`);
+    console.log("  scene: " + (g?.scene ?? "(none)"));
+    console.log("  story: " + (g?.story ?? "(none)"));
+    console.log("  tilt:  " + (g?.tilt ?? "(none)"));
+    console.log("  close: " + (g?.closeLine ?? "(none)"));
     console.log(`\n  QUESTION`);
     console.log("  " + (g?.question ?? "(none)"));
-    console.log(`\n  GOOD FOR: ` + (g?.goodFor ?? []).map((x) => "· " + x).join("   "));
-    console.log(`  AVOID:    ` + (g?.avoid ?? []).map((x) => "· " + x).join("   "));
 
     if (d) {
       console.log(`\n  THE READ`);

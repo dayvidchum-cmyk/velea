@@ -72,48 +72,7 @@ export async function probeLLM(): Promise<{ hasKey: boolean; ok: boolean; model:
   }
 }
 
-export type GlanceContent = { narrative: string; question: string; goodFor: string[]; avoid: string[]; ledger?: string[] };
 
-const GLANCE_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["narrative", "question", "goodFor", "avoid"],
-  properties: {
-    narrative: { type: "string" },
-    question: { type: "string" },
-    goodFor: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
-    avoid: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 6 },
-  },
-} as const;
-
-export async function generateGlance(input: NarrativeInput): Promise<GlanceContent | null> {
-  const c = client();
-  if (!c) return null;
-  try {
-    const msg = await c.messages.create({
-      model: MODEL,
-      max_tokens: 700,
-      // Prompt caching: BASE_PROMPT (the big stable system) + tools are cached as the prefix;
-      // the small per-call tail stays uncached. A 5-min ephemeral cache — same-type calls inside
-      // the window read at ~0.1x input cost instead of paying full price each time.
-      system: [
-        { type: "text" as const, text: BASE_PROMPT, cache_control: { type: "ephemeral" as const } },
-        { type: "text" as const, text: GLANCE_TAIL },
-      ],
-      tools: [{ name: "glance", description: "Return the colored day-mode narrative and the personalized question.", input_schema: GLANCE_SCHEMA as any }],
-      tool_choice: { type: "tool", name: "glance" },
-      messages: [{ role: "user", content: JSON.stringify(input) }],
-    });
-    const block = msg.content.find((b) => b.type === "tool_use");
-    if (!block || block.type !== "tool_use") { logGenError("generateGlance", `reply had no tool block (stop_reason=${msg.stop_reason})`); return null; }
-    return block.input as GlanceContent;
-  } catch (err) {
-    // Dry wallet (400 "credit balance too low"), rate limit, timeout, network — ANY API failure
-    // returns null so callers fall back to static copy instead of a blank day.
-    logGenError("generateGlance", err);
-    return null;
-  }
-}
 
 const SECTION = { type: "object", additionalProperties: false, required: ["synthesis", "why"], properties: { synthesis: { type: "string" }, why: { type: "string" } } } as const;
 
@@ -737,7 +696,6 @@ function isCompleteCast(r: any): r is Cast {
 }
 export { isCompleteCast };
 
-
 // ── THE HOUSE READER (David 2026-07-16) — one stored-research house, voiced. ──────────
 const HOUSE_READ_SCHEMA = {
   type: "object",
@@ -770,7 +728,6 @@ export async function generateHouseRead(input: any): Promise<HouseRead | null> {
   }
 }
 
-
 // ── THE CHAPTER READER (David 2026-07-16) — one mahadasha, voiced from the dossier. ──
 export type DashaRead = { read: string; question: string };
 export function isCompleteDashaRead(r: any): r is DashaRead {
@@ -791,7 +748,6 @@ export async function generateDashaRead(input: any): Promise<DashaRead | null> {
     return null;
   }
 }
-
 
 // ── THE THEME READER (the Life Atlas voice — David 2026-07-16) ────────────────────────
 export type AtlasRead = { read: string; question: string };
