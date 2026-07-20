@@ -1949,4 +1949,23 @@
 // still finished with "all probes caught". A verification tool that can report a false green is
 // worse than none. run() now hard-fails on a malformed probe, and I proved that check fires.
 // 17 probes, all caught, on a clean tree. 83 files, 886 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.843";
+// v1.1.844 = 2026-07-20 — I WENT LOOKING FOR THE KARAKAS DRIFT IN THE DIGNITY PATH. IT IS NOT THERE.
+// Five canon files have production readers and NO test: planetary-friendships, house-lord-
+// combinations, muhurta-tables, timing, bhava-significations. Friendships is the highest-stakes —
+// naisargika maitri decides the friend/neutral/enemy tier, which is most of what "condition" means
+// in every reading the model receives.
+// server/panchang/dignity.ts, whose dignityLabel() feeds the readings, does NOT import that canon
+// file. It hand-rolls FRIEND and ENEMY — the exact shape of the karakas drift fixed at v790/v799.
+// I compared all seven planets across all three buckets, INCLUDING the neutrals the module leaves
+// implicit (the half nobody writes down, so the half where a drift would hide):
+//   ZERO MISMATCHES. The hand-rolled table is correct. The canon file also matches BPHS ch.3 exactly.
+// I am recording a null result as the finding, because after v839 — where I reported a second cited
+// source as "drift" having already named a class and gone hunting for more of it — an audit that
+// finds nothing has to be able to say so instead of reaching for something to report.
+// WHAT IS REAL: the duplicate is UNGUARDED. Two copies of one table and nothing noticing a divergence.
+// Now pinned, neutrals included. Same for the exaltation degrees: dignity.ts stores exaltation as an
+// absolute longitude, karakas.json as a sign name — cross-checked, plus fall = exaltation + 180.
+// The harness earned its v843 fix twice this run: a stale probe anchor was reported as ANCHOR-FAIL
+// and exited 1 instead of printing green. That is the whole point of the arity/anchor guards.
+// 20 probes, all caught. 84 files, 893 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.844";

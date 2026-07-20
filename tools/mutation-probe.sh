@@ -82,6 +82,13 @@ run server/narrative/day-read-signals.ts 'const comb = combustion(planet, lon, d
 run server/vedic/knots.ts 'import houseLordCombos from "./canon/house-lord-combinations.json";' 'import type { ExpectedMeaning } from "./meaning-engine.js";\nimport houseLordCombos from "./canon/house-lord-combinations.json";' \
   server/vedic/quarantine.test.ts "quarantine tripwire: a production file wires meaning-engine"
 
+run server/panchang/dignity.ts 'Mercury:["Sun","Venus"]' 'Mercury:["Sun"]' \
+  server/vedic/friendships-canon.test.ts "dignity.ts private friendship copy drifts from canon"
+run server/panchang/dignity.ts 'Sun: 10, Moon: 33' 'Sun: 10, Moon: 63' \
+  server/vedic/friendships-canon.test.ts "an exaltation degree lands in the wrong sign"
+run server/vedic/canon/planetary-friendships.json '"enemies": ["Venus", "Saturn"] }' '"enemies": ["Venus"] }' \
+  server/vedic/friendships-canon.test.ts "the friendship canon itself drifts from BPHS"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
