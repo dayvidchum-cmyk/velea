@@ -119,6 +119,13 @@ run server/routers.ts 'month: protectedProcedure.mutation(async ({ ctx }) => {\n
 run server/narrative/router.ts 'if (!(await canYearSight(ctx.user)))' 'if (false)' \
   server/billing-gate.test.ts "the year read stops enforcing year-sight server-side"
 
+run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
+  server/isolation.test.ts "assertOwnsProfile stops failing closed"
+run server/routers.ts 'eqW(profilesTable.userId, ctx.user.id)' 'eqW(profilesTable.userId, ctx.user.id ?? 0)' \
+  server/isolation.test.ts "the combined read loses its owner scoping"
+run server/narrative/router.ts 'await assertOwnsProfile(ctx.user.id, input.profileId);\n    // Year-sight is premium' '// Year-sight is premium' \
+  server/isolation.test.ts "a profileId endpoint drops assertOwnsProfile"
+
 run server/db.ts 'const SESSION_SLIDE_AFTER_MS =' 'const SESSION_SLIDE_AFTER_MS_UNUSED =' \
   server/session-slide.test.ts "session sliding renewal"
 

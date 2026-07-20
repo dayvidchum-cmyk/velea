@@ -2038,4 +2038,23 @@
 // generate, but they return PAID PROSE, and gating the generator while leaving the reader open
 // hands the same content away for free.
 // 29 probes, all caught. 87 files, 924 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.847";
+// v1.1.848 = 2026-07-20 — DAVID SAID THE SHEET WAS CONFUSING TO READ. IT WAS. REWRITTEN.
+// 142 rows of dense forensic prose, accreted over a long run, with the decisions he actually needs
+// buried inside paragraphs about my own mistakes. Rebuilt as: four numbers at the top, 14 decisions
+// in plain English grouped by astrology / look / business / cleanup, 21 named broken things, the
+// fixes collapsed, and an honest tail. 117k chars → 17k. NOTHING DELETED — the long form is archived
+// at tools/audit-sheet/archive-longform-v848.html and the page says so.
+// The arithmetic is stated on the page and checked: 81 fixed + 21 broken + 14 for him + 26 remaining
+// = 142, the same 142 the sheet always held. My first draft double-counted — it promoted six parked
+// items into the decision list and still showed "parked: 16".
+// ALSO CAUGHT, and this one matters: an INTERRUPTED PROBE RUN had left a live mutation in the working
+// tree — `if (uncappedProfiles.has(profileId)) return false;` rewritten to `if (false)`, which
+// disables the admin exemption on the daily spend cap. It would have shipped if I had committed
+// without looking. The harness restores after each probe and refuses a dirty tree; it cannot restore
+// if it is killed mid-probe. Restored and verified.
+// AND A REAL HOLE IN MY OWN ISOLATION TEST, found by a probe: the admin check matched any mention of
+// `role === "admin"`, so deepRead — which uses that for an admin-only refresh flag — counted as
+// "admin-gated" and was excused from the ownership requirement. A probe deleted assertOwnsProfile
+// from it and the test stayed green. Admin-only now means REFUSES non-admins, not mentions the word.
+// 32 probes, all caught. 88 files, 932 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.848";

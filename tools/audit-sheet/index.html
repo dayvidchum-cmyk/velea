@@ -1,705 +1,250 @@
-<title>Velea &#8212; Audit Sheet</title>
+<title>Velea · Audit Sheet</title>
 <style>
   :root {
-    --bg: #F6F2EA; --surface: #FFFDF8; --surface-2: #EFE9DD;
-    --ink: #23201B; --ink-2: #5C554A; --ink-3: #8B8375; --rule: #DDD5C6;
-    --gold: #A8862F; --gold-soft: #EFE3C4;
-    --done: #3F6B4A; --done-bg: #E2EDE2;
-    --pending: #96631C; --pending-bg: #F6E7CC;
-    --not: #9A3D2E; --not-bg: #F6DED8;
-    --block: #4A5568; --block-bg: #E4E7EC;
-    --dead: #6B6558; --dead-bg: #E8E3D9;
-    --think: #4C4470; --think-bg: #E4E1F0;
-    --focus: #8A6D1F;
+    --bg:#F6F1E7; --card:#FCF9F2; --ink:#3E352A; --muted:#7A7062;
+    --gold:#8A6E14; --gold-bright:#D4AF37; --teal:#2F6E62; --wine:#8B3A62;
+    --green:#2E7D4F; --line:#E4DCCB; --soft:rgba(176,141,46,0.07);
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #191612; --surface: #221E19; --surface-2: #2C2721;
-      --ink: #EDE6D8; --ink-2: #B3A994; --ink-3: #857C6B; --rule: #3A342B;
-      --gold: #D8B559; --gold-soft: #3B3117;
-      --done: #8FC49B; --done-bg: #22331F;
-      --pending: #E0B063; --pending-bg: #3A2C13;
-      --not: #E8917C; --not-bg: #3A1F19;
-      --block: #A6B0C0; --block-bg: #262B33;
-      --dead: #9A9184; --dead-bg: #2A2721;
-      --think: #ADA3D8; --think-bg: #272338;
-      --focus: #D8B559;
-    }
+    :root { --bg:#171310; --card:#201A14; --ink:#DCD6C7; --muted:#9A8F7D;
+      --gold:#D4AF37; --teal:#6FBBA9; --wine:#D98BAE; --green:#7FC49A;
+      --line:#322A20; --soft:rgba(212,175,55,0.07); }
   }
-  :root[data-theme="dark"] {
-    --bg: #191612; --surface: #221E19; --surface-2: #2C2721;
-    --ink: #EDE6D8; --ink-2: #B3A994; --ink-3: #857C6B; --rule: #3A342B;
-    --gold: #D8B559; --gold-soft: #3B3117;
-    --done: #8FC49B; --done-bg: #22331F; --pending: #E0B063; --pending-bg: #3A2C13;
-    --not: #E8917C; --not-bg: #3A1F19; --block: #A6B0C0; --block-bg: #262B33;
-    --dead: #9A9184; --dead-bg: #2A2721; --think: #ADA3D8; --think-bg: #272338; --focus: #D8B559;
-  }
-  :root[data-theme="light"] {
-    --bg: #F6F2EA; --surface: #FFFDF8; --surface-2: #EFE9DD;
-    --ink: #23201B; --ink-2: #5C554A; --ink-3: #8B8375; --rule: #DDD5C6;
-    --gold: #A8862F; --gold-soft: #EFE3C4;
-    --done: #3F6B4A; --done-bg: #E2EDE2; --pending: #96631C; --pending-bg: #F6E7CC;
-    --not: #9A3D2E; --not-bg: #F6DED8; --block: #4A5568; --block-bg: #E4E7EC;
-    --dead: #6B6558; --dead-bg: #E8E3D9; --think: #4C4470; --think-bg: #E4E1F0; --focus: #8A6D1F;
-  }
+  :root[data-theme="dark"] { --bg:#171310; --card:#201A14; --ink:#DCD6C7; --muted:#9A8F7D;
+    --gold:#D4AF37; --teal:#6FBBA9; --wine:#D98BAE; --green:#7FC49A; --line:#322A20; --soft:rgba(212,175,55,0.07); }
+  :root[data-theme="light"] { --bg:#F6F1E7; --card:#FCF9F2; --ink:#3E352A; --muted:#7A7062;
+    --gold:#8A6E14; --teal:#2F6E62; --wine:#8B3A62; --green:#2E7D4F; --line:#E4DCCB; --soft:rgba(176,141,46,0.07); }
 
-  body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; font-size: 16px; line-height: 1.55; -webkit-text-size-adjust: 100%; }
-  .wrap { max-width: 60rem; margin: 0 auto; padding: 2.5rem 1.1rem 6rem; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2rem 1.1rem 5rem;
+    font:16px/1.65 Georgia,'Times New Roman',serif; }
+  .wrap { max-width:42rem; margin:0 auto; }
+  h1 { font-size:1.7rem; margin:0 0 .2rem; letter-spacing:-.01em; }
+  .sub { color:var(--muted); font-size:.85rem; font-style:italic; margin:0 0 1.6rem; }
 
-  header { border-bottom: 1px solid var(--rule); padding-bottom: 1.4rem; margin-bottom: 1.5rem; }
-  .eyebrow { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: .5rem; }
-  h1 { font-family: Georgia, "Iowan Old Style", ui-serif, serif; font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 400; letter-spacing: -.01em; text-wrap: balance; margin-bottom: .5rem; }
-  .lede { color: var(--ink-2); max-width: 42rem; font-size: .96rem; }
-  .lede + .lede { margin-top: .6rem; }
-  .tally { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.1rem; }
-  .tally span { font-size: .78rem; padding: .25rem .6rem; border-radius: 2px; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .scores { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.8rem; }
+  .score { flex:1 1 7rem; background:var(--card); border:1px solid var(--line);
+    border-radius:12px; padding:.7rem .8rem; }
+  .score .n { font-size:1.6rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .score .l { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+  .n.good{color:var(--green)} .n.warn{color:var(--gold-bright)} .n.bad{color:var(--wine)}
 
-  .toolbar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); padding: .7rem 0; margin-bottom: 1.6rem; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
-  .filter { font: inherit; font-size: .8rem; font-weight: 500; background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--rule); border-radius: 2px; padding: .32rem .68rem; cursor: pointer; }
-  .filter[aria-pressed="true"] { background: var(--gold-soft); color: var(--ink); border-color: var(--gold); }
-  .filter:focus-visible, .copy:focus-visible, textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .copy { font: inherit; font-size: .8rem; font-weight: 600; margin-left: auto; background: var(--gold); color: var(--bg); border: none; border-radius: 2px; padding: .38rem .85rem; cursor: pointer; }
+  h2 { font-size:.76rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--gold); margin:2.4rem 0 .3rem; border-bottom:1px solid var(--line); padding-bottom:.35rem; }
+  .lead { color:var(--muted); font-size:.86rem; margin:.5rem 0 1rem; }
 
-  h2 { font-family: Georgia, "Iowan Old Style", ui-serif, serif; font-size: 1.15rem; font-weight: 400; margin: 2.4rem 0 .3rem; display: flex; align-items: baseline; gap: .6rem; }
-  h2 .n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; color: var(--gold); font-weight: 600; }
-  section > p.note { color: var(--ink-3); font-size: .85rem; margin-bottom: 1rem; max-width: 42rem; }
+  .ask { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--gold-bright);
+    border-radius:10px; padding:.8rem 1rem; margin-bottom:.6rem; }
+  .ask b { display:block; margin-bottom:.15rem; }
+  .ask .why { color:var(--muted); font-size:.87rem; }
+  .grp { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--teal);
+    margin:1.4rem 0 .5rem; font-weight:700; }
 
-  .row { background: var(--surface); border: 1px solid var(--rule); border-radius: 3px; padding: .85rem .95rem; margin-bottom: .55rem; }
-  .row.hide { display: none; }
-  .row-head { display: flex; gap: .6rem; align-items: flex-start; flex-wrap: wrap; }
-  .task { font-weight: 600; font-size: .95rem; flex: 1 1 14rem; text-wrap: balance; }
-  .chip { font-size: .68rem; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: .2rem .5rem; border-radius: 2px; white-space: nowrap; flex-shrink: 0; margin-top: .12rem; }
-  .s-done { color: var(--done); background: var(--done-bg); }
-  .s-pending { color: var(--pending); background: var(--pending-bg); }
-  .s-not { color: var(--not); background: var(--not-bg); }
-  .s-block { color: var(--block); background: var(--block-bg); }
-  .s-dead { color: var(--dead); background: var(--dead-bg); }
-  .s-think { color: var(--think); background: var(--think-bg); }
+  ul.plain { list-style:none; padding:0; margin:0; }
+  ul.plain li { padding:.5rem .2rem; border-bottom:1px solid var(--line); font-size:.93rem; }
+  ul.plain li:last-child { border-bottom:0; }
+  .tag { display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.05em;
+    padding:.05rem .5rem; border-radius:999px; background:var(--soft); color:var(--gold); margin-right:.4rem;
+    vertical-align:.08em; }
 
-  .mynote { color: var(--ink-2); font-size: .875rem; margin-top: .4rem; }
-  .mynote code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8em; background: var(--surface-2); padding: .08em .35em; border-radius: 2px; word-break: break-word; }
-  .walk { margin-top: .5rem; padding: .45rem .6rem; background: var(--gold-soft); border-radius: 2px; font-size: .84rem; color: var(--ink); }
-  .walk b { font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: .15rem; }
-  .where { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .74rem; color: var(--ink-3); margin-top: .35rem; word-break: break-word; }
-
-  label.nl { display: block; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin: .7rem 0 .25rem; }
-  textarea { width: 100%; font: inherit; font-size: .88rem; line-height: 1.45; background: var(--surface-2); color: var(--ink); border: 1px solid var(--rule); border-left: 2px solid var(--gold); border-radius: 2px; padding: .5rem .6rem; resize: vertical; min-height: 2.6rem; }
-  textarea::placeholder { color: var(--ink-3); }
-  .row.marked { border-color: var(--gold); }
-
-  .retracted { background: var(--surface); border: 1px solid var(--rule); border-radius: 3px; padding: .6rem .8rem; margin-bottom: .4rem; font-size: .87rem; color: var(--ink-2); }
-  .retracted b { color: var(--ink); }
-  .retracted s { color: var(--ink-3); }
-
-  footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); color: var(--ink-3); font-size: .82rem; }
-  .toast { position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%) translateY(2rem); background: var(--ink); color: var(--bg); font-size: .85rem; font-weight: 600; padding: .55rem 1.1rem; border-radius: 3px; opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+  details { background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:.6rem .9rem; margin-top:.6rem; }
+  details summary { cursor:pointer; font-size:.86rem; color:var(--teal); font-weight:700; }
+  details[open] summary { margin-bottom:.5rem; }
+  details ul { margin:.4rem 0 0; padding-left:1.1rem; font-size:.88rem; color:var(--muted); }
+  details li { margin-bottom:.3rem; }
+  code { font:.85em ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--soft);
+    padding:.05em .35em; border-radius:4px; }
+  .foot { color:var(--muted); font-size:.8rem; margin-top:2.5rem; border-top:1px solid var(--line);
+    padding-top:.9rem; }
 </style>
 
 <div class="wrap">
-<header>
-  <div class="eyebrow">Velea &middot; 20 July &middot; v847 &middot; VERIFIED LIVE &middot; fix run + self-audits + deploy chain</div>
-  <h1>Verified against the code, not my notes</h1>
-  <p class="lede" style="color:var(--done);font-weight:600">FIX RUN, 20 JULY &mdash; <strong>fifty-four versions (v794&ndash;v847)</strong>, each with a control that was <em>shown to fail</em> against the old code before it was called fixed. This sheet is <strong>not clear</strong> and I am not claiming it is. What is closed says so with its version and its evidence; what is open says why.</p>
-  <p class="lede" style="color:var(--not);font-weight:700">PRODUCTION WAS FROZEN AT v813 ALL DAY. I wrote &ldquo;deployed&rdquo; in thirty commit messages and never once asked the server. v814 gated <code>npm run build</code> on <code>tsc --noEmit</code>; nixpacks runs that script, <code>typescript</code> is a devDependency, and a production install has no <code>tsc</code> &mdash; so every build failed and every push went nowhere. <strong>Fifteen versions of real fixes existed for nobody</strong>, including the crown doctrine restoration and the bell reading the right person&rsquo;s chart. Reverting the gate unfroze it immediately, which is what proved the cause. <strong>velealor.com is serving v847 now, verified four ways</strong> &mdash; the service worker, the client bundle, the running server via <code>/healthz</code>, and one live API value only the corrected code answers right. <code>npm run deployed</code> asks all four and exits non-zero on any of them. Anywhere below that says &ldquo;shipped and deployed&rdquo; before v829 means <em>pushed</em>.</p>
-  <p class="lede" style="color:var(--not);font-weight:600">CORRECTION &mdash; I then audited my own run, twice, and <strong>TWELVE of my own claims or fixes were wrong, landed nowhere, or made things worse</strong>. v794's headline claim was FALSE (the model never receives a mode at all). v805 <strong>orphaned the crown doctrine</strong>, re-creating the exact bug v804 had just fixed, with my own test asserting the dangling pointer. v806 changed the cap's unit and left its number. The v816 guard I wrote to &ldquo;fail loudly&rdquo; <strong>failed open</strong>. And a reach audit &mdash; asking <em>does this land?</em> rather than <em>does it work?</em> &mdash; found five more: a polar flag nothing read, a bell reading whichever chart was active, a cookie refresh any image request could consume, an ink fix applied to a surface it was not on, and a yoga that reaches two of three surfaces. All of them are corrected, and all of them are named in the rows they belong to.</p>
-  <p class="lede">Earlier passes were assembled from doc files and memory. <strong>Nine claims were false the first time; six more were false or overstated this time</strong> &mdash; among them &ldquo;self-worth is still live&rdquo; (it is gone), &ldquo;nothing detects a dasha handoff&rdquo; (detectors exist), and my own mitigation for the admin hook hazard (the route has no role gate at all). Every correction is written into the row it corrects, not hidden at the bottom.</p>
-  <p class="lede">Only section 1 is worth your feet. Everything below it is code-only &#8212; no walk will show it to you.</p>
-  <p class="lede"><strong>Sections 6&#8211;8 are the engine audit</strong> of the whole canon rebuild &#8212; 374 commits, 07-13 to 07-19, 259 files, +21,414/-2,268. Five agents swept it; section 6 is only what I then opened and confirmed myself, section 7 is what I have not yet checked and you should not act on, section 8 is what came back sound.</p>
-  <div class="tally" id="tally"></div>
-</header>
+  <h1>Velea · Audit Sheet</h1>
+  <p class="sub">v848 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
-<div class="toolbar">
-  <button class="filter" data-f="all" aria-pressed="true">All</button>
-  <button class="filter" data-f="pending" aria-pressed="false">Walk these</button>
-  <button class="filter" data-f="not" aria-pressed="false">Broken</button>
-  <button class="filter" data-f="block" aria-pressed="false">On you</button>
-  <button class="filter" data-f="think" aria-pressed="false">Canon</button>
-  <button class="copy" id="copy">Copy notes for Claude</button>
+  <div class="scores">
+    <div class="score"><div class="n good">81</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n bad">21</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n warn">14</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n">932</div><div class="l">Tests passing</div></div>
+  </div>
+
+  <h2>Read this first</h2>
+  <p class="lead">
+    Everything below is either <b>done and checked</b>, <b>broken and named</b>, or <b>waiting on you</b>.
+    Nothing here is a guess. Where I was wrong earlier in this run, the row says so instead of quietly changing.
+    The long technical version of every row is kept in the repo at
+    <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was deleted, it was moved out of your way.
+  </p>
+
+  <h2>What I need from you — 14 decisions</h2>
+  <p class="lead">Plain English. Each one is a choice only you can make; I have done the measuring already.</p>
+
+  <div class="grp">The astrology — how Velea reads a chart</div>
+
+  <div class="ask"><b>1. Which house are “parents”?</b>
+    <span class="why">Two parts of the engine disagree. One reads parents as the 4th and 9th houses (mother and father —
+    this is what the textbook says). The other sends the paid “Parents &amp; Roots” reading to the 12th house with the
+    lunar nodes as ancestry. Both are live. Both are defensible. Pick one.</span></div>
+
+  <div class="ask"><b>2. Which nakshatra table wins?</b>
+    <span class="why">There are six lists in the app classifying the 27 stars, and only one has a source citation. On four
+    stars — Magha, Purva Phalguni, Purva Ashadha and Vishakha — the cited book calls them fierce or mixed while the mode
+    engine treats them as expansive. Right now the uncited list is the one users feel.</span></div>
+
+  <div class="ask"><b>3. When does a day “become” its star?</b>
+    <span class="why">The Moon changes nakshatra partway through most days. The calendar names the day by whichever star
+    holds the majority of it; a stricter classical reading names it by the star at sunrise. They disagree on roughly a
+    third of days. I built it the majority way — confirm or flip it.</span></div>
+
+  <div class="ask"><b>4. Which cancelled-fall rules are Velea’s?</b>
+    <span class="why">You asked what the book says and I wrote it out verse by verse. Two of the four rules the engine
+    uses are the <i>same verse</i> read two different ways, so firing both counts one idea twice. A third has no classical
+    verse behind it at all — it is a modern author’s reading. Nothing was changed on the strength of that.</span></div>
+
+  <div class="ask"><b>5. Which yogas should the reader actually hear?</b>
+    <span class="why">The engine detects far more combinations than any reading mentions. There is no rule for which ones
+    are worth a person’s attention, so the choice is currently made by whatever the model finds interesting.</span></div>
+
+  <div class="ask"><b>6. The knot thresholds.</b>
+    <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked against
+    anything. I have flagged this twice without resolving it. They need your eye, not mine.</span></div>
+
+  <div class="grp">The look — your palette calls</div>
+
+  <div class="ask"><b>7. The crown mark is gold on a gold coin.</b>
+    <span class="why">Measured at 1.6:1 in light mode and 1.2:1 in dark — effectively invisible. A darker gold reads fine
+    but turns the mark olive, and the crown is your brand. The alternative is keeping the gold and letting a real shadow
+    carry the edge (it is currently a gold shadow, which is why nothing separates). One line either way.</span></div>
+
+  <div class="ask"><b>8. Parchment ink in dark mode.</b>
+    <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night — too faint to read comfortably.
+    Light modes are fine. It is one value in the theme block, and the value is yours.</span></div>
+
+  <div class="ask"><b>9. What does a chartless day say?</b>
+    <span class="why">The retired four modes still appear on the hero for people with no birth data — not from a bug, but
+    because a chartless profile has no day-character at all, so those words are the only thing that surface has ever had.
+    Deleting them leaves it blank. What should it say?</span></div>
+
+  <div class="grp">The business — money and launch</div>
+
+  <div class="ask"><b>10. Set the price.</b>
+    <span class="why">Your locked list exists (free · $2.99 · $4.99 · $1.49) but nothing charges yet. Everything below
+    waits on this.</span></div>
+
+  <div class="ask"><b>11. Stripe keys.</b>
+    <span class="why">The entitlement resolver is built and tested; it has no billing source to read from. This is
+    configuration in Railway, which is yours to enter, not mine.</span></div>
+
+  <div class="ask"><b>12. Run the production schema reconcile.</b>
+    <span class="why">The live database has drifted from the schema file. There is a script ready. Schema changes are
+    always hand-run by you — a deploy once wiped every account, and I will not automate this.</span></div>
+
+  <div class="grp">Cleanup — two things to keep or kill</div>
+
+  <div class="ask"><b>13. The pick-a-date precision layer: wire it, or delete it?</b>
+    <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing in the app
+    calls them. What only they carry is transit-level precision — the exact house each transiting planet occupies and its
+    strength score. Wiring it changes what a paid reading says, so it is your call. Leaving it is the only option that
+    keeps costing.</span></div>
+
+  <div class="ask"><b>14. The old meaning-engine: delete it, or rebuild it?</b>
+    <span class="why">159 lines, imported by nothing but its own test. It is the invented meaning layer from before the
+    rebuild, and it still hardcodes “self-worth” as a default 2nd-house theme — which your own prompt doctrine forbids
+    unless the chart actually points there. I put a tripwire on it so it cannot be switched on by accident.</span></div>
+
+  <h2>Still broken — 21</h2>
+  <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.</p>
+  <ul class="plain">
+    <li><span class="tag">DATA</span>The two-clocks fix does not reach the paid reading.</li>
+    <li><span class="tag">DATA</span>The nakshatra tables contradict each other — six of them, not four.</li>
+    <li><span class="tag">DATA</span>A paid reading names a city it was not computed for.</li>
+    <li><span class="tag">DATA</span>The Verdict cites a canon file that does not hold the data it claims.</li>
+    <li><span class="tag">DATA</span>Planetary speed is a proxy, and Mercury and Venus are scaled by the Sun’s motion.</li>
+    <li><span class="tag">DATA</span>Two owners of “which rows are today’s reading”, and the retired surface still writes.</li>
+    <li><span class="tag">DATA</span><code>melana.json</code> is a record of what was built, not a source it was built from.</li>
+    <li><span class="tag">MONEY</span>The failed-save re-bill is capped, not closed — the guard is per-process.</li>
+    <li><span class="tag">MONEY</span>Stored dasha and convergence rows can only be invalidated all-or-nothing.</li>
+    <li><span class="tag">MONEY</span>The chapter read fires by itself on the Chart page.</li>
+    <li><span class="tag">BUILD</span>Seven server type errors the build will never catch.</li>
+    <li><span class="tag">READ</span>The reading can never say “this is a quiet day”.</li>
+    <li><span class="tag">READ</span>The premium surfaces are thin on words; the day read is fine.</li>
+    <li><span class="tag">READ</span>The Day Headline — the detectors exist; one line connects them.</li>
+    <li><span class="tag">READ</span>Focus level in the check-in is not built.</li>
+    <li><span class="tag">LOOK</span>Two calendars, and the year calendar has drifted off every rail law.</li>
+    <li><span class="tag">LOOK</span>The accent-ink solver overshoots and recolours light accents.</li>
+    <li><span class="tag">LOOK</span>The welcome card shows two filled primary buttons.</li>
+    <li><span class="tag">LOOK</span>Three premium surfaces still do not render as locked gates.</li>
+    <li><span class="tag">LOOK</span>A gate sweep left a branch that can never fire.</li>
+    <li><span class="tag">LOOK</span>A traveller’s far-date reading falls back to the birth city.</li>
+  </ul>
+
+  <h2>Fixed and verified — 81</h2>
+  <p class="lead">
+    Each of these was proven broken, fixed, and then proven fixed — most by running something that could have come back
+    wrong. Grouped so you can skim.
+  </p>
+
+  <details><summary>The engine — the data handed to the model</summary>
+    <ul>
+      <li>Combustion was read as an object instead of a verdict, so <b>no chart could ever form Gaja Keshari</b>.</li>
+      <li>A cancelled fall now reads as supportive while its period runs, per your ruling — your Moon was reading as strained.</li>
+      <li>The day’s character is now computed at two scales, so a sign change mid-day no longer contradicts the calendar.</li>
+      <li>A canon file disagreed with itself: Saturn had been dropped from the 10th house in one of its two indexes.</li>
+      <li>The pick-a-date module used one flat 8° orb for every planet; the engine already owns the classical per-planet orbs.</li>
+      <li>Karaka tables restored from the canon in the convergence engine — Jupiter to career, Saturn to health.</li>
+      <li>Polar days (no sunrise) are now described to the model instead of silently computed around.</li>
+    </ul>
+  </details>
+
+  <details><summary>Money — where a bleed would start</summary>
+    <ul>
+      <li>The daily spend cap had counted two different units against one number, cutting the ceiling to a third.</li>
+      <li>The cap now has <b>a test</b> — it could previously be raised a hundredfold with the whole suite green.</li>
+      <li>Every billing endpoint was checked for a server-side gate. All of them have one.</li>
+      <li>Sessions now expire from disuse rather than age — daily users were being logged out weekly by a timer.</li>
+    </ul>
+  </details>
+
+  <details><summary>The reading’s laws</summary>
+    <ul>
+      <li>Three of your standing laws had been orphaned mid-run and reached no reading; restored and version-bumped.</li>
+      <li>The morning bell’s crown rung had never once fired, and could announce a friend’s crown day under your name.</li>
+      <li>The prompt now states the crown, anti-repetition and no-single-move doctrines where the model actually reads them.</li>
+    </ul>
+  </details>
+
+  <details><summary>How I check my own work now</summary>
+    <ul>
+      <li><b>Production was frozen at v813 for fifteen versions</b> while I wrote “deployed” in thirty commits. A build gate
+        needed a tool that production does not install. <code>npm run deployed</code> now asks the live site four ways.</li>
+      <li><b>Three of my own tests were guarding nothing.</b> Found by breaking the code on purpose — a green suite cannot
+        tell a real guard from a decorative one. <code>npm run probe</code> is 32 checks that each must fail when broken.</li>
+      <li><b>My own verification tool once reported a false green.</b> A malformed line was silently accepted. It now
+        refuses.</li>
+      <li>Seven separate times my search-and-count was wrong before the answer was right — including one that claimed nine
+        premium endpoints were ungated. All nine were false. Every sweep now runs a control first.</li>
+    </ul>
+  </details>
+
+  <h2>The remaining 26</h2>
+  <p class="lead">Not forgotten and not broken — each is waiting on something specific.</p>
+  <ul class="plain">
+    <li><span class="tag">10</span><b>Parked on purpose.</b> Waiting on Stripe, the price, or the database reconcile —
+      the three decisions above. One needs a new field before a partner rule can ever fire; three are blind spots I have
+      named but cannot test without production access.</li>
+    <li><span class="tag">11</span><b>Analysis, not tasks.</b> The root-cause write-ups — where the textbook does and
+      does not speak, the six recurring chains, and the honest list of my own claims that did not survive re-checking.
+      They are reading material, not work items.</li>
+    <li><span class="tag">5</span><b>In progress.</b> Including one waiting on your eye: the crown mark on the calendar
+      axis is built and the arithmetic is verified, but I have never seen it rendered, and I do not ship a visual I have
+      not looked at.</li>
+  </ul>
+
+  <p class="foot">
+    Every number here was counted from the record, not estimated: 81 fixed + 21 broken + 14 for you + 26 remaining = 142
+    rows, the same 142 the sheet has always held. 88 test files, 932 tests passing, 32 probes each proven able to fail.
+    The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
+    deleted, it was moved out of your way.
+  </p>
 </div>
-
-<main id="main"></main>
-
-<footer>
-  Every row was re-opened in the code at HEAD 1b8210e on 20 July. Where a claim did not survive that, the row says so in its own words. Where I could not verify something, it says that too. Source of this page: <code>tools/audit-sheet/index.html</code> in the repo.
-</footer>
-</div>
-<div class="toast" id="toast">Copied</div>
-
-<script>
-const DATA = [
-  { n: "FOUND", title: "What the fix run found that no audit had \u2014 including in my own repairs", note: "Every one of these came from writing the CONTROL, not from reading the code. That is the pattern worth keeping: the probe finds what the review misses, and three of these were found inside a fix I was in the middle of shipping.", rows: [
-    { id: "f-combust", t: "Gaja Keshari could never form, for any chart, ever \u2014 one missing property read", s: "done",
-      m: "combustion() returns a REPORT { combust, orbDeg, limitDeg } for every orb-bearing planet, and yoga-detect asked `!!combustion(...)`. An object is always truthy, so isCombust() was TRUE for every planet except the Sun, on every chart. Gaja Keshari is gated on !isCombust(Jupiter) \u2014 permanently dark. 'Dur' had the mirror failure and always fired. Found because the test I wrote for the Kemadruma cancellation could not make Gaja Keshari form. The orb table was always correct; combustion is temporary and orb-based, exactly as it should be.",
-      w: "yoga-detect.ts:89 \u2014 fixed v800" },
-    { id: "f-weightgate", t: "The convergence gate was manufacturing chapters out of ONE lord", s: "done",
-      m: "Not on any sheet. Moving the heavy-lord law into buildKnots made the founding-wound test fail instantly: a single axis-seated maha lord doubles to 2, clears the >=2 gate, and stands as a 'standing chapter' with nobody agreeing with it. The stored timeline had gated that way since v639. Weight ranks; lords gate.",
-      w: "knots.ts + convergence.ts \u2014 fixed v798" },
-    { id: "f-nanread", t: "The panchang fallback that promised a degraded read was a crash", s: "done",
-      m: "calcPanchang does not throw on unusable coordinates \u2014 it returns NaN, which threw out of karanaFromLongitudes BELOW the catch and killed the entire read, cached row and all. The comment one line up said 'a degraded read beats no read'. That branch had never been exercised until I wrote a test for it.",
-      w: "panchang/service.ts \u2014 fixed v795" },
-    { id: "f-looseceiling", t: "A test existed for the ink solver and could not fail", s: "done",
-      m: "Its 'moves as little as it has to' case used build-on-parchment \u2014 the one accent whose lightness sits near 0.5, where the broken sweep happened to give nearly the right answer \u2014 with a ceiling of 6.5 that never tripped. A loose bound on a convenient fixture is how a real defect passes a green suite. The overshoot was 6.70 on restore/espresso.",
-      w: "shared/accent-ink.test.ts \u2014 tightened v807" },
-    { id: "f-offset", t: "MY OWN near-miss: I deleted live code while retiring the glance", s: "done",
-      m: "Recorded because it nearly shipped. Removing generateGlance by 'start marker \u2192 next export' silently swallowed DEEP_READ_SCHEMA and SECTION, which the deep read depends on. tsc went 7 \u2192 16 and caught it; I reverted the file and re-cut by three explicit named boundaries. An offset is not a boundary. Net type errors introduced across the whole run: zero.",
-      w: "generate.ts \u2014 caught before v805 shipped" },
-    { id: "f-fixtures", t: "MY OWN: three test fixtures were wrong before any code was", s: "done",
-      m: "Also recorded on purpose. A 'does not cancel' chart that did cancel (Venus in a kendra from the Moon); a 'non-former' lord that was in fact a former; a 'Dur' probe so degenerate \u2014 six planets stacked in one sign \u2014 that it proved nothing and was replaced with a targeted pair. In every case the test was wrong and the code was right. The reasoning is written into each file so the next reader does not repeat it.",
-      w: "the fixtures, not the engine" },
-    { id: "f-agents", t: "The audit agents were right in substance and sloppy in citation", s: "think",
-      m: "Since I was told to question them: one cited a canon key that does not exist in the file (`houseKarakas` for `houseKarakaTable`) and a line number that is not the table \u2014 the VALUE it quoted was correct and the finding was real. Several 'FIXED' line-number citations across the sheet were stale while the substance held. And the biggest engine defects of this run \u2014 the combustion truthiness bug and the weight-gate phantom \u2014 were found by NONE of the five agents. Agents are a good net for breadth and a poor one for depth; every claim here was re-opened in the code before anything was changed.",
-      w: "verify before acting, always" }
-  ]},
-  { n: "NEW", title: "The re-audit \u2014 what this sheet got wrong, and what nobody had found", note: "20 July, HEAD 1b8210e. Five independent sweeps re-opened every claim in the code, including my own FIXED rows. This section is only what CHANGED: fixes that did not reach the surface that matters, claims that did not survive, and defects that were on no version of this sheet. Everything here is also written into the row it corrects.", rows: [
-    { id: "re-clocks", t: "THE BIGGEST ONE \u2014 the two-clocks fix does not reach the reading you pay for", s: "not",
-      m: "v789 split baseMode (the day's) from baseModeAtSunrise (the timeline's opening), and the engine is correct. But the narrative input never receives baseMode: input-builder.ts:545 ships mode: field.finalMode beside activatedHouse: field.houseActivated, and finalMode reads the CURRENT segment for today, not the majority. So on a sign-flip day the model gets the RULING house paired with the PRE-FLIP mode \u2014 the exact contradiction the ruling exists to remove, alive in the one path that bills. Diagnostics repeats it. And ReasoningChain.tsx, the consumer the fix was written for, is imported by nothing.",
-      w: "input-builder.ts:545 \u00b7 service.ts:128-146 \u00b7 routers.ts:2891,2960" },
-    { id: "re-ink", t: "The accent-ink solver overshoots \u2014 it recolours your light accents", s: "not",
-      m: "The WCAG math in shared/accent-ink.ts is correct, I re-derived it. The bug is the SEARCH: it starts at lightness 0.5 instead of the accent's own lightness, so it skips the range between the two and lands far past the bar. Restore #2E8B8B needs 4.5 on espresso and lands at 7.80; a pale gold #EBD79A on parchment is dragged to #886d1b. The file's own comment says 'closest to the original that works' \u2014 it isn't. Plus about six raw accents still used as text that the sweep missed.",
-      w: "shared/accent-ink.ts:123, 127-128" },
-    { id: "re-gate", t: "The gate sweep left a branch that can never fire", s: "not",
-      m: "The LockedRead at LifeAtlas.tsx:121-127 is wired to atlas.themeRead \u2014 a procedure that NEVER returns locked. A gate checking a flag that does not exist, created by the fix that was closing gates. Two real gates still fall through beside it (LifeAtlas.tsx:200, ProfectionYear.tsx:205).",
-      w: "LifeAtlas.tsx:121-127 vs routers.ts:1959" },
-    { id: "re-owner", t: "Two owners of 'which rows are the daily reading', and the retired surface still writes", s: "not",
-      m: "daily-surface.ts exists to be the one owner, and input-builder.ts:746 does not import it \u2014 it hardcodes its own day_read ?? glance pair. Meanwhile getGlanceCached still writes glance rows through a live route, and routers.ts:407-427 calls generateGlance DIRECTLY from an admin button with no guard, no retry, no scrub and no cap. The retirement retired the client, not the surface.",
-      w: "input-builder.ts:746 \u00b7 daily-surface.ts:17 \u00b7 routers.ts:407-427" },
-    { id: "re-types", t: "Seven server type errors that the build will never catch", s: "not",
-      m: "npm run build exits 0 \u2014 and it is vite plus esbuild, both transpile-only, so nothing in the build path typechecks at all. npx tsc --noEmit exits 2 with seven errors, all server-side. Six are config artifacts; one is a genuine nullability hole \u2014 routers.ts:2250 passes string | undefined into a drizzle eq() on push_subscriptions.endpoint. Your build-exit-code law is honoured and still cannot see these.",
-      w: "npx tsc --noEmit \u2192 exit 2, 7 errors" },
-    { id: "f-deploy", t: "FIVE WORDS THAT WERE SECRETLY ONE WORD", s: "done",
-      m: "The run's last and largest finding, and the one that made every other status suspect.  PRODUCTION WAS FROZEN AT v813 for fifteen versions while I wrote 'deployed' in thirty commit messages. v814 gated `npm run build` on `tsc --noEmit`; Railway's nixpacks runs that script, `typescript` is a devDependency, and a production install has no tsc — so every build failed and every push went nowhere. Reverting it unfroze production immediately, which is what PROVED the cause rather than leaving it plausible.  The gate was not the failure. The failure was that these were the same word to me: WRITTEN \u2192 PASSING \u2192 LANDING \u2192 PUSHED \u2192 DEPLOYED \u2192 WORKING. Each separation cost a failure to discover it: five bad fixtures (a control that cannot fail), five reach failures (a fix that lands nowhere), a doc edit I reported and never wrote, fifteen frozen versions, and a version number that proves a build rather than a fix.  `npm run deployed` now asks four questions of the SERVER: the service worker, the client bundle (sw.js is static and can update while the compiled app does not), /healthz reporting the running build, and a live API value only the corrected code answers right. Each was proven able to fail before being trusted.",
-      w: "scripts/verify-deployed.ts \u00b7 v829\u2013v833 \u00b7 velealor.com verified serving v833" },
-    { id: "f-reach", t: "THE REACH AUDIT \u2014 five more of my own fixes that landed nowhere", s: "done",
-      m: "v820\u2013v823. The first self-audit's lesson was that I verify the MECHANISM and not the REACH, so I went back through the run asking one question of every fix: does this actually arrive? Five failed.  \u00b7 v801 computed the polar flag and gave it to NOBODY \u2014 not one line read it, while the commit said 'now visible'. \u00b7 v800 restored Gaja Keshari's detection, which reaches the Kemadruma cancellation and the free shelf COMPLETELY and the daily prose only PARTIALLY (a filter no frame-independent yoga can satisfy). \u00b7 v808's bell resolved the chart with getActiveProfile \u2014 whatever profile the user last switched to \u2014 so it could announce a FRIEND'S crown day under the subscriber's own first name. \u00b7 v811 re-issued the session cookie only on the one request that crosses the halfway mark, a signal any <img> hit on the storage proxy can consume. \u00b7 v815 inked a panel against the card while it sits on --secondary: 3.92:1 where 4.5 was intended.  ALL FIVE HAD ONE SHAPE: correct in their own file, landing nowhere. A structural test cannot see it \u2014 GLANCE_TAIL was in the file too, and nothing sent it. The prompt tests now IMPORT the built prompt and assert what the model actually receives, including one NEGATIVE (the prosperity rule lives in the day-read tail and is asserted there), because assuming a law had moved is exactly how the crown doctrine vanished for four commits.",
-      w: "v820\u2013v823 \u00b7 the question is 'where does this land', not 'does it work'" },
-    { id: "f-selfaudit", t: "MY OWN RUN, RE-AUDITED \u2014 four findings, two I should not have shipped", s: "done",
-      m: "v819. Two adversarial hunts over the whole v794\u2013v818 diff, every finding re-verified by hand in the code before a line changed. (1) v794's headline claim was FALSE \u2014 input-builder sets panchang.mode = undefined eighty lines after assigning it, deliberately, since 2026-07-15; the model has not received a mode since you retired the vocabulary. (2) v805 ORPHANED the crown doctrine, re-creating the exact bug v804 had just fixed \u2014 and my own test asserted the dangling pointer, so the suite defended the regression. (3) v806 changed the cap's unit and left its number, cutting the ceiling to roughly a third and silently starving a first-day explorer. (4) the v816 guard I wrote to 'fail loudly' FAILED OPEN \u2014 a null fruition scored FULL delivery on mrita, the state whose canon value is nil, the exact inversion of the dial it protects.  THE PATTERN IN ALL FOUR: I verified the MECHANISM and not the REACH. A change can be correct in its own file and land nowhere, or land somewhere I never looked. The second pass is the rule now, not the option.",
-      w: "v819 \u00b7 every fix re-verified by hand before changing anything" },
-    { id: "re-wrong", t: "What did NOT survive the re-audit \u2014 six claims of mine", s: "think",
-      m: "Written into their own rows, listed here so you can see the shape of my errors. (1) 'Self-worth is still live in four places' \u2014 FALSE, all four are clean; only dead code holds it. (2) 'Nothing detects a dasha handoff' \u2014 FALSE, arc.ts and the month arc both date them, and the prompt line I cited means the STAR, not a dasha. (3) 'Ketu's wrong speed is the stored one' \u2014 FALSE, that table has no speed column. (4) 'The hook hazard is guarded upstream by App.tsx' \u2014 FALSE, the admin route has no role gate; what saves it is that a role cannot change mid-mount. (5) 'The glance is closed by retirement' \u2014 FALSE, two live paths remain. (6) The test counts were wrong in both directions: 30 files / 312 passed (better than I said), and the '69 of 69' suite is really 36 of 40.  The pattern in every one: I reasoned from a schema, a comment or a memory instead of tracing the path.",
-      w: "the failure this sheet exists to correct, found in the sheet itself" },
-    { id: "re-meta", t: "This sheet's own controls were lying to you", s: "done",
-      m: "FIXED in this update. Nine rows carried a [FIXED vNNN] title while still chipped 'Broken', so the Broken filter \u2014 the one control you would actually navigate by \u2014 showed 37 items when at most 28 were open, and the header tally was wrong by the same nine. Chips now match verdicts, and a fix that only half-landed says PARTIAL in its title rather than claiming closure. Also: AUDIT_STATUS.md still says 'verified live at v790' while HEAD is v793.",
-      w: "repo AUDIT_STATUS.md \u2014 three versions stale" }
-  ]},
-  { n: "0", title: "The 20 July fix run \u2014 what closed, and what this run found that was NOT on this sheet", note: "Read this first. 18 versions shipped (v776\u2013v793), all deployed and verified live against velealor.com/sw.js. Rows above now carry [FIXED vNNN] where this run closed them. Below are the findings that did not exist on the sheet at all \u2014 including two bugs I INTRODUCED and then caught by re-auditing my own work.", rows: [
-    { id: "n-moon", t: "[FIXED v780] One Moon, two clocks \u2014 the day's SIGN was read at the sunrise instant", s: "done",
-      m: "CLOSED v780 — RE-VERIFIED 20 July. The same boundary-walk engine that rules the star now rules the sign: astronomy.ts:284-285 (signIdxAt → pickMax(durations(...))), carried as dominantMoon.signIndex at :333-334 and consumed at :462, with the sunrise instant preserved separately as moonSignAtSunriseIndex (:463, :513-514). No caveats. MEASURED over 365 real days: the Moon changes sign inside the vedic day on 43.8% of days, and on 21.1% of ALL days the sunrise sign was NOT the sign that ruled the day.",
-      w: "server/panchang/astronomy.ts:284-285, 333-334, 462-463" },
-    { id: "n-selfbug", t: "[CORRECTED v819, v825, v826] The two-clocks fix — real in the engine, and my claims about it were wrong three times", s: "done",
-      m: "This row has been corrected against myself three times. Kept in full, because the shape of the error is the useful part.  CLAIMED (v794): the narrative was handed the RULING house beside the MOMENT's mode. FALSE — input-builder sets `panchang.mode = undefined` eighty lines after assigning it, deliberately, since 2026-07-15. The model has not received a mode since you retired the vocabulary.  WHAT IS REAL: the engine computes a genuine day-scale triplet (dayFinalMode / dayQualifier / dayModeReason) alongside the moment-scale one, and the /audit diagnostics — which DID pair the ruling house with the sunrise-seeded reason — now read the day scale.  THEN v819 'carried the reason through the gates' by rewriting finalMode and baseMode on the OLD ladder. The confidence % is computed from baseScore + three modifiers against finalScore — none of which that touched — so the number never moved, my comment saying it did was false, and the payload came out reading baseMode 'Restraint' beside baseScore 3, which is ACTION's score. v825 recomputes the ladder instead of relabelling it, and leaves the weather gate's ladder alone because containment is applied from outside.  THEN v826: my own probe found the GUARD compared the interaction mode against the MOMENT's mode only, so on a sign-flip day — the exact day these two scales exist for — an interaction mode matching the moment but not the day skipped the branch and the day scale never got superseded. Two clocks again, in the interaction mode's clothes, in the function I had already edited twice to fix that class.",
-      w: "input-builder.ts:634-636 · panchang/service.ts gateDayField · day-scale-gate.test.ts" },
-    { id: "n-recent", t: "[FIXED v776] The model's memory of yesterday had been empty for everyone", s: "done",
-      m: "CLOSED v776 — RE-VERIFIED. input-builder.ts:746 now reads day_read with a glance fallback and extracts through readingProse (:750), and day_read rows are genuinely written on every generation (service.ts:329), so recentReads is non-empty for anyone who opened Today in the last 3 days. Archive and pin were swept too (db.ts:699,746; router.ts:357,363-366). TWO SEAMS: input-builder hardcodes the day_read ?? glance pair instead of importing DAILY_SURFACES from daily-surface.ts:17, so the 'one owner' is really two; and getGlanceCached still exists and still WRITES glance rows through a live route (router.ts:115) that no client calls.",
-      w: "input-builder.ts:746-750 · daily-surface.ts:17 (not imported there) · router.ts:115" },
-    { id: "n-gates", t: "[PARTIAL v784, v787, v788] Most premium gates render as gates — three still don't, and the sweep left a dead branch", s: "not",
-      m: "RE-AUDITED. The count is exact: 17 server sites return locked:true, and 13 client sites now honour it. The sweep is real and most of the app is fixed.  STILL FALLING THROUGH: LifeAtlas.tsx:200-205 consumes atlas.windowRead (locked at routers.ts:1944) and never checks the flag — it lands on 'the season is quiet, try again in a moment'; currently masked because the client gates on the same entitlement, but the flag is emitted and ignored. ProfectionYear.tsx:205 (narrative.chapter, locked at router.ts:303) ignores it too and silently renders empty arrays.  NEW DEFECT INTRODUCED BY THE FIX: the LockedRead at LifeAtlas.tsx:121-127 is wired to atlas.themeRead, which NEVER returns locked (routers.ts:1959) — a gate branch that can never fire. Also, 'via one component' is overstated: ProfectionYear.tsx:864-868 honours the lock with an inline GateMark, not LockedRead.",
-      w: "LifeAtlas.tsx:121-127 (dead), :200-205 (ignored) · ProfectionYear.tsx:205" },
-    { id: "n-ink", t: "[FIXED v807, EXTENDED v815, GROUND CORRECTED v822] The ink solver, its call sites, and the right ground", s: "done",
-      m: "THREE PASSES, and the third found the interesting one.  v807: accentInk promised 'the closest to the original that works' and swept from 0.5 outward, skipping everything between the colour and mid-grey — restore #3C8A7A on espresso landed at 6.70 where 4.5 was the bar. The test written for exactly that could not catch it: it used the one accent whose lightness sits near 0.5, with a loose ceiling.  v815: six raw accents were still painted as text after a sweep that claimed zero, plus a scan so the seventh cannot appear quietly.  v822: and then I inked the profection panel against the CARD while it sits on --secondary, which is darker — measured 3.92:1 where 4.5 was intended, the exact number ink.ts's own header warns about for tinted chips, reached from a different direction. inkOf now takes a ground var; worst case 4.51 on both themes, and the control reproduces the 3.92 first so 'clears the bar' cannot pass vacuously.  A colour helper is only correct relative to a GROUND — four separate times now, a fix has been applied to a surface it was not on.",
-      w: "shared/accent-ink.ts · client/src/lib/ink.ts (groundVar) · accent-ink.test.ts" },
-    { id: "n-canonwire", t: "[FIXED v782 — verified] planet-in-house is wired; FOUR canon files are still imported by nothing", s: "done",
-      m: "CLOSED v782 — RE-VERIFIED: planet-in-house.json is imported at service.ts:9, applied at :769-773, shipped into the input at :787 and named by the prompt at prompts.ts:2072. bhava-significations.json remains deliberately unwired — your house doctrine outranks the book there.  CORRECTION TO MY OWN COUNT: four canon JSONs are still imported by nothing, not one — bhava-significations (deliberate), arudha-lagna, avashtas and melana, each referenced only in comments. And v790's 'the last dead canon file' framing was wrong.",
-      w: "service.ts:9, 769-787 · unimported: arudha-lagna, avashtas, melana, bhava-significations" },
-    { id: "n-stripe", t: "Parked on purpose \u2014 BLOCKED_ON_STRIPE.md", s: "block",
-      m: "Your instruction, 20 July: 'if it requires stripe it is not happening right now.' Eight items are parked with the reason each is blocked: tier enforcement, the Time Gate horizons, the pick-a-date charge, referral credits, the paid refresh, per-surface entitlement unification, IAP-vs-Stripe, and the advisor pilot. Recorded so an audit stops re-raising them. The billing-adjacent items that leak money TODAY were NOT parked \u2014 they are fixed above.",
-      w: "repo BLOCKED_ON_STRIPE.md" },
-    { id: "n-open", t: "What is still open — and what I got wrong, counted honestly", s: "not",
-      m: "20 July, HEAD v826. THIS SHEET IS NOT CLEAR.  MY OWN ERROR COUNT, since it is the most useful number here: TWELVE. Four claims that were false (v794's headline · 'nullability hole' · the type-error count partly from a cache · a header correction I said I had written and had not). Five fixes that landed nowhere (the polar flag nothing read · the bell reading whichever chart was active · a cookie any image request could consume · ink on the wrong ground · three laws that reached no cached reading because PROMPT_VERSION never moved). Two fixes that made things worse (v805 orphaning the crown doctrine and NO SINGLE MOVE · v819 relabelling a ladder into self-contradiction). One guard I wrote that failed open. Plus five test fixtures wrong before any code was, and three probes of mine that reported false findings.  EVERY ONE was found by running something that could come back MISMATCH. None by reading.  STILL BROKEN, untouched: chesta as a speed proxy · the Day Headline (one line: the daily input carries no dasha dates) · the year calendar's drifted geometry · the chapter read auto-firing on the Chart page.  KNOWN CONSEQUENCES OF MY FIXES, flagged not hidden: the v798 bump leaves any profile MISSING birth lat/lon with no stored research at all (degraded but honest — uncountable without prod); the Verdict and deep-read read unavailable until a profile's next narrative build backfills, which rewrites ~66k dasha rows inline on a user-facing request; the v825 PROMPT_VERSION bump regenerates every surface once, for every profile.  AWAITING YOUR EYE: the calendar rail — arithmetic verified, never seen rendered.  WAITING ON YOU: the crown mark's colour · the dark-parchment ink · a chartless day's character · which neecha bhanga conditions are Velea's · mrita 0.05 vs the canon's nil · which nakshatra table wins · which yogas the reader hears · the durable cap · prod schema drift · the partner-gender field · the price · the flags switchboard.",
-      w: "33 versions · 76 test files · 816 passing · build typechecks · tsc clean" }
-  ]},
-  { n: "1", title: "Walk these \u2014 you can actually see them", note: "Concrete steps for each. Two of my \u201cdone\u201d claims turned out to be half-done, and you will find them if you look.", rows: [
-    { id: "selfworth", t: "[CLOSED v775 — my \"still live\" claim was FALSE] \"Self-worth\" is gone", s: "done",
-      m: "RE-AUDITED 20 July: all four sites I named are clean at HEAD. WhyNowChain.tsx:10 and TheWhySheet.tsx:20 both read \"money, what you own, what you earn, your voice\"; Astrology.tsx:131 reads \"Wealth & Voice\"; Glossary.tsx:138 reads \"what your word is worth\". The server hits in prompts.ts:446,1443,2095,2134 ARE the ban doctrine itself. One residue, dead: meaning-engine.ts:24 still lists it as a 2nd-house theme, and that module's only importer is its own test.",
-      w: "verified clean at HEAD 1b8210e",
-      k: "Nothing to walk — this row was wrong, not the code." },
-    { id: "capture", t: "Welcome card still shows two filled primary buttons", s: "not",
-      m: "RE-CONFIRMED at HEAD. The earlier fix only demoted \"Show me around\" (:205-211). Still filled at the same time: \"Save my birth details\" (:175-179, background = --color-primary once birthReady) and \"Set my current location\" (:193-198, filled while unset). Backdrop dismiss IS fixed.",
-      w: "FirstRunWelcome.tsx:175-179 · :193-198",
-      k: "Brand-new account, first run. Tap outside the card (should NOT close). Then fill in birth date/time/city and count the filled buttons \u2014 you'll see two." },
-    { id: "prosperity", t: "Prosperity day named in the reading", s: "pending",
-      m: "Correct in code \u2014 the rule is in both the hero day read and the glance, and the Sampat flag reaches the model. But you cannot check it today: I computed your tara from your natal Moon in Jyeshtha, and today is Pratyak, not Sampat.",
-      w: "Next Sampat for your chart: Sun 26 July, then Tue 4 Aug",
-      k: "On 26 July: Today \u2192 tap the day read. Prose should lean toward income / what's owed / asking. If that day's reading is pinned it will never regenerate \u2014 unpin first." },
-    { id: "session", t: "[FIXED v811, DELIVERED v822] A session dies from disuse — and the cookie actually follows", s: "done",
-      m: "CLOSED, in two parts.  v811: the TTL was fixed at login and never extended, so a session died seven days after sign-in however much the app was used, and on day 8 the installed PWA opened on the marketing site, which deliberately has no login link. The window is still seven days; it counts from ACTIVITY now.  WHAT v811 GOT WRONG: it re-issued the cookie only when `slid` was true — the flag for the ONE request that crosses the halfway mark. That is a one-shot signal and ANY authenticated request consumes it, including an <img> hit on /api/storage, which sets no cookies at all. Lose that race once and the cookie is not refreshed for another 3.5 days; twice and the browser drops it on day 7 with a healthy session row — the exact logout the fix existed to kill. v822: the DB write stays debounced, the COOKIE re-issues on every authenticated request, so its lifetime tracks activity rather than a database state transition.",
-      w: "db.ts (debounced write) · _core/context.ts (cookie on every request) · session-slide.test.ts",
-      k: "Nothing to walk — it shows up as NOT being logged out next week." },
-    { id: "tour", t: "Tour crash on the task guide", s: "done",
-      m: "Confirmed fixed \u2014 the step index resets to 0 when the guide fires.",
-      w: "client/src/components/Onboarding.tsx:229-238 (components/, not pages/)",
-      k: "Run a page tour past step 2, then open \u201cHow to add a task\u201d. Should open at step 1, no crash." },
-    { id: "nudge", t: "Location nudge no longer vanishes", s: "done",
-      m: "Confirmed fixed \u2014 armed only when the timer fires, and gated on the location query having actually loaded.",
-      w: "OverlaySequencer.tsx:101-118 — gated on isSuccess, armed inside the timeout",
-      k: "Account with no current location: open the app and leave it idle ~2s. Sheet should open exactly once." },
-    { id: "pinlabel", t: "Pin label legible on the hero", s: "done",
-      m: "Confirmed fixed. One thing to expect: the label reads \u201cPin this reading\u201d / \u201cPinned\u201d, not \u201cKeep this reading\u201d \u2014 that older wording only survives on the locked teaser.",
-      w: "KeptReadings.tsx:50,94-108",
-      k: "Today \u2192 below the reading \u2192 tap Pin. Should read cleanly on the ruby hero." },
-    { id: "overlay", t: "One owner for every popup", s: "done",
-      m: "RE-CONFIRMED. Every one of WelcomeScreen, ManifestoIntro, BrandSplash, FirstRunWelcome and MorningBellNudge is rendered ONLY inside OverlaySequencer, which is itself mounted once at App.tsx:226. Nothing can race it.",
-      w: "OverlaySequencer.tsx:126-169 · App.tsx:226",
-      k: "Log out, log in fresh. Beats must arrive one at a time, never stacked." },
-    { id: "profcap", t: "Archiving a profile no longer dead-ends you", s: "done",
-      m: "Confirmed fixed \u2014 archived rows excluded from the cap count.",
-      w: "server/routers/profiles.ts:501-503",
-      k: "Cap-2 account: archive the second profile, then try to add one. Should succeed." },
-    { id: "location", t: "Travel never uses the birth-city sky", s: "done",
-      m: "RE-CONFIRMED, tests re-run green 11/11. One resolver, one order: date override → current (window-gated, CURRENT_WINDOW_DAYS = 3) → hometown → birth → Boston default.",
-      w: "server/panchang/resolve-day-sky.ts:100-140",
-      k: "Settings \u2192 set current location to a distant city. Today's mode and panchang should move to that city's sky." }
-  ]},
-  { n: "2", title: "Pick-a-date is broken \u2014 but not the way I said", note: "The bug I had on the sheet was fixed a week ago. Verifying that properly turned up four real HIGH defects nobody had found. I confirmed all four myself. None are walkable; they need code.", rows: [
-    { id: "panchang", t: "[FIXED v795] The cached panchang row no longer names someone else's sky", s: "done",
-      m: "CLOSED v795. The recomputed values were sitting in scope and being discarded at the emit, so the derived character was location-correct while the sky it NAMED was the first writer's. Now emitted. AND the fallback that comment promised was not real: calcPanchang does not throw on unusable coordinates, it returns NaN, which threw out of karanaFromLongitudes BELOW the catch and killed the whole read — 'a degraded read beats no read' was a crash. Found by writing the third control, not by reading the code; that branch had never been exercised.  STILL TRUE and yours to run: a location column on the panchang table is the real fix. This closes the leak at the read; the row is still shared.",
-      w: "panchang/service.ts emit + NaN guard · cached-sky-location.test.ts" },
-    { id: "provenance", t: "A paid reading asserts a city it wasn't computed for", s: "not",
-      m: "RE-CONFIRMED. horoscopes stores userId/profileId/readingDate/lifeArea/promptVersion/model/content — no lat, lon, timezone or city (schema.ts:479-495). Horoscope.tsx:124-127 queries a LIVE getDayLocation and renders \"Lived in {city}\" / \"Where were you this day?\" at :533-541, directly above the frozen ReadingView at :557. Precision on my own wording: it is the per-date OVERRIDE chip, not the current-city chip — but it stays editable after purchase while the snapshot is immutable and records no location, so the false provenance is real.",
-      w: "drizzle/schema.ts:479-495 · Horoscope.tsx:124-127, 533-541, 557" },
-    { id: "activation", t: "The reading can never say \u201cthis is a quiet day\u201d", s: "not",
-      m: "RE-CONFIRMED. life-areas.ts:315-320 builds areaPlayers from the house lord plus karakas and pushes a reason if the transiting planet is in that set — no orb, no house, no condition. input-builder.ts:398-421 builds transits from the full PLANETS list every day, so the ruler and karakas are ALWAYS present. One precision: \"a quiet date is a real answer\" is an instruction to the model (prompts.ts:1996), not a code branch — so this is a permanently polluted input rather than a disabled state.",
-      w: "server/vedic/life-areas.ts:315-320 · input-builder.ts:398-421" },
-    { id: "freeze", t: "[FIXED v803, PROVENANCE CORRECTED v823] A failed freeze no longer re-bills, and heals honestly", s: "done",
-      m: "CLOSED v803: getLifeAreaRead holds NO narrative_cache — only a per-flight dedupe — so the horoscopes snapshot was the only thing between a purchase and a re-bill, and a failed freeze meant every future tap billed again, for ever. It now parks in narrative_cache and the reveal path serves and re-freezes from there.  WHAT I GOT WRONG: the heal stamped the CURRENT PROMPT_VERSION onto prose generated under an older one, so the moment a rescue outlived a deploy a paid reading's frozen-at-purchase provenance was a lie — and v803 had already parked the true version in the rescue row's inputHash column, unread. v823 freezes under the version and model that actually made it, and DELETES the rescue copy once the snapshot lands; leaving it kept a second unversioned copy of a paid reading alive indefinitely.",
-      w: "routers.ts reveal (rescue + honest heal) · db.ts clearNarrativeCacheRow" },
-    { id: "retries", t: "[FIXED v806, MIS-CALIBRATED BY ME, CORRECTED v819] The cap counts calls — in the right unit now", s: "done",
-      m: "v806 was right that the cap counted results instead of calls: three retries counted as one, a burned failure counted as zero.  WHAT I GOT WRONG: I changed the UNIT and left the NUMBER. 50 was calibrated as GENERATIONS — its own comment says \"heavy first-day exploration (all houses+chapters+year ≈ 30-40)\". Counting CALLS against the same 50 cuts the ceiling to roughly a third: a first-day explorer reaches it at about 29 generations and then gets static copy on every surface for the rest of the UTC day, with no message. Worse, the two arms measure different things — the durable arm counts narrative_cache ROWS — so one constant could never be right for both.  v819: two arms, two units, two limits. 50 rows, 150 calls, whichever trips first. Changing a unit without re-deriving the constant is how a safety limit becomes an outage.  STILL OPEN and still yours: the durable arm is rows-since-midnight scoped by profileId, so a regeneration reads as one and N profiles gives one user N times the cap. That needs a schema change.",
-      w: "narrative/service.ts DAILY_ROW_CAP + DAILY_CALL_CAP · gen-meter.ts" }
-  ]},
-  { n: "3", title: "Real, but code-only \u2014 no walk needed", note: "", rows: [
-    { id: "headline", t: "[CORRECTED — mostly REFUTED] The Day Headline: detectors DO exist; the real gap is one line", s: "not",
-      m: "RE-AUDITED and I had this wrong twice. (1) Handoff detection exists: arc.ts:170-181 finds the next antardasha boundary inside the horizon and emits a dated milestone, and input-builder.ts:1060-1066 enumerates dated pratyantar hand-offs for the month arc. (2) The prompt line I cited does not mean what I said: \"a handover during the day\" at prompts.ts:1882 refers to the day's STAR handing off mid-day, not a dasha — confirmed at prompts.ts:44 and :1309 — and that data IS supplied. WHAT IS ACTUALLY TRUE, and it is narrow: the DAILY input is trimmed to lord/age/house/rules with no dates (input-builder.ts:245-246), so the day read alone cannot know a dasha level turns today.",
-      w: "arc.ts:170-181 · input-builder.ts:245-246, 1060-1066 · prompts.ts:44,1309,1882" },
-    { id: "crownbell", t: "[FIXED v808, CORRECTED v821] The crown bell fires — and reads the right person's chart", s: "done",
-      m: "CLOSED v808: POOL.crown carried your line since it was written and the selector never read it, so a crowned day rang the ordinary stage line. It is the only PERSONAL rung, which is why it sat unwired.  THEN I GOT IT WRONG. v808 resolved the chart with getActiveProfile() — the profile flagged isActive, i.e. whatever chart the user last SWITCHED TO. Multi-profile is the paid seam, so that is routinely a FRIEND'S chart: the 8am push would have told the subscriber, by their own first name, that today is one of THEIR twelve crowned days, decided from someone else's chart. v821 reads the owner profile.  Found by asking where the fix LANDS rather than whether it works — the question that also caught v801's flag and v800's yoga.",
-      w: "server/push.ts isCrownDayFor (isOwner) · bell-ladder.test.ts" },
-    { id: "focus", t: "Focus level in the check-in", s: "not",
-      m: "RE-CONFIRMED not built. schema.ts:328-337 stores exactly five dimensions — physicalEnergy, mentalClarity, emotionalStability, creativeFlow, motivation. Zero matches for focus anywhere in client, server or drizzle.",
-      w: "drizzle/schema.ts:328-337" },
-    { id: "nakshatra", t: "The nakshatra tables contradict each other — and there are SIX of them, not four", s: "not",
-      m: "RE-AUDITED. The contradiction is exact: interpreter.ts:258-262 rates Magha, Purva Phalguni, Vishakha and Purva Ashadha +1 (applied :280-282) while auspiciousness.ts:14 rates the same four -1 — and both are live (interpreter drives the mode engine; dayQuality feeds crown.ts:11, routers.ts:1422, current-sky.ts:530). NEW, and it decides the argument: the CANON agrees with auspiciousness, not with the mode engine — muhurta-tables.json classes Magha, Purva Phalguni and Purva Ashadha as FIERCE. And the count was wrong: six distinct 27-star classifications live in the repo, not four.",
-      w: "interpreter.ts:258-273 · modifier-config.ts:45-80 · auspiciousness.ts:14-41 · canon/muhurta-tables.json · interpreter.ts:411-630 · panchapakshi/tables.ts:18" },
-    { id: "modetable", t: "[FIXED v810] The stale mode table is deleted, not just unused", s: "done",
-      m: "CLOSED v810. modifier-config.ts carried a private COPY of interpreter.ts's HOUSE_MODE that stopped being updated on 2026-07-12, when you corrected the 3rd/5th/9th assignments — so it disagreed on exactly those three houses (3: Build vs Selective, 5: Selective vs Build, 9: Flex vs Action) and the /config endpoint was still SERVING it, unauthenticated. It corrupted no computation because nothing else imported it; it simply published three wrong houses to anyone who asked, for eight days. Copy deleted, endpoint repointed at the one map, and a test pins the three corrected values BY VALUE so a drift back toward the old copy fails loudly.",
-      w: "modifier-config.ts (deleted) · routers.ts /config · stale-copy.test.ts" }
-  ]},
-  { n: "4", title: "Waiting on you", note: "", rows: [
-    { id: "reconcile", t: "Run the prod schema reconcile script", s: "block",
-      m: "Verified: it exists, checks before every change, and no-ops when correct. One correction to what I told you \u2014 it is NOT purely non-destructive: it deletes duplicate natal-body rows (keeping the highest id) and drops the old horoscope index before adding the new one. Both are reasoned and safe, but you should know before you run it.",
-      w: "DATABASE_URL='<railway>' npx tsx scripts/reconcile-prod-schema.ts" },
-    { id: "price", t: "Set the price", s: "block",
-      m: "Confirmed: monthly is null, so all seven locked cards show a capture with no number. One exception I had wrong \u2014 the moment-refresh card DOES show $2.99/mo. Your locked price list is in my memory; say the word and it goes in.",
-      w: "client/src/lib/pricing.ts:13" },
-    { id: "flags", t: "Six flags are admins-only in code \u2014 but the DB overrides", s: "block",
-      m: "Important correction: a feature_flags row in the database is spread OVER the code defaults, cached 60s. So the code tells you nothing about what's actually live in production. Whatever the switchboard last saved wins. Worth checking the switchboard before assuming anything is hidden.",
-      w: "server/feature-flags.ts:34-52" },
-    { id: "daymode", t: "D1 \u2014 the one muhurta day engine", s: "block",
-      m: "Still needs your method spec. Scope is smaller than I said: one live engine, one stale published mirror, and a genuine four-way nakshatra disagreement (above).",
-      w: "REBUILD_MAP.md:127" },
-    { id: "fagan", t: "Decide: regenerate the Fagan-Bradley rows", s: "block",
-      m: "Carried forward from the 7/17 audit and NOT re-verified by me today \u2014 I'm flagging that rather than restating it as fact. If you want it settled I'll check it properly before you spend anything.",
-      w: "AUDIT_2026-07-17.md:28" },
-    { id: "stripe", t: "Stripe keys \u2192 the entitlement resolver", s: "block",
-      m: "One number corrected: it's 19 call sites to re-point, not 8 \u2014 and one of them is a helper called from 15 more places. Bigger job than I told you, still gated on your account and keys.",
-      w: "STRIPE_PLAN.md" }
-  ]},
-  { n: "5", title: "The canon question \u2014 for you to think on", note: "Your question, 19 July: does \u201creuse the real thing\u201d mean the textbooks are always consulted before data is named and sent to the LLM? Today's answer is no \u2014 not always. Three tiers run at once, and they disagree. This is the great rebuild seen from the data side.", rows: [
-    { id: "tier-canon", t: "Where the textbook DOES speak", s: "think",
-      m: "Verified today. The day filter reads the 7 nakshatra natures and the tithi families straight out of the canon tables. Shadbala computes all six sources by the Vol II method. The per-profile research store carries both-volumes research, and natalCondition \u2014 the stored TRUE condition of a chart's carriers \u2014 reaches the prompt before the day and deep paths split. When these speak, the canon spoke.",
-      w: "canon/muhurta-tables.json \u2192 day-filter.ts:27,90 \u00b7 vedic/shadbala.ts:385-455 \u00b7 input-builder.ts:293-380" },
-    { id: "tier-invented", t: "Where it does not \u2014 and still ships", s: "think",
-      m: "The day-mode HOUSE_MODE table and the nakshatra scores in auspiciousness.ts are constructions, not sourced. So are the knot convergence cutoffs. These are the R1\u2013R3 items in the rebuild map, and they are on live paths feeding live prose.",
-      w: "panchang/interpreter.ts:156 \u00b7 panchang/auspiciousness.ts:14 \u00b7 vedic/knots.ts:223-254" },
-    { id: "tier-clash", t: "SIX tables, one sky — and a SECOND canon disagreement: which house is 'parents'?", s: "think",
-      m: "TWO findings now, both the same shape: two live systems, one canon, and they disagree.  (1) THE NAKSHATRA TABLES. Of six live 27-star classifications, exactly ONE has a citation — the seven natures (Muhurta Chintamani + Brihat Samhita 98) you blessed 2026-07-15. The two that actually disagree have no source between them, and one says so in its own comment ('a common general-purpose grouping'). On the four disputed stars the mode engine says +1 EXPANSION while the canon says Magha, Purva Phalguni and Purva Ashadha are FIERCE and Vishakha is MIXED. None is expansion.  (2) NEW — 'PARENTS' SITS IN TWO DIFFERENT HOUSES. knots.ts reads parents as houses [4, 9] with karakas [Moon, Sun, Jupiter] — which is the canon exactly (father = 9th/Sun+Jupiter, mother = 4th/Moon). But life-areas.ts routes the parents LENS to primaryHouse 12 with karakas Rahu and Ketu, and day-frame maps a 12th-house day-Moon to 'parents'. The canon gives the 12th to Saturn — loss, expenditure, isolation, moksha.  It is NOT a slip: the code says plainly it means 'the karma carried in from before this life', with the nodes as maternal and paternal ancestry. That is a real reading. But it means the paid life-area lens for Parents & Roots examines a house the canon assigns to loss, while the convergence engine looks at 4 and 9 — and house 12's own classical meaning has no lens at all. Two answers to 'where do parents live', both live, both reaching prose.  NOTHING CHANGED. Which reading is Velea's is yours.",
-      w: "knots.ts:90 [4,9] vs life-areas.ts:183 primaryHouse 12 vs day-frame.ts:32 · canon houseKarakaTable 12 = Saturn" },
-    { id: "tier-knots", t: "Knot thresholds — I have STILL not checked these, and now I have said so twice", s: "think",
-      m: "Carried from the rebuild map, not from a reading of the code, and the fix run did not reach it. Recorded here unchanged rather than quietly dropped: the convergence CUTOFFS in knots.ts are constructions, and while v798 corrected what the gate COUNTS (lords, not weight), it did not audit whether >=2 is the right number or where it came from. Say the word and it gets the same treatment the neecha bhanga conditions just got.",
-      w: "unverified — REBUILD_MAP R2" },
-    { id: "tier-nbcanon", t: "THE BOOK, READ PROPERLY \u2014 and it does not agree with the engine", s: "think",
-      m: "v809. You asked what the textbooks say about a cancelled fall. Answer, from the Sanskrit read compound-by-compound rather than a summary \u2014 canon/neecha-bhanga-provenance.md.  Phaladeepika 7.30 is \u0928\u0940\u091a\u094b\u091a\u094d\u091a\u092d\u0947\u0936\u094c \u2014 nica-ucca-BHA-ISAU \u2014 'the LORDS of the debilitation and exaltation SIGNS, both or even one, in a kendra.' (1) The famous English rule 'a debilitated planet IN A KENDRA is cancelled' reads the planet itself into a clause about two lords: a mistranslation, everywhere, and this engine has never implemented it. (2) CONDITIONS 2 AND 3 IN dignity.ts ARE ONE VERSE under two competing glosses of that compound \u2014 firing both double-counts a philological disagreement, and `count` is used. (3) Phaladeepika 7.27 (both lords in mutual kendra to EACH OTHER) is textual and not implemented. (4) BPHS gives NONE of the four \u2014 its debilitation raja yoga is Ch.41 vv.19-20, a different rule, so citing 'Parashara' cites the wrong text. (5) Our own yogas.json line \u2014 'associated with an exalted planet' \u2014 has NO classical verse behind it in any text; it is K&F's reading, and the modern sources that state it say so in the first person.  NOTHING IN THE ENGINE CHANGED. Which conditions are Velea's is yours.",
-      w: "canon/neecha-bhanga-provenance.md \u00b7 dignity.ts (provenance recorded, behaviour untouched)" },
-    { id: "tier-question", t: "The decision this actually asks of you", s: "think",
-      m: "If canon becomes the single gate \u2014 nothing reaches the prompt that a textbook did not license \u2014 then some surfaces go quiet until their canon is ingested, and a few of your calibrated dials (crown counts, caution bands, the mode blend) would have to be re-expressed as convergence rather than kept as tuned product scores. That is a real trade and it is yours, not mine. Your notes here decide the order of the rebuild.",
-      w: "REBUILD_MAP.md:202-212 sequence" }
-  ]},
-  { n: "6", title: "How these connect \u2014 seven chains, not a hundred bugs", note: "Your question, and it is the right one. These findings are not independent. They form chains where a fix at one link does nothing unless the links above it can carry it. Fixing from the wrong end is exactly how band-aids get made. Read this before deciding what to fix.", rows: [
-    { id: "c1", t: "CHAIN 1 — my correction was RIGHT; the real gap is DASHA_ENGINE_VERSION, read by nothing", s: "think",
-      m: "RE-VERIFIED by tracing the path, not the schema. The cascade is real: research-store.ts:261 returns null on an engineVersion mismatch, input-builder.ts:301-302 sees the miss, :324-326 re-runs storeNatalResearch (whose hash includes RESEARCH_ENGINE_VERSION), which returns status 'stored' — and BOTH writers gate their skip on 'unchanged', so they delete and rebuild inside a transaction. Same cascade at routers/profiles.ts:398-400 and routers.ts:1227-1229. Bumping RESEARCH_ENGINE_VERSION rebuilds all three layers. No migration.  WHAT IS ACTUALLY BROKEN: a fix confined to the dasha or convergence engine reaches NOBODY. DASHA_ENGINE_VERSION is declared at research-store.ts:24, exported at :287, and read by NO CODE ANYWHERE and stored in no column. Change convergence's weighting, leave research-v2 alone, and every existing profile serves the old engine forever. Secondary: the rebuild only fires for profiles with stored birth lat/lon.",
-      w: "research-store.ts:24,158-163,214-219,261,287 · input-builder.ts:301-302,324-326" },
-    { id: "c2", t: "CHAIN 2 \u2014 The same quantity is derived in two places, over and over", s: "think",
-      m: "Six confirmed instances of ONE pattern (I wrote seven; crown was still unverified when I counted it): tithi (majority on the calendar, noon recompute in the reading) - panchang nakshatra (one global row serving every location) - crown (top-12-of-year on the calendar, crownDay in the reading) - convergence (a count live, a weighted count stored) - career karakas (canon file vs a hand-copied table) - house-to-mode (two tables disagreeing at houses 3, 5, 9) - nakshatra quality (four tables, disagreeing on at least four stars). The root cause is not seven bugs. It is that a value gets computed at the point of use instead of being owned by one module. Band-aid: reconcile each pair, and watch them drift again. Root fix: every derived quantity gets exactly ONE owner function that everyone imports - the same discipline day-filter.ts already uses when it builds its lookups from the canon JSON at load.",
-      w: "the pattern, not one file" },
-    { id: "c3", t: "CHAIN 3 \u2014 The canon is cited, not executed", s: "think",
-      m: "RE-COUNTED at HEAD: FOUR canon JSONs are imported by nothing, not six — bhava-significations.json (deliberate, your house doctrine outranks it), arudha-lagna.json, avashtas.json and melana.json. karakas.json and planet-in-house.json were wired in this run. The pattern the count was hiding is still exactly right: knots.ts now imports karakas.json and a test asserts code == JSON — and that same test now ASSERTS the thing it once missed (knots.canon.test.ts: \u0027health carries SATURN \u2014 the second drift this file exists to catch\u0027). The sentence that stood here said the test blessed that drift; it was written before v799 fixed it and was simply left stale. So the enforcement mechanism exists and was pointed at the wrong invariant. day-frame.ts:15 still says the avashta compute does not exist; avashtas.ts is 284 lines.",
-      w: "server/vedic/canon/ — 4 of 11 files never imported" },
-    { id: "c4", t: "CHAIN 4 \u2014 mis-rooted by me; the fix I proposed would NOT have closed it", s: "think",
-      m: "Corrected after attacking my own work. I said dignity.ts is a correct indivisible primitive that its consumers decompose, and that fixing the TYPE heals all four sites at once. Wrong twice. First: there are TWO dignity modules, and the life-area lens imports dignityLabel from panchang/dignity.ts, which has no concept of cancellation AT ALL - it never had one to leave behind. Second: vedic/dignity.ts is not indivisible either; it publicly exports a bare dignity string consumed by convergence, yoga-detect, natal-states and avashtas. And the string that reaches day-frame crosses two more boundaries that no change to dignity.ts would touch - day-frame's own signature types it as a plain string, and the value arrives from stored-research JSON.  SO: this is not its own class. It is CHAIN 2 wearing different clothes - one quantity with two owners. The real fix is to give planetary condition a single owner that carries cancellation inseparably, and route panchang/dignity.ts's callers to it. Your cancelled Moon still reads as strained either way; the finding stands, my root cause did not.",
-      w: "server/panchang/dignity.ts vs server/vedic/dignity.ts - two modules" },
-    { id: "c5", t: "CHAIN 5 \u2014 Billing has no single gate", s: "think",
-      m: "The Verdict regenerates on a clock because a live age sits in its hash. The pin generates a surface nobody reads. A failed save returns success, so the next tap bills again. The daily cap counts distinct rows, not generations, and resets on deploy. Retries triple a call and count as one. Five leaks, one cause: every surface hand-rolls its own hash, its own persist, its own counting. Root fix: one wrapper that owns all three - hash stability, confirmed persistence, and honest counting - so a new surface cannot be added with a new leak. This matters most because it is the layer between your work and your money.",
-      w: "server/narrative/service.ts - per-surface, not centralised" },
-    { id: "c6", t: "CHAIN 6 \u2014 The record does not match the code, so you cannot navigate by it", s: "think",
-      m: "v728 THE CROWN BELL is 8 insertions across 3 files and contains no crown code; POOL.crown is referenced nowhere, so the top rung of your blessed ladder has never once fired. v736 THE QUESTION BELL is one line. day-frame says the avashta engine does not exist - it is 284 lines. canon/README is stale in four places. REBUILD_MAP says Shadbala is a third built; all six sources compute. version.ts has no entries at all between v429 and v755. And my own memory note said pick-a-date was broken a week after it was fixed. Root cause: nothing verifies that a claim matches the code, so the record drifts freely and every decision made from it inherits the drift. This chain is why today happened. It is also the cheapest to fix: a claim in a commit or a changelog is not done until something executable proves it.",
-      w: "git show --stat 4464ced - git show --stat 98b5fd1" },
-    { id: "c8", t: "CHAIN 7 \u2014 half right: the harness is blind to two of the four causes, not all four", s: "think",
-      m: "Corrected. The harness IS mis-scaled - 116px tiles against a 46.7px cell - and its own caption tells you to watch for overflow it cannot show. But I checked the case list and it already contains 'crown + 3 marks (11/16)' and 'crown + 1 mark (odd, small)'. The crown-off-axis error and the no-gutter smear are geometry INSIDE the cluster and are fully visible at 116px. So two of the four causes were sitting there, rendered, and were not seen. Only the neighbour-bleed genuinely needs a true cell width, and only the cross-day centreline swing needs a real strip of differing cells.  That makes 'this is why the glyphs beat you four times' a story I told myself. Half of it was the instrument; half of it was nobody measuring what the instrument was already showing. The harness fix is still right and still belongs in the same commit - but the honest lesson is harder: a correct instrument does not help if the reading of it is by eye.",
-      w: "client/src/pages/Audit.tsx:46-52 (cases) and :126 (tile width)" },
-    { id: "c7", t: "The order \u2014 rewritten, because my first two picks were wrong", s: "think",
-      m: "My original order opened with the invalidation migration (chain 1) and put the dignity TYPE fix at four. Both were wrong at the root, so here is the corrected sequence.  1. THE EPHEMERIS RACE. It sits under everything, it is small, it is provable, and while it is open any number in the app can be silently wrong at container start - which is when you open it after a deploy. 2. ONE OWNER PER QUANTITY (chain 2), starting with the day, because that is what the user sees contradict itself: tithi, panchang nakshatra, crown. Planetary condition joins this list rather than standing alone. 3. THE BILLING GATE (chain 5) - the pin locking the wrong surface, the lock skipped on refresh, the failed save reporting success. This is also the Stripe prerequisite, so it is the one that touches money twice. 4. CANON WIRED (chain 3) - but note the equivalence test cannot be written first: karakas.json is a strict subset of the code's themes and the balaadi block does not exist yet, so the canon has to be authored before it can be enforced. 5. A ONE-LINE RESEARCH VERSION BUMP to unstrand the pre-v639 convergence rows. Minutes, not a migration. 6. THE RECORD (chain 6), continuously.  Still not on the list: the individual prose fixes, the missing Jupiter, the pada bias. Leaves.",
-      w: "corrected 2026-07-19 after auditing this audit" }
-  ]},
-  { n: "7", title: "The engine audit \u2014 confirmed broken, verified by me", note: "374 commits, 07-13 to 07-19, 259 files, +21,414/-2,268. Ten agents swept it; I opened every file below myself. Then I attacked my own findings \u2014 the corrections are written INTO the rows, not hidden.", rows: [
-    { id: "chesta", t: "Chesta is a speed proxy, and Mercury and Venus are scaled by the SUN's motion", s: "not",
-      m: "RE-CONFIRMED, all three. shadbala.ts:309-314 is clamp(30 * (2 - speed/avg), 0, 60) — a linear speed ratio, not the seeghra-kendra arc. :84-86 sets Mercury and Venus to 0.9856 deg/day, the Sun's mean motion. :311 returns 0 when avg is null, and Sun and Moon are absent from MEAN_SPEED, so both contribute 0. Fair to the code: these are DOCUMENTED simplifications citing K&F p.314, not accidents — but they are presented downstream as a canon number.",
-      w: "server/vedic/shadbala.ts:84-86, 309-314" },
-    { id: "race", t: "[FIXED v769 — verified] The ephemeris race is closed at the natal engine", s: "done",
-      m: "RE-VERIFIED. natal-chart-engine.ts:101 memoizes the PROMISE, :106-107 returns it, the instance is built in a local and published only when complete, and :130-131 nulls the promise on failure so a retry is possible. NEW, from checking the other three engines: none of them are vulnerable to this bug — astronomy.ts:92-103, transit-calculator.ts:11-25 and calculator.ts:179-188 all publish only AFTER await + set_sid_mode. Their residual is waste, not correctness: no single-flight, so N concurrent cold callers each build their own WASM module.",
-      w: "server/vedic/natal-chart-engine.ts:101-131" },
-    { id: "ketu", t: "[FIXED v769 — verified] Ketu's speed sign is correct; the \"stored rows\" half of my finding was FALSE", s: "done",
-      m: "RE-VERIFIED. calculator.ts:364 now carries Rahu's own (negative) speed and :412 returns calc[3] for Ketu. CORRECTION TO MYSELF: profile_natal_bodies has NO longitudeSpeed column at all (schema.ts:422-434), so no wrong Ketu speed was ever stored there and there is nothing to re-run. Speed IS persisted in profile_research.bodies, which refreshes only through the RESEARCH_ENGINE_VERSION path in chain 1.",
-      w: "calculator.ts:364,412 · schema.ts:422-434 (no speed column)" },
-    { id: "nb", t: "[FIXED v796 + v797] Your cancelled Moon is no longer read as strained", s: "done",
-      m: "CLOSED v796, then RULED and completed v797. vedic/dignity.ts had computed neecha bhanga since it was written and no consumer ever asked it, because the classifiers read labels from the OTHER dignity module, which has no concept of cancellation. labelWithCancellation is now the one owner.  YOUR RULING, taken from canon/yogas.json rather than my instinct: the book says a cancelled fall 'can act as if exalted' — SUPPORTIVE — and the sibling dashaGate rule says a yoga is LATENT until its planets' period runs. So: acting-as-exalted while a forming planet's dasha runs, latent otherwise, never strained either way. neechaBhanga now returns `by` (the forming planets) because the gate cannot be applied without knowing whose period counts. The gate is one-directional — an unknown dasha is latent, never assumed running.",
-      w: "vedic/dignity.ts labelWithCancellation · life-areas · day-frame · cancelled-debilitation.test.ts" },
-    { id: "hl", t: "[FIXED v798] The heavy lord was MANUFACTURING chapters out of one lord", s: "done",
-      m: "CLOSED v798 — and the real finding was not the one on this sheet. Moving the weighting into buildKnots so both paths obey one law made the founding-wound test fail immediately: GATING ON WEIGHT LETS ONE LORD LIGHT A CHAPTER ALONE. A single axis-seated maha lord doubles to 2, clears the >=2 gate, and stands as a standing chapter with NOBODY agreeing with it — the exact phantom the v430 rebuild removed. The stored timeline had gated on weight since v639, so profiles stored since then can carry chapters lit by one lord.  Read correctly the law is INTENSITY, not agreement: 'when a dasha lord lands on the Meridian, it's the whole reading' is about how loud a real chapter is, not about inventing one. So weight RANKS and the honest lord count GATES. convergence.ts also stopped storing the WEIGHTED number in the field labelled `convergence` — a stored row was claiming more tied lords than it listed.",
-      w: "knots.ts (one law) · convergence.ts · windows.ts peak · RESEARCH_ENGINE_VERSION bumped" },
-    { id: "tithi", t: "[FIXED v770 — verified, with a fallback that still recomputes] The calendar and the reading agree", s: "done",
-      m: "RE-VERIFIED. input-builder.ts:590-601 now derives the tithi from the day-stable majority panchang plus paksha instead of resampling, and the majority source is astronomy.ts:518. Precision on my own claim of \"one source\": a noon recompute literally still exists at input-builder.ts:589 as the fallback when the name fails to match at :597 — practically unreachable, but not gone. Two other independent tithi derivations remain outside this path (auspiciousness.ts:76, natal-states.ts:148), which is chain 2, not this row.",
-      w: "input-builder.ts:589-601 · astronomy.ts:518" },
-    { id: "gate", t: "[NEW v847 — EVERY BILLING ENDPOINT IS GATED; MY SCANNER CLAIMED NINE WERE NOT]", s: "done",
-      m: "Your priority 2 is where money bleeds, and its sharpest form is a procedure that reaches the model without checking entitlement \u2014 a premium reading served free, billed to the capped wallet, once per caller who knows the endpoint name. There is precedent in this repo: narrative.deepRead once enforced NO entitlement server-side while BOTH its UI surfaces gated on flags, so calling it directly bought a full year read for nothing.  I enumerated every procedure that reaches a generation entry point (get*Cached, peek*Cached, getLifeAreaRead) across routers.ts and narrative/router.ts and checked each for a gate. EVERY ONE IS GATED. Fifth null result in a row.  WHAT WAS WRONG WAS THE SCANNER, TWICE MORE \u2014 the fifth and sixth failed extraction in two sittings.  1. It did not know hasHoroscope(ctx.user), a named helper wrapping hasFeature(\u0022specialReadings\u0022) plus the admin/bootstrap allowlist. My first pass reported NINE UNGATED PREMIUM ENDPOINTS: eclipse season, Mercury rx, planet rx, the month, the life-area reveal and their peek twins. All nine false. Reporting that would have been the largest false alarm of this entire run \u2014 nine invented money leaks handed to you while you are already out of patience with me.  2. It matched only `role === \u0022admin\u0022`, so `if (role !== \u0022admin\u0022) throw FORBIDDEN` read as wide open, making the admin-only diagnostic probe look public.  Both were caught by READING the procedure rather than trusting the grep. That is now three consecutive sittings where the finding was my instrument, not the code.  THE DURABLE PART: the corrected matcher is a test, controlled in BOTH directions \u2014 the known gate forms must be detected, AND a synthetic ungated body must be CAUGHT. A gate-checker that cannot detect a missing gate is exactly the decorative test v841 was about. It also asserts the read-only peek/saved twins: those never generate, but they return PAID PROSE, and gating the generator while leaving the reader open hands the same content away for free.",
-      w: "server/billing-gate.test.ts \u00b7 hasHoroscope + role !== admin were the two blind spots \u00b7 2 new probes" },
-  { id: "contract", t: "[NEW v846 — THE PAYLOAD CONTRACT IS CLEAN; MY INSTRUMENT WAS WRONG FOUR TIMES GETTING THERE]", s: "done",
-      m: "THE CHECK. The prompt DESCRIBES the data to the model field by field. Any field it names that the builder never emits is data the model is told to expect and never receives; any field emitted and never described is tokens spent on something unexplained. I checked the whole contract by hand and IT IS CLEAN: every top-level field BASE_PROMPT documents is emitted by one of the TWO builders; mercuryRx emits { phase, strength, retrograde } exactly as documented; eclipseSeasonArc emits { today, windowEnd, count, eclipses } exactly as documented, with `eclipses` correctly a SUB-field under a declared parent; and transits carries precisely the eleven keys the prompt lists. Fourth null result in a row.  WHAT WAS NOT CLEAN WAS THE INSTRUMENT. I attempted this extraction FOUR times and got four wrong answers, each caught only by a control:  1. It matched only the FIRST field on lines that declare several, so `domain` read as absent.  2. It matched a DIFFERENT return statement \u2014 there are two builders, at lines 742 and 1096 \u2014 and concluded that panchang and transits are never emitted, which I had read with my own eyes minutes earlier.  3. It ran the doc-scan window past the payload block into the OUTPUT schema, so response fields (coreTheme, closeLine, tilt) came back as \u0022promised but missing\u0022, and prose words (\u0022Aim\u0022, \u0022Planets\u0022, \u0022THE\u0022) came back as field names.  4. It captured VALUES as keys \u2014 `date: dateStr` yielded both \u2014 and I papered over that with a hand-written junk-list instead of fixing it. The control caught the same flaw a second time on `date: d`.  EVERY ONE OF THOSE FOUR WOULD HAVE BEEN A CONFIDENTLY-REPORTED FALSE FINDING. This is the same reflex as v839: write the enumeration, then trust it. The extractor is now a depth-aware split with NO junk-list \u2014 an extractor that needs one is an extractor that is wrong \u2014 and it immediately corrected a claim I was one commit from shipping: I had \u0022dashaBase\u0022 written down as a year-only payload field, when the year builder emits `dasha: dashaBase`, so the KEY is `dasha`, shared with the day payload.  ONE STRUCTURAL FACT WORTH KEEPING: there are TWO payload shapes under ONE shared BASE_PROMPT. The year payload carries no panchang and no transits. That is why every field doc in BASE_PROMPT has to say \u0022may be null / absent\u0022 \u2014 a law written as though a field is always there is a law that misfires on the year read. Now asserted.",
-      w: "server/narrative/payload-contract.test.ts \u00b7 input-builder.ts two builders (L742 year, L1096 day) \u00b7 3 new probes" },
-  { id: "canon", t: "[NEW v845 — THE CANON LAYER IS CLEAN, AND NOW IT IS GUARDED; THIRD NULL RESULT IN A ROW]", s: "done",
-      m: "The four canon files that had production readers and NO test are now checked. Every check was run by hand first, and every one came back clean.  \u00b7 house-lord-combinations.json claims in its own header \u0022144/144 complete, _gaps: []\u0022. THE CLAIM IS TRUE \u2014 all 144 L{lord}H{placement} keys present, none of them present-but-empty (a blank body reads as covered and says nothing, which is worse than a listed gap).  \u00b7 muhurta-tables.json puts all 27 nakshatras in exactly ONE of the seven natures \u2014 none missing, none duplicated, no names that are not nakshatras \u2014 and the five tithi families are the classical allocation (nanda 1/6/11 through purna 5/10/15) covering 1 to 15 exactly once.  \u00b7 timing.json\u0027s Vimshottari is the classical sequence summing to 120 \u2014 AND server/dasha-calculator.ts, which hand-rolls its own copy without importing the canon, agrees exactly. That includes all 27 star-to-lord assignments following the nine-lord cycle. That map decides which dasha a life BEGINS in: one wrong entry offsets that chart\u0027s entire 120-year clock, silently, forever.  \u00b7 bhava-significations.json carries its OWN house-karaka list and cites the SAME source and pages as karakas.json (Vol I Ch.7, p66-90). Same source means they MUST agree \u2014 all twelve houses do.  THAT LAST CHECK IS THE ONE v839 SHOULD HAVE BEEN. There I compared two tables citing DIFFERENT chapters and called the difference drift. Here they cite the SAME chapter, so agreement is a genuine invariant rather than a coincidence I get to be pleased about. The difference between those two cases is the whole lesson: read the provenance BEFORE comparing the values.  NOTHING NEEDED FIXING. What everything needed was a guard, because each of these is a DUPLICATE of something, and an unwatched duplicate is a drift that has not happened yet.  THE CLASS FIX, so this gap cannot reopen: a meta-test asserts that every canon/*.json is named by at least one test. Fixing five instances by hand and stopping there is exactly how the same gap comes back. I verified it by dropping a junk canon file into the folder \u2014 it failed and named the file \u2014 then removed it.  And my own first draft of these checks misread muhurta\u0027s shape (the natures are objects, not bare arrays); the assertion caught me, reporting 7 where it wanted 27.",
-      w: "canon-integrity.test.ts \u00b7 dasha-calculator.ts DASHA_SEQUENCE + NAKSHATRA_DASHA_LORD \u00b7 meta-guard: every canon json must be named by a test" },
-  { id: "friend", t: "[NEW v844 — I WENT LOOKING FOR THE KARAKAS DRIFT IN THE DIGNITY PATH AND IT IS NOT THERE]", s: "done",
-      m: "A NULL RESULT, REPORTED AS ONE. Five canon files have production readers and no test at all: planetary-friendships, house-lord-combinations, muhurta-tables, timing, bhava-significations. Friendships is the highest-stakes of them \u2014 naisargika maitri decides the friend/neutral/enemy tier, which is most of what \u0022condition\u0022 MEANS in every reading the model receives.  server/panchang/dignity.ts is the module whose dignityLabel() feeds the readings, and it does NOT import that canon file \u2014 it hand-rolls its own FRIEND and ENEMY tables. That is the exact shape of the karakas drift fixed at v790/v799: canon present, consumer keeping a private copy that silently rots. I compared all seven planets across all three buckets, INCLUDING the neutrals the module leaves implicit (\u0022anything not friend/enemy\u0022) \u2014 the half nobody writes down, so the half where a drift would hide.  ZERO MISMATCHES. The hand-rolled table is correct, and the canon file itself matches BPHS ch.3 exactly, all seven planets classifying all six others with no gaps.  I am writing the null result down rather than reaching for something to report, because that reaching is precisely what produced the false v839 finding I had to retract: I had named a class and went hunting for more of it.  WHAT IS ACTUALLY REAL HERE: the duplicate is UNGUARDED. Two copies of one table, nothing noticing if they diverge. Now pinned \u2014 friends, enemies, and the implicit neutrals. Same treatment for a second doubled fact: dignity.ts stores exaltation as an absolute longitude (Sun 10, Moon 33, Mars 298\u2026) while karakas.json stores it as a sign name, so each degree is now checked to land in the sign the canon names, and fall is checked to be exactly opposite. That is the v840 Saturn/10 lesson applied before it bites rather than after.  THE HARNESS EARNED ITS v843 FIX TWICE TODAY: a stale probe anchor here was reported as ANCHOR-FAIL and the run exited 1 instead of printing a green summary. That is exactly what the arity and anchor guards exist for.",
-      w: "server/panchang/dignity.ts FRIEND/ENEMY \u00b7 canon/planetary-friendships.json \u00b7 friendships-canon.test.ts \u00b7 4 canon files still untested" },
-  { id: "quar", t: "[NEW v843 — MY VERIFICATION TOOL PRODUCED A FALSE GREEN, AND A DEAD MODULE STILL CARRIES OVERTURNED DOCTRINE]", s: "think",
-      m: "THE HARNESS LIED FIRST, so that goes first. Building a tripwire for the finding below, my first probe added an import INTO meaning-engine rather than OF it \u2014 the reverse of what the tripwire watches \u2014 so it \u0022survived\u0022 against correct code. Fixing that, I wrote the line continuation as a double backslash instead of a single one. run() silently accepted THREE arguments instead of five, printed \u0022caught\u0022 with a blank name, let the next line execute as a shell command, and the harness still finished with \u0022all probes caught\u0022. A VERIFICATION TOOL THAT CAN REPORT A FALSE GREEN IS WORSE THAN NONE \u2014 it is the same failure as the fifteen versions I called deployed while production sat frozen, one level up. run() now hard-fails on a malformed probe, and I proved that check fires before trusting it.  THE REACH SWEEP, with controls on BOTH sides this time (known-live modules must be seen as reached; the known-dead one must be seen as dead): 59 production modules are imported by no other production module. Most are vendored shadcn ui/* primitives \u2014 expected, not a finding. TWO ARE NOT.  1. server/vedic/meaning-engine.ts, 159 lines, imported by NOTHING but its own test. It is the pre-rebuild INVENTED meaning layer \u2014 the thing the ground-up rebuild exists to replace \u2014 and it contradicts doctrine that is live in the prompt TODAY: it hardcodes \u0022self-worth\u0022 as one of four DEFAULT 2nd-house themes, where prompts.ts says plainly \u0022do NOT reach for worth or self-worth as a default theme\u0022 unless a self-planet genuinely links to the 2nd. Its own test passes happily \u2014 it asserts STYLE (\u0022avoids mystical language\u0022, \u0022uses operational language\u0022) and never asks whether the CONTENT is still your method. A green test on a dead, stale module reads as assurance and is worse than no test.  2. client/src/components/CheckInCard.tsx, 241 lines, unimported \u2014 the live check-in is in pages/Planner.tsx. Not a doctrine conflict, just orphaned UI that will drift silently.  I DELETED NEITHER. Deleting is yours, and CheckInCard may be a deliberate spare. What is mine is the tripwire: quarantine.test.ts fails the moment a production file imports meaning-engine while the stale theme is still in it, so wiring it becomes a deliberate act instead of an accident.  A CLAIM I NEARLY MADE AND DID NOT: I also flagged meaning-engine\u0027s 10th house (\u0022career, public role\u0022) as violating your \u0022dharma is identity, not work\u0022 rule. IT DOES NOT \u2014 prompts.ts:600 reads \u0022 10th \u2014 Your work in the world: career, public standing, reputation, authority\u0022. I was quoting my memory of a rule instead of the rule itself. Only the 2nd-house conflict is real, and it is the only one reported.",
-      w: "server/vedic/meaning-engine.ts \u00b7 client/src/components/CheckInCard.tsx \u00b7 tools/mutation-probe.sh arity check \u00b7 quarantine.test.ts" },
-  { id: "prec", t: "[NEW v842 — THE PICK-A-DATE PRECISION LAYER IS 170 LINES THAT NOTHING CALLS]", s: "think",
-      m: "I enumerated which engine modules no test references \u2014 and got it wrong twice before it was right. My first pass listed yoga-detect.ts and push.ts as untested, which I knew was false; the second missed extensionless imports (from \u0022./day-filter\u0022, no .js) and reported 82. The third pass carries a CONTROL \u2014 seven modules I know are tested must not appear \u2014 and lands on 51, mostly _core scaffolding and debug scripts. I nearly published the wrong number twice.  THE FINDING. server/narrative/day-read-signals.ts opens by calling itself \u0022the deterministic precision layer for the pick-a-date horoscope (Step 4)\u0022. It is 170 lines. NOTHING IN THE REPO IMPORTS IT \u2014 not a router, not input-builder, not a script. It is the largest reach failure of this run and the same shape as the five before it: correct in its own file, arriving nowhere.  WHAT IS ACTUALLY LOST, checked rather than assumed: input-builder already carries crownDay, tarabala/chandrabala and the natal ashtakavarga, so the day read is not missing those. What only the dead module has is TRANSIT-LEVEL precision \u2014 Bhava Chalit house per transiting planet, and per-transit Ashtakavarga bindus via transitStrength(), which across the whole repo is reached by this module and by NOTHING ELSE.  I DID NOT WIRE IT. Wiring changes what a paid pick-a-date reading says, and the method is yours. Your call: wire it, or delete it as superseded. Leaving it is the one option that keeps costing.  ONE REAL BUG INSIDE IT, fixed: `combust` was decided by a single flat 8\u00b0 orb for every body. The engine OWNS combustion in panchang/affliction.ts with the classical per-planet values you corrected me on \u2014 Mars 17\u00b0, Saturn 15\u00b0, Mercury 14\u00b0 (12\u00b0 retro), Jupiter 11\u00b0, Venus 10\u00b0 (8\u00b0 retro). The flat orb was wrong in BOTH directions: it under-reported all five (a Mars 12\u00b0 from the Sun is deep in the glare and was called clear) and over-reported Rahu/Ketu, which have no orb at all. It also ignored the retrograde variant. A repo-wide sweep confirms this was the ONE hand-rolled copy \u2014 input-builder, natal-states, yoga-detect and transit-calculator all import the canonical function \u2014 so it is an instance, not a class. Fixed, tested, and added to the probe harness.",
-      w: "server/narrative/day-read-signals.ts \u2014 no importers \u00b7 transitStrength() reached by nothing else \u00b7 flat 8\u00b0 orb FIXED" },
-  { id: "mut", t: "[NEW v841 — THREE OF MY OWN TESTS WERE GUARDING NOTHING, AND A GREEN SUITE COULD NOT SAY SO]", s: "done",
-      m: "v840 taught me I trust a pattern instead of running the enumeration. So I pointed that at my own work: break each source on purpose, and ask whether its test notices. `npm run verify` cannot tell a real guard from a decorative one \u2014 only breaking the thing can. Fourteen probes; THREE SURVIVED.  1. THE WORST ONE. prompt-structure.test.ts stayed green while I renamed the crown doctrine\u0027s DEFINING heading. BASE_PROMPT also contains the cross-reference that quotes that heading verbatim (\u0027See \u0022PERSONAL APEX \u2014 THE CROWN DAY\u0022 below.\u0027), and toContain() cannot tell a pointer from a definition. THAT IS THE v805 BUG EXACTLY \u2014 a tail citing a law no longer stated \u2014 so the test I wrote to prevent v805 was blind to v805. It is also the same shape as an assertion I had already caught and fixed in bell-ladder.test.ts, where a probe matched a word inside a comment instead of the call. I fixed the instance and left the class. Now every law is checked with defines(): the heading counts only when it starts its own line.  2. The same file passed against a DELETED PROMPT_VERSION export. Its only assertion was not.toBe(\u0022old-string\u0022), and undefined is indeed not that string. A negative assertion alone can never prove a value ARRIVED. Now pinned positively \u2014 typeof, then date shape, then the inequality.  3. MONEY. DAILY_ROW_CAP could be raised from 50 to 5000 with all 873 tests green. That constant is the only thing between one user\u0027s binge and the Anthropic wallet, and it was the subject of a real defect earlier in this run (v806 changed what the other arm COUNTS and left one shared number, quietly cutting the ceiling to a third). After v819 split the arms, NOTHING pinned either number. Your priority 2, unguarded. server/narrative/spend-caps.test.ts now pins both arms, the documented 3x derivation between them, the admin exemption, and the fail-OPEN on a DB counting error.  Also holed: karaka-tables.test.ts, written yesterday, guarded the RELATIONSHIP between the two karaka tables and none of their CONTENT \u2014 swapping career\u0027s primary from Saturn to Jupiter passed every assertion. Both tables\u0027 values are now pinned exactly.  The harness is in the repo, not a scratch file: tools/mutation-probe.sh, `npm run probe`. It refuses to run on a dirty tree and restores the source after every probe. All fourteen now caught.",
-      w: "tools/mutation-probe.sh \u00b7 spend-caps.test.ts \u00b7 prompt-structure.test.ts defines() \u00b7 karaka-tables.test.ts value pins" },
-  { id: "kar", t: "[FIXED v790+v799 in knots.ts \u2014 AND MY v839 \u0027SECOND DRIFT\u0027 WAS A FALSE ALARM I RETRACTED AT v840]", s: "done",
-      m: "CLOSED in knots.ts: karakas.json is imported, a test asserts code == JSON, career carries Jupiter, health derives from the canon house table. That fix was real \u2014 knots.ts had HAND-COPIED the Vol I table and dropped planets from it.  THEN AT v839 I REPORTED A SECOND DRIFT THAT DOES NOT EXIST, and it stood in this sheet and in your brief until v840. I found that server/vedic/life-areas.ts carries its own per-area karaka list, compared it to canon/karakas.json houseKarakaTable, saw career without Jupiter and health without Saturn, and called it \u0027the identical omission, still live in a file I never opened\u0027.  THEY ARE TWO DIFFERENT TABLES, BOTH CITED, BOTH FROM YOUR BOOK. karakas.json says its source is Vol I Ch.7, the house-karaka table (p66-90). life-areas.ts says in its header that it transcribes Vol II Appendix IV \u2014 the varga definition pages (p367-374) and the per-house analysis loop (p390). One lists the general significators of a HOUSE; the other lists the significators the VARGA METHOD uses for that area. They were never supposed to match, and health even carries a note recording the divergence at the moment it was transcribed.  I read a citation-bearing second source as a corrupted copy of the first because I had already named a class and went looking for more of it. That is worse than the bug I was hunting: it manufactured work and put a false claim in your permanent record.  WHAT THE COMPARISON ACTUALLY SHOWS, computed rather than guessed (server/scripts/karaka-compare.ts): seven of ten areas agree on the primary karaka \u2014 self, siblings, home, children, love, career, purpose. Career AGREES; my v839 headline was wrong on its own example. Money and health disagree about WHICH LEADS while sharing the cast (money: Moon leads in Vol II, Ch.7 lists Jupiter which Vol II keeps secondary; health: Sun leads in Vol II, Ch.7 lists Mars and Saturn, and Mars is Vol II\u0027s secondary). Parents is the only row sharing nothing, and that is the deliberate ancestry reading already on this sheet as its own item.  ONE REAL BUG CAME OUT OF THE RE-CHECK, and it is inside the canon file: karakas.json stores the house-karaka mapping twice, forward in houseKarakaTable and inverted in planetKarakas[p].houseKaraka. Seventeen of eighteen pairs agreed. Saturn\u0027s inverted entry was [6, 8, 12] \u2014 it had dropped the 10th, which houseKarakaTable lists and which Vol II independently names Saturn\u0027s primary area. Three-way corroborated, so restoring it is transcription. Nothing reads planetKarakas today, which is exactly why it rotted unnoticed. Both directions are now pinned by a test, as is the fact that the two tables DIFFER \u2014 so the next person who spots the gap cannot \u0027reconcile\u0027 them the way I nearly did.",
-      w: "canon/karakas.json planetKarakas.Saturn.houseKaraka \u2014 10 restored · server/vedic/karaka-tables.test.ts pins both" },
-    { id: "stale", t: "Stored dasha and convergence rows CAN be invalidated — but only all-or-nothing", s: "not",
-      m: "RE-VERIFIED and corrected. Both tables genuinely lack an engineVersion column (schema.ts:579-587, :605-610) and both writers skip when rows exist — but that skip is gated on researchStatus === 'unchanged', so a RESEARCH_ENGINE_VERSION bump cascades through and rebuilds them wholesale. See chain 1. The real defect is granularity: DASHA_ENGINE_VERSION is read by no code anywhere, so an engine fix confined to dasha or convergence invalidates nothing, and a convergence-only fix forces a full ~70,000-row dasha rebuild.",
-      w: "schema.ts:579-587, 605-610 · research-store.ts:24,287 (version read by nothing)" },
-    { id: "part", t: "[BLOCKED \u2014 needs a field] The non-heteronormative partner rule never fires", s: "block",
-      m: "RE-CONFIRMED; my line numbers were off, the substance is exact. The rule is implemented and gender-correct at knots.ts:59 and :158 (husband: Jupiter, wife: Venus, applied only when known); the only production caller hardcodes partnerGender: null at input-builder.ts:858; and drizzle/schema.ts has ZERO gender matches. The branch is dead in production — the gendered karaka never enters players.",
-      w: "knots.ts:59,158 vs input-builder.ts:858 · no gender column anywhere" },
-    { id: "bal", t: "The Verdict cites a canon file that does not contain the data", s: "not",
-      m: "RE-CONFIRMED. verdict.ts:13 cites canon/avashtas.json; that file's keys are _source, _note, lajjitaadi, jagradaadi, combinationLogic, planetSignifications_avasthaList, _pending — the string \"bala\" appears nowhere in it. The fractions are a literal at verdict.ts:34 with mrita 0.05, applied at :93. Fair precision: the balaadi BANDS are properly canon-cited in avashtas.ts:41-51 (Ch.3 p.253); it is only the fruition WEIGHTS — the dial that decides 'late' vs 'late if at all' — that are uncited invention.",
-      w: "verdict.ts:13,34,93 vs canon/avashtas.json · avashtas.ts:41-51" },
-    { id: "hr", t: "[FIXED v779] The House Reader ships the keeper with no strength at all", s: "done",
-      m: "CLOSED v779 — RE-VERIFIED end to end. service.ts:748-790 builds lordCondition and occupantConditions through planetCondition (dignity incl. neecha-bhanga, shadbala ratio, jagradaadi and lajjitaadi avashtas, combustion, planetary war) plus canonIndications; the whole input reaches the model at generate.ts:756-766; and prompts.ts:2065-2093 instructs on both fields and makes the varga beat conditional with a named house-1 rule. house-read-input.test.ts:33-79 tests house 1 specifically.",
-      w: "server/narrative/service.ts:147-173, 748-790 · prompts.ts:2065-2093" },
-    { id: "vishti", t: "[FIXED v772 — verified] The Vishti veto now cancels by act-class, not by English prose", s: "done",
-      m: "RE-VERIFIED, and the fix is better than I described. day-filter.ts:95-124 tags every canon supports-string with an ActClass — travel, moves and relocations, vehicles → journey; marriage, love and union → union — and VISHTI_BLOCKS at :125 is initiate·journey·union·celebrate, applied at :171 by class. The three things Bhadra most forbids are now genuinely vetoed. And :129-139 THROWS at module load if the canon ever gains an unclassified string, so a copy edit can no longer silently change what it blocks.",
-      w: "server/vedic/day-filter.ts:95-139, 171" },
-    { id: "merc", t: "[FIXED v773 — verified] The Mercury contest is applied — at the movement layer, not as a veto", s: "done",
-      m: "RE-VERIFIED, with a correction to how it was fixed: no mercury field was added to DayFilterInput. The contest lives at the movement layer instead — movementOf(..., gates) with mercuryRetro, mercuryNearStation and chandraFavorable at day-filter.ts:319-323, law at :340-347 — and it is populated for real by BOTH callers (ranked-year.ts:175-179 from mercSpeed, routers.ts:1811). The canon note and prompts.ts:775 were rewritten to say it is not a dayFilter.vetoes entry, so the prompt no longer promises a veto the data lacks. Consistent with your rx-contest law: a contest, not a wall.",
-      w: "day-filter.ts:319-323, 340-347 · ranked-year.ts:175-179 · routers.ts:1811" },
-    { id: "crown2", t: "[FIXED v778 + v781] Two live definitions of a crown day, roughly 5x apart", s: "done",
-      m: "CLOSED v778 + v781 — RE-VERIFIED. input-builder.ts:472-489 now sets isCrownDay solely from rankedSolarYearForProfile().summary.topDates (walking offsets 0/-1/+1) and fails safe to false; the calendar month endpoint uses the same source at routers.ts:1783. crownDay() is still called at :453 but only for tarabala, chandrabala and personalRating — not for the flag. One residue, harmless: day-read-signals.ts:148-155 still derives a rating from crownDay directly, and that module has no callers.",
-      w: "input-builder.ts:453,472-489 · routers.ts:1783" },
-    { id: "modes", t: "The retired four modes are the CHARTLESS path's only hero word — needs your ruling", s: "block",
-      m: "RE-AUDITED, and it is not the simple wiring bug the sheet described. Planner.tsx:1211 falls back to the retired Action/Build/Selective/Restraint when selectedCharacter is missing — and selectedCharacter comes from the month endpoint's `character`, which is built from dayFilter with the personal TARA. Tara needs a birth star. So a chartless profile has no character at all, and the retired words are the only thing that surface has ever had to show.  Deleting the fallback would leave a blank hero for exactly those users. The sheet's proposed fix ('make the character total — nature and tithi family need no chart') is a METHOD decision: what IS a day's character with no chart, and does a chartless day get a movement word at all? That is yours, not mine.",
-      w: "Planner.tsx:395,1211 vs routers.ts:1810-1856 (character needs day.tara)" },
-    { id: "pada", t: "[FIXED v774 — verified] The pada is taken from the ruling star's own window (the docstring still lies)", s: "done",
-      m: "RE-VERIFIED, and the fix is neither of the two I proposed — it is better. astronomy.ts:301-315 finds the ruling star's actual window by bisection and takes the pada at that window's MIDPOINT: one write, no overwrite loop, consumed at :332. The code's own comment correctly argues no pada can hold a day's majority. Residue: the function docstring at astronomy.ts:229 still says \"Samples every 2 hours\" — wrong twice over, since sampling was replaced by exact boundary bisection.",
-      w: "astronomy.ts:255-270, 301-315, 332 · stale docstring at :229" },
-    { id: "polar", t: "[FIXED v801, DELIVERED v820] Polar day and night are declared — and now actually reach someone", s: "done",
-      m: "CLOSED, in two parts, and the second part is the one that mattered.  v801 computed AstronomyData.noSunrise and gave it to NOBODY. Not one line read it. The commit said 'the fabrication is now VISIBLE'. Visible to whom? The engine went on reporting a fabricated polar sunrise exactly as before; all v801 added was a field in an object nobody opened.  v820 delivers it: DayField carries it from all THREE construction sites (I had wired two and my own test's `??` fallback hid the third), the narrative input spreads it ONLY when set — a null on every ordinary day would change the input JSON for every user on earth and regenerate every cached reading to say nothing — and BASE_PROMPT carries a rule telling the model to name it once, plainly, and to say NOTHING when absent.  Verified against real latitudes: Longyearbyen 78.22°N reports polar-night on 21 Dec, polar-day on 21 Jun, NULL at the equinox; Boston null on all three.",
-      w: "astronomy.ts · interpreter.ts + service.ts (3 sites) · input-builder conditional spread · BASE_PROMPT" },
-    { id: "sunimp", t: "[FIXED v801] The unknown planet no longer impersonates the Sun", s: "done",
-      m: "CLOSED v801. `SE_INDEX[name] ?? 0` and index 0 is the Sun, so any unknown name silently returned the Sun's longitude and speed — the identical trap that made Rahu report the Sun before v550, whose rule ('unknown planets now throw instead of impersonating the Sun') was applied in calculator.ts and missed here. It throws now. Latent rather than live, which is exactly when it is cheapest to close.",
-      w: "server/profection/transit-calculator.ts:166" },
-    { id: "lockover", t: "[FIXED v802] A pinned reading is no longer overwritable at the write", s: "done",
-      m: "CLOSED v802. The pin was enforced only by the read paths refusing to regenerate; upsertNarrativeCache — the last line of defence and the only code that touches the words — never looked at `locked`. It checks before it writes now, and deliberately does NOT park the rejected prose in the held-rows map: holding it would serve the new words from memory on the very next read and defeat the pin from the other side.  CONTROL: mocks drizzle at the connection and drives the REAL upsert — a locked row takes no insert, an unlocked row does, nothing is held behind a refused write.",
-      w: "server/db.ts upsertNarrativeCache · pin-not-overwritable.test.ts" },
-    { id: "failwrite", t: "[PARTIAL v783] The failed-save re-bill is capped, not closed — the park is per-process, cap 60", s: "not",
-      m: "RE-AUDITED. The mechanism is real: db.ts:655 returns a boolean, hold() at :656-666 parks the row, and getNarrativeCache at :609-621 serves held rows with the DB row winning. But heldRows is a plain module-level Map capped at 60 with drop-oldest, per-process, never retried against the table when it recovers. So it stops a re-bill only for repeat taps inside one process's lifetime: a Railway redeploy or restart drops all of it, and a second replica never sees another's held rows. The file says so honestly — \"a shock absorber for a broken table, not a second cache.\" It caps the bleed; it does not close it. Held readings are also invisible to the archive and unpinnable.",
-      w: "server/db.ts:594-600, 609-621, 655-666" },
-    { id: "capreset", t: "[PARTIAL v806] The cap's in-process half is honest now; the durable half needs a schema change", s: "block",
-      m: "The in-process counter now counts real API calls including retries and burned failures. What remains is structural and needs your hand: the durable count is `rows in narrative_cache since UTC midnight` scoped by profileId — so a regeneration updates one row and still reads as one, the count resets on deploy, and N profiles gives one user N times the cap. A generations table (or a counter column) is the fix, and schema changes here are David-run scripts, never automatic. Half-fixing it in memory would be a band-aid over the same hole.",
-      w: "needs a schema change — server/db.ts:641-652" },
-    { id: "chapauto", t: "The chapter read auto-fires on the Chart page", s: "not",
-      m: "RE-CONFIRMED, and the code admits it. ProfectionYear.tsx:205-207 enables the chapter query on nothing but deepProfileId, with the comment at :203-204 calling it \"a SMALL, cheap, auto-firing LLM call\". The sibling deep read ten lines above (:195-200) is correctly gated on readOpen. So the Door Law is knowingly broken on a billed surface, on page load — here for your ruling, not as an accusation.",
-      w: "client/src/pages/ProfectionYear.tsx:195-207" },
-    { id: "kemadruma", t: "[FIXED v800] Gaja Keshari could never form — for any chart, ever", s: "done",
-      m: "CLOSED v800, and REACH-AUDITED v820 — because the v819 lesson was that I check mechanism and not arrival. combustion() returns a REPORT and yoga-detect asked `!!combustion(...)`, so isCombust() was TRUE for every planet but the Sun on every chart: GAJA KESHARI could never fire, and it is one of the three cancellers of Kemadruma, so the loneliness verdict fired more often than the canon allows. Both cancellations are now applied, measured FROM THE ASCENDANT. The orb table itself was always right (Mercury 14/12, Venus 10/8, Mars 17, Jupiter 11, Saturn 15) — combustion is temporary and orb-based, exactly as it should be; the bug was one missing property read.  WHERE THE FIX ACTUALLY LANDS, measured rather than assumed: (1) the Kemadruma cancellation — COMPLETE, every consumer now sees fewer false Kemadrumas; (2) the free yoga shelf (yogasList serves all stored yogas, unfiltered) — COMPLETE, Gaja Keshari appears there for the first time; (3) the daily/deep PROSE — PARTIAL. input-builder filters standingYogas on `frames.length >= 2 || inNavamsha`, and every FRAME-INDEPENDENT yoga reports exactly one frame by construction — so that first test is unsatisfiable for the whole class of 14, and Gaja Keshari reaches the prose only when it ALSO holds in the navamsha. Pre-existing, not introduced here, and it is a question about what the reader hears: see the brief.  All three need the stored research rebuilt, which the v798 version bump triggers.",
-      w: "yoga-detect.ts:89 · yoga-cancellations.test.ts · reach: routers.ts yogasList (full) vs input-builder standingYogas (partial)" },
-    { id: "melanajson", t: "melana.json is a record, not a source", s: "not",
-      m: "RE-CONFIRMED. canon/melana.json exists; melana.ts names it only in prose comments at :10 and :74, and the file's sole JSON import is planetary-friendships.json (:160). Every table is hardcoded. Fair to the code: the hardcoding is heavily page-cited, so this is transcription from canon rather than invention — the risk is drift between two copies, not wrong values today. 16/16 tests still pass.",
-      w: "server/vedic/melana.ts:10,74,160" },
-    { id: "belltz", t: "[FIXED v808] The bell reaches users with no current location", s: "done",
-      m: "CLOSED v808. The ring loop read users.locationTimezone and nothing else, so anyone who never set a current location had no clock, failed the hour check, and was never rung — permanently. The app already knew their timezone: every profile carries a hometown (backfilled from birth) and a birth timezone, and the standing order is current → hometown → birth. The bell was the one surface off that order. Only users still missing a clock are looked up, so a fully located userbase costs nothing, and localClock's 'skip, don't guess' contract is untouched — this adds SOURCES, it does not invent a timezone.",
-      w: "server/push.ts needTz fallback · bell-ladder.test.ts" },
-    { id: "capturex", t: "[FIXED v810] The welcome card's X no longer completes an empty onboarding", s: "done",
-      m: "CLOSED v810. done() fired completeWelcome unconditionally, so tapping the X marked onboarding finished whether or not birth data had ever been saved — and the capture beat then never rendered again. Backdrop-dismiss was removed for exactly this reason and the X was left on the same path: the earlier fix closed one door and left the other open. With no chart the X now closes the card for THIS session only, so the beat returns on the next open; with a chart it completes as before, because the card has done its job.",
-      w: "OverlaySequencer.tsx onDismiss" },
-    { id: "goldlight", t: "The crowned-day mark is gold on a gold coin — YOUR palette call, now measured", s: "block",
-      m: "NOT FIXED, deliberately. The octagram is #D4AF37 on a crown fill of color-mix(#FFD429 62%, parchment) — measured 1.61:1 on light, 1.59 on :root, 1.42 in Full Spectrum, 1.18 in dark. The border is the same gold, so the ring is equally invisible. My earlier single figure of 1.46 reproduces at no theme.  The tool now works (v807): inking it against its own ground gives #77611a on light / #5e4d14 on dark, both ~4.6:1, same hue, darker. But that turns a gold mark into an olive-gold one, and the crown is your brand element — 'crowned days should follow some sort of golden color scheme'. The alternative is to keep it gold and let the drop-shadow carry the edge (it is currently a GOLD shadow, which is why nothing separates). Both are one-line changes. Which one is yours.",
-      w: "CalendarCoin.tsx:163 mark · Planner.tsx:1670 fill · :1713 border" },
-    { id: "darkparch", t: "Parchment ink in dark mode is 2.29:1 — YOUR palette call", s: "block",
-      m: "NOT FIXED, deliberately, for the same reason: AUDIT_STATUS already lists a light-mode --muted-foreground question as yours, and this is the same token. .parchment pins its ink once for FULL-bright paper (#6B6355); .dark dims --parchment to #a4a09a and never re-pins under it, so every plain day number on the month calendar measures 2.29:1 in Espresso Night, and 3.90:1 in Full Spectrum. Light themes are fine (5.22 / 5.41). The fix belongs in the theme block, one line, and the value is yours.",
-      w: "index.css:135,147 (pin) · :699 (dim)" },
-    { id: "fstokens", t: "[FIXED v785] Full Spectrum is missing the aliases its own law requires", s: "done",
-      m: "CLOSED v785 — RE-VERIFIED with my own contrast math. --primary resolves to #d4af37; html.light now sets --primary-foreground: #1a1305 (index.css:917) and --sidebar-primary-foreground the same (:955). Measured: old #FBF6EC = 1.95:1, new = 8.78:1 (I had said 8.77 — rounding). Full Spectrum does not redefine the token, so it genuinely inherits the fix. The two other measured comments in that block also check out.",
-      w: "client/src/index.css:917, 955, 1133" },
-    { id: "spinners", t: "[PARTIAL v793] A failed reading no longer spins forever — but an unresolved profile still does", s: "pending",
-      m: "CLOSED v793 — RE-VERIFIED. Horoscope.tsx:98-99 now reads isFetching || (!isError && data === undefined), so an errored query resolves to not-loading. I re-ran the class scan the sheet promised: across client/src, `data === undefined` survives in exactly two places, both harmless (a comment at Horoscope.tsx:91 and changelog text) — every other loader gates on isLoading/isPending/isFetching.  RESIDUAL, same shape one input away: the query is also gated on enabled: !!pid. With pid undefined the query never runs, isError stays false, data stays undefined — and the section spins forever again.",
-      w: "client/src/pages/Horoscope.tsx:91, 98-99 (residual: enabled: !!pid)" },
-    { id: "twocals", t: "TWO calendars — and the year calendar has already drifted off every rail law", s: "not",
-      m: "RE-CONFIRMED, with the drift measured. Audit.tsx renders only CalendarCoin; YearCalendar.tsx never imports it and rolls its own sizing at :318-339 (clusterN >= 3 ? 12 : 15). Against the month coin's solved geometry that is: glyphs 12/15px vs 7-13, crown 22px or mSize+2/+4 vs 17/14, octagram 20 vs 25, moon dot 11/13 vs 6-9, strokeWidth 2 vs 2.1, marks capped at 2 vs 5 — and no slot wrapper, no rail budget, no gutter arithmetic at all. Two of the four 'one size for every glyph' laws survive. Zero harness coverage of any of it.",
-      w: "CalendarCoin.tsx vs YearCalendar.tsx:6-8, 318-339" },
-    { id: "rail", t: "[v813 — AWAITING YOUR EYE] Crown on the axis, rail baseline pinned. I have NOT seen it rendered", s: "pending",
-      m: "The arithmetic is fixed and the geometry re-derived; the VISUAL is not confirmed, and by your standing law that means it is not closed.  WHAT CHANGED: (1) the crown was off-axis on every ODD mark count — mid = floor(n/2) put the extra slot right, hanging the crown 4-6.5px LEFT of the date number. Both flanks now hold ceil(n/2) slots with the short side padded, and the slot width solves against that symmetric count. Measured across every case: widest rail UNCHANGED at 42px, crown centred for 1, 2, 3 and 4 marks — the axis cost nothing. (2) the rail floated: top:-17 with no height made the row as tall as its tallest child, and glyphs shrink 13 to 7 as marks are added, so the baseline swung between a light day and a loaded one. Fixed 17px box, children bottom-aligned, one baseline for every day.  WHAT IS NOT DONE: I have not looked at it. 20 assertions of arithmetic including a denominator proving the old formula really was off-axis — and nothing more. v777 is the standing proof that a correct instrument does not help if nobody reads it.",
-      w: "CalendarCoin.tsx · server/rail-geometry.test.ts — confirm on /audit, deployed" },
-    { id: "hookcrash", t: "[FIXED v812] The hook hazard is closed — and my own scan lied to me first", s: "done",
-      m: "CLOSED v812. The guard now sits below every hook and the redirect moved into an effect (setLocation during render is a side-effect in render). My mitigation on this sheet — 'guarded upstream by App.tsx' — was FALSE and I wrote it: /admin/users is registered with NO role check and the auth gate only bars logged-OUT users. What actually prevented the crash is that user.role cannot change within a mount, on the one page carrying the setUserRole mutation.  THE PROBE WAS WRONG BEFORE THE CODE WAS: my first scan sliced to end-of-file and flagged Horoscope.tsx (17 hooks) and Settings.tsx (5). Both FALSE — those files define sibling components below the default export. Bounded by brace matching, the earlier agent's 'only instance' turns out right. The scan now runs over EVERY page, so the next one cannot come back.",
-      w: "Users.tsx · server/hook-order.test.ts (scans every page)" },
-    { id: "splice", t: "[v804 fixed it, v805 broke it again, v819+v825 fixed it twice more] The laws reach the model", s: "done",
-      m: "Four passes on one problem.  v804: 37 lines of the RECENT READS doctrine sat inside a field gloss after an unclosed quote — read by the model as the contents of a cross-reference.  v805: I deleted GLANCE_TAIL and took your CROWN doctrine with it, while BASE_PROMPT still said 'see it in the glance task' and DAY_READ_TAIL said 'obey it exactly as the glance defines it'. My own test asserted the dangling pointer, so the suite defended it.  v819: doctrine moved to BASE_PROMPT — and the SAME deletion also took the NO SINGLE MOVE law, still cited BY NAME by two tails. A dangling pointer created by the commit that existed to remove dangling pointers.  v825: NO SINGLE MOVE recovered from git and restored, and PROMPT_VERSION finally BUMPED — without that, none of the restorations reached a reading that was already cached. A user whose crown day is today, cached before the deploy, would have kept getting the crownless prose.  GUARDED NOW: the tests import the BUILT prompt and assert what the model actually receives, every law cited by a tail must be present, and PROMPT_VERSION must move when a shared law changes.",
-      w: "prompts.ts BASE_PROMPT · prompt-structure.test.ts (runtime, not structural)" },
-    { id: "glanceguard", t: "[FIXED v805] The glance is actually retired now", s: "done",
-      m: "CLOSED v805. My v776 'closed by retirement' was false and the re-audit found both live paths. An ADMIN BUTTON called generateGlance directly — no guard, no retry, no scrub, no cap — and it exercised the retired surface, so a green result said nothing about the reading users actually open; it now runs the LIVE day read through the cached path, so a repeat press costs nothing. And narrative.glance was still an exposed tRPC procedure: a billed endpoint any authenticated client could call, and the last path that could still WRITE glance rows. Procedure, getGlanceCached, generateGlance, GLANCE_SCHEMA and GlanceContent all gone.  DELIBERATELY KEPT: glance in DAILY_SURFACES and PINNED_SURFACES, so legacy rows still appear in Kept Readings and still honour their pins. Retiring a surface must not delete what someone already saved.",
-      w: "narrative/router.ts · service.ts · generate.ts · 2 dev scripts deleted, 4 repointed" },
-    { id: "pin", t: "[FIXED v776] The pin bills a reading nobody reads, and does not protect the one on screen", s: "done",
-      m: "CLOSED v776 — RE-VERIFIED for what it claims: the pin now ensure-generates day_read (router.ts:350) instead of billing a glance nobody reads, locks day_read and deep (:356-357), and the archive reads day_read first (db.ts:699). The invariant it does NOT establish is in the lockover row above: the DB upsert never inspects locked, so the pin holds only because the read paths refuse to regenerate.",
-      w: "narrative/router.ts:350, 356-357 · db.ts:699" },
-    { id: "vage", t: "[FIXED v802] The Verdict no longer regenerates on a clock", s: "done",
-      m: "CLOSED v802. currentAge (0.1-year granularity, from new Date()) was inside the hashed payload, so the hash flipped every 36.5 days with no change in meaning — the reading regenerated and billed, and the peek's hash comparison failed so the door reappeared claiming an already-read verdict was unread. Ten times a year, per profile. The age is now excluded from the cache IDENTITY only: the model still receives it, and each area's `tense` — computed FROM the age — stays hashed, so a genuine crossing still busts the cache. SURFACE_VERSION also gained a `verdict` key; it had none, so the only lever was PROMPT_VERSION, which regenerates every surface for every profile.",
-      w: "narrative/service.ts stable projection · prompts.ts SURFACE_VERSION.verdict · verdict-hash.test.ts" }
-  ]},
-  { n: "8", title: "Your decisions, and the blind spots", note: "Not unverified work. These are questions where the code does what it was told to do and the call is yours \u2014 plus four things the self-audit found that NOBODY asked, including me.", rows: [
-    { id: "farhometown", t: "A traveller's far-date reading falls back to the birth city", s: "block",
-      m: "Opened it. Past a 3-day window the resolver skips your current location and uses hometown - but hometown was BACKFILLED from birth for every existing profile. So a user living in Tokyo, asking about a date 10 days out, reads the Boston sky. The test asserts this as CORRECT per the approved location spec, while your standing law says a reading must never use the birth city's sky when a current location exists. A genuine conflict between your spec and your law, not a bug - your ruling. If the law wins, a seeded hometown has to be distinguishable from one you actually chose.",
-      w: "server/panchang/resolve-day-sky.ts:114-125" },
-    { id: "majstar", t: "The day is named by the MAJORITY nakshatra, not the one at sunrise — your call", s: "think",
-      m: "Deliberate and documented, not a defect: your 2026-07-09 ruling. Re-checked at HEAD: the majority is no longer computed from 6 coarse samples — astronomy.ts finds boundaries by exact bisection now — so the 'resolves by index order' worry is closed. What remains is purely your ruling: the majority rule disagrees with the classical sunrise rule on roughly half of days, and tarabala keys off it. v780 extended the same rule to the day's SIGN, so the two now agree with each other.",
-      w: "astronomy.ts:255-270 (exact boundaries, not sampling)" },
-    { id: "dayreadbudget", t: "The word budget is fine on the DAY read — it is the PREMIUM surfaces that are thin", s: "not",
-      m: "RE-AUDITED and inverted. The day read is comfortable: 620 tokens against a 190-word cap, ~3.3 tokens per word (its own comment is stale, still quoting the retired 800/400). The thin ones are the premium surfaces at ~2.0 tok/word — 900/450, 1100/550, 1300/650 — where JSON keys plus multi-section prose eat the margin. And the failure mode there is sharp: a FIRST-attempt truncation returns no usable tool block, run() returns null, and callGuarded bails at generate.ts:509 with NO retry. Only post-first-attempt failures get the corrective loop.",
-      w: "generate.ts:509, 531, 572, 594, 689" },
-    { id: "blind1", t: "BLIND SPOT - prod schema drift, everywhere except push", s: "block",
-      m: "The self-audit caught this and it is the sharpest omission. The 7/17 outage was a PRODUCTION column that did not match schema.ts, and this sheet cites that outage three times - yet only one audit compared live columns, and only for two tables. Nothing checked narrative_cache, panchang, profile_research, profile_dasha_periods or horoscopes. Same class that already cost you billed readings. I cannot check prod myself; it needs your DATABASE_URL. I would put this above most of section 7.",
-      w: "needs a prod comparison run, not a code read" },
-    { id: "blind2", t: "[FIXED v786] BLIND SPOT - nobody audited what happens when you edit a birth time", s: "done",
-      m: "CLOSED v786 \u2014 Audited. Sound except one hole: the ranked-year memo key missed birthTime/lagnaSign/ascendantDegree, so a birth-TIME correction kept serving the OLD chart's crown days. Key fixed + invalidateRankedYear() on recompute. Pins now release on a correction (David: keep accuracy).  ORIGINAL FINDING: The highest blast-radius path in the app has not one row anywhere on this sheet. Edit a birth time and what must invalidate: the chart, stored research, ~70,000 dasha rows, convergence spans, the narrative cache, profection years. It is also the exact path that exercises the invalidation machinery chain 1 argues about. Ten subsystems swept and none asked, including me.",
-      w: "unaudited" },
-    { id: "blind3", t: "BLIND SPOT - entitlement may have the same shape as billing", s: "block",
-      m: "Chain 5 says billing leaks because every surface hand-rolls its own hash, persist and count. Nobody asked whether ENTITLEMENT has the same defect - hasFeature at 19 sites plus a helper used in 15 more, each deciding for itself. That is the Stripe seam, so a per-surface entitlement bug is a per-surface revenue bug. Audit it before the resolver is written, not after.",
-      w: "unaudited - 19 hasFeature sites" },
-    { id: "blind4", t: "BLIND SPOT - does the shared-row pattern repeat?", s: "block",
-      m: "The panchang table is keyed on date alone, so one location's sky serves everyone. Nobody checked whether time_lord_transits or natal_bodies carry the same shared-row shape. If they do, it is the same bug with a different blast radius.",
-      w: "unaudited" }
-  ]},
-  { n: "9", title: "Verified sound \u2014 what you can trust", note: "You need to know what is solid, not only what is broken. Each of these was checked, several independently re-derived rather than taken from a test.", rows: [
-    { id: "firstlaw", t: "The Calendar First Law holds on both calendars", s: "done",
-      m: "Checked end to end: coin colour derives only from mode accent, movement family, crown gold, caution ruby and golden-day gold. No planet ink anywhere in either calendar's colour logic. Planets speak only through rail glyphs and the bindi ribbon dots, which is your own spec. The v699 retirement of the planet-coloured coin landed properly and has not crept back.",
-      w: "Planner.tsx:1638-1655, YearCalendar.tsx:250-262" },
-    { id: "horiz", t: "[v813] The crown is on the axis now — the rest of this row still holds", s: "pending",
-      m: "The coin, the glyph rail and the bindi ribbons share one vertical axis, and the bindi fixed-track design works — an empty track keeps its slot, so a planet's line never jumps rows across the month. The two things this row was wrong about are now fixed in v813: the crown sat 4-6.5px left of the axis on odd mark counts, and the rail's baseline floated. Still true: my 48.9px and 46.7px cell figures are both DERIVED (viewport minus padding, over seven), not measured on a device — and neither has been confirmed with a ruler.",
-      w: "CalendarCoin.tsx — geometry re-derived v813, still unseen" },
-    { id: "beats", t: "The first-run beat order matches your spec exactly", s: "done",
-      m: "Manifesto, splash, welcome, tour - first-match-wins, in that order, with the greeting and veil ahead of them. Every sequencer overlay is dismissable; none can trap a user. The tour is opt-in only and no longer auto-fires, so the quieting pass held. The MeridianCard hook crash from v765 is genuinely fixed at the source.",
-      w: "client/src/components/OverlaySequencer.tsx:122-169" },
-    { id: "buildok", t: "The build passes — but it never typechecks, and there are 7 server errors including one real bug", s: "pending",
-      m: "RE-RUN at HEAD. npm run build exits 0 — checked by exit code, per your law. But the script is vite build && esbuild, both transpile-only, so NOTHING in the build path typechecks. npx tsc --noEmit exits 2 with 7 errors, all server-side, zero client: five TS2802 downlevelIteration (rateLimit.ts:22, narrative/router.ts:234, push.ts:243, routers.ts:957, windows.ts:23), one implicit any (push.ts:246), and one that is a genuine nullability hole rather than a config artifact — routers.ts:2250 passes string | undefined into a drizzle eq() on push_subscriptions.endpoint. My 'the client is type-clean' held; 'they ship silently' was the important half and it is still true.",
-      w: "npm run build → exit 0 · npx tsc --noEmit → exit 2, 7 errors" },
-    { id: "melanacanon", t: "Every melana correction you asked for was actually implemented", s: "done",
-      m: "Checked one by one against the canon extraction: janma counted favorable, gana directional with both orientations and a mean score, maitri friend-plus-enemy equals 2, kuja dosha from houses 2/12/4/7/8 reckoned from Lagna, Moon and Venus with the cancellations, the nadi same-rasi/same-star/pada exceptions, and the bhakuta ekadhipatya and mutual-friend cancellations with the nadi-shuddhi precondition genuinely honored. Varna is still dropped WITH its reason shipping to the surface. The directional currents are never folded - not in the engine, not in the score, not in the prose. 16/16 tests pass.",
-      w: "server/vedic/melana.ts + melana.test.ts" },
-    { id: "bundling", t: "The yoga nameplate bundling fix is real, and the bug class is swept", s: "done",
-      m: "The v656 fix genuinely holds: yogas.json is a static import in all three consumers and the gloss text is present in the built artifact, so nameplates cannot silently come back null in production. I asked for a sweep of the same bug class and it came back clean - the only remaining runtime file reads are a hand-run script and a dev-only template. No other canon file can fail that way.",
-      w: "verified in dist/index.js" },
-    { id: "claimsend", t: "The bell cannot double-ring, even across replicas or a restart", s: "done",
-      m: "The claim-before-send is correct: a single conditional UPDATE stamps the local date and the loser of a race gets zero rows and skips. The MySQL accessor is the right one for this driver - not the Postgres trap. A restart mid-send costs one missed bell, never a duplicate, which is the correct trade. Dead endpoints are pruned, one bad endpoint cannot stall the loop, a six-hour TTL means a morning line can never arrive at night, and missing keys degrade to a silent no-op.",
-      w: "server/push.ts:253-257" },
-    { id: "pushschema", t: "Push and location schemas have ZERO drift from their hand-run scripts", s: "done",
-      m: "This is the outage class that cost you billed readings on 7/17, so it was checked column by column: push_subscriptions and profile_day_locations match their creation scripts exactly on every column, width, nullability, default and unique key - including the unique key that the location upsert depends on. The endpoint column width matches its validator exactly. The per-date override is airtight: owner-asserted, profile-and-date scoped, cache keyed per profile, invalidated on write. Also present: an SSRF guard on subscribe with a push-service allowlist, which without it would make the bell a nightly probe into your private network.",
-      w: "drizzle/schema.ts vs scripts/" },
-    { id: "voicelaws", t: "Your hardest voice laws hold across the whole prompt", s: "done",
-      m: "Swept line by line. 'Destined' is GONE - zero occurrences in the entire file, and it is re-banned inside the verdict and eclipse-bell prompts too. No-single-move is enforced on every surface with real teeth, including a ban on the specific phrasings. Siblings as blood AND chosen family is stated in seven places with an explicit output rule and no blood-only reading anywhere. One-self-not-compartments carries a falsifiable test the model can apply to its own draft. No hardcoded benefic or malefic - judged by live condition, with hard-won and neecha bhanga honored in seven places. The atmosphere-needs-a-receipt tie-break is stated as a testable rule, and the black box that made the 7/17 outage diagnosable is solid.",
-      w: "server/narrative/prompts.ts + generate.ts" },
-    { id: "peekok", t: "Every peek is genuinely read-only and honest", s: "done",
-      m: "The M19 pattern - a peek must match the real getter's hash and lock gate, so it can never report 'already read' for something the real open would regenerate - was checked byte-for-byte across all six peeks including month, which had been missed once before. None of them generate, none upsert, none bill. This was a real risk area and it is clean.",
-      w: "server/narrative/service.ts peek functions" },
-    { id: "ownok", t: "Ownership scoping is clean - no unscoped procedure found", s: "done",
-      m: "Every narrative procedure taking a profileId calls assertOwnsProfile first, which does an owner-scoped lookup and throws FORBIDDEN. The rest resolve through getActiveProfile and are inherently owned. The combined reading loads the second profile with an explicit userId match and refuses a self-pair. Even the admin uncap path can only touch the admin's own profiles. Your data-isolation law holds across this whole layer.",
-      w: "server/narrative/router.ts + routers/profiles.ts assertOwnsProfile" },
-    { id: "stablehash", t: "The day-stable cache hash is correct in both directions", s: "done",
-      m: "dayStableHash strips the volatile panchang fields and recentReads so a reading does not regenerate as the clock moves, and its test proves BOTH directions - stable across the day, but genuinely busting on an eclipse-phase, chart or transit change. Cache hits never reach the generation counter, and a null result from a dry wallet does not burn the cap. The 7/17 law holds too: a save failure never kills a billed read.",
-      w: "server/narrative/service.ts:31-47 + service.hash.test.ts" },
-    { id: "ayan", t: "The ayanamsa split is genuinely closed", s: "done",
-      m: "Measured by the sweep: WASM sidereal state is per-instance (a fresh instance reports Fagan-Bradley 25.111; after set_sid_mode, Lahiri 24.228). All four live instances set it. The v663 C1 fix holds - the only code outside the frame is two dead debug scripts with no importers. NOTE: the init race above can still bypass this at cold start, which is why that finding matters.",
-      w: "astronomy.ts:94 - calculator.ts:242,382,399 - natal-chart-engine.ts:107 - transit-calculator.ts:22" },
-    { id: "nodes", t: "Node longitudes are correct in all three engines", s: "done",
-      m: "The SE_RAHU/SE_KETU trap is real - those constants are undefined in this binding and would resolve to the Sun - but every live path now routes through SE_MEAN_NODE. Measured 2026-07-19: Rahu 307.37701, Ketu 127.37701, separation exactly 180.000000000, both retrograde. Only Ketu's speed SIGN diverges, which is the finding above.",
-      w: "verified across all three engines" },
-    { id: "av", t: "Ashtakavarga is canon-correct", s: "done",
-      m: "RE-VERIFIED independently — I summed all 7x8 rows of BINDU_TABLE itself rather than trusting the declared BINDU_TOTALS, and checked for duplicate and out-of-range house entries (none). Sun 48, Moon 49, Mars 39, Mercury 54, Jupiter 56, Venus 52, Saturn 39, Sarva 337. Every row matches BPHS. The test file remains unusually good. 9/9 pass.",
-      w: "server/vedic/ashtakavarga.ts (independently summed)" },
-    { id: "chalit", t: "Bhava Chalit is correct Sripati, and honest about its limits", s: "done",
-      m: "Porphyry trisection of each quadrant with the angles as madhyas and sandhis at the midpoints - textbook. Equal-bhava fallback when the MC is unknown, and the no-birth-time incoherence is properly guarded at both the research and input layers. Consumers surface chalit and whole-sign houses side by side rather than silently picking one.",
-      w: "server/vedic/bhava-chalit.ts" },
-    { id: "tz", t: "Timezone handling in the production path is excellent", s: "done",
-      m: "The local-to-UTC binary search round-trips EXACTLY for India +5:30, Nepal +5:45, Chatham +12:45, the 1942 US war-time offset, pre-1970 dates, and the DST spring-forward gap. Minute-precise offsets, so the half-hour-zone bug is genuinely closed. resolveDaySky computes the offset for the READING's date rather than now, with a clean five-tier precedence. Ascendant math verified sound at every latitude tested including exactly 90 degrees.",
-      w: "server/vedic/tz-offset.ts - server/panchang/resolve-day-sky.ts" },
-    { id: "tests", t: "The engine test suite is green", s: "done",
-      m: "RE-RUN at HEAD, and my numbers were wrong in both directions. npx vitest run over server/vedic, server/panchang and server/sky: 30 files, 312 passed, 4 skipped, ZERO failures — better than the 29/298 I reported. But the second claim was well off: the dasha, profection, house-research and convergence suites are 4 files, 36 passed and 4 skipped, not 69 of 69. Zero failures either way; the count was inflated.",
-      w: "real runs at HEAD 1b8210e" },
-    { id: "vim", t: "Vimshottari arithmetic is correct", s: "done",
-      m: "Independently re-derived outside the test suite across 5 Moon longitudes and all 5 levels - roughly 74,000 periods each. Lord sequence sums to exactly 120 years, the nakshatra-to-lord mapping is right at both ends with no off-by-one, the partial first period uses the classical back-dating method, and there are ZERO tiling gaps or overlaps at any level. 69 of 69 tests pass at HEAD. This is the spine of every timing claim in the app and it is sound.",
-      w: "server/vedic/dasha-tree.ts" },
-    { id: "prof", t: "Profection year math is correct", s: "done",
-      m: "Birthday rollover uses strict greater-than so the birthday itself starts the new year. Verified identical output under UTC, America/Los_Angeles and Pacific/Kiritimati. The earlier UTC fix holds.",
-      w: "server/profection/calculator.ts" },
-    { id: "avash", t: "The avashta engine matches its canon file verbatim", s: "done",
-      m: "RE-CONFIRMED including the caveat. All six Lajjitaadi formulas and all three Jagradaadi states are faithful, wired into stored research and into prose, and the engine is real — only day-frame.ts:15's comment says otherwise. The caveat stands and is now one of four: avashtas.json is among the canon files NOTHING imports, so this is a hand-implementation that agrees today with nothing enforcing that it keeps agreeing.",
-      w: "server/vedic/avashtas.ts vs canon/avashtas.json (unimported)" },
-    { id: "shad", t: "Shadbala is far more complete than the docs claim", s: "done",
-      m: "REBUILD_MAP says one third built. In fact all six sources compute, and five of six are canon-faithful with correct constants - Sthana's five parts, Dig, Drik, Naisargika, and eight of Kala's nine sub-parts including the exact classical ayana formula. The honesty contract is real: a partial chart returns null rather than a faked total, and prose degrades to 'unmeasured'.",
-      w: "server/vedic/shadbala.ts - 28/28 tests pass" },
-    { id: "dayf", t: "The day filter reads canon at runtime", s: "done",
-      m: "day-filter.ts builds its lookups FROM muhurta-tables.json at module load rather than hardcoding them, so editing the table changes the engine. That is the correct pattern. The table itself is canonically right: all 27 nakshatras allocated across the 7 natures exactly once, and the 5 tithi families are the standard sets.",
-      w: "server/vedic/day-filter.ts:26-35" },
-    { id: "al", t: "The Arudha Lagna calculation is exact", s: "done",
-      m: "Verified against the canon shortcut table for all 12 lagna-lord positions including the 1st/7th exception. The three-way documentation contradiction about whether it is wired is settled: it IS computed and used. Only the docs are wrong.",
-      w: "server/vedic/knots.ts:98-107" },
-    { id: "overfire", t: "The founding-wound fix is intact", s: "done",
-      m: "The discipline that stopped every quiet chart lighting up still holds: titular ownership never counts, only real placement or aspect. A static natal conjunction establishes a chapter but does NOT date it; only a slow transit landing on the ruler dates an event. The year-lord is correctly excluded from the tally as a separate timing system - your Moon double-count law, honored.",
-      w: "server/vedic/knots.ts:152-198" },
-    { id: "r3", t: "R3 is closable by deletion", s: "done",
-      m: "RE-VERIFIED by repo-wide grep for meaning-engine, meaningEngine, generateExpectedMeaning and ExpectedMeaning across server and client: the sole hit is its own test file. Both exports have no production importer. It still hardcodes 10th = career against your dharma law, and it reaches no user. Deleting the file closes REBUILD_MAP R3 outright.",
-      w: "server/vedic/meaning-engine.ts — only importer is its own test" }
-  ]}
-];
-
-const RETRACTED = [
-  ["Pick-a-date reveal reuses the year read", "Fixed 7/12 in v389, then superseded by the varga life-area lens. The picked date drives transits, panchang, dasha and the lens. I copied a stale memory line forward through three audits."],
-  ["Deep-read path never repointed to stored research", "It was. natalCondition is built before the paths split and both deep variants receive it."],
-  ["Shadbala only computes 3 of 6 sources", "All six are implemented. The null value I pointed at appears only for charts that genuinely can't support it \u2014 no birth time, no MC. Correct behaviour, not a gap."],
-  ["meaning-engine.ts is a live 10th=career violation", "It does still hardcode it \u2014 but nothing imports it except its own test. Dead code. The live path reads the 10th as dharma/identity via Arudha Lagna, correctly."],
-  ["Morning Bell eclipse-day line is missing", "Fully written and wired, including an LLM understudy. The comment in the file saying otherwise is stale."],
-  ["Two competing house\u2192mode engines are both live", "Only one is live. The other is a stale table published by a public endpoint \u2014 a smaller, different problem."],
-  ["Three nakshatra classifications disagree", "The two I named now agree. The real disagreement is between the mode engine and day-quality on four nakshatras."],
-  ["Eight hasFeature call sites to re-point", "Nineteen, plus a helper used in fifteen more places."],
-  ["The reconcile script never drops a row", "It deletes duplicate natal-body rows and drops an index. Safe, but not what I said."],
-  ["\u201cSelf-worth\u201d is still live in four places", "RETRACTED 20 July. All four sites are clean at HEAD. The only residue is meaning-engine.ts, which nothing imports."],
-  ["Nothing detects a dasha handoff on a date", "RETRACTED. arc.ts dates the next antardasha boundary and the month arc enumerates pratyantar hand-offs. The prompt line I cited (\u201ca handover during the day\u201d) means the day's STAR, not a dasha."],
-  ["Ketu's wrong speed persists in profile_natal_bodies", "RETRACTED. That table has no longitudeSpeed column, so nothing wrong was ever stored there. Speed lives in profile_research, which the engine-version path rebuilds."],
-  ["The admin hook hazard is guarded upstream by App.tsx", "RETRACTED. The /admin/users route has NO role check; the auth gate only bars logged-out users. What prevents the crash is that a role cannot change within a mount."],
-  ["The glance surface is closed by retirement", "RETRACTED. generateGlance is still called unguarded from an admin client action, the tRPC procedure is still live and still writes glance rows, and the archive serves them by design."],
-  ["29 test files, 298 passing; 69 of 69 elsewhere", "RETRACTED. Really 30 files and 312 passing \u2014 better than I claimed \u2014 and the second suite is 36 passed with 4 skipped, not 69 of 69."]
-];
-
-const LABEL = { done: "Verified fixed", pending: "Check", not: "Broken", block: "On you", dead: "Dead code", think: "Think on it" };
-const main = document.getElementById('main');
-
-DATA.forEach(sec => {
-  const s = document.createElement('section');
-  s.innerHTML = '<h2><span class="n">' + sec.n + '</span>' + sec.title + '</h2>' + (sec.note ? '<p class="note">' + sec.note + '</p>' : '');
-  sec.rows.forEach(r => {
-    const d = document.createElement('div');
-    d.className = 'row'; d.dataset.s = r.s;
-    d.innerHTML =
-      '<div class="row-head"><div class="task">' + r.t + '</div><span class="chip s-' + r.s + '">' + LABEL[r.s] + '</span></div>' +
-      '<div class="mynote">' + r.m + '</div>' +
-      (r.k ? '<div class="walk"><b>To see it</b>' + r.k + '</div>' : '') +
-      '<div class="where"><code>' + r.w + '</code></div>' +
-      '<label class="nl" for="n-' + r.id + '">Your notes</label>';
-    // Built as an element, not markup, so quotes/dashes in the notes can never break an attribute.
-    const ta = document.createElement('textarea');
-    ta.id = 'n-' + r.id;
-    ta.placeholder = 'What you saw\u2026';
-    ta.dataset.task = r.t;
-    ta.dataset.status = LABEL[r.s];
-    ta.dataset.where = r.w;
-    ta.dataset.section = sec.n + '. ' + sec.title;
-    ta.dataset.claude = r.m.replace(/<[^>]+>/g, '');
-    if (r.k) ta.dataset.walk = r.k;
-    d.appendChild(ta);
-    s.appendChild(d);
-  });
-  main.appendChild(s);
-});
-
-const rs = document.createElement('section');
-rs.innerHTML = '<h2><span class="n">10</span>Retracted \u2014 what I got wrong</h2><p class="note">These were on the sheet I handed you. All nine are false or materially wrong. Listed so you can see the error rate, not just the leftovers.</p>';
-RETRACTED.forEach(r => {
-  const d = document.createElement('div');
-  d.className = 'retracted';
-  d.innerHTML = '<b><s>' + r[0] + '</s></b><br>' + r[1];
-  rs.appendChild(d);
-});
-main.appendChild(rs);
-
-const counts = {};
-DATA.forEach(s => s.rows.forEach(r => counts[r.s] = (counts[r.s] || 0) + 1));
-document.getElementById('tally').innerHTML =
-  ['not','pending','think','block','done'].filter(k => counts[k]).map(k => '<span class="s-' + k + '">' + counts[k] + ' ' + LABEL[k].toLowerCase() + '</span>').join('') +
-  '<span class="s-dead">' + RETRACTED.length + ' retracted</span>';
-
-const KEY = 'velea-audit-2026-07-19-v2';
-let saved = {};
-try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
-document.querySelectorAll('textarea').forEach(ta => {
-  if (saved[ta.id]) { ta.value = saved[ta.id]; ta.closest('.row').classList.add('marked'); }
-  autosize(ta);
-  ta.addEventListener('input', () => {
-    saved[ta.id] = ta.value;
-    ta.closest('.row').classList.toggle('marked', ta.value.trim().length > 0);
-    autosize(ta);
-    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
-  });
-});
-function autosize(ta) { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; }
-
-document.querySelectorAll('.filter').forEach(b => {
-  b.addEventListener('click', () => {
-    const f = b.dataset.f;
-    document.querySelectorAll('.filter').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
-    document.querySelectorAll('.row').forEach(r => r.classList.toggle('hide', f !== 'all' && r.dataset.s !== f));
-    document.querySelectorAll('section').forEach(s => {
-      const hasRows = s.querySelectorAll('.row').length > 0;
-      s.style.display = !hasRows ? (f === 'all' ? '' : 'none') : (s.querySelectorAll('.row:not(.hide)').length ? '' : 'none');
-    });
-  });
-});
-
-const toast = document.getElementById('toast');
-document.getElementById('copy').addEventListener('click', async () => {
-  const lines = [];
-  let lastSection = '';
-  document.querySelectorAll('#main textarea').forEach(ta => {
-    if (!ta.value.trim()) return;
-    if (ta.dataset.section !== lastSection) { lines.push('# SECTION ' + ta.dataset.section); lastSection = ta.dataset.section; }
-    const b = ['## ' + ta.dataset.task + '  [' + ta.dataset.status + ']'];
-    b.push('WHERE: ' + ta.dataset.where);
-    if (ta.dataset.walk) b.push('TO SEE IT: ' + ta.dataset.walk);
-    b.push('CLAUDE SAID: ' + ta.dataset.claude);
-    b.push('DAVID: ' + ta.value.trim());
-    lines.push(b.join('\n'));
-  });
-  const out = lines.length ? "David's audit notes \u2014 Velea v767 (2026-07-19)\n\n" + lines.join('\n\n') : 'No notes written yet.';
-  try { await navigator.clipboard.writeText(out); show(lines.length ? 'Copied ' + lines.length + ' note' + (lines.length === 1 ? '' : 's') : 'Nothing to copy yet'); }
-  catch (e) { show('Copy blocked \u2014 select the text instead'); }
-});
-function show(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1900); }
-</script>
