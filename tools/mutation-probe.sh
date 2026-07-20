@@ -98,6 +98,13 @@ run server/vedic/canon/muhurta-tables.json '"Krittika",\n        "Vishakha"' '"K
 run server/vedic/canon/bhava-significations.json '"karakas": ["Mars", "Saturn"]' '"karakas": ["Mars"]' \
   server/vedic/canon-integrity.test.ts "two same-source canon tables disagree on a house karaka"
 
+run server/narrative/input-builder.ts 'recentReads, humanTime, timeLordTransit, arc,' 'recentReads, humanTime, arc,' \
+  server/narrative/payload-contract.test.ts "a documented payload field stops being emitted"
+run server/narrative/input-builder.ts 'strength: +merRx.strength.toFixed(2)' 'power: +merRx.strength.toFixed(2)' \
+  server/narrative/payload-contract.test.ts "mercuryRx shape drifts from what the prompt promises"
+run server/narrative/prompts.ts '- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal, strength,' '- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal,' \
+  server/narrative/payload-contract.test.ts "the transits field doc drifts from the emitted shape"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"

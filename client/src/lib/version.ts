@@ -1991,4 +1991,28 @@
 // My own first draft misread muhurta's shape (natures are objects, not arrays) and the assertion
 // caught me — 7 where it wanted 27.
 // 24 probes, all caught. 85 files, 906 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.845";
+// v1.1.846 = 2026-07-20 — THE PAYLOAD CONTRACT IS CLEAN. MY INSTRUMENT WAS WRONG FOUR TIMES.
+// The prompt DESCRIBES the data to the model field by field. A field it names that the builder never
+// emits is data the model is told to expect and never receives; a field emitted and never described
+// is tokens spent on something unexplained. I checked the whole contract by hand. It is CLEAN:
+//   · every top-level field BASE_PROMPT documents is emitted by one of the TWO builders;
+//   · mercuryRx emits { phase, strength, retrograde } — exactly as documented;
+//   · eclipseSeasonArc emits { today, windowEnd, count, eclipses } — exactly as documented, with
+//     `eclipses` correctly a SUB-field under a declared parent (it first appeared in my scan as a
+//     top-level field that does not exist);
+//   · transits carries precisely the eleven keys the prompt lists.
+// Fourth null result in a row. WHAT WAS NOT CLEAN WAS THE INSTRUMENT — four wrong extractions, each
+// caught only by a control:
+//   1. matched only the FIRST field on lines declaring several ("domain" read as absent);
+//   2. matched a DIFFERENT return statement — there are two builders — and concluded panchang and
+//      transits are never emitted, which I had read with my own eyes minutes earlier;
+//   3. ran the doc-scan window past the payload block into the OUTPUT schema, so response fields
+//      (coreTheme, closeLine, tilt…) came back as "promised but missing";
+//   4. captured VALUES as keys (`date: dateStr` → both), which I papered over with a hand-written
+//      junk-list instead of fixing. The control caught the same flaw again on `date: d`.
+// The extractor is now a depth-aware split with no junk-list — an extractor needing one is wrong.
+// It immediately corrected a claim I was one commit from shipping: I had "dashaBase" as a year-only
+// payload field; the year builder emits `dasha: dashaBase`, so the KEY is `dasha`, shared with the
+// day payload. Every one of those four would have been a confidently-reported false finding.
+// 27 probes, all caught. 86 files, 916 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.846";
