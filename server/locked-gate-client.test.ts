@@ -61,8 +61,19 @@ function unhandled(): string[] {
   const lockable = lockableProcedures();
   const missing: string[] = [];
   for (const f of walk(join(ROOT, "client", "src"), [".tsx"])) {
-    const s = readFileSync(f, "utf8");
-    for (const m of s.matchAll(/const\s+(\w+)\s*=\s*trpc\.([\w.]+)\.use(?:Query|Mutation)/g)) {
+    const whole = readFileSync(f, "utf8");
+    // PER-COMPONENT, not per-file (the probe caught this): Horoscope.tsx declares `reveal` in five
+    // different cards, so a file-wide search for "reveal…?.locked" was satisfied by a SIBLING
+    // card's handling while the card under test had none. Scope each call site to the component
+    // body it sits in — the file is cut at top-level `function X(` boundaries.
+    const bounds = [...whole.matchAll(/^(?:export default |export )?function \w+\(/gm)].map((b) => b.index!);
+    const scopeOf = (at: number) => {
+      const start = bounds.filter((b) => b <= at).pop() ?? 0;
+      const end = bounds.find((b) => b > at) ?? whole.length;
+      return whole.slice(start, end);
+    };
+    for (const m of whole.matchAll(/const\s+(\w+)\s*=\s*trpc\.([\w.]+)\.use(?:Query|Mutation)/g)) {
+      const s = scopeOf(m.index!);
       const [, v, path] = m;
       if (!lockable.has(path.split(".").at(-1)!)) continue;
       // Follow one aliasing hop — `const d: any = someQ.data` and `const readQ = ... peekQ ...`
