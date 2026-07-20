@@ -799,4 +799,24 @@
 // hex pairs that silently no-ops for anything not listed) are the predecessors of this; none of
 // them measures contrast. Applied here ONLY to the new gate. Sweeping it across the app is a
 // VISUAL decision and therefore David's call, not mine — the measurement is in his hands.
-export const APP_VERSION = "1.1.784";
+// v1.1.785 = 2026-07-20 — THE DEFAULT BUTTON WAS NEAR-ILLEGIBLE IN THE DEFAULT THEME.
+// Chasing the Full Spectrum --color-* gaps found something bigger sitting underneath. --primary is
+// the SAME light brand gold in every theme block, so its foreground must be dark in every block —
+// but html.light had it near-WHITE (#FBF6EC). Measured on the real rendered button: 1.95:1, against
+// a 4.5:1 floor. That is `bg-primary text-primary-foreground`: the DEFAULT button variant, badges,
+// checkboxes, the selected calendar day, and the chat bubbles — all carrying near-invisible labels
+// in Oat Milk, the app's default theme. Same bug again in --accent-foreground and
+// --sidebar-primary-foreground. Set to #1a1305 (8.77:1) — the value the other theme blocks already
+// use for these exact tokens, so this is the system agreeing with itself, not a new colour.
+// Full Spectrum inherits html.light and was fixed by the same lines: FS primary went 1.95 -> 8.77.
+// VERIFIED by resolving the REAL computed tokens in a browser across light / dark / full-spectrum
+// (8.77x on all three now). The probe resolves oklch() and color-mix() through a canvas, because
+// its first version regex-parsed "oklch(0.767 0.139 91.1)" as if those were RGB channels and
+// reported nonsense; it now carries a black/white sanity anchor that must read 21.0.
+// The original FS audit came back mostly CLEAN: of the 7 --color-* tokens the app uses that the FS
+// block does not set, 4 are painted at runtime by FullSpectrumController and the other 3 are the
+// gold primary/accent, which are legible on FS's dark grounds by design.
+// LEFT FOR DAVID (a palette value he chose, not an internal contradiction): light-mode
+// --muted-foreground #8D8171 measures 3.48:1 on the card and 3.16:1 on the background, under the
+// 4.5 floor for small text. Same hue 15% darker (#786E60) reaches 4.56/4.14. His call.
+export const APP_VERSION = "1.1.785";

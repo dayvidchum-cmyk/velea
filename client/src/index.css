@@ -903,13 +903,20 @@ html.light {
   --popover: #F9F4EA;
   --popover-foreground: #3E352A;
   --primary: oklch(0.767 0.139 91.1);
-  --primary-foreground: #FBF6EC;
+  /* THE INK ON GOLD MUST BE DARK (2026-07-20, measured). --primary is the SAME light brand gold in
+     every theme block, so its foreground has to be dark in every theme block too — but light mode
+     had it near-WHITE. Measured on the real button: #FBF6EC on this gold is 1.95:1, far under the
+     4.5:1 floor, i.e. the default button, badges, checkboxes, the selected calendar day and the
+     chat bubbles all carried near-illegible labels in the app's DEFAULT theme. #1a1305 (8.77:1) is
+     the value the other blocks already use for this exact token, so this is the system agreeing
+     with itself, not a new colour. Full Spectrum inherits it and is fixed by the same line. */
+  --primary-foreground: #1a1305;
   --secondary: #EAE1CF;
   --secondary-foreground: #3E352A;
   --muted: #EAE1CF;
   --muted-foreground: #8D8171;
   --accent: oklch(0.767 0.139 91.1);
-  --accent-foreground: #FBF6EC;
+  --accent-foreground: #1a1305;
   --destructive: oklch(0.50 0.18 25);
   --destructive-foreground: #FBF6EC;
   --border: #E2D7C2;
@@ -934,7 +941,9 @@ html.light {
   --sidebar: #F9F4EA;
   --sidebar-foreground: #3E352A;
   --sidebar-primary: oklch(0.767 0.139 91.1);
-  --sidebar-primary-foreground: #FBF6EC;
+  /* Same class as --primary-foreground above: the sidebar's primary is the same light gold, so a
+     near-white label measures the same 1.95:1. The other theme blocks already use #1a1305 here. */
+  --sidebar-primary-foreground: #1a1305;
   --sidebar-accent: #EFE7D8;
   --sidebar-accent-foreground: #3E352A;
   --sidebar-border: #E2D7C2;
