@@ -1782,4 +1782,21 @@
 // write a test like this honestly. The baseline is also pinned BY VALUE, so all eight drifting
 // together still fails. Proven to bite by making Scorpio's ruler Pluto in one copy.
 // 78 files, 836 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.835";
+// v1.1.836 = 2026-07-20 — "CLOSED BY CONSTRUCTION" WAS OVERSTATED TOO. I LOCKED TWO GROUPS OUT OF
+// EIGHT AND CALLED THE CLASS SHUT.
+// Went back through the 22 duplicated names and separated the ones carrying JUDGEMENT from the
+// structural lists. Two more real ones, and one that is not real at all:
+// · MOOLA — the moolatrikona ranges, in THREE modules, two of them spelling the bounds differently
+//   (from/to vs lo/hi), which is exactly how a copy hides from a grep. shadbala uses them to compute
+//   STHANA BALA, so a drift here moves a planet's STRENGTH, not just its label. All three agree; all
+//   three are now locked, pinned by value so drifting together still fails. Proven to bite by moving
+//   Mercury's lower bound by ONE degree in one copy.
+// · TARAS is a NAME COLLISION, not a duplicate. crown.ts's TARAS is the nine tara names of the
+//   day-star cycle; natal-states and shadbala use TARAS for the five star-PLANETS. Same identifier,
+//   unrelated concepts. Reporting it as drift would have been a fifth false finding — and worse, a
+//   future tidy-up "fixing" them into agreement would introduce a real bug. Recorded in the test so
+//   the next sweep leaves them alone.
+// The pattern I keep repeating is not carelessness in the fix, it is CONFIDENCE IN THE SUMMARY. The
+// fixes hold; the sentences I write about them reach further than the work does.
+// 78 files, 840 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.836";
