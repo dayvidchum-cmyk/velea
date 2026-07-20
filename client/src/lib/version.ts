@@ -1799,4 +1799,22 @@
 // The pattern I keep repeating is not carelessness in the fix, it is CONFIDENCE IN THE SUMMARY. The
 // fixes hold; the sentences I write about them reach further than the work does.
 // 78 files, 840 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.836";
+// v1.1.837 = 2026-07-20 — A SECOND CANON DISAGREEMENT, FOUND BY FINISHING THE SWEEP: "PARENTS"
+// SITS IN TWO DIFFERENT HOUSES.
+// Working through the remaining duplicated names turned up two more NAME COLLISIONS, not drift —
+// shared/life-areas is the TASK vocabulary (12 areas: self_care, work, rest…) while
+// server/vedic/life-areas is the READING lens (10 areas: self, money, siblings…). Different key
+// sets, different purposes. Recording that, because "tidying" them together would be a real bug.
+// But comparing them surfaced something that IS live: knots.ts reads parents as houses [4, 9] with
+// karakas Moon/Sun/Jupiter — the canon exactly, father 9th and mother 4th. The life-area LENS routes
+// parents to primaryHouse 12 with Rahu and Ketu, and day-frame sends a 12th-house day-Moon to
+// "parents". The canon gives the 12th to Saturn: loss, expenditure, isolation, moksha.
+// IT IS NOT A SLIP. The code says plainly it means "the karma carried in from before this life",
+// with the nodes as maternal and paternal ancestry, and D12 genuinely is the parents varga. It is a
+// deliberate reading that happens to contradict both the canon and the other live path — so the
+// paid lens for Parents & Roots examines a house the canon assigns to loss, while the convergence
+// engine looks at 4 and 9, and the 12th's own classical meaning has no lens at all (8 and 11 fall
+// through too). NOTHING CHANGED; which reading is Velea's is David's, and it is on the sheet and in
+// the brief with the evidence.
+// 78 files, 840 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.837";
