@@ -1,0 +1,111 @@
+/* -- velealor.com | the marketing shell -----------------------------------------
+   ONE source of truth for the editorial pages: /velea /why /system /gate /access
+   /confirmed. Until 2026-07-20 it was pasted into all six, 72-100% identical: every
+   change cost six edits, and drift went unseen.
+
+   WHAT IS NOT IN HERE, AND WHY. A selector lives here only if every page that declares
+   it declares it IDENTICALLY. Where pages genuinely disagree, the whole rule stays with
+   its page -- a partial override would silently inherit this file's other properties.
+   Not hypothetical: text-transform:uppercase leaked into /access's display h1 the first
+   time this was split. The divergent ones:
+     - .cta  (2 variants across 12 pages)
+     - .p1hero  (2 variants across 6 pages)
+     - .slot  (2 variants across 7 pages)
+     - :root  (2 variants across 6 pages)
+     - body  (2 variants across 7 pages)
+     - h1  (2 variants across 6 pages)
+     - p  (2 variants across 6 pages)
+   Each is a decision someone made. None of them is hidden any more.
+
+   A page's <style> loads after this file, so its rules win. Fonts and art use absolute
+   paths, so this file is position-independent.
+   ------------------------------------------------------------------------------- */
+
+@font-face { font-family: "Playfair Display"; src: url("/marketing/fonts/playfair-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Playfair Display"; src: url("/marketing/fonts/playfair-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/marketing/fonts/inter-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/marketing/fonts/inter-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/marketing/fonts/inter-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/marketing/fonts/inter-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Hanuman"; src: url("/marketing/fonts/Hanuman.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+* { box-sizing: border-box; margin: 0; }
+a { color: var(--champ); text-decoration: none; }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem var(--pad); border-bottom: 1px solid var(--gold-line); position: relative; }
+.brand { display: inline-flex; align-items: center; gap: 0.5rem; }
+.vmark { display: inline-block; width: 22px; height: 22px; background: var(--gold);
+    -webkit-mask: url("/velea-mark.svg") center / 142% no-repeat; mask: url("/velea-mark.svg") center / 142% no-repeat; }
+.bname { font-family: var(--serif); font-size: 1.2rem; color: var(--champ); }
+.links { display: flex; align-items: baseline; gap: 1.4rem; }
+.links a.item { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+.links a.item:hover { color: var(--champ); }
+.links a.item.on { color: var(--champ); border-bottom: 1px solid var(--gold-line); padding-bottom: 2px; }
+.burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
+.burger span { display: block; width: 20px; height: 2px; background: var(--gold); margin: 4px 0; border-radius: 2px; }
+@media (max-width: 760px) {
+    .burger { display: block; }
+    .links { display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
+      flex-direction: column; align-items: flex-start; gap: 0; background: var(--plum-deep);
+      border-bottom: 1px solid var(--gold-line); }
+    .nav.open .links { display: flex; }
+    .links a.item { padding: 0.95rem var(--pad); width: 100%; border-top: 1px solid rgba(212,175,55,0.14); }
+    .links a.item.on { border-bottom: none; }
+  }
+/* THE COLUMN FOLLOWS THE WINDOW (2026-07-20). It was pinned at 58rem and anchored
+     left, so a wide screen got a 433px empty right gutter at 1440 and 712px at 1728 —
+     measured. It now grows with the viewport up to 100rem, keeping the same left
+     anchor, and the PROSE keeps its own 44rem measure below so reading width is
+     unchanged: only figures, beats and rules take the extra room. */
+main { max-width: min(108rem, calc(100vw - 2 * clamp(2.5rem, 5.5vw, 5.5rem)));
+         margin: 0; padding: clamp(3rem, 8vw, 5rem) var(--pad) 4rem; }
+/* Reading measure, independent of how wide the column gets. */
+main > p, main > ul, main > .big, main > .lede, main > h2.sub, main > .label, main > h1,
+  .say > p, .say > .big { max-width: var(--maxw); }
+@media (min-width: 900px) { main { margin-left: clamp(2.5rem, 5.5vw, 5.5rem); } }
+.kicker { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; }
+.kicker .km { font-family: var(--khmer); letter-spacing: normal; text-transform: none; font-size: 1rem; }
+h2.sub { font-family: var(--serif); font-weight: 500; font-size: clamp(1.45rem, 4.8vw, 1.95rem); line-height: 1.38; color: var(--ink); margin: 1.6rem 0 0; text-wrap: balance; }
+.lede { font-size: clamp(1.05rem, 2.6vw, 1.2rem); line-height: 1.7; color: var(--ink-dim); margin: 1.6rem 0 0; }
+/* SECTION HEADS ARE SERIF, AND THEY OUTRANK THE LINE BELOW THEM (David, 2026-07-20).
+     They were letterspaced uppercase sans at 0.92rem — smaller than the serif sentence
+     they introduced, which read as a caption rather than a heading. Now: serif, larger
+     than .big at every viewport (1.8-2.5rem against 1.45-1.95rem), gold, sentence case
+     as written in the markup. */
+.label { font-family: var(--serif); font-size: clamp(1.8rem, 5.6vw, 2.5rem); line-height: 1.18;
+           letter-spacing: normal; text-transform: none; color: var(--champ); font-weight: 500;
+           margin: 0 0 1.1rem; text-wrap: balance; }
+.rule { border: none; height: 1px; background: var(--gold-line); margin: clamp(2.6rem, 7vw, 4rem) 0; width: 100%; }
+@media (min-width: 900px) { .rule { width: calc(100vw - 2 * clamp(2.5rem, 5.5vw, 5.5rem) - 2 * var(--pad)); max-width: none; } }
+strong { color: var(--ink); font-weight: 600; }
+ul { padding-left: 1.15rem; margin: 0 0 1.1rem; }
+li { font-size: 1.02rem; line-height: 1.7; color: var(--ink-dim); margin-bottom: 0.45rem; }
+.big { font-family: var(--serif); font-weight: 500; font-size: clamp(1.45rem, 4.8vw, 1.95rem); line-height: 1.38; color: var(--ink); margin: 0 0 1.1rem; text-wrap: balance; }
+.cta:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.ctaRow { text-align: left; margin-top: clamp(2.5rem, 7vw, 4rem); }
+figure { margin: clamp(2.4rem, 7vw, 3.6rem) 0; }
+figure.bleed { width: 100vw; margin-left: calc(50% - 50vw); }
+figure.bleed img { width: 100%; display: block; }
+@media (min-width: 900px) { figure.bleed { margin-left: calc(-1 * clamp(2.5rem, 5.5vw, 5.5rem) - var(--pad)); width: 100vw; } }
+figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.7rem; text-align: center; letter-spacing: 0.02em; }
+.p1hero::before { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(20,10,26,0.42) 0%, rgba(20,10,26,0.05) 40%, rgba(20,10,26,0.55) 100%); }
+.p1hero .inner { position: relative; max-width: 42rem; padding: 0 var(--pad) clamp(2.6rem, 8vw, 4.5rem); }
+@media (min-width: 900px) { .p1hero .inner { margin-left: clamp(2.5rem, 5.5vw, 5.5rem); } }
+.p1hero .kicker { color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,0.4); }
+.p1hero .kicker .km { color: #fff; }
+.p1hero h1 { color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,0.45); }
+.p1hero h2.sub { color: rgba(255,255,255,0.94); text-shadow: 0 1px 12px rgba(0,0,0,0.45); }
+.p1hero .lede { color: rgba(255,255,255,0.88); text-shadow: 0 1px 10px rgba(0,0,0,0.4); }
+.moons { display: flex; justify-content: space-between; gap: 0.4rem; padding: 0.6rem 0.2rem; }
+.moon { width: clamp(26px, 8vw, 44px); height: clamp(26px, 8vw, 44px); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 10px rgba(212,175,55,0.25); }
+dl dt { font-family: var(--serif); font-size: 1.15rem; color: var(--ink); margin-top: 1.3rem; }
+dl dd { margin: 0.3rem 0 0; font-size: 1rem; line-height: 1.7; color: var(--ink-dim); }
+.field { display: flex; gap: 0.5rem; margin: 1.8rem 0 0.8rem; max-width: 30rem; }
+.field input { flex: 1; min-width: 0; padding: 0.85rem 1.15rem; border-radius: 999px; border: 1px solid var(--gold-line); background: rgba(58,49,40,0.05); color: var(--ink); font-size: 1rem; }
+.field input:focus { outline: none; border-color: var(--gold); }
+.field button { flex-shrink: 0; border: none; cursor: pointer; box-shadow: 0 8px 24px -10px rgba(193,146,48,0.55); padding: 0.85rem 1.4rem; border-radius: 999px; background: var(--gold); color: #2a180f; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.note { font-size: 0.85rem; color: var(--ink-soft); }
+footer { border-top: 1px solid var(--gold-line); padding: 0.85rem var(--pad); display: flex; justify-content: center; gap: 0.7rem; align-items: baseline; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+footer .fm { font-family: var(--serif); font-size: 0.95rem; color: var(--champ); text-transform: none; letter-spacing: 0.02em; }
+footer .km { font-family: var(--khmer); text-transform: none; letter-spacing: normal; }
+@media (max-width: 560px) { .nav { gap: 0.35rem 0.9rem; } .nav a.item { font-size: 0.6rem; letter-spacing: 0.08em; } }
+/* Section heads: serif, larger than the line they introduce (see system.html). */

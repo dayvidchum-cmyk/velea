@@ -37,6 +37,16 @@ MIME = {'.woff2':'font/woff2', '.ttf':'font/ttf', '.jpg':'image/jpeg', '.jpeg':'
 
 def prep(src, is_landing):
     src, _ = re.subn(r'<script\b[^>]*>.*?</script>', '', src, flags=re.S|re.I)
+    # The editorial pages share ONE stylesheet (2026-07-20). The deck serves each page from
+    # a blob URL, where "/marketing/site.css" cannot resolve, so it is inlined here — the
+    # same treatment fonts and art already get, and the rules are unchanged either way.
+    def inline_css(m):
+        f = ROOT / m.group(1).lstrip('/')
+        assert f.exists(), f'stylesheet missing: {m.group(1)}'
+        return '<style>\n' + f.read_text(encoding='utf-8') + '\n</style>'
+    src, n = re.subn(r'<link rel="stylesheet" href="(/marketing/[^"]+\.css)"\s*/?>', inline_css, src)
+    if not is_landing:
+        assert n == 1, f'expected one shared stylesheet link, found {n}'
     if is_landing:
         # Mobile art variants are referenced ONLY inside @media (max-width:700px);
         # the deck always renders at 1440, so they can never apply. Verified before cutting.
