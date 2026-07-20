@@ -69,6 +69,34 @@ export async function sendPushToUser(userId: number, payload: PushPayload): Prom
 }
 
 /** The user's local YYYY-MM-DD + hour, from their stored tz. Null when no tz (skip, don't guess). */
+/** Local clock to the MINUTE — the shift alert fires at a clock time, not an hour band. */
+function localClockExact(tz: string | null | undefined): { date: string; minutes: number } | null {
+  if (!tz) return null;
+  try { new Intl.DateTimeFormat("en-US", { timeZone: tz }); } catch { return null; }
+  try {
+    const offset = getTimezoneOffset(tz, new Date());
+    const local = new Date(Date.now() + offset * 3600000);
+    return { date: local.toISOString().slice(0, 10), minutes: local.getUTCHours() * 60 + local.getUTCMinutes() };
+  } catch { return null; }
+}
+
+/** "3:42 PM" → minutes from local midnight. Null on anything unparseable — never guess a time. */
+export function parseLocalTime(t: string | null | undefined): number | null {
+  if (!t) return null;
+  const m = /^(\d{1,2}):(\d{2})\s*([AP]M)$/i.exec(t.trim());
+  if (!m) return null;
+  const raw = Number(m[1]);
+  const min = Number(m[2]);
+  // VALIDATE THE HOUR BEFORE THE MODULO. My first version did `Number(m[1]) % 12`, so "25:00 PM"
+  // became 1 % 12 = 1 → 1pm — an impossible time silently accepted as a real one, which is exactly
+  // the guess this function exists to refuse. A 12-hour clock has hours 1..12.
+  if (!Number.isInteger(raw) || raw < 1 || raw > 12) return null;
+  if (!Number.isInteger(min) || min > 59) return null;
+  let h = raw % 12;
+  if (/PM/i.test(m[3])) h += 12;
+  return h * 60 + min;
+}
+
 function localClock(tz: string | null | undefined): { date: string; hour: number } | null {
   if (!tz) return null;
   // AUDIT #4 (5): getTimezoneOffset swallows invalid tz strings and falls back to Boston —
@@ -263,6 +291,95 @@ async function isCrownDayFor(userId: number, localDate: string): Promise<boolean
 
 /** One scheduler tick: ring every subscribed user whose local clock is in the 8am hour and who
  *  hasn't been rung on their local date yet. */
+/** THE DAY-SHIFT ALERT (David, 2026-07-20: "the user should get an alert on their phone when the
+ *  day shifts").
+ *
+ *  The Moon changes nakshatra partway through roughly half of all days, and by his doctrine the day
+ *  is read in two parts around that moment. This rings once, AT the turn, so the second half of the
+ *  day does not arrive silently.
+ *
+ *  WHY ITS OWN DEDUPE COLUMN. lastMorningPush is a varchar(10) date and is exactly full; a user
+ *  legitimately gets both alerts on one day. Packing a composite key into a varchar(10) is what
+ *  caused the 2026-07-17 outage that killed billed readings, so lastTurnPush is separate.
+ *
+ *  CLAIM BEFORE SEND, exactly as the bell does: stamp the date first, and a zero-row claim means
+ *  another instance or tick already owns today. A crash then costs one missed alert instead of a
+ *  double-ring or a retry hammer.
+ *
+ *  It fires only INSIDE a short window after the turn — a server that was down at 3:42 must not ring
+ *  at 9pm about a shift that happened hours ago. Late is worse than never here.
+ */
+const TURN_WINDOW_MIN = 20;
+
+export async function dayShiftTick(): Promise<void> {
+  if (!pushConfigured()) return;
+  const db = await getDb();
+  if (!db) return;
+
+  let rows: Array<{ userId: number; lastTurnPush: string | null; name: string | null; tz: string | null }>;
+  try {
+    rows = await db
+      .select({
+        userId: pushSubscriptions.userId,
+        lastTurnPush: pushSubscriptions.lastTurnPush,
+        name: users.name,
+        tz: users.locationTimezone,
+      })
+      .from(pushSubscriptions)
+      .innerJoin(users, eq(users.id, pushSubscriptions.userId)) as any;
+  } catch {
+    // The column may not exist yet on an older database. No-op rather than crash the scheduler —
+    // the morning bell shares this process and must not go down with it.
+    return;
+  }
+
+  const byUser = new Map<number, { name: string | null; tz: string | null; stamps: (string | null)[] }>();
+  for (const r of rows) {
+    const u = byUser.get(r.userId) ?? { name: r.name, tz: r.tz, stamps: [] };
+    u.stamps.push(r.lastTurnPush ?? null);
+    byUser.set(r.userId, u);
+  }
+
+  const { resolveDaySky } = await import("./panchang/resolve-day-sky.js");
+  const { getDayField } = await import("./panchang/service.js");
+
+  for (const [userId, u] of byUser) {
+    const clock = localClockExact(u.tz);
+    if (!clock) continue;                                  // no clock — skip, never guess
+    if (u.stamps.some((sTamp) => sTamp === clock.date)) continue;   // already alerted today
+
+    let turnAt: number | null = null;
+    let toStar: string | null = null;
+    try {
+      const profile = await db.select().from(profiles)
+        .where(and(eq(profiles.userId, userId), eq(profiles.isOwner, true))).limit(1);
+      const owner = profile[0];
+      if (!owner) continue;
+      const dayLoc = await resolveDaySky({ user: { id: userId } as any, profile: owner, profileId: owner.id, dateStr: clock.date });
+      const field: any = await getDayField(clock.date, false, dayLoc);
+      turnAt = parseLocalTime(field?.nakshatraTransitionTime);
+      toStar = field?.nakshatraAfterTransition ?? null;
+    } catch { continue; }
+
+    if (turnAt == null || !toStar) continue;               // the day does not turn
+    const since = clock.minutes - turnAt;
+    if (since < 0 || since > TURN_WINDOW_MIN) continue;     // not yet, or too late to be honest
+
+    const res: any = await db.update(pushSubscriptions)
+      .set({ lastTurnPush: clock.date })
+      .where(and(eq(pushSubscriptions.userId, userId),
+        or(isNull(pushSubscriptions.lastTurnPush), ne(pushSubscriptions.lastTurnPush, clock.date))));
+    if (Number(res?.[0]?.affectedRows ?? res?.rowsAffected ?? 0) === 0) continue;
+
+    const first = (u.name ?? "").trim().split(/\s+/)[0] || "friend";
+    await sendPushToUser(userId, {
+      title: "Velea",
+      body: `${first}, the day just turned — ${toStar} carries it from here.`,
+      url: "/",
+    });
+  }
+}
+
 export async function morningBellTick(): Promise<void> {
   if (!pushConfigured()) return;
   const db = await getDb();
@@ -356,7 +473,13 @@ export function startMorningBell(): void {
   setInterval(() => {
     if (ticking) return;
     ticking = true;
-    morningBellTick().catch((e) => console.warn("[push] tick failed:", e)).finally(() => { ticking = false; });
+    // Both ticks share the overlap guard, and the shift alert runs AFTER the bell so a slow
+    // day-field lookup can never delay the morning ring. Its failure is caught separately: the two
+    // are independent, and a broken shift alert must not take the bell down with it.
+    morningBellTick()
+      .catch((e) => console.warn("[push] bell tick failed:", e))
+      .then(() => dayShiftTick().catch((e) => console.warn("[push] shift tick failed:", e)))
+      .finally(() => { ticking = false; });
   }, 60_000);
-  console.log(`[push] morning bell scheduler started (configured: ${pushConfigured()})`);
+  console.log(`[push] scheduler started — morning bell + day-shift alert (configured: ${pushConfigured()})`);
 }

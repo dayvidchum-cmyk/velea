@@ -92,7 +92,14 @@ export function planetDignity(planet: Graha, lon: number): DignityState {
 
 /**
  * Neecha-bhanga check for a DEBILITATED planet. Classical Parashari conditions (the commonly-cited
- * set): any ONE cancels; ≥2 is a solid cancellation (the fall-then-rise, often a raja yoga).
+ * set): any ONE cancels; ≥2 is a solid cancellation.
+ *
+ * NOT A RAJA YOGA (David's doctrine, 2026-07-20). This comment used to say "≥2 … often a raja
+ * yoga", and he is explicit that they are SEPARATE CONCEPTS: "Neecha Bhanga is not automatically
+ * Raja Yoga… Not everyone with Neecha Bhanga experiences extraordinary success." Cancellation
+ * becomes Raja Yoga only when the cancellation is strong, the planet has functional importance
+ * (ruling a trine or angle), the chart overall supports it, and a dasha activates it. This function
+ * decides CANCELLATION only, and nothing downstream should read a count of 2 as a promise.
  *
  * @param planet   the debilitated planet
  * @param lonBy    every graha's longitude (for locating dispositors/exalt-lords)
@@ -100,6 +107,14 @@ export function planetDignity(planet: Graha, lon: number): DignityState {
  */
 export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaLon: number): NeechaBhanga {
   const pLon = lonBy[planet];
+  // STEP 1 OF HIS SIX (David's doctrine, 2026-07-20): "Is the planet actually debilitated?"
+  // Both existing callers gate on that already — one on `debilitated`, one on the label — so this
+  // changes nothing today. It is here because a function named neechaBhanga that happily reports
+  // `cancelled: true` for a planet in its OWN SIGN is a footgun waiting for a third caller, and a
+  // test I wrote to check his Step 1 found exactly that behaviour.
+  if (planetDignity(planet, pLon) !== "debilitated") {
+    return { cancelled: false, reasons: [], count: 0, by: [] };
+  }
   const debilSign = signName(pLon);
   const lagIdx = signIndex(lagnaLon);
   const moonIdx = signIndex(lonBy.Moon);
@@ -144,6 +159,27 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
     const houseAway = houseFrom(signIndex(lonBy[dispositor]), pLon);
     if (aspectsHouse(dispositor, houseAway)) {
       reasons.push(`aspected by dispositor ${dispositor}`);
+      by.push(dispositor);
+    }
+  }
+
+  // 5. CONJUNCTION with the dispositor (David's doctrine, 2026-07-20). His condition 4 reads
+  //    "the debilitated planet and its sign lord are in mutual aspect OR CONJUNCTION — this gives
+  //    the sign lord an opportunity to support the weakened planet." The engine had only the aspect
+  //    half, so a planet sitting in the SAME SIGN as its own rescuer did not register at all, which
+  //    is the most direct form of that support there is.
+  if (dispositor !== planet && signIndex(lonBy[dispositor]) === signIndex(pLon)) {
+    reasons.push(`conjunct its dispositor ${dispositor}`);
+    by.push(dispositor);
+  }
+
+  // 6. PARIVARTANA — exchange of signs (his condition 5). The debilitated planet sits in its
+  //    dispositor's sign (true by definition of debilitation) AND the dispositor sits in a sign the
+  //    debilitated planet rules. Each holds the other's house; the classical mutual-exchange rescue.
+  if (dispositor !== planet) {
+    const dispositorSign = signName(lonBy[dispositor]);
+    if (SIGN_RULER[dispositorSign] === planet) {
+      reasons.push(`sign exchange with ${dispositor} (parivartana)`);
       by.push(dispositor);
     }
   }

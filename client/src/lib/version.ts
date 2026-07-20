@@ -2446,4 +2446,32 @@
 // at 1.27 stops at 4.53 instead of overshooting. Recolouring THAT one is correct, not a bug.
 // Two rows off the broken list, moved to fixed rather than annotated in place — his rule.
 // 88 fixed / 14 broken. 95 files, 1026 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.867";
+// v1.1.868 = 2026-07-20 — I TOLD HIM THE SHIFT ALERT WAS BUILT. IT WAS NOT. IT IS NOW.
+// My migration script printed "the shift alert is built but stays OFF until this column exists". I
+// had written the COLUMN SCRIPT and no alert. He ran it against production trusting that line. That
+// is the plainest version of the failure this whole run is about: the claim came before the thing.
+// BUILT NOW, on the bell's own proven pattern: dayShiftTick rings once, AT the turn, with its own
+// dedupe column (lastTurnPush — it cannot share the bell's varchar(10) date, and packing a composite
+// into one is what caused the outage that killed billed readings). Claim-before-send, so a crash
+// costs one missed alert instead of a double-ring. A 20-minute window, because a server down at 3:42
+// must not ring at 9pm about a shift that happened hours ago — late is worse than never. It no-ops
+// on a database without the column so it can never take the morning bell down with it.
+// MY OWN PARSER HAD THE BUG ITS TEST WAS WRITTEN TO CATCH: "25:00 PM" became 1pm, because I ran
+// `% 12` BEFORE validating the hour. An impossible time silently accepted as a real one — the exact
+// guess the function exists to refuse. Hours are validated 1..12 first now.
+// YOGAS: he answered decision 3 with a structure — natal yogas are lifelong potentials, transits
+// TRIGGER them and do not create or replace them. The engine had it backwards: standing yogas
+// reached the daily read with no layer and no instruction, so a permanent feature of the person
+// could surface as a Tuesday's news. BASE_PROMPT now carries the layer law and his warning with it
+// (a transiting Moon in a kendra from Jupiter is NOT Gaja Kesari). Second defect, same family: the
+// prompt still called a cancelled fall "often a raja-yoga signature" — the conflation his
+// debilitation doctrine pulls back from, which I fixed in the engine and missed in the prompt.
+// AND A NEAR-MISS: my check reported the prompt ALREADY said all this — three spurious matches
+// ("permanent" was about planetary friendship) — and I nearly retracted a true finding on it.
+// DEBILITATION: his six conditions vs our four. Added conjunction with the dispositor and
+// parivartana; the planet-in-kendra rule is left for his ruling because I previously called it a
+// mistranslation and he lists it as commonly cited — verse versus practice, and that is his call.
+// neechaBhanga now self-guards on actual debilitation (his Step 1) — it was reporting cancellation
+// for a planet in its OWN SIGN if a caller ever forgot to gate.
+// 97 files, 1043 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.868";

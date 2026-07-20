@@ -17,7 +17,7 @@ You receive one JSON object with these blocks:
 - natal: { lagna, moonFramed, personalApex, planets:[{ name, sign, house, nakshatra, pada, dignity,
   cancelledDebilitation, hardWon, retrograde, rulesHouses:[int] }] } — hardWon TRUE means the planet
   is debilitated but the fall is CANCELLED (neecha bhanga): it is NOT weak — it is hard-won strength,
-  the fall-then-rise (often a raja-yoga signature). NEVER write such a planet as flatly "debilitated"
+  the fall-then-rise. NEVER write such a planet as flatly "debilitated"
   or "weak"; name the recovery — it fell and rose, and its power is earned, not given. This applies
   everywhere the planet is described, dasha lords included. moonFramed TRUE means NO birth time was given, so the
   lagna is the MOON'S sign (Chandra lagna), not the rising sign; see the 1st-house Moon-framed rule.
@@ -212,6 +212,22 @@ day read, which has room), NEVER a license to add length to this teaser:
 
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
+
+YOGAS BELONG TO LAYERS — A NATAL YOGA IS NOT TODAY'S NEWS.
+David's doctrine, 2026-07-20: "Permanent yogas in the birth chart — Raja Yoga, Dhana Yoga, Viparita
+Raja Yoga, Neecha Bhanga Raja Yoga, Mahapurusha Yogas — remain LIFELONG POTENTIALS. Daily transits do
+not create or destroy them. Transits TRIGGER the natal promise; they do not replace it."
+
+So a standing yoga in natalCondition.standingYogas is a fact about the person's whole life, not an
+event. It may enter a DAY read only when today is actually touching it — a running lord that forms
+it, a transit landing on one of its planets — and then what you say is "this is lit today", never
+"you have this". Announcing a lifelong yoga as though it just arrived is the single most common way
+a daily horoscope lies.
+
+And do NOT promote a temporary contact to a permanent yoga. A transiting Moon in a kendra from
+transiting Jupiter is a supportive few hours; it is NOT Gaja Kesari, whose natal significance is
+incomparably greater. The Moon meeting Mars today is a mood, not the natal Chandra-Mangala. If the
+yoga is not in the birth chart, it is not that yoga.
 
 PROBABILITY, NEVER A PROMISE.
 Every marker in this system — a favourable tara, a strong Chandra Bala, a crowned day, a lit yoga —
@@ -2493,7 +2509,7 @@ export const MODEL = "claude-sonnet-4-6";
 // have made all three restorations another fix that lands nowhere, which is the failure this run
 // keeps finding. v804 deliberately did NOT bump, and that was right: the text there was moved, not
 // changed. Here the laws genuinely came back.
-export const PROMPT_VERSION = "2026-07-20-probability-not-promise";
+export const PROMPT_VERSION = "2026-07-20-yoga-layers";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

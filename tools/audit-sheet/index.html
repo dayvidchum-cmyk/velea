@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v867 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v868 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">88</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">14</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">13</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">1028</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n">1043</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -106,9 +106,21 @@
     condition that IS in the text (7.27) is not implemented; and BPHS gives none of these, so citing Parashara for them
     cites the wrong book.</span></div>
 
-  <div class="ask"><b>3. Which yogas should the reader actually hear?</b>
-    <span class="why">The engine detects far more than any reading mentions, and there is no rule for which ones matter —
-    so the choice falls to whatever the model finds interesting. You were right that that is not an honest reading.</span></div>
+  <div class="ask"><b>3. Which yogas the reader hears — ANSWERED, and it found two defects.</b>
+    <span class="why">You answered with a structure, not a list: <b>natal yogas are lifelong potentials; transits
+    TRIGGER them, they do not create or replace them.</b> So a Raja or Mahapurusha yoga is never a Tuesday’s news — it
+    may appear only when the day is actually touching it, and then as “this is lit today”.
+    <br><br><b>The engine was doing it backwards.</b> Standing yogas reached the daily read with no layer attached and
+    no instruction, so a permanent feature of the person could surface as though it had just happened. Fixed: the prompt
+    now carries the layer rule, and your warning with it — a transiting Moon in a kendra from Jupiter is <i>not</i> Gaja
+    Kesari, and today’s Moon–Mars is a mood, not natal Chandra-Mangala.
+    <br><b>Second defect, same family:</b> the prompt still described a cancelled fall as “often a raja-yoga signature”
+    — the exact conflation your debilitation doctrine pulls back from. I had corrected that in the engine and missed it
+    in the prompt.
+    <br><br><b>Not built:</b> the five Muhurta yogas (Sarvartha Siddhi, Amrita Siddhi, Ravi, Dwipushkar, Tripushkar).
+    Same reason as the Siddhi grid — they are weekday×nakshatra tables and I have no cited source for them here. Your
+    descriptions are recorded in <code>canon/yoga-layers-doctrine.md</code>; they are not a citation, and I will not
+    encode a table that will look authoritative forever without one.</span></div>
 
   <div class="ask"><b>4. The knot thresholds.</b>
     <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked. You asked
@@ -306,7 +318,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 88 fixed + 14 broken + 14 decision-rows + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 1028 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 1043 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

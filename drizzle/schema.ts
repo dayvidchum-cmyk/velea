@@ -631,5 +631,10 @@ export const pushSubscriptions = mysqlTable("push_subscriptions", {
   auth: varchar("auth", { length: 255 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   lastMorningPush: varchar("lastMorningPush", { length: 10 }),
+  // The day-shift alert's own dedupe (David ran the column 2026-07-20). It cannot share
+  // lastMorningPush: a user legitimately gets BOTH on the same day — the bell at 8am and the star
+  // turn at 3:42pm — and lastMorningPush is a date field that is exactly full. Packing a composite
+  // key into a varchar(10) is what caused the 2026-07-17 outage that killed billed readings.
+  lastTurnPush: varchar("lastTurnPush", { length: 10 }),
 });
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
