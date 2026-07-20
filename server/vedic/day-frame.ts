@@ -11,12 +11,16 @@
  * no synthesis — the voice model only renders this (see server/narrative/VOICE-PROMPT.DRAFT.md).
  *
  * Reuses: buildLifeAreaLens (varga-deep condition + dashaBearing) · tarabala/chandrabala (the tilt).
- * TODO(next): fold in avashta for the texture inside "unlit" — needs the Lajjitaadi compute engine
- * (canon/avashtas.json has the formulas; no compute exists yet). Until then condition = dignity only.
+ * Condition = dignity, and dignity here ALWAYS carries its cancellation (v796) — a debilitation the
+ * chart cancels is not strained.
+ * NEXT: fold in avashta for the texture inside "unlit". The engine EXISTS — vedic/avashtas.ts, all
+ * six Lajjitaadi formulas and all three Jagradaadi states, wired into stored research since 07-15.
+ * (This comment claimed it did not exist for five days and an audit believed the comment.)
  */
 import { buildLifeAreaLens, type LifeAreaKey } from "./life-areas.js";
 import { tarabala, chandrabala } from "../panchang/crown.js";
 import { SIGN_RULER } from "./vargas.js";
+import { labelWithCancellation } from "./dignity.js";
 
 const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const norm = (x: number) => ((x % 360) + 360) % 360;
@@ -34,6 +38,11 @@ const HOUSE_FALLBACK: Record<number, { area: string; karaka: string }> = {
 
 // dignityLabel vocabulary (panchang/dignity.ts TIER_LABEL): supportive / strained / neutral.
 const SUPPORTIVE = new Set(["Exalted", "Moolatrikona", "Own", "Friend"]);
+// A CANCELLED debilitation is deliberately in NEITHER set (v796). David's law is that dignity and
+// cancellation always travel together and a raw debilitation is a trap — his own Moon is debilitated
+// in Scorpio and cancelled, and this classifier called it strained. It is not strained. Whether a
+// fall-then-rise should count as SUPPORTED is a weighting decision and his to make, so the honest
+// answer here is neither: it falls through to neutral and the detail line says "(cancelled)".
 const STRAINED = new Set(["Debilitated", "Enemy"]);
 function classify(digs: Array<string | null | undefined>): "supported" | "strained" | "mixed" | "unlit" {
   const s = digs.filter((d) => d && SUPPORTIVE.has(d)).length;
@@ -116,7 +125,10 @@ export function dayFrameReading(args: {
     const fb = HOUSE_FALLBACK[moonHouse];
     area = fb.area; varga = "—";
     const lord = SIGN_RULER[ZOD[(lagIdx + moonHouse - 1) % 12]];
-    const lordDig = args.natalByPlanet[lord]?.dignity, karDig = args.natalByPlanet[fb.karaka]?.dignity;
+    // Same cancellation check the lens applies — this branch reads natalByPlanet directly, so
+    // without it houses 8 and 11 would keep the exact bug the lens path just closed.
+    const lordDig = labelWithCancellation(lord, args.natalByPlanet[lord]?.dignity, args.natalLon, args.ascLon).label;
+    const karDig = labelWithCancellation(fb.karaka, args.natalByPlanet[fb.karaka]?.dignity, args.natalLon, args.ascLon).label;
     lordDigs.push(lordDig); karakaDigs.push(karDig);
     conditionDetail.push(`ruler ${lord}: ${lordDig ?? "n/a"} (D1)`, `karaka ${fb.karaka}: ${karDig ?? "n/a"} (D1)`);
     // convergence: a running dasha lord rules the house, sits in it, or is the karaka

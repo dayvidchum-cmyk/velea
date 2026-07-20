@@ -14,6 +14,9 @@
  */
 import { vargaSignOf, signIndexOf, signName, SIGN_RULER, type VargaCode } from "./vargas.js";
 import { dignityLabel } from "../panchang/dignity.js";
+// dignityLabel has NO concept of cancellation (that lives in vedic/dignity.ts), so every label it
+// produces has to be run past the cancellation owner before anyone classifies it. See v796.
+import { labelWithCancellation } from "./dignity.js";
 
 const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 
@@ -227,6 +230,9 @@ type PlanetState = {
   planet: string;
   natalSign: string; natalHouse: number | null; natalDignity: string; rulesHouses: number[];
   vargaSign: string; vargaHouse: number; vargaDignity: string;
+  /** Set only when the natal dignity is a debilitation the chart CANCELS (neecha bhanga). The
+   *  reasons travel with it so a reading can say what happened rather than just "hard". */
+  cancelledDebilitation?: { reasons: string[] } | null;
 };
 
 export type LifeAreaLens = {
@@ -288,12 +294,18 @@ export function buildLifeAreaLens(args: {
     const nat = args.natalByPlanet[planet];
     if (nat == null || vargaSignIdxOf[planet] == null) return null;
     const vSign = signName(vargaSignIdxOf[planet]);
+    // D1 dignity, checked for cancellation. Applied to the RASI dignity only: neecha bhanga is a
+    // Rasi rule reckoned from the birth ascendant and the Moon, and there is no canon in this repo
+    // for cancelling a debilitation inside a divisional chart. Inventing one would be worse than
+    // leaving the varga label bare, so the varga label stays bare and says so.
+    const natal = labelWithCancellation(planet, nat.dignity, args.lonByPlanet, args.ascLon);
     return {
       planet,
-      natalSign: nat.sign, natalHouse: nat.house, natalDignity: nat.dignity, rulesHouses: nat.rulesHouses,
+      natalSign: nat.sign, natalHouse: nat.house, natalDignity: natal.label, rulesHouses: nat.rulesHouses,
       vargaSign: vSign, vargaHouse: vargaHouseOf[planet],
       // Nodes have no essential dignity; dignityLabel returns a neutral label for them.
       vargaDignity: dignityLabel(planet, vSign),
+      cancelledDebilitation: natal.cancelled ? { reasons: natal.reasons } : null,
     };
   };
 

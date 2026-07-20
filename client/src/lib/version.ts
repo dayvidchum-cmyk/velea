@@ -993,4 +993,31 @@
 // stored row instead of throwing. 33 files, 326 tests, 0 failures. Build exits 0.
 // STILL TRUE, and David's to run: a location column on the panchang table is the real fix. This
 // closes the leak at the read; the row is still shared.
-export const APP_VERSION = "1.1.795";
+// v1.1.796 = 2026-07-20 — DAVID'S OWN CHART, READ AGAINST DAVID'S OWN LAW.
+// The law is written at the top of vedic/dignity.ts: dignity and cancellation ALWAYS travel
+// together, because a raw debilitation is a TRAP — a cancelled fall (neecha bhanga) is the
+// fall-then-rise, often a raja yoga. That module has computed the cancellation since the day it was
+// written. No consumer ever asked it. The life-area lens and day-frame both classify on labels from
+// the OTHER dignity module (panchang/dignity.ts), which has no concept of cancellation at all, so
+// day-frame's STRAINED set matched the bare string "Debilitated" and called a cancelled fall
+// strained. David's Moon is debilitated in Scorpio, CANCELLED. The path is admin-gated, so it fired
+// on him and almost nobody else.
+// labelWithCancellation() in vedic/dignity.ts is now the one owner of an honest label. It refuses
+// to call a cancelled debilitation strained and hands back the classical reasons so the prose can
+// say what happened — and it deliberately does NOT upgrade the fall to "supported": that weighting
+// is David's call, not a helper's, so a cancelled fall lands in neither bucket. It also never
+// softens what it could not check (missing longitudes, a node, a non-finite ascendant all pass
+// through as "Debilitated") — silence is not cancellation. Applied to the RASI dignity only: there
+// is no canon in this repo for cancelling a debilitation inside a divisional chart, and inventing
+// one would be worse than leaving the varga label bare.
+// Both consumers now route through it: the lens (which carries cancelledDebilitation + reasons on
+// PlanetState) and day-frame's houses-8/11 branch, which reads natalByPlanet directly and would
+// otherwise have kept the exact bug the lens path just closed.
+// Also deleted a stale comment that claimed the avashta engine does not exist. It is 284 lines and
+// has existed since 07-15 — the comment lied for five days and an audit believed it.
+// Control: cancelled-debilitation.test.ts, 8 assertions, on two hand-built charts (one that cancels
+// by dispositor-in-kendra, one where every classical condition is denied). My first "does not
+// cancel" fixture put Venus in a kendra from the Moon and the test caught it — the fixture was
+// wrong, not the code, and the reasoning is written into the file.
+// 34 files, 334 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.796";

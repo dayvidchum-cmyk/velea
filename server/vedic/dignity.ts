@@ -145,3 +145,38 @@ export function dignityOf(planet: Graha, lonBy: Record<Graha, number>, lagnaLon:
 export function natalDignities(lonBy: Record<Graha, number>, lagnaLon: number): Record<Graha, PlanetDignity> {
   return Object.fromEntries(GRAHAS.map((g) => [g, dignityOf(g, lonBy, lagnaLon)])) as Record<Graha, PlanetDignity>;
 }
+
+/** THE LABEL THAT CANNOT LIE (v796).
+ *
+ * David's law: dignity and cancellation ALWAYS travel together — a raw "Debilitated" is a trap. The
+ * module header has said so since it was written, and every consumer still read the bare label,
+ * because the bare label is what the OTHER dignity module (panchang/dignity.ts, which has no
+ * concept of cancellation) produces. So a cancelled fall — the fall-then-rise, often a raja yoga —
+ * was classified as strained everywhere it mattered, including on David's own cancelled Moon.
+ *
+ * This is the one owner for turning a bare tier label into an honest one. It NEVER upgrades a fall
+ * to "supported" — that is a weighting decision and belongs to David, not to a helper. It only
+ * refuses to call a cancelled debilitation strained, and it hands back the reasons so the prose can
+ * say what actually happened. Any other label passes through untouched.
+ *
+ * @param rawLabel a TIER_LABEL string ("Debilitated", "Exalted", "Own", …) from either dignity module
+ */
+export const CANCELLED_DEBILITATION_LABEL = "Debilitated (cancelled)";
+
+export function labelWithCancellation(
+  planet: string,
+  rawLabel: string | null | undefined,
+  lonBy: Record<string, number>,
+  lagnaLon: number
+): { label: string; cancelled: boolean; reasons: string[] } {
+  const plain = { label: rawLabel ?? "—", cancelled: false, reasons: [] as string[] };
+  if (rawLabel !== "Debilitated") return plain;
+  // Nodes and anything outside the seven grahas have no essential dignity and no cancellation rule.
+  if (!GRAHAS.includes(planet as Graha)) return plain;
+  // A missing longitude means we cannot check — and an UNCHECKED debilitation must stay
+  // "Debilitated", never be quietly softened. Silence is not cancellation.
+  if (!GRAHAS.every((g) => Number.isFinite(lonBy[g])) || !Number.isFinite(lagnaLon)) return plain;
+  const nb = neechaBhanga(planet as Graha, lonBy as Record<Graha, number>, lagnaLon);
+  if (!nb.cancelled) return plain;
+  return { label: CANCELLED_DEBILITATION_LABEL, cancelled: true, reasons: nb.reasons };
+}
