@@ -2628,4 +2628,22 @@
 // already applying, so it never dimmed with the theme. David ruled the other two year-calendar
 // divergences are DELIBERATE: no bindi ladder, no shadow-threshold glyphs there.
 // 112 files, 1152 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.878";
+// v1.1.879 = 2026-07-20 — DAVID RULED THE RIKTA/YOGA CONFLICT (option 2), after catching me
+// attributing the emptying rule to him: "i deliberately emptied? me???" He had not. His July 12
+// ruling was NO SELF-CONTRADICTION; emptying was a remedy chosen here and then written up as his.
+// Corrected in v092a049, then he ruled the real question: a yoga on an emptied rikta day may
+// SPEAK, but only in the day's own grammar — finishing, never beginning.
+// MEASURED BEFORE WRITING IT: of the 12 emptied-with-yoga days a year, FIVE are TENDER, whose
+// canon avoid-list is ["confrontation","cutting anything off"] — so offering "severing" there
+// would rebuild the exact contradiction he ruled against. The severing half is therefore withheld
+// on any nature whose OWN avoid-list refuses cutting, read from the canon rather than by naming
+// tender in code.
+// MEASURED AFTER (365 days): 37 gentle rikta days stay silent, 12 now speak (7 completion+severing,
+// 5 completion-only = exactly the tender ones), and ZERO days leaked a beginning-class phrase.
+// Two existing tests failed and were UPDATED, not weakened — one had a fixture (Jupiter+Revati+4)
+// that is itself one of Raman's pairings, so it had stopped testing the rule it named.
+// ALSO: David ran the schema drift report — 25 tables both sides, NO DRIFT. Before trusting a
+// clean zero I proved the instrument could fail: against a deliberately drifted table it catches
+// both "TOO SHORT lifeArea varchar(10) < varchar(24)" (the 7/17 outage shape) and a missing column.
+// 112 files, 1156 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.879";

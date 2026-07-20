@@ -32,7 +32,13 @@ describe("day filter — the classical tables (David-blessed 2026-07-15)", () =>
   });
 
   it("rikta empties every nature except the cutting ones (remedy chosen here; David's July 12 ruling was the no-self-contradiction rule it serves)", () => {
-    const soft = dayFilter({ ...base, nakshatra: "Revati", tithiNumber: 4 });
+    // varaLord Sun, deliberately: `base` is Jupiter, and Thursday + Revati + tithi 4 is one of
+    // Raman's own Siddha pairings, so on that vara this day now SPEAKS (David's option-2 ruling,
+    // 2026-07-20) and the fixture would be testing the wrong thing. Sunday's grid does not list
+    // Revati and Sunday is not in the weekday-tithi list, so this day forms no yoga.
+    const soft = dayFilter({ ...base, varaLord: "Sun", nakshatra: "Revati", tithiNumber: 4 });
+    expect(soft.siddhaYoga, "fixture must form NO yoga, or it is not testing the empty rule").toBeNull();
+    expect(soft.amritaSiddhi).toBe(false);
     expect(soft.supports).toEqual([]);
     expect(soft.vetoes.join(" ")).toMatch(/runs on empty/);
     // The old sentence advertised "cutting and severing acts only" while the tender

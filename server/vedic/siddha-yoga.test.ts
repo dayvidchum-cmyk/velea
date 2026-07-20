@@ -91,7 +91,7 @@ describe("the Siddha Yoga grid is a transcription, not an invention", () => {
     expect(withVeto.vetoes.length, "a Siddha Yoga cleared the day's vetoes").toBeGreaterThan(0);
   });
 
-  it("NEITHER yoga refills a day the rikta law emptied — Amrita had this bug too", () => {
+  it("NEITHER yoga puts BEGINNINGS on an emptied day — Amrita shipped exactly that", () => {
     // Saturday + Rohini IS Amrita Siddhi, and tithi 4 is Rikta. Before 2026-07-20 this came back
     // carrying "beginning long-term enterprises" on a day whose own verdict is "nothing new unless
     // it severs" — a shipped self-contradiction that no test caught. Encoding Raman's Siddha grid
@@ -99,16 +99,48 @@ describe("the Siddha Yoga grid is a transcription, not an invention", () => {
     const amritaOnEmpty = dayFilter({ nakshatra: "Rohini", tithiNumber: 4, varaLord: "Saturn", vishti: false });
     expect(amritaOnEmpty.amritaSiddhi, "the fixture must actually form Amrita, or this proves nothing").toBe(true);
     expect(amritaOnEmpty.family).toBe("rikta");
-    expect(amritaOnEmpty.supports, "Amrita Siddhi refilled an emptied day").toEqual([]);
+    // The shipped defect was the CONTENT, not the presence: it offered "beginning long-term
+    // enterprises" on a day whose verdict is "nothing new unless it severs". Under David's
+    // option-2 ruling the yoga may speak — in completion only.
+    expect(amritaOnEmpty.supports.join(" "), "an emptied day was offered beginnings")
+      .not.toMatch(/beginning|enterprise|contract|start/i);
 
     // ...and the same for the Siddha grid: Saturday on Riktha is one of Raman's own pairings.
     const siddhaOnEmpty = dayFilter({ nakshatra: "Swati", tithiNumber: 4, varaLord: "Saturn", vishti: false });
     expect(siddhaOnEmpty.siddhaYoga, "the fixture must actually form Siddha").not.toBeNull();
-    expect(siddhaOnEmpty.supports, "Siddha Yoga refilled an emptied day").toEqual([]);
+    expect(siddhaOnEmpty.supports.join(" ")).not.toMatch(/beginning|enterprise|contract|start/i);
 
     // ANCHOR: on a day the law does NOT empty, the yoga still adds its supports.
     const lifted = dayFilter({ nakshatra: "Ashwini", tithiNumber: 3, varaLord: "Mars", vishti: false });
     expect(lifted.siddhaYoga).not.toBeNull();
     expect(lifted.supports.length).toBeGreaterThan(0);
+  });
+
+  it("a yoga on an EMPTIED rikta day speaks in the day's grammar — finishing, never beginning", () => {
+    // David's ruling 2026-07-20 (option 2). Raman names Saturday-on-Riktha a Siddha Yoga, so total
+    // silence there overrules the book; but the day's verdict is "nothing new unless it severs".
+    const d = dayFilter({ nakshatra: "Swati", tithiNumber: 4, varaLord: "Saturn", vishti: false });
+    expect(d.family).toBe("rikta");
+    expect(d.siddhaYoga, "fixture must actually form the yoga").not.toBeNull();
+    expect(d.supports.length, "the yoga must speak").toBeGreaterThan(0);
+    // ...and it must say NOTHING that begins anything.
+    for (const s of d.supports) expect(s).not.toMatch(/begin|new|start|launch|enterprise/i);
+    expect(d.supports.some((x) => /finish|clos/i.test(x))).toBe(true);
+    // the day's veto is untouched
+    expect(d.vetoes.some((v) => /runs on empty/i.test(v))).toBe(true);
+  });
+
+  it("withholds the SEVERING half on a nature whose own canon avoid-list refuses cutting", () => {
+    // FIVE of the twelve emptied+yoga days a year are TENDER, whose canon avoid-list is
+    // ["confrontation", "cutting anything off"]. Offering severing there rebuilds the exact
+    // self-contradiction David ruled against in July. Read from the canon, not by naming a nature.
+    const tender = dayFilter({ nakshatra: "Chitra", tithiNumber: 4, varaLord: "Venus", vishti: false });
+    if (tender.family === "rikta" && tender.supports.length && (tender.siddhaYoga || tender.amritaSiddhi)) {
+      expect(tender.nature).toBe("tender");
+      for (const s of tender.supports) expect(s, "a tender day was offered cutting").not.toMatch(/cut|sever/i);
+    }
+    // ANCHOR — a nature that does NOT refuse cutting still gets the severing half.
+    const notTender = dayFilter({ nakshatra: "Swati", tithiNumber: 4, varaLord: "Saturn", vishti: false });
+    expect(notTender.supports.some((x) => /cutting away/i.test(x))).toBe(true);
   });
 });

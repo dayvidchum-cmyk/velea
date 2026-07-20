@@ -128,6 +128,9 @@ run server/vedic/day-filter.ts 'if (amrita && !contained && !emptied) {' 'if (am
 # The Siddha grid quietly losing one of David's three ruled spellings.
 run server/vedic/canon/siddha-yoga.json '"Rohini", "Mrigashira", "Ardra", "Uttara Phalguni", "Uttara Ashadha", "Anuradha"' '"Rohini", "Mrigashira", "Ardra", "Uttara Phalguni", "Uttara Ashadha", "Animidha"' \
   server/vedic/siddha-yoga.test.ts "an OCR spelling gets back into the encoded grid"
+# The severing half reaching a nature whose own avoid-list refuses cutting (5 tender days a year).
+run server/vedic/day-filter.ts '...(natureRefusesCutting(natDef) ? [] : YOGA_ON_EMPTY_SEVER),' '...YOGA_ON_EMPTY_SEVER,' \
+  server/vedic/siddha-yoga.test.ts "a tender day is offered cutting again"
 run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
   server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
 # A computed-but-SIMPLIFIED strength source going back to publishing as though it were exact.

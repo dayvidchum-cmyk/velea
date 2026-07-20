@@ -211,6 +211,9 @@ export function siddhaYoga(varaLord: string, nakshatra: string, tithiNumber: num
 
 type ActClass = "initiate" | "journey" | "union" | "celebrate" | "sever" | "complete" | "continue";
 const ACT_CLASS: Record<string, ActClass> = {
+  // a yoga speaking on an emptied rikta day — completion, never initiation
+  "finishing what already stands": "complete", "closing out what was begun": "complete",
+  "cutting away what is already finished": "sever",
   // per-star acts (STAR_SUPPORTS above)
   "new beginnings": "initiate", "medicine": "complete", "difficult tasks": "continue",
   "discipline": "continue", "removing obstacles": "sever", "purification": "sever",
@@ -274,6 +277,24 @@ const ACT_CLASS: Record<string, ActClass> = {
 
 // Vishti (Bhadra) blocks INITIATING in every form; it leaves the cruel and the continuing alone.
 const VISHTI_BLOCKS = new Set<ActClass>(["initiate", "journey", "union", "celebrate"]);
+
+// ── A YOGA ON AN EMPTIED RIKTA DAY (David's ruling, 2026-07-20: option 2) ────────────────────
+// Raman names Saturday-on-Riktha as a Siddha Yoga, so going wholly silent on such a day
+// overrules the book. But the day's own verdict is "nothing new unless it severs", and its
+// supports were emptied precisely so it would stop contradicting itself. David's call: let the
+// yoga speak, but only IN THE DAY'S OWN GRAMMAR — finishing, not beginning.
+//
+// MEASURED before writing it (2026, 365 days): 12 days a year are emptied AND form a yoga, and
+// FIVE of those twelve are TENDER — the nature whose canon avoid-list is
+// ["confrontation", "cutting anything off"]. Offering "severing" there would rebuild the exact
+// contradiction he ruled against in July. So the severing half is withheld on any nature whose
+// OWN avoid-list refuses cutting, read from the canon rather than by naming the nature here.
+const YOGA_ON_EMPTY_COMPLETE = ["finishing what already stands", "closing out what was begun"];
+const YOGA_ON_EMPTY_SEVER = ["cutting away what is already finished"];
+/** Does this nature's own canon avoid-list refuse cutting? (tender does; sharp/fierce do not.) */
+function natureRefusesCutting(natDef: any): boolean {
+  return ((natDef?.avoid ?? []) as string[]).some((a) => /cut|sever|confront/i.test(a));
+}
 
 // Correctness by construction: if the canon ever gains a supports string this map does not
 // classify, fail LOUD at module load rather than silently letting a veto stop cancelling it.
@@ -467,6 +488,14 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // the greatest" — a probability, not a promise — and David's calibration says the same: these
   // improve the odds, they do not ensure the outcome. So it never clears a veto.
   const siddhaHit = siddhaYoga(input.varaLord, input.nakshatra, input.tithiNumber);
+  // The emptied day still speaks when a yoga forms — in completion, not beginnings.
+  if ((siddhaHit || amrita) && !contained && emptied) {
+    const grammar = [
+      ...YOGA_ON_EMPTY_COMPLETE,
+      ...(natureRefusesCutting(natDef) ? [] : YOGA_ON_EMPTY_SEVER),
+    ];
+    supports = grammar.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti);
+  }
   if (siddhaHit && !contained && !emptied) {
     const extra = ((siddha as any).supports ?? []) as string[];
     supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
