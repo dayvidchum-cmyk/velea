@@ -1689,4 +1689,19 @@
 // actually runs. Mechanism verified, reach never checked — while writing the audit about exactly
 // that. Deploying to a pipeline I cannot see means the check has to be the deployed artifact.
 // 76 files, 824 tests, 0 failures. Build exits 0. tsc clean via npm run typecheck.
-export const APP_VERSION = "1.1.829";
+// v1.1.830 = 2026-07-20 — "PUSHED" AND "DEPLOYED" ARE DIFFERENT WORDS NOW.
+// v829 reverted the typecheck gate. velealor.com went from v813 to v829 immediately — which is what
+// PROVED the cause rather than leaving it plausible: fifteen versions had been stuck behind a build
+// script that could not run where it actually runs, because `typescript` is a devDependency and a
+// production install has no tsc.
+// The gate was not the real failure. The real failure is that for an entire day "pushed" and
+// "deployed" were the same word to me, in thirty commit messages, while AUDIT_STATUS.md's own
+// method said to check the live sw.js. scripts/verify-deployed.ts now asks the SERVER what it is
+// running: `npm run deployed` compares it to APP_VERSION and exits non-zero on a mismatch,
+// `npm run deployed:wait` polls until it lands. Proven to fail by pointing it at v1.1.999.
+// The typecheck did not disappear — `npm run typecheck` and `npm run verify` still run it. It is
+// simply no longer standing between a fix and the person who needs it.
+// Both documents now open with the correction: everything called "shipped and deployed" before v829
+// meant PUSHED. velealor.com is verified serving v829.
+// 76 files, 824 tests, 0 failures. Build exits 0. tsc clean. Deploy VERIFIED, not assumed.
+export const APP_VERSION = "1.1.830";

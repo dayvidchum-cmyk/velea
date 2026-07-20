@@ -14,7 +14,9 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit push",
     "db:deploy": "echo '[deploy] auto schema migration is DISABLED to prevent data loss. Run: npm run db:push (reviewed) for deliberate schema changes.'",
-    "verify": "tsc --noEmit && vitest run"
+    "verify": "tsc --noEmit && vitest run",
+    "deployed": "tsx scripts/verify-deployed.ts",
+    "deployed:wait": "tsx scripts/verify-deployed.ts --wait"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.107.0",
