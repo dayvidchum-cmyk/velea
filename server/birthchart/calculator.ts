@@ -355,7 +355,13 @@ export async function calculateBirthChart(
     ...ketuNakshatraData,
     house: ketuHouse,
     isRetrograde: true, // Ketu (South Node) is always retrograde
-    longitudeSpeed: -(result.rahu.longitudeSpeed ?? 0), // mirrors Rahu (opposite direction)
+    // Ketu sits 180° from Rahu but MOVES WITH IT: both mean nodes are always retrograde, so
+    // Ketu carries Rahu's (negative) speed — not a negated one. This used to negate it, yielding
+    // a positive/direct value that was then PERSISTED into profile_natal_bodies and the research
+    // store. Masked only because isRetrograde is hardcoded true; any speed-sign or stationing
+    // consumer would have inherited a wrong number from the database. (2026-07-19 audit; the
+    // correct rule was already stated in profection/transit-calculator.ts calcSid.)
+    longitudeSpeed: result.rahu.longitudeSpeed ?? 0,
   };
 
   return result as BirthChartResult;
@@ -400,7 +406,7 @@ export async function planetLongitudeSpeed(
   const [y, m, d] = dateStr.split("-").map(Number);
   const jd = se.julday(y, m, d, hourUT);
   const flags = se.SEFLG_SWIEPH | se.SEFLG_SIDEREAL | (se.SEFLG_SPEED ?? 256);
-  // Ketu = Rahu + 180°, speed mirrored (same derivation as the birth chart).
+  // Ketu = Rahu + 180° in longitude, SAME speed (both mean nodes move retrograde together).
   const name = planet.toLowerCase();
   const key = SE_PLANET_KEY[name === "ketu" ? "rahu" : name];
   // THE TRAP THAT BIT (2026-07-16 node audit): an unknown name made `code` undefined,
@@ -409,6 +415,7 @@ export async function planetLongitudeSpeed(
   if (!key) throw new Error(`planetLongitudeSpeed: unknown planet "${planet}"`);
   const code = (se as any)[key];
   const calc = se.calc_ut(jd, code, flags);
-  if (name === "ketu") return { longitude: (calc[0] + 180) % 360, speed: -calc[3] };
+  // Ketu: mirrored in longitude, SAME speed sign as Rahu (both mean nodes are retrograde).
+  if (name === "ketu") return { longitude: (calc[0] + 180) % 360, speed: calc[3] };
   return { longitude: calc[0], speed: calc[3] };
 }

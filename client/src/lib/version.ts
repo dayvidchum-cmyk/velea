@@ -526,4 +526,21 @@
 // every route renders inside main.content-safe-area, and that env()-less browsers degrade correctly.
 // This is the same clip as the "2:21 AM" one — that fix corrected the number, this removes the
 // mechanism.
-export const APP_VERSION = "1.1.768";
+// v1.1.769 = 2026-07-19 — THE EPHEMERIS COLD-START RACE + KETU'S SPEED SIGN (audit section 7).
+// (1) natal-chart-engine.initSwissEph assigned the module-level instance BEFORE awaiting the WASM
+// load and BEFORE set_sid_mode, so a second concurrent caller saw it truthy and got a half-built
+// engine — either a .ccall throw, or (worse) one with NO ayanamsa set, silently returning
+// Fagan-Bradley positions ~0.883° off the Lahiri frame everything else is stored in. The exact bug
+// the C1 fix closed, reachable again through a race, firing at container start after a deploy.
+// Now memoizes the PROMISE, not the instance, so every caller awaits one initialisation and gets a
+// fully-configured engine; a failure clears the promise so a later call can retry. VERIFIED: 8/8
+// concurrent cold-start calls now resolve to one identical value (was 4-7 of 8 rejecting).
+// (2) birthchart/calculator NEGATED Rahu's speed for Ketu at both sites, yielding a positive/direct
+// value that was persisted to profile_natal_bodies. Both mean nodes are always retrograde, so Ketu
+// carries Rahu's speed unchanged — the rule was already stated correctly in transit-calculator's
+// calcSid. VERIFIED at BOTH sites independently (not inferred from each other): separation exactly
+// 180.000000000, speeds identical and negative, isRetrograde true. Correction to the audit sheet:
+// it said stored rows need a re-run — they do NOT. `Graha` is the seven classical planets, so
+// combustion, yoga-detect and chesta never read a node's speed; the wrong value was written and
+// never consumed. 298 tests pass, build exits 0.
+export const APP_VERSION = "1.1.769";

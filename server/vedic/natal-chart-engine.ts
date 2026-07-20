@@ -83,40 +83,57 @@ export interface VedicNatalChart {
   calculatedAt: string;
 }
 
-let swissEph: any = null;
+// Memoize the PROMISE, never the instance.
+//
+// 2026-07-19 audit — THE COLD-START RACE. This used to assign the module-level `swissEph`
+// BEFORE awaiting initSwissEph() and before set_sid_mode(). A second concurrent caller saw
+// `swissEph` truthy at the guard and got a HALF-BUILT instance: it either threw on .ccall,
+// or — far worse — returned one whose ayanamsa had not been set yet, silently producing
+// Fagan–Bradley positions ~0.883° off the Lahiri frame everything else is stored in. That is
+// the exact bug the C1 comment below was written to close, reachable again through a race.
+// A probe measured 4–7 of 8 concurrent cold-start calls rejecting. It fires at container
+// start after a deploy — the moment the app is opened.
+//
+// Awaiting one shared promise means every caller gets the SAME fully-initialised instance,
+// with the sidereal mode already set, or they all get the same rejection. On failure the
+// promise is cleared so a later call can retry rather than caching a permanent poison.
+let swissEphP: Promise<any> | null = null;
 
 /**
- * Initialize Swiss Ephemeris WASM module
+ * Initialize Swiss Ephemeris WASM module (single-flight; safe under concurrency)
  */
-async function initSwissEph() {
-  if (swissEph) return swissEph;
+function initSwissEph(): Promise<any> {
+  if (swissEphP) return swissEphP;
 
-  try {
-    // Instantiate the Swiss Ephemeris class
-    swissEph = await new swephInitModule();
-    
+  swissEphP = (async () => {
+    // Instantiate the Swiss Ephemeris class — into a LOCAL, published only when complete.
+    const se: any = await new (swephInitModule as any)();
+
     // Initialize the WASM module
-    await swissEph.initSwissEph();
+    await se.initSwissEph();
 
     // AYANAMSA (audit 2026-07-17, C1): every SEFLG_SIDEREAL call on THIS instance was
     // silently using Swiss Ephemeris' default Fagan–Bradley — ~0.883° behind the Lahiri
     // frame the natal charts (birthchart/calculator.ts) and panchang are stored in. Each
     // WASM instance holds its own C state, so this must be set here too. Without it, every
     // transit-to-natal orb, day-Moon sign, crown/tara scan, and Varshaphala return was off.
-    if (swissEph.set_sid_mode) {
-      swissEph.set_sid_mode(swissEph.SE_SIDM_LAHIRI ?? 1, 0, 0);
+    if (se.set_sid_mode) {
+      se.set_sid_mode(se.SE_SIDM_LAHIRI ?? 1, 0, 0);
     }
 
     // Try to set ephemeris path if available
-    if (swissEph.set_ephe_path) {
-      swissEph.set_ephe_path("./ephemeris");
+    if (se.set_ephe_path) {
+      se.set_ephe_path("./ephemeris");
     }
 
-    return swissEph;
-  } catch (error) {
+    return se;
+  })().catch((error) => {
+    swissEphP = null; // let a later call retry instead of caching the failure forever
     console.error("Failed to initialize Swiss Ephemeris:", error);
     throw new Error(`Swiss Ephemeris initialization failed: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  });
+
+  return swissEphP;
 }
 
 /**
