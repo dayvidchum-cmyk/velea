@@ -578,16 +578,45 @@ export async function listYogaReadKeys(profileId: number): Promise<string[]> {
   return rows.map((r) => r.cacheDate);
 }
 
+/**
+ * THE HELD ROWS — readings that were GENERATED AND PAID FOR but could not be written to the
+ * database.
+ *
+ * The 2026-07-17 outage law says a cache-write failure must never kill a generated reading: the
+ * read is served anyway. But `upsertNarrativeCache` swallowed the error and returned void, so
+ * nothing downstream knew the row had not landed — and the next tap regenerated the identical
+ * reading and BILLED FOR IT AGAIN. During that outage (cacheDate VARCHAR(10) rejecting the new
+ * longer keys) that was every tap, of every surface, indefinitely.
+ *
+ * A failed write now parks the row here, and getNarrativeCache serves it exactly like a database
+ * row. It cannot go stale or serve the wrong thing: every caller already compares `inputHash`, so
+ * a held row that no longer matches simply misses, the same as a database row that no longer
+ * matches. It is per-process and lost on restart — which is correct, this is a shock absorber for
+ * a broken table, not a second cache. Capped, drop-oldest.
+ */
+type HeldRow = { profileId: number; surface: string; cacheDate: string; inputHash: string; model: string; content: string; generatedAt: Date; locked: boolean; held: true };
+const heldRows = new Map<string, HeldRow>();
+const HELD_MAX = 60;
+const heldKey = (profileId: number, surface: string, cacheDate: string) => `${profileId}|${surface}|${cacheDate}`;
+
+/** How many paid readings are currently held because the table would not take them. 0 is healthy;
+ *  anything else means narrative_cache is rejecting writes and should be looked at. */
+export function heldNarrativeCount(): number {
+  return heldRows.size;
+}
+
 export async function getNarrativeCache(profileId: number, surface: string, cacheDate: string) {
   const db = await getDb();
-  if (!db) return undefined;
+  const held = heldRows.get(heldKey(profileId, surface, cacheDate));
+  if (!db) return held; // no database at all — a held row is better than nothing
   const result = await db
     .select()
     .from(narrativeCache)
     .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, surface), eq(narrativeCache.cacheDate, cacheDate)))
     .orderBy(desc(narrativeCache.id))
     .limit(1);
-  return result[0];
+  // A real row wins; the held row covers exactly the case where the write never landed.
+  return (result[0] as any) ?? held;
 }
 
 /** Most recent cached read for a profile+surface, regardless of date. The STAGE read is
@@ -620,21 +649,41 @@ export async function countGenerationsToday(profileId: number): Promise<number> 
   return Number(rows[0]?.n ?? 0);
 }
 
-export async function upsertNarrativeCache(profileId: number, surface: string, cacheDate: string, inputHash: string, model: string, content: string) {
+/** @returns true if the row actually landed in the table; false if it is only being HELD
+ *  in-process (see heldRows). Callers may ignore it — the reading is served either way — but a
+ *  `false` means this reading will not survive a restart and is not in the archive. */
+export async function upsertNarrativeCache(profileId: number, surface: string, cacheDate: string, inputHash: string, model: string, content: string): Promise<boolean> {
+  const hold = () => {
+    if (heldRows.size >= HELD_MAX) {
+      const oldest = heldRows.keys().next().value;
+      if (oldest !== undefined) heldRows.delete(oldest);
+    }
+    heldRows.set(heldKey(profileId, surface, cacheDate), {
+      profileId, surface, cacheDate, inputHash, model, content, generatedAt: new Date(), locked: false, held: true,
+    });
+  };
   const db = await getDb();
-  if (!db) return;
+  if (!db) { hold(); return false; }
   try {
     await db
       .insert(narrativeCache)
       .values({ profileId, surface, cacheDate, inputHash, model, content, generatedAt: new Date() })
       .onDuplicateKeyUpdate({ set: { inputHash, model, content, generatedAt: new Date() } });
+    // It landed — drop any held copy so the table stays the single source.
+    heldRows.delete(heldKey(profileId, surface, cacheDate));
+    return true;
   } catch (err) {
     // THE 2026-07-17 OUTAGE LAW: a cache-write failure must NEVER kill a generated reading.
     // The read was already produced and billed — serve it; record the write failure in the
     // black box. (This exact path was cacheDate VARCHAR(10) rejecting the new long keys,
     // silently discarding paid generations and regenerating on every tap.)
+    // 2026-07-20: and HOLD it in-process, so the next tap serves the reading that was already
+    // paid for instead of generating and billing an identical one. The old void return meant a
+    // failed save was indistinguishable from a successful one to every caller.
+    hold();
     const { recordServerError } = await import("./narrative/generate.js");
     recordServerError(`cacheWrite:${surface}:${cacheDate}`, err);
+    return false;
   }
 }
 

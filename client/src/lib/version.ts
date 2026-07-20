@@ -761,4 +761,18 @@
 // was written mid-turn and swept into the v780 commit by a `git add -A` before its prompt existed,
 // so for two commits the input carried canonIndications that no prompt ever told the model to read
 // — dead data, in a commit whose message never mentioned it. Finished and tested here.
-export const APP_VERSION = "1.1.782";
+// v1.1.783 = 2026-07-20 — A PAID READING NO LONGER DIES ON A FAILED CACHE WRITE.
+// The 2026-07-17 outage law says a cache-write failure must never kill a generated reading, and it
+// did not — but upsertNarrativeCache returned VOID, so no caller could tell a failed save from a
+// successful one. The reading was served, the row never landed, and the NEXT TAP generated the
+// identical reading and BILLED FOR IT AGAIN. During that outage (cacheDate VARCHAR(10) rejecting
+// the new longer keys) that was every tap, of every surface, indefinitely.
+// A failed write now returns false AND parks the row in-process; getNarrativeCache serves it just
+// like a table row, so every surface benefits with no change at any call site. It cannot serve the
+// wrong thing: callers already gate on inputHash, so a held row that no longer matches misses
+// exactly like a stale database row would. Per-process and lost on restart, which is right — this
+// is a shock absorber for a broken table, not a second cache. Capped at 60, drop-oldest, with
+// heldNarrativeCount() so a table rejecting writes is visible instead of silent.
+// PROVEN: 6 controls, run through the same getDb()-is-null branch a broken table takes; 5 of the 6
+// fail against the old code ("expected undefined to be false", "expected undefined to be defined").
+export const APP_VERSION = "1.1.783";
