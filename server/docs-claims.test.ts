@@ -95,25 +95,39 @@ describe("both documents carry the same open decisions", () => {
   // while the decisions were all still there. These match on the ONE word that cannot change
   // without changing the question, and they check BOTH pages, because the pages disagreeing about
   // what David owes an answer to is exactly the bug this rewrite fixed.
+  // OPEN decisions must appear on BOTH pages. David asked (2026-07-20) that a decision come OFF the
+  // queue once he has ruled — "take it off if it is fixed… less friction for me to process" — so
+  // this list is now the OPEN set only, and the resolved ones are asserted separately below.
   it.each([
-    ["which house is parents", /parents/i],
-    ["which nakshatra table wins", /nakshatra table/i],
-    ["majority star vs sunrise", /sunrise/i],
-    ["the cancelled-fall rules", /cancelled-fall|neecha/i],
+    ["the nakshatra follow-up", /cited nature drive/i],
+    ["naming the day by sunrise", /named by the sunrise star|NAMED.{0,20}sunrise/i],
+    ["the cancelled-fall rules", /cancelled-fall/i],
     ["which yogas the reader hears", /yogas/i],
     ["the knot thresholds", /knot threshold/i],
-    ["mrita: 0.05 or the canon's nil", /0\.05/],
-    ["the crown mark's colour", /crown mark/i],
-    ["the dark-parchment ink", /parchment ink/i],
-    ["a chartless day's character", /chartless/i],
+    ["the crown mark's missing pieces", /Siddhi/i],
+    ["the crown mark's colour", /gold on a gold coin/i],
+    ["the dark-parchment ink", /Parchment ink/i],
+    ["the chip rename", /Roots &amp; Ancestry|Roots & Ancestry/i],
     ["set the price", /Set the price/i],
     ["stripe keys", /Stripe keys/i],
     ["the schema reconcile", /schema reconcile/i],
     ["wire or delete the precision layer", /precision layer/i],
-    ["delete or rebuild meaning-engine", /meaning-engine/i],
-  ])("keeps the decision: %s", (_label, re) => {
+  ])("keeps the OPEN decision: %s", (_label, re) => {
     expect(SHEET, "missing from the audit sheet").toMatch(re);
     expect(BRIEF, "missing from the working brief").toMatch(re);
+  });
+
+  // A decision may leave the queue ONLY because it was RESOLVED — never because it was forgotten.
+  // Each of these must still be recorded, in one line, where he can see what was decided.
+  it.each([
+    ["which house is parents", /both stay/i],
+    ["which nakshatra table wins", /the cited tables/i],
+    ["when a day becomes its star", /named at sunrise/i],
+    ["mrita: 0.05 or the canon's nil", /0\.05 as/i],
+    ["a chartless day's character", /no birth data means no app/i],
+    ["delete or rebuild meaning-engine", /meaning-engine.{0,40}deleted/i],
+  ])("still RECORDS the settled decision: %s", (_label, re) => {
+    expect(SHEET, "a settled decision vanished instead of being recorded").toMatch(re);
   });
 
   it("both pages advertise the SAME number of decisions", () => {

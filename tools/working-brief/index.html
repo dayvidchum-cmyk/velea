@@ -55,55 +55,48 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v858 · 20 July 2026 · where the app actually stands</p>
+  <p class="sub">v859 · 20 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> The engine is in good shape and now proves it: 993 tests, and 32 checks that each
+    <b>Where things stand.</b> The engine is in good shape and now proves it: 997 tests, and 32 checks that each
     deliberately break something to confirm the test notices. The reading pipeline, the canon tables, the dasha clock,
     the paid gates and the per-user data isolation were all audited this run and came back clean.
     What stands between here and opening is <b>your price and your Stripe keys</b> — not code.
   </div>
 
-  <h2>1 · Your decisions — 16</h2>
+  <h2>1 · Your decisions — 13</h2>
   <p class="lead">
-    Short titles only. The full “what to choose and why” for each is on the
-    <a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">audit sheet</a>, in plain English.
-    This page and that one now list the <i>same</i> sixteen — they used to disagree, which was worse than either.
+    Only what is still open — anything you ruled on is off this list. The full “what to choose and why” for each is on
+    the <a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">audit sheet</a>.
   </p>
 
-  <div class="grp">The astrology — how Velea reads a chart</div>
+  <div class="grp">The astrology</div>
   <ol class="asks">
-    <li>Which house are “parents”? <b>RULED:</b> both stay — 4th/9th are mother and father; ancestry is roots. <b>And ancestry is a SPREAD, not a chip</b> — <b>BUILT (v856)</b>: seven strands + Moon/Sun/Ketu, lighting only on period-lords and slow transits, folded into the day rather than given a header. Doctrine in <code>canon/lineage-doctrine.md</code>.</li>
-    <li>Which nakshatra table wins? <b>RULED &amp; DONE:</b> the cited tables win — four stars corrected, 57 days a year. <b>Open follow-up:</b> should the cited nature drive <i>every</i> score, or only overrule contradictions? Seven stars wait on that.</li>
-    <li>Majority star or the star at sunrise? <b>ANSWERED — neither.</b> Named at sunrise, <i>read in two parts</i> with the hour named. Blending to the majority is what generic apps do. Both stars + the turn time reach the model, and the prompt law is in. <b>Still open:</b> the day is still <i>named</i> by the majority star — that one changes 47% of titles.</li>
-    <li>Which cancelled-fall rules are Velea’s? Two of the four are one verse read twice.</li>
+    <li>Should the cited nature drive <i>every</i> star, or only overrule contradictions? Seven stars wait on it.</li>
+    <li>Should the day be <b>named</b> by the sunrise star? The two-part reading is live; this is the title, on 47% of days.</li>
+    <li>Which cancelled-fall rules are Velea’s? Two of our four are one verse read two ways.</li>
     <li>Which yogas should the reader actually hear?</li>
-    <li>The knot thresholds — I set them, never checked them, and have now said so twice.</li>
-    <li>Is a “dead” planet worth 5% of its strength, or nothing? The corpus says nil; we say 0.05. Live on The Verdict.</li>
+    <li>The knot thresholds — and how we test them with your eyes.</li>
+    <li>The crown mark: the 11th is not the peak, the Siddhi yogas do not exist, Shubha Tithi uses the family rule.</li>
   </ol>
 
-  <ol class="asks" start="16" style="counter-reset:a 15">
-    <li>The crown mark — three pieces of your spec are missing: the 11th is not treated as the peak, the Siddhi yogas do not exist at all, and Shubha Tithi is handled by family rule rather than your list. Audit in <code>canon/crown-doctrine.md</code>.</li>
-  </ol>
-
-  <div class="grp">The look — your palette calls</div>
-  <ol class="asks" start="8" style="counter-reset:a 7">
-    <li>The crown mark is gold on a gold coin — measured at 1.6:1, effectively invisible.</li>
+  <div class="grp">The look</div>
+  <ol class="asks" start="7" style="counter-reset:a 6">
+    <li>The crown mark is gold on a gold coin — 1.6:1 light, 1.2:1 dark.</li>
     <li>Parchment ink in dark mode sits at 2.3:1 on the month calendar.</li>
-    <li>What does a chartless day say? <b>RULED:</b> no birth data means no app — an onboarding gate, bigger than hero copy, not built.</li>
+    <li>Rename the “Parents &amp; Roots” chip to “Roots &amp; Ancestry”?</li>
   </ol>
 
-  <div class="grp">The business — money and launch</div>
-  <ol class="asks" start="11" style="counter-reset:a 10">
-    <li>Set the price. Your list is locked below; nothing charges yet.</li>
-    <li>Stripe keys — Railway config, yours to enter.</li>
-    <li>Run the production schema reconcile. Script is ready; schema changes are always hand-run by you.</li>
+  <div class="grp">The business</div>
+  <ol class="asks" start="10" style="counter-reset:a 9">
+    <li>Set the price — waiting on Mercury clearing post-shadow.</li>
+    <li>Stripe keys — Railway config, yours.</li>
+    <li>Did the production schema reconcile run? I cannot verify it from here.</li>
   </ol>
 
-  <div class="grp">Cleanup — keep or kill</div>
-  <ol class="asks" start="14" style="counter-reset:a 13">
+  <div class="grp">Cleanup</div>
+  <ol class="asks" start="13" style="counter-reset:a 12">
     <li>The pick-a-date precision layer: wire it, or delete it? 170 lines nothing calls.</li>
-    <li>The old meaning-engine — <b>DONE:</b> deleted. Git holds it if it is ever wanted back.</li>
   </ol>
 
   <h2>2 · The price list — locked</h2>

@@ -2280,4 +2280,17 @@
 // those, a measurement for the rest. Of eleven rows re-checked across this run, FIVE were stale and
 // one was half-wrong on astronomy I had got wrong myself. Carried notes rot; that is the lesson.
 // 92 files, 993 tests, 0 failures. 42 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.858";
+// v1.1.859 = 2026-07-20 — DAVID: "take it off if it is fixed… less friction for me to process."
+// The decision queue had grown to sixteen, and six of them he had ALREADY RULED ON — sitting there
+// with RULED/DONE banners he had to read past to find what still needed him. That is friction I
+// created by treating the list as a history instead of a queue. Both pages now carry only the
+// THIRTEEN still open, in the same order.
+// The settled six moved to a one-line-each "Settled today" block — because the docs guard failed
+// the moment I removed them, and it was RIGHT to: it exists so a decision can never vanish
+// silently. The honest fix was not deleting the assertions but splitting them — OPEN decisions must
+// appear on both pages, RESOLVED ones must still be RECORDED with what was decided. A decision may
+// leave the queue only because it was answered, never because it was forgotten.
+// Also stripped: my own RULED/DONE commentary from the queue itself. His rulings and my mistakes
+// belong in the record, not in the thing he reads to make the next choice.
+// 92 files, 997 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.859";
