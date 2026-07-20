@@ -18,7 +18,10 @@ import { trpc } from "@/lib/trpc";
  *  and each window's reading stay behind the veil until the flag opens. */
 export default function LifeAtlas() {
   const [, navigate] = useLocation();
-  const { data } = trpc.atlas.windows.useQuery(undefined, { staleTime: 30 * 60_000 });
+  // isError matters: an errored query also leaves `data` undefined, so gating the loader on
+  // `!data` alone spins "Unrolling the atlas…" forever (the class Horoscope.tsx:91 documents and
+  // fixed; this page was missed by that sweep — audit 2026-07-20).
+  const { data, isError } = trpc.atlas.windows.useQuery(undefined, { staleTime: 30 * 60_000 });
   const entitled = data?.entitled === true;
   // ?theme= deep-link — the bridge from a life-area seat to its seasons.
   const [openTheme, setOpenTheme] = useState<string | null>(() => {
@@ -67,8 +70,20 @@ export default function LifeAtlas() {
     <div className="min-h-screen bg-background pb-24">
       <div className="container py-6"><AppHeader pageTitle="The Life Atlas" onBack={() => navigate("/horoscope")} backLabel="Readings" /></div>
       <main className="mx-auto max-w-lg px-4 pt-2">
-        {!data && (
+        {!data && !isError && (
           <div className="mt-10"><VeleaLoader label="Unrolling the atlas…" /></div>
+        )}
+        {isError && (
+          <p className="mt-10 text-sm" style={{ color: "var(--color-muted-foreground)" }}>
+            The atlas couldn't be unrolled just now. Pull down to try again.
+          </p>
+        )}
+        {/* The server answers { available: false } when there is no active profile or no stored
+            timeline yet. Without this the page rendered its header and nothing else. */}
+        {data && data.available === false && (
+          <p className="mt-10 text-sm" style={{ color: "var(--color-muted-foreground)" }}>
+            Your atlas opens once this chart's timeline is stored — it builds with the profile.
+          </p>
         )}
 
         {data?.available && (

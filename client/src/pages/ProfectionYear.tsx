@@ -1,5 +1,6 @@
 import ProseCard from "@/components/ProseCard";
 import LockedRead from "@/components/LockedRead";
+import { peelTakeaway } from "@shared/peel-takeaway";
 import GateMark from "@/components/GateMark";
 import { trpc } from "../lib/trpc";
 import { inkOf } from "@/lib/ink";
@@ -97,47 +98,6 @@ function housesRuledFromLagna(planet: string, lagna: string): number[] {
   return ZODIAC.filter((s) => SIGN_RULERS[s] === planet)
     .map((s) => ((ZODIAC.indexOf(s) - li + 12) % 12) + 1)
     .sort((a, b) => a - b);
-}
-
-// Words that signal a continuation/appositive fragment, not a standalone closing
-// thought — so we never peel a mid-sentence em dash into a dangling takeaway.
-const FRAGMENT_STARTS = new Set([
-  "is", "are", "was", "were", "be", "been", "being", "and", "but", "or", "nor",
-  "which", "that", "who", "whom", "whose", "where", "when", "while", "because",
-  "though", "although", "yet", "if", "as",
-  // verbs that begin the TAIL of a subject the peel cut away (David's "broken thought":
-  // "Have to be worked through that craft floor…")
-  "have", "has", "had", "having", "means", "meaning", "makes", "making",
-  "needs", "needing", "wants", "gets", "getting", "comes", "coming", "goes", "going",
-]);
-
-/**
- * Split a "why" string into placement detail (data) and a closing takeaway.
- * Peels at an explicit "— so …", or at a trailing em dash IF the tail reads as a
- * complete sentence (doesn't begin with a fragment/connector word). This keeps
- * real closing lines ("— the year places belief inside service…") as takeaways
- * while leaving mid-sentence appositives ("— is where…") attached.
- */
-function peelTakeaway(text: string): { data: string; takeaway: string } {
-  const so = text.match(/\s+—\s+so[,\s]+/i);
-  if (so && so.index !== undefined) {
-    return { data: text.slice(0, so.index).trim().replace(/[,;]\s*$/, ""), takeaway: text.slice(so.index + so[0].length).trim() };
-  }
-  const idx = text.lastIndexOf("—");
-  if (idx > text.length * 0.4) {
-    // APPOSITIVE-PAIR GUARD: if another em dash sits shortly before this one with no
-    // sentence break between them, this dash CLOSES an aside ("— priced pieces,
-    // retainers —") — peeling here beheads the sentence (David's broken thought).
-    const opener = text.lastIndexOf("—", idx - 1);
-    const between = opener >= 0 ? text.slice(opener + 1, idx) : "";
-    const isPairClose = opener >= 0 && between.length < 140 && !/[.!?]/.test(between);
-    const tail = text.slice(idx + 1).trim();
-    const first = (tail.split(/\s+/)[0] || "").toLowerCase().replace(/[^a-z]/g, "");
-    if (tail && !isPairClose && !FRAGMENT_STARTS.has(first)) {
-      return { data: text.slice(0, idx).trim().replace(/[,;]\s*$/, ""), takeaway: tail };
-    }
-  }
-  return { data: text, takeaway: "" };
 }
 
 export default function ProfectionYear() {

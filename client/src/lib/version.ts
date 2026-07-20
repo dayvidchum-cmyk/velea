@@ -2670,4 +2670,30 @@
 // `?? "initiate"` default, so their Bhadra behaviour was an accident; they are now classed to match
 // what they already did (no day's output changes) and the guard reads every source the yoga reads.
 // 112 files, 1161 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.880";
+// v1.1.881 = 2026-07-20 — EVERY PREMIUM GATE ON THE READINGS PAGE WAS TELLING THE READER A LIE
+// ABOUT THE SKY. The server answers { available:false, locked:true } for an entitlement gate and a
+// bare { available:false } when there is genuinely nothing to read. Ten client call sites tested
+// only `available`, so a locked reader was told "The sky is between eclipse seasons right now",
+// "Mercury is running clear right now", "Venus is running clear — no review to read", or handed
+// "can't be drawn just now, please try again in a moment" beside a button that could never work.
+// The combined read and the Verdict simply stopped responding to the tap and left the pitch up.
+// THE GUARD THAT SAID THIS WAS DONE WAS BLIND TWICE OVER, and AUDIT_STATUS.md repeated its clean
+// result as "guarded across all 21 lockable endpoints": it matched `useQuery` only (all seven of
+// these are mutations), and its "does `locked` appear near the alias" heuristic was satisfied by
+// the word inside "not yet unlocked." — marketing copy in a `detail` string — so three more call
+// sites were passing by coincidence. It now scans mutations too and requires a property access.
+// Control: the tightened scan reports 10 unhandled endpoints against the previous commit, 0 now.
+// ALSO in this pass:
+// · The Life Atlas spun "Unrolling the atlas…" forever on an errored query (an errored query also
+//   leaves `data` undefined) and rendered a header over nothing when the server said available:false
+//   — the exact class Horoscope.tsx documents and fixed, on the one page that sweep missed.
+// · The Planner hero — the app's most-seen surface — went silently blank on an errored day read.
+// · The takeaway peeler could BEHEAD a sentence the model wrote whole, and it is rendered ALONE in
+//   gold, so the fragment is all the reader sees. Two shapes reproduced against real prose: a long
+//   appositive ("…when the studio has gone cold — every week of this year.") peeled to its last
+//   four words, and an aside containing "— so" peeled at its OPENING dash with the "so" eaten. It
+//   now peels only at an unambiguous single closing dash; it may decline, it may never behead.
+//   Moved to shared/ because the suite collects server/** and shared/** — a transformer no test
+//   could reach is how it drifted. Control: the new test fails 3/3 against the old function.
+// 113 files, 1167 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.881";

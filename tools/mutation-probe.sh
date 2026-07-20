@@ -122,6 +122,12 @@ run client/src/pages/LifeAtlas.tsx '(windowReadQ.data as any)?.locked ? (' 'fals
 # A paid reading going back to recording no location, while the page prints a live one above it.
 run server/routers.ts 'computedCity: dayLoc.city, computedSource: dayLoc.source' 'computedSource: dayLoc.source' \
   server/horoscope-location.test.ts "a frozen reading stops recording where its sky was cast"
+# A premium gate rendering as a fact about the sky again ("the sky is between eclipse seasons").
+run client/src/pages/Horoscope.tsx 'const locked = !!((reveal.data as any)?.locked || (saved.data as any)?.locked);\n  const noSeason' 'const locked = false;\n  const noSeason' \
+  server/locked-gate-client.test.ts "a mutation call site stops honouring the lock"
+# The takeaway peeler going back to cutting inside an appositive (David's broken thought).
+run shared/peel-takeaway.ts 'if (dashes.length !== 1) return { data: text, takeaway: "" };' 'if (dashes.length < 1) return { data: text, takeaway: "" };' \
+  shared/peel-takeaway.test.ts "the peeler cuts inside an aside again"
 # The day layer getting back into the STAGE input, which re-bills the year read every morning.
 run server/narrative/input-builder.ts 'natal: natalStage, natalRetrogradeCount' 'natal, natalRetrogradeCount' \
   server/narrative/service.hash.test.ts "the stage input carries the day layer again"

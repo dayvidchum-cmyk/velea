@@ -635,7 +635,7 @@ export default function Planner() {
   // date and server-caches per (profile, date), so re-selecting a day is free. It IS the hero:
   // the concise day-story replaced the old glance teaser + the "day in full" press-line, so
   // exactly one read generates per day (no double-pay). The prose generates for ANY date.
-  const { data: dayRead, isFetching: dayReadFetching } = trpc.narrative.dayRead.useQuery(
+  const { data: dayRead, isFetching: dayReadFetching, isError: dayReadError } = trpc.narrative.dayRead.useQuery(
     { profileId: glanceProfileId as number, date: selectedDate },
     // THE DOOR LAW (David 2026-07-17: "Every single reading should have that gate"): the
     // hero's expand tap is this reading's door — collapsed, the page loads and dates browse
@@ -1292,6 +1292,18 @@ export default function Planner() {
                       <GateMark size={18} style={{ flexShrink: 0, marginTop: 2, color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }} />
                       <p style={{ margin: 0, fontSize: 'clamp(0.78rem, 3vw, 0.9rem)', lineHeight: 1.55, color: 'color-mix(in srgb, var(--hero-ink) 92%, transparent)' }}>
                         Today and the days close to it read free. Reaching further into the year is the pick-a-date reading.
+                      </p>
+                    </div>
+                  );
+                }
+                // An ERRORED query also leaves data undefined. Returning null here left the hero
+                // — the app's most-seen surface — silently blank, with nothing to tell the reader
+                // whether the sky was quiet or the call had failed (audit 2026-07-20).
+                if (dayReadError) {
+                  return (
+                    <div style={{ marginBottom: '1.25rem' }}>
+                      <p style={{ margin: 0, fontSize: 'clamp(0.78rem, 3vw, 0.9rem)', lineHeight: 1.55, color: 'color-mix(in srgb, var(--hero-ink) 78%, transparent)' }}>
+                        The reading couldn't be drawn just now. Close and open this again in a moment.
                       </p>
                     </div>
                   );

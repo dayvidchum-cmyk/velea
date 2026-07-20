@@ -18,6 +18,16 @@ import { join } from "node:path";
  * The check is per-ENDPOINT, not per-file. A file-level "does this file mention locked" check
  * passes on LifeAtlas.tsx even with the bug, because its OTHER endpoint handled it — that weaker
  * version was written first and had to be thrown away.
+ *
+ * IT WAS STILL BLIND TWICE OVER (audit 2026-07-20), and AUDIT_STATUS.md repeated its clean result
+ * as "guarded across all 21 lockable endpoints":
+ *   1. It matched `useQuery` only. Seven lockable procedures are called as MUTATIONS — the
+ *      pick-a-date reveal, the eclipse season, the Mercury and slow-planet reviews, the month read,
+ *      the combined read — and every one of them rendered a lock as an astronomical fact ("the sky
+ *      is between eclipse seasons", "Venus is running clear") or as an outage with a dead retry.
+ *   2. Its "does `locked` appear within 120 chars of the alias" heuristic matched the word inside
+ *      "not yet unlocked." — marketing copy in a `detail` string — so three of the query call sites
+ *      were passing by coincidence. It now requires a property ACCESS: `.locked` / `?.locked`.
  */
 const ROOT = new URL("..", import.meta.url).pathname;
 
@@ -52,7 +62,7 @@ function unhandled(): string[] {
   const missing: string[] = [];
   for (const f of walk(join(ROOT, "client", "src"), [".tsx"])) {
     const s = readFileSync(f, "utf8");
-    for (const m of s.matchAll(/const\s+(\w+)\s*=\s*trpc\.([\w.]+)\.useQuery/g)) {
+    for (const m of s.matchAll(/const\s+(\w+)\s*=\s*trpc\.([\w.]+)\.use(?:Query|Mutation)/g)) {
       const [, v, path] = m;
       if (!lockable.has(path.split(".").at(-1)!)) continue;
       // Follow one aliasing hop — `const d: any = someQ.data` and `const readQ = ... peekQ ...`
@@ -62,7 +72,16 @@ function unhandled(): string[] {
       for (const a of s.matchAll(new RegExp(`const\\s+(\\w+)\\s*(?::[^=\\n]+)?=\\s*[^;\\n]*\\b${v}\\b`, "g"))) {
         names.push(a[1]);
       }
-      if (!names.some((n) => new RegExp(`\\b${n}\\b[^\\n]{0,120}locked`).test(s))) {
+      // ...and one hop through a promise callback, which is how the peek-into-state pages read:
+      // `planetRxPeek.mutateAsync({...}).then((r) => setReads(...))` — the value never gets a
+      // `const` name, so without this the scan reports a call site that DOES handle the lock.
+      // Name collisions are possible (two different `r`s in one file); this errs toward not
+      // crying wolf, and the per-endpoint sweep is still the thing being asserted.
+      for (const a of s.matchAll(new RegExp(`\\b${v}\\b[\\s\\S]{0,160}?\\.then\\(\\s*\\((\\w+)\\)`, "g"))) {
+        names.push(a[1]);
+      }
+      // A property ACCESS, not the letters: `detail="… not yet unlocked."` used to satisfy this.
+      if (!names.some((n) => new RegExp(`\\b${n}\\b[^\\n]{0,120}\\??\\.locked\\b`).test(s))) {
         missing.push(`${f.split("/").at(-1)}: ${path} (via ${v})`);
       }
     }
@@ -80,5 +99,20 @@ describe("a server lock must reach the reader as a gate, never as an outage", ()
   it("every client query on a lockable endpoint branches on locked", () => {
     const missing = unhandled();
     expect(missing, `these render a server lock as a failure: ${missing.join(", ")}`).toEqual([]);
+  });
+
+  it("the scan sees MUTATION call sites too, and cannot be satisfied by the word in prose", () => {
+    // CONTROLS for the two ways this test was blind. Both run against synthetic source, so they
+    // fail if the matcher is ever loosened back — the real sweep above then means something.
+    const lockable = lockableProcedures();
+    for (const p of ["reveal", "eclipseSeason", "mercuryRx", "planetRxPeek", "month"]) {
+      expect(lockable, `${p} answers locked:true on the server`).toContain(p);
+    }
+    const mut = (src: string) => /const\s+(\w+)\s*=\s*trpc\.([\w.]+)\.use(?:Query|Mutation)/.test(src);
+    expect(mut("const reveal = trpc.horoscope.eclipseSeason.useMutation();")).toBe(true);
+    expect(mut("const q = trpc.narrative.houseRead.useQuery(x);")).toBe(true);
+    const handled = (alias: string, src: string) => new RegExp(`\\b${alias}\\b[^\\n]{0,120}\\??\\.locked\\b`).test(src);
+    expect(handled("season", 'detail="A premium reading, not yet unlocked."'), "prose satisfies the matcher again").toBe(false);
+    expect(handled("reveal", "const locked = !!(reveal.data as any)?.locked;")).toBe(true);
   });
 });

@@ -574,7 +574,11 @@ export default function Horoscope() {
               date={selectedDate}
               areaLabel={areaLabel(selectedArea)}
               pending={reveal.isPending}
-              failed={reveal.data?.available === false}
+              // A gate is not a failure: the server returns locked:true here, and the old
+              // `available === false` test printed "couldn't be drawn — try again in a moment"
+              // beside a Reveal button that could never succeed (audit 2026-07-20).
+              locked={!!(reveal.data as any)?.locked}
+              failed={reveal.data?.available === false && !(reveal.data as any)?.locked}
               onReveal={() => reveal.mutate({ date: selectedDate, lifeArea: selectedArea })}
               modeColor={modeColor}
             />
@@ -656,7 +660,10 @@ export default function Horoscope() {
 }
 
 // ── The reveal ("purchase") prompt for a not-yet-owned date ──
-function RevealPanel({ date, areaLabel, pending, failed, onReveal, modeColor }: { date: string; areaLabel: string; pending: boolean; failed: boolean; onReveal: () => void; modeColor: string }) {
+function RevealPanel({ date, areaLabel, pending, failed, locked, onReveal, modeColor }: { date: string; areaLabel: string; pending: boolean; failed: boolean; locked?: boolean; onReveal: () => void; modeColor: string }) {
+  if (locked) return (
+    <LockedRead accent={modeColor} title="This date" body={`The ${areaLabel.toLowerCase()} reading for ${fmtShort(date)} — your chart read for that exact day, kept with your own notes beneath it. This one waits behind the pick-a-date reading.`} feature="pick-a-date" />
+  );
   return (
     <div className="parchment" style={{ borderRadius: 14, border: "1px dashed var(--color-border)", padding: "1.4rem 1.1rem", textAlign: "center" }}>
       <OctagramMark size={20} color={modeColor} style={{ display: "block", opacity: 0.85, margin: "0 auto 0.6rem" }} />
@@ -736,7 +743,11 @@ function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
   const revealedRead = (reveal.data as any)?.available ? ((reveal.data as any).read as DayRead) : null;
   const read = savedRead ?? revealedRead;
   const season = ((saved.data as any)?.available ? (saved.data as any).season : null) ?? ((reveal.data as any)?.available ? (reveal.data as any).season : null);
-  const noSeason = reveal.data && (reveal.data as any).available === false;
+  // LOCKED IS NOT "NO SEASON" (audit 2026-07-20). The server returns { available:false, locked:true }
+  // for an entitlement gate and a bare { available:false } when the sky genuinely holds no season.
+  // Testing only `available` told a locked reader a fact about the SKY that was not true.
+  const locked = !!((reveal.data as any)?.locked || (saved.data as any)?.locked);
+  const noSeason = !locked && reveal.data && (reveal.data as any).available === false;
 
   const accent = "#C9A227"; // eclipse gold — steady, its own layer
 
@@ -774,7 +785,9 @@ function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
             <EclipseGlyph color={accent} />
             <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent), margin: 0 }}>This eclipse season</p>
           </div>
-          {noSeason ? (
+          {locked ? (
+            <LockedRead accent={accent} title="This eclipse season" body="Both eclipses of the season — the build, the resets, the aftermath — as one arc reading for your chart. This one waits behind the premium readings." feature="eclipse-season" />
+          ) : noSeason ? (
             <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
               The sky is between eclipse seasons right now — nothing to read yet. This opens again as the next season builds.
             </p>
@@ -865,7 +878,12 @@ function CombinedReadingCard() {
                   <button key={rel.key} onClick={() => setRelation(rel.key)} className="line-pill" style={{ ["--pill-ink" as any]: gold, borderRadius: 999, padding: "0.32rem 0.75rem", fontSize: "0.76rem", fontWeight: relation === rel.key ? 700 : 500, border: relation === rel.key ? `1.5px solid ${gold}` : "1px solid var(--color-muted-foreground)", background: "transparent", color: relation === rel.key ? gold : "var(--color-muted-foreground)", cursor: "pointer" }}>{rel.label}</button>
                 ))}
               </div>
-              {!r?.available && (
+              {/* Locked: the tap returned locked:true, so "Read us together" simply stopped doing
+                  anything and stayed on screen — the reader taps forever (audit 2026-07-20). */}
+              {(r as any)?.locked && (
+                <LockedRead accent={gold} title="Read us together" body="Two charts read as one — how each meets the other, gate by gate, in one reading. This one waits behind the premium readings." feature="combined-read" />
+              )}
+              {!r?.available && !(r as any)?.locked && (
                 <button
                   onClick={() => otherId && read.mutate({ otherProfileId: otherId, relation })}
                   disabled={!otherId || read.isPending}
@@ -949,6 +967,12 @@ function SlowReviewsCard({ modeColor }: { modeColor: string }) {
             // Peek still resolving (cheap, brief).
             if (!r) return <p key={p.key} style={{ fontSize: "0.72rem", color: "var(--color-muted-foreground)", fontStyle: "italic", margin: 0, opacity: 0.7 }}>Checking {p.name}…</p>;
             const phase = r.cycle?.phaseNow as string | undefined;
+            // A LOCK IS NOT A CLEAR SKY (audit 2026-07-20). The peek returns locked:true for an
+            // entitlement gate; testing only `available` told the reader "Venus is running clear"
+            // — a false statement about the sky — on a planet that may be deep in retrograde.
+            if (r.locked) return (
+              <LockedRead key={p.key} accent={p.ink} title={`This ${p.name} retrograde`} body={`${p.name}'s whole retrograde arc — what it re-examines, the rooms it reviews in your chart — read once per cycle, and kept. This one waits behind the premium readings.`} feature="planet-rx" />
+            );
             // Arc present but no review yet → a DOOR (Door Law: generate on the tap, not on expand).
             if (!r.available && r.cycle) return (
               <div key={p.key}>
@@ -992,7 +1016,9 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
   const revealedRead = (reveal.data as any)?.available ? ((reveal.data as any).read as DayRead) : null;
   const read = savedRead ?? revealedRead;
   const cycle = ((saved.data as any)?.available ? (saved.data as any).cycle : null) ?? ((reveal.data as any)?.available ? (reveal.data as any).cycle : null);
-  const noCycle = reveal.data && (reveal.data as any).available === false;
+  // Locked ≠ "Mercury is running clear" — see the eclipse card above; same class, same seam.
+  const locked = !!((reveal.data as any)?.locked || (saved.data as any)?.locked);
+  const noCycle = !locked && reveal.data && (reveal.data as any).available === false;
 
   const accent = "#3FA8A0"; // AQUAMARINE — Mercury's gem family (emerald/aquamarine/peridot — David), one ☿ color everywhere
   // Phase-aware label: "ahead" while it's still approaching, "underway" once the review has turned on.
@@ -1030,7 +1056,9 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
             <MercuryGlyph color={accent} />
             <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent), margin: 0 }}>{eyebrow}</p>
           </div>
-          {noCycle ? (
+          {locked ? (
+            <LockedRead accent={accent} title="This Mercury retrograde" body="The whole rx arc — shadow, station, review, release — read through the rooms Mercury rules in your chart. This one waits behind the premium readings." feature="mercury-rx" />
+          ) : noCycle ? (
             <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
               Mercury is running clear right now — no retrograde to read yet. This opens again as the next one builds.
             </p>
@@ -1087,7 +1115,9 @@ function MonthCard({ modeColor }: { modeColor: string }) {
   const savedRead = (saved.data as any)?.available ? ((saved.data as any).read as DayRead) : null;
   const revealedRead = (reveal.data as any)?.available ? ((reveal.data as any).read as DayRead) : null;
   const read = savedRead ?? revealedRead;
-  const unavailable = reveal.data && (reveal.data as any).available === false;
+  // Locked ≠ "can't be drawn just now" — that message offered a retry that could never succeed.
+  const locked = !!((reveal.data as any)?.locked || (saved.data as any)?.locked);
+  const unavailable = !locked && reveal.data && (reveal.data as any).available === false;
 
   const accent = "var(--day-accent)"; // the month follows the day (David: "why is read this month purple?")
   const monthLabel = new Date().toLocaleDateString("en-US", { month: "long" });
@@ -1123,7 +1153,9 @@ function MonthCard({ modeColor }: { modeColor: string }) {
             <MonthGlyph color={accent} />
             <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent), margin: 0 }}>Your {monthLabel}</p>
           </div>
-          {unavailable ? (
+          {locked ? (
+            <LockedRead accent={accent} title={`Your ${monthLabel}`} body="The whole month as one arc — your running chapter, the sky's turns, the days that land. This one waits behind the premium readings." feature="month-read" />
+          ) : unavailable ? (
             <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
               This month's reading can't be drawn just now. Please try again in a moment.
             </p>

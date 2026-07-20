@@ -1415,6 +1415,10 @@ function VerdictCard() {
   const gold = "#B08D2E";
   const result = read.data ?? peek;
   const prose = result?.available && result.read?.narrative ? result.read.narrative : null;
+  // A server lock is not a failed tap. `access` is a separate query with a 30-minute staleTime, so
+  // the card can still be on screen after entitlement lapses; without this the Read button simply
+  // stopped doing anything and the pitch stayed up forever (audit 2026-07-20).
+  const locked = !!((read.data as any)?.locked || (peek as any)?.locked);
   return (
     <div style={{ borderRadius: 16, padding: "1rem 1.1rem 1.1rem", border: `1px solid color-mix(in srgb, ${gold} 38%, var(--color-border))`, background: `linear-gradient(180deg, color-mix(in srgb, ${gold} 6%, var(--color-card)), var(--color-card))` }}>
       <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
@@ -1428,6 +1432,8 @@ function VerdictCard() {
             <div style={{ fontSize: "0.86rem", lineHeight: 1.65, color: "var(--color-foreground)", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
               {prose.split(/\n\n+/).map((p, i) => <p key={i} style={{ margin: 0 }}>{p}</p>)}
             </div>
+          ) : locked ? (
+            <LockedRead accent={gold} title="The Verdict" body="One reading of this chart's whole arc — when it blooms, what it is built on, where the currents run thin. This one waits behind the premium readings." feature="chart-verdict" />
           ) : read.isPending ? (
             <VeleaLoader size={20} label="Reading the whole chart…" />
           ) : (
