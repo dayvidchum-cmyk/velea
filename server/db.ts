@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { and, asc, desc, eq, gte, isNull, lt, ne, or, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, checkIns, horoscopes, panchang, profiles, profileNatalBodies, profectionYears, projects, projectNotes, reflections, sessions, subtasks, systemPrompts, tasks, timeLordTransits, users, natalBodies, narrativeCache, waitlist, referralCodes, referralRedemptions, profileResearch, profileDashaPeriods, profileConvergence, pushSubscriptions, type User } from "../drizzle/schema";
+import { DAILY_SURFACES, PINNED_SURFACES, pickDailyRows } from "./narrative/daily-surface";
 import { ENV } from "./_core/env";
 import { hashPassword, verifyPassword } from "./_core/password";
 
@@ -637,19 +638,22 @@ export async function upsertNarrativeCache(profileId: number, surface: string, c
   }
 }
 
-/** The archive: every stored daily glance for a profile, newest first (for the Kept Readings view). */
+/** The archive: every stored daily reading for a profile, newest first (for the Kept Readings
+ *  view). Reads BOTH daily surfaces (see daily-surface.ts) — the live day_read plus the retired
+ *  glance rows generated before the switch — and keeps one row per date. */
 export async function listNarrativeReadings(profileId: number, limit = 120) {
   const db = await getDb();
   if (!db) return [];
-  return db
-    .select({ cacheDate: narrativeCache.cacheDate, generatedAt: narrativeCache.generatedAt, locked: narrativeCache.locked, content: narrativeCache.content })
+  const rows = await db
+    .select({ surface: narrativeCache.surface, cacheDate: narrativeCache.cacheDate, generatedAt: narrativeCache.generatedAt, locked: narrativeCache.locked, content: narrativeCache.content })
     .from(narrativeCache)
-    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, "glance")))
+    .where(and(eq(narrativeCache.profileId, profileId), inArray(narrativeCache.surface, DAILY_SURFACES as unknown as string[])))
     .orderBy(desc(narrativeCache.cacheDate))
-    .limit(limit);
+    .limit(limit * 2); // both surfaces can hold the same date; dedupe, then trim
+  return pickDailyRows(rows, limit);
 }
 
-/** Pin/unpin a cached read (both surfaces) — locked rows never regenerate. */
+/** Pin/unpin a cached read (one surface) — locked rows never regenerate. */
 export async function setNarrativeLock(profileId: number, surface: string, cacheDate: string, locked: boolean) {
   const db = await getDb();
   if (!db) return;
@@ -660,13 +664,16 @@ export async function setNarrativeLock(profileId: number, surface: string, cache
 }
 
 export async function isNarrativeLocked(profileId: number, cacheDate: string): Promise<boolean> {
-  // AUDIT M4 (2026-07-18): the pin locks BOTH surfaces (glance + deep) but truth was read from
-  // glance alone — if only the deep row existed (glance generation dry/capped), the UI said
-  // "unpinned" while the year read sat invisibly frozen. Either locked row = pinned.
-  const deep = await getNarrativeCache(profileId, "deep", cacheDate);
-  if (deep?.locked) return true;
-  const row = await getNarrativeCache(profileId, "glance", cacheDate);
-  return !!(row as any)?.locked;
+  // AUDIT M4 (2026-07-18): the pin locks several surfaces but truth was read from ONE — if only
+  // the other row existed (its sibling's generation was dry/capped), the UI said "unpinned" while
+  // a read sat invisibly frozen. Any locked row = pinned.
+  // 2026-07-20: day_read added FIRST — it is the reading on Today. "glance" stays only so pins
+  // taken before the surface was retired still read as pinned.
+  for (const surface of PINNED_SURFACES) {
+    const row = await getNarrativeCache(profileId, surface, cacheDate);
+    if ((row as any)?.locked) return true;
+  }
+  return false;
 }
 
 // ── HOROSCOPES (the "pick a date" premium reading — immutable purchased snapshots) ──

@@ -3,6 +3,7 @@
 import { getDb } from "../db.js";
 import { profiles, profileNatalBodies, users } from "../../drizzle/schema.js";
 import { dayFrameReading, type DayFrameReading } from "../vedic/day-frame.js";
+import { readingProse } from "./daily-surface.js";
 import { eq } from "drizzle-orm";
 import { calculateProfectionYear } from "../profection/calculator.js";
 import { calculateDashaTimeline, currentPratyantardasha, pratyantardashaList } from "../dasha-calculator.js";
@@ -693,21 +694,26 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(varshaphala ? { varshaphala } : {}) } as any;
   }
 
-  // RECENT READS — the last 3 days of glance prose, so the model can see what it already
-  // said and is FORBIDDEN from re-saying. Root cause of the wallpaper era (2026-07-10):
-  // no memory of yesterday → the same year-lord essay and the same "finish, don't open a
-  // new front" directive, four days running.
+  // RECENT READS — the last 3 days of prose, so the model can see what it already said and is
+  // FORBIDDEN from re-saying. Root cause of the wallpaper era (2026-07-10): no memory of
+  // yesterday → the same year-lord essay and the same "finish, don't open a new front"
+  // directive, four days running.
+  // 2026-07-20: this read the "glance" surface, which was RETIRED from Today — so for every user
+  // who never pinned a day, the history was ALWAYS EMPTY and the anti-repetition guard had been
+  // silently off since the retirement. Read the live surface (day_read) and fall back to the old
+  // one for the days that predate the switch.
   const recentReads: Array<{ date: string; narrative: string }> = [];
   try {
     const { getNarrativeCache } = await import("../db.js");
     for (let i = 1; i <= 3; i++) {
       const d = new Date(dateStr + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() - i);
       const ds = d.toISOString().slice(0, 10);
-      const row = await getNarrativeCache(p.id, "glance", ds);
+      const row = (await getNarrativeCache(p.id, "day_read", ds)) ?? (await getNarrativeCache(p.id, "glance", ds));
       if (row?.content) {
         try {
-          const c = JSON.parse(row.content);
-          if (c?.narrative) recentReads.push({ date: ds, narrative: String(c.narrative).slice(0, 700) });
+          // glance = {narrative}; day_read = {scene, story, tilt, …} — the story IS the read.
+          const prose = readingProse(JSON.parse(row.content));
+          if (prose) recentReads.push({ date: ds, narrative: prose.slice(0, 700) });
         } catch { recentReads.push({ date: ds, narrative: String(row.content).slice(0, 700) }); }
       }
     }

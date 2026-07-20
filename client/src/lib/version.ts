@@ -622,4 +622,28 @@
 // have removed the enforcement along with the phrase. Also recorded in astronomy.ts what the CANON
 // says about pada (it defines pada only as a property of a MOMENT — melana's nadi reckoning and the
 // Arudha bhava padas, both natal; there is no canonical "day's pada"), so no ruling is pending.
-export const APP_VERSION = "1.1.775";
+// v1.1.776 = 2026-07-20 — THE RETIRED SURFACE NOBODY UNPOINTED (audit chain 5). Today's hero
+// moved from the "glance" surface to "day_read" (v-Option-A) — but four consumers kept naming
+// "glance" and so went silently blind, with nothing to throw:
+//   (1) THE MODEL'S MEMORY. input.recentReads — the last 3 days of prose, the guard against the
+//       "wallpaper era" where the same essay and the same directive ran four mornings straight —
+//       read glance rows. No glance rows are generated any more, so for anyone who never pinned a
+//       day, recentReads was ALWAYS EMPTY. The prompt's own escape hatch ("when recentReads is
+//       empty, none of this constrains you") means the anti-repetition law had quietly been OFF.
+//   (2) THE PIN. It ensure-generated a GLANCE — a whole billed generation of prose the user never
+//       sees — then pinned that, while the read on screen stayed unpinned and free to regenerate.
+//       Pinning now ensures day_read, which is already cached (the pin sits under it): cost ~0.
+//   (3) THE PIN INVARIANT. getDayReadCached skipped its lock check entirely when refresh=true, so
+//       the refresh button overwrote (and re-billed) the very prose the user chose to keep. The
+//       deep read already guarded this; the day read — where the pin actually lives — did not.
+//   (4) THE ARCHIVE. Kept Readings listed WHERE surface='glance' — empty for every new user. It
+//       now lists both surfaces, one row per date (day_read wins, legacy glance fills the older
+//       dates), and its snippet extractor knows the day_read shape: the old one looked only for a
+//       `narrative` field and fell back to String(content) — raw JSON printed at the user.
+// Fixed as a CLASS, not four patches: server/narrative/daily-surface.ts is now the one answer to
+// "which rows are the daily reading, and where is the prose inside one?" — pure, zero imports,
+// shared by the DB layer, the router and the input builder. 7 controls, each proven able to fail
+// by running the OLD logic against the same fixtures (JSON blob leaked, prose came back "", the
+// archive query returned 1 row of 3, PINNED_SURFACES lacked day_read). Cache identity is
+// unaffected — dayStableHash already excludes recentReads (audit H1), so no re-bill.
+export const APP_VERSION = "1.1.776";

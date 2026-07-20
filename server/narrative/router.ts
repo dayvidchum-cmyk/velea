@@ -2,6 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
 import { getGlanceCached, getDeepReadCached, getChapterCached, getDayReadCached, getCastCached, markProfileUncapped } from "./service.js";
 import { buildNarrativeInput } from "./input-builder.js";
+import { readingProse } from "./daily-surface.js";
 import { setNarrativeLock, isNarrativeLocked, getUserById, listNarrativeReadings } from "../db.js";
 import { assertOwnsProfile } from "../routers/profiles.js";
 import { getTimezoneOffset } from "../panchang/tz-offset.js";
@@ -316,8 +317,9 @@ export const narrativeRouter = router({
     return rows.map((r) => {
       let snippet = "";
       try {
-        const c = JSON.parse(r.content);
-        const n = typeof c?.narrative === "string" ? c.narrative : String(r.content);
+        // A day_read is {scene, story, tilt, closeLine, question} — no `narrative` field, so the old
+        // extractor printed the raw JSON blob into the archive. readingProse knows both shapes.
+        const n = readingProse(JSON.parse(r.content)) || String(r.content);
         snippet = n.replace(/\s+/g, " ").trim().slice(0, 180);
       } catch {
         snippet = String(r.content).replace(/\s+/g, " ").trim().slice(0, 180);
@@ -347,14 +349,21 @@ export const narrativeRouter = router({
     // now a data-accuracy issue, since dayLoc drives the transit Moon (data-path #2).
     if (input.locked) {
       const dayLoc = await resolveDaySkyForProfileId(input.profileId, date);
-      await getGlanceCached(input.profileId, date, false, undefined, dayLoc).catch(() => {});
+      // 2026-07-20: this ensure-generate was pointed at "glance" — a surface RETIRED from Today
+      // and read by no client. Pinning therefore billed a whole extra generation of prose the user
+      // never saw, and pinned THAT, while the reading on screen (day_read) stayed unpinned and free
+      // to regenerate. Ensure the read they actually tapped pin under; it is normally already cached
+      // (the pin sits directly beneath it), so this costs nothing.
+      await getDayReadCached(input.profileId, date, false, dayLoc).catch(() => {});
       // Only ensure-generate the premium year read for the entitled — otherwise a free pin would
       // silently mint a billed deep read around the deepRead gate. The lock rows below are cheap
       // (no generation), so both surfaces still unpin cleanly.
       if (await canYearSight(ctx.user)) await getDeepReadCached(input.profileId, date, false, false, dayLoc).catch(() => {});
     }
-    await setNarrativeLock(input.profileId, "glance", date, input.locked);
+    await setNarrativeLock(input.profileId, "day_read", date, input.locked);
     await setNarrativeLock(input.profileId, "deep", date, input.locked);
+    // legacy: pins taken before the glance was retired must still UNPIN cleanly.
+    await setNarrativeLock(input.profileId, "glance", date, input.locked);
     // audit LOW: report the ACTUAL lock state, not the requested one — if the glance row never
     // existed (its generation hit a dry wallet / cap), the UPDATE was a no-op and the pin didn't
     // take. Reading it back keeps the UI's "Pinned" honest instead of confirming a lock that isn't.

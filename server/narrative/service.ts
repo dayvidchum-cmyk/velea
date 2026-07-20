@@ -311,17 +311,18 @@ export async function getDayReadCached(profileId: number, date: string, refresh 
   // this surface — glance/deep/chapter caches (unchanged prompts) stay valid, no re-charge.
   const hash = dayStableHash(input, surface);
 
-  if (!refresh) {
-    const row = await getNarrativeCache(profileId, surface, date);
-    if (row && (row.locked || row.inputHash === hash)) {
-      try {
-        const read = JSON.parse(row.content);
-        if (isCompleteDayRead(read)) {
-          return { available: true, read, generatedAt: row.generatedAt, cached: true };
-        }
-      } catch {
-        /* fall through to regenerate on corrupt cache */
+  // THE PIN INVARIANT: a LOCKED read never regenerates, even on refresh — otherwise the refresh
+  // button overwrote the prose the user deliberately kept (and re-billed for it). The deep read
+  // already guarded this; the day read — the one the pin is actually attached to — did not.
+  const row = await getNarrativeCache(profileId, surface, date);
+  if (row && (row.locked || (!refresh && row.inputHash === hash))) {
+    try {
+      const read = JSON.parse(row.content);
+      if (isCompleteDayRead(read)) {
+        return { available: true, read, generatedAt: row.generatedAt, cached: true };
       }
+    } catch {
+      /* fall through to regenerate on corrupt cache */
     }
   }
   const read = await guardedGen(profileId, `${surface}:${profileId}:${date}:${hash}`, async () => {
