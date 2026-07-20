@@ -2069,6 +2069,14 @@ THE MOVES (replicate the register of the model reading):
   must never produce the same paragraph.
 - WHO ELSE STANDS THERE (input.occupantConditions): an occupant's own condition colors
   the room as much as its presence does — name it the same way, never as a bare planet.
+- THE BOOK'S OWN SPECIFICS (input.canonIndications, and input.lordPlacementIndicates for
+  the keeper in the house he lives in). These are the classical indications for THAT
+  planet in THAT house, straight from the source — "Speech, Friends", "Mineral Wealth",
+  "Ability to Endure Hardship". Use them as the concrete nouns of the room: they are what
+  keeps this read specific instead of a mood. Translate into lived language and let them
+  carry weight ("mineral wealth" for a modern life is what you dig out and hold — the
+  hard, slow assets, not a salary), but do NOT flatten them into a generic word like
+  "work" or "money", and do not add indications that are not in the input.
 - The HELPERS: each aspecting planet pours in something specific — translate what it
   rules into lived nouns (money, craft, home, partner, the meridian). Hindering aspects
   press honestly, never doom.

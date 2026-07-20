@@ -743,4 +743,22 @@
 // rule is "when isCrown is false, say NOTHING about crowns", so a failure costs a silence, never
 // a false peak. Also finishing v780: the reading's chandrabala now takes the day's RULING Moon
 // sign (dayMoonSignIdxOverride), so tara and chandra there are read off one clock too.
-export const APP_VERSION = "1.1.781";
+// v1.1.782 = 2026-07-20 — THE CANON THE APP NEVER OPENED. A census of server/vedic/canon showed
+// THREE transcribed files imported by nothing: planet-in-house.json, karakas.json and
+// bhava-significations.json. planet-in-house.json is a complete 12x7 table from Vol II Appendix III
+// — what each graha INDICATES in each natal house — and its own note reads "Feed to the narrative
+// as concrete specifics; do NOT paraphrase into 'work'." So the one surface whose entire job is a
+// ROOM was inferring what its occupants mean there while the book sat unread in the repo, against
+// the standing law to build from canon rather than inference.
+// Now wired into the House Reader for every occupant of the room AND for the keeper in the house he
+// actually lives in ("Speech, Friends", "Mineral Wealth", "Ability to Endure Hardship") — the
+// concrete nouns that keep a room read specific instead of a mood.
+// DELIBERATELY NOT WIRED: bhava-significations.json. What a HOUSE means is David's own living house
+// doctrine, already carried in the prompt; his doctrine outranks the book there and that file is
+// merge-never-replace territory, not a drop-in. karakas.json stays open — its knotSignificatorMap
+// has no entry for wealth/parents/home/health, so a naive wiring would delete four themes.
+// PROCESS NOTE, recorded because it is the kind of thing this audit exists to catch: this wiring
+// was written mid-turn and swept into the v780 commit by a `git add -A` before its prompt existed,
+// so for two commits the input carried canonIndications that no prompt ever told the model to read
+// — dead data, in a commit whose message never mentioned it. Finished and tested here.
+export const APP_VERSION = "1.1.782";

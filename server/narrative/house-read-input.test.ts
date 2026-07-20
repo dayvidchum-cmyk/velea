@@ -62,6 +62,28 @@ describe("buildHouseReadInput — the room's keeper reaches the model IN CONDITI
     expect(input.lordCondition).toBeTruthy();
   });
 
+  // canon/planet-in-house.json (Vol II Appendix III) was imported by NOTHING until 2026-07-20,
+  // so the one surface whose whole job is a ROOM was inferring what its occupants mean there
+  // while the book sat unread in the repo.
+  it("carries the BOOK's indication for each occupant in this house", () => {
+    const input = buildHouseReadInput(research("exalted"), 1)!;
+    expect(input.canonIndications).toHaveLength(1); // denominator: one occupant to look up
+    const saturn = input.canonIndications![0];
+    expect(saturn.planet).toBe("Saturn");
+    expect(saturn.house).toBe(1);
+    // Vol II Appendix III, Saturn in the 1st:
+    expect(saturn.indicates).toBe("Ability to Endure Hardship");
+  });
+
+  it("carries the keeper's indication for the house he actually LIVES in", () => {
+    const input = buildHouseReadInput(research("exalted"), 1)!;
+    // Venus (lord of the 1st here) is placed in the 4th — Vol II Appendix III, Venus in the 4th:
+    expect(input.lordPlacementIndicates).toBeDefined();
+    expect(input.lordPlacementIndicates!.planet).toBe("Venus");
+    expect(input.lordPlacementIndicates!.house).toBe(4);
+    expect(input.lordPlacementIndicates!.indicates.length).toBeGreaterThan(0);
+  });
+
   it("a house the research does not have returns null rather than a half-built input", () => {
     expect(buildHouseReadInput(research("exalted"), 7)).toBeNull();
     expect(buildHouseReadInput(null, 1)).toBeNull();
