@@ -1817,4 +1817,21 @@
 // through too). NOTHING CHANGED; which reading is Velea's is David's, and it is on the sheet and in
 // the brief with the evidence.
 // 78 files, 840 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.837";
+// v1.1.838 = 2026-07-20 — I CHECKED THE PAID LENS'S VARGA ROUTING AND FOUND NOTHING WRONG. THAT IS
+// THE FINDING, AND IT GETS A TEST.
+// "Life area → its varga, its house, its karaka" is the method the pick-a-date reading is built on.
+// Ten routings, each a classical assignment, and not one test on any of them.
+// Checked against the standard shodasavarga set: money→D2 hora, siblings→D3 drekkana, home→D4,
+// children→D7 saptamsa, love→D9 navamsa, career→D10 dasamsa, health→D30 trimsamsa (the division of
+// afflictions), parents→D12 dwadasamsa. NINE MATCH EXACTLY.
+// The tenth looked like a collision and is not: purpose ALSO routes to D9, shared with love. That is
+// correct — navamsa is genuinely the dharma varga as well as the marriage one, and the lens
+// distinguishes them by WHICH HOUSE of it it reads: the 7th for marriage, the 9th for dharma. Good
+// method, and I have written the reasoning into the test so a later reader does not "tidy" the
+// duplication away.
+// A clean result is worth reporting as plainly as a bug. What it is NOT worth is leaving untested:
+// the routing now fails loudly on a change, proven by moving health from D30 to D6.
+// (The one real disagreement in this table remains the parents HOUSE — 12 in the lens, [4,9] in
+// knots and in the canon. Pinned at its current value so a change is a decision, not a drift.)
+// 79 files, 853 tests, 0 failures. Build exits 0. tsc clean.
+export const APP_VERSION = "1.1.838";
