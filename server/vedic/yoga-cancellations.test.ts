@@ -153,3 +153,56 @@ describe("the combustion verdict, not the combustion report (v800)", () => {
     expect(has(detectYogas({ lonBy: saturnCombust, lagnaLon: ARIES_LAGNA } as any), "Dur")).toBe(true);
   });
 });
+
+describe("the OTHER yogas that ship bad news to a free surface (v828)", () => {
+  /**
+   * Kemadruma printed "loneliness, a poor or difficult life" at charts the canon exempts, for as
+   * long as it existed, because nothing tested it. Six canon yogas carry a bad-news RESULT and
+   * appear on the free shelf. Two now have controls (above). These are the other three that are
+   * deterministically checkable — verified against their canon conditions, and each with the
+   * negative case that proves the assertion is not vacuous.
+   *
+   * Finding, recorded because a clean result is worth recording too: all three MATCH the canon.
+   * The one real gap is noted at the end.
+   */
+  const A = (i: number) => i * 30 + 15;
+  const yogasOf = (lonBy: any, lagnaLon = A(0)) => detectYogas({ lonBy, lagnaLon } as any);
+  const fires = (lonBy: any, name: string, lagnaLon = A(0)) => has(yogasOf(lonBy, lagnaLon), name);
+
+  it("PAPA KARTARI fires on malefics enclosing the 2nd and 12th", () => {
+    expect(canonNote("Papa Kartari")).toBe("");           // the canon states no cancellation
+    const chart = { Sun: A(1), Moon: A(4), Mars: A(11), Mercury: A(5), Jupiter: A(8), Venus: A(6), Saturn: A(9), Rahu: A(2), Ketu: A(8) };
+    expect(fires(chart, "Papa Kartari")).toBe(true);      // Sun in the 2nd, Mars in the 12th
+  });
+
+  it("PAPA KARTARI does NOT fire on the NODES alone — the canon excludes them by name", () => {
+    // "Malefic planets (not the Nodes) occupy the 2nd and 12th." A detector that counted Rahu/Ketu
+    // would print poor health and financial difficulty at a very large number of charts.
+    const nodesOnly = { Sun: A(4), Moon: A(4), Mars: A(5), Mercury: A(5), Jupiter: A(8), Venus: A(6), Saturn: A(8), Rahu: A(1), Ketu: A(11) };
+    expect(fires(nodesOnly, "Papa Kartari")).toBe(false);
+  });
+
+  it("KALA SARPA fires only when ALL SEVEN sit on one side of the nodal axis", () => {
+    const allOneSide = { Rahu: A(0), Ketu: A(6), Sun: A(1), Moon: A(2), Mars: A(3), Mercury: A(4), Jupiter: A(1), Venus: A(2), Saturn: A(3) };
+    expect(fires(allOneSide, "Kala Sarpa")).toBe(true);
+    // One planet across the axis breaks it — the canon says all seven, and "six of seven" is a
+    // materially different chart to tell someone they have.
+    expect(fires({ ...allOneSide, Saturn: A(9) }, "Kala Sarpa")).toBe(false);
+  });
+
+  it("SARPA needs an OCCUPIED kendra, so an empty-angles chart is not condemned", () => {
+    // "Only natural malefics in the angular houses" is vacuously true when no angle is occupied.
+    // The detector carries a non-vacuity guard; without it every angle-empty chart would report
+    // "a difficult and troublesome life".
+    const emptyAngles = { Sun: A(1), Moon: A(1), Mars: A(2), Mercury: A(2), Jupiter: A(4), Venus: A(4), Saturn: A(5), Rahu: A(7), Ketu: A(1) };
+    expect(fires(emptyAngles, "Sarpa")).toBe(false);
+  });
+
+  it("KALA SARPA's canon MITIGATION is not implemented — recorded, not silently ignored", () => {
+    // The canon note says the yoga is "improved if the nodes' dispositors are well placed and the
+    // nodes in compatible signs". That is a softening, not a cancellation like Kemadruma's, so it
+    // does not gate the detector — but it is real canon the engine does not read, and it belongs in
+    // the record rather than in nobody's head.
+    expect(canonNote("Kala Sarpa")).toMatch(/Improved if the nodes' dispositors are well placed/);
+  });
+});

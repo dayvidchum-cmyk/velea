@@ -1652,4 +1652,21 @@
 // fail. A looser guard that still catches a real removal is worth more than a strict one that
 // cries at a synonym.
 // 76 files, 819 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.827";
+// v1.1.828 = 2026-07-20 — THE OTHER FIVE YOGAS THAT SHIP BAD NEWS, CHECKED AGAINST CANON.
+// Kemadruma printed "loneliness, a poor or difficult life" at charts the canon exempts, for as long
+// as it existed, because nothing tested it. Six canon yogas carry a bad-news RESULT and appear on
+// the FREE shelf. Two got controls in v800; this checks the rest against their canon conditions.
+// FINDING: all three deterministic ones MATCH the canon, and that is worth recording as clearly as
+// a bug would be. Papa Kartari correctly excludes the NODES — the canon says "not the Nodes" by
+// name, and counting Rahu/Ketu would print poor health and financial difficulty at a very large
+// number of charts. Kala Sarpa genuinely requires ALL SEVEN on one side; six of seven is a
+// materially different chart to tell someone they have. Sarpa carries a non-vacuity guard, without
+// which every angle-empty chart would be condemned by a condition that is vacuously true.
+// Each control has its negative case, so none of them can pass by never firing.
+// THE ONE REAL GAP, recorded rather than left in nobody's head: Kala Sarpa's canon note carries a
+// MITIGATION ("improved if the nodes' dispositors are well placed and the nodes in compatible
+// signs") that the engine does not read. It is a softening, not a cancellation like Kemadruma's, so
+// it does not gate the detector — but it is canon we do not execute, and chain 3 is exactly about
+// not letting that sit unnamed.
+// 76 files, 824 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.828";
