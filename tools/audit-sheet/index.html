@@ -85,13 +85,32 @@
 
   <div class="grp">The astrology — how Velea reads a chart</div>
 
-  <div class="ask"><b>1. Which cancelled-fall rules are Velea’s?</b>
-    <span class="why">One verse carries the whole thing — Phaladeepika 7.30: <i>the lord of the fall-sign and the lord of
-    the exaltation-sign, both or even one, in an angle.</i> Two LORDS. Consequences: the popular rule “a debilitated
-    planet in an angle is cancelled” is a mistranslation (we never built it — good); <b>two of our four conditions are
-    that same verse under two rival readings</b> of one Sanskrit compound, so firing both counts one idea twice; a fourth
-    condition that IS in the text (7.27) is not implemented; and BPHS gives none of these, so citing Parashara for them
-    cites the wrong book.</span></div>
+  <div class="ask"><b>1. The cancelled-fall rules — BUILT, and building them found two live bugs.</b>
+    <span class="why">You said I was overcomplicating this. I was: you had already listed six conditions, and instead of
+    building your condition 3 (<i>the fallen planet itself in an angle</i>) I argued philology at you. <b>It is built
+    now.</b>
+    <br><br><b>Building it uncovered a bug that was already shipped.</b> “In an angle” is measured from the
+    ascendant <i>or</i> from the Moon — and <b>the Moon is always in the 1st house from itself, in every chart ever
+    cast.</b> So any rule whose subject was the Moon answered “yes” automatically, forever:
+    <br>· <b>Mars fallen in Cancer</b> — Cancer’s lord <i>is</i> the Moon, so every such Mars in the app was
+    reported “cancelled” no matter where the Moon actually sat.
+    <br>· <b>Jupiter fallen in Capricorn</b> — it exalts in Cancer, ruled by the Moon. Same tautology.
+    <br>Both were live and silent, and both predate the new rule. Fixed in one place, so all four rules are corrected at
+    once. <b>I found it by measuring the change, not by reading it</b> — it was invisible in review.
+    <br><br><b>The number you should see, and the one call I need.</b> Velea cancels <b>96% of all debilitations</b>, and
+    about <b>60%</b> reach the reader as <i>“acting as exalted.”</i> Only <b>4% of fallen planets read as
+    fallen.</b> That is your own criticism of the other tools — <i>“they check only one or two rules and then
+    label a planet Neecha Bhanga without considering whether the cancellation is meaningful.”</i>
+    <br>The cause is structural: cancellation is an <b>OR</b> across conditions that are each near coin-flips (an angle
+    from either frame covers about half the zodiac), so stacking seven is nearly a certainty.
+    <br><b>The lever is how many conditions it should take.</b> Any one → 96% (today). Two → 76%. Three → 55%.
+    Four → 25%.
+    <br><b>My recommendation: require two, and treat three or more as “solid.”</b> That keeps every classical
+    condition you listed, drops nothing, and makes the word <i>cancelled</i> mean something again. <b>I have not changed
+    it</b> — it moves every existing chart including yours, and the threshold is your ruling, not mine. One line when
+    you say so. The current rate is pinned in a test either way, so it can never drift quietly again.
+    <br><br><i>Still unresolved underneath:</i> two of our conditions are one verse (Phaladeepika 7.30) under two rival
+    readings of a single Sanskrit compound, so firing both counts one idea twice; and 7.27 is textual but unbuilt.</span></div>
 
   <div class="ask"><b>2. Which yogas the reader hears — ANSWERED, and it found two defects.</b>
     <span class="why">You answered with a structure, not a list: <b>natal yogas are lifelong potentials; transits

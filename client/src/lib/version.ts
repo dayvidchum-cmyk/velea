@@ -2474,6 +2474,21 @@
 // neechaBhanga now self-guards on actual debilitation (his Step 1) — it was reporting cancellation
 // for a planet in its OWN SIGN if a caller ever forgot to gate.
 // 97 files, 1043 tests, 0 failures. tsc clean. Build exits 0.
+// v1.1.871 = 2026-07-20 — TWO SHIPPED BUGS: THE MOON WAS ALWAYS IN A KENDRA FROM ITSELF.
+// Built David's neecha-bhanga condition 3 (the fallen planet itself in a kendra) — the one I had
+// answered with philology instead of code until he said "huh????? i feel like you are
+// overcomplicating this". Building it exposed a tautology that PREDATES it: "in a kendra" is tested
+// from the ascendant OR the Moon, and the Moon sits in the 1st from itself in every chart ever
+// cast. So any condition whose subject was the Moon fired 100% of the time -- MARS IN CANCER
+// (dispositor = Moon) and JUPITER IN CAPRICORN (exaltation lord = Moon) have been reported
+// "cancelled" for every user regardless of the actual chart. Fixed at the helper, so all four call
+// sites are corrected at once. Found by MEASURING, not by reading the diff.
+// Also: the file header still called a cancelled fall "often a raja yoga" -- the third copy of a
+// claim David's doctrine pulls back from, already fixed twice elsewhere.
+// MEASURED AND LEFT FOR DAVID: Velea cancels ~96% of all debilitations and reads ~60% as "acting as
+// exalted", so only ~4% of fallen planets read as fallen. That is his own criticism of other tools.
+// The threshold is a method ruling that would move every existing chart, so it is NOT changed here
+// -- only pinned in a test so it can never drift unnoticed.
 // v1.1.870 = 2026-07-20 — HE WAS RIGHT: THE SIDDHI GRID WAS IN THE BOOK ALL ALONG.
 // I twice refused to build the muhurta siddhi yogas, saying "no cited source in this repo". David:
 // "muhurta yogas and siddhi grids are definitely in the textbooks. i think you are making
@@ -2508,4 +2523,4 @@
 // where his scans land — I checked both. They do not contain the muhurta tables, but I should have
 // LOOKED before refusing, and should simply have asked him for the pages.
 // 99 files, 1054 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.870";
+export const APP_VERSION = "1.1.871";
