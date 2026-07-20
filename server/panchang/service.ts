@@ -343,6 +343,7 @@ export async function getDayField(
         nakshatraAtSunrise,
         nakshatraTransitionTime,
         nakshatraAfterTransition,
+        noSunrise: (astro as any)?.noSunrise ?? null,
         lagnaSign: lagnaOverride ?? null,
       }, personalRating, interactionMode);
     }
@@ -392,6 +393,7 @@ export async function getDayField(
       field.activeNakshatra = fin.activeNakshatra;
       field.turnsAtNote = fin.turnsAtNote;
       field.modeStepReasons = fin.stepReasons;
+      (field as any).noSunrise = (astro as any).noSunrise ?? null;
     }
 
     // Cache to DB (store the finalMode as mode for backward compat)

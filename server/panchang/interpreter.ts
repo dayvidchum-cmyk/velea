@@ -129,6 +129,11 @@ export interface DayField {
   modeStepReasons?: string[];
   /** Ascendant (Lagna) sign used for this calculation, e.g. 'Virgo'. null when user has no birth chart. */
   lagnaSign?: string | null;
+  /** Set when the Sun never crossed the horizon at this latitude on this date, so `sunriseLocal` is
+   *  a NOMINAL anchor rather than an observed event — and every value keyed to the vedic day
+   *  inherits that. v801 computed this and gave it to nobody; v820 carries it to the surfaces that
+   *  can act on it. null everywhere the Sun actually rises. */
+  noSunrise?: "polar-day" | "polar-night" | null;
 }
 
 // ─── Outwardness Scale (diagnostic only) ────────────────────────────────────
@@ -1081,6 +1086,7 @@ export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayF
     modeReason,
     nakshatraModifier,
     tithiPacing,
+    noSunrise: (astro as any).noSunrise ?? null,
     nakshatraAtSunrise: astro.nakshatraAtSunrise,
     nakshatraTransitionTime: astro.nakshatraTransitionTime,
     nakshatraAfterTransition: astro.nakshatraAfterTransition,

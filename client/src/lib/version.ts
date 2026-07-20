@@ -1512,4 +1512,23 @@
 // off the ladder of a mode it was no longer showing.
 //
 // 75 files, 735 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.819";
+// v1.1.820 = 2026-07-20 — THE SAME FAILURE A THIRD TIME, FOUND BY LOOKING FOR IT.
+// The v819 self-audit's lesson was that I verify the MECHANISM and not the REACH. So I went back
+// through the run asking one question of each fix — "does this actually arrive?" — and the very
+// first one failed.
+// v801 computed AstronomyData.noSunrise and gave it to NOBODY. Not one line of code read it. The
+// commit said "the fabrication is now VISIBLE" and "declared". Visible to whom? The engine went on
+// reporting a fabricated polar sunrise to every consumer exactly as before; all v801 added was a
+// field in an object nobody opened. Mechanism without reach, for the third time in one run.
+// Now it arrives: DayField carries it from ALL THREE construction sites, the narrative input
+// spreads it ONLY when set (a `noSunrise: null` on every ordinary day would change the input JSON
+// for every user on earth and regenerate every cached reading to say nothing), and BASE_PROMPT
+// carries a rule telling the model to name it once, plainly, in the reader's own language — and to
+// say NOTHING when it is absent, or every ordinary day risks a caveat.
+// AND MY OWN TEST NEARLY LET IT THROUGH. The first version asserted
+// `field.noSunrise ?? astro.noSunrise` — which passed while interpretPanchang carried nothing,
+// because the fallback answered for it. A probe that could not fail, checking the exact thing it
+// existed to prove. Removing the ?? exposed the third construction site I had missed. The lesson
+// keeps being the same one: a fallback inside an assertion is not an assertion.
+// 76 files, 739 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.820";

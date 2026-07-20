@@ -567,6 +567,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // The literal mid-day turn and the field/karana containment reasons — the DAY-scale
     // particulars the read must spend its words on.
     turnsAtNote: (field as any).turnsAtNote ?? null,
+    // POLAR HONESTY (v820). Spread ONLY when the Sun genuinely never rose — a `noSunrise: null` on
+    // every ordinary day would change the input JSON for everyone and regenerate every cached
+    // reading on the planet to say nothing. Present, it tells the model the day's anchor is nominal.
+    ...((field as any).noSunrise ? { noSunrise: (field as any).noSunrise } : {}),
     modeStepReasons: (field as any).modeStepReasons ?? [],
     weatherGated: (field as any).weatherGated ?? false,
     hora,
