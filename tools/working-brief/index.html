@@ -43,18 +43,19 @@
   .law b { color: var(--teal); }
   .overflow { overflow-x: auto; }
   .num { font-variant-numeric: tabular-nums; }
-</style>
+  .card.retracted{border-left-color:#8a8378;opacity:.95}
+  </style>
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">as of v839 · July 20, 2026 · the stretch: v794 → v839 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
+  <p class="sub">as of v840 · July 20, 2026 · the stretch: v794 → v840 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
 
   <div class="card" style="border-left:3px solid var(--wine)">
     <p style="margin:0"><b>Production was frozen at v813 for most of this run.</b> I wrote &ldquo;deployed&rdquo; in thirty commit messages
     and never asked the server. v814 gated <code>npm run build</code> on <code>tsc --noEmit</code>; nixpacks runs that script,
     <code>typescript</code> is a devDependency, and a production install has no <code>tsc</code> — so every build failed silently and
     fifteen versions of real fixes existed for nobody. Reverting the gate unfroze it immediately, which is what proved the cause.
-    <b>velealor.com now serves v839, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
+    <b>velealor.com now serves v840, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
   </div>
 
   <h2>1 · Open picks — your decision queue</h2>
@@ -64,16 +65,27 @@
   <div class="card pick"><b>What is a CHARTLESS day's character?</b> <span class="tag">NEW</span> The retired four modes still appear on the hero — but not as the wiring bug the sheet described. <code>selectedCharacter</code> comes from the month endpoint, which builds character from the personal <i>tara</i>, which needs a birth star. A chartless profile has no character at all, so the retired words are the only thing that surface has ever had. Deleting the fallback leaves a blank hero for exactly those users. What a day's character IS with no chart is a method question.</div>
   <div class="card pick"><b>The durable generation cap.</b> <span class="tag">NEW</span> The in-process half now counts real API calls, retries and burned failures included. The DURABLE half is rows-since-UTC-midnight scoped by profileId — so regenerating one row a hundred times still reads as one, and N profiles gives one user N times the cap. Needs a schema change, and schema changes here are hand-run scripts. Half-fixing it in memory would be a band-aid over the same hole.</div>
   <div class="card pick"><b>mrita: 0.05 or the canon's nil?</b> <span class="tag">NEW</span> The Verdict's balaadi fruition dial now READS <code>canon/avashtas.json</code> instead of a literal that cited a block the file did not contain. Researched: bala ¼, kumara ½, yuva full, vriddha "very little", mrita <b>NIL</b> — consistently attested, not verified against a translated primary verse, and the file says so. <b>Two of the five numbers are ours, not the book's</b> and are declared as such: vriddha 0.125 (the canon names no fraction) and mrita 0.05 (the canon says nil). The second is the dial that decides "late" versus "late if at all" — a true zero makes a Mrita-hinged area unreachable rather than merely slow. Values unchanged; a silent "fix" would rewrite people's readings.</div>
-  <div class="card pick"><b>The paid lens is missing three canon karakas.</b> <span class="tag">NEW</span>
-  I closed the karaka drift in <code>knots.ts</code> (v790/v799) and never opened the OTHER module that carries karakas.
-  <code>life-areas.ts</code> has its own per-area list — the one deciding <i>which transits count</i> as touching an area in the
-  paid lens. Against the canon's house table: <b>career</b> has [Saturn, Sun] where the canon has [Mercury, Sun, <b>Jupiter</b>,
-  Saturn]; <b>health</b> has [Sun, Mars] where the canon has [Mars, <b>Saturn</b>]; <b>purpose</b> has [Jupiter, Venus] where the
-  canon has [Jupiter, <b>Sun</b>]. The first two are the exact omissions I called serious and fixed elsewhere.
-  <b>Why nothing was changed:</b> these lists are curated, not transcribed — each entry carries a role and a <code>signifies</code>
-  gloss, and the same file's <code>planetInVarga</code> already glosses Mercury and Jupiter for the 10th. The module knows they
-  matter; it just does not count them as players. Adding them means deciding their role and writing their gloss — content, and
-  yours.</div>
+  <div class="card retracted"><b>Retracted: &ldquo;the paid lens is missing three canon karakas.&rdquo;</b> <span class="tag">v840</span>
+  I put that in this brief yesterday as a decision waiting on you. <b>It was a false alarm, and I am taking it back.</b>
+  I compared <code>life-areas.ts</code> to <code>canon/karakas.json</code>, saw career without Jupiter and health without Saturn,
+  and called it the same drift I had fixed in <code>knots.ts</code>. They are <b>two different tables, both cited, both from your
+  book</b> — <code>karakas.json</code> is Vol I Ch.7 (the house-karaka table, p66&ndash;90); <code>life-areas.ts</code> says in its
+  own header that it transcribes Vol II Appendix IV (the varga pages p367&ndash;374 and the per-house loop p390). One gives the
+  significators of a <i>house</i>, the other the significators the <i>varga method</i> uses. They were never meant to match.
+  I read a second cited source as a corrupted copy of the first because I had named a class and went hunting for more of it.
+  <b>Computed rather than guessed</b> (<code>server/scripts/karaka-compare.ts</code>): seven of ten areas agree on the primary —
+  <b>career among them</b>, so my headline was wrong on its own example. Money and health disagree about which karaka <i>leads</i>
+  while sharing the cast. Parents is the only row sharing nothing, and that is the deliberate ancestry reading already below.
+  <b>Nothing here needs your decision.</b></div>
+
+  <div class="card pick"><b>One real bug came out of re-checking that.</b> <span class="tag">FIXED v840</span>
+  <code>karakas.json</code> stores the house&rarr;planet mapping <i>twice</i> — forward in <code>houseKarakaTable</code>, inverted in
+  <code>planetKarakas[p].houseKaraka</code>. Seventeen of eighteen pairs agreed. Saturn's inverted entry was [6, 8, 12]: it had
+  dropped the <b>10th</b>, which the forward table lists and which Vol II independently names Saturn's primary area (career).
+  Three-way corroborated, so restoring it is transcription, not interpretation. Nothing reads that index today, which is exactly
+  why it rotted unseen. Both directions are now pinned by a test — as is the fact that the two tables <i>differ</i>, so the next
+  reader cannot &ldquo;reconcile&rdquo; them the way I nearly did.</div>
+
   <div class="card pick"><b>Which house is &ldquo;parents&rdquo;?</b> <span class="tag">NEW</span> Two live systems, two answers.
   <code>knots.ts</code> reads parents as houses <b>[4, 9]</b> with karakas Moon/Sun/Jupiter — the canon exactly (father = 9th,
   mother = 4th). But the life-area LENS routes parents to <b>primaryHouse 12</b> with Rahu and Ketu as karakas, and day-frame
@@ -105,7 +117,7 @@
     <p style="margin:0" class="quiet"><b>And now the meter under it is honest.</b> The gates began reading as gates in the last run; this run fixed what sat behind them — a paid pick-a-date reading that re-billed for ever after a failed freeze, a Verdict that re-billed ten times a year on a clock, a pin that could be overwritten, a retired surface still callable as a billed endpoint, and a daily cap that counted results instead of calls.</p>
   </div>
 
-  <h2>3 · The re-audit fix run — v794 → v813 (20 versions, deployed)</h2>
+  <h2>3 · The re-audit fix run — v794 → v840 (47 versions, deployed)</h2>
   <div class="card done">
     <p style="margin:0 0 0.5rem"><b>The sheet was re-verified against the code, and its own "FIXED" rows were where it was weakest.</b> Suite <b class="ok num">691 passing</b> across 69 files, build exits 0, and <b>zero</b> type errors introduced across twenty versions (the 7 that exist are pre-existing and the build never typechecks — that is itself on the list). Every fix carries a control that was <i>shown to fail</i> against the old code before it was called fixed.</p>
     <p style="margin:0.6rem 0 0.3rem"><b>Accurate data to the model — the first priority</b></p>

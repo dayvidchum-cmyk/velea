@@ -1851,4 +1851,32 @@
 // This is the same shape as the reach failures: I fixed the mechanism in the place I was looking and
 // declared the CLASS shut. "Fix the class, not the instance" only works if you find every instance.
 // 79 files, 853 tests, 0 failures. Build exits 0. tsc clean.
-export const APP_VERSION = "1.1.839";
+// v1.1.840 = 2026-07-20 — I RETRACT v839. IT WAS A FALSE ALARM AND IT REACHED DAVID'S RECORD.
+// v839 reported that life-areas.ts had "drifted" from canon/karakas.json — career missing Jupiter,
+// health missing Saturn, purpose missing Sun — and called it the same class as the real drift fixed
+// in knots.ts at v790/v799. It went into the audit sheet, the working brief and a commit message as
+// a defect awaiting David's decision.
+// THEY ARE TWO DIFFERENT TABLES, BOTH CITED, BOTH FROM HIS BOOK.
+//   karakas.json      → Vol I, Ch.7 house-karaka table (p66-90) — significators of a HOUSE.
+//   life-areas.ts     → Vol II, Appendix IV (p367-374 + the per-house loop p390) — the significators
+//                       the VARGA METHOD uses. Its header says so; health's note even records the
+//                       divergence at the moment it was transcribed.
+// I read a citation-bearing second source as a corrupted copy of the first because I had already
+// named a class and went looking for more of it. That is worse than the bug I was hunting: it
+// manufactures work and puts a false claim in the permanent record.
+// COMPUTED, NOT GUESSED (server/scripts/karaka-compare.ts): 7 of 10 areas agree on the primary —
+// CAREER AMONG THEM, so v839's headline was wrong on its own example. Money and health disagree on
+// which karaka LEADS while sharing the cast. Parents is the only row sharing nothing, and that is the
+// deliberate ancestry reading already tracked separately.
+// I guessed the pattern twice more while writing the test for this, and the assertions refuted me
+// both times (health, then money) before I gave up and ran the enumeration. Same reflex, one layer
+// down.
+// ONE REAL BUG CAME OUT OF THE RE-CHECK, inside the canon file: karakas.json stores the house→planet
+// mapping twice — forward in houseKarakaTable, inverted in planetKarakas[p].houseKaraka. 17 of 18
+// pairs agreed; Saturn's inverted entry was [6,8,12], having dropped the 10th, which the forward
+// table lists and Vol II independently names Saturn's primary area. Three-way corroborated →
+// transcription, not interpretation. Nothing reads that index, which is why it rotted unseen.
+// karaka-tables.test.ts now pins both directions AND pins that the two tables DIFFER, so the next
+// reader cannot "reconcile" them the way I nearly did.
+// 80 files, 863 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.840";

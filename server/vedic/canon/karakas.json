@@ -2,55 +2,411 @@
   "_source": "Kurczak & Fish, Art & Science of Vedic Astrology Vol I, Ch.4 'The Planets' (natural/naisargika karakas) + Ch.7 house-karaka table (p66-90).",
   "_note": "The natural significator (naisargika karaka) of each planet — what person/theme it stands for regardless of placement. This is the SIGNIFICATOR side of the knot detector: to test whether a life-event theme (marriage/children/career/fame) is lit, check its house AND its karaka planet(s).",
   "_partnerKarakaRule": "Venus is the UNIVERSAL karaka of marriage & the spouse for every chart (the 7th-house karaka). The supplementary partner-significator is Jupiter = the husband-principle, Venus = the wife-principle. Classical texts (K&F included) assign these by the NATIVE's gender because they assume a heterosexual union — Velea corrects this: the partner karaka follows the SPOUSE'S gender, not the native's. A gay man's or straight woman's chart reads the husband through Jupiter; a lesbian woman's or straight man's chart reads the wife through Venus. When orientation/partner is unknown, fall back to the classical opposite-gender default but hold it loosely.",
-
   "planetKarakas": {
-    "Sun":     { "owns": ["Leo"], "exalt": "Aries", "fall": "Libra", "element": "fire", "gender": "masculine",
-                 "signifies": ["the soul / inner light / spirit", "consciousness", "the ego projected onto the outside world", "ambition", "fame", "status in life", "power", "authority", "vitality", "government", "politics", "administration", "dignity", "recognition"],
-                 "persons": ["the father"], "houseKaraka": [1, 9, 10] },
-    "Moon":    { "owns": ["Cancer"], "exalt": "Taurus", "fall": "Scorpio", "element": "water", "gender": "feminine",
-                 "signifies": ["the mind (manas)", "emotions", "instinct", "moods", "memory", "the past", "home and family", "nurturing", "day-to-day interaction", "fertility", "conception", "birth"],
-                 "persons": ["the mother", "females", "the general public"], "houseKaraka": [4] },
-    "Mars":    { "owns": ["Aries", "Scorpio"], "exalt": "Capricorn", "fall": "Cancer", "element": "fire", "gender": "masculine",
-                 "signifies": ["energy", "potency", "action", "motivation", "courage", "competition", "technical/mechanical ability", "sports", "accidents", "fires", "weapons", "sexual potency", "physical strength", "surgery", "military/police/engineering"],
-                 "persons": ["younger brothers and sisters (younger siblings)"], "houseKaraka": [3, 6] },
-    "Mercury": { "owns": ["Gemini", "Virgo"], "exalt": "Virgo", "fall": "Pisces", "element": "air/earth", "gender": "neutral",
-                 "signifies": ["communication", "thought", "speech", "writing", "short journeys", "trade and business", "intelligence", "discrimination", "analytical ability", "mental flexibility", "humor", "mathematics/accountancy/engineering", "advising and counseling", "astrology"],
-                 "persons": [], "houseKaraka": [4, 10] },
-    "Jupiter": { "owns": ["Sagittarius", "Pisces"], "exalt": "Cancer", "fall": "Capricorn", "element": "ether", "gender": "masculine",
-                 "signifies": ["wisdom", "knowledge", "spiritual insight", "divine grace", "expansion", "fortune", "optimism", "faith", "law", "higher learning", "wealth (as blessing)"],
-                 "persons": ["children", "elder brothers", "the husband (the husband-principle — read whenever the spouse is a husband, of any native)"],
-                 "partnerKarakaFor": "husband", "houseKaraka": [2, 5, 9, 10, 11] },
-    "Venus":   { "owns": ["Taurus", "Libra"], "exalt": "Pisces", "fall": "Virgo", "element": "water", "gender": "feminine",
-                 "signifies": ["love", "romance", "marriage", "harmony", "comforts", "luxuries", "happiness", "wealth", "the arts", "music", "beauty", "sensuality", "passion", "eroticism", "sexual pleasure", "conveyances (car/boat)", "charisma", "good taste"],
-                 "persons": ["the wife (the wife-principle — read whenever the spouse is a wife, of any native)"],
-                 "partnerKarakaFor": "wife", "houseKaraka": [7] },
-    "Saturn":  { "owns": ["Capricorn", "Aquarius"], "exalt": "Libra", "fall": "Aries", "element": "air", "gender": "neutral",
-                 "signifies": ["time", "old age", "longevity", "duty and responsibility", "hard work", "restriction", "delay", "loss", "misery", "melancholy", "fear", "asceticism", "nonattachment", "spiritual growth", "concentration", "structure/construction", "farming/archaeology/mining", "service jobs with little reward"],
-                 "persons": ["authority figures", "authoritative institutions (e.g. government)"], "houseKaraka": [6, 8, 12] },
-    "Rahu":    { "owns": [], "element": "—", "gender": "—",
-                 "signifies": ["worldly desire (kama) converted into deeds (karma)", "ambition pushed to the limit", "the foreign / unconventional / diplomatic", "manipulation of facts", "poisons and drugs", "materialism", "obsession", "illusion (maya)", "descent of spirit into matter"],
-                 "persons": [], "houseKaraka": [] },
-    "Ketu":    { "owns": [], "element": "—", "gender": "—",
-                 "signifies": ["moksha (liberation) — the moksha karaka", "gyana (spiritual knowledge) — the gyana karaka", "spiritual rebirth and regeneration", "nonattachment", "discrimination", "separation / cutting away", "psychic and subconscious forces", "the invisible"],
-                 "persons": [], "houseKaraka": [] }
+    "Sun": {
+      "owns": [
+        "Leo"
+      ],
+      "exalt": "Aries",
+      "fall": "Libra",
+      "element": "fire",
+      "gender": "masculine",
+      "signifies": [
+        "the soul / inner light / spirit",
+        "consciousness",
+        "the ego projected onto the outside world",
+        "ambition",
+        "fame",
+        "status in life",
+        "power",
+        "authority",
+        "vitality",
+        "government",
+        "politics",
+        "administration",
+        "dignity",
+        "recognition"
+      ],
+      "persons": [
+        "the father"
+      ],
+      "houseKaraka": [
+        1,
+        9,
+        10
+      ]
+    },
+    "Moon": {
+      "owns": [
+        "Cancer"
+      ],
+      "exalt": "Taurus",
+      "fall": "Scorpio",
+      "element": "water",
+      "gender": "feminine",
+      "signifies": [
+        "the mind (manas)",
+        "emotions",
+        "instinct",
+        "moods",
+        "memory",
+        "the past",
+        "home and family",
+        "nurturing",
+        "day-to-day interaction",
+        "fertility",
+        "conception",
+        "birth"
+      ],
+      "persons": [
+        "the mother",
+        "females",
+        "the general public"
+      ],
+      "houseKaraka": [
+        4
+      ]
+    },
+    "Mars": {
+      "owns": [
+        "Aries",
+        "Scorpio"
+      ],
+      "exalt": "Capricorn",
+      "fall": "Cancer",
+      "element": "fire",
+      "gender": "masculine",
+      "signifies": [
+        "energy",
+        "potency",
+        "action",
+        "motivation",
+        "courage",
+        "competition",
+        "technical/mechanical ability",
+        "sports",
+        "accidents",
+        "fires",
+        "weapons",
+        "sexual potency",
+        "physical strength",
+        "surgery",
+        "military/police/engineering"
+      ],
+      "persons": [
+        "younger brothers and sisters (younger siblings)"
+      ],
+      "houseKaraka": [
+        3,
+        6
+      ]
+    },
+    "Mercury": {
+      "owns": [
+        "Gemini",
+        "Virgo"
+      ],
+      "exalt": "Virgo",
+      "fall": "Pisces",
+      "element": "air/earth",
+      "gender": "neutral",
+      "signifies": [
+        "communication",
+        "thought",
+        "speech",
+        "writing",
+        "short journeys",
+        "trade and business",
+        "intelligence",
+        "discrimination",
+        "analytical ability",
+        "mental flexibility",
+        "humor",
+        "mathematics/accountancy/engineering",
+        "advising and counseling",
+        "astrology"
+      ],
+      "persons": [],
+      "houseKaraka": [
+        4,
+        10
+      ]
+    },
+    "Jupiter": {
+      "owns": [
+        "Sagittarius",
+        "Pisces"
+      ],
+      "exalt": "Cancer",
+      "fall": "Capricorn",
+      "element": "ether",
+      "gender": "masculine",
+      "signifies": [
+        "wisdom",
+        "knowledge",
+        "spiritual insight",
+        "divine grace",
+        "expansion",
+        "fortune",
+        "optimism",
+        "faith",
+        "law",
+        "higher learning",
+        "wealth (as blessing)"
+      ],
+      "persons": [
+        "children",
+        "elder brothers",
+        "the husband (the husband-principle — read whenever the spouse is a husband, of any native)"
+      ],
+      "partnerKarakaFor": "husband",
+      "houseKaraka": [
+        2,
+        5,
+        9,
+        10,
+        11
+      ]
+    },
+    "Venus": {
+      "owns": [
+        "Taurus",
+        "Libra"
+      ],
+      "exalt": "Pisces",
+      "fall": "Virgo",
+      "element": "water",
+      "gender": "feminine",
+      "signifies": [
+        "love",
+        "romance",
+        "marriage",
+        "harmony",
+        "comforts",
+        "luxuries",
+        "happiness",
+        "wealth",
+        "the arts",
+        "music",
+        "beauty",
+        "sensuality",
+        "passion",
+        "eroticism",
+        "sexual pleasure",
+        "conveyances (car/boat)",
+        "charisma",
+        "good taste"
+      ],
+      "persons": [
+        "the wife (the wife-principle — read whenever the spouse is a wife, of any native)"
+      ],
+      "partnerKarakaFor": "wife",
+      "houseKaraka": [
+        7
+      ]
+    },
+    "Saturn": {
+      "owns": [
+        "Capricorn",
+        "Aquarius"
+      ],
+      "exalt": "Libra",
+      "fall": "Aries",
+      "element": "air",
+      "gender": "neutral",
+      "signifies": [
+        "time",
+        "old age",
+        "longevity",
+        "duty and responsibility",
+        "hard work",
+        "restriction",
+        "delay",
+        "loss",
+        "misery",
+        "melancholy",
+        "fear",
+        "asceticism",
+        "nonattachment",
+        "spiritual growth",
+        "concentration",
+        "structure/construction",
+        "farming/archaeology/mining",
+        "service jobs with little reward"
+      ],
+      "persons": [
+        "authority figures",
+        "authoritative institutions (e.g. government)"
+      ],
+      "houseKaraka": [
+        6,
+        8,
+        10,
+        12
+      ],
+      "_houseKarakaNote": "10 restored 2026-07-20: houseKarakaTable (Vol I Ch.7) lists Saturn among the 10th's karakas, and Vol II Appendix IV names Saturn the PRIMARY karaka of career. The inverted index had dropped it — the only disagreement in 18 planet/house pairs."
+    },
+    "Rahu": {
+      "owns": [],
+      "element": "—",
+      "gender": "—",
+      "signifies": [
+        "worldly desire (kama) converted into deeds (karma)",
+        "ambition pushed to the limit",
+        "the foreign / unconventional / diplomatic",
+        "manipulation of facts",
+        "poisons and drugs",
+        "materialism",
+        "obsession",
+        "illusion (maya)",
+        "descent of spirit into matter"
+      ],
+      "persons": [],
+      "houseKaraka": []
+    },
+    "Ketu": {
+      "owns": [],
+      "element": "—",
+      "gender": "—",
+      "signifies": [
+        "moksha (liberation) — the moksha karaka",
+        "gyana (spiritual knowledge) — the gyana karaka",
+        "spiritual rebirth and regeneration",
+        "nonattachment",
+        "discrimination",
+        "separation / cutting away",
+        "psychic and subconscious forces",
+        "the invisible"
+      ],
+      "persons": [],
+      "houseKaraka": []
+    }
   },
-
   "houseKarakaTable": {
     "_note": "Both Parashara and Jaimini give only the FIRST-listed planet per house as the single karaka; the extras are secondary.",
-    "1": ["Sun"], "2": ["Jupiter"], "3": ["Mars"], "4": ["Moon", "Mercury"],
-    "5": ["Jupiter"], "6": ["Mars", "Saturn"], "7": ["Venus"], "8": ["Saturn"],
-    "9": ["Jupiter", "Sun"], "10": ["Mercury", "Sun", "Jupiter", "Saturn"], "11": ["Jupiter"], "12": ["Saturn"]
+    "1": [
+      "Sun"
+    ],
+    "2": [
+      "Jupiter"
+    ],
+    "3": [
+      "Mars"
+    ],
+    "4": [
+      "Moon",
+      "Mercury"
+    ],
+    "5": [
+      "Jupiter"
+    ],
+    "6": [
+      "Mars",
+      "Saturn"
+    ],
+    "7": [
+      "Venus"
+    ],
+    "8": [
+      "Saturn"
+    ],
+    "9": [
+      "Jupiter",
+      "Sun"
+    ],
+    "10": [
+      "Mercury",
+      "Sun",
+      "Jupiter",
+      "Saturn"
+    ],
+    "11": [
+      "Jupiter"
+    ],
+    "12": [
+      "Saturn"
+    ]
   },
-
   "knotSignificatorMap": {
     "_note": "Derived index for the knot detector — the house + karaka(s) that must be lit for each life-event theme. Gendered where the canon is gendered. Read the theme as ON only when house AND karaka converge (transit/dasha), not either alone.",
-    "marriage":  { "houses": [7], "karakas": ["Venus"], "partnerKarakaBySpouseGender": { "husband": "Jupiter", "wife": "Venus" }, "_note": "Venus is always the marriage karaka. Add the partner karaka by the SPOUSE's gender (husband→Jupiter, wife→Venus) — NOT the native's. See _partnerKarakaRule; never assume heterosexuality." },
-    "children":  { "houses": [5], "karakas": ["Jupiter"] },
-    "career":    { "houses": [10], "karakas": ["Mercury", "Sun", "Jupiter", "Saturn"] },
-    "identity":  { "houses": [1, 10], "karakas": ["Sun"], "_note": "identity = self (1st) received in the world (10th/dharma); its expression is chart-specific (career OR marriage OR parenthood)" },
-    "fame":      { "houses": [10, 1], "karakas": ["Sun"], "_note": "Sun = fame/status/recognition; 10th = public honour; 1st = personal recognition/status" },
-    "father":    { "houses": [9], "karakas": ["Sun", "Jupiter"] },
-    "mother":    { "houses": [4], "karakas": ["Moon"] },
-    "siblings":  { "houses": [3, 11], "karakas": ["Mars"], "_note": "3rd = younger (Mars); 11th = elder" }
+    "marriage": {
+      "houses": [
+        7
+      ],
+      "karakas": [
+        "Venus"
+      ],
+      "partnerKarakaBySpouseGender": {
+        "husband": "Jupiter",
+        "wife": "Venus"
+      },
+      "_note": "Venus is always the marriage karaka. Add the partner karaka by the SPOUSE's gender (husband→Jupiter, wife→Venus) — NOT the native's. See _partnerKarakaRule; never assume heterosexuality."
+    },
+    "children": {
+      "houses": [
+        5
+      ],
+      "karakas": [
+        "Jupiter"
+      ]
+    },
+    "career": {
+      "houses": [
+        10
+      ],
+      "karakas": [
+        "Mercury",
+        "Sun",
+        "Jupiter",
+        "Saturn"
+      ]
+    },
+    "identity": {
+      "houses": [
+        1,
+        10
+      ],
+      "karakas": [
+        "Sun"
+      ],
+      "_note": "identity = self (1st) received in the world (10th/dharma); its expression is chart-specific (career OR marriage OR parenthood)"
+    },
+    "fame": {
+      "houses": [
+        10,
+        1
+      ],
+      "karakas": [
+        "Sun"
+      ],
+      "_note": "Sun = fame/status/recognition; 10th = public honour; 1st = personal recognition/status"
+    },
+    "father": {
+      "houses": [
+        9
+      ],
+      "karakas": [
+        "Sun",
+        "Jupiter"
+      ]
+    },
+    "mother": {
+      "houses": [
+        4
+      ],
+      "karakas": [
+        "Moon"
+      ]
+    },
+    "siblings": {
+      "houses": [
+        3,
+        11
+      ],
+      "karakas": [
+        "Mars"
+      ],
+      "_note": "3rd = younger (Mars); 11th = elder"
+    }
   }
 }
