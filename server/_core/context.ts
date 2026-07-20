@@ -49,11 +49,19 @@ export async function createContext(
     if (sessionToken) {
       const resolved = await db.getUserBySessionToken(sessionToken);
       user = resolved?.user ?? null;
-      // SLIDING RENEWAL (v811): the row's expiry just moved, so the COOKIE has to move with it —
-      // sliding the session alone would still leave the browser dropping the cookie on day 7 and
-      // logging out a daily user. Re-issued only when the row actually slid (past halfway), so an
-      // active session costs one Set-Cookie a day rather than one per request.
-      if (resolved?.slid) {
+      // SLIDING RENEWAL (v811, REACHED PROPERLY IN v822). The row's expiry slides; the COOKIE has
+      // to slide with it, or the browser drops it on day 7 while the row is healthy — the exact
+      // logout this set out to kill.
+      // v811 tied the re-issue to `slid`, the flag for the ONE request that crosses the halfway
+      // mark. That is a one-shot signal, and any authenticated request can consume it — including
+      // an <img> hit on /api/storage, which does not set cookies at all. Miss it once and the
+      // cookie is not refreshed for another 3.5 days; miss it twice and the user is logged out on
+      // schedule with a perfectly good session row. A fix whose delivery depends on WHICH request
+      // happens to arrive first is not delivered.
+      // The DB write stays debounced to past-halfway (that is what `slid` is for). The cookie is
+      // re-issued on every authenticated request: one Set-Cookie header, and the cookie's lifetime
+      // now tracks activity directly instead of tracking a database state transition.
+      if (user) {
         try {
           const { getSessionCookieOptions } = await import("./cookies.js");
           opts.res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(opts.req), maxAge: db.SESSION_TTL_MS });

@@ -19,7 +19,14 @@ import { cardGround } from "./card-ground";
  *   color: inkOf(accent)      ← text
  *   background: accent        ← fills, tints, borders, marks: leave the raw colour alone
  */
-export function inkOf(color: string | null | undefined, target = 4.5, tintPct = 0): string {
+/** @param groundVar a CSS custom property naming the surface the text ACTUALLY sits on, when that
+ *  is not the card — e.g. "--secondary" for a panel drawn on the secondary fill. Resolved at call
+ *  time so it follows the theme; falls back to the card ground when it cannot be read.
+ *  Added v822: the profection panel solved its sign colours against the CARD while sitting on
+ *  --secondary, which is darker — measured 3.92:1 where 4.5 was intended. That is the same
+ *  wrong-ground class this file's own header warns about for tinted chips, from a different cause,
+ *  and it is the fourth time a colour fix has been applied to a surface it was not on. */
+export function inkOf(color: string | null | undefined, target = 4.5, tintPct = 0, groundVar?: string): string {
   if (!color) return color ?? "";
   const c = String(color).trim();
   // A chip drawn on `color-mix(in srgb, <colour> N%, var(--color-card))` does NOT sit on the card:
@@ -41,6 +48,11 @@ export function inkOf(color: string | null | undefined, target = 4.5, tintPct = 
     : /^#[0-9a-f]{3}$/i.test(src) ? "#" + src.slice(1).split("").map((x) => x + x).join("")
     : null;
   if (!hex6) return c; // color-mix / oklch / other vars / gradients — not ours to rewrite
-  const ground = tintPct > 0 ? mixHex(hex6, cardGround(), tintPct / 100) : cardGround();
+  const base = (() => {
+    if (!groundVar || typeof document === "undefined") return cardGround();
+    const live = getComputedStyle(document.documentElement).getPropertyValue(groundVar).trim();
+    return /^#[0-9a-f]{6}$/i.test(live) ? live : cardGround(); // unreadable → the card, not a guess
+  })();
+  const ground = tintPct > 0 ? mixHex(hex6, base, tintPct / 100) : base;
   return accentInk(hex6, ground, target);
 }

@@ -821,7 +821,7 @@ export default function ProfectionYear() {
                   {sel && (
                     <div style={{ marginTop: "0.9rem", background: "var(--secondary)", border: "1px solid var(--border)", borderRadius: 12, padding: "0.85rem 1rem" }}>
                       <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.5rem", color: TEXT_PRIMARY, fontWeight: 700, fontSize: "0.98rem" }}>
-                        <span style={{ fontFamily: GLYPH_FONT, color: inkOf(SIGN_COLOR[sel.sign] ?? TEXT_PRIMARY) }}>{SIGN_GLYPH[sel.sign]}</span>
+                        <span style={{ fontFamily: GLYPH_FONT, color: inkOf(SIGN_COLOR[sel.sign] ?? TEXT_PRIMARY, 4.5, 0, "--secondary") }}>{SIGN_GLYPH[sel.sign]}</span>
                         {sel.sign} in the {ORD[houseFromSign(lagnaSign, sel.sign)]} house
                       </p>
                       <p style={{ margin: "0.2rem 0 0.7rem", color: TEXT_MUTED, fontSize: "0.82rem" }}>
@@ -849,7 +849,8 @@ export default function ProfectionYear() {
                         // hue. The border below deliberately keeps the RAW colour — a border is not
                         // text, and the raw colour is the correct one there (v815).
                         const inkRaw = SIGN_COLOR[sel.sign] ?? modeColor;
-                        const ink = inkOf(inkRaw);
+                        // This panel is drawn on --secondary, not on the card (v822).
+                        const ink = inkOf(inkRaw, 4.5, 0, "--secondary");
                         const d: any = tlWindowQ.data;
                         if (!begun) return (
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "0.65rem" }}>

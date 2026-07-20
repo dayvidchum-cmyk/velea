@@ -1546,4 +1546,26 @@
 // failed against correct code. Tightened to the CALL. An assertion that cannot tell a comment from
 // a call is not asserting what it claims.
 // 74 files, 740 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.821";
+// v1.1.822 = 2026-07-20 — TWO MORE OF MY OWN FIXES THAT DID NOT LAND WHERE I SAID.
+// (1) THE COOKIE REFRESH DEPENDED ON WHICH REQUEST ARRIVED FIRST. v811 slid the session row and
+// re-issued the cookie only when `slid` was true — the flag for the ONE request that crosses the
+// halfway mark. That is a one-shot signal and ANY authenticated request consumes it, including an
+// <img> hit on /api/storage, which sets no cookies at all. Lose the race once and the cookie is not
+// refreshed for another 3.5 days; lose it twice and the browser drops it on day 7 with a perfectly
+// healthy session row — the exact logout v811 set out to kill. The DB write stays debounced (that
+// is what `slid` is for); the COOKIE is now re-issued on every authenticated request, so its
+// lifetime tracks activity instead of tracking a database state transition. A fix whose delivery
+// depends on which request happens to arrive first is not delivered.
+// (2) v815 INKED AGAINST THE WRONG GROUND. The profection panel is drawn on --secondary, which is
+// darker than the card, and I solved its sign colours against the card. MEASURED: worst case
+// 3.92:1 where 4.5 was intended — the very number ink.ts's own header warns about for tinted chips,
+// reached from a different direction, and the FOURTH time a colour fix has been applied to a
+// surface it was not on. inkOf now takes an optional ground var, resolved at call time so it
+// follows the theme and falling back to the card when it cannot be read. Worst case is now 4.51 on
+// both themes. The control carries the denominator: it reproduces the 3.92 against the wrong ground
+// first, so "clears the bar" cannot pass vacuously.
+// Reach failures found this run, all mine: v801's polar flag reaching nobody · v800's yoga reaching
+// two of three surfaces · v808's bell reading whichever chart was active · v811's cookie · v815's
+// ground. Every one found by asking where it LANDS, not whether it works.
+// 74 files, 745 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.822";

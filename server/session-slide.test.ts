@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { readFileSync } from "node:fs";
 
 /**
  * A SESSION MUST DIE FROM DISUSE, NOT FROM AGE (v811).
@@ -90,5 +91,29 @@ describe("session sliding renewal", () => {
     expect(res?.user?.id).toBe(7);   // the user is still signed in
     expect(res?.slid).toBe(false);   // and the caller is told not to re-issue a cookie
     (fakeDb as any).update = () => ({ set: () => ({ where: () => { calls.updates++; return Promise.resolve(); } }) });
+  });
+});
+
+describe("the cookie refresh does not depend on a one-shot flag (v822)", () => {
+  // v811 re-issued the cookie only when `slid` was true — the single request that crosses the
+  // halfway mark. Any authenticated request can consume that, including an <img> hit on the
+  // storage proxy, which sets no cookies. The DB write stays debounced; the COOKIE is re-issued
+  // whenever a session resolves, so its lifetime tracks activity instead of a DB transition.
+  const CTX = readFileSync(new URL("./_core/context.ts", import.meta.url), "utf8");
+
+  it("re-issues on any resolved session, not on the slid flag", () => {
+    expect(CTX).toMatch(/if \(user\) \{[\s\S]{0,400}res\.cookie\(COOKIE_NAME/);
+    expect(CTX).not.toMatch(/if \(resolved\?\.slid\)/);
+  });
+
+  it("still uses the shared cookie options — no CSRF/SameSite drift", () => {
+    expect(CTX).toContain("getSessionCookieOptions(opts.req)");
+    expect(CTX).toContain("maxAge: db.SESSION_TTL_MS");
+  });
+
+  it("keeps the DB write debounced — `slid` still exists for that", () => {
+    const DB = readFileSync(new URL("./db.ts", import.meta.url), "utf8");
+    expect(DB).toContain("SESSION_SLIDE_AFTER_MS");
+    expect(DB).toContain("slid = true");
   });
 });

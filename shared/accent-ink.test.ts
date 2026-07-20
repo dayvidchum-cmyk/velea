@@ -114,3 +114,25 @@ describe("accentInk — every mode reads on every ground", () => {
     expect(() => accentInk(MODES.selective, "#808080")).not.toThrow();
   });
 });
+
+describe("the ground is the surface the text ACTUALLY sits on (v822)", () => {
+  // ink.ts's own header warns about this for tinted chips: solving against the card when the text
+  // sits on something else leaves it short — "measured at 3.9:1 where 4.5 was intended". The
+  // profection panel hit the same wall from a different direction: it is drawn on --secondary,
+  // which is darker than the card, and v815 inked its sign colours against the card anyway.
+  const CARD_LIGHT = "#F9F4EA", SECONDARY_LIGHT = "#E9E4D8";
+  const SIGNS = ["#C0392B", "#27AE60", "#F1C40F", "#5DADE2", "#E67E22", "#16A085",
+                 "#EC7063", "#8E44AD", "#D35400", "#34495E", "#5D6D7E", "#48C9B0"];
+
+  it("solving against the WRONG ground leaves the text short — the denominator", () => {
+    let worst = 99;
+    for (const c of SIGNS) worst = Math.min(worst, contrastRatio(accentInk(c, CARD_LIGHT), SECONDARY_LIGHT));
+    expect(worst).toBeLessThan(4.5);      // ~3.92 — this is the bug, reproduced
+  });
+
+  it("solving against the REAL ground clears the bar for every sign colour", () => {
+    for (const c of SIGNS) {
+      expect(contrastRatio(accentInk(c, SECONDARY_LIGHT), SECONDARY_LIGHT), c).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
