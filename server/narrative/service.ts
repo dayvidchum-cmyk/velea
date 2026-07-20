@@ -2,6 +2,7 @@
 // returns nulls when the LLM is unavailable so callers fall back to static copy.
 import { createHash } from "node:crypto";
 import { buildNarrativeInput } from "./input-builder.js";
+import { withMeter } from "./gen-meter.js";
 import { generateDeepRead, generateChapter, generateDayRead, generateLifeAreaRead, generateEclipseSeasonRead, generateMercuryRxRead, generateMonthRead, generateCast, isCompleteDeepRead, isCompleteChapter, isCompleteDayRead, isCompleteCast, hasAnthropicKey, type DeepRead, type Chapter, type DayRead, type Cast } from "./generate.js";
 import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
@@ -78,11 +79,12 @@ const DAILY_GEN_CAP = 50; // tunable; set above heavy first-day exploration (all
 // (distinct reads minted today), the in-proc count catches within-process refresh/moment spam.
 const genEventsByProfile = new Map<number, { day: string; n: number }>();
 const utcDay = () => new Date().toISOString().slice(0, 10);
-function bumpGenEvent(profileId: number): void {
+function bumpGenEvent(profileId: number, calls = 1): void {
+  if (calls <= 0) return;
   const day = utcDay();
   const cur = genEventsByProfile.get(profileId);
-  if (!cur || cur.day !== day) genEventsByProfile.set(profileId, { day, n: 1 });
-  else cur.n += 1;
+  if (!cur || cur.day !== day) genEventsByProfile.set(profileId, { day, n: calls });
+  else cur.n += calls;
 }
 function inProcGenCount(profileId: number): number {
   const cur = genEventsByProfile.get(profileId);
@@ -106,11 +108,17 @@ async function overDailyCap(profileId: number): Promise<boolean> {
 async function guardedGen<T>(profileId: number, key: string, fn: () => Promise<T>): Promise<T | null> {
   if (await overDailyCap(profileId)) return null;
   return singleFlight(key, async () => {
-    const r = await fn();
-    // audit LOW-14: count only a REAL generation. A null (dry wallet / API error / parse fail)
-    // wasn't billed, so it must not burn the daily cap and prematurely plateau the profile.
-    if (r != null) bumpGenEvent(profileId);
-    return r;
+    // COUNT THE CALLS, NOT THE RESULTS (v806). This used to count one event per non-null result,
+    // which was wrong twice over: callGuarded makes up to THREE calls (an attempt plus two
+    // corrective retries), all counted as one — so a 50/day cap was really up to 150 calls against
+    // a capped wallet — while a generation that burned those calls and still came back null counted
+    // as ZERO, because the old rule was "only count a REAL generation". Money spent with nothing to
+    // show is exactly what the cap exists to bound.
+    // Metering the calls themselves needs no special case for the dry wallet: with no key the
+    // request is never made, so nothing is counted, and audit LOW-14's intent still holds.
+    const { result, calls } = await withMeter(fn);
+    bumpGenEvent(profileId, calls);
+    return result;
   });
 }
 

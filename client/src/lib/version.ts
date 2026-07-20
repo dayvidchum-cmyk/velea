@@ -1209,4 +1209,23 @@
 // of by offset. Net type errors introduced: zero. The lesson is the same one this audit keeps
 // teaching — an offset is not a boundary.
 // 59 files, 592 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.805";
+// v1.1.806 = 2026-07-20 — THE DAILY CAP WAS COUNTING RESULTS, NOT CALLS.
+// It counted one event per non-null generation, which was wrong in both directions at once:
+//   · callGuarded makes up to THREE model calls — an attempt plus two corrective retries when a
+//     guard trips — all counted as ONE. A 50/day cap was really up to 150 calls against a wallet
+//     with a $20/month ceiling.
+//   · A generation that burned those three calls and still came back null counted as ZERO, because
+//     the old rule was "only count a REAL generation". Money spent with nothing to show is exactly
+//     what a cap exists to bound; it was invisible at the moment it mattered most.
+// The meter counts the CALLS. That needs no special case for a dry wallet — with no key the request
+// is never made, so nothing is counted, and audit LOW-14's original intent still holds.
+// AsyncLocalStorage rather than a module-level counter, deliberately: generations run concurrently
+// for different profiles, and a global counter read before and after an await would attribute one
+// profile's retries to whoever happened to be measuring. A test asserts that separation directly.
+// STILL OPEN and genuinely David's: the DURABLE count is `rows in narrative_cache since UTC
+// midnight`, scoped by profileId — so regenerating one row a hundred times still reads as one, and
+// N profiles gives one user N times the cap. Both need a schema change (a generations table or a
+// column), and schema changes are hand-run scripts here, never automatic. Half-fixing it in memory
+// would be a band-aid over the same hole.
+// 60 files, 597 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.806";

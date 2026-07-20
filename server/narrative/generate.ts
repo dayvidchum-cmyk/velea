@@ -3,6 +3,10 @@
 // callers can fall back to existing static content.
 import Anthropic from "@anthropic-ai/sdk";
 import { BASE_PROMPT, GLANCE_TAIL, DEEP_READ_TAIL, CHAPTER_TAIL, DAY_READ_TAIL, HOUSE_READ_TAIL, DASHA_READ_TAIL, ATLAS_READ_TAIL, LIFE_AREA_TAIL, ECLIPSE_SEASON_TAIL, MERCURY_RX_TAIL, PLANET_RX_TAIL, COMBINED_READ_TAIL, TL_WINDOW_TAIL, MONTH_TAIL, CAST_TAIL, MODEL } from "./prompts.js";
+// Every model call is metered so the daily cap counts CALLS, not results — retries
+// included, and a burned-but-failed generation included. (The 8-token liveness probe at
+// the top of this file is deliberately NOT metered: it is not a reading.)
+import { countApiCall } from "./gen-meter.js";
 import type { NarrativeInput } from "./input-builder.js";
 
 // Each narrative section is split in two: `synthesis` is the plain human truth that
@@ -104,6 +108,7 @@ export async function generateDeepRead(input: NarrativeInput): Promise<DeepRead 
   const c = client();
   if (!c) return null;
   try {
+    countApiCall();
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 3200,
@@ -153,6 +158,7 @@ export async function generateChapter(input: NarrativeInput): Promise<Chapter | 
   const c = client();
   if (!c) return null;
   try {
+    countApiCall();
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 500,
@@ -251,6 +257,7 @@ export async function generateTaskSteps(title: string, notes?: string | null): P
   const c = client();
   if (!c) return null;
   try {
+    countApiCall();
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 300,
@@ -281,6 +288,7 @@ export async function generateVerdictRead(data: unknown): Promise<{ narrative: s
   const c = client();
   if (!c) return null;
   try {
+    countApiCall();
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 1100,
@@ -324,6 +332,7 @@ export async function generateEclipseBellLine(type: "solar" | "lunar"): Promise<
     ? "A solar eclipse: the Moon is 400x smaller than the Sun and 400x closer — an exact fit, nowhere else in the known universe. Nothing touches; it is pure alignment. The light goes wrong before it goes out: colors drain strange, shadows sharpen to knife edges, every gap between leaves casts a thousand tiny crescents, birds roost at noon, the horizon glows sunset in every direction. The outer light — visibility, the public self — is briefly erased, on a schedule known centuries ahead."
     : "A lunar eclipse: the full Moon slides into Earth's shadow and turns rust-red — because it is being lit by every sunrise and every sunset on Earth simultaneously, bent around the planet's edge. The inner light — the mind, the private tide — goes strange for a few hours, on a schedule known centuries ahead. Nothing touches; it is pure alignment."
   try {
+    countApiCall();
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 120,
@@ -356,6 +365,7 @@ export async function generateMoonGossipLine(nakshatra: string): Promise<string 
   const c = client();
   if (!c) return null;
   try {
+    countApiCall();
     const msg = await c.messages.create({
       model: MODEL,
       max_tokens: 120,
@@ -449,6 +459,7 @@ async function callGuarded<T>(o: {
     { type: "text" as const, text: o.tail },
   ];
   const run = async (correction?: string): Promise<T | null> => {
+    countApiCall();
     const msg = await o.c.messages.create({
       model: MODEL, max_tokens: o.maxTokens,
       system: correction ? [...base, { type: "text" as const, text: correction }] : base,
