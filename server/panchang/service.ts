@@ -174,21 +174,44 @@ export async function getDayField(
       // Return cached result as DayField.
       // Mode is ALWAYS re-derived from current rules so interpretation changes
       // are reflected without recalculating astronomy.
-      const cachedPaksha = (cached.tithiPaksha as 'Shukla' | 'Krishna') ?? 'Shukla';
+      // ── THE SHARED-ROW FIX (2026-07-19 audit) ────────────────────────────────────────────
+      // The `panchang` table is keyed on DATE ALONE — no location column — so the row is written
+      // by whoever opens that date FIRST, at THEIR coordinates. This branch already recomputes the
+      // sunrise star, the transitions and the karana for the CALLER's location, but it used to keep
+      // serving the stored dominant nakshatra, tithi, paksha and Moon sign. Those are precisely the
+      // fields that decide the day's CLASSICAL NATURE (input-builder feeds panchang.nakshatra
+      // straight into the muhurta day filter) and the activated house — so a Boston-written row set
+      // the day's character for a Seoul reader, and froze it into their paid reading.
+      //
+      // The location-correct values were already being computed here and discarded. Now they are
+      // preferred whenever the recompute succeeds; the cached values remain the fallback if it
+      // throws, which is strictly better than today. No schema change, no migration — a proper
+      // location-keyed cache row is still the real fix and is David's hand to run.
+      let astro: Awaited<ReturnType<typeof calcPanchang>> | null = null;
+      try {
+        astro = await calcPanchang(dateStr, locationOverride.lat, locationOverride.lon, locationOverride.utcOffset);
+      } catch {
+        // Non-fatal: fall back to the stored row below. A degraded read beats no read.
+      }
+
+      const cachedPaksha = ((astro?.tithiPaksha as 'Shukla' | 'Krishna' | undefined)
+        ?? (cached.tithiPaksha as 'Shukla' | 'Krishna') ?? 'Shukla');
       // The DB stores tithi WITH a paksha prefix ("Shukla Dvitiya"); the fresh-calc path returns
-      // it BARE ("Dvitiya"). Normalize the cached form to bare here (data-path audit #3) so the
-      // tithi handed to every consumer — and to the LLM — is shape-consistent regardless of cache
-      // state; paksha travels separately in cachedPaksha.
-      const cachedTithi = (cached.tithi ?? "").replace(/^(Shukla|Krishna)\s+/, "");
-      const nakshatraModifier = getNakshatraModifier(cached.nakshatra);
+      // it BARE ("Dvitiya"). Normalize to bare here (data-path audit #3) so the tithi handed to
+      // every consumer — and to the LLM — is shape-consistent regardless of cache state; paksha
+      // travels separately in cachedPaksha.
+      const cachedTithi = (astro?.tithi ?? cached.tithi ?? "").replace(/^(Shukla|Krishna)\s+/, "");
+      const dominantNak = astro?.nakshatra ?? cached.nakshatra;
+      const effMoonSign = (astro as any)?.moonSign ?? cached.moonSign;
+      const nakshatraModifier = getNakshatraModifier(dominantNak);
       const tithiPacing = getTithiPacing(cachedTithi, cachedPaksha);
 
       // Re-derive house from Moon sign + active lagna (profile or user's own)
       // Using cached.houseActivated would give the wrong house if the profile's
       // lagna differs from the owner's lagna that was used when the row was stored.
       let house = cached.houseActivated ?? 1;
-      if (lagnaOverride && cached.moonSign) {
-        const moonIdx = SIGN_ORDER.indexOf(cached.moonSign);
+      if (lagnaOverride && effMoonSign) {
+        const moonIdx = SIGN_ORDER.indexOf(effMoonSign);
         if (moonIdx !== -1) {
           try { house = moonSignToHouse(moonIdx, lagnaOverride); } catch { /* unknown lagna — keep cached */ }
         }
@@ -204,8 +227,7 @@ export async function getDayField(
       let signTransitionTime: string | null = null;
       let moonSignAfterTransition: string | null = null;
       let karana: DayField['karana'] = null;
-      try {
-        const astro = await calcPanchang(dateStr, locationOverride.lat, locationOverride.lon, utcOffset);
+      if (astro) {
         nakshatraAtSunrise = astro.nakshatraAtSunrise;
         nakshatraTransitionTime = astro.nakshatraTransitionTime;
         nakshatraAfterTransition = astro.nakshatraAfterTransition;
@@ -213,8 +235,6 @@ export async function getDayField(
         moonSignAfterTransition = (astro as any).moonSignAfterTransition ?? null;
         sunriseLocal = astro.sunriseLocal ?? sunriseLocal;
         karana = karanaFromLongitudes(astro.sunLongitude, astro.moonLongitude);
-      } catch {
-        // Non-fatal: fall back to the cached sunrise star; no switch, no karana step.
       }
 
       // If the Moon crosses SIGNS this vedic day, the house — and so the base mode — flips too.

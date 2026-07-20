@@ -555,4 +555,16 @@
 // in Shukla, Amavasya in Krishna); an unmatched name falls back to the old noon computation, since
 // a wrong family is bad but no reading is worse. VERIFIED across 120 days: the reconstruction
 // reproduces the calendar's number 120/120, zero fallbacks. 284 tests pass, build exits 0.
-export const APP_VERSION = "1.1.770";
+// v1.1.771 = 2026-07-19 — THE SHARED PANCHANG ROW (audit section 2/7). The `panchang` table is keyed
+// on DATE ALONE, no location column, so the row is written by whoever opens that date FIRST at THEIR
+// coordinates. The cached branch already recomputed the sunrise star, transitions and karana for the
+// CALLER's location — but kept serving the STORED dominant nakshatra, tithi, paksha and Moon sign.
+// Those decide the day's classical NATURE (input-builder feeds panchang.nakshatra straight into the
+// muhurta day filter) and the activated house. MEASURED, Boston vs Tokyo over 60 days: the dominant
+// nakshatra differs on 37 of them (61.7%), the tithi on 35, the Moon sign — hence the house — on 14.
+// So one user's sky was setting the day's character for users in other timezones, and freezing into
+// their paid readings. FIX: the location-correct values were ALREADY being computed in that branch
+// and discarded; they are now preferred, with the stored row kept as the fallback if the recompute
+// throws (degraded beats absent). No schema change and no migration — a location-keyed cache row is
+// still the real fix and remains David's hand to run. 284 tests pass, build exits 0.
+export const APP_VERSION = "1.1.771";
