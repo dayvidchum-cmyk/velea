@@ -140,6 +140,11 @@ run server/vedic/research-store.ts 'dv: DASHA_ENGINE_VERSION,' '' \
 run server/panchang/service.ts 'const dominantNak = (astro as any)?.nakshatraAtSunrise ?? astro?.nakshatra' 'const dominantNak = astro?.nakshatra' \
   server/panchang/sunrise-naming.test.ts "the day goes back to being named by the majority star"
 
+run server/vedic/dignity.ts '(who !== "Moon" && KENDRA.has(houseFrom(moonIdx, lon)))' 'KENDRA.has(houseFrom(moonIdx, lon))' \
+  server/vedic/kendra-tautology.test.ts "the Moon self-reference tautology comes back"
+run server/vedic/dignity.ts 'if (inKendra(pLon, planet)) {' 'if (false) {' \
+  server/vedic/kendra-tautology.test.ts "David's condition 3 stops firing"
+
 run server/vedic/canon/muhurta-tables.json '"Sunday": "Hasta"' '"Sunday": "Rohini"' \
   server/vedic/amrita-siddhi.test.ts "the Amrita Siddhi table drifts from Raman's verse"
 run server/vedic/day-filter.ts 'const amrita = amritaSiddhi(input.varaLord, input.nakshatra);' 'const amrita = false;' \
