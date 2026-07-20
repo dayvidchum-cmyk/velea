@@ -428,7 +428,14 @@ export async function getDayField(
  *  turn note (the interaction mode is a single whole-day verdict). Absent (no chart) → the Moon-only
  *  pipeline stands unchanged. */
 export function gateDayField(field: DayField, personalRating?: string | null, interactionMode?: FinalMode | null): DayField {
-  if (interactionMode && interactionMode !== field.finalMode) {
+  // THE GUARD MUST WATCH BOTH SCALES (v826). It compared the interaction mode against finalMode —
+  // the MOMENT's mode — only. On a sign-flip day the two scales differ by design, so an interaction
+  // mode equal to the moment's but different from the DAY's skipped this branch entirely and the
+  // day scale never received the supersession it is documented to make ("it supersedes the internal
+  // Moon-only house mode"). Superseding one clock and not the other is the two-clocks bug wearing
+  // the interaction mode's clothes. Found by my own probe while verifying v825's ladder recompute.
+  const dayScaleNow = field.dayFinalMode ?? field.finalMode;
+  if (interactionMode && (interactionMode !== field.finalMode || interactionMode !== dayScaleNow)) {
     const nak = field.activeNakshatra ?? field.nakshatra;
     const nakMod = getNakshatraModifier(nak);
     field = {

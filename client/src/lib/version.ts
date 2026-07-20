@@ -1624,4 +1624,18 @@
 // Guarded now: a test asserts every law CITED by a tail is present in the prompt the model
 // receives, and that PROMPT_VERSION moved when the laws came back.
 // 76 files, 814 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.825";
+// v1.1.826 = 2026-07-20 — MY OWN PROBE CAUGHT A FOURTH, WHILE VERIFYING THE THIRD.
+// I wrote a throwaway probe to check that v825's recomputed interaction ladder was coherent — and
+// one of its three cases came back MISMATCH. Not the recompute: the GUARD above it.
+// gateDayField compared the interaction mode against `field.finalMode` — the MOMENT's mode — only.
+// On a sign-flip day the two scales differ BY DESIGN, so an interaction mode equal to the moment's
+// but different from the DAY's skipped the branch entirely, and the day scale never received the
+// supersession the function documents itself as making ("it supersedes the internal Moon-only house
+// mode"). Superseding one clock and not the other is the two-clocks bug wearing the interaction
+// mode's clothes — in the function I had just edited twice to fix exactly that class.
+// The guard now watches both scales. Verified by reverting only service.ts and watching the new
+// assertion fail, and the denominator asserts nothing moves when the interaction mode matches both.
+// WHAT THIS RUN KEEPS TEACHING: every round of corrections has contained an error, and every one
+// was found by a probe rather than by reading. The reading felt certain each time.
+// 76 files, 816 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.826";

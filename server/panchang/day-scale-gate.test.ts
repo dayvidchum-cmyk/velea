@@ -121,4 +121,24 @@ describe("gateDayField keeps both scales honest", () => {
     const clean = gateDayField(field(), null, null);
     expect((clean.dayModeReason as any).baseMode).toBe("Build");
   });
+  it("supersedes the DAY scale even when it matches the moment's mode (v826)", () => {
+    // The guard used to compare the interaction mode against finalMode — the MOMENT's mode — only.
+    // On a sign-flip day the two scales differ by design, so an interaction mode equal to the
+    // moment's but different from the DAY's skipped the branch and the day scale never received the
+    // supersession. Superseding one clock and not the other is the two-clocks bug in new clothes.
+    // The fixture is exactly that day: moment Action, day Build.
+    const f = field({ finalMode: "Action", dayFinalMode: "Build" });
+    const r = gateDayField(f, null, "Action");
+    expect(r.finalMode).toBe("Action");
+    expect(r.dayFinalMode).toBe("Action");                       // the day scale moved too
+    expect((r.dayModeReason as any).baseMode).toBe("Action");
+    expect((r.dayModeReason as any).baseScore).toBe(3);          // MODE_SCORE.Action
+  });
+
+  it("still does nothing when the interaction mode matches BOTH scales — the denominator", () => {
+    const f = field({ finalMode: "Build", dayFinalMode: "Build" });
+    const before = (f.dayModeReason as any).baseMode;
+    const r = gateDayField(f, null, "Build");
+    expect((r.dayModeReason as any).baseMode).toBe(before);      // untouched
+  });
 });
