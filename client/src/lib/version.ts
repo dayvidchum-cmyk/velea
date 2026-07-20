@@ -1171,4 +1171,22 @@
 // next time the table will accept it. Key is `${date}:${lifeArea}`, 17 chars, inside both the
 // surface and cacheDate widths — deliberately checked, since an over-long key IS the outage.
 // 59 files, 588 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.803";
+// v1.1.804 = 2026-07-20 — 855 TOKENS OF LAW WERE BEING READ AS A CROSS-REFERENCE.
+// The RECENT READS doctrine — the whole anti-repetition law, written after the 2026-07-10
+// "wallpaper era" when the same essay ran four mornings straight — had been pasted into the MIDDLE
+// of the personalApex FIELD GLOSS, after an opening double-quote that never closed on its line.
+// What the model actually read was: 'isCrown TRUE = a rare peak day … See "RECENT READS — ONE
+// CONTINUING STORY…' then 37 lines of doctrine, then '…PERSONAL APEX — THE CROWN DAY" in the glance
+// task.' So the law was presented as the CONTENTS of a cross-reference, and the crown reference the
+// sentence was actually making was severed across 40 lines. It has been that way since 07-10 and
+// survived four audits. The identical doctrine appears correctly, as its own top-level section, in
+// the other prompt — which is how it was supposed to look here.
+// Lifted out verbatim into its own section and the one-line cross-reference restored. The text the
+// model receives is byte-identical, only its position changed, so NO PROMPT_VERSION BUMP: nothing
+// regenerates and nobody is billed for a formatting fix.
+// Control: a structural test, because the defect is textual POSITION — it asserts the heading only
+// ever starts a line (an indented one is inside a gloss), that the crown cross-reference is whole,
+// that the doctrine's teeth are all still present (a move, not a delete), and that the gloss no
+// longer leaves an unterminated quote.
+// 59 files, 592 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.804";

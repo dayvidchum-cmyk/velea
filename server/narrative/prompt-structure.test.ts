@@ -1,0 +1,53 @@
+import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+
+/**
+ * THE LAW MUST NOT LIVE INSIDE A FIELD DESCRIPTION (v804).
+ *
+ * The RECENT READS doctrine — the entire anti-repetition law, written after the 2026-07-10
+ * "wallpaper era" when the same essay ran four mornings straight — had been pasted into the MIDDLE
+ * of the personalApex field gloss, after an opening double-quote that never closed on that line.
+ * The model read: 'isCrown TRUE = a rare peak day. See "RECENT READS — ONE CONTINUING STORY…' then
+ * 37 lines of doctrine, then '…PERSONAL APEX — THE CROWN DAY" in the glance task.'
+ *
+ * So roughly 855 tokens of law were presented as the CONTENTS OF A CROSS-REFERENCE, and the crown
+ * reference the sentence was actually making was severed across 40 lines. It had been that way
+ * since 07-10 and survived four audits.
+ *
+ * This reads the raw file rather than a built prompt: the defect is textual position, which is
+ * exactly what a structural assertion can see and a behavioural one cannot.
+ */
+const SRC = readFileSync(new URL("./prompts.ts", import.meta.url), "utf8");
+const HEADING = "RECENT READS — ONE CONTINUING STORY, NEVER THE SAME PAGE TWICE";
+
+describe("the prompt's structure", () => {
+  it("keeps the crown cross-reference whole", () => {
+    // The sentence must point at the crown section, not open a quote it never closes.
+    expect(SRC).toContain('See "PERSONAL APEX — THE CROWN DAY" in the glance task.');
+    expect(SRC).not.toContain(`See "${HEADING}`);
+  });
+
+  it("states the RECENT READS doctrine as a top-level section, at the start of a line", () => {
+    const occurrences = SRC.split(HEADING).length - 1;
+    expect(occurrences).toBeGreaterThan(0);
+    // Every occurrence must begin its own line — an indented one is inside a field gloss.
+    const re = new RegExp(`^${HEADING.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "gm");
+    expect(SRC.match(re)?.length).toBe(occurrences);
+  });
+
+  it("still contains the doctrine's teeth — this is a move, not a delete", () => {
+    for (const line of [
+      "This person's days are chapters of ONE story",
+      "Omission is never compliance.",
+      "When recentReads is empty, none of this constrains you",
+    ]) {
+      expect(SRC).toContain(line);
+    }
+  });
+
+  it("does not leave an unterminated quote in the personalApex gloss", () => {
+    const gloss = SRC.slice(SRC.indexOf("  personalApex: {"), SRC.indexOf("- profection: {"));
+    // An even number of double quotes in the block means nothing is left hanging open.
+    expect((gloss.match(/"/g) ?? []).length % 2).toBe(0);
+  });
+});
