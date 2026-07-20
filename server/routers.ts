@@ -2438,6 +2438,28 @@ export const appRouter = router({
         return { available: true as const, date: existing.readingDate, lifeArea: input.lifeArea, read, notes: existing.notes ?? "", cached: true };
       }
 
+      // SECOND DURABLE HOME FOR A PAID READING (v803). The horoscopes snapshot is the only cache
+      // this surface has — getLifeAreaRead holds no narrative_cache at all, just a per-flight
+      // dedupe — so a freeze that fails means EVERY future tap regenerates and bills again, for
+      // ever. That is the 2026-07-17 outage class exactly: the failure mode is a column the write
+      // does not fit, and the user is charged repeatedly for a reading they already bought.
+      // A failed freeze now parks the reading in narrative_cache (which carries its own in-process
+      // shock absorber for the case where that write ALSO fails), and this branch serves it and
+      // retries the freeze, so the snapshot heals itself the next time the table will accept it.
+      const { getNarrativeCache, upsertNarrativeCache } = await import("./db.js");
+      const rescueKey = `${input.date}:${input.lifeArea}`;   // 17 chars — inside surface/cacheDate widths
+      const rescued = await getNarrativeCache(profile.id, "life_area", rescueKey);
+      if (rescued?.content) {
+        let read: any = null; try { read = JSON.parse(rescued.content); } catch { /* corrupt — fall through and regenerate */ }
+        if (read) {
+          const { PROMPT_VERSION: PV, MODEL: MD } = await import("./narrative/prompts.js");
+          // Heal: try the snapshot again now. If it lands, the archive gets it and this branch is
+          // never needed again. If it does not, the user still reads what they paid for, free.
+          await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: PV, model: MD, content: rescued.content });
+          return { available: true as const, date: input.date, lifeArea: input.lifeArea, read, notes: "", cached: true };
+        }
+      }
+
       // The varga-deep reading for THIS life area on THIS date: the area's house + lord + karakas
       // read both natally and in its topical varga, pointed at how the date's sky activates it.
       const u = await getUserById(ctx.user.id);
@@ -2456,6 +2478,10 @@ export const appRouter = router({
       if (!frozen) {
         const { recordServerError } = await import("./narrative/generate.js");
         recordServerError(`horoscope.reveal:freeze-failed:${input.date}:${input.lifeArea}`, new Error("insertHoroscope returned false — snapshot not persisted"));
+        // Park it so the next tap SERVES this reading instead of billing for it again (v803).
+        // upsertNarrativeCache never throws and holds in-process when the table itself is broken,
+        // so this cannot make a served reading worse — only cheaper to re-read.
+        await upsertNarrativeCache(profile.id, "life_area", rescueKey, PROMPT_VERSION, MODEL, JSON.stringify(res.read));
       }
       return { available: true as const, date: input.date, lifeArea: input.lifeArea, read: res.read, notes: "", cached: false };
     }),

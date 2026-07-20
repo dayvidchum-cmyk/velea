@@ -1158,4 +1158,17 @@
 // test mocks drizzle at the connection and drives the REAL upsert, asserting a locked row takes no
 // insert, an unlocked row does, and nothing is held behind a refused write.
 // 59 files, 588 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.802";
+// v1.1.803 = 2026-07-20 — A PAID PICK-A-DATE READING HAD EXACTLY ONE DURABLE HOME.
+// getLifeAreaRead holds NO narrative_cache at all — only a per-flight dedupe — so the horoscopes
+// snapshot is the only thing standing between a purchase and a re-bill. v783 fixed the "failed save
+// reports success" half everywhere else; this surface still returned available:true after a failed
+// freeze, and because nothing else persists it, EVERY future tap regenerated and billed again. For
+// ever. That is the 2026-07-17 outage class in its purest form: the failure mode is a column the
+// write does not fit, and the user is charged repeatedly for a reading they already bought.
+// A failed freeze now parks the reading in narrative_cache (which carries its own in-process shock
+// absorber for the case where that write ALSO fails), and the reveal path checks there BEFORE
+// generating — serving the reading free and retrying the freeze, so the snapshot heals itself the
+// next time the table will accept it. Key is `${date}:${lifeArea}`, 17 chars, inside both the
+// surface and cacheDate widths — deliberately checked, since an over-long key IS the outage.
+// 59 files, 588 tests, 0 failures. Build exits 0. No new tsc errors.
+export const APP_VERSION = "1.1.803";
