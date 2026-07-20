@@ -114,6 +114,11 @@ run server/narrative/service.ts 'countGenerationsToday(profileId).catch(() => 0)
   server/narrative/spend-caps.test.ts "cap failing closed on a DB error"
 run server/narrative/service.ts 'if (uncappedProfiles.has(profileId)) return false;' 'if (false) return false;' \
   server/narrative/spend-caps.test.ts "admin exemption removed"
+run server/routers.ts 'month: protectedProcedure.mutation(async ({ ctx }) => {\n      if (!(await hasHoroscope(ctx.user))) return { available: false as const };' 'month: protectedProcedure.mutation(async ({ ctx }) => {' \
+  server/billing-gate.test.ts "a premium reading endpoint loses its entitlement gate"
+run server/narrative/router.ts 'if (!(await canYearSight(ctx.user)))' 'if (false)' \
+  server/billing-gate.test.ts "the year read stops enforcing year-sight server-side"
+
 run server/db.ts 'const SESSION_SLIDE_AFTER_MS =' 'const SESSION_SLIDE_AFTER_MS_UNUSED =' \
   server/session-slide.test.ts "session sliding renewal"
 

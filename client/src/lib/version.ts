@@ -2015,4 +2015,27 @@
 // payload field; the year builder emits `dasha: dashaBase`, so the KEY is `dasha`, shared with the
 // day payload. Every one of those four would have been a confidently-reported false finding.
 // 27 probes, all caught. 86 files, 916 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.846";
+// v1.1.847 = 2026-07-20 — EVERY BILLING ENDPOINT IS GATED. MY SCANNER CLAIMED NINE WERE NOT.
+// Priority 2 is where money bleeds, and its sharpest form is a procedure that reaches the model
+// without checking entitlement: a premium reading served free, billed to the capped wallet, once per
+// caller who knows the endpoint name. There is precedent here — narrative.deepRead once enforced NO
+// entitlement server-side while both UI surfaces gated on flags, so calling it directly bought a full
+// year read for nothing.
+// I enumerated every procedure reaching a generation entry point (get*Cached / peek*Cached /
+// getLifeAreaRead) across routers.ts and narrative/router.ts. EVERY ONE IS GATED. Fifth null result.
+// WHAT WAS WRONG WAS THE SCANNER, twice more (the 5th and 6th failed extraction in two sittings):
+//   · it did not know hasHoroscope(ctx.user) — a named helper wrapping hasFeature("specialReadings")
+//     plus the admin/bootstrap allowlist. My first pass reported NINE ungated premium endpoints:
+//     eclipse season, Mercury rx, planet rx, the month, the life-area reveal, and their peek twins.
+//     All nine false. Reporting that would have been the largest false alarm of this run — nine
+//     invented money leaks handed to David while he is already out of patience with me.
+//   · it matched only `role === "admin"`, so `if (role !== "admin") throw FORBIDDEN` read as wide
+//     open, making the admin-only diagnostic probe look public.
+// Both were caught by READING the procedure instead of trusting the grep. The corrected matcher is
+// now a test, controlled in BOTH directions: known gate forms must be detected, AND a synthetic
+// ungated body must be caught — a gate-checker that cannot detect a missing gate is exactly the
+// decorative test v841 was about. The read-only peek/saved twins are asserted too: they never
+// generate, but they return PAID PROSE, and gating the generator while leaving the reader open
+// hands the same content away for free.
+// 29 probes, all caught. 87 files, 924 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.847";
