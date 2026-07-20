@@ -2293,4 +2293,23 @@
 // Also stripped: my own RULED/DONE commentary from the queue itself. His rulings and my mistakes
 // belong in the record, not in the thing he reads to make the next choice.
 // 92 files, 997 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.859";
+// v1.1.860 = 2026-07-20 — FOUR MORE CARRIED ROWS MEASURED. TWO OF THEM WERE TOO VAGUE TO ACT ON.
+//   CONFIRMED — the failed-save re-bill park is still per-process: heldRows is a module-level Map
+//   capped at 60, so a redeploy drops it and a second replica never sees it.
+//   CONFIRMED — a paid reading still asserts a city it was not computed for: the horoscopes table
+//   carries no lat/lon/timezone/city at all, so the snapshot records no location while the page
+//   renders a live, editable one above it.
+//   REWRITTEN, because the row was too vague to act on — "the premium surfaces are thin on words"
+//   had no numbers and the numbers do not support it as written. Measured: the FREE day read gets
+//   190 words; the big premium reads are generous (month 650, eclipse season 550, life-area 450).
+//   The real defect is three PAID surfaces at or below the free read — Life Atlas window 150,
+//   Time-Lord window 200, yoga read 210. That is the actionable version.
+//   REWRITTEN — "the reading can never say a quiet day". The INSTRUCTION exists (prompts.ts:1917
+//   tells the model a quiet date is a real, useful answer). The defect is upstream: the paid lens
+//   marks a transit as touching the area whenever the planet is the area's ruler or a karaka, which
+//   is true EVERY day, so the input never once shows a quiet area. The instruction is fine; the data
+//   never gives it a chance. Naming the cause is what makes it fixable.
+// Six of sixteen still unverified. Across this run: fifteen carried rows re-checked, five stale, two
+// half-wrong, two too vague to act on. Carried notes rot in more than one way.
+// 92 files, 997 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.860";

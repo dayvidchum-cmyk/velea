@@ -60,7 +60,7 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v859 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v860 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">86</div><div class="l">Fixed</div></div>
@@ -178,7 +178,7 @@
     type errors (the typechecker now exits clean), the Verdict citing a canon file that lacked its data (the block was
     added), and melana.json having no source (it now cites Raman with page references). <b>One was half wrong</b> — see
     the speed row below; Mercury and Venus sharing the Sun’s motion is correct practice, not a defect. <b>Two are
-    confirmed still broken</b> by reading the code today. <b>Eleven of the sixteen below have still not been individually
+    confirmed still broken</b> by reading the code today. <b>Six of the sixteen below have still not been individually
     re-checked</b>, so treat the count as an upper bound for those and a measurement for the rest.
     <br>Since then I re-checked four more: <b>“two owners of which rows are the daily reading” is now fixed</b> (v851
     pointed the builder at the one canonical list, and the retired write path was already gone), the nakshatra row is
@@ -192,8 +192,15 @@
     <li><span class="tag">MONEY</span>The failed-save re-bill is capped, not closed — the guard is per-process.</li>
     <li><span class="tag">MONEY</span>Stored dasha and convergence rows can only be invalidated all-or-nothing.</li>
     <li><span class="tag">MONEY</span>The chapter read fires by itself on the Chart page.</li>
-    <li><span class="tag">READ</span>The reading can never say “this is a quiet day”.</li>
-    <li><span class="tag">READ</span>The premium surfaces are thin on words; the day read is fine.</li>
+    <li><span class="tag">READ</span>The reading can never honestly say “a quiet day”. <span style="opacity:.7">(The
+      model IS told a quiet date is a real answer. But the paid lens marks a transit as “touching” the area whenever the
+      planet is the area’s ruler or one of its karakas — true every single day — so the input never once shows a quiet
+      area. The instruction is fine; the data never gives it a chance.)</span></li>
+    <li><span class="tag">READ</span><b>Three PAID surfaces get fewer words than the free day read.</b> The day read
+      is 190 words. The Life Atlas window is <b>150</b>, the Time-Lord window 200, the yoga read 210 — all behind a
+      paywall. <span style="opacity:.7">(The big premium reads are generous: the month gets 650, eclipse season 550,
+      the life-area 450. The original row said “premium surfaces are thin” with no numbers, which was too vague to act
+      on; these three are the ones that actually are.)</span></li>
     <li><span class="tag">READ</span>The Day Headline — the detectors exist; one line connects them.</li>
     <li><span class="tag">READ</span>Focus level in the check-in is not built.</li>
     <li><span class="tag">LOOK</span>Two calendars, and the year calendar has drifted off every rail law.</li>
