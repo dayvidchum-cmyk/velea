@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v856 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v857 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
-    <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">981</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n warn">16</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n">993</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -78,7 +78,7 @@
     Every correction I made to my own earlier claims is preserved there in full.
   </p>
 
-  <h2>What I need from you — 15 decisions</h2>
+  <h2>What I need from you — 16 decisions</h2>
   <p class="lead">Plain English. Each one is a choice only you can make; I have done the measuring already.
     <br><b>You ruled on six of these on 20 July</b> — 1, 2, 3, 10 and 15 are marked below with what you decided, and 7
     turns out to have been your ruling already. Two are done; three are now work for me, not questions for you.</p>
@@ -160,6 +160,24 @@
     Both numbers are mine, not the book’s, and both are live on The Verdict right now. Neither has been changed; they
     are written down in the canon file so the choice is visible rather than buried. <span style="opacity:.75">(It is a ruling
     written into the canon file, not an audit row of its own, so the totals below do not move.)</span></span></div>
+
+  <div class="ask"><b>16. The crown mark — three pieces of your spec are missing.</b>
+    <span class="why">You gave the full rule for how a day earns a mark. I checked it against the engine, piece by piece.
+    <b>Two match exactly:</b> the five good tārās (Sampat, Kshema, Sadhana, Mitra, Parama Mitra) and the three to avoid
+    (Vipat, Pratyak, Naidhana) are exactly what is coded; and the six lucky Moon houses (1, 3, 6, 7, 10, 11) are exactly
+    the favourable set. Both are now pinned by tests.
+    <br><br><b>Three do not:</b>
+    <br>· <b>The 11th is not the peak.</b> You call it the day of gains; the engine weighs it the same as the 3rd.
+    One line to change — but which days crown would change with it, so it is your ranking to confirm.
+    <br>· <b>Amrita Siddhi / Sarvartha Siddhi Yoga does not exist in the app at all.</b> It is a 7×27
+    weekday-by-nakshatra grid. <b>I did not type it from memory</b> — an uncited table that looks authoritative is the
+    exact failure this whole run has been unpicking. It needs a citation from the same corpus as the muhurta tables
+    first, and then it is real work.
+    <br>· <b>Shubha Tithi is partial, by a different route.</b> The day filter uses the five cited tithi families and
+    vetoes rikta. Your list — 2, 3, 5, 7, 10, 11, 13 of the waxing moon — is a specific set, not a family rule. Which
+    one gates the crown is a ruling.
+    <br><br>Captured in <code>canon/crown-doctrine.md</code>, with one thing the engine adds that you did not specify:
+    the birth star itself reads as sensitive rather than lucky, and malefic tārās soften after the first round of nine.</span></div>
 
   <div class="grp">The look — your palette calls</div>
 
@@ -302,7 +320,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 981 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 993 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

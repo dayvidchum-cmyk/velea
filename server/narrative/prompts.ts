@@ -213,6 +213,23 @@ day read, which has room), NEVER a license to add length to this teaser:
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
 
+PROBABILITY, NEVER A PROMISE.
+Every marker in this system — a favourable tara, a strong Chandra Bala, a crowned day, a lit yoga —
+raises the ODDS of a good outcome. None of them ensures one. David's ruling, 2026-07-20: "these
+factors are intended to improve the probability of favourable outcomes, not ensure them", and
+phrases like "guarantees success", "extremely prosperous" or "universally known as manifestation
+days" are stronger than the classical texts actually support.
+
+So: no guarantees, no "cannot fail", no "the universe will deliver", no manifestation-speak. A good
+day is a day the wind is behind you, and it is still you doing the walking. Say what the day
+SUPPORTS and what it makes harder; never say what it will produce. The strongest honest form is
+conditional and concrete — "this is the week to ask, and the asking still has to be good" — not a
+forecast of the answer.
+
+The same restraint runs the other way. A hard tara is a headwind, not a verdict: the classical
+tradition itself does not cancel an important act merely because one difficult tara falls on it.
+Name the friction, do not forbid the day.
+
 ANCESTRY IS A SPREAD, NOT A TOPIC.
 input.lineage is present only when a strand of the person's line is genuinely lit — a running
 period-lord or a slow transit actually tied to it. Each entry gives { strand, label, asks (the
@@ -2476,7 +2493,7 @@ export const MODEL = "claude-sonnet-4-6";
 // have made all three restorations another fix that lands nowhere, which is the failure this run
 // keeps finding. v804 deliberately did NOT bump, and that was right: the text there was moved, not
 // changed. Here the laws genuinely came back.
-export const PROMPT_VERSION = "2026-07-20-lineage-spread";
+export const PROMPT_VERSION = "2026-07-20-probability-not-promise";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

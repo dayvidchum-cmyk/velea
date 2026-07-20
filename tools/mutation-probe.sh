@@ -122,6 +122,13 @@ run server/narrative/input-builder.ts '...(lineage ? { lineage } : {}),' '' \
 run server/vedic/lineage.ts 'if (!t.slow) continue;' 'if (false) continue;' \
   server/vedic/lineage.test.ts "fast transits start lighting ancestry"
 
+run server/narrative/prompts.ts '\nPROBABILITY, NEVER A PROMISE.\n' '\nPROBABILITY, NEVER A PROMISEX.\n' \
+  server/panchang/crown-doctrine.test.ts "the probability-not-promise law is orphaned"
+run server/panchang/crown.ts 'const CHANDRA_FAV = new Set([1, 3, 6, 7, 10, 11]);' 'const CHANDRA_FAV = new Set([1, 3, 6, 7, 10]);' \
+  server/panchang/crown-doctrine.test.ts "Chandra Bala drifts from his six lucky houses"
+run server/panchang/crown.ts '{ name: "Sampat", quality: "good" },' '{ name: "Sampat", quality: "mixed" },' \
+  server/panchang/crown-doctrine.test.ts "a tara he calls good stops being favourable"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"

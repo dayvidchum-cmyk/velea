@@ -2237,4 +2237,31 @@
 // exact string, so adding the SECOND law broke the FIRST test against correct code — the version had
 // moved, which is what it is for. Both now pin the invariant: dated, and not any pre-law value.
 // 91 files, 981 tests, 0 failures. 39 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.856";
+// v1.1.857 = 2026-07-20 — HIS CROWN SPEC, AUDITED — AND HIS OWN CORRECTION TO IT, WHICH LANDS HARDER.
+// He specified how a day earns a mark: Tara Bala from the birth star, Chandra Bala from the natal
+// Moon, and a Shubha Muhurta layer. Point by point against crown.ts:
+//   MATCHES EXACTLY — the five good taras (2 Sampat, 4 Kshema, 6 Sadhana, 8 Mitra, 9 Parama Mitra)
+//   and the three to avoid (3 Vipat, 5 Pratyak, 7 Naidhana). No more, no less. Now pinned.
+//   MATCHES EXACTLY — the six lucky Chandra Bala houses {1,3,6,7,10,11}. Now pinned.
+//   MISSING — the 11th is NOT treated as the peak; it weighs the same as the 3rd.
+//   MISSING ENTIRELY — Amrita Siddhi / Sarvartha Siddhi Yoga. A 7x27 weekday-by-nakshatra grid, and
+//   I DID NOT TYPE IT FROM MEMORY. An uncited table that looks authoritative is the exact failure
+//   this run has spent the day unpicking. It needs a citation first.
+//   PARTIAL — Shubha Tithi is handled by the cited FAMILY rule (rikta vetoed), not his explicit list.
+// THEN HE CORRECTED HIMSELF, and this is the part that matters most: "these factors are intended to
+// improve the PROBABILITY of favourable outcomes, not ensure them", and "guarantees success",
+// "extremely prosperous", "universally known as manifestation days" are stronger than the classical
+// texts support. Also: a hard tara is a headwind — experienced astrologers do NOT cancel an event
+// merely because one appears.
+// BASE_PROMPT now carries PROBABILITY, NEVER A PROMISE: no guarantees, no manifestation-speak, say
+// what a day SUPPORTS and what it makes harder but never what it will produce, and name friction
+// without forbidding the day. PROMPT_VERSION bumped.
+// I ALMOST PUT A FALSE CLAIM IN HIS CANON. Listing what Velea has of a professional muhurta, I wrote
+// that Gulika was not built. IT IS — as the natal upagraha, reaching the prompt as gulikaHouse. What
+// is missing is Gulika as a daily TIME WINDOW. Two instruments, one name. Caught by checking before
+// publishing rather than after, and now pinned by a test.
+// A PROBE THEN CAUGHT ME ADDING THE LAW WITH NO GUARD — orphaning its heading changed nothing.
+// Adding a law without a test is the same reach failure as adding data without a law.
+// And the docs guard caught decision 16 reaching the sheet but not the brief.
+// 92 files, 993 tests, 0 failures. 42 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.857";
