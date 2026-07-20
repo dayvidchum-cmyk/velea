@@ -688,4 +688,20 @@
 // day (universal score ≥ 0), which the calendar's ranking does not consider — so ~9 of the 12
 // still read as "favorable" rather than "crown" in the prose. That is a method question for David
 // (his stated split is: golden = the collective sky, crown = the personal apex), not a code call.
-export const APP_VERSION = "1.1.778";
+// v1.1.779 = 2026-07-20 — THE HOUSE READER DIDN'T KNOW HOW THE KEEPER WAS DOING.
+// A house's stored `lord` is {planet, placedHouse, placedSign, bhavaYoga} — WHERE the room's
+// keeper lives, never HOW HE IS. So the read described the ruler of a room with no idea whether he
+// was exalted, debilitated-but-cancelled, combust or fast asleep: a fallen keeper produced the
+// same paragraph as an exalted one. The engine already held every bit of it in research.planets,
+// and the Chapter Reader in the same file assembles exactly this via planetCondition — the House
+// Reader simply never asked. Occupants had the identical hole: a list of bare NAMES, so "Saturn
+// stands in this room" reached the model with no sense of WHICH Saturn.
+// WORST WHERE IT SHOWS MOST: house 1 is one of the three FREE rooms and the one people open first,
+// and it is the only house with no divisional route (vargaCheck = null) — so it had NO condition
+// data at all, while the prompt still asked for a "varga shadow" beat. That is an invitation to
+// invent, against this surface's own "no fairy tales — every claim traceable to input" law. The
+// keeper's D1 condition now fills that place and the varga beat is explicitly conditional.
+// Input assembly extracted to buildHouseReadInput() so it is provable without a database:
+// 5 controls, incl. an exalted vs fallen keeper yielding demonstrably different data.
+// House reads re-hash and regenerate once on next open (a handful of rooms, not a mass regen).
+export const APP_VERSION = "1.1.779";

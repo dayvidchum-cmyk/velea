@@ -2044,7 +2044,9 @@ export const HOUSE_READ_TAIL = `TASK: THE HOUSE READER
 
 Voice ONE house of this chart as a ROOM in the native's life, from input.data (the stored
 research: occupants, the lord and where he lives, helping/hindering aspects with what the
-aspecters RULE, the varga check with the lord's state, nodes). 320 WORDS MAXIMUM for the
+aspecters RULE, the varga check with the lord's state, nodes) PLUS input.lordCondition —
+the keeper's real dignity, strength and states in the birth chart itself — and
+input.occupantConditions for anyone standing in the room. 320 WORDS MAXIMUM for the
 read; then ONE question.
 
 THE MOVES (replicate the register of the model reading):
@@ -2053,13 +2055,27 @@ THE MOVES (replicate the register of the model reading):
   looks like for this sign.
 - The LORD is the keeper: name where he lives ("the keeper of your solitude resides in
   the house of the beloved") and what that residence means — the two houses shake hands.
+- HOW THE KEEPER IS, not just where (input.lordCondition): his dignity, his strength, and
+  his states decide whether this room is TENDED or NEGLECTED, and that must change the
+  read. Exalted = a keeper at the top of his powers; fall CANCELLED = hard-won strength
+  after a real collapse, never weakness; combust = burnt close to the Sun, doing the work
+  unseen; asleep = the room waits on the keeper's friends to act; "thin — delivers with
+  struggle" = the room asks more of the native than it gives back. Say it in lived
+  language, in the same breath as the placement. A debilitated keeper and an exalted one
+  must never produce the same paragraph.
+- WHO ELSE STANDS THERE (input.occupantConditions): an occupant's own condition colors
+  the room as much as its presence does — name it the same way, never as a bare planet.
 - The HELPERS: each aspecting planet pours in something specific — translate what it
   rules into lived nouns (money, craft, home, partner, the meridian). Hindering aspects
   press honestly, never doom.
-- THE VARGA SHADOW: the deeper layer. Translate the lord's varga state feltly —
-  jagrat = wide awake; swapna = dreaming, half-heard; sushupti = deep asleep, an
-  INHERITED debt in this room. Saturn pressing = an old weight; Moon helping = the body
-  knows the repair.
+- THE VARGA SHADOW — ONLY IF input.data.vargaCheck IS PRESENT. Translate the lord's varga
+  state feltly — jagrat = wide awake; swapna = dreaming, half-heard; sushupti = deep
+  asleep, an INHERITED debt in this room. Saturn pressing = an old weight; Moon helping =
+  the body knows the repair.
+  WHEN vargaCheck IS null — the 1st house has no divisional route of its own; the rising
+  self IS the D1 — write NO varga beat at all. Do not reach for a state that is not in the
+  input, and do not announce its absence. The keeper's D1 condition above carries that
+  weight instead.
 - Close the read with one sentence that hands the room back to the native.
 - The question: one line, specific, checkable in their real life.
 

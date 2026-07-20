@@ -724,6 +724,44 @@ export async function getCastCached(profileId: number, date: string, refresh = f
 }
 
 
+/**
+ * THE HOUSE READER'S INPUT — extracted so it can be proven without a database.
+ *
+ * WHAT WAS MISSING (2026-07-20): `data.lord` carries only {planet, placedHouse, placedSign,
+ * bhavaYoga} — WHERE the room's keeper lives, never HOW HE IS. So the read voiced the ruler of a
+ * room with no idea whether he was exalted, debilitated-but-cancelled, combust or asleep, and a
+ * debilitated keeper produced the same paragraph as an exalted one. The engine already holds all
+ * of it in `research.planets`, and the Chapter Reader in this same file assembles exactly this via
+ * planetCondition — the House Reader simply never asked. (David's law: no benefic/malefic labels,
+ * judge by LIVE CONDITION; and the DATA handed to the model is the thing that has to be right.)
+ *
+ * Occupants had the same hole: `occupants` is a list of bare NAMES, so "Saturn stands in this
+ * room" reached the model with no sense of WHICH Saturn.
+ *
+ * Note house 1: it is one of the three FREE rooms and the one most people open first, and it is
+ * the only house with no divisional route (HOUSE_VARGA[1] = null → vargaCheck = null). Its read
+ * therefore had NO condition information about its keeper at all, while the prompt still asked for
+ * a "varga shadow" beat — an invitation to invent. The keeper's D1 condition now fills that place,
+ * and the prompt's varga beat is explicitly conditional.
+ */
+export function buildHouseReadInput(research: any, house: number) {
+  const data = research?.houses?.[house - 1];
+  if (!data) return null;
+  const lordCondition = data.lord?.planet ? planetCondition(research, data.lord.planet) : null;
+  const occupantConditions = (data.occupants ?? [])
+    .map((o: any) => (typeof o === "string" ? o : o?.planet))
+    .filter((p: any): p is string => typeof p === "string" && p.length > 0)
+    .map((p: string) => planetCondition(research, p));
+  return {
+    house,
+    lagnaSign: research?.anchors?.lagna?.sign ?? null,
+    engineVersion: research?.engineVersion ?? null,
+    data,
+    ...(lordCondition ? { lordCondition } : {}),
+    ...(occupantConditions.length ? { occupantConditions } : {}),
+  };
+}
+
 // ── THE HOUSE READER — natal-stable cache: one read per (profile, house, research
 // version); regenerates only when the research engine moves or David salts the surface.
 export type HouseReadResult = { available: boolean; read: import("./generate.js").HouseRead | null; generatedAt: Date | null; cached: boolean };
@@ -732,9 +770,8 @@ export async function getHouseReadCached(profileId: number, house: number, refre
   const surface = "house_read";
   const { getStoredResearch } = await import("../vedic/research-store.js");
   const research: any = await getStoredResearch(profileId);
-  const data = research?.houses?.[house - 1];
-  if (!data) return { available: false, read: null, generatedAt: null, cached: false };
-  const input = { house, lagnaSign: research?.anchors?.lagna?.sign ?? null, engineVersion: research?.engineVersion ?? null, data };
+  const input = buildHouseReadInput(research, house);
+  if (!input) return { available: false, read: null, generatedAt: null, cached: false };
   const hash = dayStableHash(input, surface);
   const dateKey = `natal-h${house}`;
   if (!refresh) {
