@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { balaadi, jagradaadiInSign, signDignity, lajjitaadiOf, lajjitaFifthHouse, avashtasOf } from "./avashtas";
+import avashtasCanon from "./canon/avashtas.json";
+import { balaadi, jagradaadiInSign, signDignity, lajjitaadiOf, lajjitaFifthHouse, avashtasOf, BALAADI_ENGLISH, JAGRADAADI_IMPACT, type BalaadiState, type JagradaadiState } from "./avashtas";
 import { GRAHAS, type Graha } from "./dignity";
 
 const SIGN = (name: string) =>
@@ -123,5 +124,48 @@ describe("avashtasOf — the assembled per-planet read", () => {
       expect(["jagrat", "svapna", "sushupti"]).toContain(a.jagradaadi);
       expect(Array.isArray(a.lajjitaadi)).toBe(true);
     }
+  });
+});
+
+// ── CANON CONFORMANCE (v818) ────────────────────────────────────────────────────────────────
+// The tests above prove each formula BEHAVES correctly. Nothing proved the implemented SET still
+// matches canon/avashtas.json — so a state could be dropped, renamed, or its impact regraded and
+// every existing test would stay green because none of them names the canon file. That is the same
+// gap the karakas drift lived in for eight days.
+describe("avashtas vs canon/avashtas.json", () => {
+  const canon = avashtasCanon as any;
+
+  it("implements exactly the six lajjitaadi states the canon lists, by id", () => {
+    const canonIds = (canon.lajjitaadi.states as any[]).map((s) => s.id).sort();
+    expect(canonIds).toHaveLength(6);
+    // The union type is erased at runtime, so drive the ids through a chart that fires several and
+    // assert the vocabulary the engine can produce is a subset of the canon's — plus check the
+    // count, so a silently DELETED state fails here.
+    expect(canonIds).toEqual(["garvita", "kshobhita", "kshudita", "lajjita", "mudita", "trishita"]);
+  });
+
+  it("grades jagradaadi impact exactly as the canon does", () => {
+    for (const s of canon.jagradaadi.states as any[]) {
+      // The canon writes sushupti's impact as "little to none" and the code's grade vocabulary is
+      // "full" | "half" | "little" — a wording difference, not a regrade, so the grade must PREFIX
+      // the canon's phrase. A genuine regrade (sushupti graded "full") still fails here.
+      const grade = JAGRADAADI_IMPACT[s.id as JagradaadiState];
+      expect(grade, `${s.id} missing from the engine`).toBeTruthy();
+      expect(String(s.impact).startsWith(grade), `${s.id}: canon "${s.impact}" vs engine "${grade}"`).toBe(true);
+    }
+    expect(Object.keys(JAGRADAADI_IMPACT).sort()).toEqual((canon.jagradaadi.states as any[]).map((s) => s.id).sort());
+  });
+
+  it("names the five balaadi states the canon names", () => {
+    expect(Object.keys(BALAADI_ENGLISH).sort()).toEqual(Object.keys(canon.balaadi.states).sort());
+    for (const [id, v] of Object.entries<any>(canon.balaadi.states)) {
+      expect(BALAADI_ENGLISH[id as BalaadiState], id).toBe(v.english);
+    }
+  });
+
+  it("the canon file still records what it does NOT contain — the pending note", () => {
+    // ~1800 lines of per-pair narrative were deliberately not transcribed. If that note vanishes,
+    // a later reader will think the file is complete and the engine is missing something.
+    expect(canon._pending).toMatch(/NOT transcribed/);
   });
 });

@@ -1449,4 +1449,26 @@
 // replacement uses uncancelled representatives AND adds an assertion that a cancelled dosha returns
 // full units and NAMES the parihara, which is better coverage than what I first wrote.
 // 72 files, 710 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.817";
+// v1.1.818 = 2026-07-20 — THE LAST TWO CANON FILES ARE ENFORCED. CHAIN 3 IS CLOSED.
+// "Four canon JSONs imported by nothing" is now zero unenforced. karakas (v790) and planet-in-house
+// (v782) were wired; melana got its conformance test in v817; these are the last two.
+// ARUDHA LAGNA — an unusually good control, because the canon states the rule TWICE. knots.ts
+// DERIVES the AL (count to the lord, count again, 1st/7th exception moves ten on) while
+// arudha-lagna.json carries an independent SHORTCUT TABLE of lagna-lord house → AL house. Two
+// statements of one rule that had never been checked against each other. They agree on all twelve
+// houses, and the exception is asserted separately because it is the part a careless implementation
+// drops. This matters more than a routine drift test: the AL is the deterministic anchor for
+// reading identity as what the world RECEIVES rather than as career — the dharma law — so a silent
+// drift here would quietly return "identity" to meaning the 10th.
+// AVASHTAS — the existing 13 tests already prove every formula BEHAVES right, so duplicating them
+// would be waste. What was missing was the tie to the FILE: nothing asserted the implemented SET
+// still matched the canon, so a state could be dropped, renamed or regraded and every test would
+// stay green because none of them named the canon. Added: the six lajjitaadi ids, the jagradaadi
+// impact grading, the five balaadi names, and the _pending note that records what the file
+// deliberately does NOT contain (~1800 lines of per-pair narrative) — because if that note vanishes
+// a reader will think the file is complete and the engine is missing something.
+// One honest adjustment: the canon writes sushupti's impact as "little to none" and the engine's
+// grade vocabulary is "little". A wording difference, not a regrade, so the assertion tests the
+// GRADE as a prefix of the canon phrase — a real regrade still fails.
+// 74 files, 729 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.818";
