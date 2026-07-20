@@ -135,4 +135,23 @@ those matches was spurious: `standingYogas` appears only as a field name in a sc
 "permanent" was describing *planetary friendship*, not yogas. A sloppy check has failed me many ways
 today; this is the first time it nearly erased something real.
 
-**The five Muhurta yogas remain unbuilt**, for the reason above: no cited source in this repo.
+## RETRACTED (v870) — the reason above was wrong
+
+I wrote "no cited source in this repo" twice. David: *"muhurta yogas and siddhi grids are definitely
+in the textbooks. i think you are making assumptions."* He was right.
+
+- **Amrita Siddhi Yoga — BUILT.** B.V. Raman, *Muhurtha* Ch. VI p.40, the same volume `melana.json`
+  already cites. Seven weekday·nakshatra pairs, detector + 10 tests + 2 mutation probes. It adds
+  Raman's elections and, per his own "chances… by far the greatest", **never clears a veto**.
+- **The Siddha Yoga grid — FOUND, not yet encoded.** Same chapter, **pp. 38–39**, two pages before
+  the verse I had already transcribed. Full weekday × tithi × nakshatra table. See
+  `siddha-yoga-source.md` — transcribed verbatim, with **three OCR readings flagged for David's
+  ruling** rather than guessed.
+- **Sarvartha Siddhi / Ravi / Dwipushkar / Tripushkar** — still not located. But that is now a
+  *search that came back empty*, not an assumption: Raman's text extracts cleanly (my control found
+  the verified "Amita" string) and holds none of these names. **Muhurt Chintamani proves nothing
+  either way** — its 666k-character text layer contains the word "yoga" zero times, so it is not
+  English-extractable and I cannot search it with this method.
+
+The standing lesson: *the refusal to type a table from memory was right; declaring the table absent
+without opening the folder was not.*

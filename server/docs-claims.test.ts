@@ -99,7 +99,6 @@ describe("both documents carry the same open decisions", () => {
   // queue once he has ruled — "take it off if it is fixed… less friction for me to process" — so
   // this list is now the OPEN set only, and the resolved ones are asserted separately below.
   it.each([
-    ["naming the day by sunrise", /named by the sunrise star|NAMED.{0,20}sunrise/i],
     ["the cancelled-fall rules", /cancelled-fall/i],
     ["which yogas the reader hears", /yogas/i],
     ["the knot thresholds", /knot threshold/i],
@@ -126,6 +125,11 @@ describe("both documents carry the same open decisions", () => {
     ["a chartless day's character", /no birth data means no app/i],
     ["delete or rebuild meaning-engine", /meaning-engine.{0,40}deleted/i],
     ["should the nature drive every star", /neither\.<\/b> They are favourable/i],
+    // Was an OPEN row until v870. It had been ruled on AND shipped, but the open-list regex was
+    // loose enough (`NAMED.{0,20}sunrise`) to match the RESOLVED line instead — so the sheet passed
+    // spuriously while the brief, which had correctly dropped it, failed. The regex below is
+    // anchored to the verdict, which cannot match a question.
+    ["naming the day by sunrise", /Named by the sunrise star<\/b> — <b>yes, and done/i],
   ])("still RECORDS the settled decision: %s", (_label, re) => {
     expect(SHEET, "a settled decision vanished instead of being recorded").toMatch(re);
   });

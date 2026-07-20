@@ -2474,6 +2474,18 @@
 // neechaBhanga now self-guards on actual debilitation (his Step 1) — it was reporting cancellation
 // for a planet in its OWN SIGN if a caller ever forgot to gate.
 // 97 files, 1043 tests, 0 failures. tsc clean. Build exits 0.
+// v1.1.870 = 2026-07-20 — HE WAS RIGHT: THE SIDDHI GRID WAS IN THE BOOK ALL ALONG.
+// I twice refused to build the muhurta siddhi yogas, saying "no cited source in this repo". David:
+// "muhurta yogas and siddhi grids are definitely in the textbooks. i think you are making
+// assumptions." They are in B.V. Raman's *Muhurtha* Ch.VI — a volume this repo ALREADY CITES —
+// sitting in his own source folder. AMRITA SIDDHI YOGA is now built from p.40 (7 weekday-nakshatra
+// pairs, verbatim verse, 10 tests, 2 probes). Per Raman's own "chances... by far the greatest" it
+// raises a day WITHOUT ever clearing a veto. The full SIDDHA YOGA GRID (pp.38-39) is transcribed to
+// canon but NOT encoded: three OCR readings are unrecoverable and I will not guess them into a real
+// person's calendar. Also fixed a test that demanded the brief still list a decision David had
+// already RULED ON -- its regex was loose enough to match the resolved line, so it passed
+// spuriously on one page and failed on the other. The lesson twice over: an unrun search is not
+// evidence of absence.
 // v1.1.869 = 2026-07-20 — "YES": THE DAY IS NAMED BY THE SUNRISE STAR. AND PAID NOW OUTWEIGHS FREE.
 // THE NAMING. The Vedic day begins at local sunrise and that instant prints the blueprint, so the
 // civil day keeps the sunrise star's name. Blending to the MAJORITY star is what the generic apps do
@@ -2496,4 +2508,4 @@
 // where his scans land — I checked both. They do not contain the muhurta tables, but I should have
 // LOOKED before refusing, and should simply have asked him for the pages.
 // 99 files, 1054 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.869";
+export const APP_VERSION = "1.1.870";
