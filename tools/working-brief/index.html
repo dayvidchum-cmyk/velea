@@ -47,15 +47,14 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">as of v829 · July 20, 2026 · the stretch: v794 → v829 · VERIFIED LIVE at velealor.com by asking the server, not by pushing</p>
+  <p class="sub">as of v833 · July 20, 2026 · the stretch: v794 → v833 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
 
   <div class="card" style="border-left:3px solid var(--wine)">
     <p style="margin:0"><b>Production was frozen at v813 for most of this run.</b> I wrote &ldquo;deployed&rdquo; in thirty commit messages
     and never asked the server. v814 gated <code>npm run build</code> on <code>tsc --noEmit</code>; nixpacks runs that script,
     <code>typescript</code> is a devDependency, and a production install has no <code>tsc</code> — so every build failed silently and
     fifteen versions of real fixes existed for nobody. Reverting the gate unfroze it immediately, which is what proved the cause.
-    <b>velealor.com now serves v829, verified.</b> There is a check for this: <code>npm run deployed</code> asks the server what it is
-    running and exits non-zero when that is not what the repo says.</p>
+    <b>velealor.com now serves v833, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
   </div>
 
   <h2>1 · Open picks — your decision queue</h2>
