@@ -234,9 +234,19 @@ async function skyLineFor(localDate: string, isCrownDay = false): Promise<string
  *  inputs, so this is one cached lookup per subscribed user per morning, not a fresh 366-day walk. */
 async function isCrownDayFor(userId: number, localDate: string): Promise<boolean> {
   try {
-    const { getActiveProfile } = await import("./routers/profiles.js");
+    // THE BELL IS ADDRESSED TO THE PERSON, SO IT MUST READ THE PERSON'S OWN CHART (v821).
+    // v808 used getActiveProfile, which returns whatever profile is flagged isActive — i.e. the
+    // chart the user last SWITCHED TO. Multi-profile is the paid seam, so that is routinely a
+    // friend's chart: the 8am push would have announced someone else's crown day, addressed to the
+    // subscriber by their own first name. Found by asking where the fix actually lands rather than
+    // whether it compiles. The owner profile is the only correct one here.
     const { getUserById } = await import("./db.js");
-    const profile = await getActiveProfile(userId);
+    const db2 = await getDb();
+    if (!db2) return false;
+    const ownerRows = await db2.select().from(profiles)
+      .where(and(eq(profiles.userId, userId), eq(profiles.isOwner, true)))
+      .limit(1);
+    const profile = ownerRows[0];
     if (!profile) return false;
     const user = await getUserById(userId);
     const { rankedSolarYearForProfile } = await import("./vedic/ranked-year.js");

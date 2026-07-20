@@ -1531,4 +1531,19 @@
 // existed to prove. Removing the ?? exposed the third construction site I had missed. The lesson
 // keeps being the same one: a fallback inside an assertion is not an assertion.
 // 76 files, 739 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.820";
+// v1.1.821 = 2026-07-20 — THE BELL WOULD HAVE ANNOUNCED SOMEONE ELSE'S CROWN DAY.
+// Reach audit, third finding. v808 wired the crown rung — the top of the ladder, which had never
+// once fired — and resolved the chart with getActiveProfile(). That returns the profile flagged
+// isActive: the chart the user last SWITCHED TO. Multi-profile is the paid seam, so that is
+// routinely a FRIEND'S chart. The 8am push would have told the subscriber, by their own first name,
+// that today is one of their twelve crowned days — using someone else's chart to decide it.
+// The bell is addressed to the person, so it reads the person's OWN profile now (isOwner).
+// I found this by asking where the fix LANDS rather than whether it works — the same question that
+// caught v801's flag reaching nobody and v800's yoga reaching only two of three surfaces. Three
+// reach failures in one run, all mine, all found only once I started asking.
+// AND THE CONTROL WAS WRONG FIRST, for the fifth time today: it asserted the function body does not
+// contain "getActiveProfile" — which matched the mention inside my own explanatory comment and
+// failed against correct code. Tightened to the CALL. An assertion that cannot tell a comment from
+// a call is not asserting what it claims.
+// 74 files, 740 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.821";

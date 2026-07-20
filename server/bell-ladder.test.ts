@@ -45,6 +45,20 @@ describe("the crown rung", () => {
     expect(SRC).not.toContain("crownDay(");   // never the old per-reading helper
   });
 
+  it("reads the SUBSCRIBER'S OWN chart, not whichever profile is active (v821)", () => {
+    // getActiveProfile returns the profile flagged isActive — the chart the user last SWITCHED TO.
+    // Multi-profile is the paid seam, so that is routinely a friend's chart, and the bell is
+    // addressed to the person by their own first name. Announcing someone else's crown day under
+    // your name is worse than announcing nothing.
+    const fn = SRC.slice(SRC.indexOf("async function isCrownDayFor"));
+    const body = fn.slice(0, fn.indexOf("\n}\n"));
+    expect(body).toContain("profiles.isOwner");
+    // The CALL, not the word — my first version matched the mention inside the explanatory
+    // comment and failed against correct code. An assertion that cannot tell a comment from a
+    // call is not asserting what it claims.
+    expect(body).not.toContain("getActiveProfile(");
+  });
+
   it("fails to FALSE rather than throwing — a bad lookup must not cost the morning", () => {
     const fn = SRC.slice(SRC.indexOf("async function isCrownDayFor"));
     const body = fn.slice(0, fn.indexOf("\n}\n"));
