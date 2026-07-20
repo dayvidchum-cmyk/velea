@@ -14,7 +14,7 @@ import GlossaryText from "@/components/GlossaryText";
 import MasterModeCard from "@/components/MasterModeCard";
 import HoraCard from "@/components/HoraCard";
 import LocationChip from "@/components/LocationChip";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
 /**
@@ -70,6 +70,7 @@ const isDayRead = (r: AnyRead | null): r is DayRead => !!r && (r as DayRead).sce
 export default function Horoscope() {
   const [, navigate] = useLocation();
   const modeColor = useDayModeColor();
+  const modeColorInk = useDayModeInk();
 
   const { data: access } = trpc.horoscope.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const entitled = access?.entitled === true;
@@ -531,7 +532,7 @@ export default function Horoscope() {
               {dayPlace ? `Lived in ${dayPlace.city}` : "Where were you this day?"}
             </button>
           )}
-          <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.25rem", opacity: 0.85 }}>
+          <p style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: modeColorInk, margin: "0 0 0.25rem", opacity: 0.85 }}>
             {areaLabel(selectedArea)}
           </p>
           {/* THE BRIDGE — from this seat's question to its whole-life seasons in the Atlas. */}
@@ -595,7 +596,7 @@ export default function Horoscope() {
                 )}
                 {groups.map((g) => (
                   <div key={g.key}>
-                    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "0 0 0.5rem", opacity: 0.9 }}>
+                    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColorInk, margin: "0 0 0.5rem", opacity: 0.9 }}>
                       {areaLabel(g.key)} · {g.items.length}
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>

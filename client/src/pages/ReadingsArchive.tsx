@@ -3,7 +3,7 @@ import { BookmarkCheck, Bookmark, Sparkles, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
 function formatDate(dateStr: string) {
@@ -22,6 +22,7 @@ function formatTime(ts: Date | string) {
  */
 export default function ReadingsArchive() {
   const dayLabelColor = useDayModeColor();
+  const dayLabelColorInk = useDayModeInk();
   const [, navigate] = useLocation();
   const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const entitled = access?.entitled === true;
@@ -74,7 +75,7 @@ export default function ReadingsArchive() {
           <>
             {/* Header: KEPT = your pinned readings by default; the full archive of every day is one tap away. */}
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: dayLabelColor }}>
+              <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: dayLabelColorInk }}>
                 {showAll
                   ? `${(readings ?? []).length} ${(readings ?? []).length === 1 ? "day" : "days"} · full archive`
                   : `${pinned.length} pinned`}
@@ -82,7 +83,7 @@ export default function ReadingsArchive() {
               <button
                 onClick={() => setShowAll((v) => !v)}
                 className="inline-flex items-center gap-0.5 text-xs font-semibold uppercase tracking-wider"
-                style={{ color: dayLabelColor, background: "none", border: "none", cursor: "pointer" }}
+                style={{ color: dayLabelColorInk, background: "none", border: "none", cursor: "pointer" }}
               >
                 {showAll ? <><Bookmark size={12} /> Pinned only</> : <>All your days <ChevronRight size={12} /></>}
               </button>

@@ -13,7 +13,7 @@ import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
 import { ModeCard } from "@/components/ModeCard";
 import { TimeLordMovement } from "@/components/TimeLordMovement";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_DARK, MODE_SOLID, autoTextColors, type TaskMode } from "@shared/types";
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -206,6 +206,7 @@ interface NatalBody {
 function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; natalBodies: NatalBody[] }) {
   const lagnaIndex = ZODIAC_SIGNS.indexOf(lagnaSign ?? "Aries");
   const accent = useDayModeColor();
+  const accentInk = useDayModeInk();
   const [selectedHouse, setSelectedHouse] = useState<number | null>(null);
   // The House Reader: which house the user asked to hear (tap-gated LLM, cached natal-stable).
   const [voicedHouse, setVoicedHouse] = useState<number | null>(null);
@@ -338,7 +339,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
           >
             <div className="flex items-start justify-between">
               <div>
-                <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accent, margin: 0 }}>
+                <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accentInk, margin: 0 }}>
                   House {sel} · {selSign}{sel === 1 ? " Lagna" : ""}
                 </p>
                 <p style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--heading-ink)", margin: "0.15rem 0 0" }}>
@@ -355,7 +356,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
             </div>
 
             <div style={{ marginTop: "0.7rem" }}>
-              <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
+              <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accentInk, margin: "0 0 0.45rem" }}>
                 In your chart
               </p>
               <p style={{ fontSize: "0.85rem", lineHeight: 1.55, color: "var(--color-foreground)", margin: 0 }}>
@@ -383,7 +384,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                 <button
                   onClick={() => setVoicedHouse(sel)}
                   className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
-                  style={{ letterSpacing: "0.1em", color: accent, border: `1px solid color-mix(in srgb, ${accent} 45%, transparent)`, background: "transparent" }}
+                  style={{ letterSpacing: "0.1em", color: accentInk, border: `1px solid color-mix(in srgb, ${accent} 45%, transparent)`, background: "transparent" }}
                 >
                   Read this room
                 </button>
@@ -391,7 +392,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                 <VeleaLoader size={24} label="Listening to the room…" />
               ) : houseReadQ.data?.available && houseReadQ.data.read ? (
                 <div>
-                  <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accent, margin: "0 0 0.45rem" }}>
+                  <p style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accentInk, margin: "0 0 0.45rem" }}>
                     The room, voiced
                   </p>
                   <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: 0, whiteSpace: "pre-wrap" }}>
@@ -417,7 +418,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                   <button
                     onClick={() => houseReadQ.refetch()}
                     className="w-full py-2 rounded-full text-[11px] font-bold uppercase"
-                    style={{ letterSpacing: "0.1em", color: accent, border: `1px solid color-mix(in srgb, ${accent} 45%, transparent)`, background: "transparent" }}
+                    style={{ letterSpacing: "0.1em", color: accentInk, border: `1px solid color-mix(in srgb, ${accent} 45%, transparent)`, background: "transparent" }}
                   >
                     Ask again
                   </button>

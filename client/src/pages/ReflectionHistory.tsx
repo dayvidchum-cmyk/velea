@@ -3,7 +3,7 @@ import { BookOpen, ChevronDown } from "lucide-react";
 import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
 function formatDate(dateStr: string) {
@@ -18,6 +18,7 @@ function formatDate(dateStr: string) {
 
 export default function ReflectionHistory() {
   const dayLabelColor = useDayModeColor();
+  const dayLabelColorInk = useDayModeInk();
   const [, navigate] = useLocation();
   const [openIds, setOpenIds] = useState<Set<number>>(new Set());
   const toggle = (id: number) => setOpenIds((prev) => {
@@ -57,7 +58,7 @@ export default function ReflectionHistory() {
           <>
             <p
               className="text-xs uppercase tracking-wider font-semibold"
-              style={{ color: dayLabelColor }}
+              style={{ color: dayLabelColorInk }}
             >
               {reflections.length} {reflections.length === 1 ? "entry" : "entries"}
             </p>

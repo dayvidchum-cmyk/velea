@@ -2,7 +2,7 @@ import { useLocation } from "wouter";
 import type { Panchang } from "../../../drizzle/schema";
 import ModeTag from "./ModeTag";
 import { termToSlug, findGlossaryTerm } from "../pages/Glossary";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 
 interface PanchangCardProps {
   data: Panchang;
@@ -81,26 +81,27 @@ function GlossaryLinkFull({ value }: { value: string }) {
 
 export default function PanchangCard({ data, compact = false }: PanchangCardProps) {
   const dayLabelColor = useDayModeColor();
+  const dayLabelColorInk = useDayModeInk();
   if (compact) {
     return (
       <div className="glass-card p-3 flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-1.5">
-          <span style={{ color: dayLabelColor, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Tithi</span>
+          <span style={{ color: dayLabelColorInk, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Tithi</span>
           <GlossaryLink value={data.tithi} />
         </div>
         <span style={{ color: "var(--color-muted-foreground)" }}>·</span>
         <div className="flex items-center gap-1.5">
-          <span style={{ color: dayLabelColor, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Nakshatra</span>
+          <span style={{ color: dayLabelColorInk, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Nakshatra</span>
           <GlossaryLink value={data.nakshatra} />
         </div>
         <span style={{ color: "var(--color-muted-foreground)" }}>·</span>
         <div className="flex items-center gap-1.5">
-          <span style={{ color: dayLabelColor, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Moon</span>
+          <span style={{ color: dayLabelColorInk, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Moon</span>
           <GlossaryLink value={data.moonSign} />
         </div>
         <span style={{ color: "var(--color-muted-foreground)" }}>·</span>
         <div className="flex items-center gap-1.5">
-          <span style={{ color: dayLabelColor, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Sunrise</span>
+          <span style={{ color: dayLabelColorInk, fontSize: "0.75rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>Sunrise</span>
           <span style={{ color: "var(--color-foreground)", fontSize: "0.75rem", fontWeight: 500 }}>{data.sunrise}</span>
         </div>
       </div>
@@ -112,7 +113,7 @@ export default function PanchangCard({ data, compact = false }: PanchangCardProp
       <div className="flex items-center justify-between mb-3">
         <h3
           className="text-xs font-bold tracking-wide uppercase"
-          style={{ color: dayLabelColor, letterSpacing: "0.04em" }}
+          style={{ color: dayLabelColorInk, letterSpacing: "0.04em" }}
         >
           Panchang
         </h3>

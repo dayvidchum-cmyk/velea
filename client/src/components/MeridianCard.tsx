@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import GlossaryText from "@/components/GlossaryText";
 import { GlossaryLink } from "@/components/GlossaryPopover";
@@ -127,6 +127,7 @@ function narrate(ch: Chapter): { headline: string; body: string; reflect?: boole
  */
 export default function MeridianCard() {
   const accent = useDayModeColor();
+  const accentInk = useDayModeInk();
   const [, navigate] = useLocation();
   const { settings, saveSettings } = useSettingsContext();
   const { data } = trpc.meridian.current.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
@@ -158,17 +159,17 @@ export default function MeridianCard() {
 
   const Pole = ({ label, note, list }: { label: string; note: string; list: AxisHit[] }) => (
     <div style={{ marginTop: "0.5rem" }}>
-      <p style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: accent, margin: 0 }}>{label} · {note}</p>
+      <p style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: accentInk, margin: 0 }}>{label} · {note}</p>
       {list.length === 0 ? (
         <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", margin: "0.15rem 0 0", lineHeight: 1.45 }}>Clear right now — no planet on this pole.</p>
       ) : (
         list.map((h, i) => (
           <div key={i} style={{ margin: "0.25rem 0 0" }}>
             <p style={{ fontSize: "0.88rem", color: "var(--foreground)", margin: 0, lineHeight: 1.5 }}>
-              <strong style={{ color: accent }}>{h.planet}</strong> — {occLine(h)}.
+              <strong style={{ color: accentInk }}>{h.planet}</strong> — {occLine(h)}.
             </p>
             {readAxis(h) && (
-              <p style={{ fontSize: "0.86rem", fontStyle: "italic", color: accent, margin: "0.12rem 0 0", lineHeight: 1.45 }}>
+              <p style={{ fontSize: "0.86rem", fontStyle: "italic", color: accentInk, margin: "0.12rem 0 0", lineHeight: 1.45 }}>
                 → {readAxis(h)}
               </p>
             )}
@@ -182,7 +183,7 @@ export default function MeridianCard() {
     <div data-tour="meridian" style={{ borderRadius: "16px", border: "1px solid var(--color-border)", background: "var(--color-card)", padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
       {/* Header — tap to collapse/expand */}
       <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
-        <p style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: accent, margin: 0 }}>
+        <p style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: accentInk, margin: 0 }}>
           The Meridian <span style={{ color: "var(--color-muted-foreground)", fontWeight: 600, letterSpacing: "0.06em" }}>· your dharma axis</span>
         </p>
         <ChevronDown size={18} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
@@ -190,21 +191,21 @@ export default function MeridianCard() {
 
       {!open ? (
         <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", margin: "0.4rem 0 0", lineHeight: 1.45 }}>
-          On your axis: <span style={{ color: accent, fontWeight: 600 }}>{summary}</span>.
+          On your axis: <span style={{ color: accentInk, fontWeight: 600 }}>{summary}</span>.
         </p>
       ) : (
         <>
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.3rem" }}>
-            <GlossaryLink term="Meridian chapter" underline={false} style={{ fontSize: "0.68rem", color: accent, whiteSpace: "nowrap" }}>What's this?</GlossaryLink>
+            <GlossaryLink term="Meridian chapter" underline={false} style={{ fontSize: "0.68rem", color: accentInk, whiteSpace: "nowrap" }}>What's this?</GlossaryLink>
           </div>
           <div style={{ margin: "0.4rem 0 0", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
             <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: 0, lineHeight: 1.55 }}>
-              <strong style={{ color: accent }}>{data.mc.sign}</strong> on your <strong>Midheaven</strong> — your public calling, your{" "}
-              <GlossaryLink term="dharma" underline={false} style={{ color: accent, fontWeight: 700 }}>dharma</GlossaryLink>.{" "}
+              <strong style={{ color: accentInk }}>{data.mc.sign}</strong> on your <strong>Midheaven</strong> — your public calling, your{" "}
+              <GlossaryLink term="dharma" underline={false} style={{ color: accentInk, fontWeight: 700 }}>dharma</GlossaryLink>.{" "}
               {MC_GLOSS[data.mc.sign] ?? "How you appear on the world's stage — career, calling, and the outer voice that carries it."}
             </p>
             <p style={{ fontSize: "0.9rem", color: "var(--foreground)", margin: 0, lineHeight: 1.55 }}>
-              Balanced by <strong style={{ color: accent }}>{data.ic.sign}</strong> on your <strong>Imum Coeli</strong> — your roots and private ground.{" "}
+              Balanced by <strong style={{ color: accentInk }}>{data.ic.sign}</strong> on your <strong>Imum Coeli</strong> — your roots and private ground.{" "}
               {IC_GLOSS[data.ic.sign] ?? "Home, foundation, and the inner voice you speak from."}
             </p>
           </div>
@@ -244,7 +245,7 @@ export default function MeridianCard() {
                         <p style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--foreground)", margin: "0.2rem 0 0", lineHeight: 1.4 }}><GlossaryText>{n.headline}</GlossaryText></p>
                         <p style={{ fontSize: "0.84rem", color: "var(--color-muted-foreground)", margin: "0.25rem 0 0", lineHeight: 1.55 }}><GlossaryText>{n.body}</GlossaryText></p>
                         {n.reflect && (
-                          <button onClick={() => navigate("/reflections")} style={{ marginTop: "0.4rem", fontSize: "0.78rem", fontWeight: 600, color: accent, background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+                          <button onClick={() => navigate("/reflections")} style={{ marginTop: "0.4rem", fontSize: "0.78rem", fontWeight: 600, color: accentInk, background: "none", border: "none", padding: 0, cursor: "pointer" }}>
                             What did it land? → Reflect
                           </button>
                         )}

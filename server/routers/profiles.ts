@@ -437,6 +437,18 @@ async function recomputeProfileChart(
     const { invalidateRankedYear } = await import('../vedic/ranked-year.js');
     invalidateRankedYear(profileId);
   } catch { /* ignore */ }
+  // ...and RELEASE THE PINS (David 2026-07-20: "keep accuracy"). A pinned read is served whatever
+  // its input hash says — that is the point of a pin — so after a birth-data CORRECTION it would go
+  // on showing prose computed from a chart that is no longer this person's, the year read included.
+  // Releasing the hold lets the corrected reading generate on next open. No prose is deleted here;
+  // the rows stay untouched until that date is actually reopened.
+  try {
+    const { unpinAllNarrative } = await import('../db.js');
+    const released = await unpinAllNarrative(profileId);
+    if (released) console.log(`[Profile Chart] released ${released} pinned reading(s) after a chart correction (profile ${profileId})`);
+  } catch (unpinErr) {
+    console.warn('[Profile Chart] could not release pins after chart change:', unpinErr);
+  }
 
   return chart;
 }

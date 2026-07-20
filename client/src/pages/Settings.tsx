@@ -10,7 +10,7 @@ import { useSettingsContext } from "@/contexts/SettingsContext";
 import type { SettingsState, TodayTaskLimit } from "@/hooks/useSettings";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { useFullSpectrum } from "@/hooks/useFullSpectrum";
 import { BirthDetailsSheet } from "./Profiles";
 import ProfilePicker from "@/components/ProfilePicker";
@@ -93,6 +93,7 @@ function TogglePair<T extends string>({
 
 function SettingsSection({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const modeColor = useDayModeColor();
+  const modeColorInk = useDayModeInk();
   const [open, setOpen] = useState(defaultOpen); // collapsed by default — minimize overload
   return (
     <div

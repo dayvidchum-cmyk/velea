@@ -903,4 +903,23 @@
 // two assertions ("expected [Saturn, Sun, Mercury] to include Jupiter"). My first control run was
 // worthless: stashing the file removed the test's export too, so all ten failed because the table
 // was undefined, not because of drift. A probe that fails for the wrong reason proves nothing.
-export const APP_VERSION = "1.1.790";
+// v1.1.791 = 2026-07-20 — DAVID'S THREE ANSWERS, BUILT.
+// (1) "keep accuracy" — a chart recompute now RELEASES every pin on that profile. A pinned read is
+// served whatever its input hash says, so after a birth-data correction it kept showing prose from
+// a chart that was no longer the native's (the year read included). Releasing the hold lets the
+// corrected reading generate on next open. Nothing is deleted: the rows and their words stay until
+// that date is actually reopened.
+// (2) "sweep it" — --day-accent-ink now rides alongside --day-accent: the same hue and saturation,
+// moved in lightness only until it clears 4.5:1 on the ground in use, and byte-identical when the
+// accent already passes. TEXT reads the ink; fills, tints, borders and marks keep the raw accent,
+// which is what makes this an evolution rather than a recolour. Measured across the six live coins:
+// in LIGHT 5 of 6 failed (gold at 1.92:1) and now sit at 4.54-4.72; in DARK only the caution ruby
+// failed (2.62 -> 4.55) and the other five are unchanged.
+// (3) light-mode caption grey: #8D8171 (3.48:1 on the card) -> #786E60 (4.56:1). Same hue, 15%
+// darker. Light mode is otherwise untouched — this was never a light-vs-dark question, it was the
+// small grey text being too pale to read, and David was right that it should not have been a choice.
+// HONEST SCOPE: 38 text sites were swept — every one that reads useDayModeColor(). 49 remain that
+// receive their colour as a PROP (planet inks, sign colours, per-card accents), which the hook
+// cannot reach. Those need the ink applied at the text site itself. NOT claiming a finished sweep
+// this time (see v787/v788, where I claimed one and had done five of nine).
+export const APP_VERSION = "1.1.791";

@@ -2,7 +2,7 @@ import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react
 import { useLocation } from "wouter";
 import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
 const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -204,6 +204,7 @@ const PAGE_TOURS: { route: string; key: string; steps: TourStep[] }[] = [
 
 export default function Onboarding({ active, userId }: Props) {
   const accent = useDayModeColor();
+  const accentInk = useDayModeInk();
   const [location, navigate] = useLocation();
 
   // Server-persisted tour state ({ seen: string[], enabled }). Reliable across

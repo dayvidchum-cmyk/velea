@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { useDayModeColor, useDayModeGradient } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk, useDayModeGradient } from "@/hooks/useDayModeColor";
 
 // ── Dimension config ────────────────────────────────────────────────────────
 
@@ -166,6 +166,7 @@ function timeAgo(date: Date | string): string {
 export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetProps) {
   const utils = trpc.useUtils();
   const modeColor = useDayModeColor();
+  const modeColorInk = useDayModeInk();
   const heroGradient = useDayModeGradient();
   const { data: lastCheckIn } = trpc.checkIn.today.useQuery(undefined, { enabled: open });
 
@@ -232,7 +233,7 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
           <SheetHeader className="mb-5">
             <span
               className="text-left text-[0.75rem] font-bold uppercase"
-              style={{ color: modeColor, letterSpacing: "0.16em" }}
+              style={{ color: modeColorInk, letterSpacing: "0.16em" }}
             >
               Check-In
             </span>

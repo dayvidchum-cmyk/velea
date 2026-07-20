@@ -192,6 +192,10 @@
   --brand-gold: #C9A84C;
   /* THE DAY ACCENT — today's coin color; chrome follows the day (falls back to brand gold). */
   --day-accent: var(--brand-gold);
+  /* Readable twin of --day-accent for TEXT (setDayAccent overwrites it per-day with the measured
+     value; this is the fallback before it runs and in Full Spectrum, where --day-accent is removed
+     by law). --brand-gold is already the per-theme readable gold, so it is the right default. */
+  --day-accent-ink: var(--brand-gold);
   /* HEADING INK — never black (David: "aesthetic as fuck"): warm espresso washed with
      the day's hue. Redefined per theme below. */
   --heading-ink: color-mix(in srgb, var(--day-accent) 26%, #D5CFBE);
@@ -914,7 +918,12 @@ html.light {
   --secondary: #EAE1CF;
   --secondary-foreground: #3E352A;
   --muted: #EAE1CF;
-  --muted-foreground: #8D8171;
+  /* THE CAPTION GREY, MEASURED (2026-07-20). #8D8171 on the light card is 3.48:1 and on the page
+     background 3.16:1 — under the 4.5:1 floor for small text, which is exactly what this token is
+     used for (captions, sub-labels, timestamps, the quiet second line everywhere). Same hue and
+     saturation, 15% darker: 4.56:1 on the card, 4.14:1 on the background. Oat Milk is unchanged in
+     every other respect — this is the small grey text becoming readable, not a palette change. */
+  --muted-foreground: #786E60;
   --accent: oklch(0.767 0.139 91.1);
   --accent-foreground: #1a1305;
   --destructive: oklch(0.50 0.18 25);

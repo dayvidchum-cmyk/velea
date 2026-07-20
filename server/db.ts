@@ -712,6 +712,31 @@ export async function setNarrativeLock(profileId: number, surface: string, cache
     .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.surface, surface), eq(narrativeCache.cacheDate, cacheDate)));
 }
 
+/**
+ * Release every pin on a profile's readings, and report how many were released.
+ *
+ * Called when the chart is recomputed. A pinned read is served REGARDLESS of its input hash — that
+ * is what a pin means — so after a birth-data CORRECTION it would keep showing prose computed from
+ * a chart that is no longer the native's, and (since v776) the pin covers the year read too.
+ * David's ruling, 2026-07-20: "keep accuracy". So a correction releases the pins and the corrected
+ * reading generates on next open.
+ *
+ * Nothing is deleted here: the rows and their prose stay exactly as they are, and are only replaced
+ * if and when that date is opened again. This releases the HOLD, it does not erase the words.
+ */
+export async function unpinAllNarrative(profileId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const pinned = await db
+    .select({ id: narrativeCache.id })
+    .from(narrativeCache)
+    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.locked, true)));
+  if (!pinned.length) return 0;
+  await db.update(narrativeCache).set({ locked: false })
+    .where(and(eq(narrativeCache.profileId, profileId), eq(narrativeCache.locked, true)));
+  return pinned.length;
+}
+
 export async function isNarrativeLocked(profileId: number, cacheDate: string): Promise<boolean> {
   // AUDIT M4 (2026-07-18): the pin locks several surfaces but truth was read from ONE — if only
   // the other row existed (its sibling's generation was dry/capped), the UI said "unpinned" while

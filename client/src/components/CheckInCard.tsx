@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import CheckInSheet from "@/components/CheckInSheet";
 import { RefreshCw } from "lucide-react";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 
 // ── Interpretation logic ────────────────────────────────────────────────────
 
@@ -56,6 +56,7 @@ export default function CheckInCard() {
   const { isAuthenticated } = useAuth();
   const [sheetOpen, setSheetOpen] = useState(false);
   const dayLabelColor = useDayModeColor();
+  const dayLabelColorInk = useDayModeInk();
 
   const { data: checkIn, isLoading } = trpc.checkIn.today.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -191,7 +192,7 @@ export default function CheckInCard() {
               <div>
                 <p
                   className="text-sm font-bold uppercase mb-1"
-                  style={{ color: dayLabelColor, letterSpacing: "0.04em" }}
+                  style={{ color: dayLabelColorInk, letterSpacing: "0.04em" }}
                 >
                   Today's Assets
                 </p>
@@ -213,7 +214,7 @@ export default function CheckInCard() {
               <div>
                 <p
                   className="text-sm font-bold uppercase mb-1"
-                  style={{ color: dayLabelColor, letterSpacing: "0.04em" }}
+                  style={{ color: dayLabelColorInk, letterSpacing: "0.04em" }}
                 >
                   Today's Constraint
                 </p>

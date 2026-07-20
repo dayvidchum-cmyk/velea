@@ -11,7 +11,7 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
-import { useDayModeColor } from "@/hooks/useDayModeColor";
+import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { ProfectionWheel } from "@/components/ProfectionWheel";
 import { WhyNowChain } from "@/components/WhyNowChain";
 import MeridianCard from "@/components/MeridianCard";
@@ -141,6 +141,7 @@ function peelTakeaway(text: string): { data: string; takeaway: string } {
 
 export default function ProfectionYear() {
   const modeColor = useDayModeColor();
+  const modeColorInk = useDayModeInk();
   const TEXT_PRIMARY = "var(--foreground)";
   const TEXT_MUTED = "var(--muted-foreground)";
 
@@ -289,10 +290,10 @@ export default function ProfectionYear() {
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", padding: "1.1rem 1.25rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
       >
         <span style={{ display: "flex", flexDirection: "column", gap: "0.2rem", minWidth: 0 }}>
-          <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
+          <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColorInk }}>{title}</span>
           {subtitle && <span style={{ fontSize: "0.68rem", fontWeight: 500, letterSpacing: "0.01em", color: TEXT_MUTED, lineHeight: 1.35, textTransform: "none" as const }}>{subtitle}</span>}
         </span>
-        <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+        <ChevronDown size={16} style={{ color: modeColorInk, opacity: 0.7, flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
       </button>
       {open && <div style={{ padding: "0 1.25rem 1.25rem" }}>{content}</div>}
     </div>
@@ -514,8 +515,8 @@ export default function ProfectionYear() {
             style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--color-card)", border: "1px solid var(--border)", borderRadius: 20 }}
           >
             <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "1rem 1.3rem", borderBottom: "1px solid var(--border)", background: "var(--color-card)" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>How profection works</span>
-              <button onClick={() => setExplainerOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${modeColor} 18%, transparent)`, border: `1px solid color-mix(in srgb, ${modeColor} 34%, transparent)`, color: modeColor, cursor: "pointer" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColorInk }}>How profection works</span>
+              <button onClick={() => setExplainerOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${modeColor} 18%, transparent)`, border: `1px solid color-mix(in srgb, ${modeColor} 34%, transparent)`, color: modeColorInk, cursor: "pointer" }}>
                 <X size={16} strokeWidth={2.5} />
               </button>
             </div>
@@ -542,7 +543,7 @@ export default function ProfectionYear() {
         type="button"
         onClick={() => setExplainerOpen(true)}
         className="inline-flex items-center gap-1"
-        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.1rem 0", marginBottom: "0.8rem", color: modeColor, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
+        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.1rem 0", marginBottom: "0.8rem", color: modeColorInk, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
       >
         How profection works <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
       </button>
@@ -563,8 +564,8 @@ export default function ProfectionYear() {
                 onClick={() => setWhyNowOpen(!whyNowOpen)}
                 style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
               >
-                <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>Your year, explained</span>
-                <ChevronDown size={16} style={{ color: modeColor, opacity: 0.7, flexShrink: 0, transform: whyNowOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+                <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColorInk }}>Your year, explained</span>
+                <ChevronDown size={16} style={{ color: modeColorInk, opacity: 0.7, flexShrink: 0, transform: whyNowOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
               </button>
               {whyNowOpen && (
                 <div style={{ marginTop: "0.9rem" }}>
@@ -621,7 +622,7 @@ export default function ProfectionYear() {
                     borderRadius: "999px",
                     background: "transparent",
                     border: `1px solid ${modeColor}`,
-                    color: modeColor,
+                    color: modeColorInk,
                   }}
                 >
                   {a.label}
@@ -958,7 +959,7 @@ export default function ProfectionYear() {
                         <div style={{ flex: 1, minWidth: 0, paddingBottom: isLast ? 0 : "1.15rem" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", gap: "0.6rem", alignItems: "baseline" }}>
                             <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontSize: "0.95rem" }}>{m.title}</span>
-                            <span style={{ color: modeColor, fontWeight: 700, fontSize: "0.72rem", whiteSpace: "nowrap" as const }}>{compact(m.daysAway)}</span>
+                            <span style={{ color: modeColorInk, fontWeight: 700, fontSize: "0.72rem", whiteSpace: "nowrap" as const }}>{compact(m.daysAway)}</span>
                           </div>
                           <div style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginTop: 3 }}><GlossaryText>{m.detail}</GlossaryText></div>
                           <div style={{ color: TEXT_MUTED, fontSize: "0.72rem", marginTop: 3, opacity: 0.8 }}>{fmt(m.date)}</div>
