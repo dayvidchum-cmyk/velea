@@ -37,9 +37,27 @@ describe("the location a paid reading was computed for", () => {
     // Every tier that HAS a stored name must pass it through; the type must allow null, because
     // "not stored" has to stay distinguishable from a guess.
     expect(RESOLVER).toMatch(/city:\s*string\s*\|\s*null/);
-    for (const tier of ["o.city", "locationCity", "hometownCity", "birthLocation"]) {
+    for (const tier of ["o.city", "locationCity", "hometownCity", "birthLocationCity"]) {
       expect(RESOLVER, `the ${tier} tier drops its place name`).toContain(tier);
     }
+  });
+
+  it("every tier reads a column that EXISTS — the birth tier did not", () => {
+    // The assertion above used to name "birthLocation", which the substring in `birthLocationLat`
+    // satisfies. The resolver really did read `p.birthLocation`, a column `profiles` does not have
+    // (the only one in the schema belongs to referralRedemptions), so the birth tier froze a null
+    // city into every reading cast on it — on the tier where the reader is least able to notice.
+    // Deleting the line left this file green, so the guard is now against the SCHEMA.
+    const profiles = SCHEMA.slice(SCHEMA.indexOf('export const profiles = mysqlTable("profiles"'));
+    const profilesBody = profiles.slice(0, profiles.indexOf("export const", 10));
+    for (const [tier, col] of [["hometown", "hometownCity"], ["birth", "birthLocationCity"]] as const) {
+      expect(profilesBody, `profiles has no ${col} column for the ${tier} tier`).toContain(`${col}: varchar`);
+      expect(RESOLVER, `the ${tier} tier does not read ${col}`).toMatch(new RegExp(`p!?\\.${col} \\?\\? null`));
+      // and the phantom must not come back
+    }
+    expect(RESOLVER, "the resolver reads a column profiles does not have").not.toMatch(/p\.birthLocation\s*\?\?/);
+    // CONTROL: the matcher above must be able to SEE the phantom, or it proves nothing.
+    expect("      city: p.birthLocation ?? null,").toMatch(/p\.birthLocation\s*\?\?/);
   });
 
   it("the freeze records the SAME sky the reading was computed from", () => {

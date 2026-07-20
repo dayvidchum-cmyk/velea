@@ -122,12 +122,25 @@ run client/src/pages/LifeAtlas.tsx '(windowReadQ.data as any)?.locked ? (' 'fals
 # A paid reading going back to recording no location, while the page prints a live one above it.
 run server/routers.ts 'computedCity: dayLoc.city, computedSource: dayLoc.source' 'computedSource: dayLoc.source' \
   server/horoscope-location.test.ts "a frozen reading stops recording where its sky was cast"
+# The day layer getting back into the STAGE input, which re-bills the year read every morning.
+run server/narrative/input-builder.ts 'natal: natalStage, natalRetrogradeCount' 'natal, natalRetrogradeCount' \
+  server/narrative/service.hash.test.ts "the stage input carries the day layer again"
+# The birth tier reading a column `profiles` does not have — it did, and the old assertion passed
+# because "birthLocation" is a substring of "birthLocationLat".
+run server/panchang/resolve-day-sky.ts 'city: p.birthLocationCity ?? null,' 'city: p.birthLocation ?? null,' \
+  server/horoscope-location.test.ts "the birth tier goes back to a phantom column"
 # A special yoga refilling a day the rikta law emptied — shipped in Amrita Siddhi, uncaught.
 run server/vedic/day-filter.ts '    if (emptied) {' '    if (false) {' \
   server/vedic/siddha-yoga.test.ts "a yoga stops speaking in the emptied day's grammar"
 # The Siddha grid quietly losing one of David's three ruled spellings.
 run server/vedic/canon/siddha-yoga.json '"Rohini", "Mrigashira", "Ardra", "Uttara Phalguni", "Uttara Ashadha", "Anuradha"' '"Rohini", "Mrigashira", "Ardra", "Uttara Phalguni", "Uttara Ashadha", "Animidha"' \
   server/vedic/siddha-yoga.test.ts "an OCR spelling gets back into the encoded grid"
+# The sentence going back to being built BEFORE the yoga speaks — the contradiction one field over.
+run server/vedic/day-filter.ts '    : yogaOnEmpty' '    : false && yogaOnEmpty' \
+  server/vedic/siddha-yoga.test.ts "the sentence contradicts the supports again"
+# The module-load guard losing the Siddha grid, so its supports take the initiate default silently.
+run server/vedic/day-filter.ts '  for (const s of ((siddha as any).supports ?? [])) {\n    if (!(s in ACT_CLASS)) unclassified.push(s);\n  }' '  for (const s of []) {\n    if (!(s in ACT_CLASS)) unclassified.push(s);\n  }' \
+  server/vedic/siddha-yoga.test.ts "the ACT_CLASS guard stops reading the Siddha grid"
 # The severing half reaching a nature whose own avoid-list refuses cutting (5 tender days a year).
 run server/vedic/day-filter.ts '...(natureRefusesCutting(natDef) ? [] : YOGA_ON_EMPTY_SEVER),' '...YOGA_ON_EMPTY_SEVER,' \
   server/vedic/siddha-yoga.test.ts "a tender day is offered cutting again"

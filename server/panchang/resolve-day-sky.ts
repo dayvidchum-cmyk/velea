@@ -51,7 +51,7 @@ export const CURRENT_WINDOW_DAYS = 3;
 export type UserLocFields = { locationLat?: string | null; locationLon?: string | null; locationTimezone?: string | null; locationCity?: string | null } | null | undefined;
 export type ProfileLocFields = {
   birthLocationLat?: string | null; birthLocationLon?: string | null; birthTimezone?: string | null;
-  birthLocation?: string | null;
+  birthLocationCity?: string | null;
   hometownLat?: string | null; hometownLon?: string | null; hometownTimezone?: string | null;
   hometownCity?: string | null;
 } | null | undefined;
@@ -153,7 +153,11 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
       // (a Tokyo birth on Boston's clock would be nine hours of wrong sky).
       utcOffset: p.birthTimezone ? getTimezoneOffset(p.birthTimezone, at) : Math.round(lon / 15),
       timezone: p.birthTimezone ?? null,
-      city: p.birthLocation ?? null,
+      // birthLocationCity, NOT birthLocation. `profiles` has no such column — the only
+      // `birthLocation` in the schema belongs to referralRedemptions — so this tier froze
+      // city: null into every reading cast on it, and the page then printed "Read for your
+      // saved location" forever. The optional field on ProfileLocFields is what kept tsc quiet.
+      city: p.birthLocationCity ?? null,
       source: "birth",
     };
   }

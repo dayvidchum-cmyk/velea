@@ -2646,4 +2646,28 @@
 // clean zero I proved the instrument could fail: against a deliberately drifted table it catches
 // both "TOO SHORT lifeArea varchar(10) < varchar(24)" (the 7/17 outage shape) and a missing column.
 // 112 files, 1156 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.879";
+// v1.1.880 = 2026-07-20 — THREE THINGS THE LAST STRETCH SHIPPED BROKEN, each found by re-auditing
+// work that was already "done" and each with a control run against the unfixed code first.
+// (1) THE MONEY ONE. `personalApex` — today's tara rung and chandra house, which move almost every
+// day — was written onto the shared `natal` object and the SLOW-ONLY (stage) return shipped it.
+// dayStableHash strips volatile fields only out of `input.panchang`, and a stage input has no
+// panchang, so deep/deep_full/chapter hashed a value that turned over daily: the "reuse the latest
+// matching row" path never matched and every new day billed a fresh Sonnet generation of prose
+// whose scope is the YEAR. The chapter has no door either, so it fired on Chart-tab load. The test
+// that carried this guard's name hashed the same object twice and could never fail.
+// (2) The v879 fix closed the rikta self-contradiction in `supports` and reopened it one field
+// over: `sentence` was built BEFORE the yoga block refilled `supports`, so on all 12 emptied-day-
+// with-a-yoga days of 2026 the engine handed the model "Start nothing, grow nothing" in the same
+// payload as supports:["finishing what already stands"]. Measured 12/12 before, 0/12 after, with
+// 291 ordinary days unchanged as the denominator. The sentence is now computed last.
+// (3) The birth tier of resolve-day-sky read `p.birthLocation` — a column `profiles` does not have
+// (the only one in the schema belongs to referralRedemptions) — so a paid reading cast on that tier
+// froze a null city, and the page printed "Read for your saved location" forever. The guard written
+// the same day to stop exactly this asserted the substring "birthLocation", which
+// "birthLocationLat" satisfies; deleting the line left it green. It now checks against the schema.
+// ALSO: the ACT_CLASS module-load guard did not follow v878's Siddha grid — the third source added
+// to that code path and the third time this class has bitten. Its three strings were taking the
+// `?? "initiate"` default, so their Bhadra behaviour was an accident; they are now classed to match
+// what they already did (no day's output changes) and the guard reads every source the yoga reads.
+// 112 files, 1161 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.880";

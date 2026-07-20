@@ -703,6 +703,15 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
 
 
   if (moment?.slowOnly) {
+    // THE DAY LAYER LEAVES THE STAGE INPUT HERE (audit 2026-07-20, a real money leak).
+    // `personalApex` is TODAY's tara rung + chandra house — it changes almost every day — and it
+    // was written onto the shared `natal` object above, which this stage return then shipped. So
+    // the deep/deep_full/chapter hashes (service.ts dayStableHash, which strips only
+    // `input.panchang` and stage inputs carry none) turned over daily: every new day the
+    // "reuse the latest matching row" path found no hash match and billed a fresh Sonnet
+    // generation of prose whose SCOPE IS THE YEAR. It also had no business being there — the
+    // stage read is forbidden from talking about the day.
+    const { personalApex: _dayApex, ...natalStage } = natal as any;
     // THE YEAR READ EATS PROPERLY (David 2026-07-16: "is the prose for Your Year being
     // fed?"): the stage now carries the lords' TRUE condition (maha+antar only — the
     // pratyantar is fast and would churn the chapter cache) and THE YEAR'S WINDOWS from
@@ -763,7 +772,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       }
     } catch (vErr) { console.warn("[narrative] varshaphala unavailable (year read continues):", vErr); }
 
-    return { subject: { profileId: p.id }, natal, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(varshaphala ? { varshaphala } : {}) } as any;
+    return { subject: { profileId: p.id }, natal: natalStage, natalRetrogradeCount, profection, dasha: dashaBase, arc, ...(natalCondition ? { natalCondition } : {}), ...(yearWindows ? { yearWindows } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(varshaphala ? { varshaphala } : {}) } as any;
   }
 
   // RECENT READS — the last 3 days of prose, so the model can see what it already said and is

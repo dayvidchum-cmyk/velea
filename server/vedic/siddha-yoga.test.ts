@@ -153,4 +153,42 @@ describe("the Siddha Yoga grid is a transcription, not an invention", () => {
     expect(notTender.siddhaYoga).not.toBeNull();
     expect(notTender.supports.some((x) => /cutting away/i.test(x)), "the severing half never fires at all").toBe(true);
   });
+
+  it("the SENTENCE says what the day supports — the yoga speaks there too", () => {
+    // The fix above closed the contradiction in `supports` and reopened it one field over. The
+    // sentence was built from a `supports` array the yoga block then refilled, so the engine handed
+    // the model "Start nothing, grow nothing" in the same payload as
+    // supports: ["finishing what already stands", ...] — the identical self-contradiction, and
+    // input-builder.ts ships BOTH fields to the prompt. Measured over 2026: 12 days, all 12 wrong.
+    const d = dayFilter({ nakshatra: "Swati", tithiNumber: 4, varaLord: "Saturn", vishti: false });
+    expect(d.siddhaYoga, "fixture must actually form the yoga").not.toBeNull();
+    expect(d.supports.length, "the yoga must be speaking").toBeGreaterThan(0);
+    expect(d.sentence, "the sentence still tells the model the day gives nothing").not.toMatch(/Start nothing, grow nothing/);
+    // and it names what the day DOES carry, rather than the nature's ordinary line
+    expect(d.sentence).toMatch(/finishing what already stands/);
+
+    // CONTROL, the other direction: an emptied day with NO yoga must still say exactly that.
+    const silent = dayFilter({ nakshatra: "Rohini", tithiNumber: 4, varaLord: "Mars", vishti: false });
+    expect(silent.amritaSiddhi || !!silent.siddhaYoga, "control fixture must form NO yoga").toBe(false);
+    expect(silent.supports.length, "control fixture must be emptied").toBe(0);
+    expect(silent.sentence).toMatch(/Start nothing, grow nothing/);
+  });
+
+  it("every supports string the yoga block can emit is classified for the Vishti filter", () => {
+    // Third time for this class. The module-load guard covered the canon natures, the tithi
+    // families, the per-star lists and Amrita Siddhi's supports — and then v878 added a fourth
+    // source (the Siddha grid) to the same code path and the guard did not follow it. Its three
+    // strings were taking the `?? "initiate"` default, so their Bhadra behaviour was an accident.
+    // Importing the module runs the guard; this asserts the guard reads EVERY source, by naming
+    // the strings that must be classified.
+    const src = readFileSync(new URL("./day-filter.ts", import.meta.url), "utf8");
+    for (const s of (siddha as any).supports as string[]) {
+      expect(src, `siddha-yoga.json supports string not in ACT_CLASS: ${s}`).toContain(`"${s}": "`);
+    }
+    // the guard itself must read that source — deleting the loop is the mutation this catches
+    expect(src).toMatch(/for \(const s of \(\(siddha as any\)\.supports \?\? \[\]\)\)/);
+    // ANCHOR: a string that is NOT a supports string must not be asserted present, or the
+    // assertion above would pass against any file at all.
+    expect(src).not.toContain('"a string no canon file contains": "');
+  });
 });

@@ -244,6 +244,15 @@ const ACT_CLASS: Record<string, ActClass> = {
   // than a decision. Classed with the other acts that make a connection between people —
   // "marriage and partnerships", "romance", "friendship" are all union here.
   "networking": "union",
+  // The Siddha grid's three (v878, Raman Ch. VI). Classed to MATCH what they already did — all
+  // three were falling through the `?? "initiate"` default — so this changes no day's output; it
+  // turns an accident into a decision. Raman's own sentence is electional ("applied with advantage
+  // to important elections… chances of success of the ENTERPRISE"), and "begun with intent" says
+  // beginning outright. The catch-all third goes with them: under Bhadra, over-blocking is the
+  // safe direction, which is the rule the filter below already states.
+  "important elections": "initiate",
+  "good work begun with intent": "initiate",
+  "anything you want the day to carry rather than merely allow": "initiate",
   "restarting projects": "initiate", "recovery and renewal": "complete", "studying": "continue",
   "teaching": "continue", "public speaking": "continue", "seeking advice": "continue",
   "organizing systems": "continue", "administrative work": "continue",
@@ -316,6 +325,17 @@ function natureRefusesCutting(natDef: any): boolean {
   for (const s of ((tables as any).amritaSiddhiYoga?.supports ?? [])) {
     if (!(s in ACT_CLASS)) unclassified.push(s);
   }
+  // AND THE SIDDHA GRID (v878). The guard was extended for the per-star lists and for Amrita
+  // Siddhi's supports and STILL missed the next source added to the same code path — its three
+  // strings were taking the `?? "initiate"` default at the Vishti filter, exactly as "networking"
+  // did. Third time for this class: the guard now reads every source the yoga block reads.
+  for (const s of ((siddha as any).supports ?? [])) {
+    if (!(s in ACT_CLASS)) unclassified.push(s);
+  }
+  // And the grammar the yoga speaks in on an emptied day — the same filter runs over it.
+  for (const s of [...YOGA_ON_EMPTY_COMPLETE, ...YOGA_ON_EMPTY_SEVER]) {
+    if (!(s in ACT_CLASS)) unclassified.push(s);
+  }
   if (unclassified.length) {
     throw new Error(`day-filter: unclassified canon supports string(s) — add to ACT_CLASS: ${Array.from(new Set(unclassified)).join(" | ")}`);
   }
@@ -348,10 +368,11 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // to him, as though HE had ruled it. He did not. His commit message for v454 is the whole
   // record: "rikta sentence on gentle natures no longer self-contradicts (David's July 12)".
   // The emptying stands because it does serve the real ruling, not because he asked for it.
-  // EMPTIED means emptied — no yoga may refill it (audit 2026-07-20). This follows from David's
-  // ACTUAL July 12 ruling (no self-contradiction), not from the emptying itself: a day whose
-  // verdict reads "nothing new unless it severs" cannot also offer "beginning long-term
-  // enterprises". That is the identical contradiction he objected to, one layer up.
+  // WHAT A YOGA MAY DO HERE, superseded 2026-07-20 by David's own ruling (option 2): the yoga
+  // SPEAKS on an emptied day, but only in the day's own grammar — finishing, never beginning (see
+  // the yoga block below). What it still may not do is offer a BEGINNING: a day whose verdict reads
+  // "nothing new unless it severs" cannot also offer "beginning long-term enterprises". That is the
+  // identical contradiction he objected to on July 12, one layer up.
   // Both special yogas add their own supports later, and BOTH used to repopulate such a day:
   // Saturday + Rohini on a rikta tithi came back carrying "beginning long-term enterprises" on a
   // day whose own verdict is "nothing new unless it severs". That contradiction shipped in Amrita
@@ -455,18 +476,6 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   const personalTurn = !contained && input.tara && input.tara.quality === "bad"
     ? " The wider world can run with this day — you don't. Tend what's yours, small and careful."
     : "";
-  // Every sentence stands ALONE now — the hero prints the finished matrix headline
-  // right above it, so no branch repeats or prefixes it (David's 7/16 matrix ship).
-  const sentence = contained
-    ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
-    : supports.length === 0
-    ? (input.tara?.quality === "good"
-        ? "Your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it."
-        : `Start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
-    : supportsPlain
-    ? `${cap(supportsPlain)}${avoidPlain ? ` ${avoidPlain}` : ""}${personalTurn}`
-    : `It supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
-
   // THE HANDSHAKE (David 2026-07-15: "just do it. We can always roll it back"): the day's
   // supports ARE the seven kinds. The day names which KINDS of act it carries: its own
   // nature's kind; an empty tithi keeps only the cutting kinds (on the cutting natures);
@@ -505,6 +514,31 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
       supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
     }
   }
+  /** The yoga refilled an emptied day — its supports are the finishing grammar, not nothing. */
+  const yogaOnEmpty = emptied && supports.length > 0;
+
+  // THE SENTENCE IS COMPUTED LAST, AFTER the yoga has had its say (audit 2026-07-20).
+  // It used to be built above the yoga block off a `supports` array the yoga then refilled, so on
+  // every emptied-day-with-a-yoga the engine handed the model "Start nothing, grow nothing" in the
+  // same payload as `supports: ["finishing what already stands", ...]` — the self-contradiction
+  // David ruled against on July 12, reopened one field over by the fix that closed it in `supports`.
+  // Measured: 12 days in 2026, all 12 contradicting. The yoga-on-empty branch deliberately does NOT
+  // use the nature's own `supportsPlain` line (which speaks for an ordinary day of that nature) —
+  // it reads the finishing grammar the day actually carries, through the engine's own template.
+  //
+  // Every sentence stands ALONE now — the hero prints the finished matrix headline
+  // right above it, so no branch repeats or prefixes it (David's 7/16 matrix ship).
+  const sentence = contained
+    ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
+    : supports.length === 0
+    ? (input.tara?.quality === "good"
+        ? "Your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it."
+        : `Start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
+    : yogaOnEmpty
+    ? `It supports ${listOf(supports.slice(0, 3))}.${personalTurn}`
+    : supportsPlain
+    ? `${cap(supportsPlain)}${avoidPlain ? ` ${avoidPlain}` : ""}${personalTurn}`
+    : `It supports ${listOf(supports.slice(0, 3))}.${avoidPlain ? ` ${avoidPlain}` : avoid.length ? ` Keep away from ${listOf(avoid.slice(0, 2))}.` : ""}${personalTurn}`;
 
   return {
     nature, family, headline, supportedKinds,
