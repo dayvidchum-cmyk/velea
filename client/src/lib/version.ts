@@ -1568,4 +1568,20 @@
 // two of three surfaces · v808's bell reading whichever chart was active · v811's cookie · v815's
 // ground. Every one found by asking where it LANDS, not whether it works.
 // 74 files, 745 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.822";
+// v1.1.823 = 2026-07-20 — THE HEAL STAMPED THE WRONG VERSION ON A PAID ARTIFACT, AND THE PROMPT
+// LAWS NOW HAVE RUNTIME PROOF THAT THEY ARRIVE.
+// (1) v803's rescue path healed a snapshot by stamping the CURRENT PROMPT_VERSION onto prose
+// generated under an older one — so the moment a rescue outlived a deploy, a paid reading's
+// frozen-at-purchase provenance was a lie. v803 had already parked the generating version in the
+// rescue row's inputHash column; the right value was sitting there unread. It now freezes under the
+// version that actually made it, with the model that made it, and DELETES the rescue copy once the
+// snapshot lands — leaving it kept a second, unversioned copy of a paid reading alive indefinitely.
+// (2) EVERY REACH FAILURE THIS RUN HAD ONE SHAPE: correct in its own file, landing nowhere. A
+// structural test over prompts.ts cannot see that — GLANCE_TAIL was in the file too, and nothing
+// sent it. The prompt tests now IMPORT the built prompt and assert what the model actually
+// receives: the anti-repetition law with its teeth and its escape hatch, the crown doctrine that
+// v805 orphaned and v819 restored, and the polar rule that v801 computed and v820 finally
+// delivered. Plus one negative — the prosperity rule lives in DAY_READ_TAIL and is asserted THERE,
+// because assuming it had moved to the base prompt is precisely how the crown vanished.
+// 74 files, 749 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.823";

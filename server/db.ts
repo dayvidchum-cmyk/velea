@@ -676,6 +676,23 @@ export async function countGenerationsToday(profileId: number): Promise<number> 
 /** @returns true if the row actually landed in the table; false if it is only being HELD
  *  in-process (see heldRows). Callers may ignore it — the reading is served either way — but a
  *  `false` means this reading will not survive a restart and is not in the archive. */
+/** Delete ONE narrative_cache row. Used by the pick-a-date heal (v823): once a rescued reading has
+ *  been frozen into `horoscopes` under its true generating version, the rescue copy has done its
+ *  job, and leaving it keeps a second unversioned copy of a paid reading alive indefinitely.
+ *  Also drops any in-process held row for the same key, or the next read would resurrect it. */
+export async function clearNarrativeCacheRow(profileId: number, surface: string, cacheDate: string): Promise<void> {
+  heldRows.delete(heldKey(profileId, surface, cacheDate));
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.delete(narrativeCache).where(and(
+      eq(narrativeCache.profileId, profileId),
+      eq(narrativeCache.surface, surface),
+      eq(narrativeCache.cacheDate, cacheDate),
+    ));
+  } catch { /* a rescue row we could not delete is harmless — never fail a served reading for it */ }
+}
+
 export async function upsertNarrativeCache(profileId: number, surface: string, cacheDate: string, inputHash: string, model: string, content: string): Promise<boolean> {
   const hold = () => {
     if (heldRows.size >= HELD_MAX) {

@@ -56,3 +56,36 @@ describe("the prompt's structure", () => {
     expect((gloss.match(/"/g) ?? []).length % 2).toBe(0);
   });
 });
+
+describe("the laws ARRIVE, not just appear in the file (v823)", () => {
+  // Every finding of this run's reach audit had the same shape: the change was correct in its own
+  // file and landed nowhere. A structural assertion over prompts.ts cannot tell the difference —
+  // GLANCE_TAIL was in the file too, and nothing sent it. These import the built prompt and ask
+  // what the MODEL actually receives.
+  it("BASE_PROMPT carries the anti-repetition law, its teeth and its escape hatch", async () => {
+    const { BASE_PROMPT } = await import("./prompts.js");
+    expect(BASE_PROMPT).toContain("This person's days are chapters of ONE story");
+    expect(BASE_PROMPT).toContain("Omission is never compliance.");
+    expect(BASE_PROMPT).toContain("When recentReads is empty, none of this constrains you");
+  });
+
+  it("BASE_PROMPT carries the crown doctrine — orphaned by v805, restored in v819", async () => {
+    const { BASE_PROMPT } = await import("./prompts.js");
+    expect(BASE_PROMPT).toContain("PERSONAL APEX — THE CROWN DAY");
+    expect(BASE_PROMPT).toContain("a crown, not confetti");
+    expect(BASE_PROMPT).not.toContain("in the glance task");
+  });
+
+  it("BASE_PROMPT carries the polar rule — computed in v801, delivered in v820", async () => {
+    const { BASE_PROMPT } = await import("./prompts.js");
+    expect(BASE_PROMPT).toContain("WHEN THE SUN DID NOT RISE");
+    expect(BASE_PROMPT).toContain("panchang.noSunrise");
+  });
+
+  it("the day read still carries its own prosperity rule", async () => {
+    // It does NOT live in BASE_PROMPT, and it must not be assumed to — that assumption is exactly
+    // what made the crown doctrine vanish for four commits.
+    const { DAY_READ_TAIL } = await import("./prompts.js");
+    expect(DAY_READ_TAIL).toContain("PROSPERITY DAY");
+  });
+});

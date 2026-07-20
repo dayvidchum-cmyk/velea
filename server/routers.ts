@@ -2473,9 +2473,21 @@ export const appRouter = router({
         let read: any = null; try { read = JSON.parse(rescued.content); } catch { /* corrupt — fall through and regenerate */ }
         if (read) {
           const { PROMPT_VERSION: PV, MODEL: MD } = await import("./narrative/prompts.js");
-          // Heal: try the snapshot again now. If it lands, the archive gets it and this branch is
-          // never needed again. If it does not, the user still reads what they paid for, free.
-          await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: PV, model: MD, content: rescued.content });
+          // FREEZE IT UNDER THE VERSION IT WAS WRITTEN UNDER (v823). The heal used to stamp the
+          // CURRENT PROMPT_VERSION on prose generated under an older one, so a snapshot's
+          // frozen-at-purchase provenance came out wrong the moment a rescue outlived a deploy.
+          // v803 already parked the generating version in the rescue row's inputHash column — the
+          // right value was sitting there unread. A paid artifact must record what actually made it.
+          const originPV = rescued.inputHash || PV;
+          const healed = await insertHoroscope({ userId: ctx.user.id, profileId: profile.id, readingDate: input.date, lifeArea: input.lifeArea, promptVersion: originPV, model: rescued.model || MD, content: rescued.content });
+          // Once the snapshot lands, the rescue copy has done its job. Leaving it would keep a
+          // second, unversioned copy of a paid reading alive indefinitely.
+          if (healed) {
+            try {
+              const { clearNarrativeCacheRow } = await import("./db.js");
+              await clearNarrativeCacheRow(profile.id, "life_area", rescueKey);
+            } catch { /* the snapshot is safe either way — a stale rescue row is harmless */ }
+          }
           return { available: true as const, date: input.date, lifeArea: input.lifeArea, read, notes: "", cached: true };
         }
       }
