@@ -1,5 +1,6 @@
 import GateMark from "@/components/GateMark";
 import NotifyMeButton from "@/components/NotifyMeButton";
+import LockedRead from "@/components/LockedRead";
 import { accentInk } from "@shared/accent-ink";
 import { cardGround } from "@/lib/card-ground";
 import ProseCard from "@/components/ProseCard";
@@ -401,29 +402,13 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                   </p>
                 </div>
               ) : (houseReadQ.data as any)?.locked ? (
-                // THE ROOM GATE, SHOWN AS A GATE (2026-07-20). Three rooms read free — the 1st,
-                // the Sun's and the Moon's — and the server locks the other nine. The client knew
-                // nothing about that, so a locked room fell through to the failure branch below and
-                // read as "The room is quiet right now" with an "Ask again" button that could never
-                // succeed. Nine of twelve rooms presented the app as broken instead of presenting
-                // the premium layer, and invited a retry that was guaranteed to fail.
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "0.45rem" }}>
-                    {/* The mark keeps the raw accent — its SHAPE carries the meaning, so it only
-                        needs 3:1. The label is small bold text and needs the full 4.5:1, which the
-                        raw day-mode colour never clears on one ground or the other (see
-                        shared/accent-ink.ts for the measured table). */}
-                    <GateMark size={18} style={{ color: accentInk(accent, cardGroundHex, 3) }} />
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: accentInk(accent, cardGroundHex) }}>
-                      A locked room
-                    </span>
-                  </div>
-                  <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-foreground)", margin: "0 0 0.5rem" }}>
-                    Three rooms of your chart are open to read: the room you rise in, the room your Sun sits in,
-                    and the room your Moon sits in. This one waits behind the full reading of the house.
-                  </p>
-                  <NotifyMeButton feature="house-reader" />
-                </div>
+                // THE ROOM GATE, SHOWN AS A GATE (2026-07-20) — see LockedRead for the class.
+                <LockedRead
+                  accent={accent}
+                  title="A locked room"
+                  body="Three rooms of your chart are open to read: the room you rise in, the room your Sun sits in, and the room your Moon sits in. This one waits behind the full reading of the house."
+                  feature="house-reader"
+                />
               ) : (
                 <div>
                   <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0 0 0.6rem" }}>
@@ -1026,6 +1011,8 @@ export function DashaSection() {
                         dashaAntarQ.isLoading ? <div className="mt-2"><VeleaLoader size={20} label="Opening the sub-chapter…" /></div>
                         : dashaAntarQ.data?.available && dashaAntarQ.data.read ? (
                           <div className="mt-2"><ProseCard color={antColor} question={dashaAntarQ.data.read.question}>{dashaAntarQ.data.read.read}</ProseCard></div>
+                        ) : (dashaAntarQ.data as any)?.locked ? (
+                          <div className="mt-2"><LockedRead accent={antColor} title="A locked sub-chapter" body="The sub-chapters you have already lived read free. This one waits behind the full library." feature="chapter-reader" /></div>
                         ) : <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>The sub-chapter is quiet — try again in a moment.</p>
                       )}
                     </div>
@@ -1116,6 +1103,17 @@ export function DashaSection() {
                       <VeleaLoader size={24} label="Opening the chapter…" />
                     ) : dashaReadQ.data?.available && dashaReadQ.data.read ? (
                       <ProseCard color={color} question={dashaReadQ.data.read.question}>{dashaReadQ.data.read.read}</ProseCard>
+                    ) : (dashaReadQ.data as any)?.locked ? (
+                      // The server locks this four ways (no chapterReader entitlement, a lord that
+                      // is not yours, a chapter not yet begun, a sub-chapter ahead of the running
+                      // one). All four used to land in the failure line below, telling the reader
+                      // to "try again in a moment" for something no amount of trying will open.
+                      <LockedRead
+                        accent={color}
+                        title="A locked chapter"
+                        body="The chapters you have already lived read free. This one waits behind the full library."
+                        feature="chapter-reader"
+                      />
                     ) : (
                       <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>
                         The chapter is quiet right now — try again in a moment.
@@ -1173,6 +1171,8 @@ export function DashaSection() {
                             <div className="mt-2"><VeleaLoader size={20} label="Opening the sub-chapter…" /></div>
                           ) : dashaAntarQ.data?.available && dashaAntarQ.data.read ? (
                             <div className="mt-2"><ProseCard color={antColor} question={dashaAntarQ.data.read.question}>{dashaAntarQ.data.read.read}</ProseCard></div>
+                          ) : (dashaAntarQ.data as any)?.locked ? (
+                            <div className="mt-2"><LockedRead accent={antColor} title="A locked sub-chapter" body="The sub-chapters you have already lived read free. This one waits behind the full library." feature="chapter-reader" /></div>
                           ) : (
                             <p style={{ fontSize: "0.8rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: "0.4rem 0 0" }}>The sub-chapter is quiet — try again in a moment.</p>
                           )

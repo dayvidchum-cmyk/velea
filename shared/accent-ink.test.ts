@@ -34,7 +34,7 @@ describe("contrast maths", () => {
     expect(contrastRatio(MODES.build, PARCHMENT)).toBeLessThan(4.5);      // 2.75x — gold on light
     expect(contrastRatio(MODES.energize, PARCHMENT)).toBeLessThan(4.5);   // 2.74x
     expect(contrastRatio(MODES.restore, PARCHMENT)).toBeLessThan(4.5);    // 3.84x — fails BOTH
-    expect(contrastRatio(MODES.restore, ESPRESSO)).toBeLessThan(4.5);     // 4.15x
+    expect(contrastRatio(MODES.restore, ESPRESSO)).toBeLessThan(4.5);     // 4.1x
     expect(contrastRatio(MODES.restraint, ESPRESSO)).toBeLessThan(4.5);   // 2.34x — wine on dark
     expect(contrastRatio(MODES.peak, ESPRESSO)).toBeLessThan(4.5);        // 2.92x
     expect(contrastRatio(MODES.selective, ESPRESSO)).toBeLessThan(4.5);   // 3.12x

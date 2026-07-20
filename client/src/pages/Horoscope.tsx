@@ -1,4 +1,5 @@
 import GateMark from "@/components/GateMark";
+import LockedRead from "@/components/LockedRead";
 import ProseCard from "@/components/ProseCard";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { useLocation } from "wouter";
@@ -364,6 +365,16 @@ export default function Horoscope() {
                               <VeleaLoader size={22} label="Voicing the yoga…" />
                             ) : yogaReadQ.data?.available && yogaReadQ.data.read ? (
                               <ProseCard color="#B08D2E">{yogaReadQ.data.read.read}</ProseCard>
+                            ) : (yogaReadQ.data as any)?.locked ? (
+                              // Three server locks land here: no entitlement, a yoga that is not
+                              // your kept free pick, and the refresh path. All three used to read
+                              // as a failure with a retry that could never open it.
+                              <LockedRead
+                                accent="#B08D2E"
+                                title="A locked yoga"
+                                body="One yoga reads free and the choice keeps. The rest open with the full library."
+                                feature="yoga-reader"
+                              />
                             ) : (
                               <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)", margin: 0 }}>The yoga is quiet — try again in a moment.</p>
                             )}

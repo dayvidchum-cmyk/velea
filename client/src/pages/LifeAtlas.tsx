@@ -1,4 +1,5 @@
 import GateMark from "@/components/GateMark";
+import LockedRead from "@/components/LockedRead";
 import ProseCard from "@/components/ProseCard";
 import { useState, useEffect } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
@@ -117,6 +118,13 @@ export default function LifeAtlas() {
                             >
                               Read this life area
                             </button>
+                          ) : (readQ.data as any)?.locked ? (
+                            <LockedRead
+                              accent="#B08D2E"
+                              title="A locked life area"
+                              body="The Life Atlas reads your themes in full — the windows, the dates and the prose. This one waits behind it."
+                              feature="life-atlas"
+                            />
                           ) : (
                             <p className="text-sm italic" style={{ color: "var(--color-muted-foreground)" }}>The atlas is quiet — try again in a moment.</p>
                           )

@@ -26,8 +26,12 @@
  * becomes a gold you can read. That keeps this an evolution of the palette, never a recolour.
  */
 
-export const PARCHMENT = "#FBF7ED";
-export const ESPRESSO = "#211B14";
+// The REAL card grounds, taken from index.css rather than approximated: html.light --card is
+// #F9F4EA and the dark block's --card is #201A14. The first version of this file used
+// #FBF7ED/#211B14 by eye, and tuning the ink against a ground a shade lighter than the real one
+// landed the result at 4.43-4.49:1 — just under the bar it was aiming for. Measured, not guessed.
+export const PARCHMENT = "#F9F4EA";
+export const ESPRESSO = "#201A14";
 
 function srgbToLinear(c: number): number {
   const x = c / 255;

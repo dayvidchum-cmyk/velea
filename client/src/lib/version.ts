@@ -838,4 +838,21 @@
 // served regardless of its hash, by design, so after a birth-data correction it keeps showing prose
 // computed from a chart that is no longer theirs. Replacing words someone chose to keep is not a
 // call to make alone.
-export const APP_VERSION = "1.1.786";
+// v1.1.787 = 2026-07-20 — EVERY PREMIUM GATE NOW LOOKS LIKE A GATE, NOT A BROKEN APP.
+// v784 fixed the House Reader; this is the sweep for the CLASS. Server reading procedures return
+// { available: false, locked: true } in seventeen places, and the clients only ever tested
+// `available` — so a lock fell through to the FAILURE branch everywhere: "the chapter is quiet
+// right now — try again in a moment", with a retry that can never open it. Only ONE client site
+// (ProfectionYear's window read) had ever honoured the flag.
+// Swept, via a single <LockedRead> so the next call site cannot forget the distinction:
+//   · the Chapter Reader (4 server locks: no entitlement, not your lord, chapter not begun, a
+//     sub-chapter ahead of the running one)
+//   · both sub-chapter shelves      · the Life Atlas theme read      · the yoga read (3 locks)
+// A genuine failure keeps its retry — which now means something, because it is no longer the
+// locked path as well.
+// AND A BUG IN MY OWN v784 HELPER, caught by measuring the finished component instead of trusting
+// it: accent-ink's ground constants were eyeballed (#FBF7ED/#211B14) when index.css actually says
+// --card is #F9F4EA light and #201A14 dark. Tuning the ink against a ground a shade lighter than
+// the real one landed every light-mode label at 4.43-4.49:1 — under the 4.5 bar it was aiming for.
+// Corrected to the real values: all ten labels (5 sites x 2 themes) now measure 4.52-6.7:1.
+export const APP_VERSION = "1.1.787";
