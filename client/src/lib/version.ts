@@ -1370,4 +1370,28 @@
 // as awaiting his eye rather than marked done, because v777 is the standing proof that a correct
 // instrument does not help if nobody reads it.
 // 69 files, 691 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.813";
+// v1.1.814 = 2026-07-20 — THE SEVEN TYPE ERRORS ARE ZERO, AND THE BUILD NOW REFUSES A NEW ONE.
+// I have reported "still exactly the 7 pre-existing tsc errors" in every commit of this run as if
+// it were a fact of life. It was not. Taken apart:
+// · FIVE were a CONFIG ARTIFACT. tsconfig.json set no `target`, so tsc defaulted to ES5 and rejected
+//   every Map/Set iteration — in a codebase built by vite (modern browsers) and esbuild
+//   --platform=node, neither of which uses tsc to emit (noEmit is true). Setting target ES2022
+//   changes NOTHING about the shipped output; it makes the checker check the language that actually
+//   runs. Those five were standing between a reader and the one real error, which is exactly how
+//   "7 errors, ignore them" becomes a habit.
+// · The SIXTH (an implicit any on a push callback) was a consequence of the fifth: with Map
+//   iteration typed, the parameter types itself.
+// · The SEVENTH I had described in a report as "a genuine nullability hole". THAT WAS WRONG and I
+//   am correcting it: `all` genuinely guarded the branch, so it was never a runtime bug — TypeScript
+//   simply could not narrow through the variable. Narrowed into a const so the type follows the
+//   invariant.
+// AND THE COUNT WAS STALE ANYWAY. `incremental: true` with a tsBuildInfoFile was serving cached
+// diagnostics: the errors persisted after the fix until the cache was cleared. A number I had
+// repeated twenty times came partly from a cache.
+// THE BUILD NOW TYPECHECKS. `npm run build` runs `tsc --noEmit` first, so a type error blocks the
+// build — and Railway's nixpacks builder runs npm run build, which means IT BLOCKS A DEPLOY. That is
+// deliberate and it is a real change to the pipeline: with zero errors today, any new one is a true
+// signal. Proven rather than assumed — I injected a type error and watched the build exit 2, then
+// removed it and watched it exit 0. Total build time went from ~3.0s to ~3.3s.
+// 69 files, 691 tests, 0 failures. Build exits 0. tsc: ZERO errors, and it stays that way now.
+export const APP_VERSION = "1.1.814";

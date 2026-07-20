@@ -2257,11 +2257,17 @@ export const appRouter = router({
         const db = await getDb();
         if (!db) return { ok: false };
         const { pushSubscriptions } = await import("../drizzle/schema.js");
-        const all = !input.endpoint || input.endpoint === "-";
+        // Narrowed into a const so the type follows the invariant (v814). The old form computed
+        // `all` first and TypeScript could not see that the else-branch implies a non-empty string,
+        // so it reported an error here for days. NOT a runtime bug — I described it as a
+        // "nullability hole" in an earlier report and that was wrong; `all` genuinely guarded it.
+        // What it was is an error the build never surfaces, sitting in the file, teaching everyone
+        // who runs tsc to ignore the output.
+        const one = input.endpoint && input.endpoint !== "-" ? input.endpoint : null;
         await db.delete(pushSubscriptions).where(
-          all
+          one === null
             ? eq(pushSubscriptions.userId, ctx.user.id)
-            : and(eq(pushSubscriptions.userId, ctx.user.id), eq(pushSubscriptions.endpoint, input.endpoint)),
+            : and(eq(pushSubscriptions.userId, ctx.user.id), eq(pushSubscriptions.endpoint, one)),
         );
         return { ok: true };
       }),

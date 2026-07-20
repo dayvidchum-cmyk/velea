@@ -5,6 +5,13 @@
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
     "noEmit": true,
+    // NO TARGET WAS SET (v814), so tsc defaulted to ES5 and reported five TS2802 "cannot iterate a
+    // Map/Set without downlevelIteration" errors — in a codebase whose build is vite (modern
+    // browsers) plus esbuild --platform=node. Neither uses tsc to emit (noEmit is true above), so
+    // this changes NOTHING about the shipped output. It makes the checker check the language the app
+    // actually runs. Those five were config artifacts standing between a reader and the one real
+    // error in the list, which is how "7 errors, ignore them" becomes a habit.
+    "target": "ES2022",
     "module": "ESNext",
     "strict": true,
     "lib": ["esnext", "dom", "dom.iterable"],
