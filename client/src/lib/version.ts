@@ -1584,4 +1584,19 @@
 // delivered. Plus one negative — the prosperity rule lives in DAY_READ_TAIL and is asserted THERE,
 // because assuming it had moved to the base prompt is precisely how the crown vanished.
 // 74 files, 749 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.823";
+// v1.1.824 = 2026-07-20 — I TOLD HIM THE SHEET CARRIED A CORRECTION IT DID NOT CARRY.
+// The header edit reported an hour earlier never landed: the script hit an AssertionError on a
+// LATER anchor and died BEFORE writing the file, and I read the retry's success line as
+// confirmation that all of it had gone in. The sheet still said v813 and twenty versions, with no
+// correction paragraph at all — while I was writing up the reach audit, whose entire subject is
+// confirming that a change ARRIVED rather than that it ran.
+// Fixed and read back. Then audited every claim I have made about both documents: 21 checks, all
+// present. One "MISSING" was my own check string, not the sheet ("SIX TABLES" vs "SIX tables") — a
+// verification that fails for the wrong reason misleads exactly as much as one that passes for the
+// wrong reason, so that is recorded too.
+// THE DURABLE PART: docs-claims.test.ts. The sheet and the brief are how David sees this work, they
+// are edited by scripts, and a script can die silently. The suite now asserts that every CORRECTION
+// and every OPEN DECISION is still in them — not the prose, which should stay free to change.
+// Verified the guard bites by stripping a correction from a copy and watching it fail.
+// 75 files, 765 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.824";
