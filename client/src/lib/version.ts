@@ -1638,4 +1638,18 @@
 // WHAT THIS RUN KEEPS TEACHING: every round of corrections has contained an error, and every one
 // was found by a probe rather than by reading. The reading felt certain each time.
 // 76 files, 816 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.826";
+// v1.1.827 = 2026-07-20 — THE DOCS GUARD CAUGHT ME, AND THE GUARD WAS ALSO WRONG.
+// Brought the sheet and the brief to v826 and read them back (v824's lesson). Then
+// docs-claims.test.ts — the guard I wrote two versions ago — failed on three corrections.
+// It was RIGHT that the exact strings were gone and WRONG about what that meant: all three
+// corrections were fully present, reworded. I had pinned PROSE, so the guard fired on an edit that
+// changed nothing about the truth being told. A guard that taxes editing gets edited away, and then
+// it protects nothing.
+// It now pins the FACT rather than the sentence: "panchang.mode = undefined" for the v794
+// correction, an orphan/crown pattern for v805, the presence of NO SINGLE MOVE, of PROMPT_VERSION,
+// and a header that COUNTS my own failures without pinning the number (which keeps rising).
+// Verified it still bites by deleting the v794 fact outright — not rewording it — and watching it
+// fail. A looser guard that still catches a real removal is worth more than a strict one that
+// cries at a synonym.
+// 76 files, 819 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.827";

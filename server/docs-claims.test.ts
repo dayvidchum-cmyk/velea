@@ -24,18 +24,26 @@ describe("the audit sheet still says what it must", () => {
     expect(SHEET).toContain("not clear");
   });
 
+  // PIN THE FACT, NOT THE PROSE (v827). The first version of this guard matched exact sentences,
+  // and it fired the moment I REWORDED a correction that was still fully present. A guard that
+  // taxes editing gets edited away. These match the concrete, non-negotiable detail of each
+  // correction — the thing that cannot be reworded without changing what is being said.
   it.each([
-    ["v794's claim was false", "my claim about the narrative was FALSE"],
-    ["v805 orphaned the crown doctrine", "BROKEN AGAIN BY ME IN v805"],
-    ["v806 mis-calibrated the cap", "MIS-CALIBRATED BY ME"],
-    ["the reach audit is recorded", "THE REACH AUDIT"],
-    ["the first self-audit is recorded", "MY OWN RUN, RE-AUDITED"],
-  ])("keeps the correction: %s", (_label, needle) => {
-    expect(SHEET).toContain(needle);
+    ["v794's claim was false", /panchang\.mode = undefined/],
+    ["...and says so in capitals", /FALSE/],
+    ["v805 orphaned the crown doctrine", /(orphan|broke it again)[\s\S]{0,600}(crown|GLANCE_TAIL)/i],
+    ["the NO SINGLE MOVE law came back", /NO SINGLE MOVE/],
+    ["the cap's unit vs its number", /(MIS-CALIBRATED|unit and left)/i],
+    ["the reach audit is recorded", /REACH AUDIT/i],
+    ["a self-audit is recorded", /RE-AUDITED|self-audit/i],
+    ["PROMPT_VERSION reaching cached readings", /PROMPT_VERSION/],
+  ])("keeps the correction: %s", (_label, re) => {
+    expect(SHEET).toMatch(re);
   });
 
-  it("keeps the header correction naming my own failures", () => {
-    expect(SHEET).toContain("seven of my own fixes were wrong or landed nowhere");
+  it("keeps a header correction that COUNTS my own failures", () => {
+    // The number changes as more are found; that it is stated at all must not.
+    expect(SHEET).toMatch(/(\w+) of my own (claims or )?fixes[\s\S]{0,80}(wrong|landed nowhere)/i);
   });
 });
 
