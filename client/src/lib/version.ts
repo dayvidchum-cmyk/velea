@@ -1431,4 +1431,22 @@
 // Checked what the last canon-wiring lesson taught: the block is INLINED in dist/index.js by the
 // static import, so production cannot lose it the way a runtime file read would.
 // 71 files, 700 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.816";
+// v1.1.817 = 2026-07-20 — MELANA CAN NO LONGER DRIFT FROM ITS CANON QUIETLY.
+// canon/melana.json is named in melana.ts twice, both times in a COMMENT; every table in that
+// module is hand-transcribed. The audit's own verdict was the honest one: "the tables currently
+// agree with the JSON cell for cell — the defect is that nothing enforces it." That is chain 3, and
+// the karakas drift (Jupiter missing from career for eight days) is what it looks like when the
+// agreement quietly ends. This is the enforcement, driven through the PUBLIC functions so it tests
+// the behaviour a caller gets rather than a private constant: the tara unfavourable remainders,
+// every cell of the gana directional grid, all seven yoni enemy pairs, the bhakoot axes and units
+// and its parihara, and the MC p.181 maitri grid.
+// HONEST SCOPE, stated in the file: melana.json is mostly prose, page citations and recorded source
+// DISPUTES, not a machine-readable mirror. Only the genuinely structured grids are asserted. A test
+// that pretended to cover the prose would be worth less than one that says where it stops.
+// FOURTH FIXTURE OF THIS RUN TO BE WRONG BEFORE THE CODE WAS: I asserted that every dosha axis
+// scores 0 and picked Aries × Leo as the 5/9 case — whose lords Sun and Mars are mutual friends, so
+// the canon's own parihara CANCELS it and it correctly scores 7. The engine was right. The
+// replacement uses uncancelled representatives AND adds an assertion that a cancelled dosha returns
+// full units and NAMES the parihara, which is better coverage than what I first wrote.
+// 72 files, 710 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.817";
