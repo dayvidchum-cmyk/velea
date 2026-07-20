@@ -73,6 +73,10 @@ export interface NeechaBhanga {
   reasons: string[];
   /** How many classical conditions are met (more = stronger cancellation; ≥1 cancels, ≥2 is solid). */
   count: number;
+  /** The planets that FORM the cancellation — the dispositor, the exalter, the exaltation-lord. The
+   *  canon's dashaGate rule turns on exactly this list: "a yoga is LATENT until its planets' period
+   *  activates it", so a consumer cannot apply that gate without knowing whose period counts. */
+  by: Graha[];
 }
 
 /** Coarse sign-dignity for a planet at a longitude. */
@@ -101,30 +105,40 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   const moonIdx = signIndex(lonBy.Moon);
   const inKendra = (lon: number) => KENDRA.has(houseFrom(lagIdx, lon)) || KENDRA.has(houseFrom(moonIdx, lon));
   const reasons: string[] = [];
+  const by: Graha[] = [];
 
   // 1. Dispositor of the debilitation sign in a kendra from Asc or Moon.
   const dispositor = SIGN_RULER[debilSign];
-  if (dispositor !== planet && inKendra(lonBy[dispositor]))
+  if (dispositor !== planet && inKendra(lonBy[dispositor])) {
     reasons.push(`dispositor ${dispositor} (lord of ${debilSign}) in a kendra`);
+    by.push(dispositor);
+  }
 
   // 2. The planet that EXALTS in the debilitation sign, in a kendra from Asc or Moon.
   const exalter = EXALTS_IN[debilSign];
-  if (exalter && exalter !== planet && inKendra(lonBy[exalter]))
+  if (exalter && exalter !== planet && inKendra(lonBy[exalter])) {
     reasons.push(`${exalter} (exalts in ${debilSign}) in a kendra`);
+    by.push(exalter);
+  }
 
   // 3. Lord of the planet's EXALTATION sign, in a kendra from Asc or Moon.
   const exaltLord = SIGN_RULER[EXALT[planet].sign];
-  if (exaltLord !== planet && inKendra(lonBy[exaltLord]))
+  if (exaltLord !== planet && inKendra(lonBy[exaltLord])) {
     reasons.push(`${exaltLord} (lord of ${planet}'s exaltation ${EXALT[planet].sign}) in a kendra`);
+    by.push(exaltLord);
+  }
 
   // 4. The debilitated planet aspected by its dispositor.
   if (dispositor !== planet) {
     const houseAway = houseFrom(signIndex(lonBy[dispositor]), pLon);
-    if (aspectsHouse(dispositor, houseAway)) reasons.push(`aspected by dispositor ${dispositor}`);
+    if (aspectsHouse(dispositor, houseAway)) {
+      reasons.push(`aspected by dispositor ${dispositor}`);
+      by.push(dispositor);
+    }
   }
 
   const uniq = Array.from(new Set(reasons));
-  return { cancelled: uniq.length > 0, reasons: uniq, count: uniq.length };
+  return { cancelled: uniq.length > 0, reasons: uniq, count: uniq.length, by: Array.from(new Set(by)) };
 }
 
 /** Full dignity (with neecha-bhanga when debilitated) for one planet. */
@@ -146,30 +160,53 @@ export function natalDignities(lonBy: Record<Graha, number>, lagnaLon: number): 
   return Object.fromEntries(GRAHAS.map((g) => [g, dignityOf(g, lonBy, lagnaLon)])) as Record<Graha, PlanetDignity>;
 }
 
-/** THE LABEL THAT CANNOT LIE (v796).
+/** THE LABEL THAT CANNOT LIE (v796, ruled v797).
  *
  * David's law: dignity and cancellation ALWAYS travel together — a raw "Debilitated" is a trap. The
  * module header has said so since it was written, and every consumer still read the bare label,
- * because the bare label is what the OTHER dignity module (panchang/dignity.ts, which has no
- * concept of cancellation) produces. So a cancelled fall — the fall-then-rise, often a raja yoga —
- * was classified as strained everywhere it mattered, including on David's own cancelled Moon.
+ * because the bare label is what the OTHER dignity module (panchang/dignity.ts, which has no concept
+ * of cancellation) produces. So a cancelled fall was classified as strained everywhere it mattered,
+ * including on David's own cancelled Moon.
  *
- * This is the one owner for turning a bare tier label into an honest one. It NEVER upgrades a fall
- * to "supported" — that is a weighting decision and belongs to David, not to a helper. It only
- * refuses to call a cancelled debilitation strained, and it hands back the reasons so the prose can
- * say what actually happened. Any other label passes through untouched.
+ * WHAT A CANCELLED FALL READS AS — David's ruling, 2026-07-20, taken from the canon rather than from
+ * my instinct. canon/yogas.json universalRules:
  *
- * @param rawLabel a TIER_LABEL string ("Debilitated", "Exalted", "Own", …) from either dignity module
+ *   neechaBhanga — "A debilitated (fallen) planet associated with an exalted planet has its debility
+ *                   cancelled (neecha bhanga) and CAN ACT AS IF EXALTED."
+ *   dashaGate    — "The single most common reason a yoga fails to deliver: the dasha/bhukti of the
+ *                   planets forming it never runs during the relevant life period. A yoga is LATENT
+ *                   until its planets' period activates it."
+ *   noYogaDominates — "Never give an unmodified textbook reading of a yoga."
+ *
+ * So: SUPPORTIVE, but only while a period of the planets forming it runs. Outside that period it is
+ * not yet a strength and not a plain fall either — it is a fall that will convert. Two labels, and
+ * the gate is the canon's own rule, not a dial:
+ *   · a running dasha lord is the planet itself or one of its cancellers → acting as exalted
+ *   · otherwise                                                          → cancelled, latent
+ * I do NOT collapse the latent case into "supported" (that would ignore dashaGate) and I do NOT let
+ * either case fall into "strained" (that would ignore the cancellation). noYogaDominates is honoured
+ * by carrying the reasons through so the prose modifies rather than recites.
+ *
+ * It also never softens what it could not check — missing longitudes, a node, a non-finite ascendant
+ * all pass through as the bare "Debilitated". Silence is not cancellation.
+ *
+ * @param rawLabel     a TIER_LABEL string ("Debilitated", "Exalted", "Own", …) from either dignity module
+ * @param runningLords the dasha lords currently running (maha/antar/pratyantar). Omitted or empty ⇒
+ *                     nothing is running ⇒ latent, per dashaGate. Never guess a period.
  */
-export const CANCELLED_DEBILITATION_LABEL = "Debilitated (cancelled)";
+export const CANCELLED_LATENT_LABEL = "Debilitated (cancelled — latent)";
+export const CANCELLED_ACTIVE_LABEL = "Debilitated (cancelled — acting as exalted)";
+/** Every label that means "a fall this chart cancels", in either phase. */
+export const CANCELLED_LABELS: readonly string[] = [CANCELLED_LATENT_LABEL, CANCELLED_ACTIVE_LABEL];
 
 export function labelWithCancellation(
   planet: string,
   rawLabel: string | null | undefined,
   lonBy: Record<string, number>,
-  lagnaLon: number
-): { label: string; cancelled: boolean; reasons: string[] } {
-  const plain = { label: rawLabel ?? "—", cancelled: false, reasons: [] as string[] };
+  lagnaLon: number,
+  runningLords?: Array<string | null | undefined>
+): { label: string; cancelled: boolean; active: boolean; reasons: string[]; by: string[] } {
+  const plain = { label: rawLabel ?? "—", cancelled: false, active: false, reasons: [] as string[], by: [] as string[] };
   if (rawLabel !== "Debilitated") return plain;
   // Nodes and anything outside the seven grahas have no essential dignity and no cancellation rule.
   if (!GRAHAS.includes(planet as Graha)) return plain;
@@ -178,5 +215,13 @@ export function labelWithCancellation(
   if (!GRAHAS.every((g) => Number.isFinite(lonBy[g])) || !Number.isFinite(lagnaLon)) return plain;
   const nb = neechaBhanga(planet as Graha, lonBy as Record<Graha, number>, lagnaLon);
   if (!nb.cancelled) return plain;
-  return { label: CANCELLED_DEBILITATION_LABEL, cancelled: true, reasons: nb.reasons };
+  // dashaGate: the yoga's own planets must be running. The debilitated planet counts — its period is
+  // when its condition speaks at all — as does any planet that supplies a cancelling condition.
+  const running = new Set((runningLords ?? []).filter(Boolean) as string[]);
+  const formers = [planet, ...nb.by];
+  const active = formers.some((p) => running.has(p));
+  return {
+    label: active ? CANCELLED_ACTIVE_LABEL : CANCELLED_LATENT_LABEL,
+    cancelled: true, active, reasons: nb.reasons, by: nb.by,
+  };
 }

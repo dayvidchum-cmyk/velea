@@ -231,8 +231,10 @@ type PlanetState = {
   natalSign: string; natalHouse: number | null; natalDignity: string; rulesHouses: number[];
   vargaSign: string; vargaHouse: number; vargaDignity: string;
   /** Set only when the natal dignity is a debilitation the chart CANCELS (neecha bhanga). The
-   *  reasons travel with it so a reading can say what happened rather than just "hard". */
-  cancelledDebilitation?: { reasons: string[] } | null;
+   *  reasons and the forming planets travel with it so a reading can say what happened rather than
+   *  just "hard", and `active` records whether a period of those planets is running (canon
+   *  dashaGate) — acting as exalted now, or a fall that will convert. */
+  cancelledDebilitation?: { reasons: string[]; by: string[]; active: boolean } | null;
 };
 
 export type LifeAreaLens = {
@@ -298,14 +300,19 @@ export function buildLifeAreaLens(args: {
     // Rasi rule reckoned from the birth ascendant and the Moon, and there is no canon in this repo
     // for cancelling a debilitation inside a divisional chart. Inventing one would be worse than
     // leaving the varga label bare, so the varga label stays bare and says so.
-    const natal = labelWithCancellation(planet, nat.dignity, args.lonByPlanet, args.ascLon);
+    // The canon's dashaGate: a cancelled fall acts as exalted only while a period of its forming
+    // planets runs. The lens already knows the running lords, so the gate is applied here rather
+    // than left to each consumer to remember.
+    const natal = labelWithCancellation(planet, nat.dignity, args.lonByPlanet, args.ascLon, [
+      args.dasha?.mahaDasha?.lord, args.dasha?.antarDasha?.lord, args.dasha?.pratyantarDasha?.lord,
+    ]);
     return {
       planet,
       natalSign: nat.sign, natalHouse: nat.house, natalDignity: natal.label, rulesHouses: nat.rulesHouses,
       vargaSign: vSign, vargaHouse: vargaHouseOf[planet],
       // Nodes have no essential dignity; dignityLabel returns a neutral label for them.
       vargaDignity: dignityLabel(planet, vSign),
-      cancelledDebilitation: natal.cancelled ? { reasons: natal.reasons } : null,
+      cancelledDebilitation: natal.cancelled ? { reasons: natal.reasons, by: natal.by, active: natal.active } : null,
     };
   };
 

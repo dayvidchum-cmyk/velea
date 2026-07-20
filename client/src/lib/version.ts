@@ -1020,4 +1020,27 @@
 // cancel" fixture put Venus in a kendra from the Moon and the test caught it — the fixture was
 // wrong, not the code, and the reasoning is written into the file.
 // 34 files, 334 tests, 0 failures. Build exits 0. No new tsc errors.
-export const APP_VERSION = "1.1.796";
+// v1.1.797 = 2026-07-20 — WHAT A CANCELLED FALL READS AS, TAKEN FROM THE BOOK.
+// v796 pulled David's cancelled Moon out of "strained" and deliberately left it in neither bucket,
+// because what a cancelled fall IS is a method question. He asked what the textbooks say. They say
+// it plainly, in canon/yogas.json universalRules, ingested from Kurczak & Fish Vol I Ch.10:
+//   neechaBhanga — "a debilitated planet ... has its debility cancelled and CAN ACT AS IF EXALTED."
+//   dashaGate    — "a yoga is LATENT until its planets' period activates it."
+//   noYogaDominates — "never give an unmodified textbook reading of a yoga."
+// His ruling: take the book at its word — supportive, gated on the dasha. So there are two labels
+// now, and the gate is the canon's own rule rather than a dial I invented:
+//   · a running dasha lord is the fallen planet or one of its cancellers → ACTING AS EXALTED (supportive)
+//   · otherwise                                                          → CANCELLED, LATENT (neither)
+// Never strained again either way, because the chart does cancel it. neechaBhanga() now returns `by`
+// — the planets that FORM the cancellation — because dashaGate cannot be applied without knowing
+// whose period counts, and both consumers pass their running lords in. noYogaDominates is honoured
+// by carrying the reasons through to the prose so it modifies rather than recites.
+// The gate is one-directional: an unknown or absent dasha is LATENT, never assumed running.
+// Controls: 12 assertions. Two of my fixtures were wrong and the tests caught both — Venus in Leo is
+// a kendra from a Scorpio Moon (so it cancels), and Venus is a FORMER in the cancelling chart (so it
+// activates). Both corrections are written into the file; the code was right each time.
+// 34 files, 338 tests, 0 failures. Build exits 0. No new tsc errors.
+// STILL OPEN, and David's to rule: the code's cancellation CONDITIONS are the four commonly-cited
+// Parashari ones, while the ingested canon states a narrower rule (association with an exalted
+// planet). Engine and book disagree about WHEN a fall is cancelled, before what it means.
+export const APP_VERSION = "1.1.797";

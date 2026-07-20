@@ -20,7 +20,7 @@
 import { buildLifeAreaLens, type LifeAreaKey } from "./life-areas.js";
 import { tarabala, chandrabala } from "../panchang/crown.js";
 import { SIGN_RULER } from "./vargas.js";
-import { labelWithCancellation } from "./dignity.js";
+import { labelWithCancellation, CANCELLED_ACTIVE_LABEL } from "./dignity.js";
 
 const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const norm = (x: number) => ((x % 360) + 360) % 360;
@@ -37,12 +37,13 @@ const HOUSE_FALLBACK: Record<number, { area: string; karaka: string }> = {
 };
 
 // dignityLabel vocabulary (panchang/dignity.ts TIER_LABEL): supportive / strained / neutral.
-const SUPPORTIVE = new Set(["Exalted", "Moolatrikona", "Own", "Friend"]);
-// A CANCELLED debilitation is deliberately in NEITHER set (v796). David's law is that dignity and
-// cancellation always travel together and a raw debilitation is a trap — his own Moon is debilitated
-// in Scorpio and cancelled, and this classifier called it strained. It is not strained. Whether a
-// fall-then-rise should count as SUPPORTED is a weighting decision and his to make, so the honest
-// answer here is neither: it falls through to neutral and the detail line says "(cancelled)".
+// A CANCELLED debilitation, WHILE ITS PERIOD RUNS, is supportive — the canon says it "can act as if
+// exalted" (canon/yogas.json universalRules.neechaBhanga), and David ruled on 2026-07-20 to take the
+// book at its word. Outside that period it appears as CANCELLED_LATENT_LABEL, which is in NEITHER
+// set: per the canon's dashaGate a yoga is latent until its planets' period activates it, so it is
+// not yet a strength — and it is never strained again, because the chart does cancel it. That is the
+// bug this closed: David's Moon is debilitated in Scorpio, cancelled, and read as strained.
+const SUPPORTIVE = new Set(["Exalted", "Moolatrikona", "Own", "Friend", CANCELLED_ACTIVE_LABEL]);
 const STRAINED = new Set(["Debilitated", "Enemy"]);
 function classify(digs: Array<string | null | undefined>): "supported" | "strained" | "mixed" | "unlit" {
   const s = digs.filter((d) => d && SUPPORTIVE.has(d)).length;
@@ -127,8 +128,9 @@ export function dayFrameReading(args: {
     const lord = SIGN_RULER[ZOD[(lagIdx + moonHouse - 1) % 12]];
     // Same cancellation check the lens applies — this branch reads natalByPlanet directly, so
     // without it houses 8 and 11 would keep the exact bug the lens path just closed.
-    const lordDig = labelWithCancellation(lord, args.natalByPlanet[lord]?.dignity, args.natalLon, args.ascLon).label;
-    const karDig = labelWithCancellation(fb.karaka, args.natalByPlanet[fb.karaka]?.dignity, args.natalLon, args.ascLon).label;
+    const running = [(args.dasha as any)?.mahaDasha?.lord, (args.dasha as any)?.antarDasha?.lord, (args.dasha as any)?.pratyantarDasha?.lord];
+    const lordDig = labelWithCancellation(lord, args.natalByPlanet[lord]?.dignity, args.natalLon, args.ascLon, running).label;
+    const karDig = labelWithCancellation(fb.karaka, args.natalByPlanet[fb.karaka]?.dignity, args.natalLon, args.ascLon, running).label;
     lordDigs.push(lordDig); karakaDigs.push(karDig);
     conditionDetail.push(`ruler ${lord}: ${lordDig ?? "n/a"} (D1)`, `karaka ${fb.karaka}: ${karDig ?? "n/a"} (D1)`);
     // convergence: a running dasha lord rules the house, sits in it, or is the karaka
