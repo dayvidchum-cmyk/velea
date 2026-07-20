@@ -1453,7 +1453,7 @@ export default function Planner() {
           <button
             onClick={() => navigate("/year")}
             className="px-2 py-1 text-xs font-semibold uppercase tracking-wide"
-            style={{ color: "var(--day-accent)" }}
+            style={{ color: "var(--day-accent-ink)" }} /* v815: the accent is a SURFACE colour; --day-accent-ink is its published readable twin */
           >
             Year ↗
           </button>
@@ -1504,14 +1504,14 @@ export default function Planner() {
             <button
               onClick={prevMonth}
               className="p-1 rounded-full transition-all duration-150 active:scale-95"
-              style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}
+              style={{ color: inkOf("var(--day-accent)", 4.5, 10), background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}
             >
               <ChevronLeft size={15} />
             </button>
             <button
               onClick={nextMonth}
               className="p-1 rounded-full transition-all duration-150 active:scale-95"
-              style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}
+              style={{ color: inkOf("var(--day-accent)", 4.5, 10), background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}
             >
               <ChevronRight size={15} />
             </button>
@@ -1521,13 +1521,13 @@ export default function Planner() {
         {monthPickerOpen && (
           <div className="px-4 pb-2">
             <div className="flex items-center justify-center gap-4 mb-2">
-              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) - 1)} className="p-1 rounded-full" style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
+              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) - 1)} className="p-1 rounded-full" style={{ color: inkOf("var(--day-accent)", 4.5, 10), background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
                 <ChevronLeft size={13} />
               </button>
               <span style={{ fontFamily: "'Playfair Display', Georgia, ui-serif, serif", fontWeight: 700, fontSize: "1.05rem", color: "var(--heading-ink)" }}>
                 {pickerYear ?? viewDate.getFullYear()}
               </span>
-              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) + 1)} className="p-1 rounded-full" style={{ color: "var(--day-accent)", background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
+              <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) + 1)} className="p-1 rounded-full" style={{ color: inkOf("var(--day-accent)", 4.5, 10), background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
                 <ChevronRight size={13} />
               </button>
             </div>

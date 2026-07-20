@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { inkOf } from "@/lib/ink";
 import LockedRead from "@/components/LockedRead";
 import VeleaLoader from "@/components/VeleaLoader";
 import { trpc } from "@/lib/trpc";
@@ -77,7 +78,7 @@ export default function SignpostSheet({ open, onClose, mode, profileId, date }: 
             onClick={onClose}
             aria-label="Close"
             className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
-            style={{ background: `color-mix(in oklch, ${accent} 20%, transparent)`, color: accentSolid, border: `1px solid color-mix(in oklch, ${accent} 35%, transparent)` }}
+            style={{ background: `color-mix(in oklch, ${accent} 20%, transparent)`, color: inkOf(accentSolid, 4.5, 20), border: `1px solid color-mix(in oklch, ${accent} 35%, transparent)` }}
           >
             <X size={16} strokeWidth={2.5} />
           </button>

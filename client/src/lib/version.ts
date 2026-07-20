@@ -1394,4 +1394,20 @@
 // signal. Proven rather than assumed — I injected a type error and watched the build exit 2, then
 // removed it and watched it exit 0. Total build time went from ~3.0s to ~3.3s.
 // 69 files, 691 tests, 0 failures. Build exits 0. tsc: ZERO errors, and it stays that way now.
-export const APP_VERSION = "1.1.814";
+// v1.1.815 = 2026-07-20 — THE SIX RAW ACCENTS THE SWEEP MISSED, AND A WATCH SO THE NEXT ONE CANNOT.
+// v791/792 claimed "64 call sites, zero raw accents left as text". The re-audit found six it had
+// missed and they survived because nothing was looking for the seventh:
+//   · ProfectionYear — the sign glyph, and the "Read this window" button label, both painted in the
+//     raw SIGN_COLOR. Its BORDER deliberately keeps the raw colour: a border is not text.
+//   · Planner — five icon/text buttons on `color: var(--day-accent)`, the surface colour, when the
+//     readable twin --day-accent-ink exists precisely for this. The four sitting on a 10% tint pass
+//     that tint to inkOf, because the ground is not the card — it is the card tinted by the very
+//     colour being inked, which is worth 0.6 of a contrast point.
+//   · SignpostSheet — the close X in raw MODE_SOLID on a 20% tint.
+// THE WATCH IS THE POINT. A sweep that fixes call sites and leaves nothing behind gets to be wrong
+// again in a week. raw-accent-sweep.test.ts scans every page and component for the three shapes,
+// and carries a denominator asserting each pattern matches the site it was quoted from — otherwise
+// a regex that can never match reads as a clean sweep forever. Verified by reverting all three
+// files: it flags all three, and passes once they are back.
+// 70 files, 694 tests, 0 failures. Build exits 0 and now typechecks. tsc: zero errors.
+export const APP_VERSION = "1.1.815";

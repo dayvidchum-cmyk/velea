@@ -2,6 +2,7 @@ import ProseCard from "@/components/ProseCard";
 import LockedRead from "@/components/LockedRead";
 import GateMark from "@/components/GateMark";
 import { trpc } from "../lib/trpc";
+import { inkOf } from "@/lib/ink";
 import VeleaLoader from "@/components/VeleaLoader";
 import { NatalSection, DashaSection } from "./Astrology";
 import { useState, useMemo } from "react";
@@ -820,7 +821,7 @@ export default function ProfectionYear() {
                   {sel && (
                     <div style={{ marginTop: "0.9rem", background: "var(--secondary)", border: "1px solid var(--border)", borderRadius: 12, padding: "0.85rem 1rem" }}>
                       <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.5rem", color: TEXT_PRIMARY, fontWeight: 700, fontSize: "0.98rem" }}>
-                        <span style={{ fontFamily: GLYPH_FONT, color: SIGN_COLOR[sel.sign] ?? TEXT_PRIMARY }}>{SIGN_GLYPH[sel.sign]}</span>
+                        <span style={{ fontFamily: GLYPH_FONT, color: inkOf(SIGN_COLOR[sel.sign] ?? TEXT_PRIMARY) }}>{SIGN_GLYPH[sel.sign]}</span>
                         {sel.sign} in the {ORD[houseFromSign(lagnaSign, sel.sign)]} house
                       </p>
                       <p style={{ margin: "0.2rem 0 0.7rem", color: TEXT_MUTED, fontSize: "0.82rem" }}>
@@ -843,7 +844,12 @@ export default function ProfectionYear() {
                         const todayIso = localToday; // audit M10: local, not UTC
                         const begun = sel.startDate <= todayIso;
                         const mine = tlRead?.from === sel.startDate;
-                        const ink = SIGN_COLOR[sel.sign] ?? modeColor;
+                        // The sign colour is a SURFACE colour; as button text it misses the bar on
+                        // one ground or the other. inkOf moves lightness only, so the sign keeps its
+                        // hue. The border below deliberately keeps the RAW colour — a border is not
+                        // text, and the raw colour is the correct one there (v815).
+                        const inkRaw = SIGN_COLOR[sel.sign] ?? modeColor;
+                        const ink = inkOf(inkRaw);
                         const d: any = tlWindowQ.data;
                         if (!begun) return (
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "0.65rem" }}>
@@ -854,7 +860,7 @@ export default function ProfectionYear() {
                         return (
                           <div style={{ marginTop: "0.7rem" }}>
                             {!mine ? (
-                              <button onClick={() => setTlRead({ from: sel.startDate, sign: sel.sign })} className="w-full py-2 rounded-full text-[11px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: ink, border: `1px solid color-mix(in srgb, ${ink} 60%, transparent)`, background: "transparent", cursor: "pointer" }}>
+                              <button onClick={() => setTlRead({ from: sel.startDate, sign: sel.sign })} className="w-full py-2 rounded-full text-[11px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: ink, border: `1px solid color-mix(in srgb, ${inkRaw} 60%, transparent)`, background: "transparent", cursor: "pointer" }}>
                                 Read this window
                               </button>
                             ) : tlWindowQ.isLoading ? (
