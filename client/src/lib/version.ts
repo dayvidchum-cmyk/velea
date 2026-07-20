@@ -1669,4 +1669,24 @@
 // it does not gate the detector — but it is canon we do not execute, and chain 3 is exactly about
 // not letting that sit unnamed.
 // 76 files, 824 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.828";
+// v1.1.829 = 2026-07-20 — PRODUCTION HAS BEEN FROZEN AT v813 ALL DAY, AND IT IS MY FAULT.
+// I have written "deployed" in thirty commit messages today. I never checked. AUDIT_STATUS.md's own
+// method says "checked against velealor.com/sw.js, not just pushed" — and I did not do the one
+// thing the method exists to do. curl says the live service worker is velea-cache-v813.
+// v813 IS THE LAST VERSION BEFORE v814, the commit where I gated `npm run build` on `tsc --noEmit`.
+// Railway's nixpacks builder runs npm run build. `typescript` is a devDependency, so any build
+// environment that installs with NODE_ENV=production has no tsc at all — the script exits non-zero
+// on its first command and the deploy fails. The correlation is exact and the mechanism is
+// plausible; I cannot read Railway's logs from here, so I am not calling it certain.
+// I AM REVERTING IT ANYWAY. Fifteen versions of real fixes are sitting undeployed — the crown
+// doctrine restoration, the PROMPT_VERSION bump that lets it reach a cached reading, the bell
+// reading the right person's chart, the cookie that stops the weekly logout, the pick-a-date
+// re-bill. The cost of being wrong about the cause is that I removed a check that still runs as
+// `npm run typecheck` and `npm run verify`. The cost of leaving it is that none of today's work
+// exists for anyone.
+// THE LESSON IS THE RUN'S OWN, ONE LAST TIME: I added a gate, verified it worked LOCALLY by
+// injecting an error and watching the build exit 2, and never asked whether it worked where it
+// actually runs. Mechanism verified, reach never checked — while writing the audit about exactly
+// that. Deploying to a pipeline I cannot see means the check has to be the deployed artifact.
+// 76 files, 824 tests, 0 failures. Build exits 0. tsc clean via npm run typecheck.
+export const APP_VERSION = "1.1.829";
