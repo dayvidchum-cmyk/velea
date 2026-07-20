@@ -2474,6 +2474,18 @@
 // neechaBhanga now self-guards on actual debilitation (his Step 1) — it was reporting cancellation
 // for a planet in its OWN SIGN if a caller ever forgot to gate.
 // 97 files, 1043 tests, 0 failures. tsc clean. Build exits 0.
+// v1.1.874 = 2026-07-20 — THE GATE, RE-DROPPED. David: "i just removed some lines in the drawing."
+// Installed his new Gate.png over login-gate.jpg at the same 1613x2868. VERIFIED BEFORE SHIPPING
+// rather than assumed, because this art's geometry is load-bearing -- the login form is positioned
+// against a MEASURED door slot (rows ~46.4-63.6%), so a shifted temple would silently mis-seat the
+// whole layout. Luminance centroid moved 0.08% vertically / 0.4px horizontally between exports:
+// structure identical, only line work changed, exactly as he said.
+// jpeg q80 (42.5 dB PSNR vs a lossless downscale, max error 12/255). WebP q90 would have been
+// 1.06MB vs 1.5MB at slightly LOWER fidelity, but that is a format change he did not ask for, and
+// 400KB on a one-time login screen is not worth optimising his art down for.
+// MY EDGE CHECK WAS WRONG, NOT THE ART: I flagged "black does not bleed to every edge" on a max-
+// pixel threshold -- in a STARFIELD, where a bright edge pixel is a star. The previous export fails
+// the same test harder. New file is cleaner on all four edges. Suspect the check first.
 // v1.1.873 = 2026-07-20 — ONE VERSE, COUNTED ONCE. And a lesson about what to defer.
 // I flagged the Phaladeepika 7.30 double-count for David instead of fixing it, on the grounds that
 // the philology was his call. He asked: "what is the advantage of doing this?" There wasn't one.
@@ -2552,4 +2564,4 @@
 // where his scans land — I checked both. They do not contain the muhurta tables, but I should have
 // LOOKED before refusing, and should simply have asked him for the pages.
 // 99 files, 1054 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.873";
+export const APP_VERSION = "1.1.874";

@@ -44,10 +44,18 @@ export default function Login() {
   const METAL = isDay
     ? { hi: "#E7C766", accent: "#C9A84C", deep: "#A87E2E", btnText: "#1a1200" }
     : { hi: "#DDE3EA", accent: "#B9C2CE", deep: "#8E97A6", btnText: "#0d1117" };
-  // THE GATE (David's 2026-07-18 drop, Gate.png → login-gate.jpg): the temple over the yantra
-  // line-geometry on a starfield, black bled to every edge — the seam-killer re-export. ONE art
-  // for day and night now; the METAL (gold by day / silver by night) still turns with the sun.
-  // A gold day-variant slot stays open if he paints one.
+  // THE GATE (David's Gate.png → login-gate.jpg): the temple over the yantra line-geometry on a
+  // starfield, black bled to every edge — the seam-killer re-export. ONE art for day and night now;
+  // the METAL (gold by day / silver by night) still turns with the sun. A gold day-variant slot
+  // stays open if he paints one.
+  //
+  // RE-DROPPED 2026-07-20 — "i just removed some lines in the drawing." Verified before installing,
+  // because this file's geometry is load-bearing: the form below is positioned against a MEASURED
+  // door slot (rows ~46.4–63.6%), so if the temple had shifted the layout would silently mis-seat.
+  // It did not — the luminance centroid moved 0.08% vertically and 0.4px horizontally between the
+  // two exports, i.e. the structure is identical and only line work changed. Edges are cleaner than
+  // the previous export on all four sides. Re-exported at the same 1613×2868 (jpeg q80, 42.5 dB
+  // PSNR against a lossless downscale) — his art is not optimised down for a few hundred KB.
   const art = "/login-gate.jpg";
 
   const handleSubmit = async (e: React.FormEvent) => {
