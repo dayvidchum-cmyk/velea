@@ -99,7 +99,6 @@ describe("both documents carry the same open decisions", () => {
   // queue once he has ruled — "take it off if it is fixed… less friction for me to process" — so
   // this list is now the OPEN set only, and the resolved ones are asserted separately below.
   it.each([
-    ["the cancelled-fall rules", /cancelled-fall/i],
     ["which yogas the reader hears", /yogas/i],
     ["the knot thresholds", /knot threshold/i],
     ["the crown mark's missing pieces", /Siddhi/i],
@@ -130,6 +129,8 @@ describe("both documents carry the same open decisions", () => {
     // spuriously while the brief, which had correctly dropped it, failed. The regex below is
     // anchored to the verdict, which cannot match a question.
     ["naming the day by sunrise", /Named by the sunrise star<\/b> — <b>yes, and done/i],
+    // RULED 2026-07-20: "two, with three+ as solid." Off the open queue the moment he said it.
+    ["the cancelled-fall bar", /two conditions to cancel, three or more is/i],
   ])("still RECORDS the settled decision: %s", (_label, re) => {
     expect(SHEET, "a settled decision vanished instead of being recorded").toMatch(re);
   });

@@ -55,16 +55,16 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v869 · 20 July 2026 · where the app actually stands</p>
+  <p class="sub">v872 · 20 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> The engine is in good shape and now proves it: 1054 tests, and 32 checks that each
+    <b>Where things stand.</b> The engine is in good shape and now proves it: 1080 tests, and 32 checks that each
     deliberately break something to confirm the test notices. The reading pipeline, the canon tables, the dasha clock,
     the paid gates and the per-user data isolation were all audited this run and came back clean.
     What stands between here and opening is <b>your price and your Stripe keys</b> — not code.
   </div>
 
-  <h2>1 · Your decisions — 12</h2>
+  <h2>1 · Your decisions — 11</h2>
   <p class="lead">
     Only what is still open — anything you ruled on is off this list. The full “what to choose and why” for each is on
     the <a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">audit sheet</a>.
@@ -72,7 +72,7 @@
 
   <div class="grp">The astrology</div>
   <ol class="asks">
-        <li><b>The cancelled-fall rules — BUILT, and it found two live bugs.</b> Your condition 3 is in. It exposed that <b>the Moon is always in a kendra from itself</b>, so <b>Mars in Cancer</b> and <b>Jupiter in Capricorn</b> have been auto-“cancelled” for every user regardless of the chart. Fixed. <b>One call left:</b> we cancel <b>96%</b> of all falls, so only 4% read as fallen — I recommend requiring <b>two</b> conditions instead of one. Your ruling; it moves every chart.</li>
+        <li><b>RULED &amp; DONE:</b> two conditions to cancel, three+ is “solid.” Built, tested, deployed. A fallen planet now reads as fallen <b>24%</b> of the time instead of <b>4%</b>. It also exposed that <b>Mars in Cancer</b> and <b>Jupiter in Capricorn</b> had been auto-cancelled for every user — fixed.</li>
     <li><b>ANSWERED &amp; DONE:</b> yogas belong to layers — natal ones are lifelong, transits only <i>trigger</i> them. The prompt now says so; it did not before. <b>And you were right about the textbooks:</b> the siddhi grid was in Raman’s <i>Muhurtha</i> Ch.VI all along, a book we already cite. <b>Amrita Siddhi is built</b> — it lifts a day, never clears a veto.</li>
     <li>The knot thresholds — and how we test them with your eyes.</li>
     <li>The crown mark: the 11th is not the peak, Shubha Tithi uses the family rule — and <b>the Siddha grid needs three words from you</b>, where Raman’s 1941 scan is too smudged to read and I won’t guess.</li>

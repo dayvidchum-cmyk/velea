@@ -2474,6 +2474,21 @@
 // neechaBhanga now self-guards on actual debilitation (his Step 1) — it was reporting cancellation
 // for a planet in its OWN SIGN if a caller ever forgot to gate.
 // 97 files, 1043 tests, 0 failures. tsc clean. Build exits 0.
+// v1.1.872 = 2026-07-20 — HIS RULING: TWO CONDITIONS TO CANCEL A FALL, THREE+ IS "SOLID".
+// Shown the whole curve (>=1 -> 96%, >=2 -> 76%, >=3 -> 55%, >=4 -> 25%) David chose two. Velea had
+// been cancelling 96% of every debilitation, so only ~4% of fallen planets ever read as fallen --
+// his own criticism of other tools, pointed at us. A fall now reads as a fall 24% of the time, and
+// "cancelled" means the chart said it at least twice. NO classical condition was removed: the
+// evidence bar moved, which is the whole difference. `solid` is now a real field (>=3) instead of a
+// comment, and it counts EVIDENCE, never fortune -- the doctrine keeps neecha bhanga and raja yoga
+// separate, and the shape guard now asserts that intent rather than just a key list.
+// Threshold lives in ONE place (CANCEL_MIN_CONDITIONS), so every consumer moved together.
+// FLAGGED, NOT FIXED: two of our conditions are one verse under two rival glosses, and at a bar of
+// two that pair alone can clear it -- 2.4% of fallen charts, one idea counted twice. Measured and
+// put to him rather than silently merged. Phaladeepika 7.27 still unbuilt.
+// A CONTROL CAUGHT MY OWN FIXTURE: I built a "one condition" chart that fired four, because I
+// parked every rescuer at the Moon's own longitude -- putting them all in the 1st from the Moon.
+// Asserting the fixture's count BEFORE asserting the threshold is why that surfaced.
 // v1.1.871 = 2026-07-20 — TWO SHIPPED BUGS: THE MOON WAS ALWAYS IN A KENDRA FROM ITSELF.
 // Built David's neecha-bhanga condition 3 (the fallen planet itself in a kendra) — the one I had
 // answered with philology instead of code until he said "huh????? i feel like you are
@@ -2523,4 +2538,4 @@
 // where his scans land — I checked both. They do not contain the muhurta tables, but I should have
 // LOOKED before refusing, and should simply have asked him for the pages.
 // 99 files, 1054 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.871";
+export const APP_VERSION = "1.1.872";
