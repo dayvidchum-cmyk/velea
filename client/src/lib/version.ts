@@ -1271,4 +1271,33 @@
 // push.ts and re-running. They pin the ladder ORDER (crown above eclipse), the shared crown source,
 // the fail-to-false, and the precedence order itself.
 // 65 files, 657 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.808";
+// v1.1.809 = 2026-07-20 — THE BOOK, PROPERLY. And what it says is not what the engine does.
+// David asked twice for a deep dive on neecha bhanga. Result: canon/neecha-bhanga-provenance.md,
+// condition by condition, with the Sanskrit read compound-by-compound rather than taken from a
+// summary. Findings, in order of how much they matter:
+// · Phaladeepika 7.30 reads नीचोच्चभेशौ — nīca-ucca-bha-īśau — "the LORDS of the debilitation and
+//   exaltation SIGNS, both or even one, in a kendra." The popular English rule "a debilitated
+//   planet IN A KENDRA is cancelled" reads the planet itself into a clause about two lords. It is a
+//   mistranslation, it is everywhere (the same search that returns the Sanskrit returns the corrupt
+//   reading two paragraphs later), and this engine has never implemented it. Good.
+// · CONDITIONS 2 AND 3 IN dignity.ts ARE ONE VERSE under two competing glosses of that compound —
+//   "the lord of the exaltation sign" vs "the planet exalted in that sign". Firing both
+//   double-counts a philological disagreement, and `count` is used ("≥2 is a solid cancellation").
+// · Phaladeepika 7.27 (both lords in mutual kendra to EACH OTHER) is textual and not implemented.
+// · BPHS gives NONE of the four. Its debilitation raja yoga is Ch.41 vv.19-20 — a different rule.
+//   Citing "Parashara" for these conditions cites the wrong text.
+// · Our own yogas.json line ("associated with an exalted planet … can act as if exalted") has NO
+//   classical verse behind it in any text. It is K&F's reading, and the modern sources that state
+//   it say so in the first person ("I have no textual authority for this view, but in my
+//   experience…"). That does not make it wrong — K&F is the declared source and David ruled on it
+//   deliberately — but the engine's four conditions and the canon's one rule are two different
+//   systems, and the engine runs neither cleanly.
+// · The dasha gate v797 implemented is primary as a GENERAL principle (Phaladeepika 19.54, Saravali
+//   5.47-50); applied specifically to neecha bhanga it is modern (B.V. Raman, 1947).
+// NOTHING IN THE ENGINE CHANGED. Which conditions are Velea's is David's ruling; the file exists so
+// he makes it against the sources instead of against a memory.
+// QUESTIONING THE AGENT, as instructed: it first reported "the debilitated planet itself in a
+// kendra" as textual, then withdrew it against the Sanskrit — the correction was the useful part. I
+// re-derived 7.30 from the Devanagari myself before writing any of it down.
+// 65 files, 657 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.809";

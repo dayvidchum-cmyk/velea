@@ -107,6 +107,16 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   const reasons: string[] = [];
   const by: Graha[] = [];
 
+  // PROVENANCE, researched 2026-07-20 → canon/neecha-bhanga-provenance.md. Read it before touching
+  // this list. In short: conditions 1 and 4 are TEXTUAL (Phaladeepika 7.30 and 7.28). Conditions 2
+  // and 3 are ONE VERSE under two competing glosses of the same compound — "the lord of the
+  // exaltation sign" vs "the planet exalted in that sign" — so firing both double-counts a
+  // philological disagreement, and `count` is used ("≥2 is a solid cancellation"). Phaladeepika
+  // 7.27 (both lords in mutual kendra to EACH OTHER) is textual and NOT implemented. BPHS gives
+  // none of these — its debilitation raja yoga is Ch.41 vv.19-20, a different rule entirely.
+  // Left exactly as it is on purpose: which conditions are Velea's is David's ruling, not a
+  // refactor. The file records the sources so the ruling is made against them.
+
   // 1. Dispositor of the debilitation sign in a kendra from Asc or Moon.
   const dispositor = SIGN_RULER[debilSign];
   if (dispositor !== planet && inKendra(lonBy[dispositor])) {
@@ -115,6 +125,7 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   }
 
   // 2. The planet that EXALTS in the debilitation sign, in a kendra from Asc or Moon.
+  //    ONE OF TWO GLOSSES of the compound in Phaladeepika 7.30 — the sibling reading is #3 below.
   const exalter = EXALTS_IN[debilSign];
   if (exalter && exalter !== planet && inKendra(lonBy[exalter])) {
     reasons.push(`${exalter} (exalts in ${debilSign}) in a kendra`);
