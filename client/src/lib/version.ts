@@ -1923,4 +1923,30 @@
 // transit-calculator all import the canonical function — so an instance, not a class.
 // The probe harness is now 15 checks; all 15 catch.
 // 82 files, 881 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.842";
+// v1.1.843 = 2026-07-20 — MY VERIFICATION TOOL PRODUCED A FALSE GREEN. THAT IS THE HEADLINE.
+// The reach sweep (v842's question, now run with controls on BOTH sides) says 59 production modules
+// are imported by no other production module. Most are vendored shadcn ui/* primitives — expected.
+// Two are not:
+//   · server/vedic/meaning-engine.ts (159 lines) — imported by NOTHING but its own test. It is the
+//     pre-rebuild INVENTED meaning layer, and it contradicts live doctrine: it hardcodes "self-worth"
+//     as one of four DEFAULT 2nd-house themes, where prompts.ts says plainly "do NOT reach for
+//     'worth' or 'self-worth' as a default theme" unless a self-planet actually links to the 2nd.
+//     Its own test passes happily — it asserts STYLE ("avoids mystical language") and never asks
+//     whether the content is still Velea's method. A green test on a dead, stale module reads as
+//     assurance and is worse than no test.
+//   · client/src/components/CheckInCard.tsx (241 lines) — unimported; the live check-in is in
+//     pages/Planner.tsx. Not a doctrine conflict, just orphaned UI that will drift silently.
+// I deleted neither — deleting is David's call. What is mine is quarantine.test.ts: a TRIPWIRE that
+// fails the moment a production file imports meaning-engine while the stale theme is still in it.
+// A CLAIM I NEARLY MADE AND DID NOT: I also flagged meaning-engine's 10th house ("career, public
+// role") as violating "dharma is identity, not work". It does NOT — prompts.ts:600 reads "10th —
+// Your work in the world: career, public standing, reputation, authority". I was quoting my memory
+// of a rule instead of the rule. Only the 2nd-house conflict is real.
+// THEN THE HARNESS LIED. My first tripwire probe added an import INTO meaning-engine rather than OF
+// it — the reverse of what the tripwire watches — so it "survived" against correct code. Fixing it,
+// I wrote the line continuation as \\ instead of \. run() silently accepted THREE arguments,
+// printed "caught" with a blank name, let the next line execute as a shell command, and the harness
+// still finished with "all probes caught". A verification tool that can report a false green is
+// worse than none. run() now hard-fails on a malformed probe, and I proved that check fires.
+// 17 probes, all caught, on a clean tree. 83 files, 886 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.843";

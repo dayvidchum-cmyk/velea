@@ -30,6 +30,16 @@ fi
 fails=0
 
 run() {
+  # ARITY CHECK (v843). A probe line whose continuation backslash was written as \\ instead of \
+  # arrives here with THREE arguments; the harness ran it, printed "caught" with a blank name, let
+  # the next line execute as a shell command, and still finished with "all probes caught". A
+  # verification tool that can report a false green is worse than none, so a malformed probe is now
+  # a hard failure.
+  if [[ $# -ne 5 ]]; then
+    echo "MALFORMED probe: expected 5 arguments, got $# — check the line continuations"
+    fails=$((fails + 1))
+    return
+  fi
   local file="$1" from="$2" to="$3" test="$4" name="$5"
   python3 - "$file" "$from" "$to" <<'PY'
 import sys
@@ -66,6 +76,12 @@ run server/vedic/life-areas.ts '{ planet: "Saturn", role: "primary", signifies: 
 run server/narrative/day-read-signals.ts 'const comb = combustion(planet, lon, daySunLon, retro);\n    const combust = planet !== "Sun" && comb?.combust === true;' 'const combust = planet !== "Sun" && sep(lon, daySunLon) < 8;' \
   server/narrative/day-read-signals.test.ts "combustion hand-rolled as a flat 8 orb again"
 
+# NOTE: the first version of this probe added an import INTO meaning-engine, which is the reverse of
+# what the tripwire watches, so it "survived" against correct code. The probe was wrong, not the test.
+# It now does what wiring the module would actually look like: a production file importing it.
+run server/vedic/knots.ts 'import houseLordCombos from "./canon/house-lord-combinations.json";' 'import type { ExpectedMeaning } from "./meaning-engine.js";\nimport houseLordCombos from "./canon/house-lord-combinations.json";' \
+  server/vedic/quarantine.test.ts "quarantine tripwire: a production file wires meaning-engine"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
@@ -77,6 +93,9 @@ run server/narrative/service.ts 'if (uncappedProfiles.has(profileId)) return fal
   server/narrative/spend-caps.test.ts "admin exemption removed"
 run server/db.ts 'const SESSION_SLIDE_AFTER_MS =' 'const SESSION_SLIDE_AFTER_MS_UNUSED =' \
   server/session-slide.test.ts "session sliding renewal"
+
+run server/narrative/prompts.ts 'do NOT reach for "worth" or' 'do NOT reach for "wealth" or' \
+  server/vedic/quarantine.test.ts "2nd-house self-worth doctrine removed from the prompt"
 
 echo "=== the prompt: laws that must ARRIVE, not merely exist ==="
 run server/narrative/prompts.ts '\nPERSONAL APEX — THE CROWN DAY\n' '\nPERSONAL APEXX — THE CROWN DAY\n' \
