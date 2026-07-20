@@ -2358,4 +2358,20 @@
 // NOT specify keeps the canon wording" has no subject left now that all 27 are specified. Replaced,
 // not deleted, because what it guarded is still real.
 // 93 files, 1010 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.862";
+// v1.1.863 = 2026-07-20 — I AUDITED THE THING I SHIPPED AN HOUR AGO AND IT HAD A HOLE.
+// v862 added 27 per-star supports and ~50 new act-classifications. Those classifications decide
+// whether the Vishti and rikta vetoes block an act, so a missing one is not cosmetic.
+// FOUND: "networking" — used by Mrigashira and Swati — was NEVER CLASSIFIED. It fell through to the
+// `?? "initiate"` default at the Vishti filter, so its veto behaviour was an accident rather than a
+// decision. Now classed "union", with the other acts that make a connection between people
+// (marriage and partnerships, romance, friendship are all union here).
+// WHY IT SLIPPED: day-filter carries a load-time guard that throws on an unclassified supports
+// string — and it only ever checked the CANON file. When v862 added the per-star lists it covered
+// none of them. A guard that checks one of two sources is not correctness by construction; it only
+// looks like it. Widened, and PROVEN: I put an unclassified act into STAR_SUPPORTS and watched the
+// module refuse to load.
+// TWO MORE INVARIANTS PINNED, opposite failure modes: Vishti must bite EVERY star (a veto that
+// blocks nothing is decorative) and must EMPTY none of them (a day that says nothing at all).
+// Verified across all 27 — no star fails either way.
+// 93 files, 1013 tests, 0 failures. 46 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.863";

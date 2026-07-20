@@ -173,6 +173,11 @@ const ACT_CLASS: Record<string, ActClass> = {
   "building enduring foundations": "initiate", "learning new skills": "continue",
   "beginning business activities": "initiate", "artistic work": "continue", "writing": "continue",
   "negotiations": "continue", "crafts and technical work": "continue",
+  // "networking" was UNCLASSIFIED until a self-audit caught it: it fell through to the
+  // `?? "initiate"` default at the Vishti filter, so its veto behaviour was an accident rather
+  // than a decision. Classed with the other acts that make a connection between people —
+  // "marriage and partnerships", "romance", "friendship" are all union here.
+  "networking": "union",
   "restarting projects": "initiate", "recovery and renewal": "complete", "studying": "continue",
   "teaching": "continue", "public speaking": "continue", "seeking advice": "continue",
   "organizing systems": "continue", "administrative work": "continue",
@@ -216,6 +221,13 @@ const VISHTI_BLOCKS = new Set<ActClass>(["initiate", "journey", "union", "celebr
   }
   for (const def of Object.values((tables as any).tithiFamily ?? {})) {
     for (const s of ((def as any)?.supports ?? [])) if (!(s in ACT_CLASS)) unclassified.push(s);
+  }
+  // AND THE PER-STAR LISTS. The guard above only ever checked the CANON file, so when v862 added
+  // 27 per-star supports it covered none of them — "networking" went unclassified and silently
+  // took the `?? "initiate"` default at the Vishti filter. A guard that checks one of two sources
+  // is not correctness by construction; it just looks like it.
+  for (const list of Object.values(STAR_SUPPORTS)) {
+    for (const s of list) if (!(s in ACT_CLASS)) unclassified.push(s);
   }
   if (unclassified.length) {
     throw new Error(`day-filter: unclassified canon supports string(s) — add to ACT_CLASS: ${Array.from(new Set(unclassified)).join(" | ")}`);

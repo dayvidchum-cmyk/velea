@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { dayFilter } from "./day-filter.js";
+import { readFileSync } from "node:fs";
 
 /**
  * THE SEVEN FAVORABLE STARS (David's doctrine, 2026-07-20, canon/seven-favorable-stars.md).
@@ -140,6 +141,34 @@ describe("the per-star lists do not overwrite the cited nature table", () => {
         if (other === star) continue;
         expect(supportsOf(other), `${other} picked up ${star}'s wording`).not.toMatch(re);
       }
+    }
+  });
+});
+
+describe("every per-star act is CLASSIFIED — the vetoes depend on it", () => {
+  // SELF-AUDIT CATCH (v863). The module's load guard checked only the CANON file's supports, so
+  // when v862 added 27 per-star lists it covered none of them. "networking" went unclassified and
+  // silently took the `?? "initiate"` default at the Vishti filter — its veto behaviour was an
+  // accident, not a decision. A guard that checks one of two sources is not correctness by
+  // construction; it only looks like it.
+  const SRC = readFileSync(new URL("./day-filter.ts", import.meta.url), "utf8");
+
+  it("the load guard covers the per-star lists, not just the canon", () => {
+    expect(SRC).toMatch(/for \(const list of Object\.values\(STAR_SUPPORTS\)\)/);
+  });
+
+  it("networking is classified deliberately, not defaulted", () => {
+    expect(SRC).toMatch(/"networking": "union"/);
+  });
+
+  it("Vishti bites every star, and empties none of them", () => {
+    // Two failure modes, opposite directions: a star whose supports Vishti cannot touch (the veto
+    // is decorative), and a star Vishti wipes out entirely (the day says nothing at all).
+    for (const n of NAK) {
+      const open = dayFilter({ ...base, nakshatra: n, vishti: false }).supports;
+      const under = dayFilter({ ...base, nakshatra: n, vishti: true }).supports;
+      expect(under.length, `${n}: Vishti blocked nothing`).toBeLessThan(open.length);
+      expect(under.length, `${n}: Vishti emptied the day`).toBeGreaterThan(0);
     }
   });
 });

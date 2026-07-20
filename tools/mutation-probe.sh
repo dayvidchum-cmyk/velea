@@ -129,6 +129,11 @@ run server/panchang/crown.ts 'const CHANDRA_FAV = new Set([1, 3, 6, 7, 10, 11]);
 run server/panchang/crown.ts '{ name: "Sampat", quality: "good" },' '{ name: "Sampat", quality: "mixed" },' \
   server/panchang/crown-doctrine.test.ts "a tara he calls good stops being favourable"
 
+run server/vedic/day-filter.ts '"networking": "union",' '' \
+  server/vedic/seven-stars.test.ts "a per-star act loses its classification"
+run server/vedic/day-filter.ts 'Shatabhisha:         ["medical treatment"' 'Shatabhisha:         ["vehicles"' \
+  server/vedic/seven-stars.test.ts "Shatabhisha goes back to being a travel day"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
