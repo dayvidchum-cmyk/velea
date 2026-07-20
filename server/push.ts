@@ -15,7 +15,7 @@
 import webpush from "web-push";
 import { and, eq, inArray, or, isNull, ne } from "drizzle-orm";
 import { getDb } from "./db.js";
-import { pushSubscriptions, users } from "../drizzle/schema.js";
+import { pushSubscriptions, users, profiles } from "../drizzle/schema.js";
 import { getTimezoneOffset } from "./panchang/tz-offset.js";
 import { yearStationMarks } from "./sky/current-sky.js";
 
@@ -164,8 +164,16 @@ const POOL = {
 // nakshatra wives ARE the lunar mansions, one palace visited per night (Tara Bala's mythic skin).
 // David renders them They. Venus = She until he says otherwise; the rest He.
 const PRONOUN: Record<string, string> = { Venus: "She", Moon: "They" };
-async function skyLineFor(localDate: string): Promise<string> {
+async function skyLineFor(localDate: string, isCrownDay = false): Promise<string> {
   try {
+    // 0 · THE CROWN — the top rung of David's blessed ladder (crown > eclipse > retroshade >
+    // waterfalls > horizon > ordinary). POOL.crown has carried his line since it was written and
+    // NOTHING EVER READ IT: the selector went straight to eclipses, so a crowned day — one of the
+    // twelve apex days of a person's whole solar year — rang the ordinary stage line. The rung is
+    // PERSONAL, which is why it sat unwired while every other rung is collective; the caller now
+    // resolves it per user and passes it in. Unlike the rungs below it this one cannot be derived
+    // from `marks`, so it is checked first and separately.
+    if (isCrownDay) return pickLine(POOL.crown, localDate);
     const from = localDate;
     const to = new Date(Date.parse(localDate + "T00:00:00Z") + 8 * 86400000).toISOString().slice(0, 10); // 7-day lookahead for the horizon rung
     const marks = await yearStationMarks(from, to);
@@ -211,9 +219,36 @@ async function skyLineFor(localDate: string): Promise<string> {
         if (days >= 4 && days <= 7) return pickLine(POOL.horizon, localDate);
       }
     }
-    // (Slots still awaiting David's words: eclipse day · crown day.)
+    // (Slot still awaiting David's words: none — eclipse day is LLM-written, crown day is wired.)
   } catch { /* sky unavailable — the default line never fails */ }
   return pickLine(POOL.stage, localDate);
+}
+
+/** IS TODAY ONE OF THIS PERSON'S TWELVE CROWNED DAYS? (v808)
+ *  The crown rung is the only PERSONAL rung on the bell's ladder, which is why it sat unwired while
+ *  the collective rungs were all built. It reads the SAME ranked solar year the calendar and the
+ *  reading were repointed to in v778/v781 — one definition of a crown day across every surface, so
+ *  the bell can never announce an apex the calendar does not show.
+ *  Fails SILENTLY to false: a bell that rings the ordinary line is a small loss, a bell that throws
+ *  costs the user their morning entirely. The ranked year is memoised in-process on the natal
+ *  inputs, so this is one cached lookup per subscribed user per morning, not a fresh 366-day walk. */
+async function isCrownDayFor(userId: number, localDate: string): Promise<boolean> {
+  try {
+    const { getActiveProfile } = await import("./routers/profiles.js");
+    const { getUserById } = await import("./db.js");
+    const profile = await getActiveProfile(userId);
+    if (!profile) return false;
+    const user = await getUserById(userId);
+    const { rankedSolarYearForProfile } = await import("./vedic/ranked-year.js");
+    for (const offset of [0, -1, 1]) {   // the solar year boundary can fall either side of today
+      const ranked = await rankedSolarYearForProfile(profile, user, offset);
+      const top: string[] = ranked?.summary?.topDates ?? [];
+      if (top.includes(localDate)) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 /** One scheduler tick: ring every subscribed user whose local clock is in the 8am hour and who
@@ -240,6 +275,35 @@ export async function morningBellTick(): Promise<void> {
     u.pushes.push(r.lastMorningPush ?? null);
     byUser.set(r.userId, u);
   }
+
+  // THE BELL IS ON THE SAME LOCATION PRECEDENCE AS EVERY OTHER SURFACE (v808).
+  // It read users.locationTimezone and NOTHING else, so anyone who never set a current location had
+  // no clock, was skipped by the hour check, and never received a morning bell — permanently. The
+  // app already knows their timezone: every profile carries a hometown (backfilled from birth) and a
+  // birth timezone, and resolve-day-sky's standing order is current → hometown → birth. The bell was
+  // the one surface off that order. It is not any more. Only users still missing a clock are looked
+  // up, so a fully-located userbase costs nothing.
+  // forEach, not a spread: this file's tsconfig target rejects Map iteration without
+  // downlevelIteration, and adding to that error count while fixing a bug is not a trade.
+  const needTz: number[] = [];
+  byUser.forEach((u, id) => { if (!u.tz) needTz.push(id); });
+  if (needTz.length) {
+    const fallbacks = await db
+      .select({
+        userId: profiles.userId,
+        hometownTimezone: profiles.hometownTimezone,
+        birthTimezone: profiles.birthTimezone,
+        userBirthTz: users.birthTimezone,
+      })
+      .from(profiles)
+      .innerJoin(users, eq(users.id, profiles.userId))
+      .where(and(inArray(profiles.userId, needTz), eq(profiles.isOwner, true)));
+    for (const f of fallbacks) {
+      const u = byUser.get(f.userId);
+      if (!u || u.tz) continue;
+      u.tz = f.hometownTimezone ?? f.birthTimezone ?? f.userBirthTz ?? null;
+    }
+  }
   for (const [userId, u] of byUser) {
     const clock = localClock(u.tz);
     if (!clock || clock.hour !== MORNING_HOUR) continue;
@@ -261,7 +325,7 @@ export async function morningBellTick(): Promise<void> {
       // Title is the BRAND line ("Velea" above the greeting — David 2026-07-18: the
       // "Good morning" title made iOS render a redundant "from Velea" second line).
       title: "Velea",
-      body: `Good morning, ${first}! ${await skyLineFor(clock.date)}`, // the day's sky picks the line — David's words, engine-chosen
+      body: `Good morning, ${first}! ${await skyLineFor(clock.date, await isCrownDayFor(userId, clock.date))}`, // the day's sky picks the line — David's words, engine-chosen
       url: "/",
     });
   }

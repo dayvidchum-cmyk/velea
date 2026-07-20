@@ -1248,4 +1248,27 @@
 // on its own gold coin, and the dimmed-parchment muted ink at 2.29. Both now have measured numbers
 // and a working tool; the decision is his.
 // 64 files, 650 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.807";
+// v1.1.808 = 2026-07-20 — THE TOP RUNG OF THE BELL LADDER HAD NEVER ONCE FIRED.
+// Two defects, one shape: the code was written and nothing read it.
+// (1) THE CROWN. POOL.crown has carried David's line — "Heavy is the head that wears the crown —
+// who cares. Today is yours, honey." — since it was written, and the selector never looked at it.
+// It went straight to the eclipse rung, so a CROWNED day, one of the twelve apex days of a person's
+// whole solar year, rang the ordinary stage line. Crown > eclipse > retroshade > waterfalls >
+// horizon > ordinary is his blessed ladder and its top rung was decorative. It is the only PERSONAL
+// rung, which is exactly why it sat unwired while every collective rung got built: the selector
+// works from the shared sky and cannot see one chart. The caller now resolves it per user, from the
+// SAME ranked solar year the calendar and the reading were repointed to in v778/v781 — so the bell
+// can never announce an apex the calendar does not show. It fails to FALSE, never throws: a bell
+// that rings the ordinary line is a small loss, a bell that throws costs the morning.
+// (2) THE REACH. The ring loop read users.locationTimezone and nothing else, so anyone who never
+// set a current location had no clock, failed the hour check, and was never rung — permanently.
+// The app already knew their timezone: every profile carries a hometown (backfilled from birth) and
+// a birth timezone, and resolve-day-sky's standing order is current → hometown → birth. The bell
+// was the one surface off that order. Only users still missing a clock are looked up, so a fully
+// located userbase costs nothing, and localClock's "skip, don't guess" contract is untouched — the
+// fix adds SOURCES, it does not invent a timezone.
+// Controls: 7 structural assertions, verified to fail against the pre-v808 file by reverting only
+// push.ts and re-running. They pin the ladder ORDER (crown above eclipse), the shared crown source,
+// the fail-to-false, and the precedence order itself.
+// 65 files, 657 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.808";
