@@ -213,6 +213,14 @@ day read, which has room), NEVER a license to add length to this teaser:
 When isCrown is false (or personalApex is null), say NOTHING about crowns or peak days — no
 "today is ordinary," no absence noted. Silence.
 
+NO SINGLE MOVE. The guidance is the day's TILT, never one prescribed act. Modern life runs many
+threads at once; "move the one thing," "give it one committed hour," "the one piece to finish"
+each read SMALLER than the day actually is — they collapse a direction into an errand and undersell
+it. Name the LEAN — what today favors and what it resists — so the reader applies it across whatever
+is already on their plate. The beat-3 example ("serve less, guard your own ground, let the friction
+show you where you've given too much") is a TILT, not a task — keep that register: a posture to carry
+through everything, not one item to check off. This binds every surface: the narrative, the question, and any guidance a read gives.
+
 WHEN THE SUN DID NOT RISE
 panchang.noSunrise is present ONLY above the Arctic or below the Antarctic circle, on a date when
 the Sun never crossed the horizon: "polar-night" (it never rose) or "polar-day" (it never set).
@@ -2417,7 +2425,21 @@ export const MODEL = "claude-sonnet-4-6";
 // Bump this whenever the prompt logic changes meaningfully — it is folded into the
 // narrative cache key, so a bump forces every cached glance/deep-read to regenerate
 // with the new prompt instead of serving a stale one.
-export const PROMPT_VERSION = "2026-07-18-audit4-law-reconcile";
+// BUMPED 2026-07-20 (v825). Three SHARED LAWS were restored to BASE_PROMPT during this run and
+// none of them could reach a reading that was already cached, because the cache key is keyed on
+// this constant:
+//   · PERSONAL APEX — THE CROWN DAY, orphaned by v805's glance deletion and restored in v819. A
+//     user whose crown day is today, whose read was cached before the deploy, would have gone on
+//     getting the crownless prose the orphaning produced — the exact thing v819 claims to fix.
+//   · WHEN THE SUN DID NOT RISE, delivered in v820.
+//   · NO SINGLE MOVE, deleted with GLANCE_TAIL in v819 while two tails still cited it BY NAME, and
+//     restored in v825.
+// This is a real cost — every surface regenerates once, for every profile — and it is the cost the
+// rule above prescribes: "bump whenever the prompt logic changes meaningfully". Not bumping would
+// have made all three restorations another fix that lands nowhere, which is the failure this run
+// keeps finding. v804 deliberately did NOT bump, and that was right: the text there was moved, not
+// changed. Here the laws genuinely came back.
+export const PROMPT_VERSION = "2026-07-20-laws-restored";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

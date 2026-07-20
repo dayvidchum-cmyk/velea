@@ -89,3 +89,23 @@ describe("the laws ARRIVE, not just appear in the file (v823)", () => {
     expect(DAY_READ_TAIL).toContain("PROSPERITY DAY");
   });
 });
+
+describe("no tail cites a law the model does not receive (v825)", () => {
+  // The reach audit found NO SINGLE MOVE deleted along with GLANCE_TAIL while two tails still cited
+  // it BY NAME — a dangling pointer in a shipped prompt, the same defect v819 set out to remove and
+  // created again in the same commit. Every law CITED by a tail must be present in the prompt the
+  // model actually receives.
+  it("BASE_PROMPT carries NO SINGLE MOVE, which two tails cite by name", async () => {
+    const { BASE_PROMPT, DAY_READ_TAIL, LIFE_AREA_TAIL } = await import("./prompts.js");
+    expect(DAY_READ_TAIL).toContain("NO SINGLE MOVE");
+    expect(LIFE_AREA_TAIL).toContain("NO SINGLE MOVE");
+    expect(BASE_PROMPT).toContain("NO SINGLE MOVE. The guidance is the day");
+  });
+
+  it("PROMPT_VERSION was bumped when the shared laws came back", async () => {
+    // Restoring a law into BASE_PROMPT reaches nothing already cached unless this moves — the cache
+    // key is keyed on it. A restoration that cannot reach a cached reading is not a restoration.
+    const { PROMPT_VERSION } = await import("./prompts.js");
+    expect(PROMPT_VERSION).not.toBe("2026-07-18-audit4-law-reconcile");
+  });
+});

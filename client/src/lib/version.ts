@@ -1599,4 +1599,29 @@
 // and every OPEN DECISION is still in them — not the prose, which should stay free to change.
 // Verified the guard bites by stripping a correction from a copy and watching it fail.
 // 75 files, 765 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
-export const APP_VERSION = "1.1.824";
+// v1.1.825 = 2026-07-20 — A HUNT OVER MY OWN CORRECTIONS FOUND THREE MORE. THE THIRD IS THE ONE
+// THAT MATTERED: NONE OF THE RESTORED LAWS COULD REACH A CACHED READING.
+// (1) v819's gateDayField "fix" DID NOT DO WHAT ITS COMMENT CLAIMED, and made the payload worse.
+// The day card's confidence is computed from baseScore + the three modifiers against finalScore —
+// and my spread rewrote only finalMode and baseMode. So the confidence was byte-identical before
+// and after, my comment saying otherwise was false, and the result now read baseMode "Restraint"
+// beside baseScore 3, which is ACTION's score. Relabelling two fields on a discarded ladder is not
+// carrying the reason. The interaction mode now RECOMPUTES its ladder; the weather gate leaves the
+// ladder alone, because containment is applied from outside and "Contained Build" deliberately
+// keeps the real mode visible. My own test had pinned the relabel, ratifying the half-fix — gone.
+// (2) DELETING GLANCE_TAIL TOOK THE "NO SINGLE MOVE" LAW WITH IT while DAY_READ_TAIL and
+// LIFE_AREA_TAIL still cited it BY NAME. A dangling pointer in a shipped prompt — the same defect
+// v819 existed to remove, created by v819 in the same commit. Recovered from git, restored to
+// BASE_PROMPT, and its "binds the question below" line rewritten to bind every surface, since it is
+// no longer sitting in the glance.
+// (3) PROMPT_VERSION WAS NEVER BUMPED. The cache key is keyed on it, so the crown doctrine (v819),
+// the polar rule (v820) and NO SINGLE MOVE (v825) reached NO reading that was already cached. A
+// user whose crown day is today, whose read was cached before the deploy, would have gone on
+// getting exactly the crownless prose the orphaning produced. Three restorations, all landing
+// nowhere — the run's own failure, one more time. Bumped. Every surface regenerates once, for every
+// profile: a real cost, and the one the rule prescribes. v804 deliberately did not bump because its
+// text moved rather than changed; here the laws genuinely came back.
+// Guarded now: a test asserts every law CITED by a tail is present in the prompt the model
+// receives, and that PROMPT_VERSION moved when the laws came back.
+// 76 files, 814 tests, 0 failures. Build exits 0 and typechecks. tsc clean.
+export const APP_VERSION = "1.1.825";
