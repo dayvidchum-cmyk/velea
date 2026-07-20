@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { inkOf } from "@/lib/ink";
 import { X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { GlossaryLink } from "@/components/GlossaryPopover";
@@ -87,7 +88,7 @@ function ConditionLine({ t, timeLord, accent }: { t: any; timeLord: string; acce
     <p style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
       <GlossaryLink term={t.planet} underline={false}><strong style={linkStyle}>{t.planet}</strong></GlossaryLink>
       {t.planet === timeLord && (
-        <span style={{ marginLeft: "0.4rem", fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: accent }}>runs this year</span>
+        <span style={{ marginLeft: "0.4rem", fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: inkOf(accent) }}>runs this year</span>
       )}
       {" — "}
       {bits}
@@ -127,7 +128,7 @@ export default function TheWhySheet({ profileId, date, modeColor, onClose }: { p
         style={{ background: "var(--color-card)", borderRadius: 20, border: "1px solid var(--color-border)", padding: "1.4rem", maxHeight: "80vh", overflowY: "auto" }}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: modeColor, margin: 0 }}>The why</p>
+            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: inkOf(modeColor), margin: 0 }}>The why</p>
             <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", margin: "0.3rem 0 0", lineHeight: 1.45 }}>
               The sky behind today's read — tap any name to learn.
             </p>

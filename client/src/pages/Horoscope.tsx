@@ -1,4 +1,5 @@
 import GateMark from "@/components/GateMark";
+import { inkOf } from "@/lib/ink";
 import LockedRead from "@/components/LockedRead";
 import ProseCard from "@/components/ProseCard";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
@@ -668,7 +669,7 @@ function HubSection({ title, subtitle, open, onToggle, accent, children }: { tit
     <div style={{ borderRadius: 16, border: `1px solid color-mix(in srgb, ${accent} 38%, transparent)`, background: "var(--color-card)", marginBottom: "0.8rem", overflow: "hidden" }}>
       <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", padding: "0.85rem 1rem", background: "none", border: "none", cursor: "pointer" }}>
         <span style={{ display: "flex", flexDirection: "column", gap: "0.2rem", minWidth: 0, textAlign: "left" }}>
-          <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: accent }}>{title}</span>
+          <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: inkOf(accent) }}>{title}</span>
           {subtitle && <span style={{ fontSize: "0.66rem", fontWeight: 500, color: "var(--color-muted-foreground)", lineHeight: 1.35 }}>{subtitle}</span>}
         </span>
         <ChevronDown size={16} style={{ color: "var(--color-muted-foreground)", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
@@ -685,7 +686,7 @@ function SectionLoading({ label }: { label: string }) {
 
 const hubLinkStyle = (accent: string): CSSProperties => ({
   display: "inline-block", marginTop: "0.9rem", background: "none", border: "none", cursor: "pointer",
-  color: accent, fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.04em", padding: 0,
+  color: inkOf(accent), fontSize: "0.74rem", fontWeight: 700, letterSpacing: "0.04em", padding: 0,
 });
 
 // ── A small eclipse glyph: a corona ring around a dark disc (an annular "ring of fire"). Reads
@@ -732,9 +733,9 @@ function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
         <>
           <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
             <EclipseGlyph color={accent} />
-            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent }}>This eclipse season</span>
-            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: accent, background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
-            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: accent, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent) }}>This eclipse season</span>
+            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: inkOf(accent, 4.5, 16), background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
+            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: inkOf(accent), transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
           </button>
           {open && (
             <div style={{ marginTop: "0.8rem" }}>
@@ -751,7 +752,7 @@ function EclipseSeasonCard({ modeColor }: { modeColor: string }) {
         <>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
             <EclipseGlyph color={accent} />
-            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent, margin: 0 }}>This eclipse season</p>
+            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent), margin: 0 }}>This eclipse season</p>
           </div>
           {noSeason ? (
             <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
@@ -990,9 +991,9 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
         <>
           <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
             <MercuryGlyph color={accent} />
-            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent }}>{eyebrow}</span>
-            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: accent, background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
-            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: accent, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent) }}>{eyebrow}</span>
+            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: inkOf(accent, 4.5, 16), background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
+            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: inkOf(accent), transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
           </button>
           {open && (
             <div style={{ marginTop: "0.8rem" }}>
@@ -1007,7 +1008,7 @@ function MercuryRxCard({ modeColor }: { modeColor: string }) {
         <>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
             <MercuryGlyph color={accent} />
-            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent, margin: 0 }}>{eyebrow}</p>
+            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent), margin: 0 }}>{eyebrow}</p>
           </div>
           {noCycle ? (
             <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
@@ -1083,9 +1084,9 @@ function MonthCard({ modeColor }: { modeColor: string }) {
         <>
           <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
             <MonthGlyph color={accent} />
-            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent }}>Your {monthLabel}</span>
-            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: accent, background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
-            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: accent, transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
+            <span style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent) }}>Your {monthLabel}</span>
+            <span style={{ fontSize: "0.56rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: inkOf(accent, 4.5, 16), background: `color-mix(in srgb, ${accent} 16%, transparent)`, borderRadius: 999, padding: "0.1rem 0.45rem" }}>Read</span>
+            <ChevronDown size={16} style={{ marginLeft: "auto", flexShrink: 0, color: inkOf(accent), transform: open ? "rotate(180deg)" : "none", transition: "transform 200ms ease" }} />
           </button>
           {open && (
             <div style={{ marginTop: "0.8rem" }}>
@@ -1100,7 +1101,7 @@ function MonthCard({ modeColor }: { modeColor: string }) {
         <>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
             <MonthGlyph color={accent} />
-            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: accent, margin: 0 }}>Your {monthLabel}</p>
+            <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(accent), margin: 0 }}>Your {monthLabel}</p>
           </div>
           {unavailable ? (
             <p style={{ fontSize: "0.8rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: 0 }}>
@@ -1138,7 +1139,7 @@ function MonthCard({ modeColor }: { modeColor: string }) {
 // carried line; the chart mechanics (the whys) tuck behind one toggle (low cognitive load). ──
 function DayReadBody({ read, modeColor }: { read: DayRead; modeColor: string }) {
   const label = (t: string) => (
-    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
+    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(modeColor), margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
   );
   const body = (s: string) => <p style={{ fontSize: "0.95rem", lineHeight: 1.68, color: "var(--foreground)", margin: 0 }}><GlossaryText>{s}</GlossaryText></p>;
 
@@ -1149,7 +1150,7 @@ function DayReadBody({ read, modeColor }: { read: DayRead; modeColor: string }) 
       {read.story && (<>{label("The story underneath")}{body(read.story)}</>)}
       {read.tilt && (<>{label("How to carry the day")}{body(read.tilt)}</>)}
       {read.closeLine && (
-        <p style={{ fontSize: "1rem", lineHeight: 1.55, fontWeight: 600, fontStyle: "italic", color: modeColor, margin: "1.5rem 0 0", opacity: 0.95 }}>
+        <p style={{ fontSize: "1rem", lineHeight: 1.55, fontWeight: 600, fontStyle: "italic", color: inkOf(modeColor), margin: "1.5rem 0 0", opacity: 0.95 }}>
           {read.closeLine}
         </p>
       )}
@@ -1161,7 +1162,7 @@ function DayReadBody({ read, modeColor }: { read: DayRead; modeColor: string }) 
 function DeepReadBody({ read, modeColor }: { read: DeepRead; modeColor: string }) {
   const [mechOpen, setMechOpen] = useState(false);
   const label = (t: string) => (
-    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: modeColor, margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
+    <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: inkOf(modeColor), margin: "1.3rem 0 0.4rem", opacity: 0.9 }}>{t}</p>
   );
   const body = (s: string) => <p style={{ fontSize: "0.95rem", lineHeight: 1.68, color: "var(--foreground)", margin: 0 }}>{s}</p>;
 
@@ -1175,7 +1176,7 @@ function DeepReadBody({ read, modeColor }: { read: DeepRead; modeColor: string }
           <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
             {read.manifestations.map((m, i) => (
               <div key={i}>
-                <p style={{ fontSize: "0.7rem", fontWeight: 700, color: modeColor, margin: "0 0 0.15rem", opacity: 0.85 }}>{m.area}</p>
+                <p style={{ fontSize: "0.7rem", fontWeight: 700, color: inkOf(modeColor), margin: "0 0 0.15rem", opacity: 0.85 }}>{m.area}</p>
                 {body(m.synthesis)}
               </div>
             ))}

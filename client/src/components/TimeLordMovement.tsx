@@ -13,6 +13,7 @@
  */
 
 import { trpc } from "@/lib/trpc";
+import { inkOf } from "@/lib/ink";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 import GlossaryText from "@/components/GlossaryText";
 
@@ -122,7 +123,7 @@ export function TimeLordMovement({ selectedDate, variant = "default", accentColo
   const bgColor = immersive ? "transparent" : "var(--card)";
   // Immersive: keep every line white so the header and the labels beneath it read
   // as one family (no darker date/section labels).
-  const labelColor = immersive ? "#FDFDFD" : dayLabelColor;
+  const labelColor = immersive ? "#FDFDFD" : inkOf(dayLabelColor); // immersive rides a gradient — only the card-ground branch is inked
   const textColor = immersive ? "#FDFDFD" : "var(--foreground)";
   const mutedColor = immersive ? "rgba(255,255,255,0.93)" : "var(--muted-foreground)";
   const dotColor = immersive ? "rgba(255,255,255,0.55)" : "var(--muted-foreground)";

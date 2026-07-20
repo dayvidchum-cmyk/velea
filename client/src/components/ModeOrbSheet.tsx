@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { inkOf } from "@/lib/ink";
 import { X, Plus, CheckCircle2, Circle, Pencil, Pin, PinOff, Trash2, ChevronDown, ChevronUp, Check, CalendarDays } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -192,7 +193,7 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
             <button
               onClick={() => { setEditTask(null); setAddSheetOpen(true); }}
               className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
-              style={{ background: `color-mix(in oklch, ${modeColor} 20%, transparent)`, color: modeColor, border: `1px solid color-mix(in oklch, ${modeColor} 35%, transparent)` }}
+              style={{ background: `color-mix(in oklch, ${modeColor} 20%, transparent)`, color: inkOf(modeColor, 4.5, 20), border: `1px solid color-mix(in oklch, ${modeColor} 35%, transparent)` }}
               aria-label={`Add ${mode} task`}
             >
               <Plus size={15} strokeWidth={2.5} />
@@ -219,7 +220,7 @@ export default function ModeOrbSheet({ mode, open, onClose }: ModeOrbSheetProps)
                 className="px-4 py-2 rounded-full text-xs font-semibold transition-all"
                 style={{
                   background: `color-mix(in oklch, ${modeColor} 18%, transparent)`,
-                  color: modeColor,
+                  color: inkOf(modeColor),
                   border: `1px solid color-mix(in oklch, ${modeColor} 35%, transparent)`,
                   letterSpacing: "0.02em",
                 }}

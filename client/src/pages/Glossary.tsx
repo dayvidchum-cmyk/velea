@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { inkOf } from "@/lib/ink";
 import { Search, X, ChevronDown } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
@@ -414,7 +415,7 @@ export default function Glossary() {
                     className="text-[12px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full"
                     style={{
                       background: `color-mix(in oklch, ${catColor} 15%, transparent)`,
-                      color: catColor,
+                      color: inkOf(catColor),
                       letterSpacing: "0.04em",
                       border: `1px solid color-mix(in oklch, ${catColor} 30%, transparent)`,
                     }}
@@ -422,7 +423,7 @@ export default function Glossary() {
                     {item.category}
                   </span>
                   {!searching && (
-                    <ChevronDown size={14} style={{ color: catColor, transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
+                    <ChevronDown size={14} style={{ color: inkOf(catColor), transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms ease" }} />
                   )}
                 </span>
               </button>

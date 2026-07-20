@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { inkOf } from "@/lib/ink";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -132,7 +133,7 @@ function ScoreRow({
       <p className="text-xs mt-3 leading-snug" style={{ color: "var(--color-muted-foreground)", minHeight: "2.1em" }}>
         {shownText ? (
           <>
-            <span style={{ color: modeColor, fontWeight: 700 }}>{shownNumber}</span>
+            <span style={{ color: inkOf(modeColor), fontWeight: 700 }}>{shownNumber}</span>
             {" — "}
             {shownText}
           </>

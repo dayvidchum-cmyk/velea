@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { inkOf } from "@/lib/ink";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, Monitor, Eye, EyeOff, ChevronDown, Compass, MapPin } from "lucide-react";
@@ -636,7 +637,7 @@ export default function Settings() {
               {[fmtBirthDate(subject?.birthDate), fmtBirthTime(subject?.birthTime), subject?.birthLocationCity].filter(Boolean).join(" · ") || "No birth details yet"}
             </p>
             {subject?.lagnaSign && (
-              <p className="text-xs font-semibold uppercase mt-1.5" style={{ color: modeColor, letterSpacing: "0.06em" }}>
+              <p className="text-xs font-semibold uppercase mt-1.5" style={{ color: inkOf(modeColor), letterSpacing: "0.06em" }}>
                 {subject.lagnaSign} Lagna
               </p>
             )}
@@ -654,7 +655,7 @@ export default function Settings() {
               local sunrise, panchang timing, yamas, and hora. */}
           <div className="py-4" style={{ borderTop: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-1">
-              <MapPin size={13} style={{ color: modeColor }} />
+              <MapPin size={13} style={{ color: inkOf(modeColor) }} />
               <p className="text-sm font-bold" style={{ color: "var(--color-foreground)" }}>Current location</p>
             </div>
             <p className="text-sm mb-3" style={{ color: "var(--muted-foreground)", lineHeight: 1.5 }}>

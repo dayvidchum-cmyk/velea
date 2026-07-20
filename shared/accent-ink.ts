@@ -98,6 +98,19 @@ function hslToHex(h: number, s: number, l: number): string {
  *          If even pure black/white cannot reach the target (a mid-grey ground), returns the best
  *          available rather than throwing — legibility degrades, it never crashes a screen.
  */
+/** Mix two #rrggbb colours by weight (0..1 of `a` over `b`) — the JS twin of CSS color-mix in srgb.
+ *  Chips are drawn on `color-mix(in srgb, <colour> N%, var(--color-card))`, so the pixel actually
+ *  behind their text is NOT the card: it is the card tinted by the very colour being inked. Solving
+ *  against the untinted card leaves the result short of the bar (measured: 3.9:1 where 4.5 was
+ *  intended). This lets the caller name the real ground. */
+export function mixHex(a: string, b: string, weightA: number): string {
+  const hx = (h: string) => { const x = h.replace("#", ""); return [0, 2, 4].map((i) => parseInt(x.slice(i, i + 2), 16)); };
+  const [r1, g1, b1] = hx(a), [r2, g2, b2] = hx(b);
+  const w = Math.max(0, Math.min(1, weightA));
+  const to2 = (v: number) => Math.round(v).toString(16).padStart(2, "0");
+  return `#${to2(r1 * w + r2 * (1 - w))}${to2(g1 * w + g2 * (1 - w))}${to2(b1 * w + b2 * (1 - w))}`;
+}
+
 export function accentInk(accent: string, ground: string, target = 4.5): string {
   if (!/^#[0-9a-f]{6}$/i.test(accent) || !/^#[0-9a-f]{6}$/i.test(ground)) return accent;
   if (contrastRatio(accent, ground) >= target) return accent; // already readable — do not touch it

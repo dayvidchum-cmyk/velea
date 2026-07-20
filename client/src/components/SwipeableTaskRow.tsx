@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { inkOf } from "@/lib/ink";
 import { CheckCircle2, Pin, Trash2 } from "lucide-react";
 
 interface SwipeableTaskRowProps {
@@ -119,7 +120,7 @@ export default function SwipeableTaskRow({
         <CheckCircle2
           size={20}
           style={{
-            color: leftColor,
+            color: inkOf(leftColor, 3),
             transform: triggered === "left" ? "scale(1.2)" : "scale(1)",
             transition: "transform 150ms ease-out",
           }}
@@ -137,9 +138,9 @@ export default function SwipeableTaskRow({
         aria-hidden
       >
         {rightMode === "delete" ? (
-          <Trash2 size={18} style={{ color: rightColor, transform: triggered === "right" ? "scale(1.2)" : "scale(1)", transition: "transform 150ms ease-out" }} />
+          <Trash2 size={18} style={{ color: inkOf(rightColor, 3), transform: triggered === "right" ? "scale(1.2)" : "scale(1)", transition: "transform 150ms ease-out" }} />
         ) : (
-          <Pin size={18} style={{ color: rightColor, transform: triggered === "right" ? "scale(1.2)" : "scale(1)", transition: "transform 150ms ease-out" }} />
+          <Pin size={18} style={{ color: inkOf(rightColor, 3), transform: triggered === "right" ? "scale(1.2)" : "scale(1)", transition: "transform 150ms ease-out" }} />
         )}
       </div>
 

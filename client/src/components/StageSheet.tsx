@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { inkOf } from "@/lib/ink";
 import VeleaLoader from "@/components/VeleaLoader";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -240,7 +241,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                   const pc = RX_PLANET_COLOR[r.planet] ?? "var(--foreground)";
                   return (
                   <GlossaryLink key={r.planet} term="Retrograde (Vakri)" underline={false} className="text-xs font-semibold"
-                    style={{ display: "inline-block", color: pc, background: `color-mix(in srgb, ${pc} 14%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${pc} 42%, transparent)`, borderRadius: 999, padding: "0.2rem 0.6rem" }}
+                    style={{ display: "inline-block", color: inkOf(pc, 4.5, 14), background: `color-mix(in srgb, ${pc} 14%, var(--color-card))`, border: `1px solid color-mix(in srgb, ${pc} 42%, transparent)`, borderRadius: 999, padding: "0.2rem 0.6rem" }}
                     extra={r.house ? <>Right now: <strong>{r.planet}</strong> is retrograde in your <strong>{RX_ORD[r.house]} house</strong>{RX_HOUSE_THEME[r.house] ? ` — ${RX_HOUSE_THEME[r.house]}` : ""}. The review lands here.</> : undefined}
                   >{r.planet} ℞</GlossaryLink>
                   );

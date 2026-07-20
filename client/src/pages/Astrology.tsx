@@ -1,4 +1,5 @@
 import GateMark from "@/components/GateMark";
+import { inkOf } from "@/lib/ink";
 import NotifyMeButton from "@/components/NotifyMeButton";
 import LockedRead from "@/components/LockedRead";
 import { accentInk } from "@shared/accent-ink";
@@ -453,7 +454,7 @@ function NatalChartGrid({ lagnaSign, natalBodies }: { lagnaSign: string | null; 
                     const dignity = getPlanetDignity(planet, pSign);
                     return (
                       <span key={planet} style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--color-foreground)", background: "var(--color-secondary)", borderRadius: "999px", padding: "0.2rem 0.6rem" }}>
-                        <span style={{ color: PLANET_COLORS_PARCH[planet] ?? "var(--color-foreground)" }}>{planet}</span>
+                        <span style={{ color: inkOf(PLANET_COLORS_PARCH[planet] ?? "var(--color-foreground)") }}>{planet}</span>
                         {isRetrograde && <span style={{ color: "var(--color-muted-foreground)" }}> Rx</span>}
                         {dignity && <span style={{ color: "var(--color-muted-foreground)" }}> · {dignity}</span>}
                       </span>
@@ -524,7 +525,7 @@ function PlanetTable({ natalBodies }: { natalBodies: NatalBody[] }) {
             borderBottom: i < sorted.length - 1 ? "1px solid var(--color-border)" : "none",
           }}
         >
-          <span style={{ fontSize: "0.75rem", fontWeight: 600, textAlign: "center", color: PLANET_COLORS[b.planet] ?? "var(--color-foreground)" }}>
+          <span style={{ fontSize: "0.75rem", fontWeight: 600, textAlign: "center", color: inkOf(PLANET_COLORS[b.planet] ?? "var(--color-foreground)") }}>
             {b.planet}{b.isRetrograde ? " Rx" : ""}
           </span>
           <span style={{ fontSize: "0.75rem", textAlign: "center", color: "var(--color-foreground)" }}>{b.sign}</span>
@@ -580,7 +581,7 @@ function ExplainerPanel({ title, children }: { title: string; children: React.Re
         type="button"
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-1"
-        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", marginBottom: "0.75rem", color: modeColor, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
+        style={{ background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0", marginBottom: "0.75rem", color: inkOf(modeColor), fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, opacity: 0.82 }}
       >
         {title} <span aria-hidden style={{ fontSize: "0.85rem", opacity: 0.9 }}>ⓘ</span>
       </button>
@@ -594,8 +595,8 @@ function ExplainerPanel({ title, children }: { title: string; children: React.Re
             style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--color-card)", border: "1px solid var(--border)", borderRadius: 20 }}
           >
             <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "1rem 1.3rem", borderBottom: "1px solid var(--border)", background: "var(--color-card)" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: modeColor }}>{title}</span>
-              <button onClick={() => setOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${modeColor} 18%, transparent)`, border: `1px solid color-mix(in srgb, ${modeColor} 34%, transparent)`, color: modeColor, cursor: "pointer" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: inkOf(modeColor) }}>{title}</span>
+              <button onClick={() => setOpen(false)} aria-label="Close" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${modeColor} 18%, transparent)`, border: `1px solid color-mix(in srgb, ${modeColor} 34%, transparent)`, color: inkOf(modeColor, 4.5, 18), cursor: "pointer" }}>
                 <X size={16} strokeWidth={2.5} />
               </button>
             </div>
@@ -690,7 +691,7 @@ function describeDignity(d: any, modeColor: string): { label: string; flavor: st
   if (d.state === "own") return { label: "Own sign", flavor: "dignified, at home", color: "#357E85" };
   if (d.state === "debilitated") {
     if (d.neechaBhanga?.cancelled)
-      return { label: "Debilitated — but cancelled (neecha bhanga)", flavor: `hard-won strength: it fell, and rose (${d.neechaBhanga.reasons.join("; ")})`, color: modeColor };
+      return { label: "Debilitated — but cancelled (neecha bhanga)", flavor: `hard-won strength: it fell, and rose (${d.neechaBhanga.reasons.join("; ")})`, color: inkOf(modeColor) };
     return { label: "Debilitated", flavor: "weakened in its fall — needs support", color: "#cc3b2e" };
   }
   return { label: d.state, flavor: "", color: "var(--color-foreground)" };
@@ -997,13 +998,13 @@ export function DashaSection() {
                   return (
                     <div key={`top-${period.antardasha}-${i}`} className="px-3 py-2" style={period.isCurrent ? { background: `${antColor}1C`, borderLeft: `3px solid ${antColor}`, borderRadius: 8, margin: "0.25rem 0" } : { borderLeft: "3px solid transparent" }}>
                       <div className="flex items-center gap-2.5">
-                        <span className="flex-shrink-0 leading-none text-center" style={{ fontSize: "0.9rem", color: antColor, width: "1rem" }}>{PLANET_SYMBOLS[period.antardasha] ?? "●"}</span>
+                        <span className="flex-shrink-0 leading-none text-center" style={{ fontSize: "0.9rem", color: inkOf(antColor), width: "1rem" }}>{PLANET_SYMBOLS[period.antardasha] ?? "●"}</span>
                         <span className="text-sm flex-shrink-0" style={{ color: period.isCurrent ? antColor : "var(--color-foreground)", fontWeight: period.isCurrent ? 700 : 500, minWidth: "72px" }}>{period.antardasha}</span>
                         <span className="text-[11px]" style={{ color: "var(--color-muted-foreground)" }}>{formatDate(period.startDate)} · {period.duration}</span>
                         {future ? (
                           <GateMark size={17} style={{ marginLeft: "auto", color: "var(--brand-gold)", opacity: 0.6, flexShrink: 0 }} />
                         ) : !reading ? (
-                          <button onClick={() => setAntarKey({ maha: currentMaha!, antar: period.antardasha })} className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full" style={{ marginLeft: "auto", letterSpacing: "0.08em", color: antColor, border: `1px solid ${antColor}66`, background: "transparent", cursor: "pointer", flexShrink: 0 }}>
+                          <button onClick={() => setAntarKey({ maha: currentMaha!, antar: period.antardasha })} className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full" style={{ marginLeft: "auto", letterSpacing: "0.08em", color: inkOf(antColor), border: `1px solid ${antColor}66`, background: "transparent", cursor: "pointer", flexShrink: 0 }}>
                             {period.isCurrent ? "Now · read" : "Read"}
                           </button>
                         ) : null}
@@ -1137,7 +1138,7 @@ export function DashaSection() {
                         }
                       >
                         <div className="flex items-center gap-3">
-                          <span className="flex-shrink-0 leading-none text-center" style={{ fontSize: "0.95rem", color: antColor, width: "1rem" }}>
+                          <span className="flex-shrink-0 leading-none text-center" style={{ fontSize: "0.95rem", color: inkOf(antColor), width: "1rem" }}>
                             {PLANET_SYMBOLS[period.antardasha] ?? "●"}
                           </span>
                           <span className="text-sm flex-shrink-0"
@@ -1164,7 +1165,7 @@ export function DashaSection() {
                             <button
                               onClick={() => setAntarKey({ maha: g.mahadasha, antar: period.antardasha })}
                               className="mt-2 w-full py-1.5 rounded-full text-[10px] font-bold uppercase"
-                              style={{ letterSpacing: "0.09em", color: antColor, border: `1px solid ${antColor}66`, background: "transparent", cursor: "pointer" }}
+                              style={{ letterSpacing: "0.09em", color: inkOf(antColor), border: `1px solid ${antColor}66`, background: "transparent", cursor: "pointer" }}
                             >
                               Read the {period.antardasha} sub-chapter
                             </button>

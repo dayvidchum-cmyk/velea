@@ -2,6 +2,7 @@
 // from the chart (age → activated house → its sign → that sign's ruler = the Time Lord
 // → where the Time Lord sits natally), so it is auditable and never hallucinated.
 import type { ReactNode } from "react";
+import { inkOf } from "@/lib/ink";
 import GlossaryText from "@/components/GlossaryText";
 
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
@@ -85,7 +86,7 @@ export function WhyNowChain({
             <p style={{ color: "var(--foreground)", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}><GlossaryText>{s}</GlossaryText></p>
           </div>
           {i < steps.length - 1 && (
-            <div style={{ color: accent, opacity: 0.6, fontSize: "1rem", lineHeight: 1, margin: "0.25rem 0 0.25rem 0.55rem" }}>↓</div>
+            <div style={{ color: inkOf(accent), opacity: 0.6, fontSize: "1rem", lineHeight: 1, margin: "0.25rem 0 0.25rem 0.55rem" }}>↓</div>
           )}
         </div>
       ))}

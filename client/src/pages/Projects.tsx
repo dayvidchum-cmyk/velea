@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { inkOf } from "@/lib/ink";
 import { useLocation } from "wouter";
 import { Archive, ArchiveRestore, Trash2, Pencil, Check, X, FolderOpen, ChevronRight, ChevronDown } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -550,7 +551,7 @@ export default function Projects() {
                         width: "2.25rem",
                         height: "2.25rem",
                         background: `color-mix(in srgb, ${projColor} 20%, var(--color-card))`,
-                        color: projColor,
+                        color: inkOf(projColor),
                         border: `1px solid color-mix(in srgb, ${projColor} 35%, transparent)`,
                       }}
                     >

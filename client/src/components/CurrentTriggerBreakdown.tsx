@@ -2,6 +2,7 @@
 // narrative). Each significant transit is a scannable per-planet fact: planet · the lived place
 // it's moving through, one concise effect line, then flags (Time Lord / activated house / natal
 // hit / retrograde). Pure chart math + fixed dictionaries, no LLM, no fake-narrative prose.
+import { inkOf } from "@/lib/ink";
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 const HOUSE_GLOSS: Record<number, string> = {
   1: "self, body, how you are seen",
@@ -87,7 +88,7 @@ export function CurrentTriggerBreakdown({
             <p style={{ color: fg, fontSize: "0.9rem", lineHeight: 1.6, margin: 0 }}>
               <strong>{t.planet}</strong>, {PLANET_WHO[t.planet] ?? "a moving planet"}, is {motion} {place} right now{role}{hit}.
             </p>
-            <p style={{ color: accent, fontSize: "0.86rem", lineHeight: 1.5, margin: "0.3rem 0 0", fontWeight: 600 }}>{effect}</p>
+            <p style={{ color: inkOf(accent), fontSize: "0.86rem", lineHeight: 1.5, margin: "0.3rem 0 0", fontWeight: 600 }}>{effect}</p>
           </div>
         );
       })}

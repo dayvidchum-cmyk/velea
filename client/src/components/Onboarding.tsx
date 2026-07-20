@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
+import { inkOf } from "@/lib/ink";
 import { useLocation } from "wouter";
 import { BookOpen, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import VeleaMark from "./VeleaMark";
@@ -335,7 +336,7 @@ function CardsDeck({
 
         <div
           className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-          style={{ background: `color-mix(in srgb, ${accent} 18%, transparent)`, color: accent }}
+          style={{ background: `color-mix(in srgb, ${accent} 18%, transparent)`, color: inkOf(accent, 4.5, 18) }}
         >
           <Icon size={26} />
         </div>
@@ -589,7 +590,7 @@ function TourLayer({
             boxShadow: "0 16px 48px rgba(0,0,0,0.4)",
           }}
         >
-          <Loader2 size={22} className="animate-spin" style={{ color: accent }} />
+          <Loader2 size={22} className="animate-spin" style={{ color: inkOf(accent) }} />
           <p className="text-xs font-medium" style={{ color: "var(--color-muted-foreground)" }}>
             Loading your chart…
           </p>
@@ -639,7 +640,7 @@ function TourLayer({
           transition: "top 200ms ease, left 200ms ease",
         }}
       >
-        <h3 className="text-sm font-bold mb-1" style={{ color: accent }}>
+        <h3 className="text-sm font-bold mb-1" style={{ color: inkOf(accent) }}>
           {step.title}
         </h3>
         <p className="text-xs leading-relaxed mb-4" style={{ color: "var(--color-foreground)" }}>

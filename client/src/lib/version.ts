@@ -922,4 +922,28 @@
 // receive their colour as a PROP (planet inks, sign colours, per-card accents), which the hook
 // cannot reach. Those need the ink applied at the text site itself. NOT claiming a finished sweep
 // this time (see v787/v788, where I claimed one and had done five of nine).
-export const APP_VERSION = "1.1.791";
+// v1.1.792 = 2026-07-20 — THE SWEEP, FINISHED (David: "finish. i'm not checking half done work").
+// v791 swept the 38 sites reading useDayModeColor(). The other 49 receive their colour as a PROP —
+// planet inks, category colours, mode colours, per-card accents — which a hook cannot reach.
+// MEASURED, and it is not a near-miss: EVERY planet colour and EVERY mode colour fails as text on
+// one ground or the other. Moon 1.66:1 on light, Mercury 1.68, Venus 1.76, Sun 1.98, Jupiter 2.11;
+// Mars 2.64 and Saturn 2.44 on dark; Ketu, Action and Selective fail on BOTH. 19 of 19 colours.
+// (PLANET_COLORS_PARCH — "tuned for legibility on the parchment chart" — was a hand-made partial
+// answer to exactly this, for one surface. The fourth ad-hoc predecessor, after tonalInk, tonalInkY
+// and DARK_LIFT.)
+// client/src/lib/ink.ts is the one entry point: inkOf(colour) maps the day-accent var to its
+// published twin, solves a hex against the ground in use, and returns anything it cannot reason
+// about (color-mix, oklch, gradients) UNTOUCHED rather than guessing. 64 call sites; 0 raw accents
+// left as text.
+// THREE THINGS I GOT WRONG AND CAUGHT BY LOOKING:
+//  · CalendarCoin — the script inked the coin's NUMBER, which sits on the coin's own FILL, not the
+//    card. Wrong ground, and the hover handler resets to the raw value. Reverted.
+//  · TimeLordMovement — its labels are WHITE on a gradient in immersive mode. Inking the resolved
+//    value would have darkened white text on a dark gradient. Now inked at the source, in the
+//    card-ground branch only.
+//  · AppHeader — a border mix got read as a background tint. A border does not change the ground.
+// AND A FLAW IN THE HELPER ITSELF: chips are drawn on color-mix(colour N%, card), so the pixel
+// behind the text is the card TINTED BY THE VERY COLOUR being inked — not the card. Solving against
+// the untinted card left them at 3.9:1 where 4.5 was intended. inkOf now takes the tint and
+// reconstructs the real ground; worst case went 3.9 → 4.51. Measured, not assumed.
+export const APP_VERSION = "1.1.792";

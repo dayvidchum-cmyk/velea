@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { inkOf } from "@/lib/ink";
 import VeleaLoader from "@/components/VeleaLoader";
 import { trpc } from '@/lib/trpc';
 
@@ -64,7 +65,7 @@ export default function Diagnostics() {
                 <span className="text-white/60">House from Lagna</span>
                 <span>{dayQuery.data.house}</span>
                 <span className="text-white/60">Base Mode</span>
-                <span style={{ color: modeColor(dayQuery.data.baseMode) }}>{dayQuery.data.baseMode}</span>
+                <span style={{ color: inkOf(modeColor(dayQuery.data.baseMode)) }}>{dayQuery.data.baseMode}</span>
                 <span className="text-white/60">Base Score</span>
                 <span>{dayQuery.data.baseScore}</span>
               </div>
@@ -124,13 +125,13 @@ export default function Diagnostics() {
                 <span className="text-white/60">Total Score (diag.)</span>
                 <span>{dayQuery.data.totalScore}</span>
                 <span className="text-white/60">Final Mode</span>
-                <span className="font-bold text-lg" style={{ color: modeColor(dayQuery.data.finalMode) }}>
+                <span className="font-bold text-lg" style={{ color: inkOf(modeColor(dayQuery.data.finalMode)) }}>
                   {dayQuery.data.finalMode}
                 </span>
                 {(dayQuery.data as any).qualifier && (
                   <>
                     <span className="text-white/60">Qualifier</span>
-                    <span className="font-semibold" style={{ color: modeColor(dayQuery.data.finalMode) }}>
+                    <span className="font-semibold" style={{ color: inkOf(modeColor(dayQuery.data.finalMode)) }}>
                       {(dayQuery.data as any).qualifier}
                     </span>
                   </>
@@ -162,9 +163,9 @@ export default function Diagnostics() {
               <span className="text-white/60">Date</span>
               <span>{timeLordQuery.data.date}</span>
               <span className="text-white/60">Final Mode</span>
-              <span className="font-bold" style={{ color: modeColor(timeLordQuery.data.finalMode ?? '') }}>{timeLordQuery.data.finalMode}</span>
+              <span className="font-bold" style={{ color: inkOf(modeColor(timeLordQuery.data.finalMode ?? '')) }}>{timeLordQuery.data.finalMode}</span>
               <span className="text-white/60">Qualifier</span>
-              <span className="font-semibold" style={{ color: modeColor(timeLordQuery.data.finalMode ?? '') }}>{timeLordQuery.data.qualifier ?? '—'}</span>
+              <span className="font-semibold" style={{ color: inkOf(modeColor(timeLordQuery.data.finalMode ?? '')) }}>{timeLordQuery.data.qualifier ?? '—'}</span>
               <span className="text-white/60">Time Lord</span>
               <span className="font-bold text-yellow-300">{timeLordQuery.data.timeLordLabel}</span>
               <span className="text-white/60">Operational Chain</span>
@@ -261,7 +262,7 @@ export default function Diagnostics() {
                         <td className="p-1 text-white/70">{row.date.slice(5)}</td>
                         <td className="p-1">{row.moonSign.slice(0, 3)}</td>
                         <td className="p-1">{row.house}</td>
-                        <td className="p-1" style={{ color: modeColor(row.baseMode) }}>{row.baseMode.slice(0, 3)}</td>
+                        <td className="p-1" style={{ color: inkOf(modeColor(row.baseMode)) }}>{row.baseMode.slice(0, 3)}</td>
                         <td className="p-1">{row.nakshatraName.split(' ')[0].slice(0, 6)}</td>
                         <td className={`p-1 text-right ${row.nakshatraModifier > 0 ? 'text-green-400' : row.nakshatraModifier < 0 ? 'text-red-400' : 'text-white/30'}`}>
                           {row.nakshatraModifier > 0 ? '+' : ''}{row.nakshatraModifier}
@@ -275,7 +276,7 @@ export default function Diagnostics() {
                           {row.fieldModifier > 0 ? '+' : ''}{row.fieldModifier}
                         </td>
                         <td className="p-1 text-right">{row.rawScore}</td>
-                        <td className="p-1 font-bold" style={{ color: modeColor(row.finalMode) }}>{row.finalMode.slice(0, 3)}</td>
+                        <td className="p-1 font-bold" style={{ color: inkOf(modeColor(row.finalMode)) }}>{row.finalMode.slice(0, 3)}</td>
                         <td className="p-1 text-right">{row.confidence}%</td>
                       </tr>
                     ))}
@@ -305,7 +306,7 @@ export default function Diagnostics() {
                 {Object.entries(configQuery.data.houseToBaseMode).map(([house, mode]) => (
                   <div key={house} className="bg-white/5 rounded px-2 py-1">
                     <span className="text-white/40">H{house}:</span>{' '}
-                    <span style={{ color: modeColor(mode as string) }}>{mode as string}</span>
+                    <span style={{ color: inkOf(modeColor(mode as string)) }}>{mode as string}</span>
                   </div>
                 ))}
               </div>

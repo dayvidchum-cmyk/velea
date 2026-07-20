@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { inkOf } from "@/lib/ink";
 import { LogIn, ChevronDown, ChevronLeft, RefreshCw } from "lucide-react";
 
 /** The Stage mark — a circle with a center dot, framed in a square (David's icon: the ☉ sun-point,
@@ -293,7 +294,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             <button
               onClick={() => setStageSheetOpen(true)}
               className="flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-150"
-              style={{ marginTop: "0.3rem", color: modeColor, background: "transparent", border: "1px solid transparent" }}
+              style={{ marginTop: "0.3rem", color: inkOf(modeColor), background: "transparent", border: "1px solid transparent" }}
               onMouseEnter={(e) => {
                 if (!window.matchMedia("(hover: hover)").matches) return; // audit M8: no sticky hover on touch
                 e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 16%, transparent)`;
@@ -348,7 +349,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
               data-tour="current-state"
               onClick={() => setCheckInSheetOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-150"
-              style={{ color: modeColor, background: "transparent", border: `1px solid color-mix(in srgb, ${modeColor} 35%, transparent)` }}
+              style={{ color: inkOf(modeColor), background: "transparent", border: `1px solid color-mix(in srgb, ${modeColor} 35%, transparent)` }}
               title="Update current state"
               onMouseEnter={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; e.currentTarget.style.background = `color-mix(in srgb, ${modeColor} 14%, transparent)`; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}

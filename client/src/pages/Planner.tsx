@@ -1,4 +1,5 @@
 import GateMark from "@/components/GateMark";
+import { inkOf } from "@/lib/ink";
 import { useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
 import { useLocation } from "wouter";
 
@@ -2210,7 +2211,7 @@ export default function Planner() {
                     <button
                       onClick={() => setWhyNowTask(task)}
                       className="mx-3 mb-2 mt-0.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                      style={{ background: `color-mix(in srgb, ${todayModeColor} 14%, var(--color-card))`, color: todayModeColor, border: `1px solid color-mix(in srgb, ${todayModeColor} 34%, transparent)`, fontSize: "0.8rem", fontWeight: 700 }}
+                      style={{ background: `color-mix(in srgb, ${todayModeColor} 14%, var(--color-card))`, color: inkOf(todayModeColor, 4.5, 14), border: `1px solid color-mix(in srgb, ${todayModeColor} 34%, transparent)`, fontSize: "0.8rem", fontWeight: 700 }}
                     >
                       Why now? →
                     </button>

@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { inkOf } from "@/lib/ink";
 import type { ReactNode } from "react";
 
 export type DatelineProps = {
@@ -53,11 +54,11 @@ export default function Dateline({ dateLabel, time, modeColor, modeLabel, activi
   // Date + time are one group (no bullet between them), in the day-mode color.
   segments.push(
     <span key="dt" style={{ display: "inline-flex", alignItems: "center", gap: "0.55em" }}>
-      <span style={{ color: modeColor }}>{dateLabel}</span>
-      <span style={{ color: modeColor, fontVariantNumeric: "tabular-nums" }}>{time}</span>
+      <span style={{ color: inkOf(modeColor) }}>{dateLabel}</span>
+      <span style={{ color: inkOf(modeColor), fontVariantNumeric: "tabular-nums" }}>{time}</span>
     </span>,
   );
-  if (modeLabel) segments.push(<span key="mode" style={{ color: modeColor }}>{modeLabel}</span>);
+  if (modeLabel) segments.push(<span key="mode" style={{ color: inkOf(modeColor) }}>{modeLabel}</span>);
   if (activity) segments.push(
     <span key="act" style={{ display: "inline-flex", alignItems: "center", gap: "0.42em" }}>
       <span style={{ color: activityColor ?? "inherit" }}>{activity}</span>
