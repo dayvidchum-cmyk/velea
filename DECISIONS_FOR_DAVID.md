@@ -2,6 +2,19 @@
 
 *Started 2026-07-20, during the audit fix run.*
 
+> **Both open questions were answered on 2026-07-20 and are now BUILT. Nothing is waiting on you
+> in this file right now.**
+> 1. *"what do the text books say"* → the canon says the personal pair decides a day (METHOD.md
+>    Step 0) and "the native's tara standing overrides the collective" (muhurta veto note). No canon
+>    rule lets a rough collective sky cancel a personal peak. Shipped as **v781**: the reading now
+>    crowns the same twelve days the calendar does, and the prompt was corrected to match.
+> 2. *"majority"* → shipped as **v780**: the day's Moon SIGN now follows the same majority rule as
+>    its star, verified 120/120 against independent dense sampling.
+>
+> The record of both questions is kept below, because the reasoning is the thing worth keeping.
+
+---
+
 These are the only things I have found that I am **deliberately not deciding**. Each one is a
 question about YOUR sky-reading method where the canon does not rule and there is a real classical
 case on both sides — so guessing would be inventing method and calling it a fix
