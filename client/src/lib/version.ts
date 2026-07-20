@@ -887,4 +887,20 @@
 // VERIFIED: 0 house/mode mismatches across 90 days, on a probe that names the 18 differing days so
 // it cannot pass by being blind, and the timeline opening checked against the sunrise house on all
 // of them.
-export const APP_VERSION = "1.1.789";
+// v1.1.790 = 2026-07-20 — THE LAST DEAD CANON FILE, AND THE DRIFT IT WAS HIDING.
+// karakas.json was the third canon file imported by nothing (v782 wired planet-in-house and
+// explained why bhava-significations stays out). The knot detector's theme table had been
+// hand-copied from it — and had already drifted: career's karakas read [Saturn, Sun, Mercury]
+// where Vol I Ch.4 says [Mercury, Sun, Jupiter, Saturn]. JUPITER WAS MISSING from vocation, so a
+// Jupiter dasha, or Jupiter lighting the 10th, never registered as a career knot at all — the
+// karaka of counsel, teaching and wisdom, absent from the theme it most belongs to.
+// The six themes the canon indexes are now READ from it. The four it does not index stay local and
+// explicit — wealth, home and health have no canon entry, and the canon splits father [9] /
+// mother [4] where this engine reads one `parents` theme whose [4,9] is exactly their union.
+// Deriving the whole table would have silently deleted four themes and split a fifth; that caveat
+// was carried in the audit notes and is now enforced by a test instead of a memory.
+// PROVEN: 10 controls. The honest one is isolated — reverting ONLY the career line fails exactly
+// two assertions ("expected [Saturn, Sun, Mercury] to include Jupiter"). My first control run was
+// worthless: stashing the file removed the test's export too, so all ten failed because the table
+// was undefined, not because of drift. A probe that fails for the wrong reason proves nothing.
+export const APP_VERSION = "1.1.790";

@@ -27,6 +27,7 @@
 // Bundled JSON import (esbuild inlines it into dist — no runtime file read, which would break the
 // bundled prod server since the canon dir doesn't ship next to dist/index.js).
 import houseLordCombos from "./canon/house-lord-combinations.json";
+import karakasCanon from "./canon/karakas.json";
 const HOUSE_LORD_COMBOS: Record<string, any> = (houseLordCombos as any).combinations ?? {};
 
 export type KnotTheme =
@@ -35,21 +36,41 @@ export type KnotTheme =
 
 type ThemeDef = { label: string; houses: number[]; karakas: string[]; partnerKaraka?: { husband: string; wife: string } };
 
-// Theme → (houses, karakas), straight from karakas.json knotSignificatorMap + bhava canon.
+// Theme → (houses, karakas). The six themes the canon indexes are now READ FROM IT rather than
+// re-typed here (canon/karakas.json knotSignificatorMap, Vol I Ch.4 + Ch.7) — that file was the
+// third canon file imported by nothing, and the hand-copied table had already drifted: career's
+// karakas were [Saturn, Sun, Mercury] where the canon says [Mercury, Sun, Jupiter, Saturn]. JUPITER
+// WAS MISSING, so a Jupiter dasha, or Jupiter lighting the 10th, did not register as a career knot
+// at all — the counsel/teaching/wisdom karaka, absent from the vocation theme.
+// THE FOUR EXTENSIONS STAY LOCAL, deliberately: wealth, home and health have no entry in the canon
+// index, and the canon splits father [9]/[Sun,Jupiter] and mother [4]/[Moon] where this engine reads
+// one `parents` theme — whose [4,9] / [Moon,Sun,Jupiter] is exactly their union. Deriving the whole
+// table from the canon would silently delete four themes and split a fifth; deriving only what the
+// canon actually indexes keeps both the canon and the extensions honest.
 // Identity/fame/career deliberately overlap the 10th — the fold pass below expresses HOW the 10th
 // cashes out for THIS chart (career vs marriage vs parenthood) rather than collapsing it to "work".
+const CANON_MAP = (karakasCanon as any).knotSignificatorMap as Record<string, { houses?: number[]; karakas?: string[] }>;
+const fromCanon = (theme: string, label: string, extra?: Partial<ThemeDef>): ThemeDef => {
+  const c = CANON_MAP[theme];
+  if (!c?.houses?.length || !c?.karakas?.length) throw new Error(`karakas.json lost its "${theme}" entry`);
+  return { label, houses: [...c.houses], karakas: [...c.karakas], ...extra };
+};
 const THEMES: Record<KnotTheme, ThemeDef> = {
-  marriage: { label: "Marriage / union",              houses: [7],     karakas: ["Venus"], partnerKaraka: { husband: "Jupiter", wife: "Venus" } },
-  children: { label: "Children / creativity",         houses: [5],     karakas: ["Jupiter"] },
-  career:   { label: "Career / vocation",             houses: [10],    karakas: ["Saturn", "Sun", "Mercury"] },
-  identity: { label: "Identity — how you're received",houses: [1, 10], karakas: ["Sun"] },
-  fame:     { label: "Fame / recognition",            houses: [10, 1], karakas: ["Sun"] },
+  marriage: fromCanon("marriage", "Marriage / union", { partnerKaraka: { husband: "Jupiter", wife: "Venus" } }),
+  children: fromCanon("children", "Children / creativity"),
+  career:   fromCanon("career",   "Career / vocation"),
+  identity: fromCanon("identity", "Identity — how you're received"),
+  fame:     fromCanon("fame",     "Fame / recognition"),
+  siblings: fromCanon("siblings", "Inner circle / siblings"),
+  // Not in the canon's index — Velea's own, kept explicit so nothing silently vanishes:
   wealth:   { label: "Wealth / income",               houses: [2, 11], karakas: ["Jupiter"] },
-  siblings: { label: "Inner circle / siblings",       houses: [3, 11], karakas: ["Mars"] },
-  parents:  { label: "Parents / roots",               houses: [4, 9],  karakas: ["Moon", "Sun", "Jupiter"] },
+  parents:  { label: "Parents / roots",               houses: [4, 9],  karakas: ["Moon", "Sun", "Jupiter"] }, // = canon father ∪ mother
   home:     { label: "Home / land",                   houses: [4],     karakas: ["Moon", "Mercury"] },
   health:   { label: "Health / vitality",             houses: [6, 1],  karakas: ["Sun", "Mars"] },
 };
+
+/** Exposed for the canon-drift test only (knots.canon.test.ts). Not part of the public API. */
+export const THEME_TABLE_FOR_TEST = THEMES;
 
 // Whole-sign Vedic drishti: everyone aspects the 7th; Mars +4/+8, Jupiter +5/+9, Saturn +3/+10.
 // (Mirrors server/vedic/dignity.ts aspectsHouse.)
