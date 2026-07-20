@@ -22,6 +22,8 @@
 
 import type { AstronomyData } from './astronomy.js';
 import { karanaFromLongitudes, type Karana } from './karana.js';
+// THE nakshatra table. Not a copy — see "ONE TABLE" below.
+import { NAKSHATRA_MODIFIERS } from './modifier-config.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -273,24 +275,29 @@ const MODE_BASE_INSTRUCTIONS: Record<string, string> = {
 
 // ─── Nakshatra Mode Modifier Categories ──────────────────────────────────────
 // These determine how each nakshatra shifts the base mode score.
+//
+// ONE TABLE (audit, 2026-07-20). These three lists used to be LITERALS here — a private copy of
+// NAKSHATRA_MODIFIERS that nothing kept in sync. So when David ruled that the cited canon wins and
+// v852 corrected Magha, Purva Phalguni, Purva Ashadha (fierce) and Vishakha (mixed) in
+// modifier-config.ts, THE ENGINE NEVER SAW IT: every reading still called those four stars
+// "expansion", ~54 days a year, and nakshatra-canon.test.ts passed because it asserts against the
+// corrected copy rather than against what the interpreter actually uses.
+//
+// This is the same class as the HOUSE_TO_BASE_MODE stale copy deleted in v810, in the same pair of
+// files. Deriving the lists instead of retyping them is what makes the class closable: there is now
+// no second place for a correction to land and die. Categories, not scores, drive direction —
+// Selective and Neutral both score 0 but mean different things (precision vs no shift).
+const byCategory = (cat: string): string[] =>
+  Object.entries(NAKSHATRA_MODIFIERS).filter(([, v]) => v.category === cat).map(([k]) => k);
 
 /** Expansion / outward movement nakshatras: upgrade +1 */
-const NAKSHATRA_UPGRADE: string[] = [
-  'Purva Ashadha', 'Rohini', 'Pushya', 'Purva Phalguni', 'Vishakha',
-  'Ashwini', 'Magha', 'Swati', 'Dhanishtha', // audit M11: astronomy emits 'Dhanishtha' (with the h) — the old 'Dhanishta' never matched, so this upgrade nakshatra never fired ~13 days/yr
-];
+const NAKSHATRA_UPGRADE: string[] = byCategory('Upgrade');
 
 /** Correction / containment nakshatras: downgrade -1 */
-const NAKSHATRA_DOWNGRADE: string[] = [
-  'Ashlesha', 'Jyeshtha', 'Mula', 'Ardra', 'Purva Bhadrapada',
-  'Bharani',
-];
+const NAKSHATRA_DOWNGRADE: string[] = byCategory('Downgrade');
 
 /** Precision / selective nakshatras: shift toward Selective (score → 1) */
-const NAKSHATRA_SELECTIVE: string[] = [
-  'Hasta', 'Chitra', 'Anuradha', 'Shravana', 'Shatabhisha',
-  'Uttara Phalguni', 'Uttara Ashadha',
-];
+const NAKSHATRA_SELECTIVE: string[] = byCategory('Selective');
 
 /**
  * Calculate the nakshatra mode modifier score.

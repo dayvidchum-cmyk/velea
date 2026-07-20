@@ -107,6 +107,11 @@ run server/narrative/input-builder.ts 'for (const surface of DAILY_SURFACES) {\n
 
 run server/panchang/modifier-config.ts "  Magha:             { score: -1," "  Magha:             { score: +1," \
   server/panchang/nakshatra-canon.test.ts "a fierce star is scored as expansion again"
+# The probe above only proves the CORRECTED TABLE is still correct. It cannot see whether the
+# interpreter reads it — for eight days it did not, and this exact mutation is the bug that shipped:
+# a private list in interpreter.ts holding Magha as expansion while the cited table said fierce.
+run server/panchang/interpreter.ts "const NAKSHATRA_UPGRADE: string[] = byCategory('Upgrade');" "const NAKSHATRA_UPGRADE: string[] = ['Magha', ...byCategory('Upgrade')];" \
+  server/panchang/nakshatra-one-table.test.ts "the interpreter keeps a private nakshatra list again"
 run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
   server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
 

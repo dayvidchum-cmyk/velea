@@ -56,12 +56,16 @@ describe('Mode Engine - calculateFinalMode (rule-based qualifier model)', () => 
   // finalMode === baseMode for all non-Flex modes. Qualifiers capture nuance instead.
 
   it('June 2, 2026: Restraint stays Restraint — single nakshatra cannot flip', () => {
-    // House 4 = Restraint, Purva Ashadha (outward), Krishna Tritiya (inward)
-    // nakshatra is outward but tithi is inward → field is Neutral → no flip
+    // House 4 = Restraint, Purva Ashadha, Krishna Tritiya (inward).
+    // 2026-07-20: this case used to assert nakshatraModifier === +1, pinning Purva Ashadha as
+    // "outward" — the value the interpreter's private copy carried. The cited canon calls it
+    // FIERCE and David ruled the cited tables win (v852); the interpreter now reads that one
+    // table, so it is -1. The test's actual subject is unchanged and is what matters here:
+    // a single nakshatra never flips the base mode.
     const result = calculateFinalMode('Restraint', 'Purva Ashadha', 'Krishna Tritiya', 'Krishna');
     expect(result.baseMode).toBe('Restraint');
     expect(result.baseScore).toBe(0);
-    expect(result.nakshatraModifier).toBe(1);
+    expect(result.nakshatraModifier).toBe(-1);
     expect(result.tithiModifier).toBe(-0.5);
     expect(result.fieldCondition).toBe('Neutral');
     expect(result.finalMode).toBe('Restraint'); // base mode preserved
