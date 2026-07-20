@@ -79,8 +79,13 @@ export interface DayField {
   sunriseLocal: string;
   /** Legacy field — now equals finalMode for backward compatibility */
   mode: FinalMode;
-  /** Base mode from house alone (before modifiers) */
+  /** Base mode from the day's RULING house alone (before modifiers) — matches houseActivated. */
   baseMode: DayMode;
+  /** The OPENING configuration of the intraday timeline: the base mode of the house the Moon was
+   *  in AT SUNRISE. Equal to baseMode on the ~79% of days the Moon holds one sign; on the rest it
+   *  is what finishDayMode starts from before walking the day's boundaries forward. Never show
+   *  this as "the day's mode" — that is baseMode. */
+  baseModeAtSunrise?: DayMode;
   /** Final mode after all modifiers applied (equals baseMode in most cases) */
   finalMode: FinalMode;
   /** Human-readable qualifier, e.g. 'Assertive Restraint', 'Productive Build' */
@@ -1005,8 +1010,19 @@ export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayF
   // so it must be the SUNRISE sign, or the day opens in a sign it does not reach until midday and
   // then "flips" to itself. (The timeline still lands on the majority-ruling mode by itself.)
   const house = moonSignToHouse(astro.moonSignIndex, lagnaSign);
+  // TWO ROLES, NOW TWO FIELDS (2026-07-20, second pass). `baseMode` is the DAY's base mode and must
+  // match `houseActivated` — ReasoningChain explains the day as "house N gives mode M", and the
+  // narrative input ships activatedHouse alongside the mode. My first pass at the majority-sign
+  // ruling made houseActivated the RULING house while leaving baseMode on the SUNRISE house, so on
+  // the ~21% of days where they differ the explainer contradicted itself and the model was handed a
+  // house that did not match its mode — the very "two clocks in one verdict" class the ruling
+  // exists to remove.
+  // `baseModeAtSunrise` is the separate thing: the OPENING configuration of the intraday timeline,
+  // which finishDayMode walks forward across the sign/star boundaries. That one must stay at
+  // sunrise or the day opens in a sign it does not reach until midday and then flips to itself.
+  const baseMode = HOUSE_MODE[house];
   const sunriseSignIdx = (astro as any).moonSignAtSunriseIndex ?? astro.moonSignIndex;
-  const baseMode = HOUSE_MODE[moonSignToHouse(sunriseSignIdx, lagnaSign)];
+  const baseModeAtSunrise = HOUSE_MODE[moonSignToHouse(sunriseSignIdx, lagnaSign)];
 
   // Layer 2: nakshatra behavioral modifier (for instruction text)
   const nakshatraModifier = getNakshatraModifier(astro.nakshatra);
@@ -1030,6 +1046,7 @@ export function interpretPanchang(astro: AstronomyData, lagnaSign: string): DayF
     dayOfWeek: getDayOfWeek(astro.date),
     moonSign: astro.moonSign,
     houseActivated: house,
+    baseModeAtSunrise,
     nakshatra: astro.nakshatra,
     nakshatraPada: astro.nakshatraPada,
     tithi: astro.tithi,

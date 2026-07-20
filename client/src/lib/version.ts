@@ -869,4 +869,22 @@
 // the exact class v784/v785 were about. The hero uses its own ink idiom, like KeptReadings below it.
 // Also: the hero previously rendered NOTHING for a locked date — not a broken message, but a silent
 // dead end on the most-seen surface in the app, precisely where the pick-a-date gate should speak.
-export const APP_VERSION = "1.1.788";
+// v1.1.789 = 2026-07-20 — A BUG I INTRODUCED IN v780, FOUND BY RE-AUDITING MY OWN RUN.
+// v780 made houseActivated the day's RULING house (majority) but left baseMode on the SUNRISE
+// house. Those two had always agreed, and two places assume they still do: ReasoningChain, which
+// explains the day as "the Moon is in house N, which gives mode M", and the narrative input, which
+// ships activatedHouse alongside the mode. So on days where the Moon changes sign, the explainer
+// contradicted itself and the model was handed a house that did not match its mode — a fresh
+// instance of the exact "two clocks in one verdict" class the majority ruling exists to remove,
+// introduced BY the fix for it.
+// MEASURED over 90 real days: the two signs differ on 18, and on 13 of those the chain was
+// self-contradicting ("house→Build but baseMode Restraint", "house→Action but baseMode Restraint").
+// baseMode was doing two jobs. Now it is two fields: `baseMode` is the DAY's mode, from the ruling
+// house, and always agrees with houseActivated; `baseModeAtSunrise` is the intraday timeline's
+// OPENING config, which finishDayMode walks forward across the boundaries — that one must stay at
+// sunrise or the day opens in a sign the Moon does not reach until midday and then flips to itself.
+// Both service.ts paths (cached and fresh) updated to pass the sunrise one to the timeline.
+// VERIFIED: 0 house/mode mismatches across 90 days, on a probe that names the 18 differing days so
+// it cannot pass by being blind, and the timeline opening checked against the sunrise house on all
+// of them.
+export const APP_VERSION = "1.1.789";

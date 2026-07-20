@@ -232,7 +232,11 @@ export async function getDayField(
           try { houseAtSunrise = moonSignToHouse(srIdx, lagnaOverride); } catch { /* keep */ }
         }
       }
-      const baseMode = HOUSE_MODE[houseAtSunrise] ?? 'Selective';
+      // TWO FIELDS, same as interpretPanchang (see there for why): the DAY's base mode comes
+      // from the RULING house so it agrees with `house` above wherever the day is explained;
+      // the timeline OPENS at sunrise and walks the boundaries forward from there.
+      const baseMode = HOUSE_MODE[house] ?? 'Selective';
+      const baseModeAtSunrise = HOUSE_MODE[houseAtSunrise] ?? baseMode;
 
       // Astronomy first (transitions + karana feed the mode now, not just the display).
       const utcOffset = locationOverride.utcOffset;
@@ -264,7 +268,7 @@ export async function getDayField(
 
       // Literal star+sign switch + field/karana steps — the mode the day is ACTUALLY in.
       const fin = finishDayMode({
-        baseMode, baseModeAfterSign, signTransitionTime,
+        baseMode: baseModeAtSunrise, baseModeAfterSign, signTransitionTime,
         tithi: cachedTithi, paksha: cachedPaksha, karanaName: karana?.name ?? null,
         sunriseNak: nakshatraAtSunrise, transitionTime: nakshatraTransitionTime,
         afterNak: nakshatraAfterTransition, sunriseLocal, dateStr, utcOffset,
@@ -287,6 +291,7 @@ export async function getDayField(
         sunriseLocal: cached.sunrise,
         mode: finalMode,
         baseMode,
+        baseModeAtSunrise,
         finalMode,
         qualifier: fin.stepReasons.length ? generateQualifier(finalMode, fin.activeNakshatra, cachedTithi, cachedPaksha) : modeReason.qualifier,
         instruction,
@@ -325,7 +330,9 @@ export async function getDayField(
         }
       }
       const fin = finishDayMode({
-        baseMode: field.baseMode, baseModeAfterSign, signTransitionTime: (astro as any).signTransitionTime ?? null,
+        // The timeline OPENS at sunrise (field.baseModeAtSunrise); field.baseMode is the day's
+        // ruling mode and is what the UI explains. See interpreter.ts for why these are two fields.
+        baseMode: (field as any).baseModeAtSunrise ?? field.baseMode, baseModeAfterSign, signTransitionTime: (astro as any).signTransitionTime ?? null,
         tithi: field.tithi, paksha: field.tithiPaksha, karanaName: field.karana?.name ?? null,
         sunriseNak: astro.nakshatraAtSunrise, transitionTime: astro.nakshatraTransitionTime,
         afterNak: astro.nakshatraAfterTransition, sunriseLocal: astro.sunriseLocal ?? field.sunriseLocal ?? null,
