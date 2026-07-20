@@ -63,6 +63,9 @@ run server/vedic/canon/karakas.json '"houseKaraka": [\n        6,\n        8,\n 
 run server/vedic/life-areas.ts '{ planet: "Saturn", role: "primary", signifies: "the capacity to do the hard things that attain greatness, and to appreciate them" },' '{ planet: "Jupiter", role: "primary", signifies: "x" },' \
   server/vedic/karaka-tables.test.ts "Vol II transcription edited (career primary)"
 
+run server/narrative/day-read-signals.ts 'const comb = combustion(planet, lon, daySunLon, retro);\n    const combust = planet !== "Sun" && comb?.combust === true;' 'const combust = planet !== "Sun" && sep(lon, daySunLon) < 8;' \
+  server/narrative/day-read-signals.test.ts "combustion hand-rolled as a flat 8 orb again"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"

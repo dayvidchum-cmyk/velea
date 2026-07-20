@@ -48,14 +48,14 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">as of v841 · July 20, 2026 · the stretch: v794 → v841 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
+  <p class="sub">as of v842 · July 20, 2026 · the stretch: v794 → v842 · VERIFIED LIVE four ways — service worker, client bundle, running server, live API value</p>
 
   <div class="card" style="border-left:3px solid var(--wine)">
     <p style="margin:0"><b>Production was frozen at v813 for most of this run.</b> I wrote &ldquo;deployed&rdquo; in thirty commit messages
     and never asked the server. v814 gated <code>npm run build</code> on <code>tsc --noEmit</code>; nixpacks runs that script,
     <code>typescript</code> is a devDependency, and a production install has no <code>tsc</code> — so every build failed silently and
     fifteen versions of real fixes existed for nobody. Reverting the gate unfroze it immediately, which is what proved the cause.
-    <b>velealor.com now serves v841, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
+    <b>velealor.com now serves v842, verified four ways.</b> <code>npm run deployed</code> asks the service worker, the compiled client bundle (sw.js is a STATIC file and can update while the app does not), <code>/healthz</code> for the running server’s own version, and one live API value only the corrected code answers right. Each was proven able to fail before being trusted. <b>What that still does not cover:</b> any server fix needing an authenticated request — the bell’s crown lookup, the session cookie, the pick-a-date rescue, the prompt laws reaching a real generation. Those have controls that fail locally and a server provably on this build; they are not confirmed by watching production behave.</p>
   </div>
 
   <h2>1 · Open picks — your decision queue</h2>
@@ -65,6 +65,19 @@
   <div class="card pick"><b>What is a CHARTLESS day's character?</b> <span class="tag">NEW</span> The retired four modes still appear on the hero — but not as the wiring bug the sheet described. <code>selectedCharacter</code> comes from the month endpoint, which builds character from the personal <i>tara</i>, which needs a birth star. A chartless profile has no character at all, so the retired words are the only thing that surface has ever had. Deleting the fallback leaves a blank hero for exactly those users. What a day's character IS with no chart is a method question.</div>
   <div class="card pick"><b>The durable generation cap.</b> <span class="tag">NEW</span> The in-process half now counts real API calls, retries and burned failures included. The DURABLE half is rows-since-UTC-midnight scoped by profileId — so regenerating one row a hundred times still reads as one, and N profiles gives one user N times the cap. Needs a schema change, and schema changes here are hand-run scripts. Half-fixing it in memory would be a band-aid over the same hole.</div>
   <div class="card pick"><b>mrita: 0.05 or the canon's nil?</b> <span class="tag">NEW</span> The Verdict's balaadi fruition dial now READS <code>canon/avashtas.json</code> instead of a literal that cited a block the file did not contain. Researched: bala ¼, kumara ½, yuva full, vriddha "very little", mrita <b>NIL</b> — consistently attested, not verified against a translated primary verse, and the file says so. <b>Two of the five numbers are ours, not the book's</b> and are declared as such: vriddha 0.125 (the canon names no fraction) and mrita 0.05 (the canon says nil). The second is the dial that decides "late" versus "late if at all" — a true zero makes a Mrita-hinged area unreachable rather than merely slow. Values unchanged; a silent "fix" would rewrite people's readings.</div>
+  <div class="card pick"><b>Wire the pick-a-date precision layer, or delete it?</b> <span class="tag">NEW</span>
+  <code>server/narrative/day-read-signals.ts</code> calls itself &ldquo;the deterministic precision layer for the pick-a-date
+  horoscope (Step 4)&rdquo;. It is 170 lines and <b>nothing in the repo imports it</b> — the largest reach failure of this run,
+  and the same shape as the five before it. <b>What is actually lost</b> (checked, not assumed): <code>input-builder</code>
+  already carries crownDay, tara/chandra bala and the natal ashtakavarga, so the day read isn't missing those. What only this
+  module has is <i>transit-level</i> precision — the Bhava Chalit house of each transiting planet, and per-transit Ashtakavarga
+  bindus via <code>transitStrength()</code>, which across the whole repo is reached by this module and nothing else.
+  <b>I did not wire it</b> — wiring changes what a paid reading says, and the method is yours. Wire it or delete it as
+  superseded; leaving it is the only option that keeps costing.
+  <b>One real bug inside it is fixed:</b> <code>combust</code> was a flat 8&deg; for every body, where the engine already owns
+  the classical orbs you corrected me on. It under-reported all five planets (a Mars 12&deg; from the Sun read as clear) and
+  over-reported Rahu/Ketu, which have no orb at all. A repo-wide sweep confirms it was the only hand-rolled copy.</div>
+
   <div class="card pick"><b>Three of my own tests were guarding nothing.</b> <span class="tag">FIXED v841</span>
   Yesterday taught me I trust a pattern instead of running the enumeration, so I pointed that at my own work:
   break each source on purpose, and see whether its test notices. <code>npm run verify</code> cannot tell a real guard
@@ -131,7 +144,7 @@
     <p style="margin:0" class="quiet"><b>And now the meter under it is honest.</b> The gates began reading as gates in the last run; this run fixed what sat behind them — a paid pick-a-date reading that re-billed for ever after a failed freeze, a Verdict that re-billed ten times a year on a clock, a pin that could be overwritten, a retired surface still callable as a billed endpoint, and a daily cap that counted results instead of calls.</p>
   </div>
 
-  <h2>3 · The re-audit fix run — v794 → v841 (48 versions, deployed)</h2>
+  <h2>3 · The re-audit fix run — v794 → v842 (49 versions, deployed)</h2>
   <div class="card done">
     <p style="margin:0 0 0.5rem"><b>The sheet was re-verified against the code, and its own "FIXED" rows were where it was weakest.</b> Suite <b class="ok num">691 passing</b> across 69 files, build exits 0, and <b>zero</b> type errors introduced across twenty versions (the 7 that exist are pre-existing and the build never typechecks — that is itself on the list). Every fix carries a control that was <i>shown to fail</i> against the old code before it was called fixed.</p>
     <p style="margin:0.6rem 0 0.3rem"><b>Accurate data to the model — the first priority</b></p>

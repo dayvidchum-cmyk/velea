@@ -19,6 +19,7 @@ import { ashtakavargaFromLongitudes, transitStrength, signOf, type Graha } from 
 import { dignityOf as natalDignityOf } from "../vedic/dignity.js";
 import { tarabala, chandrabala, crownDay, type CrownRating } from "../panchang/crown.js";
 import { calculateDashaTimeline, currentPratyantardasha } from "../dasha-calculator.js";
+import { combustion } from "../panchang/affliction.js";
 
 const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
@@ -120,7 +121,15 @@ export async function dayReadSignalsForBirth(birth: BirthInput, date: string): P
     const isGraha = (GRAHAS as string[]).includes(planet);
     const t = isGraha ? transitStrength(av, planet as Graha, lon) : null;
     const retro = !!day[planet.toLowerCase()].isRetrograde;
-    const combust = planet !== "Sun" && sep(lon, daySunLon) < 8;
+    // COMBUSTION IS OWNED BY affliction.ts — it is not a flat orb (v842). This read a single 8° for
+    // every body, which is wrong in both directions: it UNDER-reports for all five (Mars 17°,
+    // Saturn 15°, Mercury 14°/12° retro, Jupiter 11°, Venus 10°/8° retro — so a Mars 12° from the Sun
+    // is deep in the glare and was reported clear), and it OVER-reports for Rahu/Ketu, which have no
+    // orb at all and were being flagged combust within 8°. It also ignored the retrograde variant.
+    // Every other consumer in the engine — input-builder, natal-states, yoga-detect,
+    // transit-calculator — already imports this function; this module was the one hand-rolled copy.
+    const comb = combustion(planet, lon, daySunLon, retro);
+    const combust = planet !== "Sun" && comb?.combust === true;
     // Nearest natal point within 4° (a live contact).
     let hit: { planet: string; orbDeg: number } | null = null;
     for (const [np, nlon] of Object.entries(natalPoints)) {

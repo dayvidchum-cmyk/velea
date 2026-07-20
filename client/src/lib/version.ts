@@ -1900,4 +1900,27 @@
 // The harness is now tools/mutation-probe.sh (`npm run probe`), 14 probes across engine, money and
 // prompt-reach. It refuses to run on a dirty tree and restores after every probe. All 14 caught.
 // 81 files, 873 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.841";
+// v1.1.842 = 2026-07-20 — THE PICK-A-DATE PRECISION LAYER IS 170 LINES THAT NOTHING CALLS.
+// I enumerated which engine modules no test references, and GOT IT WRONG TWICE before it was right:
+// pass 1 listed yoga-detect.ts and push.ts as untested (I knew that was false); pass 2 missed
+// extensionless imports (from "./day-filter", no .js) and reported 82. Pass 3 carries a CONTROL —
+// seven modules I know are tested must not appear — and lands on 51, mostly _core scaffolding and
+// debug scripts. I nearly published a wrong number twice in one enumeration.
+// THE FINDING: server/narrative/day-read-signals.ts describes itself as "the deterministic precision
+// layer for the pick-a-date horoscope (Step 4)". 170 lines. NOTHING IMPORTS IT — not a router, not
+// input-builder, not a script. Largest reach failure of this run, same shape as the five before it.
+// WHAT IS ACTUALLY LOST (checked, not assumed): input-builder already carries crownDay,
+// tarabala/chandrabala and the natal ashtakavarga. What only the dead module has is TRANSIT-LEVEL
+// precision — Bhava Chalit house per transiting planet and per-transit Ashtakavarga bindus via
+// transitStrength(), which across the whole repo is reached by this module and NOTHING ELSE.
+// I DID NOT WIRE IT. Wiring changes what a paid reading says; the method is David's. Wire or delete.
+// ONE REAL BUG INSIDE IT, FIXED: `combust` was a single flat 8° orb for every body. The engine owns
+// combustion in panchang/affliction.ts with the classical values David corrected me on — Mars 17°,
+// Saturn 15°, Mercury 14°/12° retro, Jupiter 11°, Venus 10°/8° retro. The flat orb was wrong in BOTH
+// directions: it under-reported all five (Mars 12° from the Sun is deep in the glare, reported clear)
+// and over-reported Rahu/Ketu, which have no orb at all. It ignored retrograde entirely. A repo-wide
+// sweep confirms this was the ONE hand-rolled copy — input-builder, natal-states, yoga-detect and
+// transit-calculator all import the canonical function — so an instance, not a class.
+// The probe harness is now 15 checks; all 15 catch.
+// 82 files, 881 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.842";
