@@ -855,4 +855,18 @@
 // --card is #F9F4EA light and #201A14 dark. Tuning the ink against a ground a shade lighter than
 // the real one landed every light-mode label at 4.43-4.49:1 — under the 4.5 bar it was aiming for.
 // Corrected to the real values: all ten labels (5 sites x 2 themes) now measure 4.52-6.7:1.
-export const APP_VERSION = "1.1.787";
+// v1.1.788 = 2026-07-20 — FINISHING THE GATE SWEEP I CLAIMED WAS DONE IN v787.
+// Re-auditing my own run with fresh eyes: v787's message said "every premium gate", but the sweep
+// covered 5 consumer sites and there were 9. Still falling through to a failure line were the two
+// biggest gates in the app:
+//   · YEAR-SIGHT (narrative.deepRead, canYearSight) on BOTH the Horoscope hub and the Profection
+//     page — the headline premium read, telling non-entitled users it "couldn't be drawn just now"
+//   · PICK-A-DATE (guardedDate) on the Horoscope's today read, the Cast sheet, and the Planner hero
+// The Planner hero got a DIFFERENT treatment on purpose, and this is the part worth remembering:
+// <LockedRead> inks its label against the CARD ground (parchment/espresso), but the hero is a
+// saturated day-mode ground with its own --hero-ink. Dropping the shared component in there would
+// have computed the label colour for a background that zone does not have — a fresh instance of
+// the exact class v784/v785 were about. The hero uses its own ink idiom, like KeptReadings below it.
+// Also: the hero previously rendered NOTHING for a locked date — not a broken message, but a silent
+// dead end on the most-seen surface in the app, precisely where the pick-a-date gate should speak.
+export const APP_VERSION = "1.1.788";

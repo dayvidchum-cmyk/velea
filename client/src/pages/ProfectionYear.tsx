@@ -1,4 +1,5 @@
 import ProseCard from "@/components/ProseCard";
+import LockedRead from "@/components/LockedRead";
 import GateMark from "@/components/GateMark";
 import { trpc } from "../lib/trpc";
 import VeleaLoader from "@/components/VeleaLoader";
@@ -654,6 +655,8 @@ export default function ProfectionYear() {
           <div style={{ padding: "0.5rem 0", color: TEXT_MUTED, fontSize: "0.9rem", lineHeight: 1.6 }}>
             {deepReadLoading
               ? <VeleaLoader size={26} label="Reading your year… the first read can take up to a minute." />
+              : (deepReadResult as any)?.locked
+              ? <LockedRead accent={modeColor} title="Your year" body="The read of your whole solar year — birthday to birthday — opens with year-sight." feature="year-sight" />
               : "Tap to read your year — the full version lives in Readings."}
           </div>
         )

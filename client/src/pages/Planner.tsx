@@ -1,3 +1,4 @@
+import GateMark from "@/components/GateMark";
 import { useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
 import { useLocation } from "wouter";
 
@@ -1274,9 +1275,27 @@ export default function Planner() {
               // Only the generated read — never fabricated/hard-coded prose. If it isn't
               // ready, show the loading shimmer; if genuinely absent, show nothing.
               if (!dayReadContent) {
-                return dayReadFetching
-                  ? <div style={{ marginBottom: '1.25rem' }}><ProseLoading label="Crafting today's reading — this can take up to a minute the first time…" /></div>
-                  : null;
+                if (dayReadFetching) return <div style={{ marginBottom: '1.25rem' }}><ProseLoading label="Crafting today's reading — this can take up to a minute the first time…" /></div>;
+                // A date outside the free window comes back locked (guardedDate — the pick-a-date
+                // premium). Rendering null left the reader at a silent dead end on the app's most
+                // -seen surface: they walk the calendar to a further date, open the read, and
+                // nothing appears at all. Say what it is instead.
+                if ((dayRead as any)?.locked) {
+                  // NOT <LockedRead> here: that component inks itself against the CARD ground
+                  // (parchment/espresso), and the hero is a saturated day-mode ground with its own
+                  // --hero-ink. Dropping the shared component in would have computed the label
+                  // colour for a background this zone does not have. The hero's own ink idiom,
+                  // same as KeptReadings directly below it.
+                  return (
+                    <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                      <GateMark size={18} style={{ flexShrink: 0, marginTop: 2, color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)' }} />
+                      <p style={{ margin: 0, fontSize: 'clamp(0.78rem, 3vw, 0.9rem)', lineHeight: 1.55, color: 'color-mix(in srgb, var(--hero-ink) 92%, transparent)' }}>
+                        Today and the days close to it read free. Reaching further into the year is the pick-a-date reading.
+                      </p>
+                    </div>
+                  );
+                }
+                return null;
               }
               const paras = [dayReadContent.scene, dayReadContent.story, dayReadContent.tilt].filter(Boolean);
               return (

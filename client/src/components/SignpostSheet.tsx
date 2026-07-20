@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import LockedRead from "@/components/LockedRead";
 import VeleaLoader from "@/components/VeleaLoader";
 import { trpc } from "@/lib/trpc";
 import GlossaryText from "@/components/GlossaryText";
@@ -91,6 +92,10 @@ export default function SignpostSheet({ open, onClose, mode, profileId, date }: 
               ))}
               <VeleaLoader size={24} label="Calling the cast together — this can take up to a minute the first time…" />
             </div>
+          ) : (data as any)?.locked ? (
+            // guardedDate locks dates outside the free window; without this the gate read as
+            // "check back in a moment" for something checking back can never open.
+            <LockedRead accent="#B08D2E" title="Beyond your window" body="The cast reads for today and the days close to it. Reaching further is the pick-a-date reading." feature="pick-a-date" />
           ) : !cast?.read ? (
             <p className="text-[13px]" style={{ color: "var(--color-muted-foreground)", lineHeight: 1.5 }}>
               The cast isn&rsquo;t available right now. Check back in a moment.

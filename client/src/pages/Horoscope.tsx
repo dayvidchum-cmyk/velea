@@ -200,6 +200,9 @@ export default function Horoscope() {
             </>
           ) : todayReadRes === undefined ? (
             <SectionLoading label="Reading today…" />
+          ) : (todayReadRes as any)?.locked ? (
+            // guardedDate locks any date outside the free window — the pick-a-date premium.
+            <LockedRead accent={modeColor} title="Beyond your window" body="Today and the days close to it read free. Reaching further is the pick-a-date reading." feature="pick-a-date" />
           ) : (
             // Settled but no read (audit M7: don't spin forever) — honest, not a permanent loader.
             <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>This reading couldn't be drawn just now — try again in a moment.</p>
@@ -207,7 +210,10 @@ export default function Horoscope() {
         </HubSection>
 
         <HubSection title="Your year" subtitle="From your birthday to your next birthday — your solar year, not the calendar year" open={yearOpen} onToggle={() => setYearOpen((o) => !o)} accent={modeColor}>
-          {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : yearReadRes === undefined ? <SectionLoading label="Reading your year…" /> : <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>This reading couldn't be drawn just now — try again in a moment.</p>}
+          {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : yearReadRes === undefined ? <SectionLoading label="Reading your year…" /> : (yearReadRes as any)?.locked ? (
+            // year-sight is premium (canYearSight). Without this the gate read as a failure.
+            <LockedRead accent={modeColor} title="Your year" body="The read of your whole solar year — birthday to birthday — opens with year-sight." feature="year-sight" />
+          ) : <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>This reading couldn't be drawn just now — try again in a moment.</p>}
         </HubSection>
 
         {/* Time Master + Hora — the premium timing layer, now living in Readings. Each carries its own
