@@ -123,8 +123,8 @@ run client/src/pages/LifeAtlas.tsx '(windowReadQ.data as any)?.locked ? (' 'fals
 run server/routers.ts 'computedCity: dayLoc.city, computedSource: dayLoc.source' 'computedSource: dayLoc.source' \
   server/horoscope-location.test.ts "a frozen reading stops recording where its sky was cast"
 # A special yoga refilling a day the rikta law emptied — shipped in Amrita Siddhi, uncaught.
-run server/vedic/day-filter.ts 'if (amrita && !contained && !emptied) {' 'if (amrita && !contained) {' \
-  server/vedic/siddha-yoga.test.ts "a yoga refills an emptied rikta day again"
+run server/vedic/day-filter.ts '    if (emptied) {' '    if (false) {' \
+  server/vedic/siddha-yoga.test.ts "a yoga stops speaking in the emptied day's grammar"
 # The Siddha grid quietly losing one of David's three ruled spellings.
 run server/vedic/canon/siddha-yoga.json '"Rohini", "Mrigashira", "Ardra", "Uttara Phalguni", "Uttara Ashadha", "Anuradha"' '"Rohini", "Mrigashira", "Ardra", "Uttara Phalguni", "Uttara Ashadha", "Animidha"' \
   server/vedic/siddha-yoga.test.ts "an OCR spelling gets back into the encoded grid"

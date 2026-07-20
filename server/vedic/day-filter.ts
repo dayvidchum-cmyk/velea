@@ -475,30 +475,35 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   if (family === "rikta") supportedKinds = nature === "sharp" || nature === "fierce" ? Array.from(new Set(["sharp", nature] as DayNature[])) : [];
   if (contained || (input.tara && input.tara.quality === "bad")) supportedKinds = [];
 
-  // AMRITA SIDDHI adds its own supports on top of the day's — Raman's elections for it. It does NOT
-  // override a veto: he says it makes the chances greatest, not that it removes an obstacle, and
-  // David's calibration says the same. So it rides the vetoes rather than clearing them.
   const amrita = amritaSiddhi(input.varaLord, input.nakshatra);
-  if (amrita && !contained && !emptied) {
-    const extra = ((tables as any).amritaSiddhiYoga?.supports ?? []) as string[];
-    supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
-  }
-
-  // SIDDHA YOGA rides the vetoes exactly as Amrita Siddhi does. Raman calls it "chances... by far
-  // the greatest" — a probability, not a promise — and David's calibration says the same: these
-  // improve the odds, they do not ensure the outcome. So it never clears a veto.
   const siddhaHit = siddhaYoga(input.varaLord, input.nakshatra, input.tithiNumber);
-  // The emptied day still speaks when a yoga forms — in completion, not beginnings.
-  if ((siddhaHit || amrita) && !contained && emptied) {
-    const grammar = [
-      ...YOGA_ON_EMPTY_COMPLETE,
-      ...(natureRefusesCutting(natDef) ? [] : YOGA_ON_EMPTY_SEVER),
-    ];
-    supports = grammar.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti);
-  }
-  if (siddhaHit && !contained && !emptied) {
-    const extra = ((siddha as any).supports ?? []) as string[];
-    supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
+  // ── WHAT A SPECIAL YOGA DOES, decided in ONE place ──────────────────────────────────────────
+  // Raman's limit governs both yogas: "chances of success... by far the greatest" — a probability,
+  // not a promise — so neither ever clears a veto. David's calibration says the same.
+  //
+  // Split by whether the day's own family law EMPTIED it, because the answer genuinely differs,
+  // and because keeping it in one branch is what stops a guard going quietly redundant: an earlier
+  // version left `!emptied` on the non-empty branches while this branch ASSIGNED over them, so the
+  // guard could be deleted with every test still green. The probe caught that; the structure now
+  // makes it impossible rather than relying on someone noticing.
+  const anyYoga = amrita || !!siddhaHit;
+  if (anyYoga && !contained) {
+    if (emptied) {
+      // David's ruling, 2026-07-20 (option 2): the yoga SPEAKS, but only in the day's own
+      // grammar — finishing, never beginning. The severing half is withheld where the nature's
+      // own canon avoid-list refuses cutting (five tender days a year).
+      const grammar = [
+        ...YOGA_ON_EMPTY_COMPLETE,
+        ...(natureRefusesCutting(natDef) ? [] : YOGA_ON_EMPTY_SEVER),
+      ];
+      supports = grammar.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti);
+    } else {
+      const extra = [
+        ...(amrita ? ((tables as any).amritaSiddhiYoga?.supports ?? []) as string[] : []),
+        ...(siddhaHit ? ((siddha as any).supports ?? []) as string[] : []),
+      ];
+      supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
+    }
   }
 
   return {

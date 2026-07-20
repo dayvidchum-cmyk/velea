@@ -134,13 +134,23 @@ describe("the Siddha Yoga grid is a transcription, not an invention", () => {
     // FIVE of the twelve emptied+yoga days a year are TENDER, whose canon avoid-list is
     // ["confrontation", "cutting anything off"]. Offering severing there rebuilds the exact
     // self-contradiction David ruled against in July. Read from the canon, not by naming a nature.
-    const tender = dayFilter({ nakshatra: "Chitra", tithiNumber: 4, varaLord: "Venus", vishti: false });
-    if (tender.family === "rikta" && tender.supports.length && (tender.siddhaYoga || tender.amritaSiddhi)) {
-      expect(tender.nature).toBe("tender");
-      for (const s of tender.supports) expect(s, "a tender day was offered cutting").not.toMatch(/cut|sever/i);
-    }
-    // ANCHOR — a nature that does NOT refuse cutting still gets the severing half.
+    //
+    // THIS TEST WAS VACUOUS AND A PROBE CAUGHT IT. The first fixture was Chitra + tithi 4 on
+    // Friday — which forms NO yoga at all (Friday's tithis are 1,6,11,2,7,12), so the whole
+    // assertion sat inside an `if` that never ran and the guard passed by never executing. The
+    // fixture below is asserted to actually fire BEFORE anything is checked about it.
+    const tender = dayFilter({ nakshatra: "Mrigashira", tithiNumber: 4, varaLord: "Mars", vishti: false });
+    expect(tender.nature, "fixture must be a tender nature").toBe("tender");
+    expect(tender.family, "fixture must be a rikta tithi").toBe("rikta");
+    expect(tender.siddhaYoga, "fixture must actually form the yoga, or this proves nothing").not.toBeNull();
+    expect(tender.supports.length, "the yoga must be speaking here").toBeGreaterThan(0);
+    for (const x of tender.supports) expect(x, "a tender day was offered cutting").not.toMatch(/cut|sever/i);
+
+    // ANCHOR — a nature that does NOT refuse cutting still gets the severing half, so the rule
+    // is selective rather than simply never emitting it.
     const notTender = dayFilter({ nakshatra: "Swati", tithiNumber: 4, varaLord: "Saturn", vishti: false });
-    expect(notTender.supports.some((x) => /cutting away/i.test(x))).toBe(true);
+    expect(notTender.nature).not.toBe("tender");
+    expect(notTender.siddhaYoga).not.toBeNull();
+    expect(notTender.supports.some((x) => /cutting away/i.test(x)), "the severing half never fires at all").toBe(true);
   });
 });
