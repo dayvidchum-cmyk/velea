@@ -1,0 +1,61 @@
+{
+  "_source": "B. V. Raman, Muhurtha (Electional Astrology), Chapter VI 'On Certain Special Yogas', pp. 38-40. Same volume melana.json and amritaSiddhiYoga already cite. Transcribed verbatim in siddha-yoga-source.md; this file is that transcription with star names normalised to the 27 the engine emits.",
+  "_rule": "Raman: 'When a certain week day coincides with a certain asterism and a certain thithi, it becomes specially auspicious for good work.'",
+  "_calibration": "Raman: 'chances of success of the enterprise would be by far the greatest' — a probability, not a promise. David's own wording: 'intended to improve the probability of favorable outcomes, not ensure them.' So a Siddha Yoga LIFTS a day and NEVER clears a veto, exactly as amritaSiddhiYoga does.",
+  "_spellings": "David's ruling, 2026-07-20: 'sounds like the answer is to make the names on the siddha yoga source grid match the spellings and names we have been using elsewhere.' The 1941 scan's OCR is dirty (it prints Anuradha as 'Anuradlia', Rohini as 'Roliini'). Three readings could not be recovered from spelling and are resolved by that ruling: bare 'Uttara' -> Uttara Phalguni (Uttarashadha and Uttarabhadra are spelled out separately in the same sentences); 'Blwvishta' -> Dhanishtha (via Sravishtha, its classical alternate name); 'Animidha' -> Anuradha (the same page misspells it twice). Every other name here is a plain spelling normalisation: Hastha->Hasta, Chitta->Chitra, Mrigasira->Mrigashira, Sravana->Shravana, Satabhisha->Shatabhisha, Makha->Magha, Aswini->Ashwini, Visakha->Vishakha, Moola->Mula, Purvashadha->Purva Ashadha, Uttarashadha->Uttara Ashadha, Purvabhadra->Purva Bhadrapada, Uttarabhadra->Uttara Bhadrapada, Dhanishta->Dhanishtha.",
+
+  "tithiFamilies": {
+    "Nanda": [1, 6, 11],
+    "Bhadra": [2, 7, 12],
+    "Jaya": [3, 8, 13],
+    "Riktha": [4, 9, 14],
+    "Purna": [5, 10, 15]
+  },
+
+  "_grid": "The main grid (p.38): a day qualifies when the weekday, the tithi AND the nakshatra all coincide. Tuesday is given with no tithi list in the source — recorded as null, which the engine must read as 'no tithi requirement stated', never as 'any tithi'.",
+  "byWeekday": {
+    "Sunday": {
+      "tithis": [1, 4, 6, 7, 12],
+      "nakshatras": ["Pushya", "Hasta", "Uttara Phalguni", "Uttara Ashadha", "Mula", "Shravana", "Uttara Bhadrapada"]
+    },
+    "Monday": {
+      "tithis": [2, 7, 12],
+      "nakshatras": ["Rohini", "Mrigashira", "Punarvasu", "Chitra", "Shravana", "Shatabhisha", "Dhanishtha", "Purva Bhadrapada"]
+    },
+    "Tuesday": {
+      "tithis": null,
+      "nakshatras": ["Ashwini", "Mrigashira", "Chitra", "Anuradha", "Mula", "Uttara Phalguni", "Dhanishtha", "Purva Bhadrapada"]
+    },
+    "Wednesday": {
+      "tithis": [2, 7, 12, 3, 8, 13],
+      "nakshatras": ["Rohini", "Mrigashira", "Ardra", "Uttara Phalguni", "Uttara Ashadha", "Anuradha"]
+    },
+    "Thursday": {
+      "tithis": [4, 5, 7, 9, 13, 14],
+      "nakshatras": ["Magha", "Pushya", "Punarvasu", "Swati", "Purva Ashadha", "Purva Bhadrapada", "Revati", "Ashwini"]
+    },
+    "Friday": {
+      "tithis": [1, 6, 11, 2, 7, 12],
+      "nakshatras": ["Ashwini", "Bharani", "Ardra", "Uttara Phalguni", "Chitra", "Swati", "Purva Ashadha", "Revati"]
+    },
+    "Saturday": {
+      "tithis": [2, 7, 12, 4, 9, 14],
+      "nakshatras": ["Swati", "Rohini", "Vishakha", "Anuradha", "Dhanishtha", "Shatabhisha"]
+    }
+  },
+
+  "_weekdayTithiOnly": "Raman's SECOND, separate list (p.39): weekday x tithi family only, no nakshatra required. Kept apart from the grid above because it is a different claim in the book, not a relaxation of the first.",
+  "weekdayTithiOnly": {
+    "Friday": "Nanda",
+    "Wednesday": "Bhadra",
+    "Tuesday": "Jaya",
+    "Saturday": "Riktha",
+    "Thursday": "Purna"
+  },
+
+  "supports": [
+    "important elections",
+    "good work begun with intent",
+    "anything you want the day to carry rather than merely allow"
+  ]
+}

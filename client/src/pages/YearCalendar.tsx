@@ -230,7 +230,7 @@ export default function YearCalendar() {
                 const firstDow = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
                 const nDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
                 return (
-                  <div key={`${y}-${m}`} className="parchment rounded-xl border border-[#ddd3bf] bg-[#f8f4ea] p-3 text-[#2b2723]" style={{ boxShadow: "none" }}>
+                  <div key={`${y}-${m}`} className="parchment rounded-xl border border-[#ddd3bf] p-3 text-[#2b2723]" style={{ boxShadow: "none" }}>
                     <h3 className="mb-2 font-serif text-sm" style={{ color: "#4b4034" }}>
                       {new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
                     </h3>
@@ -271,13 +271,13 @@ export default function YearCalendar() {
                         const isCaution = mvKey === "caution";
                         const bg = isCrown
                           // Crowned tiles wear GOLD always (David: golden branding — special)
-                          ? "color-mix(in srgb, #FFD429 62%, #f8f4ea)"
+                          ? "color-mix(in srgb, #FFD429 62%, var(--parchment))"
                           : filled
-                          ? `color-mix(in srgb, ${coin} 62%, #f8f4ea)`
-                          : isPicked ? `color-mix(in srgb, ${coin} 26%, #f8f4ea)`
+                          ? `color-mix(in srgb, ${coin} 62%, var(--parchment))`
+                          : isPicked ? `color-mix(in srgb, ${coin} 26%, var(--parchment))`
                           // Caution days carry a LIGHT ruby wash (David 2026-07-16) — the border
                           // alone read too quiet for a stop-stop-stop day.
-                          : isCaution ? "color-mix(in srgb, #B3232F 13%, #f8f4ea)" : "transparent";
+                          : isCaution ? "color-mix(in srgb, #B3232F 13%, var(--parchment))" : "transparent";
                         const marks = tileMarksByDate.get(ds) ?? [];
                         const moonPhase = (d as any).moonPhase as ("full" | "new" | undefined);
                         const isDollar = d.tara.taraNum === 2;
@@ -287,7 +287,7 @@ export default function YearCalendar() {
                           <button key={ds} onClick={() => setDayPopup({ ds, d })}
                             // Hover feedback (David 2026-07-16: "nothing highlights under my
                             // cursor") — a soft wash of the day's own coin, restored on leave.
-                            onMouseEnter={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; e.currentTarget.style.background = `color-mix(in srgb, ${coin} 30%, #f8f4ea)`; }}
+                            onMouseEnter={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; e.currentTarget.style.background = `color-mix(in srgb, ${coin} 30%, var(--parchment))`; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = bg; }}
                             className="relative min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center cursor-pointer"
                             style={{ background: bg, color: filled || isPicked ? shade(coin) : familyInk,

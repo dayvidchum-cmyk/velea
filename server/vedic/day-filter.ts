@@ -19,6 +19,7 @@
  */
 
 import tables from "./canon/muhurta-tables.json";
+import siddha from "./canon/siddha-yoga.json";
 
 export type DayNature = "fixed" | "movable" | "swift" | "tender" | "sharp" | "fierce" | "mixed";
 export type TithiFamily = "nanda" | "bhadra" | "jaya" | "rikta" | "purna";
@@ -79,6 +80,8 @@ export interface DayCharacter {
   /** Amrita Siddhi Yoga — this weekday's own nakshatra (Raman, Muhurtha Ch.VI p.40). One of the
    *  strongest classical elections. NOT a guarantee: Raman says it makes the chances greatest. */
   amritaSiddhi: boolean;
+  /** Raman's Siddha Yoga, and which of his two claims fired. Null when the day forms none. */
+  siddhaYoga: SiddhaHit | null;
   /** true when the personal ladder bottom silences the day (weather-gate law). */
   contained: boolean;
   /** One plain sentence — the day's tilt, for humans. */
@@ -170,6 +173,40 @@ const AMRITA_BY_WEEKDAY: Record<string, string> =
 export function amritaSiddhi(varaLord: string, nakshatra: string): boolean {
   const weekday = VARA_WEEKDAY[varaLord];
   return !!weekday && AMRITA_BY_WEEKDAY[weekday] === nakshatra;
+}
+
+// ── SIDDHA YOGA — the grid, encoded on David's ruling (canon/siddha-yoga.json) ────────────────
+// Raman, Muhurtha Ch.VI pp.38-39. The grid needs weekday AND tithi AND nakshatra to coincide.
+// Three OCR-mangled star names ("Uttara" bare, "Blwvishta", "Animidha") were left unencoded until
+// he ruled on 2026-07-20: "make the names on the siddha yoga source grid match the spellings and
+// names we have been using elsewhere" — so Uttara Phalguni, Dhanishtha and Anuradha respectively.
+//
+// TUESDAY IS GIVEN WITH NO TITHI LIST in the source. That is recorded as null and read as "the
+// book states no tithi requirement", so the pairing rests on the star alone — NOT as "any tithi
+// qualifies", which would be inventing a rule the page does not make.
+export type SiddhaHit = { kind: "grid" | "weekday-tithi"; weekday: string; via: string };
+
+/** Does this day form a Siddha Yoga? Returns HOW, so a reading can say which claim fired. */
+export function siddhaYoga(varaLord: string, nakshatra: string, tithiNumber: number): SiddhaHit | null {
+  const weekday = VARA_WEEKDAY[varaLord];
+  if (!weekday) return null;
+  const inPaksha = ((tithiNumber - 1) % 15) + 1;
+
+  const row = (siddha as any).byWeekday?.[weekday];
+  if (row && Array.isArray(row.nakshatras) && row.nakshatras.includes(nakshatra)) {
+    const tithis: number[] | null = row.tithis ?? null;
+    if (tithis === null) return { kind: "grid", weekday, via: `${weekday} with ${nakshatra}` };
+    if (tithis.includes(inPaksha)) return { kind: "grid", weekday, via: `${weekday}, tithi ${inPaksha}, ${nakshatra}` };
+  }
+
+  // Raman's SECOND list: weekday x tithi family alone, no star required. A separate claim in the
+  // book, so it is a separate branch here rather than a loosening of the grid.
+  const fam: string | undefined = (siddha as any).weekdayTithiOnly?.[weekday];
+  if (fam) {
+    const members: number[] = (siddha as any).tithiFamilies?.[fam] ?? [];
+    if (members.includes(inPaksha)) return { kind: "weekday-tithi", weekday, via: `${weekday} on ${fam} (tithi ${inPaksha})` };
+  }
+  return null;
 }
 
 type ActClass = "initiate" | "journey" | "union" | "celebrate" | "sever" | "complete" | "continue";
@@ -283,10 +320,19 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // fierce day the two agree (the cut is supported); on any other nature the day EMPTIES —
   // no supports at all (the old "severing only" line contradicted the gentle natures'
   // own avoid-lists: David's July 12, "supports cutting… keep away from cutting").
+  // EMPTIED means emptied — no yoga may refill it (audit 2026-07-20). Both special yogas add
+  // their own supports later, and BOTH used to repopulate a day this law had just emptied:
+  // Saturday + Rohini on a rikta tithi came back carrying "beginning long-term enterprises" on a
+  // day whose own verdict is "nothing new unless it severs". That contradiction shipped in Amrita
+  // Siddhi and no test caught it; encoding Raman's Siddha grid (where Saturday-on-Riktha is
+  // explicitly a yoga) only made it visible. Raman's own limit settles it: a special yoga makes
+  // the chances greatest, it does not remove an obstacle — so it cannot overturn the day's law.
+  let emptied = false;
   if (family === "rikta") {
     supports = nature === "sharp" || nature === "fierce"
       ? [...baseSupports, ...famDef.supports]
       : [];
+    emptied = supports.length === 0;
     vetoes.push("the day runs on empty — nothing new unless it severs");
   }
   // Vishti: no initiating, whatever else the day offers.
@@ -402,15 +448,24 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // override a veto: he says it makes the chances greatest, not that it removes an obstacle, and
   // David's calibration says the same. So it rides the vetoes rather than clearing them.
   const amrita = amritaSiddhi(input.varaLord, input.nakshatra);
-  if (amrita && !contained) {
+  if (amrita && !contained && !emptied) {
     const extra = ((tables as any).amritaSiddhiYoga?.supports ?? []) as string[];
+    supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
+  }
+
+  // SIDDHA YOGA rides the vetoes exactly as Amrita Siddhi does. Raman calls it "chances... by far
+  // the greatest" — a probability, not a promise — and David's calibration says the same: these
+  // improve the odds, they do not ensure the outcome. So it never clears a veto.
+  const siddhaHit = siddhaYoga(input.varaLord, input.nakshatra, input.tithiNumber);
+  if (siddhaHit && !contained && !emptied) {
+    const extra = ((siddha as any).supports ?? []) as string[];
     supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
   }
 
   return {
     nature, family, headline, supportedKinds,
     supports: dedupe(supports), avoid: dedupe(avoid), vetoes,
-    varaColors, contained, sentence, amritaSiddhi: amrita,
+    varaColors, contained, sentence, amritaSiddhi: amrita, siddhaYoga: siddhaHit,
   };
 }
 

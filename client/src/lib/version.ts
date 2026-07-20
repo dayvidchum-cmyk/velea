@@ -2608,4 +2608,24 @@
 // not recorded, and not recorded must never be answered with a guess.
 // resolve-day-sky now carries `city` through every tier so there is something true to record.
 // Guard fails on all five points against pre-wiring code. 110 files, 1141 tests. Build exits 0.
-export const APP_VERSION = "1.1.877";
+// v1.1.878 = 2026-07-20 — SIDDHA YOGA ENCODED (David's ruling), AND IT EXPOSED A SHIPPED
+// CONTRADICTION IN AMRITA SIDDHI. He ruled on the three OCR-mangled star names: "make the names on
+// the siddha yoga source grid match the spellings and names we have been using elsewhere" — so
+// bare "Uttara" = Uttara Phalguni, "Blwvishta" = Dhanishtha, "Animidha" = Anuradha. Raman's grid
+// (Muhurtha Ch.VI pp.38-39) and his separate weekday-x-tithi list are encoded as TWO claims, kept
+// apart because the book makes them separately. Tuesday's missing tithi list is stored as null and
+// read as "no requirement stated", never as "any tithi qualifies".
+// MEASURED on 365 real days: 88 days (24.1%) form one — 41 by the grid, 47 by the weekday-tithi
+// claim. Against Amrita Siddhi's 12 (3.3%). It is the common signal, not the rare one.
+// AND THE REAL FIND: the day-filter test failed, because Saturday-on-Riktha is explicitly one of
+// Raman's pairings while David's July 12 ruling says a rikta tithi EMPTIES the day's supports.
+// Probing that showed AMRITA SIDDHI ALREADY DID THIS AND SHIPPED: Saturday + Rohini on tithi 4
+// returned "beginning long-term enterprises" on a day whose own verdict is "nothing new unless it
+// severs". No test caught it; encoding the second yoga is what made it visible. Fixed as a CLASS —
+// neither yoga may refill an emptied day. Raman's own limit settles it: a yoga makes the chances
+// greatest, it does not remove an obstacle.
+// Also: the year calendar had six hardcoded #f8f4ea grounds overriding the .parchment class it was
+// already applying, so it never dimmed with the theme. David ruled the other two year-calendar
+// divergences are DELIBERATE: no bindi ladder, no shadow-threshold glyphs there.
+// 112 files, 1152 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.878";
