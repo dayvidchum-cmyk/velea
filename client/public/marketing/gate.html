@@ -54,7 +54,16 @@
     .links a.item { padding: 0.95rem var(--pad); width: 100%; border-top: 1px solid rgba(212,175,55,0.14); }
     .links a.item.on { border-bottom: none; }
   }
-  main { max-width: 58rem; margin: 0; padding: clamp(3rem, 8vw, 5rem) var(--pad) 4rem; }
+  /* THE COLUMN FOLLOWS THE WINDOW (2026-07-20). It was pinned at 58rem and anchored
+     left, so a wide screen got a 433px empty right gutter at 1440 and 712px at 1728 —
+     measured. It now grows with the viewport up to 100rem, keeping the same left
+     anchor, and the PROSE keeps its own 44rem measure below so reading width is
+     unchanged: only figures, beats and rules take the extra room. */
+  main { max-width: min(108rem, calc(100vw - 2 * clamp(2.5rem, 5.5vw, 5.5rem)));
+         margin: 0; padding: clamp(3rem, 8vw, 5rem) var(--pad) 4rem; }
+  /* Reading measure, independent of how wide the column gets. */
+  main > p, main > ul, main > .big, main > .lede, main > h2.sub, main > .label, main > h1,
+  .say > p, .say > .big { max-width: var(--maxw); }
   @media (min-width: 900px) { main { margin-left: clamp(2.5rem, 5.5vw, 5.5rem); } }
   .kicker { font-size: 0.92rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champ); font-weight: 600; }
   .kicker .km { font-family: var(--khmer); letter-spacing: normal; text-transform: none; font-size: 1rem; }
