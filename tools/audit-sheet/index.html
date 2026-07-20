@@ -60,13 +60,13 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v853 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v854 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
     <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
     <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">15</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">954</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n">959</div><div class="l">Tests passing</div></div>
   </div>
 
   <h2>Read this first</h2>
@@ -95,7 +95,14 @@
     <b>ancestry and roots — what your parents themselves inherited and handed on</b>. A test keeps them apart.
     <br><br><b>One small thing left, and it is yours because it is visible:</b> the chip a user taps still reads
     <b>“Parents &amp; Roots”</b> on an area that is now explicitly about ancestry. <b>“Roots &amp; Ancestry”</b> would
-    match your ruling. I did not rename a chip you look at without asking.</span></div>
+    match your ruling. I did not rename a chip you look at without asking.
+    <br><br><b>Then you sent the whole map</b> — 2nd (Kula, the family line), 4th (mother), 5th (Purva Punya, what you
+    carry forward), 8th (genetic inheritance, ancestral trauma, estates), 9th (father as first teacher), 10th (his
+    standing), 12th (the departed, Pitri Dosha) — plus the karakas: Moon the mother, Sun the father, Ketu the ancestral
+    root. It is captured verbatim in <code>canon/lineage-doctrine.md</code>. <b>I stopped implementing when I saw it was
+    still arriving</b>, because building house 2 while house 8 was still coming is how a method gets half-applied.
+    <b>The engine reads two of those eight.</b> The real question it opens: is ancestry one chip and one lens, or a
+    spread across seven houses and three planets the reading draws on wherever it is lit? That is yours.</span></div>
 
   <div class="ask"><b>2. Which nakshatra table wins?</b>
     <span class="why">There are six lists in the app classifying the 27 stars, and only one has a source citation. On four
@@ -112,21 +119,20 @@
     your ruling. <b>Should the cited nature DRIVE every score, or only overrule the ones that contradict it?</b>
     They are left alone until you say, and a test stops anyone finishing the job by accident.</span></div>
 
-  <div class="ask" style="border-left-color:#8B3A62"><b>3. When does a day “become” its star? — REOPENED, and I need one word from you.</b>
-    <span class="why">You said “majority makes sense to me”. Then you sent me the doctrine, and it points the other way:
-    <i>the Vedic day begins at local sunrise; the configuration at that moment prints the blueprint for the whole cycle;
-    the civil day KEEPS THE NAME of the sunrise star for consistency — while dynamic time (muhurta, elections, births)
-    shifts in real time.</i> Ritual continuity is the reason: a day whose identity changed at 2pm would make coordinating
-    anything impossible.
-    <br><br><b>I have not changed anything on the strength of my own reading of that</b>, because the two things you told
-    me disagree and this moves 47% of days. Here is what I think you are actually describing, in Velea’s terms:
-    <br>· <b>The day’s NAME and character</b> — calendar, Today, the reading’s frame — anchored at <b>sunrise</b>.
-    <br>· <b>The moment layer</b> — Time Master, hora, golden hour, “is now a good time” — already shifts in <b>real
-    time</b>, and would not change.
-    <br><br>Velea already computes both, side by side, on every day (<code>nakshatra</code> = majority,
-    <code>nakshatraAtSunrise</code> = the anchor). So this is a switch of which one names the day, not a rebuild.
-    <b>Say “sunrise” and I will move the naming to it and re-derive everything downstream; say “majority” and it stays as
-    built.</b></span></div>
+  <div class="ask"><b>3. When does a day “become” its star? — ANSWERED, and it was neither of my two options.</b>
+    <span class="why">I offered you “sunrise or majority”. You gave a third answer, and it is the one the book actually
+    describes: <b>the day is NAMED for the blueprint at sunrise, and the READING is two-part.</b> On a transition day an
+    honest reading says “favourable for creative work until 3:00&nbsp;PM, after which the focus shifts” — it names the
+    hour. Blending the day into whichever star holds the majority is <i>what the generic apps do</i>, and it is why
+    their horoscopes feel off in the morning or the evening.
+    <br><br><b>Velea was doing the thing you described as wrong.</b> The model received only the majority star. It also
+    got a “the day turns at…” sentence — but that is emitted <i>only when the crossing changes the mode</i>, so on every
+    transition day where the mode holds, the model never learned the star turned at all.
+    <br><br><b>DONE:</b> both stars and the clock time now travel to the model on every turning day
+    (<code>starTurn: { fromStar, toStar, atLocalTime, rulesMostOfDay }</code>).
+    <b>NOT DONE:</b> the prompt does not yet instruct the two-part reading, and the day is still <i>named</i> by the
+    majority star rather than the sunrise one. Those two change what every reading says on 47% of days, and I am not
+    flipping that without you seeing it first.</span></div>
 
   <div class="ask"><b>4. Which cancelled-fall rules are Velea’s?</b>
     <span class="why">You asked what the book says and I wrote it out verse by verse. Two of the four rules the engine
@@ -289,7 +295,7 @@
 
   <p class="foot">
     Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
-    rows, the same 142 the sheet has always held. 88 test files, 954 tests passing, 32 probes each proven able to fail.
+    rows, the same 142 the sheet has always held. 88 test files, 959 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
   </p>

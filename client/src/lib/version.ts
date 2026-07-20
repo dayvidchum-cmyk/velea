@@ -2167,4 +2167,32 @@
 // Also: the probe harness itself broke — single quotes inside a single-quoted shell argument — and
 // reported a parse error rather than a green run. It is supposed to fail loudly. It did.
 // 34 probes, all caught. 89 files, 954 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.853";
+// v1.1.854 = 2026-07-20 — DAVID ANSWERED THE DAY-STAR QUESTION, AND IT WAS NEITHER OF MY OPTIONS.
+// I offered "sunrise or majority". His answer: the day is NAMED for the sunrise blueprint, and the
+// READING IS TWO-PART — "favourable for creative work until 3:00 PM, after which the focus shifts",
+// naming the hour. Blending the day into whichever star holds the majority is what the GENERIC apps
+// do, and it is why their horoscopes feel off in the morning or evening.
+// VELEA WAS DOING THE THING HE CALLED WRONG. The model received only the majority star. It also got
+// turnsAtNote — but that fires ONLY when the crossing changes the MODE, so on every transition day
+// where the mode holds, the model never learned the star turned at all.
+// DONE: starTurn { fromStar, toStar, atLocalTime, rulesMostOfDay } now travels on every turning day.
+// NOT DONE, deliberately: the prompt does not yet instruct the two-part read, and the day is still
+// NAMED by the majority star. Both change what every reading says on 47% of days; not flipping that
+// without his eye.
+// I ALMOST SHIPPED IT BROKEN. My first starTurn read field.sunriseNak / afterNak / transitionTime —
+// the names used INSIDE finishDayMode's OPTIONS, not the ones on the object it returns
+// (nakshatraAtSunrise / nakshatraAfterTransition / nakshatraTransitionTime). Cast `as any`, it
+// typechecked, would have emitted null every day forever, and I would have called it wired. Runtime
+// verification needs a DB this environment lacks, so two-part-day.test.ts asserts the builder's
+// names against the service's RETURNED shape instead of claiming behaviour I could not observe.
+// And the first version of THAT test failed on correct code, because the builder's comment explains
+// the mistake by naming it — an assertion that cannot tell a comment from a call, the identical flaw
+// I fixed in bell-ladder.test.ts and reproduced here. Comments are stripped now.
+// THE LINEAGE DOCTRINE: he then sent the whole map, one house per message — 2nd Kula, 4th mother,
+// 5th Purva Punya, 8th genetic inheritance and ancestral trauma, 9th father as first teacher, 10th
+// his standing, 12th the departed and Pitri Dosha, plus Moon/Sun/Ketu as the karakas. Captured
+// verbatim in canon/lineage-doctrine.md. I STOPPED IMPLEMENTING when I saw it was still arriving:
+// building house 2 while house 8 is still coming is how a method gets half-applied. The engine
+// reads two of those eight.
+// 90 files, 959 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.854";

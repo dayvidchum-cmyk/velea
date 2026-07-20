@@ -567,6 +567,29 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // The literal mid-day turn and the field/karana containment reasons — the DAY-scale
     // particulars the read must spend its words on.
     turnsAtNote: (field as any).turnsAtNote ?? null,
+    // THE TWO-PART DAY (David's doctrine, 2026-07-20). "A standard daily horoscope does not stay
+    // frozen at sunrise; it changes the exact moment the Moon shifts into a new star… an accurate
+    // Vedic horoscope will often say 'favorable for creative work until 3:00 PM, after which focus
+    // shifts'. Most apps look at whichever nakshatra occupies the majority of the day and write from
+    // that single star. This is why daily horoscopes can feel 'off' during the morning or evening."
+    //
+    // Velea was doing the thing he is describing as WRONG: the model received only the majority
+    // star. It also received turnsAtNote — but that sentence is emitted ONLY when the crossing
+    // changes the MODE, so on every transition day where the mode holds, the model never learned the
+    // star turned at all. Both stars and the clock time now travel, always, so the read can be
+    // written in two parts.
+    // NOTE ON THE FIELD NAMES: my first version read field.sunriseNak / afterNak / transitionTime —
+    // the names used INSIDE finishDayMode's options, not the ones on the object that comes back.
+    // It typechecked (they were `as any`), emitted null on every day forever, and I would have
+    // shipped it as "the two-part day is wired". Verified against the returned shape instead.
+    starTurn: (field as any).nakshatraAfterTransition && (field as any).nakshatraTransitionTime
+      ? {
+          fromStar: (field as any).nakshatraAtSunrise ?? null,
+          toStar: (field as any).nakshatraAfterTransition,
+          atLocalTime: (field as any).nakshatraTransitionTime,
+          rulesMostOfDay: field.nakshatra ?? null,
+        }
+      : null,
     // POLAR HONESTY (v820). Spread ONLY when the Sun genuinely never rose — a `noSunrise: null` on
     // every ordinary day would change the input JSON for everyone and regenerate every cached
     // reading on the planet to say nothing. Present, it tells the model the day's anchor is nominal.
