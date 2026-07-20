@@ -436,24 +436,59 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   if (birthNakIdx >= 0 && natalMoonSignIdx >= 0 && lagnaSignIdx >= 0 && a["Sun"] != null && a["Moon"] != null) {
     const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
     const T: Record<string, number> = Object.fromEntries(PLANETS.filter((n) => a[n] != null).map((n) => [n, si(a[n]!)]));
-    const { majorityDayStarIdx, natalAshtakavarga, personalDayForDate } = await import("../panchang/crown.js");
+    const { natalAshtakavarga, personalDayForDate } = await import("../panchang/crown.js");
     // AUDIT #4 (HIGH): the crown/tara majority-star must come from the SAME sky the day-star,
     // mode, and dayFilter use — the viewer's day-location — not the Boston default. Computing it
     // from Boston split personalTara/personalApex off from panchang.nakshatra on star-boundary
     // days for located users (the "Selective vs Restrained Build" class the v742 fix closed one
     // call site down). personalDayForDate already threads dayLoc; this crownDay path did not.
     const dl = moment.dayLoc;
-    const majIdx = await majorityDayStarIdx(dateStr, dl.lat, dl.lon, dl.utcOffset);
+    const { majorityDayMoon } = await import("../panchang/crown.js");
+    const { starIdx: majIdx, signIdx: majSignIdx } = await majorityDayMoon(dateStr, dl.lat, dl.lon, dl.utcOffset);
     // Same natal Ashtakavarga the calendar uses, from the natal bodies — keeps the reading's crown
     // in lockstep with the calendar's crown badge (both AV-refined).
     const natalSignIdx: Record<string, number> = {};
     for (const [n, b] of Object.entries(byPlanet)) { const i = ZODIAC.indexOf((b as any)?.sign ?? ""); if (i >= 0) natalSignIdx[n] = i; }
     const natalAv = natalAshtakavarga(natalSignIdx, lagnaSignIdx);
-    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined, ashtakavarga: natalAv });
+    const cd = crownDay({ birthNakIdx, natalMoonSignIdx, lagnaSignIdx, sunLon: a["Sun"], moonLon: a["Moon"], transitSignByPlanet: T, dayNakIdxOverride: majIdx ?? undefined, dayMoonSignIdxOverride: majSignIdx ?? undefined, ashtakavarga: natalAv });
     personalRating = cd.rating;
     personalTara = cd.tarabala;
+
+    // THE CROWN IS THE CALENDAR'S CROWN (2026-07-20). This used to be crownDay's own threshold —
+    // a different definition from the calendar's, and measurably a much looser one: it fired on
+    // 30-54 days a year (8-15% of them) while the prompt told the model it meant "one of their
+    // RARE personal peak days", and it agreed with the calendar's twelve on ZERO days (v778).
+    // WHAT THE BOOKS SAY (David asked, 2026-07-20): METHOD.md Step 0 — a DAY is judged by Tara Bala
+    // + Chandra Bala, the personal pair; and the muhurta canon's own veto note says "the native's
+    // tara standing OVERRIDES the collective". The collective limbs classify what KIND of day it
+    // is, never how high it goes, and there is no canonical rule that a rough collective sky
+    // cancels a personal peak — the only stated interaction runs the other way. That is David's
+    // split exactly: golden = the collective sky, crown = the personal apex. So crownDay's extra
+    // universal/transit gates were Velea inventions on top of the canon, and the crown now comes
+    // from the one ranked year the calendar draws its marks from. One calendar, one crown.
+    // FAIL-SAFE: if the ranked year is unavailable for any reason, isCrown is FALSE, never a guess
+    // — the prompt's rule is "when isCrown is false, say NOTHING about crowns", so a failure costs
+    // a silence, never a wrong claim of a peak.
+    let isCrownDay = false;
+    try {
+      const { rankedSolarYearForProfile } = await import("../vedic/ranked-year.js");
+      const { getUserById: getUC } = await import("../db.js");
+      const uC = (p as any).userId ? await getUC((p as any).userId) : null;
+      // The date may sit in the previous/next solar year (the calendar walks ±1 the same way).
+      for (const off of [0, -1, 1]) {
+        const yr = await rankedSolarYearForProfile(p, uC, off);
+        if (!yr?.summary?.topDates) continue;
+        if (dateStr >= yr.yearStart && dateStr < yr.yearEnd) {
+          isCrownDay = yr.summary.topDates.includes(dateStr);
+          break;
+        }
+      }
+    } catch (cErr) {
+      console.warn("[narrative] ranked year unavailable — crown reported as false, never guessed:", cErr);
+    }
+
     personalApex = {
-      isCrown: cd.rating === "crown",
+      isCrown: isCrownDay,
       tara: cd.tarabala.name,
       taraFavorable: cd.tarabala.favorable,
       chandraHouse: cd.chandrabala.house,

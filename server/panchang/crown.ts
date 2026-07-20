@@ -150,6 +150,11 @@ export function crownDay(opts: {
    *  the nakshatra that RULES most of the vedic day, not the noon-UTC instant. The universal
    *  (collective/golden) scoring keeps the noon convention — it is a different, shared layer. */
   dayNakIdxOverride?: number;
+  /** Majority-of-day Moon SIGN (David 2026-07-20: "2. majority"). Chandrabala counts from the
+   *  day's Moon sign; without this it was derived from the moonLon INSTANT passed in, while the
+   *  tara above came from the whole day's majority star — the same Moon answering on two clocks.
+   *  Omit → the instant, as before. The universal/collective layer is unaffected either way. */
+  dayMoonSignIdxOverride?: number;
   /** Natal Ashtakavarga (optional). When supplied, the day's Moon-sign bindus INTERACT with the
    *  tara: they boost golden days, cushion an adverse tara out of caution, and — only when a thin
    *  sign coincides with an adverse tara — deepen the day into caution. Omit → pre-AV behaviour. */
@@ -157,7 +162,7 @@ export function crownDay(opts: {
 }): CrownDay {
   const dq = dayQuality(opts.sunLon, opts.moonLon, opts.universalThreshold ?? 2);
   const dayNakIdx = opts.dayNakIdxOverride ?? dq.nakshatra; // 0..26 (majority star when provided)
-  const dayMoonSignIdx = Math.floor(norm(opts.moonLon) / 30); // 0..11
+  const dayMoonSignIdx = opts.dayMoonSignIdxOverride ?? Math.floor(norm(opts.moonLon) / 30); // 0..11
   const tb = tarabala(opts.birthNakIdx, dayNakIdx);
   const cb = chandrabala(opts.natalMoonSignIdx, dayMoonSignIdx);
 
@@ -296,12 +301,20 @@ function parse12h(s: string | null | undefined): number | null {
  *  callers resolve it through resolve-day-sky (no silent Boston default; that default was
  *  the root of the "Selective vs Restrained Build" divergence class). */
 export async function majorityDayStarIdx(dateStr: string, lat: number, lon: number, utcOffset: number): Promise<number | null> {
+  return (await majorityDayMoon(dateStr, lat, lon, utcOffset)).starIdx;
+}
+
+/** THE DAY'S MOON ON ONE CLOCK — the star AND the sign that rule the vedic day (David 2026-07-20:
+ *  "2. majority"). Tarabala counts from the star, chandrabala from the sign, and reading them at
+ *  two different instants is what let one Moon give two answers about the same day. astronomy.ts
+ *  now resolves both by the same boundary walk; this is the pair, from one calcPanchang. */
+export async function majorityDayMoon(dateStr: string, lat: number, lon: number, utcOffset: number): Promise<{ starIdx: number | null; signIdx: number | null }> {
   try {
     const { calcPanchang } = await import("./astronomy.js");
     const astro: any = await calcPanchang(dateStr, lat, lon, utcOffset);
-    return majorityStarFromAstro(astro);
+    return { starIdx: majorityStarFromAstro(astro), signIdx: astro?.moonSignIndex ?? null };
   } catch {
-    return null;
+    return { starIdx: null, signIdx: null };
   }
 }
 

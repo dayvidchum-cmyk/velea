@@ -724,4 +724,23 @@
 // Selective at 10:59 PM — so why is Selective showing?" bug. So the day's HOUSE now comes from the
 // ruling sign while the timeline still opens on the SUNRISE sign, and calcPanchang exposes both.
 // No migration: the cached-row path already prefers the freshly computed values (v771).
-export const APP_VERSION = "1.1.780";
+// v1.1.781 = 2026-07-20 — ONE CALENDAR, ONE CROWN. David asked what the textbooks say; they say
+// the personal pair decides a day. METHOD.md Step 0: a DAY is judged by Tara Bala + Chandra Bala.
+// The muhurta canon's own veto note: "the native's tara standing OVERRIDES the collective." The
+// collective limbs classify what KIND of day it is, never how high it goes, and no canon rule
+// makes a rough collective sky cancel a personal peak — the only stated interaction runs the other
+// way. That is David's split exactly (golden = collective sky, crown = personal apex), so the
+// universal/transit gates in the reading's crown were Velea inventions sitting on top of the canon.
+// The reading's crown was ALSO its own definition: a threshold firing on 30-54 days a year (8-15%)
+// while the prompt told the model it meant "one of their RARE personal peak days" — and it agreed
+// with the calendar's twelve on ZERO days. Now personalApex.isCrown means exactly one thing: this
+// date is one of the twelve crowned days of the solar year, from the SAME ranked year the calendar
+// draws its marks from. rankedSolarYearFor moved out of routers.ts into vedic/ranked-year.ts so
+// both surfaces read one implementation (the year walk measures ~0.1s and is cached in-process).
+// The prompt was rewritten to describe what the field now IS — it was still telling the model the
+// old gate definition, which would have been a lie to the model about its own input.
+// Fail-safe: if the ranked year cannot be built, isCrown is FALSE, never a guess — the prompt's
+// rule is "when isCrown is false, say NOTHING about crowns", so a failure costs a silence, never
+// a false peak. Also finishing v780: the reading's chandrabala now takes the day's RULING Moon
+// sign (dayMoonSignIdxOverride), so tara and chandra there are read off one clock too.
+export const APP_VERSION = "1.1.781";
