@@ -594,4 +594,20 @@
 // supports", which no code did — corrected to describe what actually ships, with the old wording
 // recorded. No astrology output changes; a false instruction is removed. Canon file verified intact
 // after the edit (27 unique nakshatras, 5 families, 2-line diff). 264 tests pass.
-export const APP_VERSION = "1.1.773";
+// v1.1.774 = 2026-07-19 — THE DAY IS NAMED BY TRUE MAJORITY, SUNRISE TO SUNRISE (David: "it should
+// be named by the majority starting at sunrise to the next sunrise, THOROUGHLY, not 6 samples").
+// The old code sampled 6 points ~4h apart and counted them, so a transition landing between 41.7%
+// and 58.3% of the day was decided by a 3-3 tie broken on key ORDER rather than duration; and the
+// pada was assigned inside that loop, keeping the LAST value seen. Replaced with exact boundary
+// bisection (~30s tolerance) summing REAL durations per value.
+// THE TRAP, and it bit me first: it is tempting to assume at most ONE crossing per day (the Moon
+// covers ~13.2° against a 13.33° nakshatra). FALSE when the day opens near a boundary. 2026-07-09
+// opened at 13.23° — a tenth of a degree from Ashwini's edge — crossed to Bharani at 5:26 AM, then
+// had a full nakshatra of room and reached Krittika before the next sunrise. My first attempt found
+// only the first boundary, took the end value, and named the day KRITTIKA — skipping Bharani, which
+// ruled ~99% of it. The tests passed; a dense-sampling control caught it. Now every boundary is
+// walked and durations summed. VERIFIED: 45/45 days match an independent 10-minute dense sampling
+// of the same window — by the same control that failed the first attempt. The pada is taken from the
+// middle of the RULING star's own window (no pada can hold a majority of a day; the Moon crosses
+// 3-4). Note: the day pada reaches no prose and no screen — stored only. 264 tests pass.
+export const APP_VERSION = "1.1.774";

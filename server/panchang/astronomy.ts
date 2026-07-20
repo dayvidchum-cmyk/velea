@@ -229,43 +229,71 @@ async function getDominantByMajority(
   const swe = await getSwe();
   const flags = SEFLG_SWIEPH | SEFLG_SIDEREAL;
 
-  // Sample at 6 points across the day
-  const samples = 6;
-  const step = (nextSunriseJD - sunriseJD) / samples;
+  // EXACT MAJORITY, SUNRISE TO SUNRISE (David 2026-07-19: "named by the majority starting at
+  // sunrise to the next sunrise, THOROUGHLY, not 6 samples").
+  //
+  // The old code took 6 samples ~4h apart and counted them: a transition landing between 41.7%
+  // and 58.3% of the day was decided by a 3-3 tie broken on key ORDER, not duration.
+  //
+  // Sampling is not needed — the boundaries can be found exactly. NOTE THE TRAP: it is tempting
+  // to assume at most ONE crossing per day (the Moon covers ~13.2° against a 13.33° nakshatra).
+  // That is FALSE when the day opens near a boundary. 2026-07-09 opened at 13.23° — a tenth of a
+  // degree from Ashwini's edge — crossed into Bharani at 5:26 AM, then had a full nakshatra of
+  // room and crossed into Krittika before the next sunrise. A one-crossing assumption hands that
+  // day to Krittika and skips Bharani, which actually ruled ~99% of it. So walk EVERY boundary
+  // and sum real durations. (Caught by dense-sampling control, not by the tests.)
+  const TOL = 1 / 2880; // ~30s in JD, the tolerance findNakshatraTransition already uses
+  const moonIdxAt = (jd: number) => moonDataFromLongitude(swe.calc_ut(jd, SE_MOON, flags)[0]).nakshatraIndex;
+  const tithiIdxAt = (jd: number) => calcTithi(swe.calc_ut(jd, SE_MOON, flags)[0], swe.calc_ut(jd, SE_SUN, flags)[0]).index;
 
-  const nakshatraCounts: Record<number, number> = {};
-  const tithiCounts: Record<number, number> = {};
-  let lastMoon: MoonData | null = null;
-  let lastTithi: TithiData | null = null;
-  // The pada last seen WITHIN each nakshatra (audit M14): the dominant nakshatra's pada must
-  // come from a moment the Moon was actually IN it — the old code paired the dominant NAME
-  // with lastMoon's pada (end of day), which on a transition day belongs to the NEXT
-  // nakshatra (usually pada 1), so e.g. "Rohini pada 1" showed when Rohini's hours were pada 3-4.
-  const padaByNak: Record<number, number> = {};
-
-  for (let i = 0; i < samples; i++) {
-    const sampleJD = sunriseJD + step * (i + 0.5);
-    const moonResult = swe.calc_ut(sampleJD, SE_MOON, flags);
-    const sunResult = swe.calc_ut(sampleJD, SE_SUN, flags);
-    const moonLon = moonResult[0];
-    const sunLon = sunResult[0];
-
-    const moon = moonDataFromLongitude(moonLon);
-    const tithi = calcTithi(moonLon, sunLon);
-
-    nakshatraCounts[moon.nakshatraIndex] = (nakshatraCounts[moon.nakshatraIndex] || 0) + 1;
-    padaByNak[moon.nakshatraIndex] = moon.nakshatraPada;
-    tithiCounts[tithi.index] = (tithiCounts[tithi.index] || 0) + 1;
-    lastMoon = moon;
-    lastTithi = tithi;
+  /** Total time each value holds between lo and hi, by bisecting every boundary in order. */
+  function durations(lo: number, hi: number, valueAt: (jd: number) => number): Record<number, number> {
+    const held: Record<number, number> = {};
+    let segStart = lo, cur = valueAt(lo), guard = 0;
+    while (guard++ < 8) {
+      if (valueAt(hi) === cur) { held[cur] = (held[cur] ?? 0) + (hi - segStart); break; }
+      let a = segStart, b = hi;
+      while (b - a > TOL) { const mid = (a + b) / 2; if (valueAt(mid) === cur) a = mid; else b = mid; }
+      const t = (a + b) / 2;
+      held[cur] = (held[cur] ?? 0) + (t - segStart);
+      segStart = t; cur = valueAt(Math.min(t + TOL, hi));
+    }
+    return held;
   }
+  const pickMax = (h: Record<number, number>) =>
+    Number(Object.entries(h).sort((x, y) => y[1] - x[1])[0][0]);
 
-  // Dominant = most frequent
-  const dominantNakshatraIdx = Number(
-    Object.entries(nakshatraCounts).sort((a, b) => b[1] - a[1])[0][0]
-  );
-  const dominantTithiIdx = Number(
-    Object.entries(tithiCounts).sort((a, b) => b[1] - a[1])[0][0]
+  const nakHeld = durations(sunriseJD, nextSunriseJD, moonIdxAt);
+  const dominantNakshatraIdx = pickMax(nakHeld);
+  const dominantTithiIdx = pickMax(durations(sunriseJD, nextSunriseJD, tithiIdxAt));
+
+  // The pada of the RULING star, taken from the middle of the window that star actually holds.
+  // (A pada is a quarter-nakshatra and the Moon crosses 3-4 a day, so no pada holds a majority
+  // of a DAY — "the day's pada" is only meaningful relative to the ruling star's own hours.
+  // This value currently reaches no prose and no screen; it is stored only.)
+  let padaWinStart = sunriseJD, padaWinEnd = nextSunriseJD;
+  {
+    let segStart = sunriseJD, cur = moonIdxAt(sunriseJD), guard = 0;
+    while (guard++ < 8) {
+      if (moonIdxAt(nextSunriseJD) === cur) {
+        if (cur === dominantNakshatraIdx) { padaWinStart = segStart; padaWinEnd = nextSunriseJD; }
+        break;
+      }
+      let a = segStart, b = nextSunriseJD;
+      while (b - a > TOL) { const mid = (a + b) / 2; if (moonIdxAt(mid) === cur) a = mid; else b = mid; }
+      const t = (a + b) / 2;
+      if (cur === dominantNakshatraIdx) { padaWinStart = segStart; padaWinEnd = t; break; }
+      segStart = t; cur = moonIdxAt(Math.min(t + TOL, nextSunriseJD));
+    }
+  }
+  const padaByNak: Record<number, number> = {
+    [dominantNakshatraIdx]: moonDataFromLongitude(
+      swe.calc_ut((padaWinStart + padaWinEnd) / 2, SE_MOON, flags)[0],
+    ).nakshatraPada,
+  };
+  const lastMoon: MoonData = moonDataFromLongitude(swe.calc_ut(nextSunriseJD, SE_MOON, flags)[0]);
+  const lastTithi: TithiData = calcTithi(
+    swe.calc_ut(nextSunriseJD, SE_MOON, flags)[0], swe.calc_ut(nextSunriseJD, SE_SUN, flags)[0],
   );
 
   // Get moon data at sunrise for the dominant nakshatra sign
