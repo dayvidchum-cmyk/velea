@@ -11,6 +11,33 @@ David should never have to ask for this. It is the standing method, not a mode.
 
 A cosmetic fix never outranks a data fix. When triaging, say which tier the item is in.
 
+## RULE ZERO — never state a value you have not printed
+
+**Do not type an astrological fact, a code string, a number, a file path, or an example from memory.
+Run it and paste what came out.** This is the single highest-frequency way this project wastes
+David's time, and it costs about two minutes to avoid.
+
+It applies to messages, commit notes, comments, docs and tests — **the audit sheet and working brief
+included.** A wrong example in a message is not "just a message": David reads it, believes it,
+and corrects it, which is his time spent on my laziness.
+
+Receipts, all from one day:
+- Told him "there is no cited source in this repo" for the muhurta siddhi tables. They were in a book
+  the repo already cites, in his own folder. I had never opened it.
+- Wrote a test fixture described as "one condition" that actually fired **four** — asserted, never run.
+- Illustrated a reason string as `Venus (exalts in Libra)`. **Saturn** exalts in Libra; Venus rules
+  it. Conflated ruler with exaltation while explaining the function that distinguishes them.
+- Claimed a migration script "the shift alert is built" when it was not. He ran it on production
+  trusting that line.
+
+**Before writing any specific claim, ask: did I run this, or do I remember it?** If remembered,
+either run it or don't write it. "I believe" and "should be" are signals to go check, not hedges to
+publish.
+
+Corollary — **the engine is more likely right than your description of it.** When a check disagrees
+with working code, suspect the check first. Four separate instruments were wrong before the thing
+they measured was.
+
 ## Never take a green as truth
 
 A passing test proves nothing until you have broken the thing it guards and watched it fail.
@@ -63,7 +90,23 @@ the choice to David in plain English. A wrong table looks authoritative forever.
 
 Method questions (thresholds, which authority wins, what counts as "solid") are **David's rulings,
 not research tasks.** Build what he has already specified; don't reopen a settled question as a
-seminar.
+seminar. When he has written a condition down, that IS the ruling — build it.
+
+### What to hand him, and what to just fix
+
+**Flag it only when the fix needs his authority** — which tradition wins, what a number should be,
+anything the engine cannot answer for him. Say it in one line, with a recommendation and the
+numbers behind it.
+
+**Fix it when the remedy takes no side.** A correctness defect with a neutral repair is not his
+call, and handing it over is friction invented out of nothing.
+
+The test: *does fixing this require choosing something only he can choose?* If no, fix it.
+**"It's complicated" and "it has Sanskrit in it" are not the same as "it's his call."** He asked
+"what is the advantage of doing this?" about exactly such a hand-off, and there was none — worse,
+the thing I deferred was silently defeating a ruling he had just made.
+
+Never hand him a decision as a way of avoiding work, and never hand him two when one will do.
 
 ## Don't say it's fixed until it is fixed
 

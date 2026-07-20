@@ -140,6 +140,11 @@ run server/vedic/research-store.ts 'dv: DASHA_ENGINE_VERSION,' '' \
 run server/panchang/service.ts 'const dominantNak = (astro as any)?.nakshatraAtSunrise ?? astro?.nakshatra' 'const dominantNak = astro?.nakshatra' \
   server/panchang/sunrise-naming.test.ts "the day goes back to being named by the majority star"
 
+run CLAUDE.md '## RULE ZERO — never state a value you have not printed' '## Rule zero' \
+  server/working-method.test.ts "the working method loses its rule-zero law"
+run CLAUDE.md 'Illustrated a reason string as `Venus (exalts in Libra)`' 'Illustrated a reason string wrongly' \
+  server/working-method.test.ts "the receipts are stripped out of CLAUDE.md"
+
 run server/vedic/dignity.ts 'if (glossA || glossB) {' 'if (glossA) {' \
   server/vedic/kendra-tautology.test.ts "one gloss of Phaladeepika 7.30 stops counting"
 
