@@ -946,4 +946,12 @@
 // behind the text is the card TINTED BY THE VERY COLOUR being inked — not the card. Solving against
 // the untinted card left them at 3.9:1 where 4.5 was intended. inkOf now takes the tint and
 // reconstructs the real ground; worst case went 3.9 → 4.51. Measured, not assumed.
-export const APP_VERSION = "1.1.792";
+// v1.1.793 = 2026-07-20 — THE READING THAT SPINS FOREVER. Found while bringing the audit sheet up
+// to date: the sheet's "spinners" row was still open and I had NOT fixed it — v787/v788 added the
+// LOCKED branch beside this gate without touching the gate itself.
+// `data === undefined ? <Loading/>` also matches an ERRORED query, so a failed call spins
+// indefinitely and the reader waits for something that will never arrive. Now gated on the fetch
+// state, so a failure fails honestly. Checked the rest: the Atlas uses isLoading, which is false on
+// error under React Query v5 (isPending && isFetching), so it already fell through — the Horoscope
+// hub's two reads were the only surfaces with this gate.
+export const APP_VERSION = "1.1.793";

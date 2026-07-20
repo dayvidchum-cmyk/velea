@@ -88,8 +88,15 @@ export default function Horoscope() {
   const today = todayStr();
   const [todayOpen, setTodayOpen] = useState(false);
   const [yearOpen, setYearOpen] = useState(false);
-  const { data: todayReadRes } = trpc.narrative.dayRead.useQuery({ profileId: pid as number, date: today }, { enabled: !!pid && todayOpen, staleTime: 1000 * 60 * 30 });
-  const { data: yearReadRes } = trpc.narrative.deepRead.useQuery({ profileId: pid as number, date: today }, { enabled: !!pid && yearOpen, staleTime: 1000 * 60 * 30 });
+  // AN ERRORED QUERY ALSO LEAVES data UNDEFINED. Gating the loader on `data === undefined` alone
+  // therefore spins FOREVER when the call fails — the reader waits for something that will never
+  // arrive. The fetch state has to be part of the condition, so a failure can fail honestly.
+  const todayReadQ = trpc.narrative.dayRead.useQuery({ profileId: pid as number, date: today }, { enabled: !!pid && todayOpen, staleTime: 1000 * 60 * 30 });
+  const yearReadQ = trpc.narrative.deepRead.useQuery({ profileId: pid as number, date: today }, { enabled: !!pid && yearOpen, staleTime: 1000 * 60 * 30 });
+  const todayReadRes = todayReadQ.data;
+  const yearReadRes = yearReadQ.data;
+  const todayLoading = todayReadQ.isFetching || (!todayReadQ.isError && todayReadRes === undefined);
+  const yearLoading = yearReadQ.isFetching || (!yearReadQ.isError && yearReadRes === undefined);
   const todayReadContent = (todayReadRes as any)?.read ?? null;
   const yearReadContent = (yearReadRes as any)?.read ?? null;
   // Eclipse season is a period reading (narrative_cache, not the frozen reveals table), so it lists
@@ -200,7 +207,7 @@ export default function Horoscope() {
               <DayReadBody read={todayReadContent} modeColor={modeColor} />
               <button onClick={() => navigate("/")} style={hubLinkStyle(modeColor)}>Open Today →</button>
             </>
-          ) : todayReadRes === undefined ? (
+          ) : todayLoading ? (
             <SectionLoading label="Reading today…" />
           ) : (todayReadRes as any)?.locked ? (
             // guardedDate locks any date outside the free window — the pick-a-date premium.
@@ -212,7 +219,7 @@ export default function Horoscope() {
         </HubSection>
 
         <HubSection title="Your year" subtitle="From your birthday to your next birthday — your solar year, not the calendar year" open={yearOpen} onToggle={() => setYearOpen((o) => !o)} accent={modeColor}>
-          {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : yearReadRes === undefined ? <SectionLoading label="Reading your year…" /> : (yearReadRes as any)?.locked ? (
+          {yearReadContent ? <DeepReadBody read={yearReadContent} modeColor={modeColor} /> : yearLoading ? <SectionLoading label="Reading your year…" /> : (yearReadRes as any)?.locked ? (
             // year-sight is premium (canYearSight). Without this the gate read as a failure.
             <LockedRead accent={modeColor} title="Your year" body="The read of your whole solar year — birthday to birthday — opens with year-sight." feature="year-sight" />
           ) : <p style={{ fontSize: "0.82rem", fontStyle: "italic", color: "var(--color-muted-foreground)", margin: 0 }}>This reading couldn't be drawn just now — try again in a moment.</p>}
