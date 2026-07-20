@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { LogIn, ChevronDown, ChevronLeft, RefreshCw } from "lucide-react";
 
 /** The Stage mark — a circle with a center dot, framed in a square (David's icon: the ☉ sun-point,
@@ -105,13 +105,27 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
     const id = setInterval(() => setNowMs(Date.now()), 20000);
     return () => clearInterval(id);
   }, []);
-  // Fixed top bar: measure its height so the in-flow spacer reserves exactly that much,
-  // keeping page content from hiding underneath the pinned strip.
-  const barRef = useRef<HTMLDivElement>(null);
+  // Fixed top bar: the in-flow spacer must reserve exactly the bar's CONTENT height.
+  //
+  // 2026-07-19 (David's cold-launch clip, caught on a screen recording): the spacer used to be
+  // `calc(measuredOuterHeight - env(safe-area-inset-top))` — a JS pixel value minus a CSS env().
+  // Those two resolve at DIFFERENT times. On a cold PWA launch the effect could measure the bar
+  // before the inset had been applied, so `barH` came back WITHOUT the inset and the spacer then
+  // subtracted an inset that was never in the measurement — leaving the greeting exactly one
+  // inset too high, tucked under the bar. A manual refresh re-measured after the inset landed
+  // and looked correct, which is why it read as a phantom. Measured on the recording: the
+  // greeting sat ~157 device px (~52pt) high — an inset, not a content height.
+  //
+  // The fix removes the arithmetic instead of retiming it. `main.content-safe-area` already
+  // offsets flow content by the top inset, and the fixed bar carries that same inset in its own
+  // padding — so what the spacer needs is ONLY the bar's inner content height. Measuring the
+  // inner container gives exactly that, with no env() on either side and nothing to race.
+  // useLayoutEffect (not useEffect) so it is measured before paint — there is no 0-height frame.
+  const barInnerRef = useRef<HTMLDivElement>(null);
   const [barH, setBarH] = useState(0);
 
-  useEffect(() => {
-    const el = barRef.current;
+  useLayoutEffect(() => {
+    const el = barInnerRef.current;
     if (!el) return;
     const measure = () => setBarH(el.offsetHeight);
     measure();
@@ -226,8 +240,8 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
       {/* Fixed top bar — brand mark + utility row pinned to the viewport top so they survive
           page scroll (mirrors the fixed bottom-nav pattern; the body is the scroll container).
           The spacer below reserves the height it vacates so content isn't hidden underneath. */}
-      <div ref={barRef} className="app-topbar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 45, paddingTop: "env(safe-area-inset-top, 0px)" }}>
-        <div className="container" style={{ paddingTop: "0.9rem", paddingBottom: "0.25rem" }}>
+      <div className="app-topbar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 45, paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <div ref={barInnerRef} className="container" style={{ paddingTop: "0.9rem", paddingBottom: "0.25rem" }}>
           {/* Brand mark (left) + golden-hour readout (right, for balance). The golden chip is always
               on the logo line so the current/next golden window is visible from every page. */}
           <div className="flex items-center justify-between gap-2 mb-3">
@@ -300,12 +314,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         </div>
       </div>
       {/* Spacer — reserves the height the fixed bar vacated so content clears the pinned strip.
-          The page's <main class="content-safe-area"> ALREADY offsets content by the top safe-area
-          inset, and the fixed bar's own paddingTop reserves that same inset again inside barH — so
-          subtract it here to avoid double-counting (that gap was the dead space above the greeting). */}
-      {/* The spacer is EXACT — never shaved. Tightness comes from the bar's own real
-          padding above, so the greeting can never slide under it (David's 2:21 AM clip). */}
-      <div aria-hidden style={{ height: `calc(${barH}px - env(safe-area-inset-top, 0px))` }} />
+          barH is the bar's INNER content height (see the measurement above). The safe-area inset
+          is deliberately absent from this expression: <main class="content-safe-area"> already
+          offsets flow content by it, and the fixed bar carries it in its own paddingTop — so the
+          only thing left to reserve is the content. No env() here means nothing to race, which is
+          what let the greeting slide under the bar twice before (the 2:21 AM clip, and again on
+          the 7/19 cold launch). The spacer is EXACT — never shaved. */}
+      <div aria-hidden style={{ height: `${barH}px` }} />
 
       <div className="relative z-10" style={{ marginTop: "0.1rem" }}>
         {/* Large editorial greeting — the visual anchor, close under the dateline (David) */}

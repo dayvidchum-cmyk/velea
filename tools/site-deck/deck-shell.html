@@ -1,0 +1,84 @@
+<title>velealor.com — the deck</title>
+<style>
+  :root {
+    --bg: #120A18; --panel: #1C1122; --rule: rgba(201,168,76,.28);
+    --ink: #F9EFE4; --ink-2: rgba(249,239,228,.72); --ink-3: rgba(249,239,228,.45);
+    --gold: #C9A84C; --gold-deep: #8a641a;
+    --page-w: 1440px; --page-h: 810px;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; font-size: 16px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+  .wrap { max-width: 78rem; margin: 0 auto; padding: 2.4rem 1rem 6rem; }
+
+  header { border-bottom: 1px solid var(--rule); padding-bottom: 1.3rem; margin-bottom: 1.2rem; }
+  .eyebrow { font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: .5rem; }
+  h1 { font-family: "Playfair Display", Georgia, ui-serif, serif; font-size: clamp(1.7rem, 4.5vw, 2.4rem); font-weight: 400; letter-spacing: -.01em; margin-bottom: .5rem; text-wrap: balance; }
+  .lede { color: var(--ink-2); font-size: .93rem; max-width: 44rem; }
+  .lede + .lede { margin-top: .5rem; }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  .bar { position: sticky; top: 0; z-index: 20; background: var(--bg); border-bottom: 1px solid var(--rule); padding: .65rem 0; margin-bottom: 1.5rem; display: flex; gap: .45rem; align-items: center; flex-wrap: wrap; }
+  .bar .count { font-size: .78rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  button.act { font: inherit; font-size: .78rem; font-weight: 600; background: transparent; color: var(--ink-2); border: 1px solid var(--rule); border-radius: 2px; padding: .32rem .7rem; cursor: pointer; }
+  button.act[aria-pressed="true"] { background: rgba(201,168,76,.16); color: var(--ink); border-color: var(--gold); }
+  button.copy { margin-left: auto; background: var(--gold); color: #1a1020; border: none; font-weight: 700; }
+  button.act:focus-visible, textarea:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .route { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap;
+           margin: 2.8rem 0 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--rule); }
+  .route:first-child { margin-top: .5rem; }
+  .rpath { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem; font-weight: 700; color: var(--gold); }
+  .rname { font-family: "Playfair Display", Georgia, ui-serif, serif; font-size: 1.25rem; }
+  .rmeta { font-size: .74rem; color: var(--ink-3); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .warn { color: var(--ink-2); font-size: .85rem; padding: .6rem 0; }
+
+  .page { margin-bottom: 2.2rem; }
+  .plabel { display: flex; align-items: baseline; gap: .55rem; margin-bottom: .45rem; }
+  .pnum { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; font-weight: 700; color: var(--gold); }
+  .pname { font-size: .82rem; color: var(--ink-3); }
+
+  .frame {
+    position: relative; width: 100%; overflow: hidden;
+    border: 1px solid var(--rule); border-radius: 3px;
+    background: #160c1f;
+    box-shadow: 0 10px 40px rgba(0,0,0,.45);
+  }
+  .frame .shot { position: absolute; top: 0; left: 0; width: var(--page-w); height: var(--page-h); transform-origin: top left; border: 0; }
+  .frame .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
+
+  textarea { width: 100%; margin-top: .5rem; font: inherit; font-size: .86rem; line-height: 1.45; background: var(--panel); color: var(--ink); border: 1px solid var(--rule); border-left: 2px solid var(--gold); border-radius: 2px; padding: .5rem .6rem; resize: vertical; min-height: 2.5rem; }
+  textarea::placeholder { color: var(--ink-3); }
+
+  .note-tools { display: flex; gap: .4rem; margin-top: .4rem; flex-wrap: wrap; }
+  .note-tools button { font: inherit; font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; font-weight: 700; background: transparent; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 2px; padding: .22rem .5rem; cursor: pointer; }
+  .note-tools button[aria-pressed="true"] { background: rgba(201,168,76,.16); color: var(--gold); border-color: var(--gold); }
+
+  footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); color: var(--ink-3); font-size: .8rem; }
+  footer code { font-family: ui-monospace, Menlo, monospace; font-size: .95em; }
+  .toast { position: fixed; left: 50%; bottom: 1.4rem; transform: translateX(-50%) translateY(2rem); background: var(--gold); color: #1a1020; font-size: .84rem; font-weight: 700; padding: .5rem 1.05rem; border-radius: 3px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 30; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">velealor.com &middot; captured 19 July 2026</div>
+  <h1>The whole site, as pages</h1>
+  <p class="lede">Every public route on the site &mdash; not a redrawing. Each screen below is <b>the live page itself</b>, rendered in a real 1440&times;810 landscape window and walked down the scroll one screen at a time, with its own art, its own type, its own CSS.</p>
+  <p class="lede">Write notes under any screen. They save on this device; <b>Copy notes</b> sends them all back to me in one paste.</p>
+</header>
+
+<div class="bar">
+  <button class="act" id="toggle-notes" aria-pressed="true">Notes</button>
+  <button class="act" id="only-marked" aria-pressed="false">Only marked</button>
+  <span class="count" id="count"></span>
+  <button class="act copy" id="copy">Copy notes</button>
+</div>
+
+<main id="deck"></main>
+
+<footer>
+  Six routes: <code>/</code>, <code>/velea</code>, <code>/why</code>, <code>/system</code>, <code>/access</code>, <code>/confirmed</code>. <code>/receive</code> is not shown &mdash; it is a redirect stub that forwards to <code>/system</code>.<br>
+  Three honest differences from the live site: the viewport is fixed at 1440&times;810, so anything sized to the window height is 810px here; scroll-reveal animations are frozen to their finished state so nothing is caught mid-fade; and page scripts are stripped, so the waitlist forms are inert. Everything else &mdash; art, fonts, colour, copy, spacing &mdash; is the files that serve velealor.com.
+</footer>
+</div>
+<div class="toast" id="toast">Copied</div>

@@ -508,4 +508,22 @@
 // longer strands a chartless account; two-primary buttons resolved; nudge arming race fixed. LOW —
 // pinned gold→hero-ink; publicKey guard; profiles.create archived-count dead-end. Added AUDITS.md
 // lenses #13 (hook-order) & #14 (reading-rule placement/salt). 499 tests pass.
-export const APP_VERSION = "1.1.767";
+// v1.1.768 = 2026-07-19 — THE COLD-LAUNCH CLIP, fixed at the mechanism (David's screen recording,
+// 20:48). Reopening the app from a swipe-away landed on Today with the greeting cut ~30% under the
+// header; "Refresh app" always corrected it. Watched the recording frame by frame: the header does
+// NOT change height when its async data lands (BUILD · SUCCEED : JUPITER and the veleal'or chip
+// join EXISTING rows), so the "late data grows the bar" theory was wrong. Measured instead — the
+// greeting sat ~157 device px (~52pt) high, the magnitude of the top safe-area inset, not of any
+// content. ROOT CAUSE: the spacer was `calc(measuredOuterHeight - env(safe-area-inset-top))` — a JS
+// pixel value minus a CSS env(), which resolve at DIFFERENT times. On a cold PWA launch the effect
+// measured before the inset applied, so barH excluded it and the spacer then subtracted an inset
+// that was never in the measurement. FIX removes the arithmetic rather than retiming it: measure the
+// bar's INNER container (its content height — the only thing the spacer ever needed, since
+// main.content-safe-area already offsets by the inset and the bar carries it in its own padding),
+// and reserve exactly that. No env() on either side = nothing to race. useEffect → useLayoutEffect
+// so it measures before paint (no 0-height first frame either). Reproduced both formulas in a
+// harness with a late-arriving inset: old = greeting 35px UNDER the bar, new = 33px clear. Verified
+// every route renders inside main.content-safe-area, and that env()-less browsers degrade correctly.
+// This is the same clip as the "2:21 AM" one — that fix corrected the number, this removes the
+// mechanism.
+export const APP_VERSION = "1.1.768";
