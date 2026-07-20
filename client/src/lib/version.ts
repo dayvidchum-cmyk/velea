@@ -567,4 +567,18 @@
 // and discarded; they are now preferred, with the stored row kept as the fallback if the recompute
 // throws (degraded beats absent). No schema change and no migration — a location-keyed cache row is
 // still the real fix and remains David's hand to run. 284 tests pass, build exits 0.
-export const APP_VERSION = "1.1.771";
+// v1.1.772 = 2026-07-19 — THE VISHTI VETO ACTUALLY VETOES (audit section 7). Bhadra "blocks
+// INITIATING regardless of the axes" per the canon, but the code enforced that by regex-matching
+// English prose (/beginn|launch|starting|new /) against the supports list. MEASURED: that catches 5
+// of the canon's 47 supports strings — while travel, moves and relocations, vehicles, marriage,
+// love and union, vows, foundations, planting and commitments-meant-to-last all sailed through.
+// Those are the three things Bhadra forbids most (yatra, vivaha, any arambha), and a copy-edit to
+// the prose silently changed what the veto blocked. FIX: each canon supports-string is classified
+// once by ACT CLASS (initiate/journey/union/celebrate/sever/complete/continue) and Vishti cancels
+// the first four, leaving the cruel deeds and the continuing work it classically permits. The map
+// lives in day-filter.ts, NOT in muhurta-tables.json, because the canon file is the cited source
+// and this classification is Velea's inference on top of it. A module-load guard throws if the
+// canon ever gains a supports string the map does not classify, so a veto cannot silently stop
+// cancelling something. VERIFIED with a control: across 7 natures x 15 tithis (105 cases), 129
+// forbidden acts survived the OLD regex and 0 survive the new filter. 284 tests pass.
+export const APP_VERSION = "1.1.772";

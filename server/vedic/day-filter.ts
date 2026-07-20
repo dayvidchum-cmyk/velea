@@ -82,6 +82,63 @@ export interface DayCharacter {
   sentence: string;
 }
 
+// ── ACT CLASSES (Velea's classification, NOT a canon table) ──────────────────────────────
+// The canon gives each nature/family a list of supported ACTS in prose. A veto has to cancel
+// the acts the canon says it cancels — but the code used to do that by regex-matching English
+// ("beginn|launch|starting|new "), which caught 5 of the 47 strings and let travel, marriage,
+// love and union, vows, foundations and planting straight through. Those are precisely the
+// three things Bhadra forbids most (yatra, vivaha, any ārambha). A copy-edit to the prose also
+// silently changed what a veto blocked.
+//
+// So each canon supports-string is classified once, here, by what KIND of act it is. This
+// mapping is Velea's reading of the canon's own list — it is deliberately NOT written into
+// muhurta-tables.json, because that file is the cited source and this is inference on top of it.
+type ActClass = "initiate" | "journey" | "union" | "celebrate" | "sever" | "complete" | "continue";
+const ACT_CLASS: Record<string, ActClass> = {
+  // beginnings — anything that starts a thing that must endure
+  "foundations": "initiate", "commitments meant to last": "initiate", "starting construction": "initiate",
+  "gentle beginnings": "initiate", "beginnings of enjoyable things": "initiate", "planting": "initiate",
+  "launches against resistance": "initiate", "new clothes and adornment": "initiate", "vows": "initiate",
+  // journeys — yatra, the departure Bhadra forbids above all
+  "travel": "journey", "moves and relocations": "journey", "vehicles": "journey",
+  "change of direction": "journey", "anything meant to shift": "journey",
+  // unions
+  "marriage": "union", "love and union": "union", "friendship and reconciliation": "union",
+  // celebration / auspicious gathering
+  "festivity": "celebrate", "pleasure and celebration": "celebrate", "the arts": "celebrate",
+  "art and music": "celebrate", "ceremonies": "celebrate",
+  // krura karma — the cruel/severing deeds Bhadra actually PERMITS
+  "cutting and severing acts only": "sever", "decisive cuts": "sever", "demolition": "sever",
+  "surgery and incisive procedures": "sever", "clean, deliberate endings and separations": "sever",
+  "acts requiring ruthlessness": "sever", "hard confrontation": "sever", "confrontation done cleanly": "sever",
+  "force": "sever", "fire-related acts": "sever", "disputes pressed to a finish": "sever",
+  "contests": "sever", "negotiations you must win": "sever",
+  // finishing what already exists
+  "closings": "complete", "completion and fulfilment": "complete", "short tasks finished same-day": "complete",
+  // continuing the ordinary — never blocked by a veto on beginning
+  "day-to-day duties": "continue", "routine and mundane work": "continue", "work": "continue",
+  "health matters": "continue", "healing and remedies": "continue", "learning": "continue",
+  "the useful and constructive": "continue", "quick errands": "continue", "trade and sales": "continue",
+};
+
+// Vishti (Bhadra) blocks INITIATING in every form; it leaves the cruel and the continuing alone.
+const VISHTI_BLOCKS = new Set<ActClass>(["initiate", "journey", "union", "celebrate"]);
+
+// Correctness by construction: if the canon ever gains a supports string this map does not
+// classify, fail LOUD at module load rather than silently letting a veto stop cancelling it.
+{
+  const unclassified: string[] = [];
+  for (const def of Object.values((tables as any).nakshatraNature ?? {})) {
+    for (const s of ((def as any)?.supports ?? [])) if (!(s in ACT_CLASS)) unclassified.push(s);
+  }
+  for (const def of Object.values((tables as any).tithiFamily ?? {})) {
+    for (const s of ((def as any)?.supports ?? [])) if (!(s in ACT_CLASS)) unclassified.push(s);
+  }
+  if (unclassified.length) {
+    throw new Error(`day-filter: unclassified canon supports string(s) — add to ACT_CLASS: ${Array.from(new Set(unclassified)).join(" | ")}`);
+  }
+}
+
 export function dayFilter(input: DayFilterInput): DayCharacter {
   const nature = NAK_TO_NATURE[input.nakshatra.toLowerCase()] ?? "mixed";
   const inPaksha = ((input.tithiNumber - 1) % 15) + 1;
@@ -108,7 +165,10 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   // Vishti: no initiating, whatever else the day offers.
   if (input.vishti) {
     vetoes.push("the day's grain blocks starting — continue, don't begin");
-    supports = supports.filter((s) => !/beginn|launch|starting|new /i.test(s));
+    // Filter by ACT CLASS, not by English wording (see ACT_CLASS above). An unmapped string
+    // cannot occur — the module-load guard rejects it — but if one ever did, treat it as
+    // initiating and cancel it: over-blocking under Bhadra is the safe direction.
+    supports = supports.filter((s) => !VISHTI_BLOCKS.has(ACT_CLASS[s] ?? "initiate"));
   }
   // The personal layer outranks the collective (weather-gate law, canon underneath).
   const contained = !!(input.tara && input.tara.quality === "bad" && input.tara.taraNum === 7);
