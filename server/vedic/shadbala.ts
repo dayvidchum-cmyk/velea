@@ -374,7 +374,15 @@ export interface PlanetShadbala {
   drikBala: number | null;
   /** Sources that could not be computed with the inputs given (see module header). */
   pending: PendingSource[];
-  /** Total points ÷ 60 — NULL until every source is real. Never treat a partial as final. */
+  /**
+   * Sources that WERE computed, but by a simplified method rather than the fuller classical one.
+   * MISSING and APPROXIMATE are different failures and were being conflated (audit 2026-07-20):
+   * `pending` only ever caught a source we could not compute at all, so as soon as speeds were
+   * supplied the total published as though all six were exact. Anything that quotes a strength
+   * must carry this list with it — a number whose method is unstated is a claim, not a measurement.
+   */
+  approximate: PendingSource[];
+  /** Total points ÷ 60 — NULL until every source is computed. Read `approximate` before quoting it. */
   sixSourceRupas: number | null;
   /** rupas ÷ the planet's minimum requirement (p.316) — ≥ 1 = classically "strong". */
   strengthRatio: number | null;
@@ -389,6 +397,7 @@ function shadbalaOne(
 ): PlanetShadbala {
   const lon = lonBy[planet];
   const pending: PendingSource[] = [];
+  const approximate: PendingSource[] = [];
 
   // 1. Sthana — always computable.
   const uchcha = uchchaBala(planet, lon);
@@ -427,9 +436,12 @@ function shadbalaOne(
     pending.push("kala");
   }
 
-  // 4. Chesta — K&F relative speed.
+  // 4. Chesta — K&F's relative-speed formula (p.314), NOT the fuller eight-state seeghra-kendra.
+  // It is a cited method, so it is computed rather than withheld — but it is a simplification, and
+  // every consumer is told so via `approximate` instead of inferring exactness from a bare number.
   const chesta = chestaBala(planet, speedBy?.[planet]);
   if (chesta == null) pending.push("chesta");
+  else approximate.push("chesta");
 
   // 6. Drik — always computable from longitudes.
   const drik = drikBala(planet, lonBy, benefic);
@@ -449,6 +461,7 @@ function shadbalaOne(
     naisargikaBala: NAISARGIKA[planet],
     drikBala: drik,
     pending,
+    approximate,
     sixSourceRupas: rupas,
     strengthRatio: rupas == null ? null : rupas / MIN_RUPAS[planet],
   };

@@ -114,6 +114,9 @@ run server/panchang/interpreter.ts "const NAKSHATRA_UPGRADE: string[] = byCatego
   server/panchang/nakshatra-one-table.test.ts "the interpreter keeps a private nakshatra list again"
 run server/vedic/knots.ts 'label: "Parents — mother and father"' 'label: "Parents / roots"' \
   server/vedic/parents-vs-roots.test.ts "parents and roots get conflated again"
+# A computed-but-SIMPLIFIED strength source going back to publishing as though it were exact.
+run server/vedic/shadbala.ts 'else approximate.push("chesta");' 'else void 0;' \
+  server/vedic/shadbala-honesty.test.ts "a simplified Chesta publishes as exact again"
 # Identity-as-activation: restoring it makes every area busy every day, which is what made
 # "nothing much is touching this today" unsayable for the model.
 run server/vedic/life-areas.ts 'if (!reasons.length) return null;' 'if (!reasons.length && !areaPlayers.has(t.planet)) return null;' \

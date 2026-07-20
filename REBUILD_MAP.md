@@ -104,7 +104,7 @@ day-mode/crown/golden engines — David specs the method first. Wait for his pac
 
 ### R1. Planetary strength → real Shadbala  (NOT a quick win — corrected 2026-07-14)
 - **Invented now:** `server/panchang/dignity.ts:146-150` `TIER_SCORE` (exalted +5 … debil −5), `COMBUST_PENALTY 3`, `NODAL_PENALTY 2`, tunable band cutoffs. Self-declared "NOT canonical Shadbala."
-- **Canon replacement is only ⅓ built:** `server/vedic/shadbala.ts` exists and is cited, but computes only **Sthana + Naisargika + approx Chesta**. It keeps `sixSourceRupas = null` by design (`:223`) — **Dig, Kala, Drik, exact Chesta are all `pending` (`:215`), not yet plumbed.** Wiring it now = swap invented weights for a *partial* Shadbala, no more canon-honest. **Prerequisite: ingest the 4 missing sources first** (METHOD.md build-order step 2).
+- **Canon replacement is only ⅓ built:** `server/vedic/shadbala.ts` exists and is cited, but computes only **Sthana + Naisargika + approx Chesta**. **STALE, corrected 2026-07-20:** Dig, Kala and Drik ARE computed now for a timed chart with declinations, so `sixSourceRupas` is published rather than null; Chesta is computed by K&F's simplified rule and is now declared on `approximate`. What remains unbuilt is the eight-state seeghra-kendra Chesta, and Dig/Kala remain unavailable for a no-time (Chandra) chart, which is the honest answer there. Wiring it now = swap invented weights for a *partial* Shadbala, no more canon-honest. **Prerequisite: ingest the 4 missing sources first** (METHOD.md build-order step 2).
 - **Feeds:** natal strength label; every Steps-1–14 house pass (METHOD.md depends on it).
 
 ### R2. The knot detector — finish the Step-15 rebuild

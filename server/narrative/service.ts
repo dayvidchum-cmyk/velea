@@ -173,6 +173,12 @@ function planetCondition(research: any, L: string) {
   const pr = research?.planets?.[L];
   if (!pr) return { planet: L, note: "a node — carries the axis it sits on" };
   const ratio = pr.shadbala?.ratio;
+  // The strength is a six-source Shadbala in which Chesta is K&F's relative-speed rule rather
+  // than the eight-state seeghra-kendra. It is a cited method and worth quoting — but the model
+  // must not present a near value as an exact one, so the basis rides along with the verdict
+  // (audit 2026-07-20: `approximate` used to be invisible, and a simplified source published as
+  // though all six were exact).
+  const approx: string[] = pr.shadbala?.approximate ?? [];
   const strength = ratio == null ? "unmeasured"
     : ratio >= 1.15 ? "strong — can deliver what it promises"
     : ratio <= 0.85 ? "thin — delivers with struggle" : "steady";
@@ -196,6 +202,9 @@ function planetCondition(research: any, L: string) {
     ...(expression ? { expression } : {}),
     states,
     shadbalaRatio: ratio ?? null,
+    ...(ratio != null && approx.length
+      ? { strengthBasis: `six-source Shadbala, ${approx.join(" and ")} by the simplified rule — treat as close, not exact` }
+      : {}),
   };
 }
 

@@ -120,6 +120,8 @@ export interface PlanetResearch {
     /** rupas ÷ minimum requirement — ≥ 1 = classically strong. */
     ratio: number | null;
     pending: string[];
+    /** Sources computed by a simplified method (Chesta). Quote the strength only WITH this. */
+    approximate: string[];
     sthana: number; dig: number | null; kala: number | null;
     chesta: number | null; naisargika: number; drik: number | null;
   };
@@ -259,6 +261,10 @@ export function computeNatalResearch(input: ResearchInput): NatalResearch {
         rupas: sb.sixSourceRupas == null ? null : Math.round(sb.sixSourceRupas * 100) / 100,
         ratio: sb.strengthRatio == null ? null : Math.round(sb.strengthRatio * 100) / 100,
         pending: sb.pending,
+        // Which sources were computed by a simplified method (Chesta is K&F's relative-speed
+        // rule, not the eight-state seeghra-kendra). Travels WITH the number, so no surface can
+        // quote the strength as exact classical Shadbala without also carrying this.
+        approximate: sb.approximate,
         sthana: Math.round(sb.sthanaBala.total * 10) / 10,
         dig: sb.digBala == null ? null : Math.round(sb.digBala * 10) / 10,
         kala: sb.kalaBala?.total == null ? null : Math.round(sb.kalaBala.total * 10) / 10,
