@@ -51,7 +51,9 @@ import yogasJson from "./canon/yogas.json";
 // BUMP THIS TO INVALIDATE STORED RESEARCH — and, because getStoredResearch returns null on a
 // mismatch and both downstream writers gate their skip on status "unchanged", it cascades to the
 // stored dasha tree and the convergence timeline too. That is the only lever that reaches them:
-// DASHA_ENGINE_VERSION and CONVERGENCE_ENGINE_VERSION are declared and read by nothing.
+// DASHA_ENGINE_VERSION and CONVERGENCE_ENGINE_VERSION now ride the research inputHash (v865), so a
+// bump to either invalidates the stored rows. Before that they were declared and read by nothing —
+// a dasha-engine change left stale periods in place because the hash never moved.
 // v3 (v798): the convergence gate stopped counting WEIGHT and went back to counting LORDS, so every
 // row stored between v639 and v798 can carry standing chapters lit by a single axis-seated maha lord
 // with nobody agreeing with it. Those rows are wrong and must be rebuilt, not merged with.

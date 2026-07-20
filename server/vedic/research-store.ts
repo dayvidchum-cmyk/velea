@@ -19,7 +19,7 @@ import { getDb } from "../db.js";
 import { profileResearch, profileDashaPeriods, profileConvergence } from "../../drizzle/schema.js";
 import { computeNatalResearch, RESEARCH_ENGINE_VERSION, type ResearchInput, type NatalResearch } from "./house-research.js";
 import { dashaTree, type DashaLevel } from "./dasha-tree.js";
-import { computeConvergenceTimeline } from "./convergence.js";
+import { computeConvergenceTimeline, CONVERGENCE_ENGINE_VERSION } from "./convergence.js";
 
 const DASHA_ENGINE_VERSION = "dasha-tree-v1";
 
@@ -106,8 +106,24 @@ export async function storeNatalResearch(input: StoreChartInput): Promise<StoreS
     kalavelaLongitudes,
   };
 
+  // ALL THREE ENGINE VERSIONS RIDE THE HASH (v865). This hashed only RESEARCH_ENGINE_VERSION, so a
+  // change to the DASHA or CONVERGENCE engine left the hash identical, `researchStatus` came back
+  // "unchanged", and storeDashaTree's own guard then SKIPPED the rewrite entirely — stale dasha
+  // periods and a stale convergence timeline persisted across an engine change, silently, forever.
+  // That is why DASHA_ENGINE_VERSION and CONVERGENCE_ENGINE_VERSION were "declared and read by
+  // nothing": there was nowhere for them to be read. Now a bump to any of the three invalidates.
+  //
+  // It is deliberately ALL-OR-NOTHING: a dasha bump also recomputes the research blob. Per-table
+  // invalidation needs an engineVersion column on profile_dasha_periods, and schema changes here are
+  // David-run scripts, never automatic. Recomputing more than strictly needed is the safe direction;
+  // serving stale periods is not.
   const inputHash = createHash("sha256")
-    .update(JSON.stringify({ v: RESEARCH_ENGINE_VERSION, ...researchInput }))
+    .update(JSON.stringify({
+      v: RESEARCH_ENGINE_VERSION,
+      dv: DASHA_ENGINE_VERSION,
+      cv: CONVERGENCE_ENGINE_VERSION,
+      ...researchInput,
+    }))
     .digest("hex");
 
   try {

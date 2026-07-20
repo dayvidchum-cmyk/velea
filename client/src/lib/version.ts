@@ -2392,4 +2392,20 @@
 // and the object never reaches the model. Dead data inside a live object. Pinned precisely, because
 // the next person to find it will reasonably assume it is the source of truth.
 // 93 files, 1015 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.864";
+// v1.1.865 = 2026-07-20 — "DECLARED AND READ BY NOTHING" WAS HIDING A STALE 120-YEAR CLOCK.
+// The audit row said DASHA_ENGINE_VERSION is read by nothing, and house-research.ts said so in a
+// comment. Both true — and the consequence was far worse than dead code:
+//   storeNatalResearch hashes birth inputs + RESEARCH_ENGINE_VERSION into inputHash.
+//   Hash matches ⇒ researchStatus "unchanged".
+//   storeDashaTree then SKIPS its rewrite when researchStatus === "unchanged".
+// So a change to the DASHA engine left the hash identical, the status "unchanged", and the stored
+// dasha periods untouched. A STALE 120-YEAR CLOCK PERSISTING ACROSS AN ENGINE CHANGE, silently, with
+// nothing anywhere able to notice. Same path for the convergence timeline.
+// The versions were not merely unread — they had NOWHERE to be read. All three now ride the hash, so
+// a bump to any of them invalidates.
+// DELIBERATELY ALL-OR-NOTHING: a dasha bump also recomputes the research blob. Per-table
+// invalidation needs an engineVersion column on profile_dasha_periods, and schema changes here are
+// David-run scripts, never automatic. Recomputing more than strictly needed is the safe direction;
+// serving a stale clock is not. The audit row is narrowed to what is actually left, and it is his.
+// 94 files, 1020 tests, 0 failures. 47 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.865";

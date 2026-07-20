@@ -134,6 +134,9 @@ run server/vedic/day-filter.ts '"networking": "union",' '' \
 run server/vedic/day-filter.ts 'Shatabhisha:         ["medical treatment"' 'Shatabhisha:         ["vehicles"' \
   server/vedic/seven-stars.test.ts "Shatabhisha goes back to being a travel day"
 
+run server/vedic/research-store.ts 'dv: DASHA_ENGINE_VERSION,' '' \
+  server/vedic/engine-versions.test.ts "a dasha-engine bump stops invalidating stored periods"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
