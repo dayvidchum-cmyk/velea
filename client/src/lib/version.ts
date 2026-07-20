@@ -2264,4 +2264,20 @@
 // Adding a law without a test is the same reach failure as adding data without a law.
 // And the docs guard caught decision 16 reaching the sheet but not the brief.
 // 92 files, 993 tests, 0 failures. 42 probes, all caught. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.857";
+// v1.1.858 = 2026-07-20 — I SAID THE BROKEN COUNT WAS AN UPPER BOUND. FOUR MORE ROWS MEASURED.
+//   FIXED, by my own v851 work: "two owners of which rows are the daily reading". The builder now
+//   walks the canonical surface list instead of re-typing day_read ?? glance inline, and the other
+//   half of that row — the retired path still WRITING glance rows — was already gone. 86 fixed / 16.
+//   PARTLY FIXED: "the nakshatra tables contradict each other". The four places they actually
+//   CONTRADICTED are corrected and pinned (v852, his ruling). Six copies still exist, which is the
+//   real remaining defect — the row now says that instead of implying nothing happened.
+//   CONFIRMED STILL TRUE: the welcome card can genuinely show two filled primary buttons at once —
+//   saveBirth fills when birthReady, the location button fills when NOT set, so "birth data entered,
+//   location not yet given" renders both. Verified in the style expressions, not assumed from the
+//   note. NOT RESTYLED: it is visible UX and priority 3, and I do not redesign what I cannot see.
+//   CONFIRMED STILL TRUE: focus level in the check-in is genuinely not built. No field anywhere.
+// Eleven of the sixteen remain individually unverified, and the page says which — an upper bound for
+// those, a measurement for the rest. Of eleven rows re-checked across this run, FIVE were stale and
+// one was half-wrong on astronomy I had got wrong myself. Carried notes rot; that is the lesson.
+// 92 files, 993 tests, 0 failures. 42 probes, all caught. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.858";

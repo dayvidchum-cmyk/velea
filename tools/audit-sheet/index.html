@@ -60,11 +60,11 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v857 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
+  <p class="sub">v858 · 20 July 2026 · velealor.com is serving this build, checked four ways</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">85</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">17</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n good">86</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n bad">16</div><div class="l">Still broken</div></div>
     <div class="score"><div class="n warn">16</div><div class="l">Your call</div></div>
     <div class="score"><div class="n">993</div><div class="l">Tests passing</div></div>
   </div>
@@ -222,20 +222,24 @@
     still hardcoding “self-worth” as a default 2nd-house theme against your own prompt doctrine. Git holds it if it is
     ever wanted back; a test now asserts it stays gone.</span></div>
 
-  <h2>Still broken — 17</h2>
+  <h2>Still broken — 16</h2>
   <p class="lead">Named, reproducible, not yet fixed. No decision needed; these are mine to do.
     <br><b>I went back and re-checked these.</b> Seven of the original twenty-one are now confirmed by re-running the
     code, not by trusting the note. <b>Four were stale</b> and have moved to fixed: the two-clocks mismatch, the seven
     type errors (the typechecker now exits clean), the Verdict citing a canon file that lacked its data (the block was
     added), and melana.json having no source (it now cites Raman with page references). <b>One was half wrong</b> — see
     the speed row below; Mercury and Venus sharing the Sun’s motion is correct practice, not a defect. <b>Two are
-    confirmed still broken</b> by reading the code today. <b>Fourteen of the seventeen below have still not been
-    individually re-checked</b>, so treat the count as an upper bound for those, and a measurement for the rest.</p>
+    confirmed still broken</b> by reading the code today. <b>Eleven of the sixteen below have still not been individually
+    re-checked</b>, so treat the count as an upper bound for those and a measurement for the rest.
+    <br>Since then I re-checked four more: <b>“two owners of which rows are the daily reading” is now fixed</b> (v851
+    pointed the builder at the one canonical list, and the retired write path was already gone), the nakshatra row is
+    <b>partly fixed</b> (the four contradictions are corrected and pinned; six copies still exist), and two are
+    <b>confirmed still true</b> — the welcome card really can show two filled primary buttons at once (birth data ready,
+    location not yet set), and focus level in the check-in is genuinely not built.</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span>The nakshatra tables contradict each other — six of them, not four.</li>
+    <li><span class="tag">DATA</span>Six separate lists still classify the 27 stars. <span style="opacity:.7">(The four places they <i>contradicted</i> each other are fixed and pinned — v852. What remains is that six copies exist at all.)</span></li>
     <li><span class="tag">DATA</span>A paid reading names a city it was not computed for.</li>
     <li><span class="tag">DATA</span>Planetary strength uses raw speed as a stand-in for the classical retrograde stages. <span style="opacity:.7">(The other half of this row was wrong: Mercury and Venus really do share the Sun’s mean daily motion, so scaling them by it is correct, not a bug.)</span></li>
-    <li><span class="tag">DATA</span>Two owners of “which rows are today’s reading”, and the retired surface still writes.</li>
     <li><span class="tag">MONEY</span>The failed-save re-bill is capped, not closed — the guard is per-process.</li>
     <li><span class="tag">MONEY</span>Stored dasha and convergence rows can only be invalidated all-or-nothing.</li>
     <li><span class="tag">MONEY</span>The chapter read fires by itself on the Chart page.</li>
@@ -270,6 +274,7 @@
       <li>The seven server type errors are gone — <code>tsc</code> exits clean.</li>
       <li>The Verdict’s canon citation is real now: the strength-by-stage block exists in the file it points at.</li>
       <li><code>melana.json</code> cites its source (Raman’s <i>Muhurtha</i>, with page references) instead of recording what was built.</li>
+      <li>One owner for “which rows are today’s reading” — the builder walks the canonical surface list instead of re-typing the pair inline.</li>
     </ul>
   </details>
 
@@ -319,7 +324,7 @@
   </ul>
 
   <p class="foot">
-    Every number here was counted from the record, not estimated: 85 fixed + 17 broken + 14 for you + 26 remaining = 142
+    Every number here was counted from the record, not estimated: 86 fixed + 16 broken + 14 for you + 26 remaining = 142
     rows, the same 142 the sheet has always held. 88 test files, 993 tests passing, 32 probes each proven able to fail.
     The full long-form detail lives in the repo at <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was
     deleted, it was moved out of your way.
