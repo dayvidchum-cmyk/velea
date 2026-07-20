@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import VeleaLoader from "@/components/VeleaLoader";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -21,12 +21,6 @@ export default function Users() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-
-  // Redirect if not admin
-  if (user && user.role !== "admin") {
-    setLocation("/");
-    return null;
-  }
 
   const createTestUserMutation = trpc.auth.createTestUser.useMutation();
   const usersList = trpc.auth.listUsers.useQuery(undefined, { enabled: user?.role === "admin" });
@@ -64,6 +58,18 @@ export default function Users() {
     onError: (err: any) => setLlmResult(`❌ ${err.message || "couldn't read the box"}`),
   });
 
+  // THE GUARD SITS BELOW EVERY HOOK (v811). It used to be an early `return null` above ~15 of them,
+  // which is a hook-count mismatch waiting for a first render where `user` is defined and non-admin.
+  // The claim that App.tsx guards this route upstream is FALSE — /admin/users is registered with no
+  // role check, and the auth gate only bars logged-OUT users. What actually kept it from crashing is
+  // that `user.role` cannot change within a mount… except that THIS page carries the setUserRole
+  // mutation, so a mid-session demotion flips the branch and mismatches the count.
+  // The redirect also moved into an effect: navigating during render is a side-effect in render.
+  const isAdmin = user?.role === "admin";
+  useEffect(() => {
+    if (user && !isAdmin) setLocation("/");
+  }, [user, isAdmin, setLocation]);
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -80,6 +86,8 @@ export default function Users() {
       setError(err.message || "Failed to create user");
     }
   };
+
+  if (user && !isAdmin) return null; // the effect above is navigating away
 
   return (
     <div className="min-h-screen bg-background">

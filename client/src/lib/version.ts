@@ -1334,4 +1334,21 @@
 // Controls: 6 assertions driving the REAL resolver against a mocked drizzle connection; verified to
 // fail against the pre-v811 db.ts by reverting only that file.
 // 67 files, 667 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
-export const APP_VERSION = "1.1.811";
+// v1.1.812 = 2026-07-20 — THE ADMIN PAGE'S HOOK HAZARD, AND A PROBE THAT LIED TO ME FIRST.
+// Users.tsx returned null above ~15 hooks. The audit sheet's mitigation — "guarded upstream by
+// App.tsx" — was FALSE, and I wrote it: /admin/users is registered with NO role check, and the auth
+// gate only bars logged-OUT users. What actually prevented the crash is that user.role cannot change
+// within a mount… on the one page that carries the setUserRole mutation. The guard now sits below
+// every hook, and the redirect moved into an effect (setLocation during render is a side-effect in
+// render, which React may run twice).
+// THE PROBE WAS WRONG BEFORE THE CODE WAS. My first scan sliced from `export default function` to
+// end-of-file and flagged Horoscope.tsx (17 hooks) and Settings.tsx (5). Both were FALSE: those
+// files define sibling components BELOW the default export, so their hooks looked like they sat
+// after the main render return. Reported as findings that would have been pure noise — the exact
+// thing this whole audit exists to stop. The scan now bounds the component body by brace matching,
+// and the previous agent's "Users.tsx is the only instance" turns out to have been right.
+// The scan lives under server/ because that is where the vitest include points, and it runs over
+// EVERY page rather than pinning the one file that was broken, so the next one cannot come back.
+// Verified by reverting only Users.tsx: the two assertions fail against the old file.
+// 68 files, 671 tests, 0 failures. Build exits 0. Still exactly the 7 pre-existing tsc errors.
+export const APP_VERSION = "1.1.812";
