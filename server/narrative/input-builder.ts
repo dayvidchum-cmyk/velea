@@ -489,12 +489,35 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         [/guru|teacher/i, "teacher"], [/servants|employee/i, "people who work for them"],
         [/mistress/i, "a lover"], [/friends/i, "friends"],
       ];
+      // THE RELATIONSHIP — the third field of David's model {subject, topic, relationship}.
+      // I asked him for the twelve verbs. He answered: "The answers are all in the code. the
+      // files. WHY ARE YOU TURNING THIS BACK ON ME?" He was right — his twelve-house doctrine is
+      // already written in BASE_PROMPT, and every house opens with its own verb. These are lifted
+      // from that doctrine, not invented, with his phrase quoted beside each so the derivation is
+      // auditable and so a future edit to the doctrine has a visible counterpart here.
+      // CLAUDE.md already said this: "When he has written a condition down, that IS the ruling —
+      // build it." Asking again reopened a settled question as a seminar.
+      const HOUSE_RELATIONSHIP: Record<number, string> = {
+        1:  "expresses",   // "The self as it meets the world, and the SOUL'S OUTPUT on earth"
+        2:  "cultivates",  // "What you hold and what holds you"
+        3:  "reaches for", // "Your own effort and reach"
+        4:  "rests on",    // "The ground under you, across time"
+        5:  "brings forth",// "What comes out of you"
+        6:  "contends with",// "The daily effort against resistance"
+        7:  "meets",       // "The other across from you"
+        8:  "is dissolved by", // "Loss of control and the dissolving of boundaries"
+        9:  "lives by",    // "What you live by"
+        10: "is known for",// "Your work in the world ... action seen by others"
+        11: "gathers",     // "The wider circle ... gains and the fruits of effort"
+        12: "releases",    // "What dissolves and what lies beyond"
+      };
+
       const subjectOf = (item: string): string => {
         for (const [re, who] of PERSON_WORDS) if (re.test(item)) return who;
         return "self";
       };
       /** Canon facets for this planet in this house, one per subject. Empty when the table is silent. */
-      const facetsOf = (planet: string, house: number | null | undefined): { subject: string; topic: string }[] => {
+      const facetsOf = (planet: string, house: number | null | undefined): { subject: string; topic: string; relationship: string }[] => {
         if (house == null) return [];
         const raw: string | null = (PLANET_IN_HOUSE_CANON as any)?.houses?.[String(house)]?.[planet] ?? null;
         if (!raw) return [];
@@ -507,7 +530,13 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         // "self" first when present — the native is who the reading is for.
         return [...bySubject.entries()]
           .sort((a, b) => (a[0] === "self" ? -1 : 0) - (b[0] === "self" ? -1 : 0))
-          .map(([subject, items]) => ({ subject, topic: items.join(", ") }));
+          .map(([subject, items]) => ({
+            subject,
+            topic: items.join(", "),
+            // The house's own verb. When the facet belongs to someone else, the native is not the
+            // one doing it — the house still frames HOW that person enters the reading.
+            relationship: HOUSE_RELATIONSHIP[house] ?? "carries",
+          }));
       };
 
       const condOf = (g: string) => {
