@@ -3005,4 +3005,24 @@
 // day-filter.ts have not been read against the rule. That sweep is its own run, not this one.
 // 120 files, 1273 tests, 0 failures. Build exit 0. 110 probes, all caught (the v900 note
 // said 29 — it was counting the probes added that run, not the harness).
-export const APP_VERSION = "1.1.901";
+// v1.1.902 = 2026-07-21 — THE LOCATION TIERS TRAVEL WITH THE SUBJECT, AND THE CHIP STOPS
+// CALLING A CORRECT CITY UNSET.
+// Went in to change one label and found the label was the smaller half.
+// resolveDaySky takes a ProfileLocFields. Eleven of its thirty-three call sites hand it an
+// AstrologySubject instead of the profiles row, and that object carried no isOwner and no hometown
+// fields at all. ProfileLocFields marks them optional — its own comment says "a caller passing a
+// partial object preserves the old behaviour" — so those eleven type-checked while resolving a
+// DIFFERENT sky than the other twenty-two. MEASURED, not reasoned: a non-owner profile born in
+// Newark resolves Newark/birth from the row and Boston/current from the subject, same date, same
+// account. That is this morning's v-loc bug (six profiles all cast from Boston because that is
+// where David's phone is) still live on a third of the paths: the fix landed in the resolver and a
+// third of the callers could not see it. isOwner and the four hometown fields now travel with the
+// subject, and the control asserts both shapes agree on birth, hometown, own-chart and no-ground.
+// THEN the label. It read "· not set for them" on every current and default tier, including
+// David's own chart, where the account's current city IS the right value. His ruling: "follows
+// you" on someone else's chart, nothing at all on your own. Default was a third state he had not
+// named — nobody set a location anywhere and Boston is speaking — so it says that instead of
+// borrowing either other label. The rule moved to shared/location-label.ts because vitest collects
+// only server/ and shared/, and copy chosen by a data tier must not ship unguarded.
+// 122 files, 1282 tests, 0 failures. tsc exit 0. Build exit 0. 114 probes, all caught.
+export const APP_VERSION = "1.1.902";

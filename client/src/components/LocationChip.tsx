@@ -16,6 +16,7 @@
 // "velea-open-location" event (the one-surface law).
 import { MapPin, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { locationSuffix, type DaySkySource } from "@shared/location-label";
 
 export default function LocationChip({ accent }: { accent?: string }) {
   const { data } = trpc.settings.getReadingLocation.useQuery();
@@ -23,10 +24,10 @@ export default function LocationChip({ accent }: { accent?: string }) {
   const city = data?.city ?? null;
   const tint = accent ?? "var(--color-primary)";
 
-  // A location this person never gave: the account's current city speaking for them, or the app
-  // default. Naming it as borrowed is the whole point — an inherited city presented as settled is
-  // exactly how Lisa was read from Boston for months.
-  const borrowed = data ? data.source === "current" || data.source === "default" : false;
+  // The suffix rule lives in shared/location-label.ts so it can be tested — the vitest config only
+  // collects server/ and shared/, and copy chosen by a data tier is exactly the thing that must
+  // not ship unguarded. See that file for why each tier says what it says.
+  const suffix = locationSuffix(data?.source as DaySkySource | undefined, !!data?.isOwner, city);
 
   return (
     <button
@@ -64,10 +65,10 @@ export default function LocationChip({ accent }: { accent?: string }) {
         <strong style={{ color: "var(--color-foreground)", fontWeight: 600 }}>
           {city ?? "set a location"}
         </strong>
-        {/* Not a warning colour and not an alarm — a quiet honest label. The reading is still
-            valid; it just hasn't been confirmed for this person. */}
-        {borrowed && city && (
-          <span style={{ color: "var(--color-muted-foreground)", fontStyle: "italic" }}> · not set for them</span>
+        {/* Not a warning colour and not an alarm — a quiet honest label, and only when the tier
+            actually has something to disclose. */}
+        {suffix && (
+          <span style={{ color: "var(--color-muted-foreground)", fontStyle: "italic" }}> · {suffix}</span>
         )}
       </span>
       <span

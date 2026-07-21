@@ -383,6 +383,18 @@ run server/vedic/day-filter.ts 'The loss star holds the day' 'Your own star hold
 run server/vedic/day-filter.ts 'input.tara.quality === "bad" && input.tara.taraNum === 7' 'input.tara.quality !== "good"' \
   server/vedic/day-filter.test.ts "the birth star can reach the contained branch again"
 
+# THE LOCATION TIERS TRAVEL WITH THE SUBJECT (v902). Drop either half back off AstrologySubject and
+# the 11 subject-shaped resolveDaySky call sites go back to reading everyone from the account's city.
+run server/astrology-subject.ts 'isOwner: !!p.isOwner,' '' \
+  server/panchang/subject-location-tiers.test.ts "someone else's chart follows the account holder again"
+run server/astrology-subject.ts 'hometownLat: p.hometownLat ?? null,' '' \
+  server/panchang/subject-location-tiers.test.ts "the hometown tier vanishes from the subject again"
+# The chip's copy is chosen by the tier; both halves of the ruling get broken on purpose.
+run shared/location-label.ts 'return isOwner ? null : "follows you";' 'return "not set for them";' \
+  shared/location-label.test.ts "the chip labels your own correct city as unset again"
+run shared/location-label.ts 'if (source === "default") return "no location set";' '' \
+  shared/location-label.test.ts "the app default passes as a real location again"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."

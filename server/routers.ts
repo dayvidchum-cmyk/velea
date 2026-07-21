@@ -1033,6 +1033,12 @@ export const appRouter = router({
         // Which tier spoke — lets the UI mark a borrowed location as borrowed rather than
         // presenting an inherited city as if the person had confirmed it.
         source: sky.source,
+        // WHOSE chart this is. The `current` tier is the account's own city: on the account
+        // holder's own chart that is simply correct and needs no label; on anyone else's it means
+        // their sky follows this phone. Same tier, two different truths — the chip cannot tell
+        // them apart without this. (David, 2026-07-21: "not set for them" is noise when the value
+        // is right.)
+        isOwner: subject?.isOwner ?? false,
       };
     }),
 

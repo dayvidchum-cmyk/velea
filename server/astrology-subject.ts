@@ -48,6 +48,26 @@ export interface AstrologySubject {
   birthLocationLat: string | null;
   birthLocationLon: string | null;
   birthTimezone: string | null;
+  /**
+   * THE LOCATION TIERS TRAVEL WITH THE SUBJECT (v902, 2026-07-21).
+   *
+   * `resolveDaySky` takes a `ProfileLocFields`, and 11 of its 33 call sites hand it THIS object
+   * instead of the profiles row. Every field below was missing from it, and ProfileLocFields marks
+   * them optional — so those call sites type-checked while silently resolving a different sky than
+   * the other 22. Measured, not reasoned: a non-owner profile born in Newark resolved
+   * `Newark/birth` from the row and `Boston/current` from the subject, on the same date, same
+   * account. That is the same v-loc bug David found this morning (his six profiles all cast from
+   * Boston because that is where his phone is) still live on a third of the paths — the fix landed
+   * in the resolver, and a third of the callers could not see it.
+   *
+   * `isOwner` is the one that decides whether the account's current city may speak for this chart
+   * at all (currentTierApplies), so its absence defaulted every subject to "yes, it may".
+   */
+  isOwner: boolean;
+  hometownCity: string | null;
+  hometownLat: string | null;
+  hometownLon: string | null;
+  hometownTimezone: string | null;
   /** Last time birth data changed — drives the 24h edit cooldown. */
   birthDataUpdatedAt: Date | null;
   /** Ascendant sign e.g. "Virgo" (for a Moon-framed chart this is the Moon's sign) */
@@ -79,7 +99,9 @@ export interface AstrologySubject {
   }>;
 }
 
-function profileToSubject(
+// Exported for the location-tier control: the only honest way to prove the subject shape resolves
+// the same sky as the row is to build the subject the way production builds it.
+export function profileToSubject(
   p: typeof profiles.$inferSelect,
   bodies: Awaited<ReturnType<typeof getProfileNatalBodies>>,
   source: "profile" | "owner"
@@ -94,6 +116,11 @@ function profileToSubject(
     birthLocationLat: p.birthLocationLat ?? null,
     birthLocationLon: p.birthLocationLon ?? null,
     birthTimezone: p.birthTimezone ?? null,
+    isOwner: !!p.isOwner,
+    hometownCity: p.hometownCity ?? null,
+    hometownLat: p.hometownLat ?? null,
+    hometownLon: p.hometownLon ?? null,
+    hometownTimezone: p.hometownTimezone ?? null,
     birthDataUpdatedAt: (p as any).birthDataUpdatedAt ?? null,
     // Prefer the lagna implied by the natal bodies (the true chart) over a possibly
     // stale profiles.lagnaSign field, so every consumer stays consistent.
