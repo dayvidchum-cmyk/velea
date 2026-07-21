@@ -367,8 +367,14 @@ run server/narrative/generate.ts 'if (inMiddle > 1)' 'if (inMiddle > 99)' \
 # is punished for echoing the verdict, which he explicitly ruled it should do.
 run server/narrative/generate.ts 'const middle = [r.scene, r.story, r.tilt].join(" ");' 'const middle = [r.scene, r.story, r.tilt, r.closeLine].join(" ");' \
   server/narrative/veto-budget.test.ts "the closing seal gets punished as a repetition"
-run server/narrative/generate.ts 'const MECHANISM_NAMES = "karana|vishti' 'const MECHANISM_NAMES = "zznope|zzalso' \
-  server/narrative/veto-budget.test.ts "the Sanskrit mechanism names ship to the reader again"
+run server/narrative/generate.ts 'const TARA_NAMES = "janma' 'const TARA_NAMES = "zzjanma' \
+  server/narrative/veto-budget.test.ts "the rung names ship to the reader again"
+# THE LAST MILE. The retry guard is not a guarantee — three refusals and the best draft ships — so
+# the deterministic scrub is the only thing that cannot be talked out of it.
+run server/narrative/generate.ts '[/\\bnaidhana\\b/gi, "the loss star"],' '' \
+  server/narrative/veto-budget.test.ts "a rung name survives the scrub and reaches the reader"
+run server/narrative/generate.ts 'for (const [re, rep] of SIGN_SCRUB) out = out.replace(re, rep);' '' \
+  server/narrative/veto-budget.test.ts "sign names survive the scrub (David's Scorpio leak)"
 
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
