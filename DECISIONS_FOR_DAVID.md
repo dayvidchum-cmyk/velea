@@ -119,40 +119,58 @@ alone, and it is rare enough (the 24h edit cooldown) that guessing buys nothing.
 
 ---
 
-## 4. Your twelve crown days are picked by CALENDAR DATE, not by merit (open)
+## 4. The crown cannot land on your day of gains — and this question was malformed (open)
 
-**Found 2026-07-20**, auditing every threshold in the engine. v778 fixed the pool — the top twelve
-now come from days where tara AND chandra are both favorable, which is your split exactly. What was
-never looked at is the **cutoff**.
+**Rewritten 2026-07-20, after you said "there's written wisdom from my elders in the folders" and
+"I can't tell you that without being biased." Both were right; this row is the correction.**
 
-**Measured** (real Boston sky, 2026-07-20 → 2027-07-19, all 324 birth-star × natal-Moon-sign
-combinations — I re-ran this myself after an agent reported it):
+**TWO RETRACTIONS FIRST.** The earlier version said the pool median was 101 days, ~30 days tie at
+the cutoff, and 85.6% of crowns fall in the first half of the year. Those came from a sweep over 324
+birth-star × natal-Moon-sign combinations — but the two are NOT independent: your natal Moon sits in
+the sign that HOLDS your birth star. Jyeshtha ⇒ Scorpio. Only **27** of those charts can exist, and
+I averaged 297 impossible ones. Re-run on the 27 real charts:
 
-- a chart gets a **median 101 convergent days a year** (min 81, max 124). Not one of the 324 has
-  fewer than 12.
-- inside that pool the ladder barely discriminates — tara class and rung are near-identical for all
-  of them — so the final `|| a.date.localeCompare(b.date)` decides. **A mean of 29.9 days are tied
-  with the 12th on every ranked dimension**, and the cutoff falls inside a tie in **324 of 324**
-  charts.
-- consequence: **85.6% of all crowns land in the first half of the solar year** (3327 of 3888;
-  50% if unbiased). On the sample chart all twelve fall between 21 Jul and 30 Oct, while 69
-  equally-convergent days in the other eight months wear nothing.
-- and BASE_PROMPT tells the model, of a crowned day: *"one of the TWELVE crowned days of this
-  person's whole solar year… Genuinely rare: twelve days out of three hundred and sixty-five."*
-  The count is true. The **selection** is an artifact of how the list was sorted.
+    mean convergent days/yr      93.7      (I reported 101)
+    crowns in the first half     67.9%     (I reported 85.6%)
 
-- **A — twelve stays, but earn it.** Add a real tie-break inside the pool (Ashtakavarga bindus on
-  the day-Moon's sign is the obvious candidate — it is already computed) so the twelve are the
-  twelve strongest, not the twelve earliest.
-- **B — crown every convergent day.** Honest to the predicate, but that is ~101 days a year, and the
-  prompt's "genuinely rare" line and the calendar's whole look would change with it.
-- **C — spread them.** Take the best of each month, so the year reads as a year.
-- **D — leave it.** Twelve is twelve; which twelve matters less than that they are real apex days.
+The bias is real; it is smaller than I told you, and I should not have told you at all without
+checking that every chart I averaged could exist.
 
-I lean **A**: it keeps your number and your rarity claim, and it makes the word "crown" mean the
-same thing in October as in July. But which dimension breaks the tie is your method, not mine.
+**AND THE QUESTION ITSELF WAS THE WRONG SHAPE.** I asked you to pick a tie-break. Muhurta runs the
+other way: you begin with an ACT and find a day fit for it — nobody ranks a year and takes a top
+twelve. `seven-favorable-stars.md`, your own words: *"No single group of Nakshatras is universally
+considered the 'best' for every purpose… depends on the complete Muhurta — and the specific activity
+being undertaken."* And the judgment is **counting agreement, not weighting**: `year-rank.ts`'s own
+header says *"NO WEIGHTS — the books rank by class and count agreements"*, directly above a `key()`
+that reads `cls * 1e6 + rung * 1e4 + ch * 1e2 - windows` — a weighted scalar. Your line *"the crown
+expresses itself in different ways for everyone — for me it points at what I am doing,
+architecture"* is that same rule from the inside, and I read it as a comment rather than a spec.
 
----
+**THE MEASURED DEFECT** — bigger than the tie-break, and already half-recorded in
+`crown-doctrine.md`, which lists Chandra Bala's six favourable houses as FLATTENED so that "the day
+of gains reads the same as the 3rd". Over 27 real charts × a real solar year:
+
+    crowns landing on the 11th (the canon's day of GAINS):   27 of 324  =  8.3%
+    birth stars for which the 11th can NEVER be crowned:     17 of 27
+    birth stars whose EVERY crown falls on house 1:          14 of 27
+
+Yours is one of the fourteen. All twelve of your crowns are the Moon back on your own natal Moon,
+and for Jyeshtha the 11th is unreachable at the top tara rung by arithmetic rather than by a cutoff:
+a rung fixes the star-offset mod 9, which admits only three Moon-sign offsets, and 11 is not yours.
+
+**What the folders say to build instead** (METHOD Step 0: a day IS Tara Bala + Chandra Bala; the
+limbs in `muhurta-tables.json` are nakshatraNature · tithiFamily · vara · vetoes · the yogas):
+
+- each limb gets ONE VOTE — no weights, no partial credit; a veto stays a veto, never a negative score
+- the 11th counts as the peak of Chandra Bala, per your spec — which you graded 9/10, pulling back
+  only the word "manifestations", not the ranking
+- the NUMBER of crowned days falls out of the agreement instead of being fixed at twelve
+
+**The one thing I cannot get from the folders, and am not deciding:** a day is fit *for an act*, and
+Velea reads a day for a person with no act named. Either the crown becomes act-relative (crowned FOR
+craft, not crowned for union — which is what your architecture line describes), or Velea keeps a
+general "the limbs agree today" crown and the act lives in the prose. That is a product shape, not a
+canon question, and it is the only part of this row still open.
 
 ## 5. A transit is only reported as touching a natal point within 4° — the slow lords vanish (open)
 
