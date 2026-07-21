@@ -2922,4 +2922,21 @@
 // Voice audit clean: no "horoscope" in user prose, no Moon-as-"she" (the only hits are the RULES),
 // no self-worth outside a comment. Migration safety clean: no auto force-push anywhere.
 // 119 files, 1249 tests, 0 failures. Build exit 0.
-export const APP_VERSION = "1.1.892";
+// v1.1.893 = 2026-07-21 — I HANDED THE MODEL A CONFLICT AND ALMOST SHIPPED IT. v891 told the
+// narrator "read the facet you were given" from canon/planet-in-house.json. Verifying every
+// running lord for the three testers, Lang's Saturn came back as "Chronic Disease, Death, Flaws,
+// Weaknesses, Liabilities" — the book's blunt register, headed straight for a live reading.
+// BASE_PROMPT already carries a HARD LIMIT ("NEVER predict illness, name a disease, or imply a
+// body part will fail"), so the model had two instructions and no stated precedence — the exact
+// arbitration failure this architecture exists to remove, introduced by me two hours after
+// diagnosing it. `indicates` is now explicitly a SEED, NEVER A SENTENCE, NEVER A PREDICTION, with
+// the standing limits outranking it without exception; a facet naming illness or death is read as
+// the THEME the planet works through, and the planet's live condition decides whether it lands
+// hard or well. A hard placement is not a bad one (his no-black-and-white law).
+// Guarded, including an assertion that the HARD LIMIT itself still exists in BASE_PROMPT — the
+// precedence rule is worthless if the thing it defers to is ever deleted.
+// FOUND BY VERIFICATION, not by review: printing all four running lords per tester rather than
+// only Venus. David's Moon reads "Music, Rhythmic Ability"; Lang holds Venus as BOTH Mahadasha
+// lord and Annual Time Lord, which is what the `roles` array was built to show.
+// 119 files, 1249 tests, 0 failures. Build exit 0.
+export const APP_VERSION = "1.1.893";

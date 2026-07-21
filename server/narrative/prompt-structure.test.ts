@@ -168,6 +168,15 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     // example facets, which was the same stock-phrase shape with better content.
     expect(DEEP_READ_TAIL).toMatch(/input\.natalCondition\.lords carries `indicates`/);
     expect(DEEP_READ_TAIL).not.toMatch(/Saturn here leans to thrift/);
+    // The canon table speaks bluntly — one real tester's Saturn facet reads "Chronic Disease,
+    // Death, Flaws, Weaknesses, Liabilities". Telling the model to "read the facet you were
+    // given" without stating precedence put that against the standing HARD LIMIT on illness and
+    // prognosis, and an unresolved conflict is the failure mode this whole architecture exists to
+    // remove. The precedence is explicit, not hoped for.
+    expect(DEEP_READ_TAIL).toMatch(/IS A SEED, NEVER A SENTENCE, AND NEVER A PREDICTION/);
+    expect(DEEP_READ_TAIL).toMatch(/standing limits OUTRANK it without exception/);
+    const { BASE_PROMPT: BP } = await import("./prompts.js");
+    expect(BP).toMatch(/NEVER predict illness, name a disease/);
     expect(DEEP_READ_TAIL).toMatch(/2nd house = MONEY/);
   });
 
