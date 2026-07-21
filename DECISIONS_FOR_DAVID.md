@@ -205,3 +205,28 @@ kind of thing the Arc and the year read exist to name.
 - **C — keep 4°**, and I write down why, so no future audit re-raises it.
 
 I lean **A**. But the number is a method ruling — the inconsistency is mine to report, not to settle.
+
+
+---
+
+## 6. Should a sign EXCHANGE count as a vantage? (open — surfaced 2026-07-20 by the contacts object)
+
+Your chart has a **Parivartana**: Mercury stands in Aries (Mars's sign) while Mars stands in Virgo
+(Mercury's sign). Your lagna lord and the planet in your first house have traded addresses. The
+engine detects it — it is one of the twelve yogas on your chart — and the model has never been told,
+because the gate asks how many VANTAGES a yoga holds from, and an exchange scores one.
+
+That is arguably the wrong question for this yoga. Anapha, Veshi, Vashi and the rest are views: you
+look from the lagna, from the Moon, from the Sun, and a yoga either appears or does not. An exchange
+is not a view. It is a structural fact about the whole chart, true from every frame at once, and the
+frame-count test has no way to say so.
+
+- **A — an exchange counts as its own vantage** (score it 2, or exempt it from the gate). Your
+  parivartana starts reaching the reading. Any chart with an exchange gains one.
+- **B — leave it.** It is one signal among twelve and the cap is four; the gate is doing its job.
+- **C — stop capping at four** and let the count fall out, the way #4 asks of the crown.
+
+I have NOT decided this. What I did fix without asking is the half that took no side: the four that
+ship are now the four the gate itself calls strongest, instead of the first four in detection order.
+On your chart that swapped four single-vantage yogas for Sarpa and Dur — the only two holding from
+two — which is the same defect as the crown taking the twelve earliest dates.

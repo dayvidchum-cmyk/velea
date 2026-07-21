@@ -282,6 +282,12 @@ run server/vedic/day-filter.ts 'if (input.mercuryRx) audit = [...audit, ...extra
 # "good work begun with intent" being re-classed as a launch, which David corrected in person.
 run server/vedic/day-filter.ts '"good work begun with intent": "continue",' '"good work begun with intent": "initiate",' \
   server/vedic/day-filter.test.ts "deliberateness gets filtered out as an initiation again"
+# The yoga cap going back to selecting by array position instead of by vantages.
+run server/narrative/input-builder.ts '      (b.frames?.length ?? 0) - (a.frames?.length ?? 0) ||' '      0 * ((b.frames?.length ?? 0) - (a.frames?.length ?? 0)) ||' \
+  server/narrative/standing-yogas.test.ts "the yoga cap selects by array position again"
+# The contact object collapsing back into one boolean — the thing that caused the conflict.
+run server/vedic/contacts.ts 'const kind: ContactKind = sameSign && inOrb ? "same-party"' 'const kind: ContactKind = sameSign ? "same-party"' \
+  server/vedic/contacts.test.ts "a wide same-sign pair is called a true conjunction again"
 # The fate ban going quiet again — it was enforced NOWHERE until 2026-07-20.
 run server/narrative/generate.ts 'const fate = fullText.match(FATE_DECREE);' 'const fate = null as any;' \
   server/narrative/guard.test.ts "a decree about this person can ship again"

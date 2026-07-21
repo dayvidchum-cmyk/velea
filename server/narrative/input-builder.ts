@@ -65,6 +65,34 @@ const INPUT_TTL_MS = 5 * 60 * 1000;
 
 // `dayLoc` is REQUIRED (resolve-day-sky): the optional-with-fallback era meant every caller
 // that forgot it silently produced a Boston-sky reading — the audits' whole divergence class.
+/**
+ * THE STANDING YOGAS THE MODEL IS ALLOWED TO HEAR — gated, ranked, then capped.
+ *
+ * The gate is the research's own strength test: a yoga holding from two or more VANTAGES (the
+ * three judge-frames), or repeating in the navamsha, is the kind worth naming. What followed it
+ * was a bare `.slice(0, 4)` in DETECTION order, which threw that signal straight back away.
+ *
+ * Measured on the maker's chart, 2026-07-20: twelve yogas detected, six passed the gate, and the
+ * four that shipped were all single-frame — while Sarpa and Dur, the ONLY two holding from two
+ * vantages, were cut for being fifth and sixth in the array. Same shape as the crown taking the
+ * twelve earliest dates instead of the twelve strongest: a cutoff selecting by array position.
+ *
+ * Extracted so it can be tested without a database, like buildHouseReadInput.
+ *
+ * STILL A METHOD QUESTION, DELIBERATELY NOT DECIDED HERE: a Parivartana (two lords trading signs)
+ * is a fact about the whole chart rather than a view from one frame, so it scores ONE vantage and
+ * is dropped. On his chart that silently discards the exchange between his lagna lord and Mars.
+ * Whether an exchange should count as its own vantage is David's ruling — see DECISIONS_FOR_DAVID.
+ */
+export function rankStandingYogas(yogas: any[], limit = 4): any[] {
+  return (yogas ?? [])
+    .filter((y: any) => (y?.frames?.length ?? 0) >= 2 || y?.inNavamsha)
+    .sort((a: any, b: any) =>
+      (b.frames?.length ?? 0) - (a.frames?.length ?? 0) ||
+      (b.inNavamsha ? 1 : 0) - (a.inNavamsha ? 1 : 0))
+    .slice(0, limit);
+}
+
 export async function buildNarrativeInput(profileId: number, dateStr: string, opts: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
@@ -364,8 +392,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         };
       };
       condOfStored = condOf;
-      const standingYogas = (research.yogas ?? [])
-        .filter((y: any) => y.frames.length >= 2 || y.inNavamsha).slice(0, 4)
+      const standingYogas = rankStandingYogas(research.yogas ?? [])
         .map((y: any) => ({ name: y.name, note: y.inNavamsha ? "held strongly — repeats in the marriage/dharma chart" : `holds from ${y.frames.length} vantages` }));
       natalCondition = {
         _how: "the engine's stored research of this chart (both volumes) — trust it over inference; translate it, never surface a term",

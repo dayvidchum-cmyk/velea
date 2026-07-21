@@ -2736,4 +2736,28 @@
 // lands). The read called them "both stars favor the self". His account: the groove arrived WITH
 // the second star. And the calendar runs the same Mercury law as the reading, from one cycle call.
 // 113 files, 1174 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.883";
+// v1.1.884 = 2026-07-20 — ADDRESSES AND CONTACTS. David, looking at his own chart: "what happens if
+// we let them separate and speak, exist from the parties they are at?" Velea was answering "are
+// these two conjunct?" FOUR different ways at once — same-sign in avashtas/aspects/crown, <=10° in
+// the natal list the prompt reads, <=4° for transit hits, <=3° in transit-pressure, and a per-planet
+// degree limit for combustion — each faithful to what it cites, none aware of the others. On his
+// chart the Sun (Pisces 29.52) and Mercury (Aries 1.34) are 1.82° apart: the prompt is told to read
+// a conjunction as ONE FUSED BODY and gets them from the 10° list, while the state engine, the
+// affliction test and the crown layer count by sign and never see them. Fused, combust, unrelated
+// and in different houses, all in production, at the same moment.
+// The fix is NOT to pick a winner — forcing one boolean is what made the conflict. server/vedic/
+// contacts.ts reports the two facts separately: an ADDRESS (sign, house, star, star-lord, and whose
+// house it is a guest in) and a CONTACT (orb, sameSign, sameHouse, and which convention it breaks).
+// The two disagreement cases are NAMED rather than resolved: THROUGH-THE-WALL (tight orb, different
+// signs — the sign rule says unrelated) and ACROSS-THE-ROOM (same sign, wide orb — the sign rule
+// says fused). Measured on his chart: TWO contacts, and the conventions disagree about BOTH.
+// The addresses also make his PARIVARTANA readable without a yoga engine — Mercury is a guest of
+// Mars while Mars is a guest of Mercury.
+// AND A CUTOFF SELECTING BY ARRAY POSITION, third of the day: the standing-yoga gate calls a yoga
+// holding from two VANTAGES the strong kind, then `.slice(0, 4)` took the first four in DETECTION
+// order. On his chart that cut Sarpa and Dur — the only two holding from two frames — and kept four
+// single-frame ones. Same shape as the crown taking the twelve earliest dates. Ranked by the gate's
+// own criterion now, extracted as rankStandingYogas() so it tests with no DB.
+// Whether a sign EXCHANGE should count as a vantage is David's ruling — DECISIONS_FOR_DAVID #6.
+// 115 files, 1189 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.884";
