@@ -92,7 +92,20 @@ mass regeneration — it is not a money reason to wait.
 
 ---
 
-## 3. When someone CORRECTS their birth data, what happens to a reading they PINNED? (open)
+## 3. When someone CORRECTS their birth data, what happens to a reading they PINNED? (RULED 2026-07-21)
+
+> **David's ruling, verbatim: "It gets filed away and replaced with a new one."**
+>
+> Not A, B or C as written — it is C's honesty with A's freshness, and it is better than what I
+> offered. The old pin is **not destroyed and not served**: it is ARCHIVED against the chart that
+> produced it, and the corrected reading generates on next open and becomes the live one.
+>
+> **Build note:** archiving needs somewhere to put it, so this carries a schema change — which is a
+> DAVID-RUN script, never an auto-migration (the `push --force` law). Until that script is run, the
+> interim behaviour is A: a chart recompute unpins, the corrected reading generates. Nothing is
+> silently served from a superseded chart at any point in either state.
+>
+> Still to build. Listed here so the ruling is not lost between now and the migration.
 
 **Found 2026-07-20** while auditing the birth-data edit cascade. Everything else in that cascade is
 sound: the chart, the research, the dashas, the convergence and the profection all recompute, and
@@ -209,7 +222,53 @@ I lean **A**. But the number is a method ruling — the inconsistency is mine to
 
 ---
 
-## 6. Should a sign EXCHANGE count as a vantage? (open — surfaced 2026-07-20 by the contacts object)
+## 6. Should a sign EXCHANGE count as a vantage? (RULED 2026-07-21 — A **and** C, both shipped v887)
+
+> **David's ruling, verbatim: "ship all six and count the exchange."**
+>
+> Both halves, which is why neither costs anything. Measured on his chart before the ruling:
+> counting the exchange alone would have traded Parivartana IN and Veshi OUT, because the cap was
+> still 4. Removing the cap at the same time means the exchange is a pure gain — all seven now ship,
+> ordered strongest-first.
+>
+>     TODAY        : Sarpa, Dur, Dharma Karma Adhipati, Veshi
+>     IF EXCHANGE  : Sarpa, Dur, Parivartana, Dharma Karma Adhipati      ← the trade, cap still on
+>     NOW (v887)   : Sarpa, Dur, Dharma Karma Adhipati, Veshi, Vashi, Ubhayachari, Parivartana
+>
+> Gated on the canon `type: "exchange"` from `yogas.json`, never on the name, so a second exchange
+> yoga added to the canon later is admitted by construction. Ranking is kept — order is emphasis,
+> not a filter. `limit` survives as an explicit opt-in for a caller that needs a ceiling.
+
+---
+
+## 7. Should FRAME-INDEPENDENCE count as strength? (open — the class behind #6)
+
+**#6 was the instance. This is the class, and it is the reason Parivartana was cut.**
+
+`yoga-detect.ts` collapses every frame-independent yoga to `frames: ["natal"]` — a single vantage —
+**by construction**. Those yogas compute identically from the lagna, the Moon and the Sun, so there
+is nothing to count; the collapse is correct as a description and disastrous as a score. Fourteen
+yogas are in that set:
+
+    Sunapha · Anapha · Durudhara · Kemadruma · Sakata / Shataka · Gaja Keshari · Veshi · Vashi
+    Ubhayachari · Parivartana · Kala Sarpa · Buddhaditya · Chandra-Mangala · Lakshmi (2)
+
+**None of them can ever satisfy "two or more vantages."** They reach the model only by repeating in
+the navamsha. Parivartana was never weak — it was structurally unable to score, and #6 admitted
+exactly one member of a class of fourteen.
+
+- **A — frame-independence counts as its own strength** (holding in all three frames at once is not
+  the same as holding in one). Every one of the fourteen becomes eligible on its own merit.
+- **B — leave it.** The navamsha is a real second opinion and is a fair second gate for this class.
+- **C — case by case**, the way the exchange was ruled: name which of the fourteen earn it.
+
+I lean **A**, because "holds from every frame" is the strongest form of the thing the gate is
+measuring, and the current encoding reads it as the weakest. But this changes which yogas ship for
+**every user**, not just yours, so it is a ruling and not a cleanup. Not touched in v887.
+
+---
+
+<details><summary>The original #6 question, as posed</summary>
 
 Your chart has a **Parivartana**: Mercury stands in Aries (Mars's sign) while Mars stands in Virgo
 (Mercury's sign). Your lagna lord and the planet in your first house have traded addresses. The
@@ -230,3 +289,5 @@ I have NOT decided this. What I did fix without asking is the half that took no 
 ship are now the four the gate itself calls strongest, instead of the first four in detection order.
 On your chart that swapped four single-vantage yogas for Sarpa and Dur — the only two holding from
 two — which is the same defect as the crown taking the twelve earliest dates.
+
+</details>

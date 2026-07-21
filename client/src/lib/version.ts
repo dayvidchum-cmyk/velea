@@ -2795,4 +2795,20 @@
 // The last probe breaks the WIRING, not the arithmetic. Eight passing tests would have survived the
 // wrapper being deleted, which is exactly how v884 shipped green while importing nothing.
 // 117 files, 1209 tests, 0 failures. tsc exit 0. build exit 0.
-export const APP_VERSION = "1.1.886";
+// v1.1.887 = 2026-07-21 — DAVID'S RULING: "ship all six and count the exchange." Both halves, and
+// they belong together: counting the exchange while the cap was still 4 would have traded his
+// Parivartana IN and Veshi OUT. With the cap gone it costs nothing.
+//   BEFORE : Sarpa, Dur, Dharma Karma Adhipati, Veshi
+//   NOW    : Sarpa, Dur, Dharma Karma Adhipati, Veshi, Vashi, Ubhayachari, Parivartana
+// NO CAP — six passed the gate on his chart and four shipped; Veshi, Vashi and Ubhayachari were
+// discarded by a hardcoded 4 AFTER the gate had already called them worth naming, and nothing said
+// so. The count now falls out of the agreement, the rule he set for the crown. Ranking kept: order
+// is emphasis, not a filter. `limit` survives as an explicit opt-in.
+// THE EXCHANGE is gated on the canon type ("exchange" in yogas.json), never on the name — so a
+// second exchange yoga added to canon later is admitted by construction, not by remembering.
+// AND THE CLASS BEHIND IT, written up and NOT decided: yoga-detect collapses all fourteen
+// frame-independent yogas to frames:["natal"] — one vantage, BY CONSTRUCTION — so none of them can
+// ever satisfy "two or more vantages". Parivartana was never weak; it could not score. Whether
+// frame-independence is itself strength is DECISIONS_FOR_DAVID #7, untouched here.
+// 117 files, 1210 tests, 0 failures. tsc exit 0. build exit 0.
+export const APP_VERSION = "1.1.887";

@@ -299,6 +299,11 @@ run server/narrative/input-builder.ts 'const contacts = contactsOf(lonAll, lagna
   server/narrative/natal-contacts.test.ts "the disagreeing pairs are dropped and only agreed ones reach the model"
 run server/narrative/prompts.ts '- kind "through-the-wall"' '- kind "through-the-wallX"' \
   server/narrative/prompt-structure.test.ts "the prompt loses the through-the-wall branch and fuses everything again"
+# DAVID'S 2026-07-21 RULING — "ship all six and count the exchange." Two probes, one per half.
+run server/narrative/input-builder.ts ' || y?.type === "exchange")' ')' \
+  server/narrative/standing-yogas.test.ts "an exchange stops reaching the model again (his parivartana)"
+run server/narrative/input-builder.ts '  return limit == null ? ranked : ranked.slice(0, limit);' '  return ranked.slice(0, limit ?? 4);' \
+  server/narrative/standing-yogas.test.ts "the cap of four comes back and silently drops gate-passing yogas"
 # THE METER. A cost meter that is quietly wrong is worse than none — it gets believed and then
 # priced against. The last probe breaks the WIRING rather than the arithmetic, which is the failure
 # every other test here is blind to.

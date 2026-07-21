@@ -21,34 +21,58 @@ const HIS_CHART = [
   { name: "Dur", frames: [1, 2], inNavamsha: true },
 ];
 
-describe("standing yogas — the four that ship are the four the gate calls strongest", () => {
-  it("ranks by vantages before capping, not by position in the array", () => {
+describe("standing yogas — everything the gate calls strong ships, strongest first", () => {
+  it("orders by vantages, not by position in the array", () => {
     const shipped = rankStandingYogas(HIS_CHART).map((y) => y.name);
-    expect(shipped).toEqual(["Sarpa", "Dur", "Dharma Karma Adhipati", "Veshi"]);
+    expect(shipped.slice(0, 2)).toEqual(["Sarpa", "Dur"]);
 
-    // CONTROL — the unsorted cap, which is what shipped before, and what this test exists to stop.
+    // CONTROL — the unsorted cap, which is what shipped before v884, and what this exists to stop.
     const oldBehaviour = HIS_CHART.slice(0, 4).map((y) => y.name);
     expect(oldBehaviour).toEqual(["Dharma Karma Adhipati", "Veshi", "Vashi", "Ubhayachari"]);
-    expect(shipped, "the ranked set is identical to the unsorted one — the sort did nothing")
+    expect(shipped.slice(0, 4), "the ranked set is identical to the unsorted one — the sort did nothing")
       .not.toEqual(oldBehaviour);
-    // and the two-vantage ones must BOTH survive, since they are the whole point
+    // The two-vantage ones must lead, since they are the whole point of the ranking.
     expect(shipped).toContain("Sarpa");
     expect(shipped).toContain("Dur");
   });
 
   it("still applies the gate — a one-vantage yoga outside the navamsha never ships", () => {
-    // Parivartana on his chart is exactly this shape: frames [1], not in the navamsha.
-    const withWeak = [...HIS_CHART, { name: "Parivartana", frames: [1], inNavamsha: false }];
-    expect(rankStandingYogas(withWeak, 99).map((y) => y.name)).not.toContain("Parivartana");
+    const withWeak = [...HIS_CHART, { name: "Kemadruma", frames: [1], inNavamsha: false }];
+    expect(rankStandingYogas(withWeak).map((y) => y.name)).not.toContain("Kemadruma");
     // ANCHOR: the same yoga DOES ship once it holds from two vantages, so the gate is the
-    // filter here and not the name.
-    const strong = [{ name: "Parivartana", frames: [1, 3], inNavamsha: false }];
-    expect(rankStandingYogas(strong).map((y) => y.name)).toEqual(["Parivartana"]);
+    // strength test here and not the name.
+    const strong = [{ name: "Kemadruma", frames: [1, 3], inNavamsha: false }];
+    expect(rankStandingYogas(strong).map((y) => y.name)).toEqual(["Kemadruma"]);
   });
 
-  it("caps at four by default and honours an explicit limit", () => {
-    expect(rankStandingYogas(HIS_CHART)).toHaveLength(4);
-    expect(rankStandingYogas(HIS_CHART, 6)).toHaveLength(6);
+  it("an EXCHANGE ships on one vantage — David's ruling, 2026-07-21", () => {
+    // A Parivartana is a whole-chart fact, so it can only ever score one vantage and was cut.
+    // Gated on the canon TYPE, never the name.
+    const pari = { name: "Parivartana", type: "exchange", frames: [1], inNavamsha: false };
+    expect(rankStandingYogas([...HIS_CHART, pari]).map((y) => y.name)).toContain("Parivartana");
+
+    // CONTROL 1 — an identically-shaped yoga that is NOT an exchange stays out, so it is the type
+    // doing the work and not the extra array entry.
+    const notPari = { name: "Kala Sarpa", type: "nodal-affliction", frames: [1], inNavamsha: false };
+    expect(rankStandingYogas([...HIS_CHART, notPari]).map((y) => y.name)).not.toContain("Kala Sarpa");
+
+    // CONTROL 2 — the name alone must not admit it. A Parivartana with the type stripped is
+    // exactly what a stale research row looks like, and it must fail the gate like anything else.
+    const untyped = { name: "Parivartana", frames: [1], inNavamsha: false };
+    expect(rankStandingYogas([...HIS_CHART, untyped]).map((y) => y.name)).not.toContain("Parivartana");
+  });
+
+  it("ships EVERY yoga that passes the gate — no cap (David's ruling, 2026-07-21)", () => {
+    // Six passed the gate on his chart and four shipped; Veshi, Vashi and Ubhayachari were
+    // discarded by a hardcoded 4 after the gate had already called them worth naming.
+    expect(rankStandingYogas(HIS_CHART)).toHaveLength(6);
+    expect(rankStandingYogas(HIS_CHART).map((y) => y.name)).toEqual([
+      "Sarpa", "Dur", "Dharma Karma Adhipati", "Veshi", "Vashi", "Ubhayachari",
+    ]);
+    // With the exchange counted, all seven ship — the trade that used to cost him Veshi is gone.
+    const pari = { name: "Parivartana", type: "exchange", frames: [1], inNavamsha: false };
+    expect(rankStandingYogas([...HIS_CHART, pari])).toHaveLength(7);
+    // An explicit limit is still honoured for a caller that genuinely needs one.
     expect(rankStandingYogas(HIS_CHART, 1).map((y) => y.name)).toEqual(["Sarpa"]);
   });
 

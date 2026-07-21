@@ -67,31 +67,49 @@ const INPUT_TTL_MS = 5 * 60 * 1000;
 // `dayLoc` is REQUIRED (resolve-day-sky): the optional-with-fallback era meant every caller
 // that forgot it silently produced a Boston-sky reading — the audits' whole divergence class.
 /**
- * THE STANDING YOGAS THE MODEL IS ALLOWED TO HEAR — gated, ranked, then capped.
+ * THE STANDING YOGAS THE MODEL IS ALLOWED TO HEAR — gated and ranked. No longer capped.
  *
  * The gate is the research's own strength test: a yoga holding from two or more VANTAGES (the
  * three judge-frames), or repeating in the navamsha, is the kind worth naming. What followed it
- * was a bare `.slice(0, 4)` in DETECTION order, which threw that signal straight back away.
+ * was a bare `.slice(0, 4)` in DETECTION order, which threw that signal straight back away
+ * (v884 ranked it; v887 removes the cap entirely).
  *
- * Measured on the maker's chart, 2026-07-20: twelve yogas detected, six passed the gate, and the
- * four that shipped were all single-frame — while Sarpa and Dur, the ONLY two holding from two
- * vantages, were cut for being fifth and sixth in the array. Same shape as the crown taking the
- * twelve earliest dates instead of the twelve strongest: a cutoff selecting by array position.
+ * DAVID'S RULING, 2026-07-21: "ship all six and count the exchange." Two changes, both his:
+ *
+ *   1. NO CAP. Measured on his chart, six yogas passed the gate and four shipped — Veshi, Vashi
+ *      and Ubhayachari were discarded by a hardcoded 4 AFTER the gate had already called them
+ *      worth naming, and nothing anywhere said so. The count now falls out of the agreement, the
+ *      same rule he set for the crown. Ranking is kept: the order is emphasis, not a filter.
+ *      `limit` survives as an explicit opt-in for a caller that genuinely needs a ceiling.
+ *
+ *   2. AN EXCHANGE COUNTS. A Parivartana is a fact about the whole chart rather than a view from
+ *      one frame, so it can only ever score ONE vantage and was cut. Gated on the canon `type`
+ *      ("exchange" in canon/yogas.json) rather than on the name, so a second exchange yoga added
+ *      to the canon later is admitted by construction and not by remembering.
+ *      Measured on his chart: Parivartana (his lagna lord trading signs with Mars) now reaches the
+ *      model. Under the old cap that trade would have cost him Veshi; with the cap gone it costs
+ *      nothing — which is why the two rulings belong in one commit.
+ *
+ * STILL OPEN, AND STILL HIS — THE CLASS BEHIND THE INSTANCE. `yoga-detect.ts` collapses every
+ * FRAME_INDEPENDENT yoga to `frames: ["natal"]`, a single vantage, BY CONSTRUCTION: those yogas
+ * compute identically in all three frames, so there is nothing to count. Fourteen yogas are in
+ * that set — Sunapha, Anapha, Durudhara, Kemadruma, Sakata, Gaja Keshari, Veshi, Vashi,
+ * Ubhayachari, Parivartana, Kala Sarpa, Buddhaditya, Chandra-Mangala, Lakshmi (2) — and NONE of
+ * them can ever satisfy "two or more vantages". They pass only through the navamsha. Parivartana
+ * was not weak; it was structurally unable to score. This fix admits the one he ruled on. Whether
+ * frame-independence should count as its own strength for the other thirteen changes which yogas
+ * ship for every user, so it is a ruling and not a cleanup — DECISIONS_FOR_DAVID #7.
  *
  * Extracted so it can be tested without a database, like buildHouseReadInput.
- *
- * STILL A METHOD QUESTION, DELIBERATELY NOT DECIDED HERE: a Parivartana (two lords trading signs)
- * is a fact about the whole chart rather than a view from one frame, so it scores ONE vantage and
- * is dropped. On his chart that silently discards the exchange between his lagna lord and Mars.
- * Whether an exchange should count as its own vantage is David's ruling — see DECISIONS_FOR_DAVID.
  */
-export function rankStandingYogas(yogas: any[], limit = 4): any[] {
-  return (yogas ?? [])
-    .filter((y: any) => (y?.frames?.length ?? 0) >= 2 || y?.inNavamsha)
+export function rankStandingYogas(yogas: any[], limit?: number): any[] {
+  const ranked = (yogas ?? [])
+    .filter((y: any) =>
+      (y?.frames?.length ?? 0) >= 2 || y?.inNavamsha || y?.type === "exchange")
     .sort((a: any, b: any) =>
       (b.frames?.length ?? 0) - (a.frames?.length ?? 0) ||
-      (b.inNavamsha ? 1 : 0) - (a.inNavamsha ? 1 : 0))
-    .slice(0, limit);
+      (b.inNavamsha ? 1 : 0) - (a.inNavamsha ? 1 : 0));
+  return limit == null ? ranked : ranked.slice(0, limit);
 }
 
 /** One entry in a planet's `conjunct` list, as the prompt reads it. */
