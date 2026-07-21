@@ -355,6 +355,21 @@ run server/vedic/day-filter.ts 'const headline = contained' 'const headline = fa
 run server/vedic/day-filter.ts ': input.tara && input.tara.quality !== "good"' ': false' \
   server/vedic/day-filter.test.ts "hostile ground is handed the collective order again"
 
+# ── THE VETO LANDS ONCE (2026-07-21) ─────────────────────────────────────────────────────────
+# David read four pulls side by side: one dropped Vishti entirely, one stated the same order four
+# times, one named the Sanskrit the prompt had always forbidden. All three were "written in the
+# prompt, enforced nowhere".
+run server/narrative/generate.ts 'if (vishti && countNoBeginnings(whole) === 0)' 'if (false && countNoBeginnings(whole) === 0)' \
+  server/narrative/veto-budget.test.ts "a vishti day can silently drop the veto again"
+run server/narrative/generate.ts 'if (inMiddle > 1)' 'if (inMiddle > 99)' \
+  server/narrative/veto-budget.test.ts "the instruction can be repeated through the middle again"
+# The SEAL exemption is David's own correction — fold closeLine back into the middle and the close
+# is punished for echoing the verdict, which he explicitly ruled it should do.
+run server/narrative/generate.ts 'const middle = [r.scene, r.story, r.tilt].join(" ");' 'const middle = [r.scene, r.story, r.tilt, r.closeLine].join(" ");' \
+  server/narrative/veto-budget.test.ts "the closing seal gets punished as a repetition"
+run server/narrative/generate.ts 'const MECHANISM_NAMES = "karana|vishti' 'const MECHANISM_NAMES = "zznope|zzalso' \
+  server/narrative/veto-budget.test.ts "the Sanskrit mechanism names ship to the reader again"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."

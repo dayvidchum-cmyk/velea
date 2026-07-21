@@ -325,7 +325,55 @@ const DAY_READ_SCHEMA = {
 // The banned vocabulary. Planets (Sun/Moon/Mars/Mercury/Jupiter/Venus/Saturn/Rahu/Ketu) are
 // ALLOWED — they're the characters. What's banned: house numbers, dignity/motion terms, and the
 // twelve SIGN names (a sign must appear only as its life-territory, never by name).
-const MACHINERY = /\b(\d+\s*(?:st|nd|rd|th)\s+house|(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\s+house|exalt\w*|debilitat\w*|retrograde|combust\w*|moolatrikona|nakshatra|Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces)\b/i;
+// SANSKRIT MECHANISM NAMES (2026-07-21). "nakshatra" was banned here; its siblings were not, so
+// "Vishti karana seals it: finish, don't start" and "the afternoon tara withdraws its goodwill"
+// both shipped to David. prompts.ts already SAYS not to name them — "the words are in your throat,
+// not 'Vishti karana'" — but nothing enforced it, so it held only when the model felt like it.
+// David's standard for the whole product: a weather app you can trust says it will rain; it does
+// not quote you the barometric pressure. These are the pressure readings.
+const MECHANISM_NAMES = "karana|vishti|bhadra|tithi|paksha|tarabala|tara|chandrabala|dasha|dashas|antardasha|mahadasha|muhurta|graha|rashi|lagna|navamsa|varga|amsa";
+const MACHINERY = new RegExp(
+  `\\b(\\d+\\s*(?:st|nd|rd|th)\\s+house|(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\\s+house` +
+  `|exalt\\w*|debilitat\\w*|retrograde|combust\\w*|moolatrikona|nakshatra|${MECHANISM_NAMES}` +
+  `|Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces)\\b`, "i");
+
+// THE "FINISH, DON'T START" SIGNALS — one family serving two guards.
+//
+// Vishti/Bhadra is a VETO, not a flavour: the day blocks initiating. The engine puts it in the
+// payload every time; the prose carried it in one pull and dropped it in the next, because nothing
+// checked. A veto that depends on sampling is the weather app forgetting to mention the storm.
+//
+// The SAME matcher then counts repetitions, because the failure has two ends: say it zero times and
+// the reader isn't warned; say it four times and the reader starts skimming — which is how they'd
+// miss it even when it IS there.
+const NO_BEGINNINGS: RegExp[] = [
+  /\bnothing\s+(?:new\s+)?(?:begins|starts|is\s+(?:begun|started|launched|sealed)|gets\s+(?:begun|started|launched|sealed))/i,
+  /\bnothing\s+is\s+launched\b/i,
+  /\b(?:don'?t|do\s+not|never)\s+(?:begin|start|launch|open|initiate)\b/i,
+  /\bfinish(?:ing)?[,\s]+(?:don'?t|not|never)\s+start\b/i,
+  /\bno\s+new\s+(?:beginnings|starts|launches|threads)\b/i,
+  /\b(?:begin|start|launch)\s+nothing\b/i,
+];
+// COUNT DISTINCT STATEMENTS, NOT PATTERN HITS. Summing per-regex double-counted: "Nothing is
+// launched today" satisfies both the general `nothing … is launched` pattern and the specific one,
+// so a single sentence scored 2 and a prose that said it ONCE would have been rejected for
+// repetition. A guard that fires on correct prose is worse than no guard, so overlapping matches
+// are merged into spans and the spans are counted. (Caught by its own test, not by inspection.)
+const countNoBeginnings = (s: string): number => {
+  const spans: Array<[number, number]> = [];
+  for (const re of NO_BEGINNINGS) {
+    const g = new RegExp(re.source, "gi");
+    for (let m = g.exec(s); m; m = g.exec(s)) spans.push([m.index, m.index + m[0].length]);
+  }
+  if (!spans.length) return 0;
+  spans.sort((a, b) => a[0] - b[0]);
+  let n = 1, end = spans[0][1];
+  for (const [s0, e0] of spans.slice(1)) {
+    if (s0 >= end) { n++; end = e0; }        // disjoint — a genuinely separate statement
+    else if (e0 > end) end = e0;             // overlapping — same statement, extend the span
+  }
+  return n;
+};
 
 // FATE, banned on every surface. BASE_PROMPT already bends fate-verbs back into the reader's hands
 // ("AGENCY — FATE BECOMES POTENTIAL"), but the words themselves were enforced nowhere: not in a
@@ -560,6 +608,40 @@ export function guardViolation(fullText: string, maxWords: number, bannedPhrases
   return null;
 }
 
+/**
+ * THE VETO LANDS ONCE — David, 2026-07-21, after reading four pulls side by side.
+ *
+ * Two failures, one guard, because they are the same failure at opposite ends:
+ *
+ *  1. THE VETO VANISHES. Vishti is "finish, don't start" — a hard block, in the payload every
+ *     time. One pull said it, the next didn't. His standard: "A user should be able to trust when
+ *     it tells them it's raining."
+ *
+ *  2. THE VETO IS RE-ARGUED. The other pull stated it FOUR times — "keep everything small, finish
+ *     nothing new" / "nothing new starts, nothing gets severed" / "Nothing is launched today.
+ *     Nothing is sealed." / "let the outcome wait". Saying it four times doesn't add confidence,
+ *     it spends it: the reader starts skimming, and a skimming reader misses the veto even when
+ *     it IS there. Each restatement is also vaguer than the engine's own words.
+ *
+ * WHERE THE LINE FALLS IS DAVID'S CORRECTION TO MY FIRST RULE. I wanted the instruction to appear
+ * exactly once, anywhere. He rejected that: "The last question and the closing statement should
+ * mirror the verdict to seal the deal. Both are later on in a user's reading, literally reading of
+ * the words as they go down the screen in time." So the close is a SEAL, not a repetition — the
+ * reader meets it last and needs the first thing restated. The budget therefore governs the MIDDLE
+ * only (scene · story · tilt); closeLine and question are deliberately exempt and encouraged to
+ * echo the verdict.
+ */
+export function vetoViolation(r: DayRead, vishti: boolean): string | null {
+  const middle = [r.scene, r.story, r.tilt].join(" ");
+  const whole = [r.scene, r.story, r.tilt, r.closeLine].join(" ");
+  if (vishti && countNoBeginnings(whole) === 0)
+    return `YOU DROPPED THE DAY'S VETO: this day blocks BEGINNING anything — it is a finish-don't-start day, and your prose never says so. Say it plainly, in your own words, in the guidance. Do NOT name the mechanism (no "Vishti", no "karana") — just tell them nothing new begins today and what to do instead: continue, complete, repair.`;
+  const inMiddle = countNoBeginnings(middle);
+  if (inMiddle > 1)
+    return `YOU SAID IT ${inMiddle} TIMES: "nothing new begins" appears ${inMiddle} times before your closing line. Say it ONCE, where it belongs, then move on — every other paragraph must add something NEW (a when, a where, a what-to-do-instead) or say nothing. Repeating the instruction does not make it stronger; it makes the reader skim. Your closing line and question may still echo it — that is the seal, and it is welcome.`;
+  return null;
+}
+
 /** David's roll call, ENFORCED (Venus vanished twice): every loaded planet the input
  *  names must appear in the prose by NAME. Returns the correction, or null. */
 export function missingCast(fullText: string, requiredNames?: string[]): string | null {
@@ -599,6 +681,9 @@ async function callGuarded<T>(o: {
   c: Anthropic; tail: string; toolName: string; schema: any; input: NarrativeInput;
   maxTokens: number; maxWords: number; complete: (x: any) => x is T; textOf: (x: T) => string;
   bannedPhrases?: string[];
+  /** A read-specific guard over the PARSED object (not just its flattened text) — used by the day
+   *  read for the veto/repetition budget, which needs to tell the middle from the closing line. */
+  extraGuard?: (x: T) => string | null;
   /** Present only on a day the Moon changes star — see missingTurn. */
   starTurn?: { toStar?: string; atLocalTime?: string } | null;
   requiredNames?: string[];
@@ -626,7 +711,7 @@ async function callGuarded<T>(o: {
   };
   let best = await run();
   if (!best) return null;
-  let bad = guardViolation(o.textOf(best), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(best), o.requiredNames) ?? missingTurn(o.textOf(best), o.starTurn);
+  let bad = guardViolation(o.textOf(best), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(best), o.requiredNames) ?? missingTurn(o.textOf(best), o.starTurn) ?? (o.extraGuard?.(best) ?? null);
   if (!bad) return best;
   // Up to TWO corrective retries (3 attempts total), each naming the exact violation. Return the
   // first CLEAN result; if none comes back clean, serve the last best-effort rather than a blank
@@ -635,7 +720,7 @@ async function callGuarded<T>(o: {
   for (let attempt = 1; attempt <= 2 && bad; attempt++) {
     console.warn(`[narrative] ${o.toolName} tripped a guard (attempt ${attempt}), regenerating: ${bad}`);
     const next = await run(`CRITICAL — your previous attempt was REJECTED. ${bad} Return the ${o.toolName} tool again, fully corrected.`);
-    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(next), o.requiredNames) ?? missingTurn(o.textOf(next), o.starTurn); }
+    if (next) { best = next; bad = guardViolation(o.textOf(next), o.maxWords, o.bannedPhrases, o.skipMachinery) ?? missingCast(o.textOf(next), o.requiredNames) ?? missingTurn(o.textOf(next), o.starTurn) ?? (o.extraGuard?.(next) ?? null); }
   }
   return best;
 }
@@ -663,6 +748,10 @@ export async function generateDayRead(input: NarrativeInput): Promise<DayRead | 
         (input as any).dasha?.antarDasha?.lord,
       ].filter(Boolean))) as string[],
       complete: isCompleteDayRead,
+      // THE VETO LANDS ONCE — see vetoViolation. Needs the parsed object, not the flattened text,
+      // because the budget governs the MIDDLE only: David ruled the closing line and the question
+      // should mirror the verdict to seal it, since the reader meets them last.
+      extraGuard: (r) => vetoViolation(r, !!(input as any).panchang?.karana?.vishti),
       // The question is one short line, excluded from the story's word budget.
       textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
     });
