@@ -64,7 +64,7 @@ export async function timeLordCurrentSign(planet: string): Promise<string | null
 
 function getNakshatraFromLongitude(longitude: number): string {
   const NAKSHATRAS = [
-    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashirsha", "Ardra",
+    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
     "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
     "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
     "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishtha", "Shatabhisha",
