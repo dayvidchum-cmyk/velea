@@ -393,6 +393,19 @@ run server/vedic/day-filter.ts 'const label = PLAIN_TARA[taraNum]?.label;' 'cons
 run server/vedic/day-filter.ts '? (supports.length === 0 ? null : "THE DAY OFFERS IT' '? ("THE DAY OFFERS IT' \
   server/vedic/day-filter.test.ts "the headline claims an offer on a day that offers nothing again"
 
+# THE DOOR GATE — it stands between a tap and a billed LLM call, so all three ways it could fail
+# open or fail shut get broken on purpose: the rule, the fail-open posture, and the wiring.
+run shared/ground-gate.ts 'return decision === "unasked";' 'return false;' \
+  shared/ground-gate.test.ts "the gate stops withholding and every reading generates unasked"
+# The dangerous direction: "unknown" means the column is not there yet. If it ever withholds, the
+# app deploying ahead of its migration silently stops generating EVERY reading for EVERY profile.
+run shared/ground-gate.ts 'return decision === "unasked";' 'return decision !== "confirmed";' \
+  shared/ground-gate.test.ts "an unmigrated database withholds every reading (the outage shape)"
+# BUILT BUT WIRED TO NOTHING (the v884 failure). The rule can be perfect and cost-free if nothing
+# calls it — and no unit test can reach guardedGen, which holds the database.
+run server/narrative/service.ts 'if (withholdGeneration(await groundDecision(profileId))) return null;' '' \
+  shared/ground-gate.test.ts "the gate is lifted out of guardedGen and guards nothing"
+
 # THE LOCATION TIERS TRAVEL WITH THE SUBJECT (v902). Drop either half back off AstrologySubject and
 # the 11 subject-shaped resolveDaySky call sites go back to reading everyone from the account's city.
 run server/astrology-subject.ts 'isOwner: !!p.isOwner,' '' \

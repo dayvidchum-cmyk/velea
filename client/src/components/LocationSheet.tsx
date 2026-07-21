@@ -65,6 +65,11 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
       setErrorMsg(err.message);
     },
   };
+  // Whether the door gate is still waiting on this profile. Read from the SAME query the chip and
+  // the gate card use, so all three agree and one invalidation clears all three.
+  const needsGroundConfirm = !!trpc.settings.getReadingLocation.useQuery().data?.needsGroundConfirm;
+  const confirmGround = trpc.settings.confirmGround.useMutation();
+
   const setLocation = trpc.settings.setLocation.useMutation(onSaved);
   const setDayLocation = trpc.profiles.setDayLocation.useMutation(onSaved);
   const clearDayLocation = trpc.profiles.clearDayLocation.useMutation(onSaved);
@@ -75,6 +80,16 @@ export default function LocationSheet({ open, onClose, context }: LocationSheetP
       await setDayLocation.mutateAsync({ profileId: context!.profileId!, date: context!.date!, ...v });
     } else {
       await setLocation.mutateAsync(v);
+      // THE DOOR GATE'S OTHER ANSWER (2026-07-21). Someone who reached this sheet from the gate
+      // card said "no, the ground is wrong" and has now said what is right. Saving here is that
+      // answer, so it stamps — otherwise the gate stays shut, no reading ever generates, and the
+      // person is stranded with no way to tell the app they already fixed it.
+      //
+      // ONLY while the gate is pending. Stamping on every save would overwrite the hometown with
+      // whatever city was entered, which is exactly wrong for the common case this app is built
+      // for: someone travelling sets their CURRENT location, and their home base must survive it.
+      // The two tiers exist to be different; this must not collapse them.
+      if (needsGroundConfirm) await confirmGround.mutateAsync({ decision: "confirm", ...v });
     }
   }
 

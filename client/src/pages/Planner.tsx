@@ -6,6 +6,7 @@ import { useLocation } from "wouter";
 import ProseLoading from "@/components/ProseLoading";
 import KeptReadings from "@/components/KeptReadings";
 import LocationChip from "@/components/LocationChip";
+import GroundGate from "@/components/GroundGate";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import OctagramMark from "@/components/OctagramMark";
 import PlanetMark, { PLANET_MARK_INK } from "@/components/PlanetMark";
@@ -1479,6 +1480,7 @@ export default function Planner() {
       {calendarOpen && (
         <div className="space-y-5">
       {/* Current location — above the calendar so it's always in view and one tap to change (David). */}
+      <GroundGate accent={calModeColor} />
       <LocationChip accent={calModeColor} />
       {/* ── 1. CALENDAR ── */}
       <div

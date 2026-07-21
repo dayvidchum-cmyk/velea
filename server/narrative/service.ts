@@ -9,6 +9,7 @@ import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import canonYogasJson from "../vedic/canon/yogas.json";
 import PLANET_IN_HOUSE_CANON from "../vedic/canon/planet-in-house.json";
 import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache, countGenerationsToday, groundDecision } from "../db.js";
+import { withholdGeneration } from "../../shared/ground-gate.js";
 
 // PROMPT_VERSION is part of the key so a prompt change busts the cache — otherwise a
 // stale read (generated under an older prompt) keeps being served until the chart data
@@ -136,7 +137,7 @@ async function guardedGen<T>(profileId: number, key: string, fn: () => Promise<T
   // reading already generated stays readable — the gate withholds new spend, never existing work.
   //
   // "unknown" (no DB, or column not yet migrated) leaves it open by design; see groundDecision.
-  if (await groundDecision(profileId) === "unasked") return null;
+  if (withholdGeneration(await groundDecision(profileId))) return null;
   if (await overDailyCap(profileId)) return null;
   return singleFlight(key, async () => {
     // COUNT THE CALLS, NOT THE RESULTS (v806). This used to count one event per non-null result,

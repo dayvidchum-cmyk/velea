@@ -704,6 +704,42 @@ export async function groundDecision(profileId: number): Promise<GroundDecision>
   }
 }
 
+// Record the door's answer. BOTH answers stamp — a decline is a decision, and David's ruling is
+// that it is remembered so the door never asks twice. `hometown` is present only when the person
+// said the ground was wrong and gave the right one; a bare confirm stamps and changes nothing.
+//
+// The stamp and the hometown go in ONE update: a confirm that wrote the city and then failed to
+// stamp would ask again forever, and a stamp that landed without the city would gate a profile
+// into a ground it had just corrected.
+export async function setGroundDecision(
+  profileId: number,
+  hometown?: { city: string; lat: string; lon: string; timezone: string },
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    await db
+      .update(profiles)
+      .set({
+        hometownConfirmedAt: new Date(),
+        ...(hometown
+          ? {
+              hometownCity: hometown.city,
+              hometownLat: hometown.lat,
+              hometownLon: hometown.lon,
+              hometownTimezone: hometown.timezone,
+            }
+          : {}),
+      })
+      .where(eq(profiles.id, profileId));
+    return true;
+  } catch {
+    // Same fail-open posture as groundDecision: an unmigrated column must not surface as an error
+    // to someone answering a question. They stay unasked; nothing breaks.
+    return false;
+  }
+}
+
 /** @returns true if the row actually landed in the table; false if it is only being HELD
  *  in-process (see heldRows). Callers may ignore it — the reading is served either way — but a
  *  `false` means this reading will not survive a restart and is not in the archive. */

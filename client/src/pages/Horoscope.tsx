@@ -15,6 +15,7 @@ import GlossaryText from "@/components/GlossaryText";
 import MasterModeCard from "@/components/MasterModeCard";
 import HoraCard from "@/components/HoraCard";
 import LocationChip from "@/components/LocationChip";
+import GroundGate from "@/components/GroundGate";
 import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
 import { trpc } from "@/lib/trpc";
 
@@ -421,6 +422,7 @@ export default function Horoscope() {
         </p>
 
         {/* Current location — above the calendar so it's always in view and one tap to change (David). */}
+        <GroundGate accent={modeColor} />
         <LocationChip accent={modeColor} />
 
         {/* ── Calendar ── (parchment chart artifact; .parchment re-inks its token-driven text) */}

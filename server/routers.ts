@@ -58,10 +58,12 @@ import {
   getReferralCode,
   redeemReferralCode,
   listReferralActivity,
+  groundDecision,
+  setGroundDecision,
 } from "./db";
 import { getDayField, dayModeToTaskMode } from "./panchang/service.js";
 import { getTimezoneOffset } from "./panchang/tz-offset.js";
-import { resolveDaySky, localToday, type DaySky } from "./panchang/resolve-day-sky.js";
+import { resolveDaySky, localToday, invalidateDayOverrides, type DaySky } from "./panchang/resolve-day-sky.js";
 import { NAKSHATRA_MODIFIERS, TITHI_PHASE_MODIFIER, STRONG_RESTRAINT_TITHIS, STRONG_RESTRAINT_ADDITIONAL_MODIFIER, FIELD_CONDITION_MODIFIERS, SELECTIVE_BIAS_STRENGTH, FLEX_RESOLUTION, CONFIDENCE_CONFIG } from "./panchang/modifier-config.js";
 import { calculateFinalMode, HOUSE_MODE } from "./panchang/interpreter.js";
 import { SESSION_TTL_MS } from "./db.js";
@@ -1039,8 +1041,46 @@ export const appRouter = router({
         // them apart without this. (David, 2026-07-21: "not set for them" is noise when the value
         // is right.)
         isOwner: subject?.isOwner ?? false,
+        // THE DOOR GATE (2026-07-21). Rides on the query the chip already makes rather than a
+        // second round-trip, because every surface that can open a door already renders the chip.
+        //
+        // True only while the profile has never answered. It cannot be derived from `source`: the
+        // hometown tier is seeded from the birth city for every profile, so "has a hometown" says
+        // nothing about whether a human ever chose it. See scripts/add-hometown-confirmed.ts.
+        needsGroundConfirm: subject?.profileId != null
+          ? (await groundDecision(subject.profileId)) === "unasked"
+          : false,
       };
     }),
+
+    // The door's answer. Both answers stamp — a decline is a decision and is remembered, so the
+    // door asks once per profile and then never again (David's ruling, 2026-07-21).
+    confirmGround: protectedProcedure
+      .input(
+        z.object({
+          decision: z.enum(["confirm", "decline"]),
+          // Present only when the person said the ground was wrong and supplied the right one.
+          // Same bounds as setLocation: an unbounded or non-numeric value either overflows the
+          // varchar or becomes a NaN inside every downstream ephemeris call.
+          city: z.string().min(1).max(128).optional(),
+          lat: z.string().max(24).refine((v) => Number.isFinite(parseFloat(v)) && Math.abs(parseFloat(v)) <= 90, "Invalid latitude").optional(),
+          lon: z.string().max(24).refine((v) => Number.isFinite(parseFloat(v)) && Math.abs(parseFloat(v)) <= 180, "Invalid longitude").optional(),
+          timezone: z.string().max(64).optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const profileId = ctx.subject?.profileId;
+        if (profileId == null) return { success: false };
+        // A partial location is not a location. Either all four fields arrive or the answer is
+        // recorded as a bare stamp — writing three of four would leave a half-built ground that
+        // resolveDaySky's `hasHometown` check (lat && lon) could still select.
+        const full = input.city && input.lat && input.lon && input.timezone
+          ? { city: input.city, lat: input.lat, lon: input.lon, timezone: input.timezone }
+          : undefined;
+        const ok = await setGroundDecision(profileId, input.decision === "confirm" ? full : undefined);
+        if (ok && full) invalidateDayOverrides(profileId);
+        return { success: ok };
+      }),
 
     // Resolve the IANA timezone for a coordinate (offline, no key). Used to
     // auto-fill the birth timezone once a location is geocoded.
