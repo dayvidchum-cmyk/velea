@@ -371,7 +371,7 @@ run server/narrative/generate.ts 'const TARA_NAMES = "janma' 'const TARA_NAMES =
   server/narrative/veto-budget.test.ts "the rung names ship to the reader again"
 # THE LAST MILE. The retry guard is not a guarantee — three refusals and the best draft ships — so
 # the deterministic scrub is the only thing that cannot be talked out of it.
-run server/narrative/generate.ts '[/\\bnaidhana\\b/gi, "the loss star"],' '' \
+run server/narrative/generate.ts '[/\bnaidhana\b/gi, "the loss star"],' '' \
   server/narrative/veto-budget.test.ts "a rung name survives the scrub and reaches the reader"
 run server/narrative/generate.ts 'for (const [re, rep] of SIGN_SCRUB) out = out.replace(re, rep);' '' \
   server/narrative/veto-budget.test.ts "sign names survive the scrub (David's Scorpio leak)"
