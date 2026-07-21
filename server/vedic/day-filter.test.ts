@@ -324,10 +324,25 @@ describe("the headline is gated by the native's own ground, not just the collect
     expect(contained.sentence).toMatch(/keep everything small/);
   });
 
+  // v897 — MIXED, not just BAD. v896 gated on "bad" alone and David's own card proved it half-
+  // fixed: "LEANING RESTRAINT" still sat above "BOLD MOVES LAND WELL TODAY — GO", because the rung
+  // under the mode word is `quality === "good" ? deep/mid : thin/leaning` — so a MIXED tara reads
+  // as restraint on screen while the headline still shouted. The screen's test for hostile ground
+  // is `!== "good"`; the headline must use the SAME one or they drift apart again.
   it("softened-hostile ground keeps the sky visible but stops addressing it as an order", () => {
-    const hostile = dayFilter({ ...goDay, tara: { quality: "bad", taraNum: 3, cycle: 1 } });
-    expect(hostile.contained).toBe(false);
-    expect(hostile.headline).toBe("THE DAY OFFERS IT — YOUR GROUND DOESN'T");
+    for (const quality of ["bad", "mixed"] as const) {
+      const hostile = dayFilter({ ...goDay, tara: { quality, taraNum: 3, cycle: 1 } });
+      expect(hostile.contained).toBe(false);
+      expect(hostile.headline).toBe("THE DAY OFFERS IT — YOUR GROUND DOESN'T");
+    }
+  });
+
+  it("no rung that reads as restraint on screen may carry a headline that orders movement", () => {
+    for (const quality of ["bad", "mixed"] as const)
+      for (const taraNum of [2, 3, 5, 6, 7, 9]) {
+        const d = dayFilter({ ...goDay, tara: { quality, taraNum, cycle: 1 } });
+        expect(d.headline ?? "").not.toMatch(/BOLD MOVES|Useful motion|\bGO\b/);
+      }
   });
 
   it("no hostile native is ever handed a headline that orders bold movement", () => {

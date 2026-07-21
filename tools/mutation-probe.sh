@@ -352,7 +352,7 @@ run server/narrative/input-builder.ts 'for (const [re, who] of PERSON_WORDS) if 
 # native. Break the gate and the contradiction must come back loudly.
 run server/vedic/day-filter.ts 'const headline = contained' 'const headline = false' \
   server/vedic/day-filter.test.ts "a contained day shouts the collective GO headline again"
-run server/vedic/day-filter.ts ': input.tara?.quality === "bad"' ': false' \
+run server/vedic/day-filter.ts ': input.tara && input.tara.quality !== "good"' ': false' \
   server/vedic/day-filter.test.ts "hostile ground is handed the collective order again"
 
 echo

@@ -606,7 +606,13 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     // The loss-star at full force: the mode word and the sentence already say it. Silence beats a
     // third line arguing with them.
     ? null
-    : input.tara?.quality === "bad"
+    // NOT-GOOD, not merely "bad" (v897 — David's own card proved v896 half-fixed). The rung under
+    // the mode word is computed as `quality === "good" ? deep/mid : thin/leaning`, so EVERY
+    // non-good tara — mixed included — surfaces as restraint on screen. Gating on "bad" alone left
+    // mixed days showing "LEANING RESTRAINT" above "BOLD MOVES LAND WELL TODAY — GO", which is the
+    // original contradiction still standing. The screen's own test for hostile ground is
+    // `!== "good"`; the headline now uses the same one, so the two cannot drift apart again.
+    : input.tara && input.tara.quality !== "good"
     // Softened-hostile ground — the collective day really does offer this, and that stays true and
     // visible; what changes is that it is no longer addressed to this native as an instruction.
     ? "THE DAY OFFERS IT — YOUR GROUND DOESN'T"
