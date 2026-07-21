@@ -680,8 +680,13 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
 }
 
 // Name the rung that chose the line (David's law, 2026-07-21), in the grammar v901 already set for
-// its tara-7 sibling: "The loss star holds the day". Same shape, opposite end of the ladder, so the
-// two lines read as one family instead of two authors.
+// its tara-7 sibling — "The <rung> star <verb> the day". Same shape, opposite end of the ladder, so
+// the two lines read as one family instead of two authors.
+//
+// Deliberately NOT quoting that sibling's copy verbatim here: v901's probe anchors on the literal
+// string, and an exact quotation in a comment makes the anchor match twice, which the harness
+// reports as stale and which silently stops exercising that guard. Prose about a guarded string
+// must not reproduce it.
 //
 // PLAIN_TARA is the source. If a rung ever goes missing from it, this says something true about the
 // day rather than guessing a name — a wrong rung is the exact defect being repaired here.
