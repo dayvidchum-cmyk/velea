@@ -268,6 +268,23 @@ describe("Mercury's arc: neither begin nor end, and the beginnings become the au
     expect(rx.audit).not.toContain("good work begun with intent");
   });
 
+  it("a day's OWN supports are audited too, not just a yoga's", () => {
+    // THE PROBE CAUGHT THIS GAP. Every case above draws its beginning from the Siddha grid, which
+    // is added in the yoga branch — so the base-supports filter had no test at all and could be
+    // deleted with the suite green. Hasta carries "beginning business activities" in its own
+    // per-star list, with no yoga involved.
+    const clear = dayFilter({ nakshatra: "Hasta", tithiNumber: 1, varaLord: "Moon", vishti: false } as any);
+    expect(clear.siddhaYoga, "fixture must NOT form a yoga, or it proves the wrong thing").toBeNull();
+    expect(clear.amritaSiddhi).toBe(false);
+    expect(clear.supports, "fixture lost its own beginning").toContain("beginning business activities");
+
+    const rx = dayFilter({ nakshatra: "Hasta", tithiNumber: 1, varaLord: "Moon", vishti: false, mercuryRx: true } as any);
+    expect(rx.supports).not.toContain("beginning business activities");
+    expect(rx.audit).toContain("beginning business activities");
+    // and the craft half of the same star survives
+    expect(rx.supports).toContain("learning new skills");
+  });
+
   it("a special yoga cannot put beginnings back — Raman's own limit", () => {
     // Monday + tithi 7 IS a Siddha weekday-tithi pairing, so this fixture forms the yoga whose
     // supports are the strings in question. The yoga raises the odds; it removes no obstacle.

@@ -271,8 +271,14 @@ run client/public/marketing/system.html '<circle cx="200" cy="190" r="159"' '<ci
 run server/vedic/day-filter.ts 'if (input.mercuryRx) {\n    vetoes.push' 'if (false) {\n    vetoes.push' \
   server/vedic/day-filter.test.ts "a retrograde day offers beginnings again"
 # The beginnings being DELETED instead of turned into the audit ("this can be simplified to auditing").
+# THIS PROBE SURVIVED ON ITS FIRST RUN and was right to: every case then in the test drew its
+# beginning from the YOGA branch, so the base-supports line below had no coverage at all. A test
+# with its own no-yoga fixture (Hasta, tithi 1, Monday) was added rather than the probe re-aimed.
 run server/vedic/day-filter.ts 'audit = supports.filter((s) => MERCURY_RX_BLOCKS.has(ACT_CLASS[s] ?? "initiate"));' 'audit = [];' \
-  server/vedic/day-filter.test.ts "the withheld acts vanish instead of becoming the audit"
+  server/vedic/day-filter.test.ts "a day's OWN withheld acts vanish instead of becoming the audit"
+# ...and the same for the yoga's half, which is where David's two strings actually came from.
+run server/vedic/day-filter.ts 'if (input.mercuryRx) audit = [...audit, ...extra.filter((x) => MERCURY_RX_BLOCKS.has(ACT_CLASS[x] ?? "initiate"))];' 'if (false) audit = [...audit];' \
+  server/vedic/day-filter.test.ts "a yoga's withheld acts vanish instead of becoming the audit"
 # "good work begun with intent" being re-classed as a launch, which David corrected in person.
 run server/vedic/day-filter.ts '"good work begun with intent": "continue",' '"good work begun with intent": "initiate",' \
   server/vedic/day-filter.test.ts "deliberateness gets filtered out as an initiation again"
