@@ -8,7 +8,7 @@ import type { LifeAreaKey } from "../vedic/life-areas.js";
 import { MODEL, PROMPT_VERSION, SURFACE_VERSION } from "./prompts.js";
 import canonYogasJson from "../vedic/canon/yogas.json";
 import PLANET_IN_HOUSE_CANON from "../vedic/canon/planet-in-house.json";
-import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache, countGenerationsToday } from "../db.js";
+import { getNarrativeCache, getLatestNarrativeCache, upsertNarrativeCache, countGenerationsToday, groundDecision } from "../db.js";
 
 // PROMPT_VERSION is part of the key so a prompt change busts the cache — otherwise a
 // stale read (generated under an older prompt) keeps being served until the chart data
@@ -124,6 +124,19 @@ async function overDailyCap(profileId: number): Promise<boolean> {
 // inside the single-flight so coalesced duplicate callers count once, and cache HITS never reach
 // here (each surface checks its cache before calling this), so re-reads are free and uncounted.
 async function guardedGen<T>(profileId: number, key: string, fn: () => Promise<T>): Promise<T | null> {
+  // THE DOOR GATE (2026-07-21, David's ruling: the confirm happens at the door, before generation
+  // — "and it saves money"). No billed reading is cast on a sky nobody chose.
+  //
+  // Placed HERE, at the one choke point all 17 generation sites already pass through, rather than
+  // beside each `peek` short-circuit — a per-surface gate is how a surface gets forgotten, and the
+  // daily cap directly above proves this is the right altitude for "am I allowed to generate?".
+  //
+  // Degrades EXACTLY like the cap and the dry wallet: null, no generation, caller falls back to
+  // static copy. Nothing new to handle downstream. Cache HITS never reach this function, so a
+  // reading already generated stays readable — the gate withholds new spend, never existing work.
+  //
+  // "unknown" (no DB, or column not yet migrated) leaves it open by design; see groundDecision.
+  if (await groundDecision(profileId) === "unasked") return null;
   if (await overDailyCap(profileId)) return null;
   return singleFlight(key, async () => {
     // COUNT THE CALLS, NOT THE RESULTS (v806). This used to count one event per non-null result,

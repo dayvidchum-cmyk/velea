@@ -673,6 +673,37 @@ export async function countGenerationsToday(profileId: number): Promise<number> 
   return Number(rows[0]?.n ?? 0);
 }
 
+// THE DOOR GATE'S ONE QUESTION (2026-07-21): has a human ever confirmed this profile's ground?
+//
+// Returns "confirmed" once a decision — EITHER answer — has been stamped, "unasked" when the
+// column is there and still NULL, and "unknown" when the question cannot be answered at all
+// (no database, or the column does not exist because the migration has not been run yet).
+//
+// "unknown" must leave the gate OPEN. A reading is the product; an infrastructure gap is never a
+// reason to withhold one. This repo has already lost a day to the opposite instinct — a cache
+// column too narrow for its keys took down billed readings — so the rule is the same one written
+// then: a missing piece of bookkeeping never kills a read.
+//
+// Selects the ONE column by name rather than the row, so it does not drag every other declared
+// column into a query that must survive a database mid-migration.
+export type GroundDecision = "confirmed" | "unasked" | "unknown";
+export async function groundDecision(profileId: number): Promise<GroundDecision> {
+  const db = await getDb();
+  if (!db) return "unknown";
+  try {
+    const rows = await db
+      .select({ at: profiles.hometownConfirmedAt })
+      .from(profiles)
+      .where(eq(profiles.id, profileId))
+      .limit(1);
+    if (!rows.length) return "unknown";        // no such profile — not this gate's business
+    return rows[0].at ? "confirmed" : "unasked";
+  } catch {
+    // Unknown column → the migration has not run. Gate off, readings unaffected.
+    return "unknown";
+  }
+}
+
 /** @returns true if the row actually landed in the table; false if it is only being HELD
  *  in-process (see heldRows). Callers may ignore it — the reading is served either way — but a
  *  `false` means this reading will not survive a restart and is not in the archive. */

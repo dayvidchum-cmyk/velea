@@ -370,6 +370,17 @@ export const profiles = mysqlTable("profiles", {
   hometownLat: varchar("hometownLat", { length: 24 }),
   hometownLon: varchar("hometownLon", { length: 24 }),
   hometownTimezone: varchar("hometownTimezone", { length: 64 }),
+  // THE DOOR GATE (2026-07-21, David's ruling). A hometown above is NOT evidence anyone chose it:
+  // add-location-model.ts backfilled every existing profile's hometown from its birth city, and
+  // profiles.ts:531 seeds every new one the same way, so `hasHometown` is true for effectively
+  // every profile and the resolver's `birth` tier is unreachable. The tier therefore cannot answer
+  // "did a human confirm this ground?" — nothing could, so this column exists to.
+  //
+  // NULL = never asked. Stamped on EITHER answer: confirming and declining are both decisions, and
+  // a decline is remembered so the door never nags (his ruling). Until it is stamped, no billed
+  // reading generates for the profile — a reading cast on a guessed city is a wrong sunrise, a
+  // wrong day-turn, and a bill the user pays again the moment they set their real city.
+  hometownConfirmedAt: timestamp("hometownConfirmedAt"),
   // Last time the BIRTH DATA actually changed (not any edit) — drives the 24h edit
   // cooldown that stops profile "hijacking" (swapping to a friend's data and back).
   birthDataUpdatedAt: timestamp("birthDataUpdatedAt"),
