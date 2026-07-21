@@ -60,14 +60,85 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v879 · 20 July 2026 · every number below was printed by running something</p>
+  <p class="sub">v902 · 21 July 2026 · every number below was printed by running something</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">99</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">8</div><div class="l">Still broken</div></div>
-    <div class="score"><div class="n warn">9</div><div class="l">Your call</div></div>
-    <div class="score"><div class="n">1154</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n good">122</div><div class="l">Fixed</div></div>
+    <div class="score"><div class="n bad">9</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n warn">10</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n">1282</div><div class="l">Tests passing</div></div>
   </div>
+
+  <h2>Since v879 — the twenty-three releases this page had not seen</h2>
+  <p class="lead">
+    This sheet sat at v879 while the app went to v902. That is the longest it has been stale, and it is on me.
+    Each line below is one release, named by what it repaired. <b>1282 tests across 122 files, 0 failures.
+    114 mutation probes, all caught. <code>tsc</code> exit 0, build exit 0, and velealor.com answers v902.</b>
+    Those five numbers were printed by running the suite, the probe harness, the compiler, the build and the
+    live site — not carried forward.
+  </p>
+  <ul class="plain">
+    <li><b>v880</b> — the year read was re-billing every morning, and two rows marked “done” were not.</li>
+    <li><b>v881</b> — every premium gate on Readings was telling the reader something false about the sky.</li>
+    <li><b>v882</b> — the fate ban was written in the prompt and enforced nowhere.</li>
+    <li><b>v883</b> — Mercury retrograde: the prompt said “neither begin nor end” and the payload said the opposite.</li>
+    <li><b>v884–v885</b> — addresses and contacts: each planet keeps its address, the pair names the convention it
+      breaks. v884 built it; <b>v885 is the wiring v884 claimed to have done.</b></li>
+    <li><b>v886–v887</b> — the meter: the model choice is measured rather than the wallet watched, and the exchange
+      is counted. All six ship, per your ruling.</li>
+    <li><b>v888</b> — both version markers bump together. A release the app cannot name is a release you cannot verify.</li>
+    <li><b>v889–v891</b> — self-worth becomes self-love, and the ban is <i>enforced</i> rather than requested. Your
+      correction landed in v890: don’t replace one default with another. v891 built the half v889 had only documented.</li>
+    <li><b>v892</b> — an audit salt that had never been bumped, plus wiring guards on the two fields added that day.</li>
+    <li><b>v893–v895</b> — a facet that named death met a law forbidding it and nothing said which won; every facet now
+      arrives with a subject and there is no “both”; the relationship verb is lifted from the house doctrine
+      <i>you</i> wrote, not invented beside it.</li>
+    <li><b>v896–v897</b> — <b>the headline is personal, not collective.</b> You read one date on three profiles and all
+      three were ordered “BOLD MOVES LAND WELL TODAY — GO”, one of them above its own sentence saying keep everything
+      small. Gated at the producer, so the calendar and the model payload cannot drift apart. v897 fixed the half of
+      it that still leaked: <i>mixed</i> tara reads as restraint on screen too.</li>
+    <li><b>v898</b> — the location chip names <i>who</i> is being read and the city the reading actually used.</li>
+    <li><b>v899–v900</b> — the veto lands once and never names itself; the rung names translate and the Sanskrit sign
+      names come out of the prose.</li>
+    <li><b>v901</b> — <b>your law, built.</b> See the row below.</li>
+    <li><b>v902</b> — <b>the location tiers travel with the subject.</b> See the row below.</li>
+    <li>Between releases: a profile no longer inherits someone else’s city; the year’s protagonist had no natal
+      condition, so two identical Venus years read the same; seven nakshatra tables carried two spellings, one edit
+      from a silent bug. Three guards were caught guarding nothing and repaired.</li>
+  </ul>
+
+  <h2>Today’s two, in full</h2>
+
+  <div class="ask"><b>Your law — “nothing should be hardcoded unless the data that decides it is displayed where it
+    is displayed, and what it says is accurate to the data.”</b>
+    <span class="why">You asked it as a question; it answers as a law. A hardcoded string is legitimate only if the
+    data that selected it is visible at the same place <i>and</i> the words are true to that data. Otherwise the app
+    asserts something the reader cannot check.
+    <br><br><b>It convicted a line immediately.</b> One sentence read “Your own star turns the day inward.” It fires
+    on exactly one rung — <b>tara 7, Naidhana</b>, which the canon file calls <i>death/vadha, the harshest</i>. A
+    reader hears “your own star” as the star they were born under. That is Janma, tara 1, quality <i>mixed</i> — a
+    rung that can never reach this branch. The line fooled me while I was reading the file, and I repeated it back to
+    you as “not hostile, but your own” when it was the worst rung on the ladder.
+    <br><br>It now says <b>“The loss star holds the day”</b>, and the guard includes a control: the birth star can
+    never reach that branch, which is the whole reason the old copy was wrong. Both halves are probed.
+    <br><br><b>Not closed by this:</b> roughly <b>70</b> other conditional strings in the interpreter and four more
+    branches in the day filter have not been read against the rule. That is its own sweep, and it is next.</span></div>
+
+  <div class="ask"><b>The location tiers travel with the subject — found while changing a label.</b>
+    <span class="why">The sky resolver takes a location object. <b>Eleven of its thirty-three call sites hand it the
+    wrong shape</b> — the chart subject rather than the profile row — and that object carried no <code>isOwner</code>
+    and no hometown fields at all. They are optional, so the eleven type-checked while resolving a
+    <i>different sky</i> than the other twenty-two.
+    <br><br><b>Measured, not reasoned:</b> a non-owner profile born in Newark resolves <b>Newark/birth</b> from the row
+    and <b>Boston/current</b> from the subject — same date, same account. That is the morning’s bug, the one where
+    your six other profiles were all being cast from Boston because that is where your phone is,
+    <b>still live on a third of the paths.</b> The fix had landed in the resolver and a third of the callers could not
+    see it. Four controls now assert both shapes agree on birth ground, hometown, your own chart, and no-ground.
+    <br><br>Then the label you actually asked about. It read “· not set for them” on every borrowed tier including
+    your own chart, where the account’s current city <i>is</i> the right value. Your ruling is built: <b>“follows
+    you”</b> on someone else’s chart, <b>nothing at all</b> on your own. The app-default tier was a third state you
+    had not named — nobody set a location anywhere and Boston is speaking — so it names itself rather than borrowing
+    either other label. <b>Say the word if that third one should be silent too.</b></span></div>
 
   <h2>Read this first</h2>
   <p class="lead">
@@ -78,7 +149,7 @@
     Every correction I made to my own earlier claims is preserved there in full.
   </p>
 
-  <h2>What I need from you — 9</h2>
+  <h2>What I need from you — 10</h2>
   <p class="lead">Only what is still open. Anything you ruled on has been taken off this list —
     <b>you ruled on twelve today</b> — the seven earlier ones plus the three star spellings, what the year
     calendar carries, and what a yoga may say on an emptied day. Two more came off because you RAN something (the
@@ -115,11 +186,17 @@
     Sarvartha Siddhi, Ravi, Dwipushkar and Tripushkar are still not located; that is a search that came back empty
     rather than an assumption.</span></div>
 
-  <div class="ask"><b>2. The knot thresholds.</b>
+  <div class="ask"><b>2. Lang’s birth data — one line from you.</b>
+    <span class="why">Lang’s chart has no birth location and no birth time, so the engine has no ground of its own to
+    stand on: the sky falls through to <i>your</i> current city, which is why the chip now says “follows you” there
+    rather than pretending it was set. Saturn reading as <b>“the father’s old authority”</b> on that chart cannot be
+    checked against anything until the data exists. This is not a decision, it is a fact only you have.</span></div>
+
+  <div class="ask"><b>3. The knot thresholds.</b>
     <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked. You asked
     how we test them with your eyes — I owe you that method, and it is the next thing I build if you want it.</span></div>
 
-  <div class="ask"><b>3. The crown mark — two pieces of your spec are still missing.</b>
+  <div class="ask"><b>4. The crown mark — two pieces of your spec are still missing.</b>
     <span class="why">Your tārā list and your six lucky Moon houses match the engine <i>exactly</i>, and are pinned.
     Still missing: <b>the 11th is not treated as the peak</b> (it weighs the same as the 3rd) and <b>Shubha Tithi</b> is
     handled by the cited family rule rather than your list. Audit in <code>canon/crown-doctrine.md</code>.
@@ -129,26 +206,26 @@
 
   <div class="grp">The look — your palette calls</div>
 
-  <div class="ask"><b>4. The crown mark is gold on a gold coin.</b>
+  <div class="ask"><b>5. The crown mark is gold on a gold coin.</b>
     <span class="why">1.6:1 in light, 1.2:1 in dark — effectively invisible, and the border is the same gold. A darker
     gold reads fine but turns the mark olive, and the crown is your brand. The alternative is keeping the gold and giving
     it a real shadow instead of the gold one it has now.</span></div>
 
-  <div class="ask"><b>5. Parchment ink in dark mode.</b>
+  <div class="ask"><b>6. Parchment ink in dark mode.</b>
     <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night. Light modes are fine. One value
     in the theme block.</span></div>
 
-  <div class="ask"><b>6. Rename the “Parents &amp; Roots” chip?</b>
+  <div class="ask"><b>7. Rename the “Parents &amp; Roots” chip?</b>
     <span class="why">Following your ruling, that area is now explicitly ancestry — the departed, what came down the
     line. The chip still says Parents. <b>“Roots &amp; Ancestry”</b> would match. I do not rename what you look at
     without asking.</span></div>
 
   <div class="grp">The business — money and launch</div>
 
-  <div class="ask"><b>7. Set the price.</b>
+  <div class="ask"><b>8. Set the price.</b>
     <span class="why">Your list is locked. Nothing charges yet. Waiting on Mercury clearing post-shadow, per you.</span></div>
 
-  <div class="ask"><b>8. Stripe keys.</b>
+  <div class="ask"><b>9. Stripe keys.</b>
     <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config,
     yours.</span></div>
 
@@ -156,7 +233,7 @@
 
   <div class="grp">Cleanup</div>
 
-  <div class="ask"><b>9. The pick-a-date precision layer: wire it, or delete it?</b>
+  <div class="ask"><b>10. The pick-a-date precision layer: wire it, or delete it?</b>
     <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing calls
     them. What only they carry is transit-level precision — the exact house each transiting planet occupies and its
     strength score. You asked whether it is built off the textbooks: Bhava Chalit and Ashtakavarga both are, but I have
@@ -217,7 +294,7 @@
     <li><b>The old meaning-engine</b> — deleted. Git holds it; a test asserts it stays gone.</li>
   </ul>
 
-  <h2>Still broken — 8</h2>
+  <h2>Still broken — 9</h2>
   <p class="lead">Named, reproducible, and <b>no longer an upper bound</b>: unlike previous editions, every row below was individually re-checked against the running code on 2026-07-20, not carried forward on trust. <b>Six came off this list
     on 2026-07-20</b>, each with a control proven to fail against the unfixed code first — and two of
     them had been sitting in the FIXED list as false greens (the nakshatra ruling that never reached
@@ -226,6 +303,10 @@
     stale finding — measured against the cited natures it contradicts canon on <b>zero of 27</b>. It
     is pinned now, not rewritten.</p>
   <ul class="plain">
+    <li><span class="tag">READ</span><b>The hardcoded-copy sweep.</b> Your law convicted one line today and it was
+      found by reading, not by a tool. <b>Roughly 70 conditional strings in the interpreter and four more branches in
+      the day filter</b> have not been checked against it — counted with a grep, so treat 70 as the candidate set, not
+      the guilty count. Until that sweep runs, the rule is enforced in two places and assumed everywhere else.</li>
     <li><span class="tag">DATA</span>Copies of the 27-star classification still exist in several
       files. <span style="opacity:.7">(No longer <i>drifting</i>: the interpreter reads the one
       corrected table, and the day-quality list is anchored to canon by a test that is proven able to
@@ -248,7 +329,7 @@
     <li><span class="tag">LOOK</span>The welcome card can show two filled primary buttons.</li>
   </ul>
 
-  <h2>Fixed and verified — 99</h2>
+  <h2>Fixed and verified — 122</h2>
   <p class="lead">
     Each of these was proven broken, fixed, and then proven fixed — most by running something that could have come back
     wrong. Grouped so you can skim.
@@ -329,7 +410,11 @@
   </ul>
 
   <p class="foot">
-    <b>99 fixed + 8 broken + 9 decision-rows + 26 remaining.</b> <b>The totals on this page used to be wrong, and it said they were counted.</b> It claimed 1082
+    <b>122 fixed + 9 broken + 10 decision-rows + 26 remaining.</b> The fixed count is <b>99 carried forward plus the
+    23 releases listed at the top</b> — a record count, one row per release, not a re-audit of the 99. Say the word if
+    you want those re-checked individually the way the eight broken rows were on 20 July; that is a day's work and I
+    will not claim it silently.
+    <br><br><b>The totals on this page used to be wrong, and it said they were counted.</b> It claimed 1082
     tests in one place and 1054 in another (really <b>1137</b>, across 105 → now 110 files), 32
     mutation probes (really <b>66</b>), 14 decision rows in the footer while rendering 11, and 88
     fixed against a heading that said 81. Corrected 2026-07-20 by running the suite, the probe

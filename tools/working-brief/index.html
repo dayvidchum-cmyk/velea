@@ -55,22 +55,31 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v879 · 20 July 2026 · where the app actually stands</p>
+  <p class="sub">v902 · 21 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> 1154 tests, and <b>70 checks that each deliberately break something</b> to confirm the
-    test notices — that second number is the one that matters, and today it earned its keep: it caught two guards I had
-    just written that were not guarding anything.
-    <br><br>The audit was RE-audited today. Two rows sitting in the "fixed" list were <b>false greens</b>: your v852
-    nakshatra ruling had never reached the engine (four stars read as expansion on 57 real days a year), and the
-    paid-length fix had raised a ceiling nobody reads while the prompts still asked for fewer words than the free read.
-    Both are genuinely fixed now, each proven against a control that failed on the old code first.
-    <br><br>Two long-standing blind spots CLOSED because you ran two scripts: a paid reading now records the sky it was
-    actually cast for, and <b>production matches the schema — 25 tables, no drift</b>.
+    <b>Where things stand.</b> <b>1282 tests across 122 files, 0 failures</b>, and <b>114 checks that each deliberately
+    break something</b> to confirm the test notices — that second number is the one that matters. <code>tsc</code> exits
+    0, the build exits 0, and velealor.com answers <b>v902</b>. Every one of those was printed by running it.
+    <br><br><b>You set a law today</b>, in the form of a question: <i>nothing should be hardcoded unless the data that
+    decides it is displayed where it is displayed, and what it says is accurate to the data.</i> It convicted a line
+    within the minute — one sentence said “your own star” while firing only on the <b>loss star</b>, the harshest rung
+    on the ladder, and it had already fooled me into repeating it back to you wrong. That line is fixed and guarded.
+    <br><br><b>Changing one label found something larger.</b> The sky resolver has 33 call sites and <b>11 of them hand
+    it the wrong shape</b> — an object missing the fields that decide which location tier wins. Measured: the same
+    person resolves <b>Newark</b> one way and <b>Boston</b> the other. That is this morning’s bug — your six other
+    profiles all cast from Boston because that is where your phone is — <b>still live on a third of the paths</b>,
+    because the fix had landed in the resolver and a third of the callers could not see it. Fixed, with four controls.
     <br><br>What stands between here and opening is still <b>your price and your Stripe keys</b> — not code.
   </div>
 
-  <h2>1 · Your decisions — 9</h2>
+  <div class="card">
+    <b>Open, and each is yours:</b> Lang’s birth data (Saturn can’t be checked on a chart with no ground), and whether
+    the app-default location tier should announce itself or stay silent. <b>Mine and next:</b> the hardcoded-copy sweep
+    — ~70 more conditional strings that have never been read against your law.
+  </div>
+
+  <h2>1 · Your decisions — 10</h2>
   <p class="lead">
     Only what is still open — anything you ruled on is off this list. The full “what to choose and why” for each is on
     the <a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">audit sheet</a>.
@@ -80,6 +89,11 @@
   <ol class="asks">
         <li><b>RULED &amp; DONE:</b> two conditions to cancel, three+ is “solid.” Built, tested, deployed. A fallen planet now reads as fallen <b>27%</b> of the time instead of <b>4%</b>. It also exposed that <b>Mars in Cancer</b> and <b>Jupiter in Capricorn</b> had been auto-cancelled for every user — fixed. You then asked why I was flagging the last piece instead of fixing it; there was no good reason, so <b>one verse now counts once</b> too.</li>
     <li><b>ANSWERED &amp; DONE:</b> yogas belong to layers — natal ones are lifelong, transits only <i>trigger</i> them. The prompt now says so; it did not before. <b>And you were right about the textbooks:</b> the siddhi grid was in Raman’s <i>Muhurtha</i> Ch.VI all along, a book we already cite. <b>Amrita Siddhi is built</b> — it lifts a day, never clears a veto.</li>
+    <li><b>Lang’s birth data</b> — one line from you. No birth location and no time means the chart has no ground of
+      its own, so its sky falls through to your current city (the chip now says “follows you” there rather than
+      pretending otherwise), and Saturn reading as “the father’s old authority” cannot be checked against anything.</li>
+    <li><b>The app-default location tier</b> — it now says “no location set” rather than borrowing “follows you”. You
+      ruled on the other two states; this third one you never saw. Silent instead? One word.</li>
     <li>The knot thresholds — and how we test them with your eyes.</li>
     <li>The crown mark: the 11th is not the peak, Shubha Tithi uses the family rule. <b>The three smudged star names are RULED</b> — match the spellings we use elsewhere — so the <b>Siddha grid is encoded</b>: 88 days a year form one, against Amrita Siddhi’s 12.</li>
   </ol>
@@ -137,6 +151,7 @@
       <tr><th>Surface</th><th>Reads from</th><th>State</th></tr>
       <tr><td>Today · Cast · all readings</td><td>day-majority star and sign, day-scale mode, the day filter, stored dasha</td><td class="ok">one clock, all the way to the prompt</td></tr>
       <tr><td>Panchang by location</td><td>recomputed at the caller’s coordinates</td><td class="ok">no cross-user leak</td></tr>
+      <tr><td>Whose sky, and where</td><td>override › your current city › hometown › birth › app default — and the account’s city speaks only for your own chart</td><td class="ok">one answer on all 33 paths, controlled four ways</td></tr>
       <tr><td>Planetary condition</td><td>one owner; cancellation travels with dignity, gated on the running period</td><td class="ok">canon-ruled</td></tr>
       <tr><td>Convergence / knots</td><td>one law — weight ranks, lords gate</td><td class="ok">phantom closed</td></tr>
       <tr><td>Yogas</td><td>combustion verdict plus canon cancellations</td><td class="ok">Gaja Keshari can form again</td></tr>
@@ -163,6 +178,10 @@
   <h2>5 · Standing laws</h2>
   <p class="law"><b>Data is the source of truth.</b> The engine locates; the model only voices. Accuracy outranks
     everything — UX and cosmetics included — in every triage.</p>
+  <p class="law"><b>Nothing is hardcoded unless the data that decides it is displayed where it is displayed, and what
+    it says is accurate to the data.</b> Yours, 21 July. A fixed string is legitimate only when the data that selected
+    it is visible in the same place and the words are true to it — otherwise the app asserts something the reader
+    cannot check and I cannot verify. It convicted a line the minute it was stated.</p>
   <p class="law"><b>Fix the source, not the symptom.</b> Name the root in one sentence, then fix the class, not the
     instance. Three times this run I fixed the instance and called the class closed; each time it came back.</p>
   <p class="law"><b>A control that can fail is worth more than a test that passes.</b> Three of my own tests were
@@ -185,6 +204,7 @@
 
   <p class="foot">
     This page is the state of the app. The audit sheet is the state of the work. They no longer repeat each other, and
-    they list the same fourteen decisions. Source: <code>tools/working-brief/index.html</code>.
+    they list the same ten open decisions. Both sat at v879 while the app went to v902 — twenty-three releases — which
+    is the longest they have been stale. Source: <code>tools/working-brief/index.html</code>.
   </p>
 </div>
