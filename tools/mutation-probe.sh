@@ -340,8 +340,10 @@ run server/panchang/resolve-day-sky.ts 'if (currentTierApplies(p) && u?.location
 # reachable by nobody. These break the WIRING, not the helpers.
 run server/narrative/input-builder.ts 'praty?.lord, pf.timeLord' 'praty?.lord' \
   server/narrative/payload-contract.test.ts "the annual Time Lord drops out of natalCondition again"
-run server/narrative/input-builder.ts '...(facetOf(g, pr.house) ? { indicates: facetOf(g, pr.house) } : {}),' '' \
+run server/narrative/input-builder.ts '...(facetsOf(g, pr.house).length ? { indicates: facetsOf(g, pr.house) } : {}),' '' \
   server/narrative/payload-contract.test.ts "the canon facet stops being emitted per lord"
+run server/narrative/input-builder.ts 'for (const [re, who] of PERSON_WORDS) if (re.test(item)) return who;' '' \
+  server/narrative/payload-contract.test.ts "facets lose their subject and go fuzzy again"
 
 echo
 if [[ -n "$(git status --porcelain)" ]]; then

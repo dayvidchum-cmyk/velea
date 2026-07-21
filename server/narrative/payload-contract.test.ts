@@ -218,14 +218,26 @@ describe("the protagonist and the canon facet are actually wired (2026-07-21)", 
     expect(SRC).toMatch(/roles:\s*lordRoles\[g\]/);
   });
 
-  it("the canon facet table is imported and emitted per lord", () => {
+  it("the canon facet table is imported and emitted per lord, WITH a subject", () => {
     expect(SRC).toContain("planet-in-house.json");
-    expect(SRC).toMatch(/facetOf\s*=\s*\(/);
-    expect(SRC).toMatch(/indicates:\s*facetOf\(g, pr\.house\)/);
+    expect(SRC).toMatch(/facetsOf\s*=\s*\(/);
+    expect(SRC).toMatch(/indicates:\s*facetsOf\(g, pr\.house\)/);
+    // David, 2026-07-21: "Never send ambiguity if you can send structure." Each facet names whose
+    // life it concerns, and a mixed canon entry splits into two facets rather than one fuzzy one.
+    expect(SRC).toMatch(/subject:\s*string;\s*topic:\s*string/);
+    // ASSERT THE LOOP, NOT THE CONSTANT. The first version of this line checked only that
+    // PERSON_WORDS existed — and a mutation probe that deleted the loop READING it survived,
+    // because the table is still declared. A guard on a declaration is decorative; the behaviour
+    // lives in the lookup.
+    expect(SRC).toMatch(/for \(const \[re, who\] of PERSON_WORDS\) if \(re\.test\(item\)\) return who;/);
+    // and explicitly NO "both" — that is the engine saying it does not know.
+    expect(SRC).not.toMatch(/subject:\s*"both"/);
   });
 
   it("the prompt points AT the facet field rather than listing example facets", () => {
     expect(PROMPTS).toMatch(/input\.natalCondition\.lords carries/);
+    expect(PROMPTS).toMatch(/SAYS WHOSE LIFE THE FACET CONCERNS/);
+    expect(PROMPTS).toMatch(/do not blur the two into/);
     // the four hardcoded examples that v891 removed must not creep back
     expect(PROMPTS).not.toMatch(/Saturn here leans to thrift/);
     expect(PROMPTS).not.toMatch(/Jupiter here leans to abundance/);

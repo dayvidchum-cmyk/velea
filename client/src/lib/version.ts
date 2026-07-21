@@ -2939,4 +2939,20 @@
 // only Venus. David's Moon reads "Music, Rhythmic Ability"; Lang holds Venus as BOTH Mahadasha
 // lord and Annual Time Lord, which is what the `roles` array was built to show.
 // 119 files, 1249 tests, 0 failures. Build exit 0.
-export const APP_VERSION = "1.1.893";
+// v1.1.894 = 2026-07-21 — EVERY FACET ARRIVES WITH A SUBJECT. David asked of Lang's Saturn facet
+// ("Chronic Disease, Death, Flaws, Weaknesses, Liabilities"): "it doesn't specify enough. Who?
+// Him? Someone in his life?" I answered with three architectural options, one of which allowed a
+// subject of "both" — and he was right to cut it: "'both' is almost always saying we don't know.
+// But the engine should know." Ambiguity sent downstream is the thing he has spent weeks removing.
+// His model, adopted verbatim: every facet has a subject; if the methodology blends meanings,
+// emit TWO facets, never one fuzzy one. No "both", ever.
+// NOTHING IS INFERRED. 21 of the table's 84 entries NAME a person outright ("Egotism of Spouse or
+// Partner", "Father", "Mother's Mother"), so the subject is READ from canon and everything else
+// belongs to the native. Fourteen mixed entries now split: the 4th's Mars becomes
+// {self: "Land, Houses, Property"} + {mother: "Mother"}.
+// THE ANSWER TO HIS QUESTION IS "HIM": Saturn in the 8th resolves to subject "self", while Lang's
+// Sun in the 7th resolves to subject "partner" — canon names the partner when it means the partner.
+// The prompt now states that `subject` is resolved and must never be re-decided, transferred onto
+// the reader, or blurred into "you or someone close to you".
+// 119 files, 1249 tests, 0 failures. Build exit 0.
+export const APP_VERSION = "1.1.894";

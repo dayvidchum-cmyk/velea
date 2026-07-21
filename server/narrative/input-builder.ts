@@ -466,8 +466,49 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       // wealth. The chart picks it; nothing here averages it into "money".
       // Nodes fall through silently — the table covers the seven grahas, and a node is read as
       // the axis it sits on, which is what this block already says about them.
-      const facetOf = (planet: string, house: number | null | undefined): string | null =>
-        house == null ? null : ((PLANET_IN_HOUSE_CANON as any)?.houses?.[String(house)]?.[planet] ?? null);
+      // EVERY FACET ARRIVES WITH A SUBJECT (David, 2026-07-21): "Never send ambiguity if you can
+      // send structure. Never send one fuzzy facet when two precise facets exist. Never ask the
+      // LLM to decide methodology." And explicitly NO "both" — "both" is the engine saying it does
+      // not know, which pushes the decision back downstream where it cannot be audited.
+      //
+      // The canon string is a comma list, and 21 of its 84 entries NAME A PERSON outright
+      // ("Egotism of Spouse or Partner", "Father", "Mother's Mother"). So the subject is READ from
+      // canon, never inferred: an item naming a person becomes its own facet with that subject;
+      // everything else belongs to the native. A mixed entry like the 4th's Mars — "Land, Houses,
+      // Property, Mother" — splits into two precise facets instead of one ambiguous one.
+      // Nothing here decides methodology; it only reports what the book already says out loud.
+      const PERSON_WORDS: [RegExp, string][] = [
+        [/mother'?s mother/i, "maternal grandmother"], [/mother'?s father/i, "maternal grandfather"],
+        [/father'?s grandfather/i, "paternal great-grandfather"], [/father'?s/i, "father"],
+        [/father in law/i, "father-in-law"], [/mother in law/i, "mother-in-law"],
+        [/brother and sister in law/i, "siblings-in-law"],
+        [/spouse or partner|partner'?s|spouse/i, "partner"], [/husband/i, "husband"], [/wife/i, "wife"],
+        [/business partners/i, "business partners"], [/elder siblings/i, "elder siblings"],
+        [/grand children|grandchildren/i, "grandchildren"], [/children/i, "children"],
+        [/siblings|brother|sister/i, "siblings"], [/mother/i, "mother"], [/father/i, "father"],
+        [/guru|teacher/i, "teacher"], [/servants|employee/i, "people who work for them"],
+        [/mistress/i, "a lover"], [/friends/i, "friends"],
+      ];
+      const subjectOf = (item: string): string => {
+        for (const [re, who] of PERSON_WORDS) if (re.test(item)) return who;
+        return "self";
+      };
+      /** Canon facets for this planet in this house, one per subject. Empty when the table is silent. */
+      const facetsOf = (planet: string, house: number | null | undefined): { subject: string; topic: string }[] => {
+        if (house == null) return [];
+        const raw: string | null = (PLANET_IN_HOUSE_CANON as any)?.houses?.[String(house)]?.[planet] ?? null;
+        if (!raw) return [];
+        const bySubject = new Map<string, string[]>();
+        for (const item of raw.split(",").map((x: string) => x.trim()).filter(Boolean)) {
+          const who = subjectOf(item);
+          if (!bySubject.has(who)) bySubject.set(who, []);
+          bySubject.get(who)!.push(item);
+        }
+        // "self" first when present — the native is who the reading is for.
+        return [...bySubject.entries()]
+          .sort((a, b) => (a[0] === "self" ? -1 : 0) - (b[0] === "self" ? -1 : 0))
+          .map(([subject, items]) => ({ subject, topic: items.join(", ") }));
+      };
 
       const condOf = (g: string) => {
         const pr = (research!.planets as any)[g];
@@ -494,10 +535,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
           // Which office this lord holds today. The engine decides the hierarchy; the narrator
           // is told it rather than left to infer it from position in the array.
           roles: lordRoles[g] ?? [],
-          // The CHART'S OWN facet for this planet in this house, straight from canon — the
-          // specific thing this graha indicates HERE, never a stock phrase. Null when the table
-          // has no entry (nodes); say nothing rather than guess.
-          ...(facetOf(g, pr.house) ? { indicates: facetOf(g, pr.house) } : {}),
+          // The CHART'S OWN facets for this planet in this house, straight from canon — each
+          // with WHOSE life it concerns, so the narrator never has to guess who a sentence is
+          // about. Absent when the table is silent (nodes); say nothing rather than guess.
+          ...(facetsOf(g, pr.house).length ? { indicates: facetsOf(g, pr.house) } : {}),
           seat: `${pr.sign}, house ${pr.house}${pr.retrograde ? ", retrograde" : ""}`,
           dignity: `${pr.dignity?.state}${pr.dignity?.neechaBhanga?.cancelled ? " (fall CANCELLED — hard-won strength, not weakness)" : ""}`,
           strength,

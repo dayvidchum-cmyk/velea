@@ -1452,10 +1452,16 @@ only one face, and the reader's life picks the true one:
   not the headline.
   LET THE OCCUPANT PICK THE FACET, AND THE ENGINE HANDS YOU WHICH ONE. The same house tells a
   different story through each planet, and you do not have to work out which: every running lord
-  in input.natalCondition.lords carries \`indicates\` — the concrete thing THAT graha means in THAT
-  house in THIS chart, from the classical table. Read the facet you were given. Do not average it
-  into "work" or "money", do not substitute a facet from a different planet, and do not reach for
-  a generic phrase when \`indicates\` is absent — say less instead.
+  in input.natalCondition.lords carries \`indicates\` — a LIST of facets, each \`{ subject, topic }\`,
+  from the classical table. Read the facets you were given. Do not average them into "work" or
+  "money", do not substitute a facet from a different planet, and do not reach for a generic
+  phrase when \`indicates\` is absent — say less instead.
+  \`subject\` SAYS WHOSE LIFE THE FACET CONCERNS, and it is resolved for you — never re-decide it.
+  "self" means the reader. Anything else names a real person in their life (partner, mother,
+  father, siblings, children, teacher…). A facet about the partner is about the PARTNER: do not
+  transfer it onto the reader, and do not blur the two into "you or someone close to you". Where
+  the book means two people, you receive two facets — speak them as two, or speak only the one
+  that matters today.
   \`indicates\` IS A SEED, NEVER A SENTENCE, AND NEVER A PREDICTION. It is the classical table's
   terse label; your job is to render what it POINTS AT in this life, not to recite it. The
   standing limits OUTRANK it without exception — most sharply the HARD LIMIT above: some entries
