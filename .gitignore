@@ -120,3 +120,6 @@ client/public/__manus__/version.json
 PROOF_LOG.md
 VOICE_ROSETTA.md
 VELEA_PROMPT_CURRENT.txt
+
+# Reading snapshots — contain personal readings captured from prod. Never commit.
+reading-snapshot-*.json
