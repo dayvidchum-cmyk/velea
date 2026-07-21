@@ -64,8 +64,8 @@
 
   <div class="scores">
     <div class="score"><div class="n good">122</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">9</div><div class="l">Still broken</div></div>
-    <div class="score"><div class="n warn">10</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n bad">16</div><div class="l">Still broken</div></div>
+    <div class="score"><div class="n warn">11</div><div class="l">Your call</div></div>
     <div class="score"><div class="n">1282</div><div class="l">Tests passing</div></div>
   </div>
 
@@ -121,8 +121,16 @@
     you as “not hostile, but your own” when it was the worst rung on the ladder.
     <br><br>It now says <b>“The loss star holds the day”</b>, and the guard includes a control: the birth star can
     never reach that branch, which is the whole reason the old copy was wrong. Both halves are probed.
-    <br><br><b>Not closed by this:</b> roughly <b>70</b> other conditional strings in the interpreter and four more
-    branches in the day filter have not been read against the rule. That is its own sweep, and it is next.</span></div>
+    <br><br><b>Not closed by this — and I gave you a wrong number for it.</b> I told you “~70 conditional strings in
+    <code>interpreter.ts</code>”. <b>That file does not exist.</b> I named a file I had never opened, and it reached
+    this page and my own notes before I checked. Retracted here rather than quietly corrected.
+    <br>The measured scope is <b>303 candidate strings across 38 engine files</b> — the ones where the sky itself
+    picks the words. The heaviest are the narrative input builder (42), the qualifier styles (36), the golden moment
+    (25), the stage (23) and the day filter (21). The two real interpreters hold 13 and 2.
+    <br><b>And the instrument that counted them was blind first:</b> its opening version threw away every ALL-CAPS
+    headline and everything under twelve characters, so it would have cleared “follows you” and every day headline on
+    the app. Fixed and controlled in both directions — known-guilty lines flag, known-innocent do not — before it was
+    allowed to report anything. <b>A clean scan from an uncontrolled instrument is not evidence.</b></span></div>
 
   <div class="ask"><b>The location tiers travel with the subject — found while changing a label.</b>
     <span class="why">The sky resolver takes a location object. <b>Eleven of its thirty-three call sites hand it the
@@ -149,7 +157,7 @@
     Every correction I made to my own earlier claims is preserved there in full.
   </p>
 
-  <h2>What I need from you — 10</h2>
+  <h2>What I need from you — 11</h2>
   <p class="lead">Only what is still open. Anything you ruled on has been taken off this list —
     <b>you ruled on twelve today</b> — the seven earlier ones plus the three star spellings, what the year
     calendar carries, and what a yoga may say on an emptied day. Two more came off because you RAN something (the
@@ -192,11 +200,18 @@
     rather than pretending it was set. Saturn reading as <b>“the father’s old authority”</b> on that chart cannot be
     checked against anything until the data exists. This is not a decision, it is a fact only you have.</span></div>
 
-  <div class="ask"><b>3. The knot thresholds.</b>
+  <div class="ask"><b>3. The eclipse day — does the guidance change before vs after the exact moment?</b>
+    <span class="why">Sweep defect 6. The copy currently says an eclipse “just passed” on a day it is still ahead, and
+    hands you <i>hold beginnings; favor finishing and release</i>. Naming the day honestly (“Eclipse today”) takes no
+    side and I will fix that either way. But whether the <b>guidance itself</b> should differ in the hours before the
+    eclipse versus the days after is a method call, not a copy call, and it is yours. Say “same either side” and I
+    ship the naming fix alone.</span></div>
+
+  <div class="ask"><b>4. The knot thresholds.</b>
     <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked. You asked
     how we test them with your eyes — I owe you that method, and it is the next thing I build if you want it.</span></div>
 
-  <div class="ask"><b>4. The crown mark — two pieces of your spec are still missing.</b>
+  <div class="ask"><b>5. The crown mark — two pieces of your spec are still missing.</b>
     <span class="why">Your tārā list and your six lucky Moon houses match the engine <i>exactly</i>, and are pinned.
     Still missing: <b>the 11th is not treated as the peak</b> (it weighs the same as the 3rd) and <b>Shubha Tithi</b> is
     handled by the cited family rule rather than your list. Audit in <code>canon/crown-doctrine.md</code>.
@@ -206,26 +221,26 @@
 
   <div class="grp">The look — your palette calls</div>
 
-  <div class="ask"><b>5. The crown mark is gold on a gold coin.</b>
+  <div class="ask"><b>6. The crown mark is gold on a gold coin.</b>
     <span class="why">1.6:1 in light, 1.2:1 in dark — effectively invisible, and the border is the same gold. A darker
     gold reads fine but turns the mark olive, and the crown is your brand. The alternative is keeping the gold and giving
     it a real shadow instead of the gold one it has now.</span></div>
 
-  <div class="ask"><b>6. Parchment ink in dark mode.</b>
+  <div class="ask"><b>7. Parchment ink in dark mode.</b>
     <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night. Light modes are fine. One value
     in the theme block.</span></div>
 
-  <div class="ask"><b>7. Rename the “Parents &amp; Roots” chip?</b>
+  <div class="ask"><b>8. Rename the “Parents &amp; Roots” chip?</b>
     <span class="why">Following your ruling, that area is now explicitly ancestry — the departed, what came down the
     line. The chip still says Parents. <b>“Roots &amp; Ancestry”</b> would match. I do not rename what you look at
     without asking.</span></div>
 
   <div class="grp">The business — money and launch</div>
 
-  <div class="ask"><b>8. Set the price.</b>
+  <div class="ask"><b>9. Set the price.</b>
     <span class="why">Your list is locked. Nothing charges yet. Waiting on Mercury clearing post-shadow, per you.</span></div>
 
-  <div class="ask"><b>9. Stripe keys.</b>
+  <div class="ask"><b>10. Stripe keys.</b>
     <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config,
     yours.</span></div>
 
@@ -233,11 +248,71 @@
 
   <div class="grp">Cleanup</div>
 
-  <div class="ask"><b>10. The pick-a-date precision layer: wire it, or delete it?</b>
+  <div class="ask"><b>11. The pick-a-date precision layer: wire it, or delete it?</b>
     <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing calls
     them. What only they carry is transit-level precision — the exact house each transiting planet occupies and its
     strength score. You asked whether it is built off the textbooks: Bhava Chalit and Ashtakavarga both are, but I have
     not verified that module against the canon files the way I did the karakas, so I will not claim it.</span></div>
+
+  <h2>The sweep — 7 defects, none fixed yet</h2>
+  <p class="lead">
+    Your law, run across the engine. <b>303 candidate strings in 38 files</b>, located by an instrument controlled in
+    both directions first, then read by five readers, then every survivor re-verified by me against the code. Two were
+    <b>measured</b> rather than argued. <b>Nothing below is fixed</b> — the fix run was authorised and stopped for this
+    handoff, so all seven are live right now. In your accuracy order:
+  </p>
+  <ul class="plain">
+    <li><span class="tag">DATA</span><b>1 · A cancelled fall is printed as ACTIVE with no dashaGate.</b>
+      <code>dignityOf()</code> computes <code>neechaBhanga</code> ungated; <code>labelWithCancellation()</code> is the
+      gated one. Three consumers read the raw flag and print <i>“fall CANCELLED — hard-won strength, not weakness”</i>
+      for planets with <b>no running period</b>, where your canon says <i>“cancelled — latent”</i>.
+      <code>narrative/service.ts:200</code>, <code>narrative/input-builder.ts:572</code>,
+      <code>narrative/day-read-signals.ts:172</code>. One class, three copies.
+      <span style="opacity:.7">(The repair: route all three through <code>labelWithCancellation</code>, the way
+      <code>life-areas.ts:311</code> and <code>day-frame.ts:132</code> already do. The blocker I stopped on was where
+      <code>service.ts</code> gets its running lords — <code>planetCondition()</code> takes none, and four of its five
+      call sites are house/theme reads with no dasha in scope.)</span></li>
+
+    <li><span class="tag">DATA</span><b>2 · “Business Partners” is being read as your spouse.</b> In
+      <code>input-builder.ts:485</code> the rule <code>/spouse or partner|partner'?s|spouse/</code> swallows the plural,
+      so the dedicated <code>business partners</code> rule on the very next line is <b>unreachable</b>. Printed:
+      <code>"Business Partners" → partner</code>. The canon string is real — <code>planet-in-house.json</code> says
+      “Business Partners”, <code>house-lord-combinations.json</code> says it ten more times.</li>
+
+    <li><span class="tag">DATA</span><b>3 · The Stage names the wrong aggressor 19% of the time.</b>
+      <code>sky/stage.ts:384</code> selects a tension on <code>aspects(o,p) || aspects(p,o)</code> — either direction —
+      then always writes <code>${o} presses on ${p}</code>. <b>Measured: 20 of 103</b> press-tensions name the wrong
+      planet, and the direction is displayed nowhere. On one payload the character line says “Saturn: under pressure
+      from Mars” while the tension says Mars is the one under pressure.</li>
+
+    <li><span class="tag">READ</span><b>4 · “Your star is carried today” — the rung it names can never fire it.</b>
+      <code>day-filter.ts:638</code>. This is the <b>sibling of the line fixed in v901, twenty lines away in the same
+      ternary</b> — I fixed the instance and called the class closed. “Your star” is your app’s own name for tara 1,
+      Janma (<code>year-rank.ts:45</code>), quality <i>mixed</i>. The branch fires only on quality <i>good</i> —
+      Sampat, Kshema, Sadhaka, Mitra, Parama Mitra.</li>
+
+    <li><span class="tag">READ</span><b>5 · “THE DAY OFFERS IT” printed above “start nothing”.</b>
+      <code>day-filter.ts:618</code>. Printed, all three rikta tithis:
+      <code>supports=[]</code> · headline <i>“THE DAY OFFERS IT — YOUR GROUND DOESN’T”</i> · sentence <i>“Start
+      nothing, grow nothing, cut nothing you don’t have to.”</i> The v896 gate never consults <code>supports</code>,
+      so your “all of the above contradicts itself” is still live in this branch.</li>
+
+    <li><span class="tag">READ</span><b>6 · An eclipse that is still ahead is announced as past.</b>
+      <code>sky/golden-moment.ts:154</code> branches on <code>daysAway &lt;= 0 ? "just passed"</code>, but
+      <code>findEclipses</code> scans <b>forward only</b> (<code>off = stepDays; off &lt;= 200</code>), so
+      <code>daysAway</code> is never negative. On the day of an eclipse still to come you are told it just passed, and
+      handed finishing-and-release guidance. <b>This one has a question for you</b> — see the decisions list.</li>
+
+    <li><span class="tag">READ</span><b>7 · A station up to three days old is announced as “just now”.</b>
+      <code>sky/golden-moment.ts:119</code>. <code>detectStations</code> scans from <code>off = -12</code>, so
+      <code>daysAway</code> genuinely goes negative, and <code>daysAway &lt;= 0 ? "just now"</code> folds the past into
+      the present tense. The eclipse line in the same file has an explicit past branch; this one does not.</li>
+  </ul>
+  <p class="lead">
+    <b>Group 1 came back empty and that was verified by hand</b>, not taken on trust: its qualifier table measured
+    <b>32 produced / 32 keys, zero missing either direction</b>, so its fallback is unreachable and the near-miss
+    (<code>Contained Build</code> has no entry) lands on Restraint guidance, which is correct for a contained day.
+  </p>
 
   <h2>Settled today — off the list</h2>
   <p class="lead">One line each, so nothing vanishes silently. These are no longer questions for you.</p>
@@ -294,7 +369,7 @@
     <li><b>The old meaning-engine</b> — deleted. Git holds it; a test asserts it stays gone.</li>
   </ul>
 
-  <h2>Still broken — 9</h2>
+  <h2>Still broken — 16</h2>
   <p class="lead">Named, reproducible, and <b>no longer an upper bound</b>: unlike previous editions, every row below was individually re-checked against the running code on 2026-07-20, not carried forward on trust. <b>Six came off this list
     on 2026-07-20</b>, each with a control proven to fail against the unfixed code first — and two of
     them had been sitting in the FIXED list as false greens (the nakshatra ruling that never reached
@@ -303,10 +378,10 @@
     stale finding — measured against the cited natures it contradicts canon on <b>zero of 27</b>. It
     is pinned now, not rewritten.</p>
   <ul class="plain">
-    <li><span class="tag">READ</span><b>The hardcoded-copy sweep.</b> Your law convicted one line today and it was
-      found by reading, not by a tool. <b>Roughly 70 conditional strings in the interpreter and four more branches in
-      the day filter</b> have not been checked against it — counted with a grep, so treat 70 as the candidate set, not
-      the guilty count. Until that sweep runs, the rule is enforced in two places and assumed everywhere else.</li>
+    <li><span class="tag">READ</span><b>The hardcoded-copy sweep — RUN, 7 defects found, NONE FIXED YET.</b> The full
+      list is in its own section below. The sweep read <b>303 strings across 38 engine files</b>; five readers plus my
+      own re-verification of every survivor. Fixing was authorised and then stopped for this handoff, so all seven are
+      still live in production.</li>
     <li><span class="tag">DATA</span>Copies of the 27-star classification still exist in several
       files. <span style="opacity:.7">(No longer <i>drifting</i>: the interpreter reads the one
       corrected table, and the day-quality list is anchored to canon by a test that is proven able to
@@ -410,7 +485,7 @@
   </ul>
 
   <p class="foot">
-    <b>122 fixed + 9 broken + 10 decision-rows + 26 remaining.</b> The fixed count is <b>99 carried forward plus the
+    <b>122 fixed + 16 broken + 11 decision-rows + 26 remaining.</b> The fixed count is <b>99 carried forward plus the
     23 releases listed at the top</b> — a record count, one row per release, not a re-audit of the 99. Say the word if
     you want those re-checked individually the way the eight broken rows were on 20 July; that is a day's work and I
     will not claim it silently.
