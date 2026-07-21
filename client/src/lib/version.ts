@@ -3055,4 +3055,33 @@
 // now carry .finding, styled identically so nothing moves on screen.
 //
 // 122 files, 1286 tests, 0 failures. tsc exit 0, build exit 0.
-export const APP_VERSION = "1.1.903";
+// v1.1.904 = 2026-07-21 — THE DOOR GATE. No billed reading is cast on a sky nobody chose.
+// David's ruling, and his reason: "and it saves money."
+//
+// His first framing was "gate the readings whose sky falls back to the birth city." Measured
+// against the code, that gate would have fired for ZERO profiles: add-location-model.ts backfilled
+// hometown ← birth location for every existing profile, profiles.ts:531 seeds every new one the
+// same way by design, and resolveDaySky checks hasHometown BEFORE the birth tier — so the birth
+// tier is unreachable and `default` needs a profile with no birth location at all. The seeding was
+// right for its own purpose; the cost is that a stored hometown is not evidence a human chose it,
+// and nothing in the schema could tell a chosen ground from a copied one.
+//
+// So the gate keys on a stamp: profiles.hometownConfirmedAt, NULL until answered, stamped on
+// EITHER answer (a decline is a decision and is remembered — the door asks once, never again).
+//
+// MEASURED ON PRODUCTION at migration time: 14 profiles, 14 never asked, and 12 of the 14 carry a
+// hometown identical to their birth city. 86% were reading a sky nobody chose — a wrong sunrise, a
+// wrong day-turn, wrong star boundaries, and a bill the reader pays again the moment they set
+// their real city.
+//
+// Placed in guardedGen, the one choke point all 17 generation sites already pass through, directly
+// above the daily spend cap — the same question at the same altitude. Degrades identically: null,
+// no generation, static copy. Cache hits never reach it, so readings that already exist stay
+// readable; only new spend waits.
+//
+// Fail-open by design: no DB or no column → "unknown" → gate OFF. If that ever inverted, deploying
+// ahead of a migration would silently stop every reading for every profile — an outage that looks
+// like a working app. Probed in that direction specifically.
+//
+// 123 files, 1290 tests, 0 failures. 120 probes, all caught. tsc exit 0, build exit 0.
+export const APP_VERSION = "1.1.904";
