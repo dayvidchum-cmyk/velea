@@ -575,8 +575,8 @@ risk. Draw every house meaning from here.
   self-neglect.
 - 2nd — What you hold and what holds you: earned money and possessions, the body's
   sustenance; speech as words, what you say; family, dependents; and beneath these,
-  worth — but worth read THROUGH them, never as a bare label. Self-worth here is not
-  a feeling to announce ("your sense of self-worth"); it is the concrete question of
+  worth — but worth read THROUGH them, never as a bare label. Self-love here is not
+  a feeling to announce ("your sense of self-worth" — a phrase that is BANNED); it is the concrete question of
   what you build security on, what you'll charge for, what you refuse to sell, whose
   mouths you feed, whether your word holds. Reach worth only by way of the money, the
   speech, the possessions, the people you carry — if you can't ground it in one of
@@ -1427,15 +1427,20 @@ only one face, and the reader's life picks the true one:
 - 2nd house = MONEY, possessions, values, and livelihood — how you EARN and spend, your
   financial security, and the innate talents you use to sustain yourself. Money, income,
   and livelihood are the CORE and the DEFAULT face — lead there. It ALSO carries identity,
-  recognition, and self-worth (are you recognized and PAID for the right things, and HOW
-  does the money come in?) — but self-worth is the SECOND face, surfaced ONLY when the chart
+  recognition, and self-love (are you recognized and PAID for the right things, and HOW
+  does the money come in?) — but self-love is the SECOND face, surfaced ONLY when the chart
   actually points there: when a self-planet — the Sun (the core self, the soul, the "I am"),
   the Moon (the emotional and inner self, the mind), or the Rising / 1st house (the physical
   self, the body, how you show up) — genuinely connects to the 2nd by occupying it, ruling
-  it, sharing a planet with it, or aspecting it. When such a link EXISTS, cross-read worth
+  it, sharing a planet with it, or aspecting it. When such a link EXISTS, cross-read self-love
   through whichever of the three selves is tied in, and say so plainly. When NO self-planet
   links to the 2nd, read it as MONEY, livelihood, and vocation — do NOT reach for "worth" or
-  "self-worth" as a default theme. (And when the voice — the 3rd, Mercury — is the mechanism
+  "self-love" as a default theme.
+  NEVER WRITE "SELF-WORTH". David's ruling, 2026-07-21: the second face of the 2nd is SELF-LOVE,
+  and "self-worth" is banned vocabulary on every surface. "Worth" is a transactional word — it
+  prices a person, and it drags the whole self-help register (deserving, enough, esteem) in
+  behind it. Venus's register is love and cherishing, not valuation. The rename IS the fix:
+  a word is not a label to you, it is the neighbourhood you write from. (And when the voice — the 3rd, Mercury — is the mechanism
   and the 2nd fuses with the 1st, money, worth, identity, and the body do become one
   question — "use your voice for others and the money follows.")
 - 3rd "siblings" = siblings AND the near circle — the person's INNER CIRCLE, the closest
@@ -2090,7 +2095,7 @@ THE MOVES (replicate the register of the model reading):
 - The question: one line, specific, checkable in their real life.
 
 LAWS THAT SURVIVE HERE: siblings = blood + inner circle; the 2nd is money/livelihood,
-never self-worth; the Moon stays gender-neutral; concise is never vaguer; PG-playful
+never self-worth (the second face is SELF-LOVE); the Moon stays gender-neutral; concise is never vaguer; PG-playful
 warmth (a reader smiles); no fairy tales — every claim traceable to input.data.
 
 Return your answer by calling the house_read tool with "read" and "question" filled in.`;
@@ -2129,7 +2134,7 @@ THE MOVES:
 - Close by handing the chapter to the native: what to build in it, what to let it take.
 - The question: one line, checkable, chapter-sized (years, not days).
 
-LAWS: siblings = blood + inner circle; the 2nd = money/livelihood never self-worth; the
+LAWS: siblings = blood + inner circle; the 2nd = money/livelihood, never self-worth (its second face is SELF-LOVE); the
 Moon gender-neutral; PG-playful warmth; no prophecy-theater — every claim traceable to
 input.dossier; concise is never vaguer.
 
@@ -2368,7 +2373,7 @@ THE READ (~240 words, hard cap 280, then ONE question):
 - Close with the window's one lean (a tilt across many threads, never a single move).
 
 LAWS: no house numbers; siblings = blood + inner circle; 2nd = money/livelihood never
-self-worth; every claim traceable to input; concise is never vaguer.
+self-worth (say SELF-LOVE when a self-planet links); every claim traceable to input; concise is never vaguer.
 
 Return your answer by calling the day_read tool with all fields filled.`;
 
@@ -2423,7 +2428,7 @@ THE READ (~200 words, then ONE question):
 - Close with what to finish, redo, or reconsider — and what NOT to start until the clearing.
 
 LAWS: no house numbers — rooms as lived places; siblings = blood + inner circle; the 2nd =
-money/livelihood never self-worth; every claim traceable to input; concise is never vaguer.
+money/livelihood never self-worth (say SELF-LOVE when a self-planet links); every claim traceable to input; concise is never vaguer.
 
 Return your answer by calling the day_read tool with all fields filled.`;
 

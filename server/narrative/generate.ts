@@ -343,6 +343,13 @@ const wordCount = (s: string): number => (s.trim().match(/\S+/g) ?? []).length;
 // can't be cleanly swapped for their life-territory here, so those still lean on the retries; this
 // covers the recurring dignity/motion leaks, which are the ones that actually slip.)
 const SCRUB: Array<[RegExp, string]> = [
+  // SELF-WORTH -> SELF-LOVE (David's ruling, 2026-07-21). The prompt now says never to write it,
+  // but a prompt is a request. "Worth" prices a person and drags the self-help register in behind
+  // it; Venus's register is love, not valuation. Deterministic so the word cannot ship even if
+  // every retry keeps it — the same reasoning that put "debilitated" in this list after it reached
+  // a reader. WHEN the second face may be reached at all is still gated in the prompt (a self-
+  // planet must genuinely link to the 2nd); this only fixes the WORD.
+  [/\bself-worth\b/gi, "self-love"],
   [/\bdebilitations?\b/gi, "weakness"],
   [/\bdebilitated\b/gi, "weakened"],
   [/\bexaltations?\b/gi, "full strength"],
@@ -387,7 +394,8 @@ export async function generateTaskSteps(title: string, notes?: string | null): P
 /**
  * THE VERDICT voicing — speaks the engine's life-register data the way David's astrologer spoke:
  * plainly, dated, falsifiable ("it's a late bloomer's chart… money, love — late, if at all").
- * Laws: no house NUMBERS (glosses ride in the data), no "destined", no "self-worth" framing,
+ * Laws: no house NUMBERS (glosses ride in the data), no "destined", no "self-worth" framing
+ *        (the 2nd's second face is SELF-LOVE — David's rename, 2026-07-21),
  * plain and not yelling. The engine located everything; this only gives it a voice.
  */
 export async function generateVerdictRead(data: unknown): Promise<{ narrative: string } | null> {
@@ -411,7 +419,7 @@ Write the verdict in 250-350 words, plain prose, 3-5 short paragraphs:
 3. Each area (money & livelihood, partnership, the world's stage): WHEN it pays — use the bloomAge/window ages, the lord's name, AND the area's 'tense' field against currentAge. tense="past": the paying window already RAN (speak it as lived: what it gave or asked, and what remains now — never the future tense). tense="current": the native is INSIDE the window now — say so plainly. tense="future": name the age and year it opens. Where 'thin' is true — say it straight and kindly: this current runs thin; if it pays, it pays late and modestly. Never pretend.
 4. The nodal line: what was already mastered (Ketu's ground, via its gloss) vs the hunger this life is here to feed (Rahu's).
 
-Rules: never say a house number — use the plain glosses provided. Never say "destined" or "meant to be" — the path is computed, not fixed. No "self-worth" language for money. Concrete ages and years, not vague seasons. Calm, direct, no exclamation marks, no mysticism-perfume. It should read like a precise elder speaking across a table.
+Rules: never say a house number — use the plain glosses provided. Never say "destined" or "meant to be" — the path is computed, not fixed. Never write "self-worth" — it is banned vocabulary; the 2nd's second face is SELF-LOVE, and money is its first. Concrete ages and years, not vague seasons. Calm, direct, no exclamation marks, no mysticism-perfume. It should read like a precise elder speaking across a table.
 
 Reply with ONLY the prose, no headers, no preamble.`,
       }],

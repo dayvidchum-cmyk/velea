@@ -132,7 +132,7 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     expect(PROMPT_VERSION).not.toBe("2026-07-18-audit4-law-reconcile");
   });
 
-  it("the 2nd house does not default to self-worth", async () => {
+  it("the 2nd house does not default to self-love, and never says self-worth", async () => {
     // David's standing law: the 2nd is money, livelihood and belief FIRST. Self-worth is the second
     // face, surfaced only when a self-planet actually links to the 2nd.
     //
@@ -150,7 +150,11 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     expect(BASE_PROMPT).toMatch(/earned money and possessions/);
     expect(BASE_PROMPT).toMatch(/never as a bare label/);
     expect(BASE_PROMPT).toMatch(/not\s+a feeling to announce/);
-    expect(DEEP_READ_TAIL).toMatch(/do NOT reach for\s+"worth"\s+or\s+"self-worth"\s+as a default theme/);
+    // David's rename, 2026-07-21: the second face is SELF-LOVE, and "self-worth" is banned
+    // vocabulary. "Worth" prices a person and drags the self-help register in behind it.
+    expect(DEEP_READ_TAIL).toMatch(/do NOT reach for\s+"worth"\s+or\s+"self-love"\s+as a default theme/);
+    expect(DEEP_READ_TAIL).toMatch(/NEVER WRITE "SELF-WORTH"/);
+    expect(DEEP_READ_TAIL).toMatch(/second face of the 2nd is SELF-LOVE/);
     expect(DEEP_READ_TAIL).toMatch(/2nd house = MONEY/);
   });
 

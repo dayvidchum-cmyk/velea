@@ -2837,4 +2837,22 @@
 // No prompt edit in either change — DAY_READ_TAIL already reads "the running lords in
 // input.natalCondition" — so David's before/after stays a single-variable test.
 // 119 files, 1243 tests, 0 failures. build exit 0. Mutation harness green, three new probes caught.
-export const APP_VERSION = "1.1.888";
+// v1.1.889 = 2026-07-21 — SELF-WORTH -> SELF-LOVE. David: "you were supposed to change self-worth
+// to self-love." It had never been done — zero occurrences of "self-love" in the repo or in git
+// history, while "self-worth" was load-bearing in the 2nd-house doctrine across four LAWS lines,
+// generate.ts, and two guard tests that asserted the string.
+// THE SECOND FACE OF THE 2ND IS SELF-LOVE. Money and livelihood remain the CORE and DEFAULT face;
+// the second face surfaces only when a self-planet (Sun / Moon / Rising) genuinely links to the
+// 2nd. That gate is unchanged — only the WORD changed, and "self-worth" is now banned vocabulary
+// on every surface.
+// WHY THE RENAME IS THE FIX, in David's words: "the LLM is so black and white with its
+// understanding of words and the worlds they hold." A word is not a label to a model, it is the
+// neighbourhood it writes from. "Worth" is transactional — it prices a person and drags the whole
+// self-help register (deserving, enough, esteem) in behind it. Venus's register is love and
+// cherishing, not valuation. No instruction ABOUT a word can undo the world the word opens; only
+// a different word can.
+// ENFORCED, NOT REQUESTED: added to the deterministic SCRUB alongside "debilitated", so the term
+// cannot ship even if every retry keeps it. A prompt is a request; SCRUB is a guarantee.
+// Lands directly on the three Venus-year testers — Venus rules the 2nd for David and Lisa both.
+// 119 files, 1243 tests, 0 failures. Build exit 0.
+export const APP_VERSION = "1.1.889";
