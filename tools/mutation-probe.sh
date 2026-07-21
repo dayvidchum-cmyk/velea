@@ -319,6 +319,17 @@ run server/narrative/generate.ts '    try { recordUsage(msg); } catch (e) { cons
 run server/narrative/generate.ts 'const fate = fullText.match(FATE_DECREE);' 'const fate = null as any;' \
   server/narrative/guard.test.ts "a decree about this person can ship again"
 
+# ── OWNERSHIP GATES THE CURRENT TIER (2026-07-21) ────────────────────────────────────────────
+# The account's location slot is one per LOGIN. Before the gate it outranked every other
+# profile's own ground, so David's six non-owner profiles were all cast from his city. Two arms
+# must both be guarded: the gate firing, and the gate NOT over-firing for the account holder.
+run server/panchang/resolve-day-sky.ts 'if (profile.isOwner) return true;' 'if (true) return true;' \
+  server/panchang/resolve-day-sky.test.ts 'non-owner profile stops inheriting the account location'
+run server/panchang/resolve-day-sky.ts 'if (profile.isOwner === undefined || profile.isOwner === null) return true;' '  if (false) return true;' \
+  server/panchang/resolve-day-sky.test.ts 'ownership-unknown keeps the old behaviour (85 call sites)'
+run server/panchang/resolve-day-sky.ts 'if (currentTierApplies(p) && u?.locationLat' 'if (u?.locationLat' \
+  server/panchang/resolve-day-sky.test.ts 'the gate is actually consulted by the resolver'
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."

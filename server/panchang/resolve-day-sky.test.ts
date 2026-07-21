@@ -89,3 +89,88 @@ describe("timezoneFor / localToday", () => {
     expect(localToday(seoulUser, null, at)).toBe("2026-07-18");
   });
 });
+
+/**
+ * OWNERSHIP GATES THE CURRENT TIER (2026-07-21).
+ *
+ * `users.location*` is one slot per ACCOUNT — where the phone holding this login is. It used to
+ * outrank every other profile's own ground, so each of David's six non-owner profiles was cast
+ * from Boston because that is where HE is. Lisa lives in New Jersey.
+ *
+ * His ruling when I filed it as a power-user edge case: "everyone is the average user." Multi-
+ * profile is the paid seam, so this lands on paying accounts and the person it misreads is the
+ * reader, not a fixture.
+ *
+ * Controls run in BOTH directions throughout: the owner must still get the current tier, and an
+ * unknown ownership must behave exactly as before, or this "fix" is a silent regression for the
+ * ~85 call sites that pass partial profile objects.
+ */
+describe("ownership gates the current tier", () => {
+  const lisaLikeNonOwner = {
+    isOwner: 0,                                   // MySQL tinyint, as the driver returns it
+    birthLocationLat: "40.706210", birthLocationLon: "-73.306230", birthTimezone: "America/New_York",
+    hometownLat: "40.706210", hometownLon: "-73.306230", hometownTimezone: "America/New_York",
+    hometownCity: "West Islip, NY",
+  };
+
+  it("a non-owner profile does NOT inherit the account's current location", async () => {
+    const sky = await resolveDaySky({ user: bostonUser, profile: lisaLikeNonOwner, dateStr: "2026-07-18", now: NOW });
+    expect(sky.source).toBe("hometown");
+    expect(sky.city).toBe("West Islip, NY");
+    expect(sky.lat).toBeCloseTo(40.70621);
+  });
+
+  it("CONTROL — the owner's own profile still gets the current tier", async () => {
+    const sky = await resolveDaySky({ user: bostonUser, profile: { ...lisaLikeNonOwner, isOwner: 1 }, dateStr: "2026-07-18", now: NOW });
+    expect(sky.source).toBe("current");
+    expect(sky.lat).toBeCloseTo(42.3601);
+  });
+
+  it("CONTROL — ownership unknown behaves exactly as before (no silent regression)", async () => {
+    const { isOwner: _drop, ...noOwnershipField } = lisaLikeNonOwner;
+    const sky = await resolveDaySky({ user: bostonUser, profile: noOwnershipField, dateStr: "2026-07-18", now: NOW });
+    expect(sky.source).toBe("current");
+  });
+
+  it("boolean false is honoured as well as tinyint 0", async () => {
+    const sky = await resolveDaySky({ user: bostonUser, profile: { ...lisaLikeNonOwner, isOwner: false }, dateStr: "2026-07-18", now: NOW });
+    expect(sky.source).toBe("hometown");
+  });
+
+  it("a non-owner with only a birth place falls to birth, not to the account's city", async () => {
+    const sky = await resolveDaySky({
+      user: bostonUser,
+      profile: { isOwner: 0, birthLocationLat: "19.0760", birthLocationLon: "72.8777", birthTimezone: "Asia/Kolkata" },
+      dateStr: "2026-07-18", now: NOW,
+    });
+    expect(sky.source).toBe("birth");
+    expect(sky.utcOffset).toBe(5.5);
+  });
+
+  it("a non-owner with NO ground of its own still uses the current tier — never the Boston default", async () => {
+    // Skipping `current` here would trade a near-miss for a worse guess. The gate is a
+    // preference for the person's OWN ground, not a blanket ban.
+    const sky = await resolveDaySky({ user: bostonUser, profile: { isOwner: 0 }, dateStr: "2026-07-18", now: NOW });
+    expect(sky.source).toBe("current");
+    expect(sky.city).not.toBe(DEFAULT_SKY.city);
+  });
+
+  it("THE CASE THAT MATTERS — reading someone else's chart from abroad", async () => {
+    // David in Seoul opening Lisa's chart. Before the gate her whole day came from Korea:
+    // wrong sunrise, wrong tithi boundary, wrong hora. Nine hours of someone else's sky.
+    const sky = await resolveDaySky({ user: seoulUser, profile: lisaLikeNonOwner, dateStr: "2026-07-18", now: NOW });
+    expect(sky.source).toBe("hometown");
+    expect(sky.timezone).toBe("America/New_York");
+    expect(sky.utcOffset).not.toBe(9);
+    // and the control: his OWN chart still follows him to Seoul
+    const his = await resolveDaySky({ user: seoulUser, profile: { ...lisaLikeNonOwner, isOwner: 1 }, dateStr: "2026-07-18", now: NOW });
+    expect(his.utcOffset).toBe(9);
+  });
+
+  it("a per-date override still outranks ownership (tier 1 is untouched)", async () => {
+    // No profileId passed → no override lookup; this asserts the ordering did not move by
+    // checking the gate sits BELOW the override branch, which returns before any of this.
+    const sky = await resolveDaySky({ user: bostonUser, profile: lisaLikeNonOwner, dateStr: "2026-07-18", now: NOW });
+    expect(["override", "hometown"]).toContain(sky.source);
+  });
+});

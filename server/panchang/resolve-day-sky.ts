@@ -54,7 +54,43 @@ export type ProfileLocFields = {
   birthLocationCity?: string | null;
   hometownLat?: string | null; hometownLon?: string | null; hometownTimezone?: string | null;
   hometownCity?: string | null;
+  /**
+   * Is this profile the account holder's OWN chart? Drives the `current` tier — see
+   * currentTierApplies. Undefined (a caller passing a partial object) preserves the old
+   * behaviour, so no call site changes meaning by omission.
+   */
+  isOwner?: boolean | number | null;
 } | null | undefined;
+
+/**
+ * MAY THE ACCOUNT'S CURRENT LOCATION SPEAK FOR THIS PROFILE?
+ *
+ * `users.location*` is ONE slot per account — the LocationSheet, effectively "where is the phone
+ * holding this login." That is a fact about the account holder. It is NOT a fact about anyone
+ * else whose chart lives on that account, and the resolver used to let it outrank their own
+ * ground, so every non-owner profile was read from wherever the account holder happened to be.
+ *
+ * Found 2026-07-21: David's six other profiles (Lisa, Lang, Simone, Krista, Linda, Cara) were all
+ * being cast from Boston because that is where HIS phone is. Lisa lives in New Jersey. The day
+ * was identical that afternoon only because both sit in the same timezone a few degrees apart —
+ * geography, not correctness. Read Lisa's chart while travelling in Tokyo and her sunrise, tithi,
+ * nakshatra and hora would all have been someone else's.
+ *
+ * David's ruling that day, after I wrongly filed this as a power-user edge case: "everyone is the
+ * average user." Multi-profile IS the paid seam, so this defect lands on paying accounts, and the
+ * person it misreads is not a test fixture — she is the reader.
+ *
+ * The rule: a non-owner profile falls to its OWN ground (hometown, then birth). We only skip the
+ * current tier when such a fallback EXISTS — dropping to the Boston app default would trade a
+ * near-miss for a worse guess. Ownership unknown → unchanged behaviour.
+ */
+export function currentTierApplies(profile: ProfileLocFields): boolean {
+  if (!profile) return true;                       // no profile (anonymous panchang) — viewer's sky
+  if (profile.isOwner === undefined || profile.isOwner === null) return true;   // unknown → as before
+  if (profile.isOwner) return true;                                            // the account holder's own chart
+  const hasOwnGround = !!((profile.hometownLat && profile.hometownLon) || (profile.birthLocationLat && profile.birthLocationLon));
+  return !hasOwnGround;                            // someone else's chart: only if they have no ground of their own
+}
 
 const noonUTC = (dateStr: string) => new Date(dateStr + "T12:00:00Z");
 
@@ -123,7 +159,10 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
   const u = args.user;
   const p = args.profile;
   const hasHometown = !!(p?.hometownLat && p?.hometownLon);
-  if (u?.locationLat && u?.locationLon && u?.locationTimezone && (isNearToday(args.dateStr, u.locationTimezone, now) || !hasHometown)) {
+  // The account's current location speaks only for the account holder's own chart (v-loc fix,
+  // 2026-07-21). For anyone else on the account it is someone else's phone, and their own
+  // hometown/birth ground outranks it.
+  if (currentTierApplies(p) && u?.locationLat && u?.locationLon && u?.locationTimezone && (isNearToday(args.dateStr, u.locationTimezone, now) || !hasHometown)) {
     return {
       lat: parseFloat(u.locationLat),
       lon: parseFloat(u.locationLon),
@@ -174,7 +213,15 @@ export async function resolveDaySky(args: { user?: UserLocFields; profile?: Prof
   };
 }
 
-/** The tz that defines "today" for this viewer/chart — same precedence as the sky. */
+/**
+ * The tz that defines "today" for this viewer/chart.
+ *
+ * DELIBERATELY NOT gated by ownership, unlike the sky above. These answer different questions:
+ * the SKY belongs to the person being read (Lisa's sunrise is in New Jersey), while "what day is
+ * it" belongs to the person LOOKING (if David opens her chart at 11pm his time, he means his
+ * today). Gating this too would have made a viewer in Tokyo see yesterday's card for a profile
+ * whose hometown is in New York. Stated because it looks like an oversight and is not.
+ */
 export function timezoneFor(user?: UserLocFields, profile?: ProfileLocFields): string {
   return user?.locationTimezone || profile?.hometownTimezone || profile?.birthTimezone || DEFAULT_SKY.timezone;
 }
