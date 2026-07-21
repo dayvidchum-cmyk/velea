@@ -155,3 +155,105 @@ in the textbooks. i think you are making assumptions."* He was right.
 
 The standing lesson: *the refusal to type a table from memory was right; declaring the table absent
 without opening the folder was not.*
+
+---
+
+# THE ACTIVATION GATE — David's ruling, 2026-07-21
+
+*The 2026-07-20 entry above said transits trigger the natal promise but do not replace it. This
+answers the question that was still open underneath it: **what actually opens the door?** He
+derived it from a principle he had already set, rather than inventing a new one:*
+
+> Transits never determine the frame. They determine what happens within the frame.
+> I'd extend that exact principle to yogas.
+
+## The gate is Dasha + Time Lord. Never transits.
+
+> A natal yoga should only become narratively important if the current long-term timing has
+> opened that door. That means activation comes from things like:
+> - Mahadasha of a yoga planet
+> - Antardasha of a yoga planet
+> - Annual Time Lord is one of the yoga planets
+> - Possibly the activated profection house contains or rules the yoga
+>
+> These determine whether the yoga is **on stage**.
+>
+> Once the yoga is on stage, transits determine **intensity, opportunity, friction, timing,
+> immediate manifestation**. They do not decide whether the yoga suddenly matters.
+
+His worked example, which is the acceptance test for any implementation:
+
+> If someone has a beautiful Raja Yoga but they're in a Saturn–Ketu period focused on withdrawal
+> and restructuring, a Jupiter transit shouldn't suddenly make the engine proclaim "Leadership!
+> Success! Promotion!" The yoga exists. It's simply not the active storyline.
+>
+> Now imagine: Venus Mahadasha · Venus Annual Time Lord · transit Jupiter aspects natal Venus.
+> Now everything lines up. The yoga isn't created by Jupiter. Jupiter is amplifying a promise
+> that's already been brought onto the stage by the timing systems.
+
+## Three layers
+
+| Layer | Question | Inputs |
+|---|---|---|
+| **1 — Eligibility** | Can it speak? | dasha · antardasha · Time Lord · activated house. If no → stays background. |
+| **2 — Availability** | Is it on stage? | house activation · relevant lord activated · supporting dispositors · other narrative links |
+| **3 — Intensity** | How loudly today? | transits · Moon · panchanga · hora · panchapakshi |
+
+## Four states, not a binary
+
+> - **Dormant** — present in the natal chart but not participating.
+> - **Activated** — opened by dasha / Time Lord / profection.
+> - **Reinforced** — activated AND strengthened by current transits.
+> - **Echoed** — not activated, but today's sky briefly resonates with it.
+
+`Echoed` is the deliberate escape valve. A major transit may raise a yoga's VISIBILITY without
+making it the frame:
+
+> The reading wouldn't pivot to "this is now a wealth chapter," but it could naturally say,
+> "Today's opportunities resonate with an existing capacity in your chart." … The frame is never
+> stolen by transits, but they can make certain background themes shimmer into view without
+> changing the underlying story.
+
+## The hierarchy this preserves
+
+> - Dasha says WHAT story is being told.
+> - Time Lord says WHO is telling it.
+> - Yoga says WHAT LATENT CAPABILITY exists in that story.
+> - Transits determine HOW VIVIDLY that capability is expressed today.
+
+---
+
+## What the engine actually does today (measured 2026-07-21, before any build)
+
+Stated so the gap is not re-discovered, and not smoothed over:
+
+1. **Natal yogas ship UNCONDITIONALLY.** `rankStandingYogas` filters on structural strength only
+   — frames held, navamsha repetition — and never asks whether anything activates them. Measured:
+   David 11 detected → **7 sent every single day**; Lisa 7 → 4. This is exactly the shape David
+   warned against ("you have a Raja Yoga, therefore today is fortunate"). Every yoga is
+   effectively shipped as `Activated` with no gate.
+
+2. **THE BLOCKER: yogas do not record who is in them.** `DetectedYoga` is
+   `{name, type, frames, inNavamsha, note?}` and `detectInFrame` returns `Record<string, boolean>`
+   — a bare predicate per yoga. The participating planets ARE known inside each rule (Dharma Karma
+   Adhipati computes both lords right there) and are discarded. **Layer 1 cannot be computed until
+   participants are recorded**, because the gate is defined as an intersection with the yoga's own
+   planets. This is ~30 rules wide.
+
+3. **The daily Panchanga yoga never reaches the reader.** `auspiciousness.ts` computes the nitya
+   yoga correctly — `floor((sun + moon) / 13°20') % 27 + 1` — then collapses it to one bit
+   (`MALEFIC_YOGAS.has(yoga) ? -1 : 0`) for crown scoring. The 27 are never NAMED anywhere, and
+   `input-builder.ts` imports the module zero times. So Siddha, Shubha and Vyatipata are
+   indistinguishable to every reading. The "atmosphere" layer exists as a number and is never spoken.
+
+4. **Transit-formed (temporary) yogas are not computed at all.** Nothing in the day payload measures
+   any transit-to-transit relationship; `sky/stage.ts` is the first module that does, and it is not
+   yet wired to the payload.
+
+**Build order implied by the above**, each its own pass because the first touches correctness-
+critical detection: (1) participants on `DetectedYoga`, (2) the eligibility gate + the four states,
+(3) name the 27 and send the day's nitya yoga as atmosphere.
+
+**Caution for whoever builds (1):** this file's own header documents a bug where a single missing
+property access made Gaja Keshari impossible for every chart ever while "Dur" fired for every
+chart. Yoga detection is not a place for a fast mechanical sweep.
