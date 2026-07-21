@@ -2878,4 +2878,25 @@
 // HOUSE READ only and never reaches the day read. The engine-supplies-the-facet half of David's
 // note is therefore still open; this release is the doctrine half.
 // 119 files, 1243 tests, 0 failures. Build exit 0.
-export const APP_VERSION = "1.1.890";
+// v1.1.891 = 2026-07-21 — THE ENGINE SUPPLIES THE FACET (the half v890 documented instead of
+// building). David: "without this I am using a product that is incomplete. How can I test it
+// properly?" He was right — v890 removed the stock phrase and then left FOUR HARDCODED EXAMPLE
+// FACETS in the prompt (Venus/Saturn/Jupiter/Mars), which is the same stock-phrase shape with
+// better content. Testing readings against that would have measured my examples, not his chart.
+// canon/planet-in-house.json — Vol II Appendix III, a complete 12x7 table of what each graha
+// INDICATES in each natal house — was wired to the HOUSE READ surface only and never reached the
+// day read. Third time today the same pattern: canon in the repo, pointed at the wrong surface
+// (after Step-15 convergence and the Protagonist's natal condition).
+// Every running lord in natalCondition.lords now carries `indicates`, the chart's own facet, and
+// the prompt points AT that field instead of listing examples. The table's own note is obeyed:
+// "feed to the narrative as concrete specifics; do NOT paraphrase into 'work'."
+// WHAT IT SEPARATES, for the three Venus-year testers:
+//   DAVID  Venus in the 6th -> "Nursing, Physical Succor"
+//   LISA   Venus in the 5th -> "Romance, Affairs, Students"
+//   LANG   Venus in the 8th -> "Conjugal Bond, Sex"
+// Same actor, three different plays — and David's lands on the body and the hands, which is the
+// reach-the-body law's own territory.
+// Nodes fall through silently (the table covers the seven grahas); absent facet means say less,
+// never reach for a generic phrase.
+// 119 files, 1243 tests, 0 failures. Build exit 0.
+export const APP_VERSION = "1.1.891";

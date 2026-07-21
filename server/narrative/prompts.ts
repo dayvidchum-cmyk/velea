@@ -1450,12 +1450,12 @@ only one face, and the reader's life picks the true one:
   (the emotional and inner self), or the Rising / 1st (the body, how you show up) — occupying,
   ruling, sharing a planet with, or aspecting the 2nd. Even then it is one facet among many,
   not the headline.
-  LET THE OCCUPANT PICK THE FACET. The same house tells a different story through each planet,
-  and the specific one is supplied to you — never averaged into "work" or "money":
-    Venus here leans to beauty, pleasure, food, affection, self-care (self-love lives HERE).
-    Saturn here leans to thrift, discipline, conservation, resources built slowly by hard work.
-    Jupiter here leans to abundance, generosity, education, family wealth.
-    Mars here leans to defending what is yours, decisive spending, assertiveness over property.
+  LET THE OCCUPANT PICK THE FACET, AND THE ENGINE HANDS YOU WHICH ONE. The same house tells a
+  different story through each planet, and you do not have to work out which: every running lord
+  in input.natalCondition.lords carries \`indicates\` — the concrete thing THAT graha means in THAT
+  house in THIS chart, from the classical table. Read the facet you were given. Do not average it
+  into "work" or "money", do not substitute a facet from a different planet, and do not reach for
+  a generic phrase when \`indicates\` is absent — say less instead.
   (And when the voice — the 3rd, Mercury — is the mechanism and the 2nd fuses with the 1st,
   money, identity, speech and the body do become one question — "use your voice for others and
   the money follows.")

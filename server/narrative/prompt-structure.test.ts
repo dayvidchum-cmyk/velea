@@ -164,6 +164,10 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     }
     // and the occupant picks the facet, rather than one being hardcoded
     expect(DEEP_READ_TAIL).toMatch(/LET THE OCCUPANT PICK THE FACET/);
+    // The ENGINE supplies it — the prompt must point at the payload field, not carry a list of
+    // example facets, which was the same stock-phrase shape with better content.
+    expect(DEEP_READ_TAIL).toMatch(/input\.natalCondition\.lords carries `indicates`/);
+    expect(DEEP_READ_TAIL).not.toMatch(/Saturn here leans to thrift/);
     expect(DEEP_READ_TAIL).toMatch(/2nd house = MONEY/);
   });
 

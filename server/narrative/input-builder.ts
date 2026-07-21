@@ -5,6 +5,7 @@ import { profiles, profileNatalBodies, users } from "../../drizzle/schema.js";
 import { dayFrameReading, type DayFrameReading } from "../vedic/day-frame.js";
 import { readingProse, DAILY_SURFACES } from "./daily-surface.js";
 import { eq } from "drizzle-orm";
+import PLANET_IN_HOUSE_CANON from "../vedic/canon/planet-in-house.json" with { type: "json" };
 import { calculateProfectionYear } from "../profection/calculator.js";
 import { calculateDashaTimeline, currentPratyantardasha, pratyantardashaList } from "../dasha-calculator.js";
 import { getSiderealLongitudes } from "../vedic/natal-chart-engine.js";
@@ -449,6 +450,25 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         mudita: "delighted", kshudita: "starved", kshobhita: "agitated",
         trishita: "left thirsty", lajjita: "shamed", garvita: "proud",
       };
+      // THE ENGINE SUPPLIES THE FACET, NOT THE PROMPT (David, 2026-07-21).
+      // "I'd be cautious about replacing one default with another. Instead, I'd make 'self-worth'
+      // unavailable as a stock phrase and let the engine supply the specific facet of the 2nd
+      // house that's actually relevant in that chart."
+      //
+      // canon/planet-in-house.json is Vol II Appendix III — a complete 12x7 table of what each
+      // graha INDICATES in each natal house, and its own note reads "Feed to the narrative as
+      // concrete specifics; do NOT paraphrase into 'work'." It was wired to the HOUSE READ surface
+      // only (service.ts) and never reached the day read, so the day read had no chart-specific
+      // facet to speak from and the prompt was carrying four hardcoded examples instead — exactly
+      // the stock-phrase shape David objected to, with better content.
+      // The same house tells a different story through each planet: Venus in the 2nd is food,
+      // jewelry, wealth; Saturn there is thrift and wealth from hard work; Mars there is mineral
+      // wealth. The chart picks it; nothing here averages it into "money".
+      // Nodes fall through silently — the table covers the seven grahas, and a node is read as
+      // the axis it sits on, which is what this block already says about them.
+      const facetOf = (planet: string, house: number | null | undefined): string | null =>
+        house == null ? null : ((PLANET_IN_HOUSE_CANON as any)?.houses?.[String(house)]?.[planet] ?? null);
+
       const condOf = (g: string) => {
         const pr = (research!.planets as any)[g];
         if (!pr) return { planet: g, roles: lordRoles[g] ?? [], note: "a node — carries the axis it sits on", house: byPlanet[g]?.house ?? null };
@@ -474,6 +494,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
           // Which office this lord holds today. The engine decides the hierarchy; the narrator
           // is told it rather than left to infer it from position in the array.
           roles: lordRoles[g] ?? [],
+          // The CHART'S OWN facet for this planet in this house, straight from canon — the
+          // specific thing this graha indicates HERE, never a stock phrase. Null when the table
+          // has no entry (nodes); say nothing rather than guess.
+          ...(facetOf(g, pr.house) ? { indicates: facetOf(g, pr.house) } : {}),
           seat: `${pr.sign}, house ${pr.house}${pr.retrograde ? ", retrograde" : ""}`,
           dignity: `${pr.dignity?.state}${pr.dignity?.neechaBhanga?.cancelled ? " (fall CANCELLED — hard-won strength, not weakness)" : ""}`,
           strength,
