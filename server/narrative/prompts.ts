@@ -2591,7 +2591,16 @@ export const MODEL = "claude-sonnet-4-6";
 // have made all three restorations another fix that lands nowhere, which is the failure this run
 // keeps finding. v804 deliberately did NOT bump, and that was right: the text there was moved, not
 // changed. Here the laws genuinely came back.
-export const PROMPT_VERSION = "2026-07-20-mercury-arc";
+// BUMPED 2026-07-21 (audit #14, "reading-rule placement"). The self-worth ban and the widened
+// 2nd-house field live in BASE_PROMPT — a SHARED law, on every surface — so the rule reaches
+// cached readings only if the GLOBAL salt moves. The day read would have regenerated anyway
+// (natalCondition gained `roles` and `indicates`, which busts dayStableHash), but every other
+// surface's cached prose would have kept the old doctrine, and "self-worth" with it.
+// This is a fleet regeneration and it costs money on next view. At tester scale that is cents;
+// the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
+// Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
+// tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
+export const PROMPT_VERSION = "2026-07-21-self-worth-banned-2nd-widened";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,

@@ -2899,4 +2899,27 @@
 // Nodes fall through silently (the table covers the seven grahas); absent facet means say less,
 // never reach for a generic phrase.
 // 119 files, 1243 tests, 0 failures. Build exit 0.
-export const APP_VERSION = "1.1.891";
+// v1.1.892 = 2026-07-21 — THE AUDIT PASS. David: "I'm not pulling anything until you have no
+// more places to audit and test." Ran the standing suite (AUDITS.md) and the canon sweep.
+// AUDIT #14 CAUGHT A REAL MISS. The self-worth ban and the widened 2nd-house field live in
+// BASE_PROMPT — a SHARED law on every surface — and I bumped no salt. The DAY READ would have
+// regenerated anyway (natalCondition gained `roles` and `indicates`, busting dayStableHash), but
+// every other surface's cached prose would have kept the old doctrine and the banned word with
+// it. PROMPT_VERSION bumped; per the same audit NO per-surface salt is touched alongside it,
+// because a salt bump with no matching tail change is pure cash burn. This is a fleet
+// regeneration — cents at tester scale, and the alternative is a banned word surviving in cache.
+// WIRING GUARDS for the two fields shipped today, at source level, because the v884 lesson is
+// that a module can be correct, tested and imported by nothing: the Time Lord must stay in
+// chainLords on BOTH arms (day and slowOnly), each lord must carry `roles`, the canon table must
+// be imported and `indicates` emitted per lord, and the prompt must point AT that field while the
+// four removed example facets must not creep back. Two mutation probes break the wiring itself.
+// CANON SWEEP (server/scripts/canon-reach.ts) — the shelf is in better order than the day
+// suggested. Most "unread" canon is unread on purpose: melana.json is a PROVENANCE record proving
+// the engine matches Raman and the Muhurtacintamani page by page; arudha-lagna.json is implemented
+// by reference in knots.ts; bhava-significations.json is deliberately unwired because David's
+// house doctrine outranks the book; timing.json's sadeSati is absent and canon AGREES, flagging it
+// as folk lore absent from the classical texts.
+// Voice audit clean: no "horoscope" in user prose, no Moon-as-"she" (the only hits are the RULES),
+// no self-worth outside a comment. Migration safety clean: no auto force-push anywhere.
+// 119 files, 1249 tests, 0 failures. Build exit 0.
+export const APP_VERSION = "1.1.892";

@@ -182,3 +182,57 @@ describe("the documented object SHAPES match what is emitted", () => {
     }
   });
 });
+
+/**
+ * THE PROTAGONIST AND THE FACET REACH THE MODEL (2026-07-21).
+ *
+ * Both were shipped today to close gaps David's Venus audit exposed, and both are the exact shape
+ * the v884 lesson warns about: a module can be correct, tested, and imported by nothing. So these
+ * assert the WIRING at source level — that input-builder actually emits them — not just that the
+ * helpers work.
+ *
+ * The gaps they guard:
+ *   · natalCondition.lords carried the Vimshottari chain only, so the ANNUAL TIME LORD — the planet
+ *     leading the year — never had its natal condition sent. David and Lisa are both 44, both Virgo
+ *     lagna, both a 9th-house Taurus profection led by Venus, and every narratable line was
+ *     identical.
+ *   · canon/planet-in-house.json (Vol II Appendix III) reached the HOUSE READ only, so the day read
+ *     had no chart-specific facet and the prompt carried four hardcoded examples instead.
+ */
+describe("the protagonist and the canon facet are actually wired (2026-07-21)", () => {
+  it("CONTROL — the source is readable and is the builder we think it is", () => {
+    expect(SRC.length).toBeGreaterThan(5000);
+    expect(SRC).toContain("natalCondition");
+    expect(SRC).toContain("chainLords");
+  });
+
+  it("the annual Time Lord is included among the lords whose natal condition is sent", () => {
+    // Both arms: the full day chain, and the slowOnly (stage/year) chain.
+    expect(SRC).toMatch(/chainLords\s*=\s*Array\.from\([\s\S]{0,200}pf\.timeLord/);
+    expect(SRC).toMatch(/slowOnly[\s\S]{0,220}pf\.timeLord/);
+  });
+
+  it("each lord carries which office it holds", () => {
+    expect(SRC).toContain("Annual Time Lord — leads THIS year");
+    expect(SRC).toContain("Mahadasha lord — the long storyline");
+    expect(SRC).toMatch(/roles:\s*lordRoles\[g\]/);
+  });
+
+  it("the canon facet table is imported and emitted per lord", () => {
+    expect(SRC).toContain("planet-in-house.json");
+    expect(SRC).toMatch(/facetOf\s*=\s*\(/);
+    expect(SRC).toMatch(/indicates:\s*facetOf\(g, pr\.house\)/);
+  });
+
+  it("the prompt points AT the facet field rather than listing example facets", () => {
+    expect(PROMPTS).toMatch(/input\.natalCondition\.lords carries/);
+    // the four hardcoded examples that v891 removed must not creep back
+    expect(PROMPTS).not.toMatch(/Saturn here leans to thrift/);
+    expect(PROMPTS).not.toMatch(/Jupiter here leans to abundance/);
+  });
+
+  it("NEGATIVE CONTROL — these matchers can fail", () => {
+    expect(SRC).not.toMatch(/indicates:\s*facetOf\(g, pr\.nonexistentField\)/);
+    expect("const chainLords = Array.from(new Set([cur?.mahadasha]))").not.toMatch(/chainLords\s*=\s*Array\.from\([\s\S]{0,200}pf\.timeLord/);
+  });
+});

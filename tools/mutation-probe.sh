@@ -335,6 +335,14 @@ run server/panchang/resolve-day-sky.ts 'if (profile.isOwner === undefined || pro
 run server/panchang/resolve-day-sky.ts 'if (currentTierApplies(p) && u?.locationLat' 'if (u?.locationLat' \
   server/panchang/resolve-day-sky.test.ts 'the gate is actually consulted by the resolver'
 
+# ── THE PROTAGONIST AND THE FACET REACH THE MODEL (2026-07-21) ───────────────────────────────
+# Both close gaps David's Venus audit exposed, and both are the v884 shape: correct, tested, and
+# reachable by nobody. These break the WIRING, not the helpers.
+run server/narrative/input-builder.ts 'praty?.lord, pf.timeLord' 'praty?.lord' \
+  server/narrative/payload-contract.test.ts "the annual Time Lord drops out of natalCondition again"
+run server/narrative/input-builder.ts '...(facetOf(g, pr.house) ? { indicates: facetOf(g, pr.house) } : {}),' '' \
+  server/narrative/payload-contract.test.ts "the canon facet stops being emitted per lord"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."
