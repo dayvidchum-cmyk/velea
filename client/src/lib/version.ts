@@ -2984,4 +2984,4 @@
 // DAY OFFERS IT — YOUR GROUND DOESN'T", which keeps the collective sky visible without addressing
 // it to this native as an instruction. Favourable ground is untouched.
 // 119 files, 1253 tests, 0 failures. Build exit 0. 29 probes, all caught.
-export const APP_VERSION = "1.1.897";
+export const APP_VERSION = "1.1.898";

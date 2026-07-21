@@ -1,16 +1,33 @@
-// A compact "where you're reading from" control, meant to sit ABOVE a calendar (Readings + Planner)
-// so the current location is always in view and one tap from changing it — David kept forgetting to
+// A compact "whose sky, and where" control, meant to sit ABOVE a calendar (Readings + Planner) so
+// the reading's location is always in view and one tap from changing it — David kept forgetting to
 // update it when switching profiles, because the only control was buried in the header/Settings.
-// No schema of its own: it reads the existing per-user current location (settings.getLocation) and
-// opens the existing LocationSheet by dispatching the same "velea-open-location" event the header and
-// first-run welcome use. The sheet reloads on save, so the calendar recomputes under the new sky.
+//
+// It used to read settings.getLocation (the ACCOUNT slot) and print "Reading from <city>". That was
+// wrong twice: it never said WHO was being read, and a profile cast from its own ground would be
+// read from that ground while this chip displayed the account's city — a confident wrong answer.
+//
+// 2026-07-21: David changed the city here while viewing one profile and a second profile silently
+// inherited it. His fix, in his words: "The little calendar thing should say 'reading for Lang in
+// Boston' after I change it. That would help me ground where I am in the app... Like, who am I
+// looking up again? Oh yeah. Lisa. She's in NJ."
+//
+// So it now reads settings.getReadingLocation, which runs the SAME resolveDaySky the reading uses,
+// and names the subject. No schema of its own; still opens the one LocationSheet via the shared
+// "velea-open-location" event (the one-surface law).
 import { MapPin, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export default function LocationChip({ accent }: { accent?: string }) {
-  const { data } = trpc.settings.getLocation.useQuery();
+  const { data } = trpc.settings.getReadingLocation.useQuery();
+  const name = data?.name ?? null;
   const city = data?.city ?? null;
   const tint = accent ?? "var(--color-primary)";
+
+  // A location this person never gave: the account's current city speaking for them, or the app
+  // default. Naming it as borrowed is the whole point — an inherited city presented as settled is
+  // exactly how Lisa was read from Boston for months.
+  const borrowed = data ? data.source === "current" || data.source === "default" : false;
+
   return (
     <button
       type="button"
@@ -31,14 +48,27 @@ export default function LocationChip({ accent }: { accent?: string }) {
         fontSize: "0.8rem",
         textAlign: "left",
       }}
-      aria-label="Change the location your readings are computed for"
+      aria-label={
+        name && city
+          ? `Reading for ${name} in ${city}. Change the location this reading is computed for.`
+          : "Change the location your readings are computed for"
+      }
     >
       <MapPin size={13} style={{ color: tint, flexShrink: 0 }} />
       <span style={{ color: "var(--color-muted-foreground)" }}>
-        Reading from{" "}
+        Reading for{" "}
         <strong style={{ color: "var(--color-foreground)", fontWeight: 600 }}>
-          {city ?? "set your location"}
+          {name ?? "you"}
+        </strong>{" "}
+        in{" "}
+        <strong style={{ color: "var(--color-foreground)", fontWeight: 600 }}>
+          {city ?? "set a location"}
         </strong>
+        {/* Not a warning colour and not an alarm — a quiet honest label. The reading is still
+            valid; it just hasn't been confirmed for this person. */}
+        {borrowed && city && (
+          <span style={{ color: "var(--color-muted-foreground)", fontStyle: "italic" }}> · not set for them</span>
+        )}
       </span>
       <span
         style={{
@@ -49,6 +79,7 @@ export default function LocationChip({ accent }: { accent?: string }) {
           color: tint,
           fontSize: "0.72rem",
           fontWeight: 600,
+          flexShrink: 0,
         }}
       >
         Change <ChevronRight size={13} />

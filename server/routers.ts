@@ -1009,6 +1009,33 @@ export const appRouter = router({
       };
     }),
 
+    // WHOSE SKY, AND WHERE — what the chip above the calendar must actually say.
+    //
+    // getLocation above returns users.location*, the ACCOUNT slot. The chip was rendering that as
+    // "Reading from <city>", which is wrong twice over: it never says WHO is being read, and a
+    // profile with its own ground is cast from that ground, not from the account slot — so the
+    // chip could state a city the reading never used.
+    //
+    // David, 2026-07-21, after one profile silently inherited another's city: "The little calendar
+    // thing should say 'reading for Lang in Boston'... Like, who am I looking up again? Oh yeah.
+    // Lisa. She's in NJ."
+    //
+    // So this returns the RESOLVED sky — the same resolveDaySky the reading itself uses — plus the
+    // subject's name and the tier it came from. One source of truth for the sky and the label.
+    getReadingLocation: publicProcedure.query(async (opts) => {
+      const user = opts.ctx.user ? await getUserById(opts.ctx.user.id) : null;
+      const subject = opts.ctx.subject;
+      const dateStr = localToday(user, subject);
+      const sky = await resolveDaySky({ user, profile: subject, profileId: subject?.profileId, dateStr });
+      return {
+        name: subject?.name ?? null,
+        city: sky.city,
+        // Which tier spoke — lets the UI mark a borrowed location as borrowed rather than
+        // presenting an inherited city as if the person had confirmed it.
+        source: sky.source,
+      };
+    }),
+
     // Resolve the IANA timezone for a coordinate (offline, no key). Used to
     // auto-fill the birth timezone once a location is geocoded.
     resolveTimezone: protectedProcedure
