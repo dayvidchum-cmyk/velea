@@ -482,8 +482,15 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         [/father'?s grandfather/i, "paternal great-grandfather"], [/father'?s/i, "father"],
         [/father in law/i, "father-in-law"], [/mother in law/i, "mother-in-law"],
         [/brother and sister in law/i, "siblings-in-law"],
+        // SPECIFIC BEFORE GENERAL — this list is first-match-wins and every other pair already
+        // obeys that ("mother's mother" precedes "mother"). This one did not, and the cost was a
+        // category error rather than a clumsy phrase: /partner'?s/ matches the bare plural
+        // "Partners", so the canon facet "Business Partners, Commerce and Trade" was claimed by
+        // the spouse rule and the reader was told about their MARRIAGE where the book is talking
+        // about their business. The `business partners` entry two lines below was unreachable.
+        [/business partners/i, "business partners"],
         [/spouse or partner|partner'?s|spouse/i, "partner"], [/husband/i, "husband"], [/wife/i, "wife"],
-        [/business partners/i, "business partners"], [/elder siblings/i, "elder siblings"],
+        [/elder siblings/i, "elder siblings"],
         [/grand children|grandchildren/i, "grandchildren"], [/children/i, "children"],
         [/siblings|brother|sister/i, "siblings"], [/mother/i, "mother"], [/father/i, "father"],
         [/guru|teacher/i, "teacher"], [/servants|employee/i, "people who work for them"],

@@ -84,6 +84,27 @@ const HIT_CONFIG: Record<string, {
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+// WHEN A DATED SKY EVENT ACTUALLY IS (2026-07-21). Two lines in this file wrote their own version
+// of this and both got it wrong in the same shape — `daysAway <= 0 ? <past phrase> : "in N days"`
+// — because each assumed something about the sign of daysAway that its own producer contradicts:
+//
+//   · STATIONS: detectStations scans `off = -12 → 60`, so daysAway is genuinely negative for a
+//     station that has already happened. Emitted whenever abs(daysAway) <= 3, so a station one to
+//     three days PAST announced itself as "just now".
+//   · ECLIPSES: findEclipses starts at `off = stepDays` and only ever walks forward, so daysAway
+//     is NEVER negative. `<= 0` therefore fired at exactly 0 — the eclipse is TODAY and may still
+//     be hours ahead — and the copy called it "just passed". An eclipse still to come, announced
+//     as over, on the one day it matters most.
+//
+// One helper, so a third dated event cannot invent a third version of the same mistake. Singular
+// is spelled out because "in 1 days" is the tell of exactly this kind of hand-rolled phrase.
+export function whenPhrase(daysAway: number): string {
+  if (daysAway === 0) return "today";
+  if (daysAway === 1) return "tomorrow";
+  if (daysAway === -1) return "yesterday";
+  return daysAway > 0 ? `in ${daysAway} days` : `${Math.abs(daysAway)} days ago`;
+}
+
 /**
  * Derive the Golden Moment signals for a computed sky. `litHouses` are the houses
  * considered emphasized this year (typically [1, 10, activatedProfectionHouse]);
@@ -116,7 +137,7 @@ export function computeGoldenMoment(
         kind: "station", planet: p.planet, daysAway: p.station.daysAway, direction: "caution", domain: info.domain,
         weight: 0.7, favorModes: ["Build", "Selective"], opposeModes: info.forwardFavor,
         qualifierLean: "review",
-        summary: `${p.planet} ${p.station.type} ${p.station.daysAway <= 0 ? "just now" : `in ${p.station.daysAway} days`} — its themes (${info.domain}) are especially loud.`,
+        summary: `${p.planet} ${p.station.type} ${whenPhrase(p.station.daysAway)} — its themes (${info.domain}) are especially loud.`,
       });
     }
 
@@ -151,7 +172,7 @@ export function computeGoldenMoment(
       domain: e.type === "solar" ? "beginnings" : "culminations and release",
       weight: 0.5 + 0.4 * closeness,
       favorModes: ["Restraint", "Build"], opposeModes: ["Action"], qualifierLean: "caution",
-      summary: `${cap(e.type)} eclipse ${e.daysAway <= 0 ? "just passed" : `in ${e.daysAway} days`} — hold major beginnings; favor finishing and release.`,
+      summary: `${cap(e.type)} eclipse ${whenPhrase(e.daysAway)} — hold major beginnings; favor finishing and release.`,
     });
   }
 

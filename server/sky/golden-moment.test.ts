@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeGoldenMoment, goldenMomentEffect, computeVerdict, universalLevel, personalLevel, type GoldenMomentSignal } from "./golden-moment";
+import { computeGoldenMoment, goldenMomentEffect, computeVerdict, universalLevel, personalLevel, whenPhrase, type GoldenMomentSignal } from "./golden-moment";
 import type { CurrentSky, SkyPlanet } from "./current-sky";
 
 function planet(p: Partial<SkyPlanet> & { planet: string }): SkyPlanet {
@@ -180,5 +180,38 @@ describe("computeVerdict", () => {
     const v = computeVerdict([favor], 2.0);
     expect(v.call).toContain("Mixed");
     expect(v.forCollective).toMatch(/carries/i);
+  });
+});
+
+// WHEN A DATED SKY EVENT ACTUALLY IS (2026-07-21). Two lines wrote their own version of this and
+// both were wrong in the same shape: `daysAway <= 0 ? <past phrase> : "in N days"`.
+//
+// Measured against the producers, not argued: detectStations scans `off = -12 → 60`, so daysAway
+// goes negative and a station 1-3 days PAST said "just now". findEclipses starts at `off =
+// stepDays` and only walks forward, so daysAway is never negative — `<= 0` fired only at exactly
+// 0, meaning an eclipse happening TODAY, possibly still hours ahead, was announced as "just
+// passed" on the one day it matters most.
+describe("a dated sky event says when it actually is", () => {
+  it("names today as today — never as already over", () => {
+    expect(whenPhrase(0)).toBe("today");
+    // The specific words that shipped. An eclipse still to come must not claim to be finished.
+    expect(whenPhrase(0)).not.toMatch(/passed|just now|ago/);
+  });
+
+  it("a past event reads as past, with its real distance", () => {
+    expect(whenPhrase(-1)).toBe("yesterday");
+    expect(whenPhrase(-3)).toBe("3 days ago");
+    // The station branch emits for abs(daysAway) <= 3, so every reachable past value is covered.
+    for (const d of [-1, -2, -3]) expect(whenPhrase(d)).not.toMatch(/just now|^in /);
+  });
+
+  it("a future event reads as future", () => {
+    expect(whenPhrase(1)).toBe("tomorrow");
+    expect(whenPhrase(5)).toBe("in 5 days");
+  });
+
+  // "in 1 days" is the signature of a hand-rolled phrase and was one edit away in both originals.
+  it("never produces a plural one", () => {
+    for (let d = -10; d <= 10; d++) expect(whenPhrase(d)).not.toMatch(/\b1 days\b/);
   });
 });

@@ -393,6 +393,19 @@ run server/vedic/day-filter.ts 'const label = PLAIN_TARA[taraNum]?.label;' 'cons
 run server/vedic/day-filter.ts '? (supports.length === 0 ? null : "THE DAY OFFERS IT' '? ("THE DAY OFFERS IT' \
   server/vedic/day-filter.test.ts "the headline claims an offer on a day that offers nothing again"
 
+# WHEN A DATED SKY EVENT ACTUALLY IS (v905). Both halves of the original mistake get broken: the
+# today case (an eclipse still to come, announced as over) and the past case (a station up to three
+# days old, announced as "just now").
+run server/sky/golden-moment.ts 'if (daysAway === 0) return "today";' 'if (daysAway === 0) return "just passed";' \
+  server/sky/golden-moment.test.ts "an event happening today is announced as already over again"
+run server/sky/golden-moment.ts 'return daysAway > 0 ? `in ${daysAway} days` : `${Math.abs(daysAway)} days ago`;' 'return `in ${Math.abs(daysAway)} days`;' \
+  server/sky/golden-moment.test.ts "a past station is announced as upcoming again"
+
+# SPECIFIC BEFORE GENERAL (v905). Put the spouse rule back in front and the canon's business facet
+# is read as the reader's marriage again.
+run server/narrative/input-builder.ts '        [/business partners/i, "business partners"],\n        [/spouse or partner' '        [/spouse or partner' \
+  server/narrative/person-words-order.test.ts "the spouse rule swallows the business-partners facet again"
+
 # THE DOOR GATE — it stands between a tap and a billed LLM call, so all three ways it could fail
 # open or fail shut get broken on purpose: the rule, the fail-open posture, and the wiring.
 run shared/ground-gate.ts 'return decision === "unasked";' 'return false;' \

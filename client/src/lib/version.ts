@@ -3084,4 +3084,23 @@
 // like a working app. Probed in that direction specifically.
 //
 // 123 files, 1290 tests, 0 failures. 120 probes, all caught. tsc exit 0, build exit 0.
-export const APP_VERSION = "1.1.904";
+// v1.1.905 = 2026-07-21 — THREE MORE FROM THE SWEEP, ALL SIDE-FREE.
+//
+// #6 + #7 were ONE bug wearing two hats: `daysAway <= 0 ? <past phrase> : "in N days"`, written
+// twice, each assuming something about the sign of daysAway that its own producer contradicts.
+// detectStations scans off = -12 -> 60, so daysAway goes NEGATIVE and a station one to three days
+// past announced itself "just now". findEclipses starts at off = stepDays and only walks forward,
+// so daysAway is NEVER negative — `<= 0` fired at exactly 0, meaning an eclipse happening TODAY,
+// possibly still hours ahead, was announced as "just passed" on the one day it matters most.
+// One whenPhrase() helper now, so a third dated event cannot invent a third version of it.
+// (Guidance either side of the exact moment stays parked, per David: naming only.)
+//
+// #2 was a category error, not a clumsy phrase. PERSON_WORDS is first-match-wins and every pair
+// obeys specific-before-general ("mother's mother" precedes "mother") except one: /partner'?s/
+// matches the bare plural "Partners", so the canon facet "Business Partners, Commerce and Trade"
+// was claimed by the SPOUSE rule. The reader was told about their marriage where the book was
+// talking about their business. Measured both ways: the business facet moves, the genuine spouse
+// facet ("Egotism of Spouse or Partner") does not.
+//
+// 125 files, 1299 tests, 0 failures. tsc exit 0, build exit 0.
+export const APP_VERSION = "1.1.905";
