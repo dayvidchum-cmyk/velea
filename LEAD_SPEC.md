@@ -5,6 +5,12 @@ something and decide this is the beginning?"*
 
 **Status: SPEC ONLY. No code written. Two rulings needed from David before build (§8).**
 
+> **REVISED 2026-07-21 after measuring — §2.5 is new and it corrects this spec twice.** Velea
+> already contains a Step-15 convergence engine (`convergence.ts`), so §4's "build a new
+> house-level convergence" was the wrong shape; and §4.4's claim that the null case "will be
+> uncommon" was **wrong** — it is the largest single bucket at 37.4%. Both corrections are
+> measured, not argued. §8's ruling #A is already answered by shipped code.
+
 ---
 
 ## 1. The problem, measured
@@ -89,6 +95,56 @@ David has already ruled this once, in his own transcription (`canon/METHOD.md`):
 
 > Appendix IV Step 15… **replaces the invented THEMES-scoring engine in `knots.ts`** (David's
 > "hubris" — retire it): the tradition does not score, it **researches then looks for convergence.**
+
+---
+
+## 2.5 Step 15 is already built — and I measured what it answers
+
+`server/vedic/convergence.ts` **is** Appendix IV Step 15. It was built to David's directive #3
+(2026-07-15), its tie law is the Simone-validated v430 rebuild, its one-law fix is v798, and its
+output is already stored per profile. It converges over knot **themes**, not houses.
+
+So §4's proposal — build a new house-level convergence — would have put a second, unvalidated
+Step-15 mechanism beside a validated one. **The question was never what to build. It is: how many
+themes does the engine already light at once?**
+
+Measured — `server/scripts/lead-convergence.ts`, the *same* cohort as §1 (32 real birth moments ×
+33 dates in 2026 = 1,056 chart-days; 24,790 pratyantar spans of timeline):
+
+    themes lit at once
+      0      395   37.4%   <- nothing converges
+      1      201   19.0%   <- the lead is already decided
+      2      213   20.2%
+      3       88    8.3%
+      4      103    9.8%
+      5       26    2.5%
+      6       28    2.7%
+      8        2    0.2%
+
+    exactly one : 19.0%   the engine has already answered "what is this read about"
+    none        : 37.4%   the null case
+    two or more : 43.6%   a tiebreak is genuinely needed
+
+    which themes light: siblings 27.3 · fame 25.5 · parents 25.1 · wealth 20.7 · health 16.4
+                        career 11.3 · children 10.2 · home 7.7 · marriage 5.0 · identity 4.0
+
+Controls all pass: 32/32 charts produced a timeline, 1056/1056 chart-days found a covering span,
+44 distinct lit-sets (the result varies by chart), and only 10 of 24,790 spans carry no theme —
+so a zero here is a real zero, not a dead instrument. `mcLon` is null in this run, which is safe
+because the heavy-lord law feeds `weight` (knots.ts:295) while `lit` gates on `convergence` =
+`activeLords.size` (knots.ts:291, :305). The script therefore never reports weight.
+
+**Two consequences.**
+
+**(a) §4.4 was wrong.** It said no-convergence "will be uncommon". It is the *largest* bucket —
+37.4%, more than one day in three. The null path is not an edge case to define politely; it is the
+most common thing the reader will meet, and it needs a real answer, not a fallback.
+
+**(b) Ruling #A is already made, in shipped and validated code.** §8 asked which dasha levels vote.
+`knots.ts` already counts distinct active lords across exactly maha/antar/pratyantar and gates on
+`mahaTied && convergence >= 2` — that *is* option (iii), "all three vote, but maha must be one of
+them". It was ruled by the v430 rebuild and re-fixed in v798. Re-asking it would reopen a settled
+question, which this repo's method forbids. **#A is closed.**
 
 ---
 
@@ -229,19 +285,33 @@ Probes (`tools/mutation-probe.sh`), each proven to fail:
 
 ## 8. RULINGS NEEDED BEFORE BUILD
 
-**#A — Which dasha levels vote?** Step 15 says "each sub cycle". Velea carries maha, antar and
-pratyantar. Pratyantar is a few weeks and the prompt already says to weight it lightly *below*
-maha/antar. Options: (i) all three vote equally; (ii) maha + antar vote, pratyantar only breaks
-ties; (iii) all three, but degree 3 requires maha to be one of them. **I lean (iii)** — it keeps the
-chapter in charge while letting the fine cycle confirm rather than create. This is method; it is
-yours.
+*Superseded by §2.5. #A is closed — the shipped, Simone-validated law already answers it. #B
+dissolved: knots are not a rival to the dasha convergence, they ARE it, so there is nothing to
+arbitrate between. What the measurement leaves open is different, and narrower.*
 
-**#B — What is the subject when a knot is lit?** The knots are pre-computed convergences and the
-prompt calls the first one "the loudest". Under this spec the lead is computed from the dasha
-portfolios instead. Either the knot IS the lead when present (and `computeLead` should read knots
-first), or knots become evidence *for* a lead rather than a competing claimant. **I lean the
-latter** — one mechanism, per METHOD.md — but a knot outranking the dasha convergence is a
-defensible reading of "the loudest" and I will not guess.
+**#1 — When two or more themes are lit (43.6% of chart-days), what picks one?**
+The engine lights the set; nothing orders it. Three ways to choose, and only one is yours to pick:
+
+- **(i) Highest convergence count wins**, ties broken by house number. Pure counting, the canon's
+  own rule, no new astrology. Risk: a 3–3 tie is common and house order is arbitrary as meaning.
+- **(ii) The maha lord's own strongest tie wins.** Step 15 reads *outward from the maha*, so the
+  theme the chapter-lord is most actively tied to is the chapter. Risk: needs a "most actively
+  tied" definition, which is a new rule and therefore yours.
+- **(iii) Don't pick — hand the model the lit set, ranked, and say these agree.** Honest to the
+  engine, but it is what we have now, and it is the mechanism behind the inventory problem.
+
+**I lean (i)**, because it adds no astrology and this repo already counts in three places
+(year-rank, the crown ruling, knots itself). But (ii) is a defensible reading of "outward from the
+maha" and I will not encode a guess into a person's chart.
+
+**#2 — What does the read open from on the 37.4% of days when nothing is lit?**
+This is the big one, and my spec got it wrong by assuming it was rare. Options: the Tara/Chandra
+day-frame becomes the subject (§4.4's original answer); or the standing chart speaks — lagna,
+atmakaraka, Moon (Steps 1–3, which are always present and never null); or the near-miss layer is
+admitted, since a maha-tied theme short of convergence 2 exists on 69.1% of chart-days and would
+cut the null case sharply. **I lean Steps 1–3** — on a day the clock says nothing, the honest
+subject is who the person is, not what the sky is doing — but admitting near-misses is a method
+change with real reach and it is squarely yours.
 
 ---
 
