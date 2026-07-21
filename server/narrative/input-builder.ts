@@ -423,14 +423,35 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       research = await getStoredResearch(p.id);
     }
     if (research) {
-      const chainLords = Array.from(new Set([cur?.mahadasha, cur?.antardasha, praty?.lord].filter(Boolean))) as string[];
+      // THE PROTAGONIST WAS MISSING. This list carried the Vimshottari chain only — maha, antar,
+      // pratyantar — so the ANNUAL TIME LORD, the planet leading the year, never had its natal
+      // condition sent. Proven by David's discriminability audit (server/scripts/venus-three.ts,
+      // 2026-07-21): he and Lisa are both 44, both Virgo lagna, both in a 9th-house Taurus
+      // profection led by Venus, and every line a narrator would write from was IDENTICAL. The one
+      // fact that separates them on sight — natal Venus in Aquarius/6th for him, Capricorn/5th for
+      // her — was in the stored research and never reached the payload.
+      //
+      // Each lord now also carries WHICH office it holds. Without it the model receives a list of
+      // planets with no way to know which one leads the year, which is the engine leaving a
+      // hierarchy decision to the narrator — the thing this architecture exists to prevent.
+      const lordRoles: Record<string, string[]> = {};
+      const addRole = (planet: string | null | undefined, role: string) => {
+        if (planet) (lordRoles[planet] ??= []).push(role);
+      };
+      addRole(cur?.mahadasha, "Mahadasha lord — the long storyline");
+      addRole(cur?.antardasha, "Antardasha lord — the sub-period");
+      addRole(praty?.lord, "Pratyantardasha lord — the fine cycle");
+      addRole(pf.timeLord, "Annual Time Lord — leads THIS year");
+      const chainLords = Array.from(
+        new Set([cur?.mahadasha, cur?.antardasha, praty?.lord, pf.timeLord].filter(Boolean))
+      ) as string[];
       const LAJJ_EN: Record<string, string> = {
         mudita: "delighted", kshudita: "starved", kshobhita: "agitated",
         trishita: "left thirsty", lajjita: "shamed", garvita: "proud",
       };
       const condOf = (g: string) => {
         const pr = (research!.planets as any)[g];
-        if (!pr) return { planet: g, note: "a node — carries the axis it sits on", house: byPlanet[g]?.house ?? null };
+        if (!pr) return { planet: g, roles: lordRoles[g] ?? [], note: "a node — carries the axis it sits on", house: byPlanet[g]?.house ?? null };
         const ratio = pr.shadbala?.ratio;
         const strength = ratio == null ? "unmeasured"
           : ratio >= 1.15 ? "strong — can deliver what it promises"
@@ -450,6 +471,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         const trueHouse = research!.bhavaChalit?.placements?.[g];
         return {
           planet: g,
+          // Which office this lord holds today. The engine decides the hierarchy; the narrator
+          // is told it rather than left to infer it from position in the array.
+          roles: lordRoles[g] ?? [],
           seat: `${pr.sign}, house ${pr.house}${pr.retrograde ? ", retrograde" : ""}`,
           dignity: `${pr.dignity?.state}${pr.dignity?.neechaBhanga?.cancelled ? " (fall CANCELLED — hard-won strength, not weakness)" : ""}`,
           strength,
@@ -463,8 +487,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         .map((y: any) => ({ name: y.name, note: y.inNavamsha ? "held strongly — repeats in the marriage/dharma chart" : `holds from ${y.frames.length} vantages` }));
       natalCondition = {
         _how: "the engine's stored research of this chart (both volumes) — trust it over inference; translate it, never surface a term",
+        // slowOnly (the stage/year surfaces) drops the fine cycle but KEEPS the annual Time
+        // Lord — the year's protagonist is a slow layer by definition, not a daily one.
         lords: (moment?.slowOnly
-          ? Array.from(new Set([cur?.mahadasha, cur?.antardasha].filter(Boolean))) as string[]
+          ? Array.from(new Set([cur?.mahadasha, cur?.antardasha, pf.timeLord].filter(Boolean))) as string[]
           : chainLords).map(condOf),
         atmakaraka: {
           planet: research.anchors.atmakaraka.planet,
