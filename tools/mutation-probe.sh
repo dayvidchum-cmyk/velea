@@ -241,8 +241,13 @@ run server/narrative/router.ts 'await assertOwnsProfile(ctx.user.id, input.profi
 run server/db.ts 'const SESSION_SLIDE_AFTER_MS =' 'const SESSION_SLIDE_AFTER_MS_UNUSED =' \
   server/session-slide.test.ts "session sliding renewal"
 
-run server/narrative/prompts.ts 'do NOT reach for "worth" or' 'do NOT reach for "wealth" or' \
-  server/narrative/prompt-structure.test.ts "2nd-house self-worth doctrine removed from the prompt"
+# The v890 doctrine. Two arms, because David's correction was two rules: the WORD is banned, and
+# no facet may become a stock default in its place. Re-anchored from the pre-v890 text, which the
+# harness correctly flagged as stale rather than passing on a phrase that no longer existed.
+run server/narrative/prompts.ts 'BANNED OUTRIGHT: "self-worth"' 'DISCOURAGED: "self-worth"' \
+  server/narrative/prompt-structure.test.ts "2nd-house self-worth ban removed from the prompt"
+run server/narrative/prompts.ts 'SELF-LOVE IS ONE POSSIBLE EXPRESSION, NEVER THE DEFAULT' 'SELF-LOVE IS THE SECOND FACE' \
+  server/narrative/prompt-structure.test.ts "self-love silently becomes the default again (the v889 mistake)"
 
 run server/narrative/generate.ts "      maxTokens: 1150, maxWords: 280," "      maxTokens: 1150, maxWords: 150," \
   server/narrative/paid-word-floor.test.ts "a paid surface drops below the free day read"
