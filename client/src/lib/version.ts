@@ -2968,4 +2968,20 @@
 // The facet model {subject, topic, relationship} is now complete and every field is read from
 // something he wrote — canon for subject and topic, his own house doctrine for the verb.
 // 119 files, 1249 tests, 0 failures. Build exit 0.
-export const APP_VERSION = "1.1.895";
+// v1.1.896 = 2026-07-21 — THE HEADLINE IS PERSONAL, NOT COLLECTIVE.
+// David read the same date on three profiles. All three were ordered "BOLD MOVES LAND WELL TODAY
+// — GO": Lang on a Caution day whose own sentence read "keep everything small, finish nothing
+// new", and David under a "LEANING RESTRAINT" rung. His words: "(All of the above contradicts
+// itself.)"
+// The headline was computed from nature x tithi family — the COLLECTIVE sky — so every native on
+// a date got the identical order. Inside the same function the SENTENCE was already gated by the
+// native's tara and supportedKinds already emptied on hostile ground; the headline was the one
+// field that never saw the person. The Personal Weather Gate contained mode, qualifier,
+// instruction and turnsAtNote, and could not reach this because it is produced upstream.
+// Gated at the PRODUCER, not at the hero: the month calendar and the LLM payload read the same
+// field, so a fix at the render site would have left two surfaces still shouting. Contained day
+// -> no headline (the mode word and sentence already carry it). Softened-hostile ground -> "THE
+// DAY OFFERS IT — YOUR GROUND DOESN'T", which keeps the collective sky visible without addressing
+// it to this native as an instruction. Favourable ground is untouched.
+// 119 files, 1253 tests, 0 failures. Build exit 0. 29 probes, all caught.
+export const APP_VERSION = "1.1.896";

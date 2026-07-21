@@ -345,6 +345,16 @@ run server/narrative/input-builder.ts '...(facetsOf(g, pr.house).length ? { indi
 run server/narrative/input-builder.ts 'for (const [re, who] of PERSON_WORDS) if (re.test(item)) return who;' '' \
   server/narrative/payload-contract.test.ts "facets lose their subject and go fuzzy again"
 
+# ── THE HEADLINE IS PERSONAL (2026-07-21) ────────────────────────────────────────────────────
+# David read the same date on three profiles and every one was ordered "BOLD MOVES LAND WELL
+# TODAY — GO" — including a Caution day whose own sentence said keep everything small. The
+# sentence had always been gated by tara; the headline was the one field that never saw the
+# native. Break the gate and the contradiction must come back loudly.
+run server/vedic/day-filter.ts 'const headline = contained' 'const headline = false' \
+  server/vedic/day-filter.test.ts "a contained day shouts the collective GO headline again"
+run server/vedic/day-filter.ts ': input.tara?.quality === "bad"' ': false' \
+  server/vedic/day-filter.test.ts "hostile ground is handed the collective order again"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."

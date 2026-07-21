@@ -1232,7 +1232,7 @@ export default function Planner() {
             {/* The day's character line — the classical filter's headline + tilt.
                 textWrap balance so it never orphans a last word (David 2026-07-18: "DONE" hung
                 alone on its own line). */}
-            {selectedCharacter && (
+            {selectedCharacter?.headline && (
               <p style={{ fontSize: 'clamp(0.8rem, 3.4vw, 1rem)', fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)', marginTop: '-0.35rem', marginBottom: '0.4rem', textWrap: 'balance' as any }}>
                 {selectedCharacter.headline}
               </p>

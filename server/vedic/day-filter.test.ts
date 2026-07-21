@@ -301,3 +301,39 @@ describe("Mercury's arc: neither begin nor end, and the beginnings become the au
     expect(legacy.audit).toEqual([]);
   });
 });
+
+// THE HEADLINE IS PERSONAL (David, live, 2026-07-21). Three profiles read the same date and all
+// three were handed "BOLD MOVES LAND WELL TODAY — GO" — one on a Caution day whose own sentence
+// said "keep everything small", one under a "LEANING RESTRAINT" rung. His words: "All of the above
+// contradicts itself." The sentence was already gated by tara; the headline never saw the person.
+describe("the headline is gated by the native's own ground, not just the collective sky", () => {
+  // Swati + a movable nature is the matrix cell that produces the GO headline.
+  const goDay = { ...base, nakshatra: "Swati", tithiNumber: 2 };
+
+  it("the collective GO headline still stands for a native whose ground carries it", () => {
+    const good = dayFilter({ ...goDay, tara: { quality: "good", taraNum: 2, cycle: 1 } });
+    expect(good.headline).toBe(dayFilter(goDay).headline);
+    expect(good.headline).toBeTruthy();
+  });
+
+  it("the loss-star at full force silences the headline instead of shouting GO over it", () => {
+    const contained = dayFilter({ ...goDay, tara: { quality: "bad", taraNum: 7, cycle: 1 } });
+    expect(contained.contained).toBe(true);
+    expect(contained.headline).toBeNull();
+    // The instruction still reaches the native — through the sentence, which was never the leak.
+    expect(contained.sentence).toMatch(/keep everything small/);
+  });
+
+  it("softened-hostile ground keeps the sky visible but stops addressing it as an order", () => {
+    const hostile = dayFilter({ ...goDay, tara: { quality: "bad", taraNum: 3, cycle: 1 } });
+    expect(hostile.contained).toBe(false);
+    expect(hostile.headline).toBe("THE DAY OFFERS IT — YOUR GROUND DOESN'T");
+  });
+
+  it("no hostile native is ever handed a headline that orders bold movement", () => {
+    for (const taraNum of [3, 5, 7]) {
+      const d = dayFilter({ ...goDay, tara: { quality: "bad", taraNum, cycle: 1 } });
+      expect(d.headline ?? "").not.toMatch(/BOLD MOVES|— GO\b/);
+    }
+  });
+});

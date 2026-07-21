@@ -70,8 +70,9 @@ export interface DayCharacter {
   /** THE HANDSHAKE — which task KINDS (the seven natures as act-kinds) this day supports
       for this native; empty on contained/hostile-star days. */
   supportedKinds: DayNature[];
-  /** e.g. "a tender day in a work tithi". */
-  headline: string;
+  /** e.g. "a tender day in a work tithi". NULL on a contained day: the mode word and the
+      sentence already carry the instruction, and a third line only shouts over them. */
+  headline: string | null;
   /** What the day supports (nature + family + vara, vetoes already applied). */
   supports: string[];
   /** What the day avoids. */
@@ -499,7 +500,7 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
       purna: "Clear the backlog; leave the desk clean",
     },
   };
-  const headline = HEADLINE_MATRIX[nature]?.[family] ?? `${NATURE_LABEL[nature]} ${FAMILY_LABEL[family]}`;
+  const collectiveHeadline = HEADLINE_MATRIX[nature]?.[family] ?? `${NATURE_LABEL[nature]} ${FAMILY_LABEL[family]}`;
   // A nature may carry David's own plain movement line (avoidPlain) — it replaces the
   // book's item-list in the SENTENCE (the items stay in `avoid` for detail views).
   const avoidPlain = (natDef as any).avoidPlain as string | undefined;
@@ -590,6 +591,27 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   //
   // Every sentence stands ALONE now — the hero prints the finished matrix headline
   // right above it, so no branch repeats or prefixes it (David's 7/16 matrix ship).
+  // THE HEADLINE IS PERSONAL TOO (David, live, 2026-07-21). The matrix headline is computed from
+  // nature x tithi family — the COLLECTIVE sky — so every native on a given date was handed the
+  // same order. The sentence below has always been gated by the native's tara and supportedKinds
+  // empties on hostile ground; the headline was the one field that never saw the person. On screen
+  // that printed "Caution ... keep everything small" directly above "BOLD MOVES LAND WELL TODAY —
+  // GO", and "LEANING RESTRAINT" beside the same GO. His words: "All of the above contradicts
+  // itself."
+  //
+  // Gated HERE, at the producer, not at the hero — the calendar and the LLM payload read the same
+  // field, so containing it downstream would have left two surfaces still shouting. Every consumer
+  // is now born gated (the Personal Weather Gate law, one rule).
+  const headline = contained
+    // The loss-star at full force: the mode word and the sentence already say it. Silence beats a
+    // third line arguing with them.
+    ? null
+    : input.tara?.quality === "bad"
+    // Softened-hostile ground — the collective day really does offer this, and that stays true and
+    // visible; what changes is that it is no longer addressed to this native as an instruction.
+    ? "THE DAY OFFERS IT — YOUR GROUND DOESN'T"
+    : collectiveHeadline;
+
   const sentence = contained
     ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
     : supports.length === 0
@@ -682,7 +704,7 @@ export function movementOf(
 
 /** The rx-capped sentence — when Mercury holds a GO day down to Build, the words must hold
  *  it too (David's July 14: "Build" over "quick errands, trade and sales" read as conflict). */
-export function cappedSentence(nature: DayNature, _headline: string): string {
+export function cappedSentence(nature: DayNature, _headline: string | null): string {
   const carry = nature === "swift"
     ? "the speed wants out — spend it on revisits, follow-ups, and finishing, not on launches"
     : "the shift wants to happen — prepare it, pack for it, don't launch it";
