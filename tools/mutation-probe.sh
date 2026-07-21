@@ -376,6 +376,13 @@ run server/narrative/generate.ts '[/\bnaidhana\b/gi, "the loss star"],' '' \
 run server/narrative/generate.ts 'for (const [re, rep] of SIGN_SCRUB) out = out.replace(re, rep);' '' \
   server/narrative/veto-budget.test.ts "sign names survive the scrub (David's Scorpio leak)"
 
+# DAVID'S LAW, 2026-07-21 — hardcoded copy must be true to the data that selected it. Both halves
+# get a probe: the words themselves, and the rung-gate that makes them true.
+run server/vedic/day-filter.ts 'The loss star holds the day' 'Your own star holds the day' \
+  server/vedic/day-filter.test.ts "the contained line names the birth star again"
+run server/vedic/day-filter.ts 'input.tara.quality === "bad" && input.tara.taraNum === 7' 'input.tara.quality !== "good"' \
+  server/vedic/day-filter.test.ts "the birth star can reach the contained branch again"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."

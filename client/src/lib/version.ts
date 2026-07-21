@@ -2984,4 +2984,25 @@
 // DAY OFFERS IT — YOUR GROUND DOESN'T", which keeps the collective sky visible without addressing
 // it to this native as an instruction. Favourable ground is untouched.
 // 119 files, 1253 tests, 0 failures. Build exit 0. 29 probes, all caught.
-export const APP_VERSION = "1.1.900";
+// v1.1.901 = 2026-07-21 — THE COPY NAMES THE RUNG THAT CHOSE IT.
+// David's law, given as a question and answered as a law: "nothing should be hardcoded unless the
+// data that decides it is displayed where it is displayed, and what it says is accurate to the
+// data." A hardcoded string is legitimate only if the data that selected it is visible at the same
+// place AND the words are true to that data. Otherwise the app asserts something the reader cannot
+// check.
+// The contained sentence failed both halves. It fires ONLY on tara 7 — Naidhana, "death/vadha
+// (harshest)" in crown.ts's own table — and it read "Your own star turns the day inward". A reader
+// hears "your own star" as the star they were born under. That is Janma, tara 1, quality "mixed",
+// a rung that can never reach this branch. The line fooled ME mid-file and I repeated it back to
+// him as "not hostile, but your own" when it was the harshest rung on the ladder. It may have been
+// written to mean "your own star-STANDING"; under his rule that defence is void, because the
+// deciding rung is shown nowhere on the card, so the words must carry it.
+// Now: "The loss star holds the day — however the sky reads, keep everything small, finish nothing
+// new, and let it pass." Two tests, and a CONTROL among them: the birth star can never reach this
+// branch, which is the whole reason the old copy was wrong.
+// Both halves probed — the words, and the rung-gate that makes them true.
+// Not closed by this: ~70 other conditional strings in interpreter.ts and 4 more branches in
+// day-filter.ts have not been read against the rule. That sweep is its own run, not this one.
+// 120 files, 1273 tests, 0 failures. Build exit 0. 110 probes, all caught (the v900 note
+// said 29 — it was counting the probes added that run, not the harness).
+export const APP_VERSION = "1.1.901";

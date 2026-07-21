@@ -619,7 +619,20 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     : collectiveHeadline;
 
   const sentence = contained
-    ? "Your own star turns the day inward — however the sky reads, keep everything small, finish nothing new, and let it pass."
+    // NAME THE RUNG THAT CHOSE THIS LINE (David's law, 2026-07-21): "nothing should be hardcoded
+    // unless the data that decides it is displayed where it is displayed, and what it says is
+    // accurate to the data."
+    //
+    // This branch fires ONLY on tara 7 — Naidhana, "death/vadha (harshest)" in crown.ts's own
+    // table. Janma, the birth star, is tara 1 and quality "mixed", so it can never reach here.
+    // The line said "Your own star", which a reader hears as the star they were born under; it
+    // fooled ME while I was reading this file, and I repeated it back to David as "not hostile,
+    // but your own" when it was the harshest rung on the ladder.
+    //
+    // It may have been written to mean "your own star-STANDING" (the personal count, as against
+    // "however the sky reads"). Under his rule that defence doesn't matter: the deciding rung is
+    // shown nowhere on the card, so the words must carry it.
+    ? "The loss star holds the day — however the sky reads, keep everything small, finish nothing new, and let it pass."
     : supports.length === 0
     ? (input.tara?.quality === "good"
         ? "Your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it."

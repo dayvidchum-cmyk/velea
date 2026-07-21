@@ -352,3 +352,29 @@ describe("the headline is gated by the native's own ground, not just the collect
     }
   });
 });
+
+// DAVID'S LAW, 2026-07-21: "nothing should be hardcoded unless the data that decides it is
+// displayed where it is displayed, and what it says is accurate to the data."
+//
+// The contained sentence fires ONLY on tara 7 (Naidhana, "death/vadha — harshest"). It used to say
+// "Your own star", which is tara 1 (Janma, quality "mixed") — a rung that can never reach this
+// branch. The deciding rung appears nowhere on the card, so the copy has to carry it.
+describe("hardcoded copy must be true to the data that selected it", () => {
+  const goDay = { nakshatra: "Swati", tithiNumber: 2, varaLord: "Jupiter", vishti: false } as any;
+
+  it("the contained line names the loss star, not the birth star", () => {
+    const d = dayFilter({ ...goDay, tara: { quality: "bad", taraNum: 7, cycle: 1 } });
+    expect(d.contained).toBe(true);
+    expect(d.sentence).toMatch(/loss star/i);
+    expect(d.sentence).not.toMatch(/your own star/i);
+  });
+
+  // The control: this branch is unreachable by the birth star, which is the whole reason the old
+  // copy was wrong. Janma is "mixed", never "bad".
+  it("the birth star can never reach the contained branch", () => {
+    for (const quality of ["mixed", "good"] as const) {
+      const d = dayFilter({ ...goDay, tara: { quality, taraNum: 1, cycle: 1 } });
+      expect(d.contained).toBe(false);
+    }
+  });
+});
