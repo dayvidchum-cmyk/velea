@@ -14,7 +14,7 @@ import { interpretPanchang } from "../panchang/interpreter.js";
 import { getDayField, gateDayField } from "../panchang/service.js";
 import { combustion, nodalAffliction, eclipseNear, eclipseSeason } from "../panchang/affliction.js";
 import { strength, dignityLabel, signLordOf } from "../panchang/dignity.js";
-import { crownDay } from "../panchang/crown.js";
+import { crownDay, tarabala as tarabalaOf } from "../panchang/crown.js";
 import { resolveDaySky, DEFAULT_SKY } from "../panchang/resolve-day-sky.js";
 import { natalDignities } from "../vedic/dignity.js";
 import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
@@ -501,6 +501,15 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   }
   (natal as any).personalApex = personalApex;
 
+  /** This native's tara standing for ANY star by name — used for the two halves of a turn day. */
+  const taraOfStar = (name?: string | null): { name: string; favorable: boolean } | null => {
+    if (!name || birthNakIdx < 0) return null;
+    const idx = NAK27.indexOf(String(name).trim());
+    if (idx < 0) return null;
+    const t = tarabalaOf(birthNakIdx, idx);
+    return { name: t.name, favorable: t.favorable };
+  };
+
   // Day-mode from the SAME source as the hero (panchang.today / panchang.byDate → getDayField):
   // the viewer's current/stored location + real tz (moment.dayLoc), else getDayField's built-in
   // location default. Computing this from the BIRTH chart's lat/lon (as before) let the hero and
@@ -583,12 +592,21 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // the names used INSIDE finishDayMode's options, not the ones on the object that comes back.
     // It typechecked (they were `as any`), emitted null on every day forever, and I would have
     // shipped it as "the two-part day is wired". Verified against the returned shape instead.
+    // ...AND EACH STAR'S OWN TARA (David, live, 2026-07-20). Both stars travelled, but only the
+    // MAJORITY star's tara did — so on a turn day the model narrates the opening stretch in the
+    // ruling star's colour. That day: Hasta until 9:39, then Chitra. From his Jyeshtha, Hasta is
+    // PRATYAK (pushback) and Chitra is SADHAKA (effort lands). The read called them "both stars
+    // favor the self" and wrote the morning as "quick, practiced hands carry you through waking
+    // hours". His account of the same morning: the groove arrived WITH the second star. The engine
+    // had the pieces and never put them together.
     starTurn: (field as any).nakshatraAfterTransition && (field as any).nakshatraTransitionTime
       ? {
           fromStar: (field as any).nakshatraAtSunrise ?? null,
           toStar: (field as any).nakshatraAfterTransition,
           atLocalTime: (field as any).nakshatraTransitionTime,
           rulesMostOfDay: field.nakshatra ?? null,
+          ...(taraOfStar((field as any).nakshatraAtSunrise) ? { fromTara: taraOfStar((field as any).nakshatraAtSunrise) } : {}),
+          ...(taraOfStar((field as any).nakshatraAfterTransition) ? { toTara: taraOfStar((field as any).nakshatraAfterTransition) } : {}),
         }
       : null,
     // POLAR HONESTY (v820). Spread ONLY when the Sun genuinely never rose — a `noSunrise: null` on
@@ -638,13 +656,21 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       return (krishna ? inPaksha + 15 : inPaksha) + 1;   // 1..30, same contract as the calendar
     })();
     const WEEKDAY_LORD_7 = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+    // Mercury's arc has to be known BEFORE the filter runs, not after (it used to be computed
+    // hundreds of lines below, for the prose only). Same call, same date, hoisted.
+    const merRxEarly = await mercuryRxState(dateStr);
+    const mercuryRxEarly = merRxEarly.phase !== "direct";
     const c = dayFilter({
       nakshatra: String(panchang.nakshatra ?? ""),
       tithiNumber,
       varaLord: WEEKDAY_LORD_7[new Date(dateStr + "T12:00:00Z").getUTCDay()],
       vishti: !!panchang.karana?.vishti,
       dateSeed: dateStr,
-      // Mercury reaches the read via input.mercuryRx; the rx law gates movement, not character.
+      // MERCURY NOW REACHES THE FILTER (David, live, 2026-07-20). It used to reach only the prose,
+      // as input.mercuryRx, with the comment below saying the rx law gates movement and not
+      // character — and so the day kept handing the model beginnings to write from while the
+      // prompt told it not to launch. His ruling: neither begin nor end, rx PLUS both shades.
+      mercuryRx: !!mercuryRxEarly,
       // The PERSONAL tara now reaches the filter (David's 7/29: the prose cheered travel on
       // his obstacle-star day) — the sentence carries the personal turn, supports empty out.
       tara: personalTara as any,
@@ -652,6 +678,11 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     dayFilterBlock = {
       headline: c.headline, sentence: c.sentence,
       supports: c.supports, avoid: c.avoid, vetoes: c.vetoes,
+      ...(c.audit.length ? { audit: c.audit } : {}),
+      // THE YOGA ITSELF NOW REACHES THE MODEL. It was computed, shipped on DayCharacter, and read
+      // by nothing — the prose only ever saw three unattributed support strings. David's meaning
+      // for it, 2026-07-20: "any intentional action will be rewarded."
+      ...(c.siddhaYoga ? { specialYoga: { kind: c.siddhaYoga.kind, via: c.siddhaYoga.via } } : c.amritaSiddhi ? { specialYoga: { kind: "amrita-siddhi", via: `${WEEKDAY_LORD_7[new Date(dateStr + "T12:00:00Z").getUTCDay()]}'s day with ${String(panchang.nakshatra ?? "")}` } } : {}),
       varaColors: c.varaColors,
       ...(personalTara?.quality === "bad" ? {
         personalStance: "THIS RULES THE DAY: the native's own day-star meets this day as an obstacle. However bright the collective day reads, do NOT recommend its outward supports (travel, launches, trade, beginnings) to this native — the guidance is containment: finish, tend, keep it small. The world can run with this day; this native doesn't.",

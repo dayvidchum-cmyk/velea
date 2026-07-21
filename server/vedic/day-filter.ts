@@ -55,6 +55,9 @@ export interface DayFilterInput {
   varaLord: string;
   /** Vishti (Bhadra) karana running → initiating is vetoed. */
   vishti: boolean;
+  /** Mercury anywhere in its retrograde arc — pre-shadow, station, retrograde or retroshade.
+   *  TRUE at ANY phase (David's ruling 2026-07-20: "rx plus the shades"). Neither begin nor end. */
+  mercuryRx?: boolean;
   /** The native's tara standing for the day (personal layer; null = collective-only read). */
   tara?: { quality: "good" | "bad" | "mixed"; taraNum: number; cycle: number } | null;
   /** Date (YYYY-MM-DD) used ONLY to rotate a nature's supportsPool line — stable all day. */
@@ -75,6 +78,9 @@ export interface DayCharacter {
   avoid: string[];
   /** Active vetoes, named plainly. */
   vetoes: string[];
+  /** Acts the day would otherwise support, turned around into what gets AUDITED — Mercury's arc
+   *  only. Empty on a clear day. Never dropped silently: the day keeps naming its own territory. */
+  audit: string[];
   /** The vara's coloring, one phrase. */
   varaColors: string;
   /** Amrita Siddhi Yoga — this weekday's own nakshatra (Raman, Muhurtha Ch.VI p.40). One of the
@@ -244,15 +250,20 @@ const ACT_CLASS: Record<string, ActClass> = {
   // than a decision. Classed with the other acts that make a connection between people —
   // "marriage and partnerships", "romance", "friendship" are all union here.
   "networking": "union",
-  // The Siddha grid's three (v878, Raman Ch. VI). Classed to MATCH what they already did — all
-  // three were falling through the `?? "initiate"` default — so this changes no day's output; it
-  // turns an accident into a decision. Raman's own sentence is electional ("applied with advantage
-  // to important elections… chances of success of the ENTERPRISE"), and "begun with intent" says
-  // beginning outright. The catch-all third goes with them: under Bhadra, over-blocking is the
-  // safe direction, which is the rule the filter below already states.
+  // The Siddha grid's three (v878, Raman Ch. VI). My first pass classed all three as "initiate",
+  // matching the default they had been falling through. DAVID CORRECTED IT the same morning, and
+  // he is reading the yoga, not the wording: "it favors good work begun with intent. It's NOT
+  // saying launch the thing there. It's just saying make deliberate choices in the thing that you
+  // will be speaking from in the future."
+  //
+  // So only ONE of the three is electional. "Important elections" is Raman's own phrase for
+  // choosing the moment of an undertaking — a beginning, and under Mercury's arc it becomes the
+  // thing you AUDIT rather than the thing you do. The other two are about the QUALITY of the work
+  // and the deliberateness behind it: they hold on a retrograde day, which is precisely when
+  // deliberateness is the whole instruction.
   "important elections": "initiate",
-  "good work begun with intent": "initiate",
-  "anything you want the day to carry rather than merely allow": "initiate",
+  "good work begun with intent": "continue",
+  "anything you want the day to carry rather than merely allow": "continue",
   "restarting projects": "initiate", "recovery and renewal": "complete", "studying": "continue",
   "teaching": "continue", "public speaking": "continue", "seeking advice": "continue",
   "organizing systems": "continue", "administrative work": "continue",
@@ -286,6 +297,26 @@ const ACT_CLASS: Record<string, ActClass> = {
 
 // Vishti (Bhadra) blocks INITIATING in every form; it leaves the cruel and the continuing alone.
 const VISHTI_BLOCKS = new Set<ActClass>(["initiate", "journey", "union", "celebrate"]);
+
+// ── MERCURY RETROGRADE: NEITHER BEGIN NOR END (David's ruling, live, 2026-07-20) ─────────────
+// He caught the app telling him to "land the heavy pieces before" a station and asking what he
+// would finish today: "I would never advise anyone to land the heavy pieces in this stretch…
+// slow down; triple check their own work and words; and do not begin or end anything until it has
+// passed. There are no such things as deadlines right now." And on the scope: "rx plus the shades.
+// Because you will be forced to fix it eventually. It will break."
+//
+// The prompt already said "don't launch". Saying it in the PROMPT was never enough, because the
+// payload kept handing the model beginnings to work with — that day's supports carried "important
+// elections" and "good work begun with intent" (Raman's Siddha grid, Monday on Saptami) three days
+// out from a direct station, with Mercury combust and retrograde in his tenth. The engine locates;
+// the model only voices. So the filter withholds them here, exactly as it does for Bhadra.
+//
+// BEGIN = initiate/journey/union (a thing started, a road taken, a bond made).
+// END   = sever/complete (a thing cut, a thing sealed).
+// What SURVIVES is `continue` and `celebrate`: the day-to-day, the craft, the body, research,
+// study, healing, organising, investigation — practice and verification. His own words for the
+// day this was found on: "Go practice your songs. Use your fingers."
+const MERCURY_RX_BLOCKS = new Set<ActClass>(["initiate", "journey", "union", "sever", "complete"]);
 
 // ── A YOGA ON AN EMPTIED RIKTA DAY (David's ruling, 2026-07-20: option 2) ────────────────────
 // Raman names Saturday-on-Riktha as a Siddha Yoga, so going wholly silent on such a day
@@ -356,6 +387,8 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   let supports: string[] = [...baseSupports, ...famDef.supports];
   const avoid: string[] = [...(natDef.avoid ?? []), ...(famDef.avoid ?? [])];
   const vetoes: string[] = [];
+  /** Acts the day would have supported, turned into what gets AUDITED instead (Mercury's arc). */
+  let audit: string[] = [];
 
   // Rikta: the empty tithi keeps only severing acts — the family's own law. On a sharp or
   // fierce day the two agree (the cut is supported); on any other nature the day EMPTIES —
@@ -394,6 +427,20 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     // cannot occur — the module-load guard rejects it — but if one ever did, treat it as
     // initiating and cancel it: over-blocking under Bhadra is the safe direction.
     supports = supports.filter((s) => !VISHTI_BLOCKS.has(ACT_CLASS[s] ?? "initiate"));
+  }
+  // Mercury's arc: neither begin nor end, at every phase including both shadows.
+  //
+  // AND THEY ARE NOT DELETED — THEY BECOME THE AUDIT. David, the same morning, looking at the two
+  // strings the Siddha grid had put on his retrograde day: "this can be simplified to auditing
+  // 'important elections', 'good work begun with intent'." That is a better rule than withholding,
+  // and it is the one that keeps the day SPECIFIC (his standing law: the proof is in the specifics).
+  // The day still names the exact territory it would otherwise act on — the retrograde only turns
+  // the verb around. Doing it here rather than in the prompt because the model must not have to
+  // infer which acts were withheld: it is handed both lists.
+  if (input.mercuryRx) {
+    vetoes.push("Mercury is re-covering its own ground — nothing begins and nothing ends until it passes");
+    audit = supports.filter((s) => MERCURY_RX_BLOCKS.has(ACT_CLASS[s] ?? "initiate"));
+    supports = supports.filter((s) => !MERCURY_RX_BLOCKS.has(ACT_CLASS[s] ?? "initiate"));
   }
   // The personal layer outranks the collective (weather-gate law, canon underneath).
   const contained = !!(input.tara && input.tara.quality === "bad" && input.tara.taraNum === 7);
@@ -484,6 +531,14 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
   if (family === "rikta") supportedKinds = nature === "sharp" || nature === "fierce" ? Array.from(new Set(["sharp", nature] as DayNature[])) : [];
   if (contained || (input.tara && input.tara.quality === "bad")) supportedKinds = [];
 
+  /** One gate for every act the day can still offer — the day's own laws, in one place. */
+  const allowedToday = (act: string): boolean => {
+    const cls = ACT_CLASS[act] ?? "initiate";
+    if (input.vishti && VISHTI_BLOCKS.has(cls)) return false;
+    if (input.mercuryRx && MERCURY_RX_BLOCKS.has(cls)) return false;
+    return true;
+  };
+
   const amrita = amritaSiddhi(input.varaLord, input.nakshatra);
   const siddhaHit = siddhaYoga(input.varaLord, input.nakshatra, input.tithiNumber);
   // ── WHAT A SPECIAL YOGA DOES, decided in ONE place ──────────────────────────────────────────
@@ -505,13 +560,20 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
         ...YOGA_ON_EMPTY_COMPLETE,
         ...(natureRefusesCutting(natDef) ? [] : YOGA_ON_EMPTY_SEVER),
       ];
-      supports = grammar.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti);
+      supports = grammar.filter((x) => allowedToday(x));
     } else {
       const extra = [
         ...(amrita ? ((tables as any).amritaSiddhiYoga?.supports ?? []) as string[] : []),
         ...(siddhaHit ? ((siddha as any).supports ?? []) as string[] : []),
       ];
-      supports = [...supports, ...extra.filter((x) => !VISHTI_BLOCKS.has(ACT_CLASS[x] ?? "initiate") || !input.vishti)];
+      // THE YOGA MAY NOT RE-ADD WHAT THE DAY WITHHELD. This filtered by Vishti alone, so on
+      // 2026-07-20 the Siddha grid put "important elections" and "good work begun with intent"
+      // back onto a Mercury-retrograde day — the exact strings David caught. Raman's own limit
+      // settles it: a special yoga makes the chances greatest, it does not remove an obstacle.
+      supports = [...supports, ...extra.filter((x) => allowedToday(x))];
+      // the yoga's own beginnings become audit items too, never nothing — this is where
+      // "important elections" and "good work begun with intent" actually came from.
+      if (input.mercuryRx) audit = [...audit, ...extra.filter((x) => MERCURY_RX_BLOCKS.has(ACT_CLASS[x] ?? "initiate"))];
     }
   }
   /** The yoga refilled an emptied day — its supports are the finishing grammar, not nothing. */
@@ -542,7 +604,7 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
 
   return {
     nature, family, headline, supportedKinds,
-    supports: dedupe(supports), avoid: dedupe(avoid), vetoes,
+    supports: dedupe(supports), avoid: dedupe(avoid), vetoes, audit: dedupe(audit),
     varaColors, contained, sentence, amritaSiddhi: amrita, siddhaYoga: siddhaHit,
   };
 }

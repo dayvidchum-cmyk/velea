@@ -2710,4 +2710,30 @@
 // the year because the tie-break is the calendar date) and the 4° transit orb (Saturn 142 unbroken
 // days of live natal contact the model was never told about, in a file that uses 10° elsewhere).
 // 113 files, 1169 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.882";
+// v1.1.883 = 2026-07-20 — MERCURY'S ARC: NEITHER BEGIN NOR END. David caught the app doing the
+// opposite on his own read, three days out from a direct station. The field note said "land the
+// heavy pieces before it"; the closing question asked what he would finish "if you stopped waiting
+// for the perfect moment to announce it" — while the tilt one line above said "let the work find
+// them, not the announcement". His ruling, verbatim: "I would never advise anyone to land the heavy
+// pieces in this stretch… slow down; triple check their own work and words; and do not begin or end
+// anything until it has passed. There are no such things as deadlines right now." Scope: "rx plus
+// the shades. Because you will be forced to fix it eventually. It will break."
+// THE PROMPT HAD SAID "DON'T LAUNCH" ALL ALONG — and it did not matter, because the PAYLOAD kept
+// handing the model beginnings to write from: that day's supports carried "important elections" and
+// "good work begun with intent" (Raman's Siddha grid, Monday on Saptami) with Mercury combust and
+// retrograde in his tenth. The engine locates; the model only voices. So the law now lives in the
+// engine, where Vishti's already does.
+// AND THE WITHHELD ACTS ARE NOT DELETED — his refinement: "this can be simplified to auditing
+// 'important elections'." They travel as `audit`, so the day still names its exact territory and
+// only the verb turns around. He also corrected my classification: "good work begun with intent" is
+// NOT an initiation — "it's just saying make deliberate choices in the thing that you will be
+// speaking from in the future" — so it survives the retrograde, which is when deliberateness is the
+// whole instruction. What a special yoga MEANS now reaches the model for the first time (it was
+// computed and read by nothing): "any intentional action will be rewarded."
+// ALSO: each half of a star-turn day now carries ITS OWN TARA. Both stars travelled; only the
+// majority star's standing did — so the read narrated his morning in the afternoon's colour. On the
+// 20th, from his Jyeshtha: Hasta is PRATYAK (pushback) until 9:39, then Chitra is SADHAKA (effort
+// lands). The read called them "both stars favor the self". His account: the groove arrived WITH
+// the second star. And the calendar runs the same Mercury law as the reading, from one cycle call.
+// 113 files, 1174 tests, 0 failures. tsc clean. Build exits 0.
+export const APP_VERSION = "1.1.883";

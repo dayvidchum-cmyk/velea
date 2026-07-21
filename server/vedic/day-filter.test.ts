@@ -225,3 +225,62 @@ describe("David's fixed-day supportsPool (the 2026-07-18 Rosetta lines)", () => 
     expect(d.nature).toBe("fixed");                            // the canon's classification
   });
 });
+
+describe("Mercury's arc: neither begin nor end, and the beginnings become the audit", () => {
+  // David caught this live on 2026-07-20, on his own read, three days out from a direct station:
+  // the field note said "land the heavy pieces before it", the closing question asked what he
+  // would finish "if you stopped waiting for the perfect moment to announce it", and the day's
+  // supports carried "important elections" and "good work begun with intent". His ruling:
+  //   "do not begin or end anything until it has passed. There are no such things as deadlines."
+  //   "rx plus the shades. Because you will be forced to fix it eventually. It will break."
+  //   "this can be simplified to auditing 'important elections'…"
+  // The prompt had said "don't launch" for a long time. The PAYLOAD kept handing over beginnings.
+  const DAY = { nakshatra: "Chitra", tithiNumber: 7, varaLord: "Moon", vishti: false, dateSeed: "2026-07-20" } as const;
+
+  it("withholds beginnings AND endings, and turns them into audit items", () => {
+    const clear = dayFilter({ ...DAY, mercuryRx: false } as any);
+    const rx = dayFilter({ ...DAY, mercuryRx: true } as any);
+
+    // ANCHOR — the fixture must actually carry the beginning, or this proves nothing.
+    expect(clear.supports, "fixture lost the electional string").toContain("important elections");
+    expect(clear.audit, "a clear day must audit nothing").toEqual([]);
+
+    expect(rx.supports).not.toContain("important elections");
+    expect(rx.audit, "the beginning was deleted instead of turned around").toContain("important elections");
+    expect(rx.vetoes.some((v) => /nothing begins and nothing ends/.test(v))).toBe(true);
+  });
+
+  it("keeps the craft — a retrograde day is not an empty day", () => {
+    // His own words for the day this was found on: "Go practice your songs. Use your fingers."
+    const rx = dayFilter({ ...DAY, mercuryRx: true } as any);
+    for (const kept of ["design", "architecture", "making things", "work"]) {
+      expect(rx.supports, `the retrograde ate the craft: ${kept}`).toContain(kept);
+    }
+    expect(rx.supports.length).toBeGreaterThan(3);
+  });
+
+  it("'good work begun with intent' SURVIVES the retrograde — it is not an initiation", () => {
+    // David corrected my first classification: "it's not saying launch the thing there. It's just
+    // saying make deliberate choices in the thing that you will be speaking from in the future."
+    // Deliberateness is exactly what a review period asks for, so it must not be filtered out.
+    const rx = dayFilter({ ...DAY, mercuryRx: true } as any);
+    expect(rx.supports).toContain("good work begun with intent");
+    expect(rx.audit).not.toContain("good work begun with intent");
+  });
+
+  it("a special yoga cannot put beginnings back — Raman's own limit", () => {
+    // Monday + tithi 7 IS a Siddha weekday-tithi pairing, so this fixture forms the yoga whose
+    // supports are the strings in question. The yoga raises the odds; it removes no obstacle.
+    const rx = dayFilter({ ...DAY, mercuryRx: true } as any);
+    expect(rx.siddhaYoga, "fixture must actually form the yoga").not.toBeNull();
+    expect(rx.supports).not.toContain("important elections");
+  });
+
+  it("CONTROL — with Mercury clear the day is untouched", () => {
+    const clear = dayFilter({ ...DAY, mercuryRx: false } as any);
+    const legacy = dayFilter({ ...DAY } as any); // no flag at all — the calendar's old call shape
+    expect(clear.supports).toEqual(legacy.supports);
+    expect(clear.vetoes).toEqual(legacy.vetoes);
+    expect(legacy.audit).toEqual([]);
+  });
+});

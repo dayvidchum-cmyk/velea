@@ -1096,7 +1096,12 @@ export default function Planner() {
         const notes: string[] = [];
         for (const p of skyMarks?.retro ?? []) for (const st of p.stations) { const d = dUntil(st.date);
           if (d === 0) notes.push(`${p.planet} ${st.type} today — the turn itself. Expect the wobble; sign nothing in the noise.`);
-          else if (d > 0 && d <= 3) notes.push(`${p.planet} ${st.type} in ${d} ${d === 1 ? "day" : "days"} — the approach is the roughest stretch. Land the heavy pieces before it.`); }
+          // "Land the heavy pieces before it" was WRONG, and David caught it live on 2026-07-20:
+          // "I would never advise anyone to land the heavy pieces in this stretch… slow down;
+          // triple check their own work and words; and do not begin or end anything until it has
+          // passed. There are no such things as deadlines right now." Beating the clock into a
+          // station is what forces the thing to be reopened after it lands. His words, kept.
+          else if (d > 0 && d <= 3) notes.push(`${p.planet} ${st.type} in ${d} ${d === 1 ? "day" : "days"} — the approach is the roughest stretch. Slow down and check your own work and words twice. Nothing needs to begin or end before it passes.`); }
         for (const e of skyMarks?.eclipses ?? []) { const d = dUntil(e.date);
           if (d === 0) notes.push("An eclipse crosses today — keep the day quiet and let it pass.");
           else if (d > 0 && d <= 7) notes.push(`An eclipse arrives in ${d} ${d === 1 ? "day" : "days"} — the season is already open. Big launches wait.`); }

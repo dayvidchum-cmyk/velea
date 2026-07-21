@@ -267,6 +267,15 @@ run client/public/marketing/system.html 'points="87.6,77.6 312.4,77.6 312.4,302.
 run client/public/marketing/system.html '<circle cx="200" cy="190" r="159"' '<circle cx="200" cy="190" r="140"' \
   server/marketing-figure.test.ts "the inner ring moves and the square stops being inscribed"
 
+# Mercury's arc going back to handing the model beginnings (David caught this one live).
+run server/vedic/day-filter.ts 'if (input.mercuryRx) {\n    vetoes.push' 'if (false) {\n    vetoes.push' \
+  server/vedic/day-filter.test.ts "a retrograde day offers beginnings again"
+# The beginnings being DELETED instead of turned into the audit ("this can be simplified to auditing").
+run server/vedic/day-filter.ts 'audit = supports.filter((s) => MERCURY_RX_BLOCKS.has(ACT_CLASS[s] ?? "initiate"));' 'audit = [];' \
+  server/vedic/day-filter.test.ts "the withheld acts vanish instead of becoming the audit"
+# "good work begun with intent" being re-classed as a launch, which David corrected in person.
+run server/vedic/day-filter.ts '"good work begun with intent": "continue",' '"good work begun with intent": "initiate",' \
+  server/vedic/day-filter.test.ts "deliberateness gets filtered out as an initiation again"
 # The fate ban going quiet again — it was enforced NOWHERE until 2026-07-20.
 run server/narrative/generate.ts 'const fate = fullText.match(FATE_DECREE);' 'const fate = null as any;' \
   server/narrative/guard.test.ts "a decree about this person can ship again"

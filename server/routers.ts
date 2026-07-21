@@ -1775,6 +1775,15 @@ export const appRouter = router({
         const { applyWeatherGate } = await import("./panchang/interpreter.js");
         const { dayFilter, movementOf, cappedSentence, MOVEMENT_WORD } = await import("./vedic/day-filter.js");
         const { planetLongitudeSpeed } = await import("./birthchart/calculator.js");
+        // MERCURY'S ARC FOR THE WHOLE MONTH, IN ONE CALL. The reading withholds beginnings and
+        // endings across the arc, both shadows included (David 2026-07-20). The calendar has to
+        // run the same law or the two surfaces describe the same day differently — one calendar,
+        // one answer. mercuryRxState costs 97 ephemeris calls per DATE, which is why this uses the
+        // cycle's boundaries instead and tests membership per day for free.
+        const { mercuryRxCycle: mrxCycle } = await import("./sky/retrograde-phase.js");
+        const arc = await mrxCycle(new Date().toISOString().slice(0, 10)).catch(() => null);
+        const inMercuryArc = (d: string) =>
+          !!arc && d >= arc.preShadowStart && d <= arc.retroshadeEnd;
         const p2 = (n: number) => String(n).padStart(2, "0");
         const daysInMonth = new Date(Date.UTC(input.year, input.month, 0)).getUTCDate();
 
@@ -1818,6 +1827,7 @@ export const appRouter = router({
               vishti: !!day.vishti,
               tara: day.tara,
               dateSeed: date,
+              mercuryRx: inMercuryArc(date),
             });
             // THE SIX MOVEMENTS (David 2026-07-15). Mercury gates the movement per the
             // SHIPPED rx law (interpreter.ts): retrograde caps Action at Build unless a
