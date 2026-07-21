@@ -117,7 +117,22 @@ Never hand him a decision as a way of avoiding work, and never hand him two when
 
 ## Don't say it's fixed until it is fixed
 
-"Done" means: built, tested, probed, full suite green, build exit 0, committed, pushed, deployed.
+"Done" means: built, tested, probed, full suite green, build exit 0, committed, pushed, deployed —
+**and then the RENDERED OUTPUT looked at and confirmed correct.** Nothing is done until the thing
+on the screen is right. David, 2026-07-21: *"nothing is done until the output that is rendered is
+correct. you know that."*
+
+Deployed is not correct. A green suite says the engine computes the right value; it says nothing
+about whether the card reads properly with that value in it — whether removing a line left a dead
+gap, whether the prose still agrees with the headline above it, whether the day still parses as one
+coherent thing to a person holding a phone.
+
+**Never describe what a change will look like on screen before seeing it.** A table of expected
+output is a prediction, not a result, and presenting one as a result is the RULE ZERO failure in a
+new costume — David reads it, believes it, and finds the truth himself. Ship it, look at it, THEN
+say what it does. If the render can only be confirmed on his device, say the work is *awaiting his
+eyes* — never that it is done.
+
 Report failures with their output. If a step was skipped, say so.
 
 Then update **both** documents — `tools/audit-sheet/` and `tools/working-brief/` — and republish
