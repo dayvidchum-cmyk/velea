@@ -2811,4 +2811,30 @@
 // ever satisfy "two or more vantages". Parivartana was never weak; it could not score. Whether
 // frame-independence is itself strength is DECISIONS_FOR_DAVID #7, untouched here.
 // 117 files, 1210 tests, 0 failures. tsc exit 0. build exit 0.
-export const APP_VERSION = "1.1.887";
+// v1.1.888 = 2026-07-21 — THE PROTAGONIST HAD NO NATAL CONDITION, and a profile inherited someone
+// else's city. Server-only work; this bump exists so the deployed app can SAY which code it runs —
+// I first skipped it reasoning "no client files changed", which substituted my judgement for
+// David's standing rule (bump both each release) and left him testing a build that still reported
+// 887.
+// THE PROTAGONIST. natalCondition.lords carried the Vimshottari chain only — maha, antar, praty —
+// so the ANNUAL TIME LORD, the planet leading the year, never had its natal condition sent. Found
+// by David's discriminability audit: he and Lisa are both 44, both Virgo lagna, both a 9th-house
+// Taurus profection led by Venus, and EVERY line a narrator would write from was identical. Their
+// readings were interchangeable. The separating fact — Venus in Aquarius/6th for him, Capricorn/5th
+// for her, hers conjunct Moon and Mercury and STARVED BY MOON — was in the stored research all
+// along and never reached the payload. Each lord now also carries WHICH office it holds, so the
+// model is told which planet leads the year instead of inferring it from array position.
+// EVERYONE IS THE AVERAGE USER (David's correction, and it had teeth). users.location* is ONE slot
+// per ACCOUNT — where the phone holding this login is — and it outranked every other profile's own
+// ground. Six people on his account were read from Boston because that is where HE is; Lisa lives
+// in New Jersey. I filed it as a power-user edge case; multi-profile IS the paid seam, so it lands
+// on paying accounts and the person misread is the reader. A non-owner profile now falls to its own
+// hometown/birth, and only when such ground exists — no ground still uses the account location
+// rather than dropping to the Boston default. Ownership UNKNOWN is unchanged, so none of the ~85
+// call sites that pass partial profile objects shift meaning by omission.
+// NOT changed, deliberately: timezoneFor/localToday. The SKY belongs to the person being read;
+// "what day is it" belongs to the person LOOKING.
+// No prompt edit in either change — DAY_READ_TAIL already reads "the running lords in
+// input.natalCondition" — so David's before/after stays a single-variable test.
+// 119 files, 1243 tests, 0 failures. build exit 0. Mutation harness green, three new probes caught.
+export const APP_VERSION = "1.1.888";
