@@ -159,4 +159,26 @@ describe("the documented object SHAPES match what is emitted", () => {
       expect(SRC.includes(`${k}:`) || SRC.includes(`${k},`), `transits.${k} never emitted`).toBe(true);
     }
   });
+
+  it("the contact module is WIRED to the payload, not merely present in the repo (v885)", () => {
+    // THE FAILURE THIS EXISTS FOR: v884 shipped server/vedic/contacts.ts with its own passing
+    // tests, its own mutation probe, and a changelog entry describing the fix as landed — and the
+    // file was imported by NOTHING. The prompt kept reading the bare 10° scan it replaced. Unit
+    // tests on a module cannot see that; only an assertion about the PATH can.
+    expect(SRC).toContain('from "../vedic/contacts.js"');
+    // Called by the builder, not just imported.
+    expect(SRC).toMatch(/natalContactPayload\(lonAll, lagnaLonForDig\)/);
+    // And the per-planet list the prompt branches on must be fed BY that call.
+    expect(SRC).toMatch(/const conjunctOf = \(name: string\) => contactsByPlanet\[name\]/);
+    // The old scan must be gone, not merely bypassed — a dead copy is how the drift started.
+    expect(SRC).not.toMatch(/if \(o <= 10\) out\.push\(\{ name: k, orb: \+o\.toFixed\(1\) \}\)/);
+  });
+
+  it("every key the prompt branches on inside a contact is actually emitted", () => {
+    // The prompt now tells the model "every entry has a kind" and switches behaviour on it.
+    expect(PROMPTS).toContain('Every entry has a "kind"');
+    for (const k of ["kind", "sameSign", "conventionsAgree"]) {
+      expect(SRC.includes(`${k}: c.${k}`), `conjunct.${k} promised to the model, never emitted`).toBe(true);
+    }
+  });
 });

@@ -23,6 +23,7 @@ import { buildLineage } from "../vedic/lineage.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
 import { mercuryRxState, mercuryRxCycle , planetRxCycle } from "../sky/retrograde-phase.js";
 import { monthEvents } from "../sky/month-events.js";
+import { contactsOf, type Contact } from "../vedic/contacts.js";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
@@ -91,6 +92,57 @@ export function rankStandingYogas(yogas: any[], limit = 4): any[] {
       (b.frames?.length ?? 0) - (a.frames?.length ?? 0) ||
       (b.inNavamsha ? 1 : 0) - (a.inNavamsha ? 1 : 0))
     .slice(0, limit);
+}
+
+/** One entry in a planet's `conjunct` list, as the prompt reads it. */
+export interface ConjunctEntry {
+  name: string;
+  orb: number;
+  kind: Contact["kind"];
+  sameSign: boolean;
+  conventionsAgree: boolean;
+}
+
+/**
+ * THE NATAL CONTACT LIST THE PROMPT READS — v885, the wiring the v884 commit message claimed
+ * and did not do. contacts.ts shipped with tests and a changelog entry and was imported by
+ * nothing; the payload still came from the bare scan described below.
+ *
+ * That scan was `orb <= 10°`, reporting a name and an orb and nothing else, while avashtas.ts /
+ * aspects.ts / crown.ts counted conjunction by SAME SIGN (K&F is whole-sign throughout). Both
+ * are faithful to what they cite, and they disagree — so one payload could tell the model to
+ * read a pair as "ONE fused body" (prompts.ts) while the state engine, the affliction test and
+ * the crown layer saw two unrelated planets in different signs.
+ *
+ * Measured on the maker's chart, 2026-07-20: Sun at Pisces 29.52° and Mercury at Aries 1.34°,
+ * 1.82° apart — his tightest pair — was fused by the prompt and invisible to every sign-based
+ * module. Mars/Saturn at 13.06° in one sign was the mirror: counted by every sign-based module
+ * and never shown to the prompt at all.
+ *
+ * The orb stays 10°, so every pair that surfaced before still surfaces — nothing is dropped.
+ * What is ADDED is the same-sign-but-wide pair, and what is NEW on every entry is the `kind`,
+ * which tells the prompt WHICH convention is speaking. No convention is overruled here: the
+ * disagreement is reported, not resolved (prompts.ts CONTACTS says how to voice each kind).
+ *
+ * Pure — longitudes and a lagna longitude in, payload out. No DB, like rankStandingYogas.
+ */
+export function natalContactPayload(
+  lonAll: Record<string, number>,
+  lagnaLon: number,
+): { byPlanet: Record<string, ConjunctEntry[]>; disagreements: Contact[] } {
+  const contacts = contactsOf(lonAll, lagnaLon, { orbDeg: 10 });
+  const byPlanet: Record<string, ConjunctEntry[]> = {};
+  const push = (owner: string, other: string, c: Contact) => {
+    (byPlanet[owner] ??= []).push({
+      name: other,
+      orb: +c.orbDeg.toFixed(1),
+      kind: c.kind,
+      sameSign: c.sameSign,
+      conventionsAgree: c.conventionsAgree,
+    });
+  };
+  for (const c of contacts) { push(c.a, c.b, c); push(c.b, c.a, c); }
+  return { byPlanet, disagreements: contacts.filter((c) => !c.conventionsAgree) };
 }
 
 export async function buildNarrativeInput(profileId: number, dateStr: string, opts: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
@@ -183,27 +235,17 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const lat = p.birthLocationLat ? parseFloat(p.birthLocationLat) : DEFAULT_SKY.lat;
   const lon = p.birthLocationLon ? parseFloat(p.birthLocationLon) : DEFAULT_SKY.lon;
   const byPlanet = Object.fromEntries(bodies.map((b) => [b.planet, b]));
-  // Natal conjunctions: planets within 10° of each other (a planet + a node is the
-  // loudest — e.g. Moon conjunct Ketu). Surfaced so the read fuses them instead of
-  // reading each placement in isolation.
   const lonAll: Record<string, number> = {};
   for (const x of bodies) if (x.longitude != null && x.longitude !== "") { const v = parseFloat(x.longitude); if (!Number.isNaN(v)) lonAll[x.planet] = ((v % 360) + 360) % 360; }
-  const conjunctOf = (name: string) => {
-    const base = lonAll[name];
-    if (base === undefined) return [] as { name: string; orb: number }[];
-    const out: { name: string; orb: number }[] = [];
-    for (const [k, v] of Object.entries(lonAll)) {
-      if (k === name) continue;
-      const o = Math.abs(((base - v + 540) % 360) - 180);
-      if (o <= 10) out.push({ name: k, orb: +o.toFixed(1) });
-    }
-    return out.sort((a, b) => a.orb - b.orb);
-  };
+  const lagnaLonForDig = ZODIAC.indexOf(lagna) * 30 + (p.ascendantDegree != null && !isNaN(parseFloat(p.ascendantDegree)) ? parseFloat(p.ascendantDegree) : 0);
+
+  const { byPlanet: contactsByPlanet, disagreements: contactDisagreements } =
+    natalContactPayload(lonAll, lagnaLonForDig);
+  const conjunctOf = (name: string) => contactsByPlanet[name] ?? [];
   // Neecha-bhanga-aware dignity for the whole natal chart, computed ONCE. A debilitated
   // planet whose fall is CANCELLED is not weak — it's hard-won strength (the fall-then-rise,
   // a raja-yoga signature). Dignity and cancellation must travel together (raw debilitation
   // is a trap). The flat dignityLabel can't know this — cancellation needs the whole chart.
-  const lagnaLonForDig = ZODIAC.indexOf(lagna) * 30 + (p.ascendantDegree != null && !isNaN(parseFloat(p.ascendantDegree)) ? parseFloat(p.ascendantDegree) : 0);
   let natDig: Record<string, any> = {};
   try { natDig = natalDignities(lonAll as any, lagnaLonForDig); } catch { natDig = {}; }
   const cancelledOf = (planet: string) => !!natDig[planet]?.neechaBhanga?.cancelled;
@@ -218,6 +260,13 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     moonFramed: p.lagnaBasis === "chandra",
     lagnaDegree: lagnaDeg,
     lagnaThreshold: threshold(lagna, lagnaDeg),
+    // The pairs the two conventions DISAGREE about, named once at chart level so the read can
+    // speak the disagreement instead of picking a side per planet. Omitted when there are none.
+    ...(contactDisagreements.length
+      ? { contactDisagreements: contactDisagreements.map((c) => ({
+          pair: [c.a, c.b], orb: c.orbDeg, kind: c.kind, aSign: c.aSign, bSign: c.bSign,
+        })) }
+      : {}),
     planets: PLANETS.map((n) => {
       const b = byPlanet[n];
       return b ? { name: n, sign: b.sign, house: b.house, nakshatra: b.nakshatra, pada: b.pada, degree: degOf(b), threshold: threshold(b.sign, degOf(b)), dignity: dignity(n, b.sign, degOf(b) ?? undefined), cancelledDebilitation: cancelledOf(n), hardWon: hardWonOf(n), retrograde: !!b.isRetrograde, rulesHouses: rulesHouses(n, lagna), conjunct: conjunctOf(n) } : null;

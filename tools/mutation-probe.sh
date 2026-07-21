@@ -288,6 +288,17 @@ run server/narrative/input-builder.ts '      (b.frames?.length ?? 0) - (a.frames
 # The contact object collapsing back into one boolean — the thing that caused the conflict.
 run server/vedic/contacts.ts 'const kind: ContactKind = sameSign && inOrb ? "same-party"' 'const kind: ContactKind = sameSign ? "same-party"' \
   server/vedic/contacts.test.ts "a wide same-sign pair is called a true conjunction again"
+# THE WIRING ITSELF. contacts.ts had a passing test suite and a probe (above) while being imported
+# by NOTHING — the prompt kept reading the bare 10° scan. Both probes below break the PATH, which
+# is what no test in v884 could see.
+run server/narrative/input-builder.ts 'const { byPlanet: contactsByPlanet, disagreements: contactDisagreements } =\n    natalContactPayload(lonAll, lagnaLonForDig);' 'const contactsByPlanet: any = {}, contactDisagreements: any[] = [];' \
+  server/narrative/payload-contract.test.ts "the natal payload stops carrying contacts at all"
+run server/narrative/input-builder.ts '      kind: c.kind,\n      sameSign: c.sameSign,\n      conventionsAgree: c.conventionsAgree,' '' \
+  server/narrative/natal-contacts.test.ts "a contact collapses back to a bare name+orb the prompt cannot branch on"
+run server/narrative/input-builder.ts 'const contacts = contactsOf(lonAll, lagnaLon, { orbDeg: 10 });' 'const contacts = contactsOf(lonAll, lagnaLon, { orbDeg: 10 }).filter((c) => c.conventionsAgree);' \
+  server/narrative/natal-contacts.test.ts "the disagreeing pairs are dropped and only agreed ones reach the model"
+run server/narrative/prompts.ts '- kind "through-the-wall"' '- kind "through-the-wallX"' \
+  server/narrative/prompt-structure.test.ts "the prompt loses the through-the-wall branch and fuses everything again"
 # The fate ban going quiet again — it was enforced NOWHERE until 2026-07-20.
 run server/narrative/generate.ts 'const fate = fullText.match(FATE_DECREE);' 'const fate = null as any;' \
   server/narrative/guard.test.ts "a decree about this person can ship again"

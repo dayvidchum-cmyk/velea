@@ -2760,4 +2760,22 @@
 // own criterion now, extracted as rankStandingYogas() so it tests with no DB.
 // Whether a sign EXCHANGE should count as a vantage is David's ruling — DECISIONS_FOR_DAVID #6.
 // 115 files, 1189 tests, 0 failures. tsc clean. Build exits 0.
-export const APP_VERSION = "1.1.884";
+// v1.1.885 = 2026-07-20 — THE WIRING v884 SAID IT DID. David: "youre lying." He was right.
+// contacts.ts shipped with its own passing tests, its own mutation probe, and a changelog entry
+// describing the fix as landed — and NOTHING imported it. grep for vedic/contacts across server/
+// and client/ returned the file, its test, and the changelog text. Nothing else. So the prompt kept
+// reading the bare orb<=10° scan, and the Sun/Mercury contradiction the v884 message described as
+// fixed was still shipping. My own memory said "BUILT BUT WIRED TO NOTHING"; I read it and wrote the
+// opposite. The yoga-ranking half of v884 was real and is untouched.
+// NOW WIRED: natalContactPayload() (extracted, DB-free, like rankStandingYogas) feeds every planet's
+// `conjunct` list from contactsOf(). Orb stays 10°, so nothing that surfaced before is dropped; what
+// is ADDED is the same-sign-but-wide pair the canon modules always counted and the prompt never saw,
+// and what is NEW on every entry is `kind` — which convention is speaking.
+// Measured on his chart: Sun/Mercury 1.82° through-the-wall (was fused), Mars/Saturn 13.06°
+// across-the-room (was invisible — 13.06 > 10). Neither pair is one both traditions agree on.
+// AND THE HALF THAT WAS ACTIVELY WRONG: prompts.ts told the model "A conjunction is NOT two separate
+// placements — read the planets as ONE fused body" over a list built with no sign test at all. That
+// instruction now branches on kind — only same-party earns fusion; through-the-wall is read as the
+// tension it is; the machinery words are banned from the prose.
+// Guards aimed at the PATH, not the module — that is precisely what v884's green tests could not see.
+export const APP_VERSION = "1.1.885";

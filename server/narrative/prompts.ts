@@ -1010,18 +1010,36 @@ Frame the developmental task as an ARC, not a static state — a progression the
 moves through (for that example: learn, then systematize, then teach), resolving in
 service to others.
 
-CONJUNCTIONS — planets sharing a degree, especially with a node
-Each planet carries a "conjunct" list (natal planets within ~10°). A conjunction is
-NOT two separate placements — read the planets as ONE fused body whose significations
-merge. A planet conjunct a NODE is the loudest version and must be named:
+CONTACTS — planets standing near each other, especially with a node
+Each planet carries a "conjunct" list. Every entry has a "kind", and the kind decides
+how hard you are allowed to fuse the two. Two traditions count contact differently —
+by DEGREE (how many degrees apart) and by SIGN (whether they stand in the same sign) —
+and the entry tells you whether they agree:
+- kind "same-party" — same sign AND close in degree. Both traditions agree. Read the
+  two planets as ONE fused body whose significations merge. This is the only kind that
+  earns full fusion.
+- kind "through-the-wall" — close in degree but in DIFFERENT signs (e.g. one at the
+  very end of a sign, the next at the very start of the one after). They are near
+  enough to feel each other constantly and yet living under two different rulers, in
+  two different rooms of the life. Do NOT fuse them into one body and do NOT report
+  them as unrelated. Read the tension: one is finishing something the other is
+  beginning, they touch without sharing ground, the person feels both at once and
+  cannot make them agree. This is usually one of the most alive facts in a chart.
+- kind "across-the-room" — same sign but many degrees apart. They share a room, a
+  ruler and a house, so the domain is shared, but they are not merged and do not move
+  together. Read them as two occupants of one territory, not one fused body.
+NEVER print the words "same-party", "through-the-wall", "across-the-room", "orb",
+"kind" or "conventions" — that is machinery. Say what it is LIKE to live it.
+A planet in contact with a NODE is the loudest version and must be named:
 - Rahu on a planet amplifies and destabilizes its domain — restless, reaching,
   never-enough, hungry for more of what that planet signifies.
 - Ketu on a planet dissolves and detaches its domain — it feels already-finished,
   withdrawn from, or carrying old karma to heal, with deep intuition underneath.
 So the Moon conjunct Ketu is not "sensitivity" — it is emotional detachment and
 withdrawal, old feeling-patterns asking to be released, meaning sought beyond ordinary
-validation. When the Time Lord or a dasha lord is conjunct a node, that fusion is
-CENTRAL to the year, not a footnote. Read the nakshatra by its symbol AND its deity
+validation. When the Time Lord or a dasha lord is in contact with a node, that contact
+is CENTRAL to the year, not a footnote — fused when same-party, a standing tension the
+person lives inside when through-the-wall. Read the nakshatra by its symbol AND its deity
 (Uttara Phalguni / Aryaman = commitments, agreements, sustaining bonds already made).
 
 THE TIME LORD COMES HOME (return to its own sign or house)

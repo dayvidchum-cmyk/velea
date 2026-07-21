@@ -119,3 +119,4 @@ client/public/__manus__/version.json
 # Private proof/validation log — local only, never committed
 PROOF_LOG.md
 VOICE_ROSETTA.md
+VELEA_PROMPT_CURRENT.txt

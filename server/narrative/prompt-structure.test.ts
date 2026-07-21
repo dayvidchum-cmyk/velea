@@ -162,4 +162,19 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     expect(BASE_PROMPT).toMatch(/^NO SINGLE MOVE\./m);
     expect(defines(BASE_PROMPT, "RECENT READS — ONE CONTINUING STORY, NEVER THE SAME PAGE TWICE")).toBe(true);
   });
+
+  it("never orders a blanket fusion — the kind decides how hard two planets merge (v885)", () => {
+    // The defect: "A conjunction is NOT two separate placements — read the planets as ONE fused
+    // body" was stated over a list built at orb <= 10°, with no sign test. On the maker's chart
+    // that ordered the model to fuse a Pisces planet with an Aries one while every sign-based
+    // module in the engine read them as unrelated. The instruction must now branch on `kind`.
+    expect(SRC).not.toContain("A conjunction is\nNOT two separate placements");
+    for (const kind of ["same-party", "through-the-wall", "across-the-room"]) {
+      expect(SRC, `the prompt must say how to voice a ${kind} contact`).toContain(`kind "${kind}"`);
+    }
+    // Only the agreed kind may be told to fuse.
+    expect(SRC).toMatch(/kind "same-party"[\s\S]{0,400}ONE fused body/);
+    // And the machinery must be banned from the prose the reader sees.
+    expect(SRC).toMatch(/NEVER print the words "same-party", "through-the-wall", "across-the-room"/);
+  });
 });
