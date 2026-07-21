@@ -2855,4 +2855,27 @@
 // cannot ship even if every retry keeps it. A prompt is a request; SCRUB is a guarantee.
 // Lands directly on the three Venus-year testers — Venus rules the 2nd for David and Lisa both.
 // 119 files, 1243 tests, 0 failures. Build exit 0.
-export const APP_VERSION = "1.1.889";
+// v1.1.890 = 2026-07-21 — DON'T REPLACE ONE DEFAULT WITH ANOTHER. David, on v889: "the problem
+// with self-worth isn't that it's wrong, it's that it's too therapeutic. Modern astrology has
+// over-associated the 2nd house with internal psychology, and LLMs latch onto that because it's an
+// easy narrative." v889 banned "self-worth" and then named SELF-LOVE as the second face — which
+// was the same mistake in a nicer word, and he caught it: "I'd be cautious about replacing one
+// default with another."
+// THE 2ND'S ONE QUESTION, his framing: the 1st asks "who am I?"; the 2nd asks "WHAT DO I
+// CULTIVATE, PROTECT, AND DRAW UPON TO SUSTAIN MY LIFE?" Money and livelihood remain the CORE and
+// DEFAULT face — that did not change, and my first draft wrongly demoted it until a guard caught
+// the over-reach. What changed is the FIELD around it: resources, stewardship, preservation,
+// value, sustenance, cultivation, possession in the neutral sense, what nourishes and supports
+// life. Self-love is ONE possible expression, never the default, and only when a self-planet
+// genuinely links to the 2nd.
+// LET THE OCCUPANT PICK THE FACET, from canon rather than from a stock phrase: Venus there leans
+// to beauty, food, affection, self-care; Saturn to thrift and slow-built resources; Jupiter to
+// abundance, generosity, family wealth; Mars to defending what is yours.
+// THE SCRUB IS NEUTRAL NOW. v889 hard-swapped self-worth -> self-love, which asserted that facet
+// on charts that never pointed to it. It scrubs to "what you value" — inside the house's real
+// field without picking a facet.
+// FOUND WHILE DOING IT: canon/planet-in-house.json (Vol II Appendix III, 12x7) is wired to the
+// HOUSE READ only and never reaches the day read. The engine-supplies-the-facet half of David's
+// note is therefore still open; this release is the doctrine half.
+// 119 files, 1243 tests, 0 failures. Build exit 0.
+export const APP_VERSION = "1.1.890";

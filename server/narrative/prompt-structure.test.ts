@@ -150,11 +150,20 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     expect(BASE_PROMPT).toMatch(/earned money and possessions/);
     expect(BASE_PROMPT).toMatch(/never as a bare label/);
     expect(BASE_PROMPT).toMatch(/not\s+a feeling to announce/);
-    // David's rename, 2026-07-21: the second face is SELF-LOVE, and "self-worth" is banned
-    // vocabulary. "Worth" prices a person and drags the self-help register in behind it.
-    expect(DEEP_READ_TAIL).toMatch(/do NOT reach for\s+"worth"\s+or\s+"self-love"\s+as a default theme/);
-    expect(DEEP_READ_TAIL).toMatch(/NEVER WRITE "SELF-WORTH"/);
-    expect(DEEP_READ_TAIL).toMatch(/second face of the 2nd is SELF-LOVE/);
+    // David, 2026-07-21, in two steps. First: "self-worth" is banned vocabulary. Then the
+    // sharper correction — "I'd be cautious about replacing one default with another." Naming
+    // self-love as THE second face was the same mistake in a nicer word, so the doctrine now
+    // carries the broad classical field and lets the chart pick the facet.
+    expect(DEEP_READ_TAIL).toMatch(/BANNED OUTRIGHT: "self-worth"/);
+    expect(DEEP_READ_TAIL).toMatch(/SELF-LOVE IS ONE POSSIBLE EXPRESSION, NEVER THE DEFAULT/);
+    expect(DEEP_READ_TAIL).toMatch(/NO STOCK PHRASE/);
+    expect(DEEP_READ_TAIL).toMatch(/WHAT DO I CULTIVATE, PROTECT, AND DRAW UPON TO SUSTAIN MY LIFE\?/);
+    // the broad field, not the therapeutic narrowing
+    for (const facet of ["stewardship", "preservation", "sustenance", "cultivation"]) {
+      expect(DEEP_READ_TAIL).toContain(facet);
+    }
+    // and the occupant picks the facet, rather than one being hardcoded
+    expect(DEEP_READ_TAIL).toMatch(/LET THE OCCUPANT PICK THE FACET/);
     expect(DEEP_READ_TAIL).toMatch(/2nd house = MONEY/);
   });
 
