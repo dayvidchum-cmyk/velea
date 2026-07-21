@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { vetoViolation, guardViolation } from "./generate";
+import { vetoViolation, guardViolation, scrubMachinery } from "./generate";
 
 // THE VETO LANDS ONCE (David, 2026-07-21). Both halves come from real pulls he read side by side:
 // one dropped Vishti entirely, another stated the same order four times, and a third named the
@@ -99,5 +99,31 @@ describe("the mechanism names are banned, not merely discouraged", () => {
   // The surfaces that are explicitly mechanics-allowed keep their jargon.
   it("a mechanics-allowed surface may name them", () => {
     expect(guardViolation("Vishti karana blocks beginnings.", 200, undefined, true)).toBeNull();
+  });
+});
+
+// THE LAST MILE (2026-07-21). Both of these shipped to David AFTER the retry guard existed: three
+// refusals and callGuarded serves the best draft anyway, so the guard was never a guarantee.
+describe("the last-mile scrub — what ships even when the model refuses three times", () => {
+  it("translates the tara rungs instead of naming them", () => {
+    expect(scrubMachinery("Naidhana's headwind arrives at 11:19.")).toBe("the loss star's headwind arrives at 11:19.");
+    expect(scrubMachinery("Sampat carries you.")).toBe("the wealth star carries you.");
+    expect(scrubMachinery("Parama Mitra opens the day.")).toBe("the great-friend star opens the day.");
+  });
+
+  it("removes sign names rather than guessing a life-territory", () => {
+    // David's actual leak, verbatim.
+    expect(scrubMachinery("delivering through that deep Scorpio channel"))
+      .toBe("delivering through that deep channel");
+    expect(scrubMachinery("Venus in Scorpio")).toBe("Venus in that ground");
+  });
+
+  it("leaves clean prose untouched", () => {
+    const clean = "Venus is running low, and Saturn holds her close while the morning favours the craft.";
+    expect(scrubMachinery(clean)).toBe(clean);
+  });
+
+  it("the banned list now catches the rung names the guard missed", () => {
+    expect(guardViolation("Naidhana's headwind arrives.", 200)).toMatch(/BANNED CHART JARGON/);
   });
 });

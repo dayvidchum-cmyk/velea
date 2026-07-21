@@ -331,7 +331,12 @@ const DAY_READ_SCHEMA = {
 // not 'Vishti karana'" — but nothing enforced it, so it held only when the model felt like it.
 // David's standard for the whole product: a weather app you can trust says it will rain; it does
 // not quote you the barometric pressure. These are the pressure readings.
-const MECHANISM_NAMES = "karana|vishti|bhadra|tithi|paksha|tarabala|tara|chandrabala|dasha|dashas|antardasha|mahadasha|muhurta|graha|rashi|lagna|navamsa|varga|amsa";
+// THE NINE TARA NAMES belong here too (2026-07-21, same day, second leak). Banning "tara" while
+// leaving "Naidhana" open is a half-closed door: David's very next pull said "Naidhana's headwind
+// arrives". The rung has a plain-English name in every case — the loss star, the obstacle star,
+// the friend star — and that is what the reader gets.
+const TARA_NAMES = "janma|sampat|vipat|kshema|pratyak|sadhaka|naidhana|vadha|mitra|parama\\s+mitra";
+const MECHANISM_NAMES = `karana|vishti|bhadra|tithi|paksha|tarabala|tara|chandrabala|dasha|dashas|antardasha|mahadasha|muhurta|graha|rashi|lagna|navamsa|varga|amsa|${TARA_NAMES}`;
 const MACHINERY = new RegExp(
   `\\b(\\d+\\s*(?:st|nd|rd|th)\\s+house|(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\\s+house` +
   `|exalt\\w*|debilitat\\w*|retrograde|combust\\w*|moolatrikona|nakshatra|${MECHANISM_NAMES}` +
@@ -409,6 +414,38 @@ const SCRUB: Array<[RegExp, string]> = [
   [/\bcombustions?\b/gi, "lost in the glare"],
   [/\bcombust\b/gi, "lost in the glare"],
   [/\bmoolatrikona\b/gi, "its own strong ground"],
+
+  // THE NINE RUNGS, TRANSLATED (2026-07-21). "Naidhana's headwind arrives" reached David after the
+  // retry guard had already been added — three refusals and the best draft ships, so the guard
+  // alone was never a guarantee. These are TRANSLATIONS, not deletions: the repo's own table
+  // (crown.ts TARAS) gives each rung an exact plain-English meaning, so no facet is invented.
+  [/\bparama\s+mitra\b/gi, "the great-friend star"],
+  [/\bnaidhana\b/gi, "the loss star"],
+  [/\bvadha\b/gi, "the loss star"],
+  [/\bpratyak\b/gi, "the obstacle star"],
+  [/\bsadhaka\b/gi, "the achievement star"],
+  [/\bkshema\b/gi, "the well-being star"],
+  [/\bsampat\b/gi, "the wealth star"],
+  [/\bvipat\b/gi, "the danger star"],
+  [/\bjanma\b/gi, "your birth star"],
+  [/\bmitra\b/gi, "the friend star"],
+];
+
+// SIGN NAMES ARE REMOVED, NOT REPLACED. "the Moon delivering through that deep Scorpio channel"
+// shipped while Scorpio was already banned — the retries failed and the best draft went out. A
+// sign's life-territory depends on WHICH HOUSE it falls in for this native, which this function
+// cannot know, so substituting one would state something possibly false. Subtraction cannot lie:
+// dropping the word leaves "that deep channel", which is true and still reads.
+const SIGNS_RE = "Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces";
+const SIGN_SCRUB: Array<[RegExp, string]> = [
+  // Adjectival — "Scorpio channel" → "channel". The most common shape by far.
+  [new RegExp(`\\b(?:${SIGNS_RE})\\s+(?=[a-z])`, "g"), ""],
+  // Trailing after a preposition — "delivering through Scorpio" → "…through that ground".
+  [new RegExp(`\\b(in|into|through|from|within|across)\\s+(?:${SIGNS_RE})\\b`, "gi"), "$1 that ground"],
+  // Anything left standing alone.
+  [new RegExp(`\\b(?:${SIGNS_RE})\\b`, "g"), "that ground"],
+  // Tidy the seam left by a removal.
+  [/[ \t]{2,}/g, " "],
 ];
 /**
  * TASK DECOMPOSITION (neurodivergent-UX roadmap #2, David-greenlit; voice: "plain and not
@@ -558,6 +595,7 @@ Reply with ONLY the line.`,
 export function scrubMachinery(s: string): string {
   let out = s;
   for (const [re, rep] of SCRUB) out = out.replace(re, rep);
+  for (const [re, rep] of SIGN_SCRUB) out = out.replace(re, rep);
   return out;
 }
 const scrubDayRead = (r: DayRead): DayRead => ({
