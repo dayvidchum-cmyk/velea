@@ -3025,4 +3025,34 @@
 // borrowing either other label. The rule moved to shared/location-label.ts because vitest collects
 // only server/ and shared/, and copy chosen by a data tier must not ship unguarded.
 // 122 files, 1282 tests, 0 failures. tsc exit 0. Build exit 0. 114 probes, all caught.
-export const APP_VERSION = "1.1.902";
+// v1.1.903 = 2026-07-21 — THE STAR-LINE CLASS, CLOSED PROPERLY THIS TIME.
+// v901 named the rung on the tara-7 line and I declared the class closed. It was not: the SIBLING
+// sat twenty lines away in the same ternary, and a headline three lines above it was making a
+// claim it never checked. Both found by the sweep, both measured before and after over the FULL
+// dayFilter domain — 153,090 states, the same instrument run twice.
+//
+// #4 "Your star is carried today" — 8,220 firings, split dead even at 1,644 across taras 2/4/6/8/9.
+// Tara 1, the rung this app itself labels "Your own star" (PLAIN_TARA[1]), reaches that branch
+// exactly 0 times. The words named the one rung that cannot cause them, and five materially
+// different days — gains, restoration, work paying off, support, the best day the sky gives —
+// printed as one anonymous sentence. Now built FROM PLAIN_TARA in v901's own grammar: "The
+// prosperity star carries the day", "The great friend star carries the day". Five distinct lines,
+// asserted distinct.
+//
+// #5 "THE DAY OFFERS IT — YOUR GROUND DOESN'T" — fired on 62,370 states, of which 6,028 (9.7%) had
+// supports=[]. It printed directly above "Start nothing, grow nothing, cut nothing you don't have
+// to." There was no "it". That is the v896/v897 self-contradiction surviving INSIDE the branch
+// those releases added to end it, because the headline never consulted the thing it made a claim
+// about. Now silent when nothing is offered, matching the `contained` branch twelve lines up.
+// After: 56,342 — exactly 62,370 − 6,028, so no honest headline was collateral.
+//
+// David's own card of this date is the control in the other direction and is UNCHANGED: its
+// headline sits above a real supports line, so the day does offer it and the line stays.
+//
+// Also cleared: an inherited red. docs-claims.test.ts was failing at 4261940 — proved in a clean
+// clone, not assumed — because that docs commit wrote two FINDINGS using the decision card's
+// class, rendering 13 against a header of 11. The guard was right and the page was wrong; findings
+// now carry .finding, styled identically so nothing moves on screen.
+//
+// 122 files, 1286 tests, 0 failures. tsc exit 0, build exit 0.
+export const APP_VERSION = "1.1.903";

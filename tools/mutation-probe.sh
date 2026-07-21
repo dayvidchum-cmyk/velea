@@ -383,6 +383,16 @@ run server/vedic/day-filter.ts 'The loss star holds the day' 'Your own star hold
 run server/vedic/day-filter.ts 'input.tara.quality === "bad" && input.tara.taraNum === 7' 'input.tara.quality !== "good"' \
   server/vedic/day-filter.test.ts "the birth star can reach the contained branch again"
 
+# THE SIBLING (v903). v901 probed the contained line and I called the class closed; the carried
+# line twenty lines down had no guard at all. Three probes: the words, the single-sourcing that
+# keeps them true, and the headline gate that was making an unchecked claim beside them.
+run server/vedic/day-filter.ts '${carriedByRung(input.tara.taraNum)} a win' 'Your star is carried today: a win' \
+  server/vedic/day-filter.test.ts "the carried line goes anonymous again (names no rung)"
+run server/vedic/day-filter.ts 'const label = PLAIN_TARA[taraNum]?.label;' 'const label = PLAIN_TARA[1]?.label;' \
+  server/vedic/day-filter.test.ts "every good rung prints the birth star's name again"
+run server/vedic/day-filter.ts '? (supports.length === 0 ? null : "THE DAY OFFERS IT' '? ("THE DAY OFFERS IT' \
+  server/vedic/day-filter.test.ts "the headline claims an offer on a day that offers nothing again"
+
 # THE LOCATION TIERS TRAVEL WITH THE SUBJECT (v902). Drop either half back off AstrologySubject and
 # the 11 subject-shaped resolveDaySky call sites go back to reading everyone from the account's city.
 run server/astrology-subject.ts 'isOwner: !!p.isOwner,' '' \

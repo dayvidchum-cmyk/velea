@@ -32,9 +32,13 @@
     color:var(--gold); margin:2.4rem 0 .3rem; border-bottom:1px solid var(--line); padding-bottom:.35rem; }
   .lead { color:var(--muted); font-size:.86rem; margin:.5rem 0 1rem; }
 
-  .ask { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--gold-bright);
+  /* .ask is a DECISION AWAITING DAVID and the header count guard counts it. .finding looks
+     identical but is a write-up of something already found — no decision attached. Two findings
+     were written as .ask, which put the rendered count at 13 against a header of 11 and shipped
+     the page with its own guard red. Same styling, different meaning, so the count can't drift. */
+  .ask, .finding { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--gold-bright);
     border-radius:10px; padding:.8rem 1rem; margin-bottom:.6rem; }
-  .ask b { display:block; margin-bottom:.15rem; }
+  .ask b, .finding b { display:block; margin-bottom:.15rem; }
   .ask .why { color:var(--muted); font-size:.87rem; }
   .grp { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--teal);
     margin:1.4rem 0 .5rem; font-weight:700; }
@@ -109,7 +113,7 @@
 
   <h2>Today’s two, in full</h2>
 
-  <div class="ask"><b>Your law — “nothing should be hardcoded unless the data that decides it is displayed where it
+  <div class="finding"><b>Your law — “nothing should be hardcoded unless the data that decides it is displayed where it
     is displayed, and what it says is accurate to the data.”</b>
     <span class="why">You asked it as a question; it answers as a law. A hardcoded string is legitimate only if the
     data that selected it is visible at the same place <i>and</i> the words are true to that data. Otherwise the app
@@ -132,7 +136,7 @@
     the app. Fixed and controlled in both directions — known-guilty lines flag, known-innocent do not — before it was
     allowed to report anything. <b>A clean scan from an uncontrolled instrument is not evidence.</b></span></div>
 
-  <div class="ask"><b>The location tiers travel with the subject — found while changing a label.</b>
+  <div class="finding"><b>The location tiers travel with the subject — found while changing a label.</b>
     <span class="why">The sky resolver takes a location object. <b>Eleven of its thirty-three call sites hand it the
     wrong shape</b> — the chart subject rather than the profile row — and that object carried no <code>isOwner</code>
     and no hometown fields at all. They are optional, so the eleven type-checked while resolving a

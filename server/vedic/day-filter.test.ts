@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { dayFilter, movementOf, NATURE_LABEL } from "./day-filter";
+// Asserted against the app's ONE table of rung names, not a copy — a test with its own copy of the
+// labels would pass while the card said something else.
+import { PLAIN_TARA } from "./year-rank";
 
 const base = { varaLord: "Jupiter", vishti: false, tara: null };
 
@@ -376,5 +379,82 @@ describe("hardcoded copy must be true to the data that selected it", () => {
       const d = dayFilter({ ...goDay, tara: { quality, taraNum: 1, cycle: 1 } });
       expect(d.contained).toBe(false);
     }
+  });
+
+  // THE SIBLING, twenty lines from the one above and missed when the class was declared closed.
+  // "Your star is carried today" fires ONLY on quality "good" — taras 2/4/6/8/9, measured 8,220
+  // times across a full 153,090-state sweep, split dead even at 1,644 per rung. Tara 1, the rung
+  // this app itself calls "Your own star", reaches it 0 times. Same defect as the contained line,
+  // opposite end of the ladder: the words named the one rung that cannot cause them.
+  //
+  // A carried day needs supports=[] to reach this branch — an empty grammar with a good star.
+  // Ashwini/4/Sun is one of 548 cells where all five good rungs empty out; picked by sweep, not by
+  // guess. The first cell I reached for produced supports on every rung, so the loop below skipped
+  // all five and the assertion would have passed while testing nothing — hence the reach check.
+  const carriedDay = { nakshatra: "Ashwini", tithiNumber: 4, varaLord: "Sun", vishti: false } as any;
+
+  it("the carried line names the rung that chose it, and every good rung is distinguishable", () => {
+    const seen = new Map<number, string>();
+    for (const taraNum of [2, 4, 6, 8, 9]) {
+      const d = dayFilter({ ...carriedDay, tara: { quality: "good", taraNum, cycle: 1 } });
+      if (d.supports.length) continue;            // not the branch under test on this cell
+      expect(d.sentence).not.toMatch(/your star is carried/i);
+      // it must name a star, and it must be THIS rung's name from the app's one table
+      expect(d.sentence).toMatch(new RegExp(`the ${PLAIN_TARA[taraNum].label} star carries the day`, "i"));
+      seen.set(taraNum, d.sentence);
+    }
+    expect(seen.size).toBe(5);
+    // …and no two rungs may print the same sentence, which was the whole defect: five materially
+    // different days — gains, restoration, work paying off, support, the best day the sky gives —
+    // arriving on screen as one anonymous line.
+    expect(new Set(seen.values()).size).toBe(5);
+  });
+
+  // The control, mirroring the contained one above: the rung the OLD copy named is unreachable.
+  it("the birth star can never reach the carried branch either", () => {
+    const d = dayFilter({ ...carriedDay, tara: { quality: "mixed", taraNum: 1, cycle: 1 } });
+    expect(d.sentence).not.toMatch(/carries the day/i);
+  });
+});
+
+// A HEADLINE MAY NOT CLAIM AN OFFER WHEN NOTHING IS OFFERED (2026-07-21).
+//
+// The v896/v897 branch gated the headline on the native's tara but never consulted `supports`, so
+// on 6,028 of the 62,370 states it fired (9.7% of them, measured over the full domain) it printed
+// "THE DAY OFFERS IT — YOUR GROUND DOESN'T" directly above "Start nothing, grow nothing, cut
+// nothing you don't have to" with supports=[]. There was no "it". The self-contradiction those
+// releases were written to end, surviving inside the branch they added to end it.
+describe("the headline never claims an offer the day does not make", () => {
+  const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+
+  it("no day-state anywhere in the domain offers something while offering nothing", () => {
+    let checked = 0, empties = 0;
+    for (const nakshatra of NAK)
+      for (const tithiNumber of [4, 8, 9, 14, 19, 23, 24, 29])
+        for (const varaLord of ["Sun", "Mars", "Jupiter", "Saturn"])
+          for (const taraNum of [1, 3, 5, 7])
+            for (const cycle of [1, 2, 3]) {
+              const quality = cycle > 1 ? "mixed" : "bad";
+              const d = dayFilter({ nakshatra, tithiNumber, varaLord, vishti: false,
+                tara: { quality, taraNum, cycle }, dateSeed: "2026-07-21" } as any);
+              checked++;
+              if (d.supports.length === 0) {
+                empties++;
+                expect(d.headline).toBeNull();
+              }
+            }
+    // The sweep must actually REACH the empty-supports states, or this guard passes by never
+    // testing anything — the false-green trap this repo has been bitten by before.
+    expect(checked).toBeGreaterThan(1000);
+    expect(empties).toBeGreaterThan(0);
+  });
+
+  // The control in the other direction: where the day DOES offer something, the headline stays.
+  // This is David's own card of 2026-07-21 — "THE DAY OFFERS IT" above a real supports line.
+  it("keeps the headline when the day genuinely offers something to hostile ground", () => {
+    const d = dayFilter({ nakshatra: "Swati", tithiNumber: 2, varaLord: "Jupiter", vishti: false,
+      tara: { quality: "mixed", taraNum: 3, cycle: 1 } } as any);
+    expect(d.supports.length).toBeGreaterThan(0);
+    expect(d.headline).toBe("THE DAY OFFERS IT — YOUR GROUND DOESN'T");
   });
 });

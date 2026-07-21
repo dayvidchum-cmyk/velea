@@ -20,6 +20,10 @@
 
 import tables from "./canon/muhurta-tables.json";
 import siddha from "./canon/siddha-yoga.json";
+// The reader-facing rung names, single-sourced. The 9 taras have exactly one set of plain words
+// in this app and they live here; a second copy in this file is how "Your star" drifted away from
+// what the app calls tara 1 in the first place.
+import { PLAIN_TARA } from "./year-rank";
 
 export type DayNature = "fixed" | "movable" | "swift" | "tender" | "sharp" | "fierce" | "mixed";
 export type TithiFamily = "nanda" | "bhadra" | "jaya" | "rikta" | "purna";
@@ -615,7 +619,18 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     : input.tara && input.tara.quality !== "good"
     // Softened-hostile ground — the collective day really does offer this, and that stays true and
     // visible; what changes is that it is no longer addressed to this native as an instruction.
-    ? "THE DAY OFFERS IT — YOUR GROUND DOESN'T"
+    //
+    // …EXCEPT when it offers nothing. This branch never consulted `supports`, so on 6,028 of the
+    // 62,370 day-states it fires (9.7%, measured across the full 153,090-state sweep) it printed
+    // "THE DAY OFFERS IT" directly above "Start nothing, grow nothing, cut nothing you don't have
+    // to" with `supports=[]`. There is no "it" to offer. That is the v896/v897 self-contradiction
+    // — "All of the above contradicts itself" — surviving inside the branch those releases added
+    // to end it, which is why gating on the tara alone was never enough: the headline has to
+    // consult the thing it is making a claim about.
+    //
+    // Silence, not a rewrite: the `contained` branch twelve lines up already established that when
+    // the mode word and the sentence carry the day, a third line only shouts over them.
+    ? (supports.length === 0 ? null : "THE DAY OFFERS IT — YOUR GROUND DOESN'T")
     : collectiveHeadline;
 
   const sentence = contained
@@ -635,7 +650,21 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     ? "The loss star holds the day — however the sky reads, keep everything small, finish nothing new, and let it pass."
     : supports.length === 0
     ? (input.tara?.quality === "good"
-        ? "Your star is carried today: a win is possible. No forceful pushing. Let it come; don't chase it."
+        // THE SIBLING OF THE LINE ABOVE — same law, same ternary, twenty lines apart. v901 fixed
+        // the tara-7 instance and I called the class closed; it was not, and this is why the rule
+        // is "fix the class, not the instance".
+        //
+        // "Your star is carried today" fires ONLY on quality "good" — taras 2/4/6/8/9 — measured
+        // 8,220 times, split dead even 1,644 per rung. Tara 1, the rung this app itself calls
+        // "Your own star" (PLAIN_TARA[1].label), is quality "mixed" and reaches this branch
+        // exactly 0 times. So the words named the single rung that cannot cause them, and five
+        // materially different days — gains, restoration, work paying off, support, the best day
+        // the sky gives — all printed as one anonymous sentence.
+        //
+        // Built FROM PLAIN_TARA rather than a local table, so the card and the rest of the app can
+        // never disagree about what a rung is called, and a new rung can't be added without this
+        // line following it.
+        ? `${carriedByRung(input.tara.taraNum)} a win is possible. No forceful pushing. Let it come; don't chase it.`
         : `Start nothing, grow nothing, cut nothing you don't have to. Let it pass quietly.${personalTurn}`)
     : yogaOnEmpty
     ? `It supports ${listOf(supports.slice(0, 3))}.${personalTurn}`
@@ -648,6 +677,17 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
     supports: dedupe(supports), avoid: dedupe(avoid), vetoes, audit: dedupe(audit),
     varaColors, contained, sentence, amritaSiddhi: amrita, siddhaYoga: siddhaHit,
   };
+}
+
+// Name the rung that chose the line (David's law, 2026-07-21), in the grammar v901 already set for
+// its tara-7 sibling: "The loss star holds the day". Same shape, opposite end of the ladder, so the
+// two lines read as one family instead of two authors.
+//
+// PLAIN_TARA is the source. If a rung ever goes missing from it, this says something true about the
+// day rather than guessing a name — a wrong rung is the exact defect being repaired here.
+function carriedByRung(taraNum: number): string {
+  const label = PLAIN_TARA[taraNum]?.label;
+  return label ? `The ${label.toLowerCase()} star carries the day:` : "The day's star carries it:";
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
