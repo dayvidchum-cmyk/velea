@@ -367,7 +367,7 @@ run server/narrative/generate.ts 'if (inMiddle > 1)' 'if (inMiddle > 99)' \
 # is punished for echoing the verdict, which he explicitly ruled it should do.
 run server/narrative/generate.ts 'const middle = [r.scene, r.story, r.tilt].join(" ");' 'const middle = [r.scene, r.story, r.tilt, r.closeLine].join(" ");' \
   server/narrative/veto-budget.test.ts "the closing seal gets punished as a repetition"
-run server/narrative/generate.ts 'const TARA_NAMES = "janma' 'const TARA_NAMES = "zzjanma' \
+run server/narrative/generate.ts '|naidhana|vadha|' '|zznaidhana|zzvadha|' \
   server/narrative/veto-budget.test.ts "the rung names ship to the reader again"
 # THE LAST MILE. The retry guard is not a guarantee — three refusals and the best draft ships — so
 # the deterministic scrub is the only thing that cannot be talked out of it.
