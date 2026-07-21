@@ -31,10 +31,109 @@ export function hasAnthropicKey(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
 }
 
+/**
+ * THE METER (v885) — every model call reports exactly what it cost, and Velea threw all of it away.
+ *
+ * Asked to compare models, the only instrument available was watching the prepaid wallet drop, which
+ * cannot distinguish a cache HIT from a cache MISS — the single number that decides whether a model
+ * is affordable here. The API returns it on every response and it was never read.
+ *
+ * Wrapped at the client factory rather than at the seven call sites, so a call site added later is
+ * metered by construction and cannot be the one that was forgotten.
+ *
+ * In-memory and bounded, exactly like the black box above: resets on deploy, holds only numbers,
+ * never chart data and never prose.
+ */
+export type GenUsage = {
+  at: string;
+  model: string;
+  /** Input tokens billed at full rate — the part that was NOT served from cache. */
+  inputTokens: number;
+  outputTokens: number;
+  /** Served from cache at ~0.1x. A healthy steady-state read is almost entirely this. */
+  cacheReadTokens: number;
+  /** Written to cache at ~1.25x. Large here means a COLD read — first call after a model
+   *  switch, or the 5-minute TTL expired between taps. */
+  cacheWriteTokens: number;
+  /** null when the model is not in the price table below — never a guessed number. */
+  costUsd: number | null;
+};
+
+/**
+ * Per-MTok list prices, from Anthropic's published model pricing (table cached 2026-06-24).
+ * NOT measured here — if a price changes, this table is wrong until someone updates it, which is
+ * why every entry is named explicitly and an unknown model yields a null cost rather than a
+ * plausible-looking wrong one.
+ */
+const PRICE_PER_MTOK: Record<string, { in: number; out: number }> = {
+  "claude-sonnet-4-6": { in: 3, out: 15 },
+  "claude-sonnet-5": { in: 3, out: 15 },
+  "claude-opus-4-8": { in: 5, out: 25 },
+  "claude-opus-4-7": { in: 5, out: 25 },
+  "claude-haiku-4-5": { in: 1, out: 5 },
+};
+/** Cache reads bill at ~0.1x input; 5-minute cache writes at ~1.25x. */
+const CACHE_READ_MULT = 0.1, CACHE_WRITE_MULT = 1.25;
+
+const recentGenUsage: GenUsage[] = [];
+export function getGenUsage() { return recentGenUsage; }
+/** Totals across everything still in the buffer — what a test run actually cost. */
+export function getGenUsageTotals() {
+  const n = recentGenUsage.length;
+  const sum = (f: (u: GenUsage) => number) => recentGenUsage.reduce((t, u) => t + f(u), 0);
+  const costed = recentGenUsage.filter((u) => u.costUsd != null);
+  const cacheRead = sum((u) => u.cacheReadTokens), cacheWrite = sum((u) => u.cacheWriteTokens);
+  return {
+    calls: n,
+    inputTokens: sum((u) => u.inputTokens),
+    outputTokens: sum((u) => u.outputTokens),
+    cacheReadTokens: cacheRead,
+    cacheWriteTokens: cacheWrite,
+    /** Share of cacheable input that was actually served from cache. The number that decides
+     *  affordability: near 1 is steady state, near 0 means every read is paying a cold write. */
+    cacheHitRate: cacheRead + cacheWrite > 0 ? +(cacheRead / (cacheRead + cacheWrite)).toFixed(3) : null,
+    costUsd: costed.length ? +costed.reduce((t, u) => t + (u.costUsd ?? 0), 0).toFixed(4) : null,
+    costedCalls: costed.length,
+    models: Array.from(new Set(recentGenUsage.map((u) => u.model))),
+  };
+}
+export function resetGenUsage() { recentGenUsage.length = 0; }
+
+/** Test seam: the wrapper below is unreachable without a live API key, so the arithmetic is
+ *  exercised directly. Not used by any runtime path. */
+export const __recordUsageForTest = (msg: any) => recordUsage(msg);
+
+function recordUsage(msg: any) {
+  const u = msg?.usage;
+  if (!u) return;
+  const model: string = msg.model ?? MODEL;
+  const inputTokens = u.input_tokens ?? 0;
+  const outputTokens = u.output_tokens ?? 0;
+  const cacheReadTokens = u.cache_read_input_tokens ?? 0;
+  const cacheWriteTokens = u.cache_creation_input_tokens ?? 0;
+  const p = PRICE_PER_MTOK[model];
+  const costUsd = p
+    ? +(((inputTokens + cacheReadTokens * CACHE_READ_MULT + cacheWriteTokens * CACHE_WRITE_MULT) * p.in
+        + outputTokens * p.out) / 1_000_000).toFixed(6)
+    : null;
+  recentGenUsage.unshift({ at: new Date().toISOString(), model, inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens, costUsd });
+  if (recentGenUsage.length > 60) recentGenUsage.length = 60;
+}
+
 function client(): Anthropic | null {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  return new Anthropic({ apiKey });
+  const a = new Anthropic({ apiKey });
+  // Metering must NEVER be able to kill a reading — the same law the 2026-07-17 outage wrote, when a
+  // failed cache WRITE took the whole billed read down with it. The response is already in hand here;
+  // anything that goes wrong counting it is swallowed and the read is returned untouched.
+  const create = a.messages.create.bind(a.messages);
+  (a.messages as any).create = async (...args: any[]) => {
+    const msg = await (create as any)(...args);
+    try { recordUsage(msg); } catch (e) { console.warn("[meter] usage not recorded:", e); }
+    return msg;
+  };
+  return a;
 }
 
 // THE BLACK BOX (2026-07-17 outage): every generation failure is recorded here so the

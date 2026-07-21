@@ -402,6 +402,24 @@ export const appRouter = router({
         const { getRecentGenErrors } = await import("./narrative/generate.js");
         return { errors: getRecentGenErrors() };
       }),
+    // Admin: THE METER (v885) — per-call token usage, cache hit rate, and cost since the last
+    // deploy (or since the last reset). Built so a model comparison is measured rather than
+    // guessed from the wallet, which cannot tell a cache hit from a cold write.
+    llmUsage: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const { getGenUsage, getGenUsageTotals } = await import("./narrative/generate.js");
+        return { totals: getGenUsageTotals(), calls: getGenUsage() };
+      }),
+    // Admin: zero the meter — tap this immediately before a measured run so the totals describe
+    // that run and nothing else.
+    llmUsageReset: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Admins only" });
+        const { resetGenUsage, getGenUsageTotals } = await import("./narrative/generate.js");
+        resetGenUsage();
+        return { totals: getGenUsageTotals() };
+      }),
     // Admin: run a specific user's ACTUAL day reading end-to-end (build input → generate) and report
     // the exact failure point. Diagnoses a per-user blank when the global LLM probe is green.
     testReadingForUser: protectedProcedure

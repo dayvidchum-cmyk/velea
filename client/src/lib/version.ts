@@ -2778,4 +2778,21 @@
 // instruction now branches on kind — only same-party earns fusion; through-the-wall is read as the
 // tension it is; the machinery words are banned from the prose.
 // Guards aimed at the PATH, not the module — that is precisely what v884's green tests could not see.
-export const APP_VERSION = "1.1.885";
+// v1.1.886 = 2026-07-20 — THE METER. David, about to compare Opus against Sonnet, was going to write
+// down his prepaid wallet balance, run a read, and look again. That instrument cannot answer the
+// question: a wallet drop cannot tell a cache HIT from a cold cache WRITE, and with a 16,287-word
+// shared BASE_PROMPT that difference IS the cost. Velea received exact token counts on every single
+// model call and discarded all of them — `usage` appeared nowhere in server/.
+// Now wrapped at the client() factory, so a call site added later is metered by construction rather
+// than by remembering. Records input / output / cache-read / cache-write per call, plus a cost from
+// published per-MTok prices — and returns NULL for an unpriced model instead of a plausible guess.
+// Admin taps: llmUsage (totals + per-call) and llmUsageReset (zero it right before a measured run).
+// Metering sits inside a try/catch: it may never take down a billed read (the 2026-07-17 law).
+// Three confounds this exists to expose, all of which would have poisoned the wallet test: caches
+// are per-MODEL (the first read after a switch pays a full cold write), the TTL is 5 minutes (hand-
+// clicking between taps means every read is cold), and thinking-on changes output tokens — the
+// expensive side — independently of the model.
+// The last probe breaks the WIRING, not the arithmetic. Eight passing tests would have survived the
+// wrapper being deleted, which is exactly how v884 shipped green while importing nothing.
+// 117 files, 1209 tests, 0 failures. tsc exit 0. build exit 0.
+export const APP_VERSION = "1.1.886";

@@ -299,6 +299,17 @@ run server/narrative/input-builder.ts 'const contacts = contactsOf(lonAll, lagna
   server/narrative/natal-contacts.test.ts "the disagreeing pairs are dropped and only agreed ones reach the model"
 run server/narrative/prompts.ts '- kind "through-the-wall"' '- kind "through-the-wallX"' \
   server/narrative/prompt-structure.test.ts "the prompt loses the through-the-wall branch and fuses everything again"
+# THE METER. A cost meter that is quietly wrong is worse than none — it gets believed and then
+# priced against. The last probe breaks the WIRING rather than the arithmetic, which is the failure
+# every other test here is blind to.
+run server/narrative/generate.ts 'const CACHE_READ_MULT = 0.1, CACHE_WRITE_MULT = 1.25;' 'const CACHE_READ_MULT = 1.0, CACHE_WRITE_MULT = 1.25;' \
+  server/narrative/meter.test.ts "cache reads get billed as full-price input (cost overstated)"
+run server/narrative/generate.ts '  const p = PRICE_PER_MTOK[model];' '  const p = PRICE_PER_MTOK[model] ?? { in: 3, out: 15 };' \
+  server/narrative/meter.test.ts "an unpriced model gets a guessed price instead of null"
+run server/narrative/generate.ts 'cacheHitRate: cacheRead + cacheWrite > 0 ? +(cacheRead / (cacheRead + cacheWrite)).toFixed(3) : null,' 'cacheHitRate: +(cacheRead / (cacheRead + cacheWrite || 1)).toFixed(3),' \
+  server/narrative/meter.test.ts "no cacheable traffic reports a 0% hit rate instead of no answer"
+run server/narrative/generate.ts '    try { recordUsage(msg); } catch (e) { console.warn("[meter] usage not recorded:", e); }' '' \
+  server/narrative/meter.test.ts "the meter is defined but never wired to a real call (v884's exact shape)"
 # The fate ban going quiet again — it was enforced NOWHERE until 2026-07-20.
 run server/narrative/generate.ts 'const fate = fullText.match(FATE_DECREE);' 'const fate = null as any;' \
   server/narrative/guard.test.ts "a decree about this person can ship again"
