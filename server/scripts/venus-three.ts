@@ -21,9 +21,11 @@ const VARA = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
 const DATE = "2026-07-21";
 
 const PEOPLE = [
-  { n: "DAVID", d: "1982-04-13", t: "17:20:00", lat: 14.6781, lon: 120.2660, tz: 8 },
-  { n: "LISA",  d: "1982-02-20", t: "20:39:00", lat: 42.36,   lon: -71.06,  tz: -5 },
-  { n: "LANG",  d: "1989-11-18", t: "17:32:00", lat: 42.36,   lon: -71.06,  tz: -5 },
+  { n: "DAVID", d: "1982-04-13", t: "17:20:00", lat: 14.6781, lon: 120.2660, tz: 8 },   // Morong, Bataan
+  // Real birth data, read from the profiles table — NOT assumed. Lisa is West Islip NY, not
+  // Boston; the first run of this audit used Boston for her and is superseded by this one.
+  { n: "LISA",  d: "1982-02-20", t: "20:39:00", lat: 40.706210, lon: -73.306230, tz: -5 },
+  { n: "LANG",  d: "1989-11-18", t: "17:32:00", lat: 42.355508, lon: -71.056536, tz: -5 },
 ];
 
 const lonOf = (chart: any, p: string): number | null => {
