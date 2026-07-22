@@ -1,116 +1,57 @@
 # Velea — Session Handoff
 
-_Last updated 2026-07-22, end of the reader-gate / ruling-B session. This is the "start here" note for
-the next session. The living to-do list stays in `tools/working-brief/index.html`; the open-issue
-catalogue in `tools/audit-sheet/index.html`. This file is continuity, not a second backlog._
+_Last updated 2026-07-22, end of the Stage-wiring / doc-merge session. This is the "start here" note.
+The single living to-do doc is now `tools/working-brief/index.html` (the merged Brief). This file is
+continuity._
 
-> **First action, before trusting anything below.** This is a snapshot; it drifts. Re-run the state
-> checks (`git status`, `git log --oneline -5`, `grep APP_VERSION`, `npx vitest run`) and treat their
-> output as truth over this file. Prod runtime state (the `houseReader`/`chapterReader` feature-flag
-> audience, the Anthropic wallet, anything David changed between sessions) is NOT in these files —
-> re-verify it against prod, never assume it from here. That is the lesson that cost this session two
-> wrong diagnoses.
+> **First action, before trusting anything below.** Re-run the state checks (`git status`,
+> `git log --oneline -5`, `grep APP_VERSION client/src/lib/version.ts`, `npx vitest run`) and treat
+> their output as truth over this file. Prod runtime state (feature-flag audience, the Anthropic
+> wallet) is NOT in these files — verify against prod, never assume.
 
----
+## Current state (verify, don't remember)
+- **Live: v930** (`APP_VERSION = "1.1.930"`, `sw.js` cache `velea-cache-v930`). Deployed on velealor.com.
+- **Suite 1310 passed / 4 skipped, tsc 0, build 0, probes all catch.** Re-run to reconfirm.
+- Tree clean, `main` synced.
 
-## Current state (verified, not remembered)
+## Read first
+1. `CLAUDE.md` — the method (accuracy > money > cosmetics; RULE ZERO: never state a value you haven't printed).
+2. `SYSTEM_MAP.md` — architecture; read before exploring.
+3. **`tools/working-brief/index.html` — THE single doc** (app + work + his calls, each with a ruling box).
+   The old audit sheet is a "folded in" stub. The brief shows the LIVE VERSION at the top, always
+   (self-enforced by a docs-claims test coupled to APP_VERSION — bump the app → update the brief).
+4. `NARRATIVE_AUDIT.md` — the 16-point engine→LLM contract (gate 2).
+5. `RELEASE_GATES.md` — David's framework: 18 audits under 5 gates (Astrological Fidelity, Narrative
+   Fidelity, Engineering Integrity, Visual & UX Excellence, Business Excellence). Run the **Deterministic
+   Astrology Audit** before anything else. The earlier 5 standing audits are absorbed + mapped there.
 
-- **Live version: v928** on velealor.com (`APP_VERSION = "1.1.928"`, `sw.js` cache `velea-cache-v928`).
-- **Tree clean, `main` in sync with `origin/main`.** Last commit `c63f9e7`.
-- **Suite 1300 passed / 4 skipped (125 files), tsc exit 0, build exit 0** — run `npx vitest run`,
-  `npx tsc --noEmit`, `npm run build` to reconfirm. The 4 skips are the known date-drift tests
-  (`KNOWN_ISSUES.md`), not failures.
+## What shipped this session
+- **v929 — "Aligned for Today" fixed.** Was collapsing to 1 task of 89 (the `diagnose-aligned.ts` autopsy
+  measured it). Mode is now a SOFT rank (not a hard filter); the low-drive gate is whole-check-in aware.
+  `shared/motivation-gate.ts`. **Awaiting David's eyes** on the deployed list. "capable" threshold
+  (mental≥4 & emotional≥4) is his to retune.
+- **v930 — the Stage engine wired into the cast read.** The Cast/Camera/Tension engine (`sky/stage.ts`),
+  built 7/21, was never wired — the LLM chose who's loud. Now the engine hands the protagonist + the one
+  tension (`input.stage`), CAST_TAIL narrates them. `findTension` aggressor bug fixed (both-directions
+  test + probe). SURFACE_VERSION.cast bumped. **Awaiting David's eyes** on The Read (the cast paragraph).
+- **Docs merged into one** + the release-gates framework enshrined.
 
-## Read these first
+## Awaiting David's eyes (the two verifications that close open items)
+- **The Read** (cast paragraph, v930) — tap it; the protagonist/tension are now chart-decided. Cache-salted, easy to adjust.
+- **The Aligned list** (v929) — full Restraint-led list now.
 
-1. `CLAUDE.md` — the method. Non-negotiable. Priority order: (1) reading-data accuracy, (2) money/
-   gating, (3) cosmetics. RULE ZERO: never state a value you haven't printed.
-2. `SYSTEM_MAP.md` — architecture; read before exploring, update in the same commit as any change.
-3. `tools/working-brief/index.html` — the live to-do list ("the chain", "Pick back up", decisions).
-4. `tools/audit-sheet/index.html` — 15 open issues, 11 decisions, the fixed record (collapsed).
+## Open work — all in the Brief's "Your calls" (each has a ruling box)
+- His calls (16): Siddha loudness, eclipse before/after, knot thresholds, crown-mark spec, palette calls,
+  Futura-vs-Optima (make the mock on his go), Karaka/Tara (scrub vs glossary — issue #10), 27-star
+  consolidate-vs-guarded (issue #2), chapter-read Door-Law exception (#6), price, Stripe keys, pick-a-date.
+- Open issues mine to build: Day Headline (#7, blessed), welcome card two-buttons (#9), the money-durability
+  items (#4/#5). Copy sweep is 6/7 DONE.
+- The UI/brand batch (comet mark, diamond, gate-glyph, yogas copy) — his 7-item spec, in the Brief.
 
-## What shipped this session (v926–v928)
-
-- **v926 — the reader gate.** A free user's House Reader + Chapter Reader read "the room/chapter is
-  quiet" (an outage message) instead of a lock. Root, proven by the readings autopsy: the
-  `houseReader`/`chapterReader` feature-off returns (`narrative/router.ts:167`, `:196`) sent
-  `available:false` with no `locked`. Fixed both to `locked:true`; strengthened `billing-gate.test.ts`
-  to check each refusal *return*, not the whole body (probed). **Verified on the deployed app** (a
-  free profile's rooms read, the paid rooms lock) — David confirmed with test user tom@wolf.com.
-- **v927 — the silent catches.** The two room-gate catches (`router.ts:181`, `:227`) swallowed a
-  thrown error with no log; now call `recordServerError` so a real research-throw shows in the admin
-  black box. M20 behaviour unchanged (a transient hiccup returns unavailable, never a false lock).
-- **v928 — ruling B (cancelled fall = supportive always).** David ruled a cancelled debilitation
-  (neecha bhanga) is a standing structural quality, acting as exalted always — NOT dasha-gated.
-  Removed the running-lords gate from `labelWithCancellation` (`dignity.ts`); `life-areas` + `day-frame`
-  now read it as supportive always; the narrative was already correct. Retired `CANCELLED_LATENT_LABEL`
-  + plumbing; test rewritten to B and probed. This resolved audit **issue #1** (the engine over-gated,
-  not the prose) — moved to the fixed record, open list renumbered 1–15.
-
-## Method lessons re-cemented this session (do not repeat these)
-
-- **Prod config ≠ code defaults.** The `houseReader` default in `feature-flags.ts` is `"everyone"`,
-  but the prod `feature_flags` DB row overrides it. Reading the default and asserting the flag was on
-  cost real laps. Print the real value (the autopsy did).
-- **Measure before concluding.** Two hypotheses for the "quiet" bug — the door gate, then a self-heal
-  asymmetry — were built on unverified runtime assumptions and **both were wrong**. The instrument that
-  actually named it: `scripts/diagnose-readings.ts` (read-only, runs the real pipeline by email against
-  a prod `DATABASE_URL`, David runs it in his terminal). Use it for any reading-failure diagnosis.
-- **Admin bypasses `hasFeature`** (`feature-flags.ts:65`) — a free-user gating bug will NOT reproduce
-  from the owner/admin account. Diagnose against the actual user.
-- **Don't reopen a settled ruling, and don't overthink.** The cancelled-fall gate mechanism, its
-  labels, and the ruling were already encoded; asking David to re-ratify them + a prose-wording choice
-  was over-caution. Build what's written; fix what takes no side; flag only what needs his authority.
-- **The docs are the record.** `LIVE_QUEUE.md` (a stray file) was created and correctly deleted —
-  everything belongs in the brief + audit sheet, not a second list.
-
-## Open work, prioritized
-
-### 1. Copy sweep — the correctness cluster (audit issues 1–6, in accuracy order)
-The fix run was authorised and paused. All six are live. Verify each still bites at HEAD before fixing
-(line numbers drift). **Data first:**
-- **#1 "Business Partners" read as spouse** — `input-builder.ts:485`, the spouse regex swallows the
-  plural so the business-partners rule is unreachable. **This is next.**
-- **#2 The Stage names the wrong aggressor 19%** — `sky/stage.ts:384` writes `${o} presses on ${p}`
-  regardless of direction (measured 20/103 wrong).
-- **#3–6 read-contradictions** — `day-filter.ts:638` ("your star" tara-1 branch never fires),
-  `day-filter.ts:618` ("THE DAY OFFERS IT" over "start nothing"), `sky/golden-moment.ts:154` (eclipse
-  ahead announced past), `:119` (station up to 3 days old announced "just now").
-
-### 2. "Aligned for Today" audit (audit issue #15) — David flagged 22 Jul, biting in daily use
-The interaction between a task's mode flag (set on create/edit), the real-life check-in, the current
-day's mode, and the mode orbs is off; the Aligned list shows the wrong tasks. **Diagnosis-first, like
-#7** — measure the chain (task mode → check-in weighting / gold-dots / rest-gate → day mode → orb
-counts → Aligned filter) before touching. Not started.
-
-### 3. The UI / brand batch — David's original 8 items (2026-07-22); #7 (the reader bug) is DONE
-Brief chain items 2 (money seam) and 4 (the look). His exact requirements, verbatim intent:
-- **Comet becomes the brand mark** ("just do it"): replace the Lakshmi star mark with the comet —
-  the brand mark, the spinning **loading** mark, AND the **Today** nav icon.
-- **Readings nav → a diamond** (square turned 45°) with a **bindi dot** in the centre (frees the star).
-- **Gated premium shown-but-locked, not hidden** (money seam, #4/#8): the hero card's **↻ refresh
-  reading** and the **year calendar** are currently *completely hidden* for a free user — they must
-  appear with the gate. And for **all** locked features, the **gate glyph sits next to the caret/button**
-  that opens the feature.
-- **Life Atlas: "open" → a caret** (the yogas row says "open"; it just needs a caret).
-- **Yogas: remove "taste"**, make them free-pickable; a caret opens the card; the bubble button that
-  picks a yoga as the free reading — **remove the words** ("This choice keeps …" is weird English),
-  replace with something elegant, and **don't repeat the yoga's name**.
-- **Futura vs Optima? (DECISION, David's)** — DCPC's brand font is Futura; would Futura + Inter be weird
-  vs the current Optima + Inter? Build a side-by-side mock for his eyes; ship only if he blesses it.
-  Cosmetic + jarring-redesign-risky → last.
-
-### 4. Feature directions (brief "Pick back up")
-The productivity Planner roadmap (10-point neurodivergent-UX + Pomodoro; #2/#3 shipped per record,
-confirm), the **prana reading** (engine computes prana-level periods, no surface voices them), the
-**agenda layer** rebuilt as a hidden nudge (code parked `@535fcd5`), **addresses & contacts** (built
-v884/885, confirm on a live reading).
-
-## Pending David decisions
-- The **11 open calls** in the audit sheet (Siddha Yoga loudness, Lang's birth data, eclipse-day
-  guidance, knot thresholds, crown mark spec, palette calls, price, Stripe keys, pick-a-date layer).
-- **Futura vs Optima** (above).
-- **Next priority:** copy sweep (correctness) vs the Aligned-for-Today audit (live UX bug) — he was
-  choosing between these when the session ended.
-- The **feature-flag launch decision**: `houseReader`/`chapterReader` are global — set to "everyone"
-  launches the Readers to every free signup (real LLM spend). Held at "testers" for verification.
+## Method lessons this session (do not repeat)
+- **Measure before concluding.** The copy sweep was already 5/6 fixed (v901–v905); the "Stage 19% wrong"
+  bug was in unwired script-only code. Both found by verifying at HEAD, not trusting the docs.
+- **Don't over-dramatise.** "improvise", "amputating", "damning" — David flagged the tone. The engine
+  already marks the loud planets; the gap was narrower. Be precise and calm.
+- **The docs drift.** Correct them the moment reality diverges; the merged Brief is now the one source.
+- **Long sessions degrade.** This one ran very long; David called it. Start fresh terminals sooner.
