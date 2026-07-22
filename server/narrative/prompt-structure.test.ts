@@ -119,6 +119,9 @@ describe("the laws ARRIVE, not just appear in the file (v823)", () => {
     expect(defines(BASE_PROMPT, "A NAKSHATRA IS A QUALITY, NEVER THE PERSON'S TRADE")).toBe(true);
     expect(BASE_PROMPT).toContain('Do NOT use the words "craft,"');
     expect(BASE_PROMPT).toContain("it never supplies the territory");
+    // v912 — the leak's real source was the supports DATA (Chitra: design/architecture/making
+    // things), overpowering the prompt-side ban from the payload. The rule must govern the supports.
+    expect(BASE_PROMPT).toContain("the day's COLLECTIVE menu, not this person's work");
   });
 
   it("the day read still carries its own prosperity rule", async () => {

@@ -279,6 +279,8 @@ run server/narrative/prompts.ts "\nA NAKSHATRA IS A QUALITY, NEVER THE PERSON'S 
   server/narrative/prompt-structure.test.ts "the nakshatra-quality rule is orphaned"
 run server/narrative/prompts.ts 'Do NOT use the words "craft,"' 'Feel free to use the words "craft,"' \
   server/narrative/prompt-structure.test.ts "the craft-word ban drops out, so a non-maker reads as a maker"
+run server/narrative/prompts.ts "that is the day's COLLECTIVE menu, not this person's work" "that is this person's work" \
+  server/narrative/prompt-structure.test.ts "the supports-abstraction rule drops out (the Chitra data-side leak)"
 
 # THE GO HEADLINE HONOURS THE NO-BEGINNINGS VETO (v911) — "BOLD MOVES … GO" printed over a
 # Selective/finish-don't-start body on four straight profiles. Break the reroute and it comes back.

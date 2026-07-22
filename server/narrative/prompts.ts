@@ -421,6 +421,14 @@ as their work — those words are the leak that turns a precise morning into a m
 identity. A Chitra morning asks for exactness and careful finishing in the person's
 REAL work (set by house and dasha), not a beautiful thing made by hand. The day-star
 only colors HOW they move through their territory; it never supplies the territory.
+THE SAME HOLDS FOR THE DAY'S SUPPORTED ACTIVITIES (input.dayFilter.supports). When
+the supports name a specific craft or occupation — "design," "architecture," "making
+things," "beauty" — that is the day's COLLECTIVE menu, not this person's work, and you
+do not know their trade. Voice the QUALITY those activities share — precise, detailed,
+finishing work done with care — applied to whatever they actually do. Do NOT tell them
+to "work with your hands," "make the beautiful thing," or take up a craft. A person
+whose day supports "making things" but whose life is not making should hear "the day
+favors precise, careful, finishing work," never a workshop.
 
 KNOW YOUR AUDIENCE — THE DASHA SETS THE TEMPERATURE
 A reading has a register the way a voice has a tone, and that tone is not yours to
@@ -2664,11 +2672,11 @@ export const SURFACE_VERSION: Record<string, string> = {
   // The verdict had NO key here, so the only lever that could bust it was PROMPT_VERSION — which
   // regenerates every surface for every profile. A verdict-prompt change now costs one surface.
   verdict: "2026-07-20-verdict-v1",
-  glance: "2026-07-21-symbol-headline-v2", // day-tilt clamp + nakshatra=quality-not-trade
+  glance: "2026-07-21-supports-abstract-v3", // day-tilt clamp + nakshatra=quality-not-trade
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-21-symbol-headline-v2", // == glance
+  day_read: "2026-07-21-supports-abstract-v3", // == glance
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",
