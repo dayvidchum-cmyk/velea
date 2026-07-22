@@ -129,7 +129,12 @@ export default function ProfectionYear() {
     { id: "dasha", label: "Dasha" },
   ];
 
-  const { data: profectionData, error: profectionError } = trpc.profection.current.useQuery();
+  // refetchOnMount "always" + retry: the year read was getting served a stale/empty result on
+  // client navigation and stuck there until a hard refresh (David 2026-07-22). Force a fresh fetch
+  // each time the page mounts, and retry transient failures rather than falling straight to the
+  // "no birth data" empty state.
+  const { data: profectionData, error: profectionError, isLoading: profectionLoading } =
+    trpc.profection.current.useQuery(undefined, { retry: 2, refetchOnMount: "always" });
   const { data: transitsData, error: transitsError, isLoading: transitsLoading } = trpc.profection.timeLordTransits.useQuery(undefined, {
     enabled: tlOpen, // the merged Time Lord Movement panel gates the year-ribbon fetch
   });
@@ -343,6 +348,17 @@ export default function ProfectionYear() {
     <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "7rem" }}>
       <AppHeader pageTitle="Your Charts" />
       <p style={{ color: TEXT_MUTED, marginTop: "1rem" }}>Error: {profectionError.message}</p>
+    </div>
+  );
+
+  // LOADING is not EMPTY. Until the query settles, show a loader — never the "set your birth date"
+  // message, which read as a false "no data" while the fetch was still in flight (David 2026-07-22).
+  if (profectionLoading && !profectionData) return (
+    <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "7rem" }}>
+      <AppHeader pageTitle="Your Charts" />
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "3rem" }}>
+        <VeleaLoader size={26} label="Reading your chart…" />
+      </div>
     </div>
   );
 
