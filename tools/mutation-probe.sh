@@ -282,6 +282,16 @@ run server/narrative/prompts.ts 'Do NOT use the words "craft,"' 'Feel free to us
 run server/narrative/prompts.ts "that is the day's COLLECTIVE menu, not this person's work" "that is this person's work" \
   server/narrative/prompt-structure.test.ts "the supports-abstraction rule drops out (the Chitra data-side leak)"
 
+# THE VOCATION FIELD (2026-07-21) — the person's own word is the only honest source of a trade; it
+# lifts the craft-ban. Three arms: the payload emission, the ban-lift license, and the ADMIN GATE
+# (v884 shape — the field could be perfectly wired and still let any client set it).
+run server/narrative/input-builder.ts "...(vocation ? { vocation } : {})" "" \
+  server/narrative/payload-contract.test.ts "the vocation stops reaching the payload"
+run server/narrative/prompts.ts "THE BAN LIFTS WHEN THE WORK IS KNOWN" "THE BAN LIFTS WHEN THE WORK IS KNOWNX" \
+  server/narrative/payload-contract.test.ts "the ban-lift license is orphaned (a set vocation does nothing)"
+run server/routers/profiles.ts 'if (ctx.user.role === "admin") {\n        if (fields.instrument !== undefined) updateData.instrument = fields.instrument;' 'if (true) {\n        if (fields.instrument !== undefined) updateData.instrument = fields.instrument;' \
+  server/narrative/payload-contract.test.ts "the admin gate drops, so any client can set a profile's vocation"
+
 # THE GO HEADLINE HONOURS THE NO-BEGINNINGS VETO (v911) — "BOLD MOVES … GO" printed over a
 # Selective/finish-don't-start body on four straight profiles. Break the reroute and it comes back.
 run server/vedic/day-filter.ts 'const headlineFamily: TithiFamily = beginningsBlocked && family === "jaya" ? "purna" : family;' 'const headlineFamily: TithiFamily = family;' \

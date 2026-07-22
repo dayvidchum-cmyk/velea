@@ -248,3 +248,38 @@ describe("the protagonist and the canon facet are actually wired (2026-07-21)", 
     expect("const chainLords = Array.from(new Set([cur?.mahadasha]))").not.toMatch(/chainLords\s*=\s*Array\.from\([\s\S]{0,200}pf\.timeLord/);
   });
 });
+
+/**
+ * THE VOCATION FIELD IS WIRED AND ADMIN-GATED (2026-07-21).
+ *
+ * The reading kept literalizing a day-star's craft image onto non-makers. The chart can't know a
+ * trade with certainty (aptitude, never the fact); the only honest source is the person's own word.
+ * The vocation field carries it, the engine resolves the instrument into a concrete reach, and the
+ * prompt lifts the craft-ban ONLY when it is present. The write is admin-only, enforced server-side.
+ */
+describe("the vocation field is wired and admin-gated (2026-07-21)", () => {
+  const ROUTER = readFileSync(new URL("../routers/profiles.ts", import.meta.url), "utf8");
+
+  it("the engine resolves the instrument and emits vocation to the payload", () => {
+    expect(SRC).toContain("INSTRUMENT_REACH");
+    expect(SRC).toMatch(/\.\.\.\(vocation \? \{ vocation \} : \{\}\)/);
+  });
+
+  it("the prompt documents vocation AND carries the ban-lift license", () => {
+    expect(PROMPTS).toContain("vocation?: { instrument, reach, note? }");
+    // Include the suffix so a trailing-char mutation actually breaks the match — "…KNOWN" alone is a
+    // substring of "…KNOWNX" and the probe (rightly) survived against it.
+    expect(PROMPTS).toContain("THE BAN LIFTS WHEN THE WORK IS KNOWN (input.vocation)");
+  });
+
+  it("the router writes the instrument ONLY inside an admin check (the gate cannot be bypassed)", () => {
+    // v884 shape: the field could be perfectly wired and still let any client set it. The write must
+    // sit inside `if (ctx.user.role === "admin")`, so a non-admin's value is dropped at the server.
+    expect(ROUTER).toMatch(/if \(ctx\.user\.role === "admin"\) \{[\s\S]{0,240}updateData\.instrument = fields\.instrument/);
+  });
+
+  it("NEGATIVE CONTROL — these matchers can fail", () => {
+    expect("no vocation here").not.toContain("INSTRUMENT_REACH");
+    expect("updateData.instrument = fields.instrument").not.toMatch(/if \(ctx\.user\.role === "admin"\) \{[\s\S]{0,240}updateData\.instrument = fields\.instrument/);
+  });
+});

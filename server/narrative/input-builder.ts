@@ -1400,8 +1400,24 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     ? { phase: merRx.phase, strength: +merRx.strength.toFixed(2), retrograde: merRx.retrograde }
     : null;
 
+  // THE VOCATION — the person's real working instrument, told to us (admin-set), NEVER guessed from
+  // the chart. This is the ONLY honest source of a trade; the engine RESOLVES the tag into a concrete
+  // register the prompt reaches, so the model is told what to say, not left to infer it. Absent when
+  // unset → the reading keeps its default-abstract (never invents a trade). See the nakshatra rule.
+  const INSTRUMENT_REACH: Record<string, string> = {
+    hands: "the hands and the craft — making, shaping, the made thing, manual skill and precision of hand",
+    voice: "the voice — speaking, sound, teaching aloud, addressing and moving people by voice",
+    words: "words — writing, language, the written craft, the sentence made exact",
+    body: "the body in motion — the physical instrument, movement, embodied or athletic work",
+    mind: "the mind — analysis, reasoning, designing ideas, solving and structuring thought",
+  };
+  const instrument = (p as any).instrument as string | null | undefined;
+  const vocation = instrument && INSTRUMENT_REACH[instrument]
+    ? { instrument, reach: INSTRUMENT_REACH[instrument], ...((p as any).vocationNote ? { note: (p as any).vocationNote } : {}) }
+    : null;
+
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

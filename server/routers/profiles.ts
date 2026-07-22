@@ -549,6 +549,11 @@ export const profilesRouter = router({
         id: z.number().int(),
         name: z.string().min(1).max(128).optional(),
         notes: z.string().nullable().optional(),
+        // ADMIN-ONLY (enforced in the mutation): the person's real working instrument + optional
+        // note, so the reading reaches their actual craft instead of guessing. Non-admins may send
+        // these and they are silently ignored — the gate is server-side, never trusted from the client.
+        instrument: z.enum(["hands", "voice", "words", "body", "mind"]).nullable().optional(),
+        vocationNote: z.string().max(200).nullable().optional(),
       }).merge(BirthInputSchema)
     )
     .mutation(async ({ ctx, input }) => {
@@ -579,6 +584,12 @@ export const profilesRouter = router({
       if (fields.hometownLon !== undefined) updateData.hometownLon = fields.hometownLon;
       if (fields.hometownTimezone !== undefined) updateData.hometownTimezone = fields.hometownTimezone;
       if (fields.notes !== undefined) updateData.notes = fields.notes;
+      // ADMIN-ONLY: the vocation fields are written only for admins. A non-admin's values are
+      // dropped here, at the server, so the gate cannot be bypassed by a crafted client request.
+      if (ctx.user.role === "admin") {
+        if (fields.instrument !== undefined) updateData.instrument = fields.instrument;
+        if (fields.vocationNote !== undefined) updateData.vocationNote = fields.vocationNote;
+      }
       if (changed) updateData.birthDataUpdatedAt = new Date(); // start/refresh the lock
 
       await db

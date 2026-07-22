@@ -385,6 +385,13 @@ export const profiles = mysqlTable("profiles", {
   // cooldown that stops profile "hijacking" (swapping to a friend's data and back).
   birthDataUpdatedAt: timestamp("birthDataUpdatedAt"),
   notes: text("notes"),
+  // ADMIN-ONLY controlled test (2026-07-21, David). The person's real working INSTRUMENT, so the
+  // reading reaches their actual craft (hands/voice/words/body/mind) instead of guessing a trade
+  // from a day-star. This is the ONLY honest source of a trade — the chart gives aptitude, never
+  // the fact. NULL = unset → the safe default-abstract (the reading never invents a trade). Set by
+  // admins only for now; added to prod by scripts/add-vocation-columns.ts BEFORE this deploys.
+  instrument: varchar("instrument", { length: 16 }), // hands|voice|words|body|mind
+  vocationNote: varchar("vocationNote", { length: 200 }), // optional free-text detail
   isOwner: boolean("isOwner").notNull().default(false), // true = this is the owner's own chart ("My Chart")
   isActive: boolean("isActive").notNull().default(false),
   // Calculated natal chart fields (mirrors users table)

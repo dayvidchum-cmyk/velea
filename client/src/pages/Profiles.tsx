@@ -109,6 +109,9 @@ interface ProfileFormData {
   hometownLon: string;
   hometownTimezone: string;
   notes: string;
+  // ADMIN-ONLY (controlled test): the person's real working instrument + optional note. "" = unset.
+  instrument: string;
+  vocationNote: string;
 }
 
 const EMPTY_FORM: ProfileFormData = {
@@ -125,6 +128,8 @@ const EMPTY_FORM: ProfileFormData = {
   hometownLon: "",
   hometownTimezone: "",
   notes: "",
+  instrument: "",
+  vocationNote: "",
 };
 
 interface ProfileFormProps {
@@ -178,6 +183,8 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
         hometownLon: data.hometownLon || undefined,
         hometownTimezone: data.hometownTimezone || undefined,
         notes: data.notes || undefined,
+        instrument: data.instrument ? (data.instrument as any) : null,
+        vocationNote: data.vocationNote || null,
       });
       // Compute once date + place are present; time is optional (no time → Chandra chart).
       let calcFailed = false;
@@ -244,6 +251,8 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
                 hometownLon: (profile as any).hometownLon ?? "",
                 hometownTimezone: (profile as any).hometownTimezone ?? "",
                 notes: profile.notes ?? "",
+                instrument: (profile as any).instrument ?? "",
+                vocationNote: (profile as any).vocationNote ?? "",
               }}
               onSave={handleSave}
               onCancel={onClose}
@@ -261,6 +270,8 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
 }
 
 export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMakeActive }: ProfileFormProps) {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [form, setForm] = useState<ProfileFormData>({ ...EMPTY_FORM, ...initial });
   const [makeActive, setMakeActive] = useState(isNew ?? false);
   const [geocoding, setGeocoding] = useState(false);
@@ -566,6 +577,37 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
           className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none"
         />
       </div>
+
+      {/* ADMIN-ONLY (controlled test): the person's real working instrument. Lets the reading reach
+          their actual craft instead of guessing a trade from a day-star. Edit-only; unset = the safe
+          default (the reading never invents a trade). Server re-checks admin — this is UI only. */}
+      {isAdmin && !isNew && (
+        <div className="space-y-1.5 rounded-md border border-dashed border-input p-3">
+          <Label htmlFor="pf-instrument">Instrument · admin</Label>
+          <select
+            id="pf-instrument"
+            value={form.instrument}
+            onChange={set("instrument")}
+            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option value="">— unset (reading stays abstract) —</option>
+            <option value="hands">Hands (craft, making, manual skill)</option>
+            <option value="voice">Voice (speaking, teaching aloud, sound)</option>
+            <option value="words">Words (writing, language)</option>
+            <option value="body">Body (movement, the physical)</option>
+            <option value="mind">Mind (analysis, ideas, design of thought)</option>
+          </select>
+          <input
+            type="text"
+            value={form.vocationNote}
+            onChange={set("vocationNote")}
+            placeholder="optional detail — e.g. PMU artist, permanent makeup"
+            maxLength={200}
+            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+          <p className="text-xs text-muted-foreground">Only you (admin) can set this. Lets the reading reach the real instrument; unset stays fully abstract.</p>
+        </div>
+      )}
 
       {/* Make active toggle — only shown when there's another profile to switch away from.
           With a single profile it's the active one by definition, so the toggle is noise. */}
@@ -961,6 +1003,8 @@ export default function Profiles() {
         hometownLon: data.hometownLon || undefined,
         hometownTimezone: data.hometownTimezone || undefined,
         notes: data.notes || undefined,
+        instrument: data.instrument ? (data.instrument as any) : null,
+        vocationNote: data.vocationNote || null,
       });
 
       // Recalculate once date + place are present; time is optional (no time → Chandra chart).
@@ -1091,6 +1135,8 @@ export default function Profiles() {
               hometownLon: editingProfile.hometownLon ?? "",
               hometownTimezone: editingProfile.hometownTimezone ?? "",
               notes: editingProfile.notes ?? "",
+              instrument: (editingProfile as any).instrument ?? "",
+              vocationNote: (editingProfile as any).vocationNote ?? "",
             }}
             showMakeActive={profileList.length > 1}
             onSave={handleEdit}
