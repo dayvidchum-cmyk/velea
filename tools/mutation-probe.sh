@@ -272,6 +272,19 @@ run server/narrative/prompts.ts "lead with the house's TENDING facet" "lead with
 run server/narrative/prompts.ts "that is the compiler's dump" "list them all" \
   server/narrative/prompt-structure.test.ts "the anti-dump coherence guard drops out of the clamp"
 
+# A NAKSHATRA IS A QUALITY, NOT THE PERSON'S TRADE (v910/v911) — Chitra the craftsman-star kept
+# reading as "your hands / the craft" on non-makers. Two arms: the heading defined, and the explicit
+# word-ban that is the actual leak-stopper.
+run server/narrative/prompts.ts "\nA NAKSHATRA IS A QUALITY, NEVER THE PERSON'S TRADE\n" "\nA NAKSHATRA IS A QUALITY, NEVER THE PERSON'S TRADEX\n" \
+  server/narrative/prompt-structure.test.ts "the nakshatra-quality rule is orphaned"
+run server/narrative/prompts.ts 'Do NOT use the words "craft,"' 'Feel free to use the words "craft,"' \
+  server/narrative/prompt-structure.test.ts "the craft-word ban drops out, so a non-maker reads as a maker"
+
+# THE GO HEADLINE HONOURS THE NO-BEGINNINGS VETO (v911) — "BOLD MOVES … GO" printed over a
+# Selective/finish-don't-start body on four straight profiles. Break the reroute and it comes back.
+run server/vedic/day-filter.ts 'const headlineFamily: TithiFamily = beginningsBlocked && family === "jaya" ? "purna" : family;' 'const headlineFamily: TithiFamily = family;' \
+  server/vedic/day-filter.test.ts "a Mercury-Rx / Vishti day shouts a GO headline again"
+
 echo "=== the public site ==="
 run client/public/sw.js '"/system", "/gate", "/receive"' '"/system", "/receive"' \
   server/marketing-sw-parity.test.ts "a marketing route missing from sw.js (cached as the app shell)"

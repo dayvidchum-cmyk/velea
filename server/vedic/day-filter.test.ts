@@ -458,3 +458,25 @@ describe("the headline never claims an offer the day does not make", () => {
     expect(d.headline).toBe("THE DAY OFFERS IT — YOUR GROUND DOESN'T");
   });
 });
+
+describe("the GO headline honours the no-beginnings veto (David 2026-07-21)", () => {
+  // Swati = movable nature; tithi 8 = jaya family → the "begin boldly" cell.
+  it("a jaya 'go' headline becomes completion under Mercury retrograde", () => {
+    const go = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 8 });
+    expect(go.headline).toBe("Bold moves land well today — go"); // control: no veto
+    const rx = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 8, mercuryRx: true } as any);
+    expect(rx.headline).toBe("Arrive, complete the crossing, unpack fully"); // movable/purna
+    expect(rx.headline!.toLowerCase()).not.toContain("go"); // the contradiction is gone
+  });
+
+  it("vishti reroutes the go headline the same way — nothing new begins", () => {
+    const v = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 8, vishti: true });
+    expect(v.headline).toBe("Arrive, complete the crossing, unpack fully");
+  });
+
+  it("only jaya reroutes — a non-begin family keeps its headline under the veto", () => {
+    // bhadra (tithi 2) is steady/continue work, not a beginning cue; the veto leaves it alone.
+    const bhadra = dayFilter({ ...base, nakshatra: "Swati", tithiNumber: 2, mercuryRx: true } as any);
+    expect(bhadra.headline).toBe("Useful motion: go where the work is");
+  });
+});

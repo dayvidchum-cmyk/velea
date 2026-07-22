@@ -111,6 +111,16 @@ describe("the laws ARRIVE, not just appear in the file (v823)", () => {
     expect(BASE_PROMPT).toContain("that is the compiler's dump");
   });
 
+  it("BASE_PROMPT carries the nakshatra-quality rule — Chitra ≠ the person's hands (v910/v911)", async () => {
+    // David's Moon AND Venus-3 profiles (neither a maker) both read "the craft / careful hands / what
+    // your hands finish" — Chitra the craftsman-star literalized into a vocation. The rule bans the
+    // leak-words outright; break the heading or the explicit word-ban and a non-maker becomes a maker.
+    const { BASE_PROMPT } = await import("./prompts.js");
+    expect(defines(BASE_PROMPT, "A NAKSHATRA IS A QUALITY, NEVER THE PERSON'S TRADE")).toBe(true);
+    expect(BASE_PROMPT).toContain('Do NOT use the words "craft,"');
+    expect(BASE_PROMPT).toContain("it never supplies the territory");
+  });
+
   it("the day read still carries its own prosperity rule", async () => {
     // It does NOT live in BASE_PROMPT, and it must not be assumed to — that assumption is exactly
     // what made the crown doctrine vanish for four commits.

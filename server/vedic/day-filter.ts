@@ -504,7 +504,18 @@ export function dayFilter(input: DayFilterInput): DayCharacter {
       purna: "Clear the backlog; leave the desk clean",
     },
   };
-  const collectiveHeadline = HEADLINE_MATRIX[nature]?.[family] ?? `${NATURE_LABEL[nature]} ${FAMILY_LABEL[family]}`;
+  // THE GO HEADLINE MUST HONOUR THE NO-BEGINNINGS VETO (David, 2026-07-21). The jaya family is the
+  // "begin boldly" row ("Bold moves land well today — go", "Commit boldly", "Cut decisively"). When
+  // a no-beginnings veto is in force — Mercury retrograde re-covering its ground, or Vishti's
+  // "this whole day finishes; nothing new begins" — a GO headline contradicts the mode (which is
+  // already forced to "Selective" by c.vetoes) and the sentence (already rx-capped to finish-don't-
+  // start). It printed "Selective … BOLD MOVES LAND WELL TODAY — GO" over a body that said nothing
+  // launches, on four straight profiles. The truest cell for finish-don't-start is this same
+  // nature's PURNA (completion) headline — the day's real counsel, in David's own already-blessed
+  // copy, no new string invented. Only jaya is rerouted; the other families do not cue beginnings.
+  const beginningsBlocked = !!input.mercuryRx || !!input.vishti;
+  const headlineFamily: TithiFamily = beginningsBlocked && family === "jaya" ? "purna" : family;
+  const collectiveHeadline = HEADLINE_MATRIX[nature]?.[headlineFamily] ?? `${NATURE_LABEL[nature]} ${FAMILY_LABEL[family]}`;
   // A nature may carry David's own plain movement line (avoidPlain) — it replaces the
   // book's item-list in the SENTENCE (the items stay in `avoid` for detail views).
   const avoidPlain = (natDef as any).avoidPlain as string | undefined;
