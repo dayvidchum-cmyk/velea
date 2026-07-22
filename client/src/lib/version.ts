@@ -3116,4 +3116,11 @@
 // LockedRead gate shows. Guard strengthened to check each refusal RETURN, not the whole body
 // (probed: reverting the fix fails it). Admin bypasses `hasFeature`, which is why it never
 // reproduced from the owner account. 125 files, 1304 tests, 0 failures. tsc 0, build 0.
-export const APP_VERSION = "1.1.926";
+//
+// v927 — THE SILENT CATCH SPEAKS. The two room-gate catches (narrative/router.ts houseRead:roomGate,
+// dashaRead:chapterGate) swallowed a thrown error and returned unavailable with no log — the exact
+// class that hid #7's cause and cost the diagnosis two wrong turns. They now call recordServerError,
+// so a genuine research-throw lands in the black box (admin Recent errors) instead of vanishing. The
+// M20 behavior is unchanged: a transient gate hiccup still returns unavailable, never a false lock.
+// Server-only. 125 files, 1304 tests, 0 failures. tsc 0, build 0.
+export const APP_VERSION = "1.1.927";

@@ -178,7 +178,15 @@ export const narrativeRouter = router({
           const houseOf = (planet: string) => (research?.houses ?? []).find((h: any) => (h.occupants ?? []).some((o: any) => (o.planet ?? o) === planet))?.house ?? null;
           const open = new Set([1, houseOf("Sun"), houseOf("Moon")].filter(Boolean));
           if (!open.has(input.house)) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
-        } catch { /* audit M20: a thrown error here is a transient hiccup (DB, missing row), NOT a paywall — return unavailable, not locked, so an owner isn't shown a lock until it clears */ return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const; }
+        } catch (e) {
+          // audit M20: a thrown error here is a transient hiccup (DB, missing row), NOT a paywall —
+          // return unavailable, not locked, so an owner isn't shown a lock until it clears. v926:
+          // but it must NOT be silent — a genuine research-throw was invisible here (the exact class
+          // that cost us laps on #7). Record it so it shows in the black box (admin Recent errors).
+          const { recordServerError } = await import("./generate.js");
+          recordServerError("narrative.houseRead:roomGate", e);
+          return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
+        }
       }
       const { getHouseReadCached } = await import("./service.js");
       // audit LOW: meter forced regen (same class as M2) — only admins may cache-bypass a reader.
@@ -224,7 +232,13 @@ export const narrativeRouter = router({
             const askIdx = inMaha.findIndex((e: any) => e.antardasha === input.antar);
             if (askIdx < 0 || curIdx < 0 || askIdx > curIdx) return { available: false, locked: true, read: null, generatedAt: null, cached: false } as const;
           }
-        } catch { /* audit M20: a thrown error here is a transient hiccup (DB, missing row), NOT a paywall — return unavailable, not locked, so an owner isn't shown a lock until it clears */ return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const; }
+        } catch (e) {
+          // audit M20: a thrown error here is a transient hiccup, return unavailable not locked (see
+          // houseRead:roomGate). v926: record it too, so a real research-throw is never silent.
+          const { recordServerError } = await import("./generate.js");
+          recordServerError("narrative.dashaRead:chapterGate", e);
+          return { available: false, locked: false, read: null, generatedAt: null, cached: false } as const;
+        }
       }
       const { getDashaReadCached } = await import("./service.js");
       return await getDashaReadCached(profile.id, input.lord, input.span, ctx.user.role === "admin" && (input.refresh ?? false), input.antar);
