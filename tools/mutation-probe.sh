@@ -262,6 +262,16 @@ run server/narrative/prompts.ts 'const PROMPT_VERSION' 'const PROMPT_VERSION_X' 
 run server/push.ts 'if (isCrownDay) return pickLine(POOL.crown' 'if (false && isCrownDay) return pickLine(POOL.crown' \
   server/bell-ladder.test.ts "bell's crown rung stops being read"
 
+# THE HOUSE-POSTURE CLAMP (v908) — the day's tilt picks a house's leading facet, so a restraint day
+# stops reading as "collect what's owed" / "build with your hands". Three arms: the heading defined,
+# the restraint→tending default, and the coherence guard that stops it dumping every facet.
+run server/narrative/prompts.ts "\nTHE DAY'S TILT PICKS THE POSTURE (never collapse a house into its busiest verb)\n" "\nTHE DAY'S TILT PICKS THE POSTURE (never collapse a house into its busiest verb)X\n" \
+  server/narrative/prompt-structure.test.ts "the house-posture clamp heading is orphaned"
+run server/narrative/prompts.ts "lead with the house's TENDING facet" "lead with the house's ACTIVE facet" \
+  server/narrative/prompt-structure.test.ts "the restraint day stops leading with the tending facet"
+run server/narrative/prompts.ts "that is the compiler's dump" "list them all" \
+  server/narrative/prompt-structure.test.ts "the anti-dump coherence guard drops out of the clamp"
+
 echo "=== the public site ==="
 run client/public/sw.js '"/system", "/gate", "/receive"' '"/system", "/receive"' \
   server/marketing-sw-parity.test.ts "a marketing route missing from sw.js (cached as the app shell)"

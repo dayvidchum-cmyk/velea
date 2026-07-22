@@ -99,6 +99,18 @@ describe("the laws ARRIVE, not just appear in the file (v823)", () => {
     expect(BASE_PROMPT).toContain("panchang.noSunrise");
   });
 
+  it("BASE_PROMPT carries the house-posture clamp — the day's tilt picks the leading facet (v908)", async () => {
+    // David's Venus-3 read leaned career ("build with your hands") and Venus-2 leaned "collect what's
+    // owed": the same drift — the prose grabbed a house's busiest verb and ignored a restraint day.
+    // The clamp is DEFINED (heading on its own line), not merely pointed at, and it carries the two
+    // teeth that make it work: the restraint→tending default AND the coherence guard against dumping
+    // every facet. Break either and the reading regresses to one of the two drifts it closed.
+    const { BASE_PROMPT } = await import("./prompts.js");
+    expect(defines(BASE_PROMPT, "THE DAY'S TILT PICKS THE POSTURE (never collapse a house into its busiest verb)")).toBe(true);
+    expect(BASE_PROMPT).toContain("lead with the house's TENDING facet");
+    expect(BASE_PROMPT).toContain("that is the compiler's dump");
+  });
+
   it("the day read still carries its own prosperity rule", async () => {
     // It does NOT live in BASE_PROMPT, and it must not be assumed to — that assumption is exactly
     // what made the crown doctrine vanish for four commits.
