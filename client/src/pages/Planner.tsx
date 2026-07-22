@@ -1489,9 +1489,10 @@ export default function Planner() {
       {/* ── 1. CALENDAR ── */}
       <div
         ref={calendarRef}
-        className="parchment relative z-10 overflow-hidden"
+        className="parchment relative z-10 overflow-hidden hero-fullbleed"
         style={{
-          borderRadius: "16px",
+          // Full-bleed + square corners to match the hero card (David 2026-07-22).
+          borderRadius: "0",
           // Soft sliver frame — a 1px hairline at low opacity of the day-mode color (David).
           border: `1.5px solid color-mix(in srgb, ${calModeColor} 38%, transparent)`,
           // The calendar is ALWAYS a LIGHT almanac page (coins are tuned for a light surface), but
