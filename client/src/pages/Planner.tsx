@@ -1127,7 +1127,7 @@ export default function Planner() {
         <div className="relative z-10">
           <div
             data-tour="today-mode"
-            className="relative overflow-hidden"
+            className="relative overflow-hidden hero-fullbleed"
             style={{
               borderRadius: '28px',
               padding: '1.75rem 1.75rem 1.5rem',

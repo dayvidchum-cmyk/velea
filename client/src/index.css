@@ -412,6 +412,20 @@
     }
   }
 
+  /* FULL-BLEED HERO (David 2026-07-22): the day-mode card fills the horizontal axis instead of
+     floating as an inset widget. Cancels the .container padding exactly, so the card reaches the
+     container edges (screen edges on phone). Safe — body has overflow-x: hidden. */
+  .hero-fullbleed {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+  @media (min-width: 640px) {
+    .hero-fullbleed {
+      margin-left: -1.5rem;
+      margin-right: -1.5rem;
+    }
+  }
+
   .flex {
     min-height: 0;
     min-width: 0;
