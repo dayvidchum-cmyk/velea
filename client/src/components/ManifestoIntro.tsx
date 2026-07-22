@@ -41,14 +41,14 @@ export default function ManifestoIntro({ onBegin }: { onBegin: () => void }) {
         {i < BEATS.length ? (
           <div key={i} style={{ animation: "velea-rise 0.7s ease both" }}>
             {BEATS[i].lines.map((ln, k) => (
-              <p key={k} style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: k === 0 ? "1.55rem" : "1.25rem", lineHeight: 1.5, color: "rgba(255,255,255,0.9)", margin: k ? "1.1rem 0 0" : 0, fontWeight: k === 0 ? 700 : 400 }}>
+              <p key={k} style={{ fontFamily: "var(--font-serif)", fontSize: k === 0 ? "1.55rem" : "1.25rem", lineHeight: 1.5, color: "rgba(255,255,255,0.9)", margin: k ? "1.1rem 0 0" : 0, fontWeight: k === 0 ? 700 : 400 }}>
                 <Line text={ln} />
               </p>
             ))}
           </div>
         ) : (
           <div key="thesis" style={{ animation: "velea-rise 0.7s ease both" }}>
-            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.35rem", fontWeight: 700, color: "#FDFDFD", lineHeight: 1.35, margin: 0 }}>
+            <p style={{ fontFamily: "var(--font-serif)", fontSize: "1.35rem", fontWeight: 700, color: "#FDFDFD", lineHeight: 1.35, margin: 0 }}>
               Velea reads three things at once —
             </p>
             <p style={{ fontSize: "1.12rem", lineHeight: 1.65, color: "rgba(255,255,255,0.85)", margin: "1rem 0 0" }}>
@@ -57,7 +57,7 @@ export default function ManifestoIntro({ onBegin }: { onBegin: () => void }) {
             <p style={{ fontSize: "1.12rem", lineHeight: 1.65, color: "rgba(255,255,255,0.85)", margin: "1rem 0 0" }}>
               Where those three meet is data. Velea uses it to tell you which of your tasks belongs to this moment — and why.
             </p>
-            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.3rem", fontWeight: 700, color: "#FDFDFD", margin: "1.5rem 0 0", letterSpacing: "0.02em" }}>
+            <p style={{ fontFamily: "var(--font-serif)", fontSize: "1.3rem", fontWeight: 700, color: "#FDFDFD", margin: "1.5rem 0 0", letterSpacing: "0.02em" }}>
               Not prediction. Timing.
             </p>
           </div>

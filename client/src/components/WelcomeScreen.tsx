@@ -119,7 +119,7 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
         <h1
           style={{
             margin: 0, textAlign: "center",
-            fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+            fontFamily: "var(--font-serif)",
             fontWeight: 700,
             fontSize: "clamp(2rem, 8.5vw, 3rem)",
             lineHeight: 1.15,

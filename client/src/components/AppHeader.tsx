@@ -248,7 +248,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2">
               <VeleaMark size={28} color="var(--brand-gold)" />
-              <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)", lineHeight: 1 }}>
+              <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "0.02em", color: "var(--brand-gold)", lineHeight: 1 }}>
                 Velea
               </span>
             </div>
@@ -330,7 +330,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
           style={{
             // D · Airy Humanist (David 2026-07-21): Optima, lighter and SMALLER than the verdict so
             // the greeting and "Selective" stop reading as twin titles.
-            fontFamily: "Optima, 'Palatino Linotype', Palatino, 'Georgia', ui-serif, serif",
+            fontFamily: "var(--font-serif)",
             fontWeight: 400,
             fontSize: "clamp(1.5rem, 5.5vw, 1.95rem)",
             color: "var(--heading-ink)",
@@ -344,7 +344,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             Opens the check-in sheet; shows time since last check-in, or "CURRENT STATE" if none today. */}
         {isAuthenticated && (
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <span style={{ fontFamily: "Optima, 'Palatino Linotype', Palatino, 'Georgia', ui-serif, serif", fontSize: "1rem", color: "var(--color-muted-foreground)", lineHeight: 1 }}>
+            <span style={{ fontFamily: "var(--font-serif)", fontSize: "1rem", color: "var(--color-muted-foreground)", lineHeight: 1 }}>
               How are you?
             </span>
             <button
@@ -390,7 +390,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             style={{
               fontFamily: sansTitle
                 ? "'Inter', ui-sans-serif, system-ui, sans-serif"
-                : "'Playfair Display', 'Georgia', ui-serif, serif",
+                : "var(--font-serif)",
               fontWeight: sansTitle ? 700 : 600,
               fontSize: `calc(clamp(1.25rem, 4vw, 1.75rem) * ${titleScale})`,
               color: "var(--heading-ink)",

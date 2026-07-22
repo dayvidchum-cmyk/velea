@@ -35,7 +35,7 @@ export default function About() {
   const [openMoon, setOpenMoon] = useState(false);
   const [openCast, setOpenCast] = useState(false);
   const [openLetter, setOpenLetter] = useState(false);
-  const serif = "'Playfair Display', Georgia, serif";
+  const serif = "var(--font-serif)";
   const { user } = useAuth();
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
   const firstName = (activeProfile?.name ?? user?.name)?.split(" ")[0] ?? null;

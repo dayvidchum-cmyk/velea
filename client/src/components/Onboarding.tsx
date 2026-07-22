@@ -343,7 +343,7 @@ function CardsDeck({
 
         <h2
           className="text-xl font-bold mb-2"
-          style={{ fontFamily: "'Playfair Display', Georgia, serif", color: "var(--color-foreground)" }}
+          style={{ fontFamily: "var(--font-serif)", color: "var(--color-foreground)" }}
         >
           {card.title}
         </h2>

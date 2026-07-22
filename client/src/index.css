@@ -278,7 +278,10 @@
 @theme inline {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Futura PT', 'Futura', 'Century Gothic', ui-sans-serif, sans-serif;
-  --font-serif: 'Playfair Display', 'Georgia', ui-serif, serif;
+  /* D · Airy Humanist — Optima app-wide (David 2026-07-22: "Optima all"). Every serif reads from
+     this token now; the next change is one line. Optima/Palatino are system faces (Apple), Georgia
+     the cross-platform fallback. */
+  --font-serif: var(--font-serif);
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   --color-background: var(--background);

@@ -66,7 +66,7 @@ export default function LockedFeatureCard({
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "color-mix(in srgb, var(--brand-gold, #C9A84C) 16%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.9rem" }}>
               <GateMark size={24} style={{ color: "var(--brand-gold, #C9A84C)" }} />
             </div>
-            <h3 style={{ margin: 0, fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontSize: "1.35rem", fontWeight: 700, color: "var(--foreground)" }}>{title}</h3>
+            <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontSize: "1.35rem", fontWeight: 700, color: "var(--foreground)" }}>{title}</h3>
             <p style={{ margin: "0.6rem 0 0", fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-muted-foreground)" }}>{detail}</p>
             {PREMIUM_PRICING.monthly && (
               <p style={{ margin: "0.7rem 0 0", fontSize: "0.9rem", fontWeight: 700, color: "var(--foreground)" }}>

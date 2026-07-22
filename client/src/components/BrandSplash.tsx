@@ -105,7 +105,7 @@ export default function BrandSplash({ onDone }: { onDone: () => void }) {
           <span
             style={{
               gridArea: "1 / 1",
-              fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+              fontFamily: "var(--font-serif)",
               fontSize: "clamp(2.4rem, 12vw, 3.4rem)",
               fontWeight: 700,
               letterSpacing: "0.01em",

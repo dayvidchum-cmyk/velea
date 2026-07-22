@@ -241,7 +241,7 @@ export default function CheckInSheet({ open, onClose, onSaved }: CheckInSheetPro
             <SheetTitle
               className="text-left"
               style={{
-                fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
+                fontFamily: "var(--font-serif)",
                 fontSize: "1.6rem",
                 fontWeight: 700,
                 color: "var(--color-foreground)",

@@ -183,7 +183,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
                           it — legible words, art still clear on the foreground. */}
                       <div style={{ position: "relative", zIndex: 1, marginTop: "clamp(90px, 22vh, 200px)", padding: "2.6rem 1.4rem 1.6rem", background: TEXT_SCRIM, animation: "velea-rise 0.7s ease both" }}>
                         <p style={{ margin: 0, fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textShadow: ts }}>{h.kicker}</p>
-                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "'Playfair Display', Georgia, serif", textShadow: ts, lineHeight: 1.05 }}>{h.title}</p>
+                        <p style={{ margin: "0.2rem 0 0", fontSize: "1.85rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "var(--font-serif)", textShadow: ts, lineHeight: 1.05 }}>{h.title}</p>
                         <p style={{ margin: "0.4rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.95)", lineHeight: 1.45, textShadow: ts }}>{h.note}</p>
 
                         {/* Moon card carries Today's call */}
@@ -262,7 +262,7 @@ export default function StageSheet({ open, onClose }: { open: boolean; onClose: 
           </div>
           <div style={{ position: "absolute", bottom: "calc(env(safe-area-inset-bottom,0px) + 1.6rem)", left: 0, right: 0, padding: "0 1.4rem", pointerEvents: "none" }}>
             <p style={{ margin: 0, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.78)" }}>{heroes[skyIdx].kicker}</p>
-            <p style={{ margin: "0.3rem 0 0", fontSize: "1.9rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "'Playfair Display', Georgia, serif", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].title}</p>
+            <p style={{ margin: "0.3rem 0 0", fontSize: "1.9rem", fontWeight: 800, color: "#FDFDFD", fontFamily: "var(--font-serif)", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].title}</p>
             <p style={{ margin: "0.35rem 0 0", fontSize: "0.95rem", color: "rgba(255,255,255,0.9)", fontStyle: "italic", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{heroes[skyIdx].note}</p>
           </div>
         </div>
