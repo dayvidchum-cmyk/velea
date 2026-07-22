@@ -43,11 +43,45 @@
   a { color:var(--gold); }
   .foot { color:var(--muted); font-size:.8rem; margin-top:2.5rem; border-top:1px solid var(--line);
     padding-top:.9rem; }
+  /* The north star — what Velea is becoming (David, 2026-07-22) */
+  .north { border:1px solid var(--gold); border-left:3px solid var(--gold-bright);
+    background:var(--soft); border-radius:10px; padding:1rem 1.15rem; margin:0 0 1.5rem; }
+  .north-h { font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; font-weight:700;
+    color:var(--gold); margin-bottom:.6rem; }
+  .creed { font-size:1.02rem; line-height:1.75; margin:.2rem 0 .6rem; color:var(--ink); }
+  .creed b { color:var(--teal); }
+  .north-note { font-size:.86rem; font-style:italic; color:var(--muted); margin:.1rem 0 .7rem; }
+  .north-law { font-size:.9rem; margin:0; padding-top:.6rem; border-top:1px solid var(--line); }
+  .north-law b { color:var(--wine); }
+  /* The five standing audits — every release, never leave the brief */
+  .audit { background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:.75rem 1rem; margin-bottom:.55rem; }
+  .audit-h { font-size:.8rem; font-weight:700; letter-spacing:.03em; color:var(--ink); margin-bottom:.15rem; }
+  .audit-h span { color:var(--gold-bright); font-variant-numeric:tabular-nums; margin-right:.4rem; }
+  .audit-say { font-size:.85rem; font-style:italic; color:var(--muted); margin:.2rem 0 .45rem; }
+  ul.check { list-style:none; padding:0; margin:.2rem 0 .4rem; }
+  ul.check li { font-size:.85rem; padding:.12rem 0 .12rem 1.05rem; position:relative; }
+  ul.check li::before { content:"✓"; position:absolute; left:0; color:var(--green); font-size:.8rem; }
+  .audit-fail { font-size:.82rem; font-weight:700; color:var(--wine); margin-top:.35rem; }
+  .tags { font-size:.85rem; color:var(--ink); margin:.2rem 0 .4rem; line-height:1.7; }
 </style>
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
   <p class="sub">v929 · 22 July 2026 · the live to-do list — what's next, what's blocked on you</p>
+
+  <div class="north">
+    <div class="north-h">Velea Principle — what we are becoming</div>
+    <p class="creed">
+      The engine computes <b>certainty</b>.<br>
+      The narrative expresses <b>certainty</b>.<br>
+      The interface removes <b>effort</b>.<br>
+      The business earns <b>trust</b>.
+    </p>
+    <p class="north-note">Every release should make those four things more true.</p>
+    <p class="north-law"><b>The standing law.</b> The engine should maximize <i>certainty</i>; the product should
+      maximize <i>clarity</i>. More information is not a better experience — more certainty and less cognitive effort are.</p>
+  </div>
 
   <div class="card">
     <b>Where the app is.</b> Live at v929 on velealor.com. Suite 1306 pass / 4 skipped (125 files), typecheck 0, build 0
@@ -57,6 +91,70 @@
     the silent gate-catches log, v928 shipped ruling B (a cancelled fall is supportive always), and <b>v929 fixed the
     "Aligned for Today" list</b> — an autopsy against your real data showed it collapsing to 1 task of 89; mode is now a
     soft rank (not a hard amputation) and the low-drive gate reads the whole check-in. <b>Awaiting your eyes on the phone.</b>
+  </div>
+
+  <h2>The five standing audits — every release, never leave the brief</h2>
+  <p class="lead">David's doctrine (2026-07-22). These are the release gates the whole project answers to; the mechanical
+    checklist that runs them in code lives in <code>AUDITS.md</code> (audits 1–14). Numbered as David wrote them.</p>
+
+  <div class="audit">
+    <div class="audit-h"><span>7</span>Narrative Fidelity</div>
+    <p class="audit-say">The astrology engine has already decided the meaning. The LLM is only allowed to voice it.</p>
+    <p class="tags">Before every release, verify:</p>
+    <ul class="check">
+      <li>Every narrative fact is fully resolved before the prompt.</li>
+      <li>The LLM never performs astrology.</li>
+      <li>One governing idea per reading.</li>
+      <li>One protagonist.</li>
+      <li>One emotional arc.</li>
+      <li>No competing narratives.</li>
+      <li>Remove true-but-unnecessary engine facts.</li>
+      <li>Endings distill rather than summarize.</li>
+      <li>Reflection questions arise naturally from the governing idea.</li>
+    </ul>
+    <p class="audit-fail">Failure = do not ship.</p>
+  </div>
+
+  <div class="audit">
+    <div class="audit-h"><span>8</span>Design Excellence</div>
+    <p class="audit-say">Every visible surface must feel intentional.</p>
+    <p class="tags">Audit every release for: typography · spacing · hierarchy · contrast · accessibility · animation ·
+      iconography · empty states · notifications · onboarding · loading · splash · paywall · dark mode · light mode.</p>
+    <p class="audit-fail">Nothing ships because "it's good enough." It ships because nothing obvious remains.</p>
+  </div>
+
+  <div class="audit">
+    <div class="audit-h"><span>9</span>Revenue Integrity</div>
+    <p class="audit-say">Every release must prove:</p>
+    <ul class="check">
+      <li>no entitlement leaks</li>
+      <li>no subscription leaks</li>
+      <li>no purchase bypass</li>
+      <li>no accidental free access</li>
+      <li>no pricing inconsistency</li>
+      <li>no downgrade bugs</li>
+      <li>no restore failures</li>
+    </ul>
+    <p class="audit-fail">Every dollar should have one path. No hidden paths.</p>
+  </div>
+
+  <div class="audit">
+    <div class="audit-h"><span>10</span>Cognitive Load</div>
+    <p class="audit-say">Every screen answers immediately: Where am I? · What matters? · What happens next?</p>
+    <p class="audit-fail">Every interaction removes work — never adds it. The user should never need to remember anything
+      the interface can remember instead.</p>
+  </div>
+
+  <div class="audit">
+    <div class="audit-h"><span>11</span>The Velea Standard</div>
+    <p class="audit-say">Every change is measured against four questions:</p>
+    <ul class="check">
+      <li><b>Accuracy</b> — Is it true?</li>
+      <li><b>Precision</b> — Is this the clearest implementation possible?</li>
+      <li><b>Trust</b> — Would this increase or decrease confidence in Velea?</li>
+      <li><b>Friction</b> — Does this create unnecessary effort?</li>
+    </ul>
+    <p class="audit-fail">If any answer is "yes," fix the source before shipping.</p>
   </div>
 
   <h2>The chain — do next, in order</h2>
