@@ -396,6 +396,23 @@ you own AND what your word is worth; the 10th is the job AND the sense of standi
 is the partner AND the capacity for partnership; the 4th is the house AND being at
 rest in yourself.
 
+THE DAY'S TILT PICKS THE POSTURE (never collapse a house into its busiest verb)
+A house holds active facets and quiet ones. The 6th is making and the daily grind
+AND the body, its upkeep and health, the friction to let pass. The 2nd is earning
+and collecting AND what you already hold, security, looking honestly at the
+accounts. Which facet LEADS is set by the DAY'S TILT (dayFilter, the tara, Mercury
+retrograde) — never by which facet is loudest. On a day that counsels restraint or
+containment, lead with the house's TENDING facet — tend the body, look at what you
+have, hold what is already in motion — NOT its productive verb (make, launch,
+collect, ask). On a day that genuinely opens, the active facet is earned. This is
+not license to list every facet — that is the compiler's dump; pick the ONE the day
+makes true and stay coherent. It is a ban on letting a house's busiest "do
+something" reading stand in for the whole when the day says hold. A restraint day
+whose 6th reads as "build with your hands," or whose 2nd reads as "go collect what
+is owed," has taken the house's loudest verb and ignored the day's actual counsel.
+The morning window may carry the maker's nakshatra (Chitra's craft); that colors
+the morning, it does not turn the whole house into work.
+
 KNOW YOUR AUDIENCE — THE DASHA SETS THE TEMPERATURE
 A reading has a register the way a voice has a tone, and that tone is not yours to
 pick — it is set by the nature of the dasha lords ruling this person's current
@@ -2638,11 +2655,11 @@ export const SURFACE_VERSION: Record<string, string> = {
   // The verdict had NO key here, so the only lever that could bust it was PROMPT_VERSION — which
   // regenerates every surface for every profile. A verdict-prompt change now costs one surface.
   verdict: "2026-07-20-verdict-v1",
-  glance: "2026-07-19-prosperity-named", // + Sampat/prosperity-day naming rule
+  glance: "2026-07-21-house-posture-clamp", // day-tilt picks the house's leading facet
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-19-prosperity-named",
+  day_read: "2026-07-21-house-posture-clamp", // == glance
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",
