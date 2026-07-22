@@ -4,7 +4,6 @@ import { getDb } from "../db.js";
 import { profiles, profileNatalBodies, users } from "../../drizzle/schema.js";
 import { dayFrameReading, type DayFrameReading } from "../vedic/day-frame.js";
 import { readingProse, DAILY_SURFACES } from "./daily-surface.js";
-import { deriveAgenda } from "./agenda.js";
 import { eq } from "drizzle-orm";
 import PLANET_IN_HOUSE_CANON from "../vedic/canon/planet-in-house.json" with { type: "json" };
 import { calculateProfectionYear } from "../profection/calculator.js";
@@ -567,27 +566,11 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         if (pr.deepthaadi?.includes("vikala")) states.push("combust — burnt close to the Sun, agency reduced");
         if (pr.deepthaadi?.includes("nipeedita")) states.push("in a planetary war");
         const trueHouse = research!.bhavaChalit?.placements?.[g];
-        // THE AGENDA — what this lord is TRYING to do, derived from its condition (agenda.ts).
-        // The condition sets the objective verb; the house (arena) picks the shade; capacity
-        // (asleep/combust) rides on top as HOW. This is the layer that separates two lords who
-        // share a house — the house is where, the agenda is what they are there to do.
-        const { agenda, capacity } = deriveAgenda({
-          dignity: pr.dignity?.state ?? "neutral",
-          fallCancelled: !!pr.dignity?.neechaBhanga?.cancelled,
-          strengthRatio: pr.shadbala?.ratio ?? null,
-          retrograde: !!pr.retrograde,
-          lajjitaadi: (pr.avashtas?.lajjitaadi ?? []).map((h: any) => h.state),
-          deepthaadi: pr.deepthaadi ?? [],
-          jagradaadi: pr.avashtas?.jagradaadi ?? null,
-        });
         return {
           planet: g,
           // Which office this lord holds today. The engine decides the hierarchy; the narrator
           // is told it rather than left to infer it from position in the array.
           roles: lordRoles[g] ?? [],
-          // The operating intention + how it must be pursued (capacity overlay, when notable).
-          agenda,
-          ...(capacity.length ? { capacity } : {}),
           // The CHART'S OWN facets for this planet in this house, straight from canon — each
           // with WHOSE life it concerns, so the narrator never has to guess who a sentence is
           // about. Absent when the table is silent (nodes); say nothing rather than guess.
