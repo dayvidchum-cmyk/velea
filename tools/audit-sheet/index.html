@@ -164,12 +164,6 @@
     <li><span class="tag">READ</span><b>12 · The Day Headline — the detectors exist; one line connects them.</b></li>
     <li><span class="tag">READ</span><b>13 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
     <li><span class="tag">LOOK</span><b>14 · The welcome card can show two filled primary buttons.</b></li>
-    <li><span class="tag">AUDIT</span><b>15 · "Aligned for Today" is not filtering properly — David flagged, 22 Jul.</b>
-      The interaction between <b>(a)</b> a task's mode flag as it's set on create/edit, <b>(b)</b> the real-life
-      check-in, <b>(c)</b> the current day's mode, and <b>(d)</b> the mode orbs is not working right, and the
-      <i>Aligned for Today</i> list on Home is showing the wrong tasks. Needs a full audit of the chain — task
-      mode assignment → check-in weighting (the gold-dots / rest-gate) → day mode → orb counts → the Aligned
-      filter — to find where the mismatch enters. Diagnosis-first, like #7; not yet started.</li>
   </ul>
 
   <!-- ────────────────────────  PICK BACK UP  ──────────────────────── -->
@@ -193,8 +187,20 @@
     was deleted. The long forensic version of every row lives at <code>tools/audit-sheet/archive-longform-v848.html</code>,
     and every correction I made to my own earlier claims is preserved there in full.</p>
 
-  <details><summary>Fixed &amp; verified this run (v903–v928) — proven broken, fixed, then proven fixed</summary>
+  <details><summary>Fixed &amp; verified this run (v903–v929) — proven broken, fixed, then proven fixed</summary>
     <ul>
+      <li><b>v929 — "Aligned for Today" was amputating the list (issue #15).</b> David flagged it 22 Jul; the
+        <code>diagnose-aligned.ts</code> autopsy against his real data <i>measured</i> the cause instead of guessing:
+        on a Restraint day with motivation 2, two filters compounded to leave <b>1 task of 89 active</b> — the hard
+        mode filter cut 89→18 (only Restraint-tagged eligible), then the low-motivation gate cut 18→1. Both were
+        working as coded; the bug was the compounding. His ruling (both levers): <b>(1)</b> mode is now a SOFT rank,
+        not a hard gate — off-mode tasks stay reachable and sink below on-mode ones (a new primary sort key), the day
+        tilting the list instead of emptying it (his "no single move" law); <b>(2)</b> the low-drive gate is now
+        whole-check-in aware — low motivation only hard-sinks demanding tasks when the native isn't <i>capable</i>
+        (strong mental + emotional, his heavy axes), so a low-drive-but-capable day keeps its work. One shared gate
+        (<code>shared/motivation-gate.ts</code>) drives both the server scorer and the client filter so they can't
+        drift. +6 tests, 2 probes (both catch), suite 1306 green. <b>Landed — awaiting David's eyes on the deployed
+        list.</b> Threshold for "capable" (mental≥4 &amp; emotional≥4) is his to retune.</li>
       <li><b>v928 — a cancelled fall is supportive, always (ruling B).</b> The original open issue #1 said the narrative
         printed "hard-won strength" for a cancelled fall "with no running period, where the canon says latent." On 22 Jul
         David asked whether the textbooks actually said that, and the answer (his own provenance file,
