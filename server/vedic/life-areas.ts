@@ -305,12 +305,9 @@ export function buildLifeAreaLens(args: {
     // Rasi rule reckoned from the birth ascendant and the Moon, and there is no canon in this repo
     // for cancelling a debilitation inside a divisional chart. Inventing one would be worse than
     // leaving the varga label bare, so the varga label stays bare and says so.
-    // The canon's dashaGate: a cancelled fall acts as exalted only while a period of its forming
-    // planets runs. The lens already knows the running lords, so the gate is applied here rather
-    // than left to each consumer to remember.
-    const natal = labelWithCancellation(planet, nat.dignity, args.lonByPlanet, args.ascLon, [
-      args.dasha?.mahaDasha?.lord, args.dasha?.antarDasha?.lord, args.dasha?.pratyantarDasha?.lord,
-    ]);
+    // B (2026-07-22): a cancelled fall acts as exalted ALWAYS — no dashaGate on neecha bhanga (modern,
+    // no classical verse; see canon/neecha-bhanga-provenance.md). Running-lords no longer gate it.
+    const natal = labelWithCancellation(planet, nat.dignity, args.lonByPlanet, args.ascLon);
     return {
       planet,
       natalSign: nat.sign, natalHouse: nat.house, natalDignity: natal.label, rulesHouses: nat.rulesHouses,

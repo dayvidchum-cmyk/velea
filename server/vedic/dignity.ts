@@ -320,33 +320,29 @@ export function natalDignities(lonBy: Record<Graha, number>, lagnaLon: number): 
  *                   until its planets' period activates it."
  *   noYogaDominates — "Never give an unmodified textbook reading of a yoga."
  *
- * So: SUPPORTIVE, but only while a period of the planets forming it runs. Outside that period it is
- * not yet a strength and not a plain fall either — it is a fall that will convert. Two labels, and
- * the gate is the canon's own rule, not a dial:
- *   · a running dasha lord is the planet itself or one of its cancellers → acting as exalted
- *   · otherwise                                                          → cancelled, latent
- * I do NOT collapse the latent case into "supported" (that would ignore dashaGate) and I do NOT let
- * either case fall into "strained" (that would ignore the cancellation). noYogaDominates is honoured
- * by carrying the reasons through so the prose modifies rather than recites.
+ * B (David's ruling, 2026-07-22): SUPPORTIVE, ALWAYS — a cancelled fall is a standing structural
+ * quality of the chart, not a period-gated one. The dashaGate above is textual for yogas in general,
+ * but its application to neecha bhanga specifically is modern (B.V. Raman 1947), with no classical
+ * verse — see canon/neecha-bhanga-provenance.md — so it is NOT applied to the cancelled fall. One
+ * label, one phase: acting as exalted. It is never "strained" (the chart cancels it) and never a
+ * plain fall (the cancellation is real). noYogaDominates is honoured by carrying the reasons through
+ * so the prose modifies rather than recites.
  *
  * It also never softens what it could not check — missing longitudes, a node, a non-finite ascendant
  * all pass through as the bare "Debilitated". Silence is not cancellation.
  *
- * @param rawLabel     a TIER_LABEL string ("Debilitated", "Exalted", "Own", …) from either dignity module
- * @param runningLords the dasha lords currently running (maha/antar/pratyantar). Omitted or empty ⇒
- *                     nothing is running ⇒ latent, per dashaGate. Never guess a period.
+ * @param rawLabel a TIER_LABEL string ("Debilitated", "Exalted", "Own", …) from either dignity module
  */
-export const CANCELLED_LATENT_LABEL = "Debilitated (cancelled — latent)";
 export const CANCELLED_ACTIVE_LABEL = "Debilitated (cancelled — acting as exalted)";
-/** Every label that means "a fall this chart cancels", in either phase. */
-export const CANCELLED_LABELS: readonly string[] = [CANCELLED_LATENT_LABEL, CANCELLED_ACTIVE_LABEL];
+/** Every label that means "a fall this chart cancels". Under B (2026-07-22) there is ONE phase —
+ *  the dasha-gated "latent" label was retired, a cancelled fall is supportive always. */
+export const CANCELLED_LABELS: readonly string[] = [CANCELLED_ACTIVE_LABEL];
 
 export function labelWithCancellation(
   planet: string,
   rawLabel: string | null | undefined,
   lonBy: Record<string, number>,
-  lagnaLon: number,
-  runningLords?: Array<string | null | undefined>
+  lagnaLon: number
 ): { label: string; cancelled: boolean; active: boolean; reasons: string[]; by: string[] } {
   const plain = { label: rawLabel ?? "—", cancelled: false, active: false, reasons: [] as string[], by: [] as string[] };
   if (rawLabel !== "Debilitated") return plain;
@@ -357,13 +353,10 @@ export function labelWithCancellation(
   if (!GRAHAS.every((g) => Number.isFinite(lonBy[g])) || !Number.isFinite(lagnaLon)) return plain;
   const nb = neechaBhanga(planet as Graha, lonBy as Record<Graha, number>, lagnaLon);
   if (!nb.cancelled) return plain;
-  // dashaGate: the yoga's own planets must be running. The debilitated planet counts — its period is
-  // when its condition speaks at all — as does any planet that supplies a cancelling condition.
-  const running = new Set((runningLords ?? []).filter(Boolean) as string[]);
-  const formers = [planet, ...nb.by];
-  const active = formers.some((p) => running.has(p));
-  return {
-    label: active ? CANCELLED_ACTIVE_LABEL : CANCELLED_LATENT_LABEL,
-    cancelled: true, active, reasons: nb.reasons, by: nb.by,
-  };
+  // B (David's ruling, 2026-07-22): a cancelled fall is a STANDING structural quality — it acts as
+  // exalted always, not only while a forming planet's dasha runs. The dashaGate IS textual for yogas
+  // in general (Phaladeepika 19.54, Saravali 5.47–50), but its application to neecha bhanga is modern
+  // (earliest: B.V. Raman 1947) with no classical verse — see canon/neecha-bhanga-provenance.md. So
+  // there is no running-lords gate here: `active` is a permanent property of the cancellation.
+  return { label: CANCELLED_ACTIVE_LABEL, cancelled: true, active: true, reasons: nb.reasons, by: nb.by };
 }

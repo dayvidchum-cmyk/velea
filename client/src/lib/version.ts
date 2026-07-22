@@ -3123,4 +3123,15 @@
 // so a genuine research-throw lands in the black box (admin Recent errors) instead of vanishing. The
 // M20 behavior is unchanged: a transient gate hiccup still returns unavailable, never a false lock.
 // Server-only. 125 files, 1304 tests, 0 failures. tsc 0, build 0.
-export const APP_VERSION = "1.1.927";
+//
+// v928 — A CANCELLED FALL IS SUPPORTIVE, ALWAYS (David's ruling B, 2026-07-22). A cancelled
+// debilitation (neecha bhanga) is a STANDING structural quality — acting as exalted always, not
+// gated by whether a forming planet's dasha runs. The dashaGate IS textual for yogas in general
+// (Phaladeepika 19.54, Saravali 5.47–50), but its application to neecha bhanga specifically is modern
+// (earliest B.V. Raman 1947) with no classical verse — canon/neecha-bhanga-provenance.md. Removed the
+// running-lords gate from labelWithCancellation (dignity.ts); life-areas + day-frame now read a
+// cancelled fall as supportive always; the NARRATIVE was already correct (this is what audit issue #1
+// really was — the engine over-gated, not the prose). Retired the CANCELLED_LATENT_LABEL + the
+// running-lords plumbing; test rewritten to B and probed (flipping active→false fails it). Server-only.
+// 125 files, 1300 tests, 0 failures. tsc 0, build 0.
+export const APP_VERSION = "1.1.928";

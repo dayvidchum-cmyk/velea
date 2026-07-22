@@ -37,12 +37,12 @@ const HOUSE_FALLBACK: Record<number, { area: string; karaka: string }> = {
 };
 
 // dignityLabel vocabulary (panchang/dignity.ts TIER_LABEL): supportive / strained / neutral.
-// A CANCELLED debilitation, WHILE ITS PERIOD RUNS, is supportive — the canon says it "can act as if
-// exalted" (canon/yogas.json universalRules.neechaBhanga), and David ruled on 2026-07-20 to take the
-// book at its word. Outside that period it appears as CANCELLED_LATENT_LABEL, which is in NEITHER
-// set: per the canon's dashaGate a yoga is latent until its planets' period activates it, so it is
-// not yet a strength — and it is never strained again, because the chart does cancel it. That is the
-// bug this closed: David's Moon is debilitated in Scorpio, cancelled, and read as strained.
+// A CANCELLED debilitation is supportive — the canon says it "can act as if exalted"
+// (canon/yogas.json universalRules.neechaBhanga), and David ruled on 2026-07-20 to take the book at
+// its word. B (2026-07-22): supportive ALWAYS, not period-gated — the dashaGate is NOT applied to
+// neecha bhanga (modern, no classical verse; see canon/neecha-bhanga-provenance.md). It is never
+// strained, because the chart cancels it. That is the bug this closed: David's Moon is debilitated
+// in Scorpio, cancelled, and had read as strained.
 const SUPPORTIVE = new Set(["Exalted", "Moolatrikona", "Own", "Friend", CANCELLED_ACTIVE_LABEL]);
 const STRAINED = new Set(["Debilitated", "Enemy"]);
 function classify(digs: Array<string | null | undefined>): "supported" | "strained" | "mixed" | "unlit" {
@@ -128,9 +128,8 @@ export function dayFrameReading(args: {
     const lord = SIGN_RULER[ZOD[(lagIdx + moonHouse - 1) % 12]];
     // Same cancellation check the lens applies — this branch reads natalByPlanet directly, so
     // without it houses 8 and 11 would keep the exact bug the lens path just closed.
-    const running = [(args.dasha as any)?.mahaDasha?.lord, (args.dasha as any)?.antarDasha?.lord, (args.dasha as any)?.pratyantarDasha?.lord];
-    const lordDig = labelWithCancellation(lord, args.natalByPlanet[lord]?.dignity, args.natalLon, args.ascLon, running).label;
-    const karDig = labelWithCancellation(fb.karaka, args.natalByPlanet[fb.karaka]?.dignity, args.natalLon, args.ascLon, running).label;
+    const lordDig = labelWithCancellation(lord, args.natalByPlanet[lord]?.dignity, args.natalLon, args.ascLon).label;
+    const karDig = labelWithCancellation(fb.karaka, args.natalByPlanet[fb.karaka]?.dignity, args.natalLon, args.ascLon).label;
     lordDigs.push(lordDig); karakaDigs.push(karDig);
     conditionDetail.push(`ruler ${lord}: ${lordDig ?? "n/a"} (D1)`, `karaka ${fb.karaka}: ${karDig ?? "n/a"} (D1)`);
     // convergence: a running dasha lord rules the house, sits in it, or is the karaka

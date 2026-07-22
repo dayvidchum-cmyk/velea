@@ -36,7 +36,7 @@ describe("the audit sheet still says what is open, in reconciling numbers", () =
     const open = tile("Open issues");
     expect(open).not.toBeNull();
     // Every open issue carries a tag; the count of tag rows must equal the tile.
-    const tagRows = (SHEET.match(/<span class="tag">(?:DATA|MONEY|BUILD|READ|LOOK)<\/span>/g) ?? []).length;
+    const tagRows = (SHEET.match(/<span class="tag">(?:DATA|MONEY|BUILD|READ|LOOK|AUDIT)<\/span>/g) ?? []).length;
     expect(tagRows).toBe(open);
   });
 
