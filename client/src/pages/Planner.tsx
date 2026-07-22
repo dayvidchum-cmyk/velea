@@ -1219,6 +1219,14 @@ export default function Planner() {
                 : (selectedTaskModeForHero ?? selectedPanchang.mode)}
             </h2>
 
+            {/* The day's headline — moved ABOVE the tilt and sentence-cased (David 2026-07-22: as a
+                caps micro-label it read as a twin of "TODAY'S READ"). Now a quiet verdict subtitle. */}
+            {selectedCharacter?.headline && (
+              <p style={{ fontFamily: "Optima, 'Palatino Linotype', Palatino, ui-serif, serif", fontSize: 'clamp(0.92rem, 3.6vw, 1rem)', fontWeight: 400, lineHeight: 1.35, color: 'color-mix(in srgb, var(--hero-ink) 72%, transparent)', marginTop: '0', marginBottom: '0.5rem', textWrap: 'balance' as any }}>
+                {(() => { const h = selectedCharacter.headline as string; return h.charAt(0) + h.slice(1).toLowerCase(); })()}
+              </p>
+            )}
+
             {/* Depth — the rung confessing under the word (extremes only, no noise).
                 Build, Selective and Action all carry it; Golden and Caution stay flat. */}
             {(() => {
@@ -1232,14 +1240,6 @@ export default function Planner() {
                 </p>
               );
             })()}
-            {/* The day's character line — the classical filter's headline + tilt.
-                textWrap balance so it never orphans a last word (David 2026-07-18: "DONE" hung
-                alone on its own line). */}
-            {selectedCharacter?.headline && (
-              <p style={{ fontSize: '0.64rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)', marginTop: '0.55rem', marginBottom: '0.1rem', textWrap: 'balance' as any }}>
-                {selectedCharacter.headline}
-              </p>
-            )}
             {selectedCharacter && (
               // David 2026-07-21: the day-note takes the SAME styling as the subhead (Optima, 1.12rem,
               // not italic), so the two read as one calm voice instead of a mismatched register.
