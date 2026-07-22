@@ -157,6 +157,39 @@ describe("a gated surface must SAY it is locked (v867)", () => {
     expect(silent, `these refuse without saying they are locked: ${silent.join(", ")}`).toEqual([]);
   });
 
+  // v925: the body-level check above passed houseRead and dashaRead because their bodies carried
+  // `locked: true` on OTHER paths (the room / chapter gate) while the FEATURE-OFF return did not — so
+  // a free user without the feature saw "the room is quiet", not a gate. This checks each refusal
+  // RETURN, not the whole body. Controlled below in both directions.
+  const lockOfRefusal = (line: string): "n/a" | "locked" | "silent" => {
+    if (!/hasFeature\(/.test(line)) return "n/a"; // a feature gate…
+    if (!/!\s*\(/.test(line)) return "n/a"; // …negated (a refusal, not a capability read)…
+    const m = line.match(/\breturn\s*(\{[^}]*\})/); // …returning an object literal inline (throws differ).
+    if (!m) return "n/a";
+    return /locked:\s*true/.test(m[1]) ? "locked" : "silent";
+  };
+
+  it("every feature-off refusal return says locked (per-path, not per-body)", () => {
+    const silent: string[] = [];
+    let refusals = 0;
+    for (const [file, src] of [["narrative/router.ts", NARRATIVE], ["routers.ts", ROUTERS]] as const) {
+      for (const line of src.split("\n")) {
+        const v = lockOfRefusal(line);
+        if (v === "n/a") continue;
+        refusals++;
+        if (v === "silent") silent.push(`${file}: ${line.trim().slice(0, 90)}`);
+      }
+    }
+    expect(refusals, "found no feature-off refusals — the scan went blind").toBeGreaterThanOrEqual(4);
+    expect(silent, `these refuse as "quiet", not a gate: ${silent.join(" | ")}`).toEqual([]);
+  });
+
+  it("the per-return scan catches a silent refusal and passes a locked one (control)", () => {
+    expect(lockOfRefusal('if (!(await hasFeature(ctx.user, "houseReader"))) return { available: false, read: null } as const;')).toBe("silent");
+    expect(lockOfRefusal('if (!(await hasFeature(ctx.user, "houseReader"))) return { available: false, locked: true, read: null } as const;')).toBe("locked");
+    expect(lockOfRefusal('const canForce = ctx.user.role === "admin" || (await hasFeature(ctx.user, "momentRefresh"));')).toBe("n/a");
+  });
+
   it("no gated READ returns a bare null — the client cannot render a gate from nothing", () => {
     const premium = ALL.filter((p) => p.gates.includes("hasHoroscope"))
       .filter((p) => /(get|peek)\w+Cached\(|getLifeAreaRead\(/.test(p.body));

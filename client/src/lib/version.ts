@@ -3103,4 +3103,17 @@
 // facet ("Egotism of Spouse or Partner") does not.
 //
 // 125 files, 1299 tests, 0 failures. tsc exit 0, build exit 0.
-export const APP_VERSION = "1.1.925";
+//
+// v926 — THE READER GATE SAID "QUIET" INSTEAD OF LOCKED. A free user's House Reader and Chapter
+// Reader read "the room/chapter is quiet right now" on every room — indistinguishable from an
+// outage. Root, proven by the readings autopsy against the real free profile (all pipeline stages
+// green, research healthy): the `houseReader`/`chapterReader` feature flags were off for that user,
+// and the feature-off returns (narrative/router.ts:167 houseRead, :196 dashaRead) sent
+// `available:false` with NO `locked` flag, so the client fell through to its outage copy. Every
+// sibling gate (tlWindowRead:242, lifeAtlas, chartVerdict) already returned `locked:true`; these two
+// slipped the pattern, and billing-gate's body-level check missed them because the room/chapter gate
+// on ANOTHER path carried `locked:true`. Fix: both returns now say `locked:true` → the existing
+// LockedRead gate shows. Guard strengthened to check each refusal RETURN, not the whole body
+// (probed: reverting the fix fails it). Admin bypasses `hasFeature`, which is why it never
+// reproduced from the owner account. 125 files, 1304 tests, 0 failures. tsc 0, build 0.
+export const APP_VERSION = "1.1.926";
