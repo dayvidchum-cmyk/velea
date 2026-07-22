@@ -55,34 +55,36 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v902 · 21 July 2026 · where the app actually stands</p>
+  <p class="sub">v922 · 22 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> <b>1282 tests across 122 files, 0 failures</b>, and <b>114 checks that each deliberately
-    break something</b> to confirm the test notices — that second number is the one that matters. <code>tsc</code> exits
-    0, the build exits 0, and velealor.com answers <b>v902</b>. Every one of those was printed by running it.
-    <br><br><b>You set a law today</b>, in the form of a question: <i>nothing should be hardcoded unless the data that
-    decides it is displayed where it is displayed, and what it says is accurate to the data.</i> It convicted a line
-    within the minute — one sentence said “your own star” while firing only on the <b>loss star</b>, the harshest rung
-    on the ladder, and it had already fooled me into repeating it back to you wrong. That line is fixed and guarded.
-    <br><br><b>Changing one label found something larger.</b> The sky resolver has 33 call sites and <b>11 of them hand
-    it the wrong shape</b> — an object missing the fields that decide which location tier wins. Measured: the same
-    person resolves <b>Newark</b> one way and <b>Boston</b> the other. That is this morning’s bug — your six other
-    profiles all cast from Boston because that is where your phone is — <b>still live on a third of the paths</b>,
-    because the fix had landed in the resolver and a third of the callers could not see it. Fixed, with four controls.
+    <b>Where things stand.</b> <b>1308 tests across 124 files, 0 failures</b>, the mutation harness still green — every
+    new guard this stretch broken on purpose and caught. The build exits 0 and velealor.com answers <b>v922</b>. Every
+    one of those was printed by running it.
+    <br><br><b>The reading engine grew a spine it was missing.</b> A day-star kept literalizing its own symbol onto
+    people — Chitra, the craftsman star, told a non-maker to “work with your hands.” The chart can give craft
+    <i>aptitude</i>, never the fact of a trade, so asserting it is the founding wound. The fix became a small
+    architecture: the day-tilt now picks which facet of a house leads (restraint days <i>tend</i> instead of <i>launch</i>),
+    a nakshatra is read as a <i>quality</i> and never a trade, and — your call — a person’s real <b>instrument</b>
+    (hands, voice, words, body, mind, eyes) is now a field they can set, admin-only for now, that turns the craft-ban
+    into a door. Set to <i>hands + eyes</i>, your read reaches the craft; left unset, no reading ever invents one.
+    <br><br><b>The Today page got its typography.</b> You chose <b>D · Airy Humanist</b> from four rendered options and
+    we walked it in: Optima app-wide from <b>one token</b> (Playfair retired from the app; the whole serif is one line
+    to change now), the greeting no longer twinning the verdict, the caps-mess resolved to one calm voice, and the hero
+    card + calendar taken <b>full-bleed with squared corners</b>. Looked at on your phone, tuned from the render, shipped.
     <br><br>What stands between here and opening is still <b>your price and your Stripe keys</b> — not code.
   </div>
 
   <div class="card">
-    <b>THE SWEEP IS RUN AND NOTHING FROM IT IS FIXED.</b> Your law, read across <b>303 strings in 38 engine files</b>:
-    <b>7 confirmed defects</b>, all still live. Two are measured, not argued — the Stage names the wrong aggressor in
-    <b>20 of 103</b> tensions, and the day filter prints “THE DAY OFFERS IT” directly above “start nothing”. One is my
-    own miss: the line I fixed in v901 had a <b>sibling twenty lines away in the same ternary</b>, and I called the
-    class closed. Full list on the audit sheet.
-    <br><br><b>Open, and each is yours:</b> Lang’s birth data; whether the app-default location tier should announce
-    itself or stay silent; and whether eclipse guidance differs before vs after the exact moment.
-    <br><br><i>I first told you “~70 in interpreter.ts”. That file does not exist and I never opened it. Retracted
-    here, not quietly corrected.</i>
+    <b>The sweep’s loudest defect is closed.</b> The day filter used to print a bold <b>“BOLD MOVES … GO”</b> headline
+    directly over a body that said <i>nothing launches</i> — on four straight profiles. The headline was the one field
+    that never saw the day’s vetoes; under Mercury retrograde / Vishti it now routes to the day’s real counsel
+    (completion), in your own blessed copy, guarded by a probe. The rest of the sweep’s confirmed defects remain on the
+    audit sheet.
+    <br><br><b>The agenda layer — built, then reverted, on purpose.</b> It gave each period-lord an intention derived
+    from its condition; shipped, it <i>hijacked</i> the read (a “collect what’s owed” verb overrode a contain day). The
+    lesson became a law: <b>the reading maximizes coherence, the engine maximizes information</b> — they are not the
+    same objective. The engine code is preserved in git for a quieter rebuild.
   </div>
 
   <h2>1 · Your decisions — 11</h2>
@@ -115,10 +117,20 @@
 
   <div class="grp">The look</div>
   <ol class="asks" start="7" style="counter-reset:a 6">
+    <li><b>DONE — the Today typography.</b> You picked <b>D · Airy Humanist</b> from four rendered options; Optima is now
+      the whole app’s serif from one token, the hero + calendar are full-bleed with squared corners, and the caps-mess
+      reads as one calm voice. Cross-device note: Optima/Palatino are Apple system faces; non-Apple falls back to Georgia,
+      so a self-hosted webfont is a future call if the app goes wide beyond iOS.</li>
+    <li><b>RULED, NOT BUILT — Full Spectrum colour.</b> FS accents came up <b>gold</b> across every mode (and stray red
+      leftover on Restraint). You ruled it should follow the <b>mode colour</b> — wine for Restraint, teal for Selective —
+      not gold. The clean path is one source swap: point the FS accent token at each mode’s highlight tint. A contained
+      change, but a broad audit; queued.</li>
+    <li><b>THE NEXT PRIORITY — dark mode.</b> Bigger than FS, because dark is the <i>default</i> surface for anyone whose
+      phone is dark, not an opt-in a few toggle. Needs a cold full-page pass: contrast/legibility of the day numbers
+      (green measured <b>1.05</b>, gold <b>1.24</b> in the old audit), the espresso palette, and the new Optima hero on the
+      dark ground. Your call to take it fresh.</li>
     <li>The crown mark is gold on a gold coin — <b>1.61 light, 1.17 dark</b>, recomputed.
       <a href="https://claude.ai/code/artifact/72bc0ee7-4748-462f-8882-1df95556fa17">See the four options rendered</a>.</li>
-    <li>Parchment ink in dark mode — the day numbers. “One value in the theme block” was wrong: the plain grey number (2.28) is the
-      BEST case — green measures <b>1.05</b> and gold <b>1.24</b>. Same strips, section 2.</li>
     <li>Rename the “Parents &amp; Roots” chip to “Roots &amp; Ancestry”?</li>
   </ol>
 
@@ -200,6 +212,13 @@
     Every sweep now runs a control first.</p>
   <p class="law"><b>Written is not deployed.</b> Production sat frozen for fifteen versions while I wrote “deployed”.
     Nothing is deployed until the live site says its own version back.</p>
+  <p class="law"><b>Coherence over information.</b> The engine maximizes information; the reading maximizes coherence —
+    not the same objective. A read has one governing idea and cuts true-but-non-strengthening facts; an <i>editor</i>,
+    not a <i>compiler</i>. New engine layers earn their voice only if they strengthen the one idea. The agenda layer was
+    reverted for breaking this.</p>
+  <p class="law"><b>A symbol is a quality, not the person’s trade.</b> The day-tilt picks which facet of a house leads;
+    a nakshatra is abstracted to its quality, never literalized onto someone’s hands. The chart gives <i>aptitude</i>,
+    never the fact of a trade — the only honest source of a trade is the person’s own word (the vocation field).</p>
   <p class="law"><b>Never ship a visual I have not looked at</b>, and never auto-run a schema change.</p>
 
   <h2>6 · Where things live</h2>
@@ -212,8 +231,9 @@
   </ul>
 
   <p class="foot">
-    This page is the state of the app. The audit sheet is the state of the work. They no longer repeat each other, and
-    they list the same eleven open decisions. Both sat at v879 while the app went to v902 — twenty-three releases — which
-    is the longest they have been stale. Source: <code>tools/working-brief/index.html</code>.
+    This page is the state of the app. The audit sheet is the state of the work. Brought current to <b>v922</b> —
+    the typography overhaul, the vocation field, and the reading-engine spine (day-tilt, nakshatra-quality, the reverted
+    agenda layer) folded in; the two live decisions now are <b>Full Spectrum → mode colour</b> and the <b>dark-mode pass</b>.
+    Source: <code>tools/working-brief/index.html</code>.
   </p>
 </div>
