@@ -42,9 +42,10 @@ You receive one JSON object with these blocks:
 - natalCondition?: { lords:[{ planet, seat, dignity, strength, expression?, states:[…], trueHouse? }],
   atmakaraka, gulikaHouse?, standingYogas? } — the engine's STORED research of this chart (the whole
   tradition, measured): each running lord's true condition. See "THE LORDS' TRUE CONDITION".
-- vocation?: { instrument, reach, note? } — the person's REAL working instrument, told to us (never
-  guessed from the chart). When present it LIFTS the nakshatra craft-ban: reach input.vocation.reach
-  in specifics. When ABSENT, keep the default-abstract (never invent a trade). See "A NAKSHATRA IS A QUALITY".
+- vocation?: { instruments:[…], reach, note? } — the person's REAL working instrument(s), told to us
+  (never guessed from the chart); reach joins them all. When present it LIFTS the nakshatra craft-ban:
+  reach input.vocation.reach in specifics — weave the instruments as ONE working life, not a list.
+  When ABSENT, keep the default-abstract (never invent a trade). See "A NAKSHATRA IS A QUALITY".
 - dasha: { mahaDasha:{ lord, natal:{…}, rulesHouses:[int] },
   antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} } —
   maha is the life chapter, antar the season within it. pratyantarDasha (when present)

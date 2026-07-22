@@ -1410,10 +1410,14 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     words: "words — writing, language, the written craft, the sentence made exact",
     body: "the body in motion — the physical instrument, movement, embodied or athletic work",
     mind: "the mind — analysis, reasoning, designing ideas, solving and structuring thought",
+    eyes: "the eye — seeing, visual discernment, aesthetic judgment, reading form, colour and symmetry",
   };
-  const instrument = (p as any).instrument as string | null | undefined;
-  const vocation = instrument && INSTRUMENT_REACH[instrument]
-    ? { instrument, reach: INSTRUMENT_REACH[instrument], ...((p as any).vocationNote ? { note: (p as any).vocationNote } : {}) }
+  // instrument is a comma list — a person's work can use more than one (hands AND voice AND words).
+  // The engine resolves each tag to its reach and joins them, so the model is handed the full,
+  // real instrument set, not one guessed facet.
+  const instruments = String((p as any).instrument ?? "").split(",").map((s) => s.trim()).filter((s) => INSTRUMENT_REACH[s]);
+  const vocation = instruments.length
+    ? { instruments, reach: instruments.map((i) => INSTRUMENT_REACH[i]).join(" · "), ...((p as any).vocationNote ? { note: (p as any).vocationNote } : {}) }
     : null;
 
   // Name is intentionally omitted so the model writes in second person ("you").

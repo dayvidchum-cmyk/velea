@@ -289,7 +289,7 @@ run server/narrative/input-builder.ts "...(vocation ? { vocation } : {})" "" \
   server/narrative/payload-contract.test.ts "the vocation stops reaching the payload"
 run server/narrative/prompts.ts "THE BAN LIFTS WHEN THE WORK IS KNOWN" "THE BAN LIFTS WHEN THE WORK IS KNOWNX" \
   server/narrative/payload-contract.test.ts "the ban-lift license is orphaned (a set vocation does nothing)"
-run server/routers/profiles.ts 'if (ctx.user.role === "admin") {\n        if (fields.instrument !== undefined) updateData.instrument = fields.instrument;' 'if (true) {\n        if (fields.instrument !== undefined) updateData.instrument = fields.instrument;' \
+run server/routers/profiles.ts 'if (ctx.user.role === "admin") {\n        // Stored as a comma list' 'if (true) {\n        // Stored as a comma list' \
   server/narrative/payload-contract.test.ts "the admin gate drops, so any client can set a profile's vocation"
 
 # THE GO HEADLINE HONOURS THE NO-BEGINNINGS VETO (v911) — "BOLD MOVES … GO" printed over a

@@ -266,7 +266,7 @@ describe("the vocation field is wired and admin-gated (2026-07-21)", () => {
   });
 
   it("the prompt documents vocation AND carries the ban-lift license", () => {
-    expect(PROMPTS).toContain("vocation?: { instrument, reach, note? }");
+    expect(PROMPTS).toContain("vocation?: { instruments:[…], reach, note? }");
     // Include the suffix so a trailing-char mutation actually breaks the match — "…KNOWN" alone is a
     // substring of "…KNOWNX" and the probe (rightly) survived against it.
     expect(PROMPTS).toContain("THE BAN LIFTS WHEN THE WORK IS KNOWN (input.vocation)");
@@ -275,11 +275,11 @@ describe("the vocation field is wired and admin-gated (2026-07-21)", () => {
   it("the router writes the instrument ONLY inside an admin check (the gate cannot be bypassed)", () => {
     // v884 shape: the field could be perfectly wired and still let any client set it. The write must
     // sit inside `if (ctx.user.role === "admin")`, so a non-admin's value is dropped at the server.
-    expect(ROUTER).toMatch(/if \(ctx\.user\.role === "admin"\) \{[\s\S]{0,240}updateData\.instrument = fields\.instrument/);
+    expect(ROUTER).toMatch(/if \(ctx\.user\.role === "admin"\) \{[\s\S]{0,300}updateData\.instrument =/);
   });
 
   it("NEGATIVE CONTROL — these matchers can fail", () => {
     expect("no vocation here").not.toContain("INSTRUMENT_REACH");
-    expect("updateData.instrument = fields.instrument").not.toMatch(/if \(ctx\.user\.role === "admin"\) \{[\s\S]{0,240}updateData\.instrument = fields\.instrument/);
+    expect("updateData.instrument = uniq.join(',')").not.toMatch(/if \(ctx\.user\.role === "admin"\) \{[\s\S]{0,300}updateData\.instrument =/);
   });
 });

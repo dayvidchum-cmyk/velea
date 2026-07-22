@@ -390,7 +390,7 @@ export const profiles = mysqlTable("profiles", {
   // from a day-star. This is the ONLY honest source of a trade — the chart gives aptitude, never
   // the fact. NULL = unset → the safe default-abstract (the reading never invents a trade). Set by
   // admins only for now; added to prod by scripts/add-vocation-columns.ts BEFORE this deploys.
-  instrument: varchar("instrument", { length: 16 }), // hands|voice|words|body|mind
+  instrument: varchar("instrument", { length: 64 }), // CSV of hands|voice|words|body|mind (multi)
   vocationNote: varchar("vocationNote", { length: 200 }), // optional free-text detail
   isOwner: boolean("isOwner").notNull().default(false), // true = this is the owner's own chart ("My Chart")
   isActive: boolean("isActive").notNull().default(false),

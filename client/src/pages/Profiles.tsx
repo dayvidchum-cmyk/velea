@@ -109,8 +109,9 @@ interface ProfileFormData {
   hometownLon: string;
   hometownTimezone: string;
   notes: string;
-  // ADMIN-ONLY (controlled test): the person's real working instrument + optional note. "" = unset.
-  instrument: string;
+  // ADMIN-ONLY (controlled test): the person's real working instrument(s) + optional note. A person's
+  // work can use more than one (hands AND voice AND words). Empty = unset → the reading stays abstract.
+  instruments: string[];
   vocationNote: string;
 }
 
@@ -128,7 +129,7 @@ const EMPTY_FORM: ProfileFormData = {
   hometownLon: "",
   hometownTimezone: "",
   notes: "",
-  instrument: "",
+  instruments: [],
   vocationNote: "",
 };
 
@@ -183,7 +184,7 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
         hometownLon: data.hometownLon || undefined,
         hometownTimezone: data.hometownTimezone || undefined,
         notes: data.notes || undefined,
-        instrument: data.instrument ? (data.instrument as any) : null,
+        instrument: data.instruments.length ? (data.instruments as any) : null,
         vocationNote: data.vocationNote || null,
       });
       // Compute once date + place are present; time is optional (no time → Chandra chart).
@@ -251,7 +252,7 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
                 hometownLon: (profile as any).hometownLon ?? "",
                 hometownTimezone: (profile as any).hometownTimezone ?? "",
                 notes: profile.notes ?? "",
-                instrument: (profile as any).instrument ?? "",
+                instruments: String((profile as any).instrument ?? "").split(",").map((s: string) => s.trim()).filter(Boolean),
                 vocationNote: (profile as any).vocationNote ?? "",
               }}
               onSave={handleSave}
@@ -582,21 +583,33 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
           their actual craft instead of guessing a trade from a day-star. Edit-only; unset = the safe
           default (the reading never invents a trade). Server re-checks admin — this is UI only. */}
       {isAdmin && !isNew && (
-        <div className="space-y-1.5 rounded-md border border-dashed border-input p-3">
-          <Label htmlFor="pf-instrument">Instrument · admin</Label>
-          <select
-            id="pf-instrument"
-            value={form.instrument}
-            onChange={set("instrument")}
-            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            <option value="">— unset (reading stays abstract) —</option>
-            <option value="hands">Hands (craft, making, manual skill)</option>
-            <option value="voice">Voice (speaking, teaching aloud, sound)</option>
-            <option value="words">Words (writing, language)</option>
-            <option value="body">Body (movement, the physical)</option>
-            <option value="mind">Mind (analysis, ideas, design of thought)</option>
-          </select>
+        <div className="space-y-2 rounded-md border border-dashed border-input p-3">
+          <Label>Instrument · admin <span className="text-muted-foreground font-normal">(tap any that apply)</span></Label>
+          <div className="flex flex-wrap gap-1.5">
+            {([
+              ["hands", "Hands"], ["voice", "Voice"], ["words", "Words"],
+              ["body", "Body"], ["mind", "Mind"], ["eyes", "Eyes"],
+            ] as [string, string][]).map(([val, label]) => {
+              const on = form.instruments.includes(val);
+              return (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setForm((f) => ({
+                    ...f,
+                    instruments: f.instruments.includes(val)
+                      ? f.instruments.filter((x) => x !== val)
+                      : [...f.instruments, val],
+                  }))}
+                  className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                    on ? "border-primary bg-primary/10 text-foreground" : "border-input text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
           <input
             type="text"
             value={form.vocationNote}
@@ -605,7 +618,7 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
             maxLength={200}
             className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
           />
-          <p className="text-xs text-muted-foreground">Only you (admin) can set this. Lets the reading reach the real instrument; unset stays fully abstract.</p>
+          <p className="text-xs text-muted-foreground">Only you (admin) can set this. The reading reaches the instrument(s) you pick; none selected stays fully abstract.</p>
         </div>
       )}
 
@@ -1003,7 +1016,7 @@ export default function Profiles() {
         hometownLon: data.hometownLon || undefined,
         hometownTimezone: data.hometownTimezone || undefined,
         notes: data.notes || undefined,
-        instrument: data.instrument ? (data.instrument as any) : null,
+        instrument: data.instruments.length ? (data.instruments as any) : null,
         vocationNote: data.vocationNote || null,
       });
 
@@ -1135,7 +1148,7 @@ export default function Profiles() {
               hometownLon: editingProfile.hometownLon ?? "",
               hometownTimezone: editingProfile.hometownTimezone ?? "",
               notes: editingProfile.notes ?? "",
-              instrument: (editingProfile as any).instrument ?? "",
+              instruments: String((editingProfile as any).instrument ?? "").split(",").map((s: string) => s.trim()).filter(Boolean),
               vocationNote: (editingProfile as any).vocationNote ?? "",
             }}
             showMakeActive={profileList.length > 1}

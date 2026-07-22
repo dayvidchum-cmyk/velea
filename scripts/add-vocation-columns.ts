@@ -28,8 +28,11 @@
 import "dotenv/config";
 import mysql from "mysql2/promise";
 
+// instrument is a COMMA-SEPARATED list of tags (hands,voice,words,body,mind) — a person's work can
+// use more than one instrument. VARCHAR(64) holds all five. If the column already exists narrower
+// (the first v913 run made it VARCHAR(16)), it is widened below — safe, no data loss on a VARCHAR grow.
 const COLUMNS: { name: string; ddl: string }[] = [
-  { name: "instrument", ddl: "ADD COLUMN instrument VARCHAR(16) NULL" },
+  { name: "instrument", ddl: "ADD COLUMN instrument VARCHAR(64) NULL" },
   { name: "vocationNote", ddl: "ADD COLUMN vocationNote VARCHAR(200) NULL" },
 ];
 
@@ -56,6 +59,21 @@ async function main() {
       await conn.execute(`ALTER TABLE profiles ${col.ddl}`);
       console.log(`profiles.${col.name}: ADDED ✓`);
     }
+  }
+
+  // Widen `instrument` to VARCHAR(64) if an earlier run created it narrower — multi-instrument
+  // profiles store a comma list ("hands,voice,words,mind" = 22 chars) that a VARCHAR(16) rejects.
+  const [len] = await conn.execute(
+    `SELECT CHARACTER_MAXIMUM_LENGTH AS n FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'profiles' AND COLUMN_NAME = 'instrument'`,
+    [dbName],
+  );
+  const curLen = (len as any[])[0]?.n ?? 0;
+  if (curLen < 64) {
+    await conn.execute(`ALTER TABLE profiles MODIFY instrument VARCHAR(64) NULL`);
+    console.log(`profiles.instrument: WIDENED ${curLen} → 64 ✓`);
+  } else {
+    console.log(`profiles.instrument: width ${curLen} ✓ (nothing to do)`);
   }
 
   console.log("\nDone. Safe to deploy the code that declares these columns.");

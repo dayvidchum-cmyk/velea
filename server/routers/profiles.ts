@@ -552,7 +552,7 @@ export const profilesRouter = router({
         // ADMIN-ONLY (enforced in the mutation): the person's real working instrument + optional
         // note, so the reading reaches their actual craft instead of guessing. Non-admins may send
         // these and they are silently ignored — the gate is server-side, never trusted from the client.
-        instrument: z.enum(["hands", "voice", "words", "body", "mind"]).nullable().optional(),
+        instrument: z.array(z.enum(["hands", "voice", "words", "body", "mind", "eyes"])).nullable().optional(),
         vocationNote: z.string().max(200).nullable().optional(),
       }).merge(BirthInputSchema)
     )
@@ -587,7 +587,11 @@ export const profilesRouter = router({
       // ADMIN-ONLY: the vocation fields are written only for admins. A non-admin's values are
       // dropped here, at the server, so the gate cannot be bypassed by a crafted client request.
       if (ctx.user.role === "admin") {
-        if (fields.instrument !== undefined) updateData.instrument = fields.instrument;
+        // Stored as a comma list; empty/null clears it. De-duped, order preserved.
+        if (fields.instrument !== undefined) {
+          const uniq = fields.instrument ? Array.from(new Set(fields.instrument)) : [];
+          updateData.instrument = uniq.length ? uniq.join(",") : null;
+        }
         if (fields.vocationNote !== undefined) updateData.vocationNote = fields.vocationNote;
       }
       if (changed) updateData.birthDataUpdatedAt = new Date(); // start/refresh the lock
