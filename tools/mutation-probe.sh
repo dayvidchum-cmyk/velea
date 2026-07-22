@@ -478,6 +478,17 @@ run server/task-scorer.ts '.sort((a, b) => (b._mode - a._mode) || (b._cs - a._cs
 # Aligned #15 (v929): the low-drive gate must be whole-check-in aware, not motivation alone.
 run server/task-scorer.ts 'if (lowMotivationGateActive(state)) {' 'if (state.motivation <= 2) {' \
   server/task-scorer.test.ts "a capable native gets gated by low motivation again"
+# Stage wiring (v930): the tension must name the TRUE aggressor, not always frame "o presses on p".
+run server/sky/stage.ts 'because: `${p} presses on ${o}` };' 'because: `${o} presses on ${p}` };' \
+  server/sky/stage.test.ts "the tension aggressor direction goes backwards again"
+# Stage wiring (v930): the cast read must narrate the engine's given stage, not choose who's loud.
+run server/narrative/prompts.ts 'WHO IS LOUD IS GIVEN' 'WHO IS LOUD — you pick' \
+  server/narrative/prompt-structure.test.ts "the cast read lets the model choose who's loud again"
+# Stage wiring (v930): the builder must EMIT input.stage the prompt tells the model to expect.
+# (payload-contract is a STATIC guard — the regression it catches is the field being dropped, so the
+# probe DELETES the spread rather than falsifying its condition.)
+run server/narrative/input-builder.ts '...(stage ? { stage } : {}), ' '' \
+  server/narrative/payload-contract.test.ts "input.stage is dropped from the payload the prompt expects"
 
 echo
 if [[ -n "$(git status --porcelain)" ]]; then

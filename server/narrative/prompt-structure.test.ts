@@ -228,4 +228,16 @@ describe("no tail cites a law the model does not receive (v825)", () => {
     // And the machinery must be banned from the prose the reader sees.
     expect(SRC).toMatch(/NEVER print the words "same-party", "through-the-wall", "across-the-room"/);
   });
+
+  it("the cast read narrates the ENGINE's stage, not its own choice of who's loud (v930)", async () => {
+    const { CAST_TAIL } = await import("./prompts.js");
+    // The engine decides the protagonist and the tension; the model narrates them.
+    expect(CAST_TAIL).toContain("input.stage.characters");
+    expect(CAST_TAIL).toMatch(/WHO IS LOUD IS GIVEN/);
+    expect(CAST_TAIL).toContain("input.stage.tension");
+    // It must NOT tell the model to decide loudness from raw markers anymore.
+    expect(CAST_TAIL).not.toMatch(/A planet earns the stage only when the input\s+marks it/);
+    // The tension must never be reversed — the direction is the engine's.
+    expect(CAST_TAIL).toMatch(/never reverse\s+it/i);
+  });
 });

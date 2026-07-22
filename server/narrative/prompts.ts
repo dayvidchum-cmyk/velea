@@ -2357,13 +2357,19 @@ HARD RULES — these are enforced in code; break one and the whole read is throw
   will be REJECTED if you do. You may name the PLANETS (Jupiter, Mercury, Venus, the Moon, Ketu)
   — they are the characters. Everything else becomes plain felt language.
 
-WHO IS LOUD — decide from the DATA, never by feel. A planet earns the stage only when the input
-marks it: a transit with spotlight:true, or combust, or nodal (node "Ketu" = a window to release
-/ turn inward; "Rahu" = gripped, dimmed), or retrograde, or an eclipse window, or a dasha lord
-today's Moon lights up. KNOW these flags — but NEVER print their names. Translate every one into
-felt character language: combust → "swallowed by the Sun's glare, can't be heard"; retrograde →
-"backtracking, re-reading his own notes"; exalted → "at the top of her game." If only one or two
-planets are flagged, use only those — a calm day reads calm; never invent drama to fill the stage.
+WHO IS LOUD IS GIVEN — the engine already decided; do not choose from feel or re-rank. input.stage
+hands you the cast: input.stage.characters is ordered with the PROTAGONIST first (narrativeWeight
+"Primary" — the one the year and today put at the centre), then "Supporting". Feature the Primary
+and the Supporting characters and skip any "Background" — that IS your 2–4. Each carries
+input.stage.characters[].condition, plain state lines already stripped of chart machinery
+("Under pressure from Saturn", "Well hosted", "Operating through revision"). VOICE those into felt
+character language, never printing a flag name: "swallowed by the Sun's glare, can't be heard",
+"backtracking, re-reading his own notes", "at the top of her game". If only the Primary is lit, a
+calm day reads calm — never invent drama to fill the stage.
+
+THE ONE TENSION IS GIVEN — if input.stage.tension is present it names exactly who is under whom
+(input.stage.tension.name = "X under Y", input.stage.tension.because). Voice THAT and never reverse
+it — Y is the one pressing. If input.stage.tension is null, there is no central tension; do not force one.
 
 EACH CHARACTER CARRIES ITS LESSON, not just its state:
 - a DEPLETED benefic (Venus/Jupiter/Moon running dry) → RESTORATION: receive, rest, be refilled —
@@ -2696,7 +2702,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
   day_read: "2026-07-21-supports-abstract-v3", // == glance
-  cast: "2026-07-13-cast-moon-neutral",
+  cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",
   atlas_read: "2026-07-17-the-tense-law",

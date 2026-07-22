@@ -170,6 +170,44 @@ describe("relationships are resolved, not left for the model to join", () => {
     expect(all).toMatch(/Under pressure from|Expression slowed by/);
     expect(all).toMatch(/Supported by|Working alongside|Well hosted/);
   });
+
+  // The aggressor direction (v930). HARD[X] = who X afflicts (canon, stable). A tension must name
+  // the malefic that REACHES the victim, never the reverse — the old code always framed
+  // "o presses on p" regardless of who was the aggressor (measured 20/103 wrong).
+  const HARD_CANON: Record<string, string[]> = {
+    Saturn: ["Sun", "Moon", "Mars"], Mars: ["Saturn", "Moon", "Mercury"],
+    Sun: ["Saturn"], Rahu: ["Sun", "Moon"], Ketu: ["Sun", "Moon"],
+  };
+
+  it("names the TRUE aggressor: Mars presses on Mercury, never Mercury on Mars", () => {
+    // Mars (Primary, so iterated first) opposes Mercury. Mars is HARD on Mercury; Mercury is hard
+    // on no one. The old code, hitting Mars as the character, wrote "Mercury presses on Mars".
+    const s = stage({
+      transitLon: { Moon: 90, Mars: 30, Mercury: 210, Sun: 120, Venus: 150, Jupiter: 62, Saturn: 300, Rahu: 255, Ketu: 75 },
+      annualTimeLord: "Mars",
+    });
+    expect(s.tension).not.toBeNull();
+    expect(s.tension!.because).toBe("Mars presses on Mercury");
+    expect(s.tension!.name).toBe("Mercury under Mars");
+    expect(s.tension!.between).toEqual(["Mercury", "Mars"]);
+  });
+
+  it("every hard tension frames the victim under a malefic that is genuinely hard on it", () => {
+    // Property control across configs: whatever tension is found, the named aggressor must be HARD
+    // on the named victim (or they share the ground). A misdirected tension breaks this.
+    const configs: Array<Partial<StageInput>> = [
+      { transitLon: { ...BASE.transitLon, Mars: 30, Mercury: 210 }, annualTimeLord: "Mars" },
+      { transitLon: { ...BASE.transitLon, Saturn: 0, Mars: 180 }, annualTimeLord: "Saturn" },
+      { transitLon: { ...BASE.transitLon, Saturn: 0, Sun: 180 }, annualTimeLord: "Sun" },
+    ];
+    for (const over of configs) {
+      const t = stage(over).tension;
+      if (!t || !t.because.includes("presses on")) continue;
+      const [victim, aggressor] = t.between;
+      expect(HARD_CANON[aggressor]?.includes(victim), `misdirected: "${t.name}" / "${t.because}"`).toBe(true);
+      expect(t.because).toBe(`${aggressor} presses on ${victim}`);
+    }
+  });
 });
 
 describe("no machinery vocabulary reaches the narrative layer", () => {

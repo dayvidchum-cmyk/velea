@@ -73,7 +73,7 @@ describe("both living pages agree on the live decisions and the open calls", () 
   // changing the question, on BOTH pages, so neither can quietly drop one.
   it.each([
     ["how loudly a Siddha yoga speaks", /Siddha Yoga/i],
-    ["Lang's birth data", /Lang's birth data/i],
+    // Lang's birth data — REMOVED 2026-07-22: David ruled he already provided it (stale decision).
     ["the eclipse before/after guidance", /eclipse (day|today)|before vs after/i],
     ["the knot thresholds", /knot threshold/i],
     ["the crown mark's spec gaps", /crown mark/i],

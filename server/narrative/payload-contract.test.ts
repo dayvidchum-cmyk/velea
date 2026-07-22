@@ -109,7 +109,7 @@ describe("the day payload", () => {
 
   it("carries the optional blocks by conditional spread, not as nulls", () => {
     for (const f of ["dayFilter", "knots", "meridianAxis", "nodalAxis", "openWindows", "reading",
-      "mercuryRx", "lifeAreaLens", "natalCondition", "eclipseSeasonArc", "monthArc"]) {
+      "mercuryRx", "lifeAreaLens", "natalCondition", "eclipseSeasonArc", "monthArc", "stage"]) {
       expect(DAY.has(f), `${f} missing from the day payload`).toBe(true);
     }
   });

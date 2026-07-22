@@ -377,12 +377,20 @@ function findTension(chars: Character[], input: StageInput): StageTension | null
     for (const o of [...STAGE_BODIES, "Moon"] as SkyBody[]) {
       if (o === p || input.transitLon[o] === undefined || !isHard(p, o)) continue;
       const together = c.companions.includes(o);
-      if (!together && !aspects(o, p, input) && !aspects(p, o, input)) continue;
-      return {
-        name: `${p} under ${o}`,
-        between: [p, o],
-        because: together ? `${o} stands in the same ground as ${p}` : `${o} presses on ${p}`,
-      };
+      // Name the TRUE aggressor (v930). A body presses on another only when it is the malefic-hard
+      // one (HARD[X] lists the other) AND it actually reaches it — by conjunction, or by casting a
+      // graha-aspect. The old code fired on an aspect in EITHER direction but always framed
+      // "o presses on p", so when only p reached o (p the aggressor) the reader was told the reverse
+      // (measured 20/103 wrong), and it also named tensions where the aspect ran against the hardness.
+      const oHitsP = (HARD[o] ?? []).includes(p) && (together || aspects(o, p, input)); // o afflicts p
+      const pHitsO = (HARD[p] ?? []).includes(o) && (together || aspects(p, o, input)); // p afflicts o
+      if (!oHitsP && !pHitsO) continue;
+      if (together) {
+        const aggressor = oHitsP ? o : p, victim = oHitsP ? p : o;
+        return { name: `${victim} under ${aggressor}`, between: [victim, aggressor], because: `${aggressor} stands in the same ground as ${victim}` };
+      }
+      if (oHitsP) return { name: `${p} under ${o}`, between: [p, o], because: `${o} presses on ${p}` };
+      return { name: `${o} under ${p}`, between: [o, p], because: `${p} presses on ${o}` };
     }
   }
   return null;

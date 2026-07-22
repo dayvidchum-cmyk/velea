@@ -1420,8 +1420,29 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     ? { instruments, reach: instruments.map((i) => INSTRUMENT_REACH[i]).join(" · "), ...((p as any).vocationNote ? { note: (p as any).vocationNote } : {}) }
     : null;
 
+  // THE STAGE (v930) — the engine resolves the day's Cast / Camera / Tension so the cast read
+  // NARRATES a given protagonist and a given tension instead of the model choosing who leads from
+  // raw markers (NARRATIVE_AUDIT §1 hierarchy, §4 Time Lord is the protagonist, §9 transits never
+  // choose the frame). Day-scoped: the Camera is the transiting Moon; built from values already in
+  // scope. Wrapped so a stage failure degrades to the prior behaviour — never kills a reading.
+  let stage: import("../sky/stage.js").Stage | null = null;
+  try {
+    const { computeStage } = await import("../sky/stage.js");
+    const retrograde: Record<string, boolean> = {};
+    const combust: Record<string, boolean> = {};
+    for (const t of transits) { if (!t) continue; retrograde[t.planet] = !!t.retrograde; if (t.combust) combust[t.planet] = true; }
+    stage = computeStage({
+      transitLon: a,
+      lagnaSignIdx: ZODIAC.indexOf(lagna),
+      retrograde,
+      combust,
+      dasha: { maha: (dasha as any)?.mahaDasha?.lord ?? null, antar: (dasha as any)?.antarDasha?.lord ?? null, pratyantar: (dasha as any)?.pratyantarDasha?.lord ?? null },
+      annualTimeLord: pf.timeLord,
+    });
+  } catch (e) { console.warn("[narrative] stage unavailable (read continues):", e); stage = null; }
+
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(stage ? { stage } : {}), ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }
