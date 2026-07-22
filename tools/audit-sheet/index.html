@@ -132,11 +132,12 @@
     fixed in v901–v905 (measured/code-confirmed) and the list had gone stale — they're now in the fixed record. Only the
     Stage item survives, and it turned out to be a bigger issue (below).</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span><b>1 · The Cast/Camera/Tension "Stage" engine is not wired into readings.</b>
-      <code>sky/stage.ts</code> (<code>computeStage</code>/<code>findTension</code>) is imported ONLY by two scripts —
-      nothing in the narrative pipeline, routers, or client. So the "wrong aggressor 19%" copy bug (<code>:384</code>,
-      always writes "<code>${o} presses on ${p}</code>") can't reach a reading. David ruled 22 Jul the engine SHOULD be
-      live; why it's unconsumed is under investigation, and the aggressor fix rides on wiring it. (Was copy-sweep #2.)</li>
+    <li><span class="tag">DATA</span><b>1 · The Stage engine — WIRED v930, awaiting your eyes.</b>
+      The Cast/Camera/Tension engine (<code>sky/stage.ts</code>) now feeds the day "cast" read: the engine hands the
+      protagonist and the one tension, the model narrates them (was: the model chose who's loud from raw markers). The
+      aggressor-direction bug (was 20/103 backwards) is fixed at <code>findTension</code>, locked by a both-directions
+      test + probe. Suite green, 3 probes bite. <b>Tap The Read on the deployed app and confirm the cast paragraph reads
+      right — then this closes.</b></li>
     <li><span class="tag">DATA</span><b>2 · The 27-star classification is duplicated across several files.</b> Duplication,
       not disagreement (the interpreter reads the one corrected table, anchored by a test). Cleanup.</li>
     <li><span class="tag">DATA</span><b>3 · Exact Chesta (the eight-state seeghra-kendra) is not built.</b> The simplified
