@@ -1177,11 +1177,12 @@ export default function Planner() {
               >
                 <span
                   style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.14em',
+                    // D · Airy Humanist: a hairline micro-label, not a bold caps line.
+                    fontSize: '0.62rem',
+                    fontWeight: 500,
+                    letterSpacing: '0.28em',
                     textTransform: 'uppercase',
-                    color: 'color-mix(in srgb, var(--hero-ink) 82%, transparent)', // hero-ink — day-accent-deep was mud-on-mud on the red card
+                    color: 'color-mix(in srgb, var(--hero-ink) 62%, transparent)',
                   }}
                 >
                   {selectedDate === toDateStr(today) ? "TODAY'S READ" : `${selectedPanchang.dayOfWeek}, ${selectedPanchang.date}`}
@@ -1203,13 +1204,14 @@ export default function Planner() {
             {/* GIANT MODE NAME */}
             <h2
               style={{
-                fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
-                fontSize: 'clamp(2rem, 8vw, 2.75rem)', // same scale as the greeting (David)
-                fontWeight: 700,
-                lineHeight: 1,
+                // D · Airy Humanist: light Optima, larger than the greeting so it clearly OWNS the card.
+                fontFamily: "Optima, 'Palatino Linotype', Palatino, 'Georgia', ui-serif, serif",
+                fontSize: 'clamp(2.6rem, 10vw, 3.4rem)',
+                fontWeight: 300,
+                lineHeight: 1.0,
                 color: 'var(--hero-ink)',
-                letterSpacing: '-0.02em',
-                marginBottom: '0.65rem',
+                letterSpacing: '0.005em',
+                marginBottom: '0.5rem',
               }}
             >
               {selectedCharacter
@@ -1223,10 +1225,10 @@ export default function Planner() {
               const depth = selectedCharacter?.depth ?? selectedCharacter?.buildDepth;
               if (!depth || depth === "mid") return null;
               return (
-                <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'color-mix(in srgb, var(--hero-ink) 90%, transparent)', marginTop: '-0.5rem', marginBottom: '0.35rem' }}>
-                  {depth === "deep" ? "deep — the ground holds a lot today"
-                    : depth === "leaning" ? "leaning restraint — tend, but keep it gentle"
-                    : "thin — tend with a lighter hand"}
+                <p style={{ fontFamily: "Optima, 'Palatino Linotype', Palatino, ui-serif, serif", fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, letterSpacing: '0', lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 90%, transparent)', marginTop: '0', marginBottom: '0.1rem', textWrap: 'balance' as any }}>
+                  {depth === "deep" ? "Deep — the ground holds a lot today"
+                    : depth === "leaning" ? "Leaning restraint — tend, but keep it gentle"
+                    : "Thin — tend with a lighter hand"}
                 </p>
               );
             })()}
@@ -1234,12 +1236,14 @@ export default function Planner() {
                 textWrap balance so it never orphans a last word (David 2026-07-18: "DONE" hung
                 alone on its own line). */}
             {selectedCharacter?.headline && (
-              <p style={{ fontSize: 'clamp(0.8rem, 3.4vw, 1rem)', fontWeight: 400, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)', marginTop: '-0.35rem', marginBottom: '0.4rem', textWrap: 'balance' as any }}>
+              <p style={{ fontSize: '0.64rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'color-mix(in srgb, var(--hero-ink) 60%, transparent)', marginTop: '0.55rem', marginBottom: '0.1rem', textWrap: 'balance' as any }}>
                 {selectedCharacter.headline}
               </p>
             )}
             {selectedCharacter && (
-              <p style={{ fontSize: 'clamp(0.78rem, 3.2vw, 0.95rem)', fontStyle: 'italic', color: 'color-mix(in srgb, var(--hero-ink) 85%, transparent)', marginTop: '0', marginBottom: '0.85rem' }}>
+              // David 2026-07-21: the day-note takes the SAME styling as the subhead (Optima, 1.12rem,
+              // not italic), so the two read as one calm voice instead of a mismatched register.
+              <p style={{ fontFamily: "Optima, 'Palatino Linotype', Palatino, ui-serif, serif", fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 88%, transparent)', marginTop: '0.35rem', marginBottom: '0.9rem' }}>
                 {selectedCharacter.sentence}
               </p>
             )}

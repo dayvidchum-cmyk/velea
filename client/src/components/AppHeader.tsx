@@ -328,11 +328,13 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
         <h1
           className="leading-tight"
           style={{
-            fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif",
-            fontWeight: 700,
-            fontSize: "clamp(2rem, 8vw, 2.75rem)",
+            // D · Airy Humanist (David 2026-07-21): Optima, lighter and SMALLER than the verdict so
+            // the greeting and "Selective" stop reading as twin titles.
+            fontFamily: "Optima, 'Palatino Linotype', Palatino, 'Georgia', ui-serif, serif",
+            fontWeight: 400,
+            fontSize: "clamp(1.5rem, 5.5vw, 1.95rem)",
             color: "var(--heading-ink)",
-            letterSpacing: "-0.01em",
+            letterSpacing: "0",
           }}
         >
           {greetingLine}
@@ -342,7 +344,7 @@ export default function AppHeader({ heroMode, pageTitle, sansTitle, titleScale =
             Opens the check-in sheet; shows time since last check-in, or "CURRENT STATE" if none today. */}
         {isAuthenticated && (
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <span style={{ fontFamily: "'Playfair Display', 'Georgia', ui-serif, serif", fontStyle: "italic", fontSize: "1rem", color: "var(--color-muted-foreground)", lineHeight: 1 }}>
+            <span style={{ fontFamily: "Optima, 'Palatino Linotype', Palatino, 'Georgia', ui-serif, serif", fontSize: "1rem", color: "var(--color-muted-foreground)", lineHeight: 1 }}>
               How are you?
             </span>
             <button
