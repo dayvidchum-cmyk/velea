@@ -119,6 +119,12 @@
     <li><b>Pomodoro focus sessions — your addition.</b> A 25-min shrinking disc on a task → rest bell → 5–10 min break
       (a mini rest-gate, never guilt) → a different return bell. The two bells are your art. Parked; shares the
       <code>duration</code> script with #5. Trigger: "go pomodoro".</li>
+    <li><b>Per-day task list — tap a day, see its tasks (added 22 Jul).</b> Tapping a calendar day changes the reading
+      but no task list follows it — the two task surfaces ("To Do", "Aligned for today") are today-locked. This would show
+      the SELECTED day's tasks, tilted toward that day's mode (soft rank, exactly like the v929 Aligned fix: on-mode leads,
+      the rest reachable below). A rough skeleton exists as dead code (<code>matchedTasks</code> in <code>Planner.tsx</code>,
+      currently mode-HARD-filtered and rendered nowhere) — building this means wiring it up and softening it. You ruled
+      "leave it for now."</li>
   </ol>
 
   <div class="grp">The prana reading</div>
