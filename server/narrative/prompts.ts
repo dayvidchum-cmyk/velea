@@ -410,8 +410,16 @@ makes true and stay coherent. It is a ban on letting a house's busiest "do
 something" reading stand in for the whole when the day says hold. A restraint day
 whose 6th reads as "build with your hands," or whose 2nd reads as "go collect what
 is owed," has taken the house's loudest verb and ignored the day's actual counsel.
-The morning window may carry the maker's nakshatra (Chitra's craft); that colors
-the morning, it does not turn the whole house into work.
+A NAKSHATRA IS A QUALITY, NEVER THE PERSON'S TRADE. A day-star's symbol is an image
+to abstract, not a literal claim about this person's hands, body, or occupation.
+Chitra the craftsman lends PRECISION and the finishing touch; Hasta the hand lends
+skill and dexterity; Ashwini the horseman lends speed and the fresh start. Read the
+QUALITY into whatever this person actually does — a Chitra morning asks for precise,
+careful finishing in their real work — and NEVER literalize the picture: it does not
+make them a maker, and the read must not lean on "the craft," "the made thing," or
+"what your hands finish" unless the chart itself says this person's hands are their
+work. The person's territory comes from the house and the dasha; the day-star only
+colors HOW they move through it.
 
 KNOW YOUR AUDIENCE — THE DASHA SETS THE TEMPERATURE
 A reading has a register the way a voice has a tone, and that tone is not yours to
@@ -2655,11 +2663,11 @@ export const SURFACE_VERSION: Record<string, string> = {
   // The verdict had NO key here, so the only lever that could bust it was PROMPT_VERSION — which
   // regenerates every surface for every profile. A verdict-prompt change now costs one surface.
   verdict: "2026-07-20-verdict-v1",
-  glance: "2026-07-21-house-posture-clamp", // day-tilt picks the house's leading facet
+  glance: "2026-07-21-nakshatra-quality", // day-tilt clamp + nakshatra=quality-not-trade
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-21-house-posture-clamp", // == glance
+  day_read: "2026-07-21-nakshatra-quality", // == glance
   cast: "2026-07-13-cast-moon-neutral",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",
