@@ -63,7 +63,7 @@
   <p class="sub">v926 · 22 July 2026 · only what is still open — the fixed record is collapsed at the bottom</p>
 
   <div class="scores">
-    <div class="score"><div class="n bad">15</div><div class="l">Open issues</div></div>
+    <div class="score"><div class="n bad">16</div><div class="l">Open issues</div></div>
     <div class="score"><div class="n warn">11</div><div class="l">Your call</div></div>
     <div class="score"><div class="n good">2</div><div class="l">Live decisions</div></div>
     <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
@@ -167,6 +167,12 @@
     <li><span class="tag">READ</span><b>13 · The Day Headline — the detectors exist; one line connects them.</b></li>
     <li><span class="tag">READ</span><b>14 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
     <li><span class="tag">LOOK</span><b>15 · The welcome card can show two filled primary buttons.</b></li>
+    <li><span class="tag">AUDIT</span><b>16 · "Aligned for Today" is not filtering properly — David flagged, 22 Jul.</b>
+      The interaction between <b>(a)</b> a task's mode flag as it's set on create/edit, <b>(b)</b> the real-life
+      check-in, <b>(c)</b> the current day's mode, and <b>(d)</b> the mode orbs is not working right, and the
+      <i>Aligned for Today</i> list on Home is showing the wrong tasks. Needs a full audit of the chain — task
+      mode assignment → check-in weighting (the gold-dots / rest-gate) → day mode → orb counts → the Aligned
+      filter — to find where the mismatch enters. Diagnosis-first, like #7; not yet started.</li>
   </ul>
 
   <!-- ────────────────────────  PICK BACK UP  ──────────────────────── -->
@@ -197,8 +203,8 @@
         <code>houseReader</code>/<code>chapterReader</code> off for that user, and the feature-off returns
         (<code>narrative/router.ts:167, :196</code>) sent <code>available:false</code> with NO <code>locked</code>, so the
         client fell through to its outage copy. Both now return <code>locked:true</code>; the guard was strengthened to
-        check each refusal <i>return</i>, not the whole body (probed — reverting the fix fails it). <b>Code-fixed and
-        probed; awaiting the deployed render + the flag flip to call it landed</b> — admin bypasses <code>hasFeature</code>,
+        check each refusal <i>return</i>, not the whole body (probed — reverting the fix fails it). <b>Landed — verified
+        on the deployed app (a free profile's rooms read, the paid rooms lock)</b> — admin bypasses <code>hasFeature</code>,
         which is why it never reproduced from the owner account. Diagnosis cost two wrong hypotheses (the door gate; a
         self-heal asymmetry) before the autopsy named it — both retracted in the transcript.</li>
       <li><b>v923 audit sweep.</b> Viewer-local dates (profection / Road Ahead / ranked year read "today" from server
