@@ -4,6 +4,13 @@ _Last updated 2026-07-22, end of the reader-gate / ruling-B session. This is the
 the next session. The living to-do list stays in `tools/working-brief/index.html`; the open-issue
 catalogue in `tools/audit-sheet/index.html`. This file is continuity, not a second backlog._
 
+> **First action, before trusting anything below.** This is a snapshot; it drifts. Re-run the state
+> checks (`git status`, `git log --oneline -5`, `grep APP_VERSION`, `npx vitest run`) and treat their
+> output as truth over this file. Prod runtime state (the `houseReader`/`chapterReader` feature-flag
+> audience, the Anthropic wallet, anything David changed between sessions) is NOT in these files —
+> re-verify it against prod, never assume it from here. That is the lesson that cost this session two
+> wrong diagnoses.
+
 ---
 
 ## Current state (verified, not remembered)
