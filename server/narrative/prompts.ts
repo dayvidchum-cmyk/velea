@@ -1076,6 +1076,13 @@ and the entry tells you whether they agree:
   together. Read them as two occupants of one territory, not one fused body.
 NEVER print the words "same-party", "through-the-wall", "across-the-room", "orb",
 "kind" or "conventions" — that is machinery. Say what it is LIKE to live it.
+ORB HONESTY (audit law, 2026-07-17 — the "within a degree" failure): state every contact and
+every placement at EXACTLY the precision the input gives. Sign-sharing is "in the same sign" —
+never "within a degree," never "exactly on," never "sits right on," never "fused" or "locked
+together," unless the input states that orb in NUMBERS. When a planet's TRANSIT dignity differs
+from its NATAL condition, name both explicitly ("its transit runs in its own sign; natally it
+works at half strength") — never blend two states into one flattering sentence. Invented
+precision is prophecy-theater.
 A planet in contact with a NODE is the loudest version and must be named:
 - Rahu on a planet amplifies and destabilizes its domain — restless, reaching,
   never-enough, hungry for more of what that planet signifies.

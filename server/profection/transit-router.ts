@@ -10,6 +10,7 @@ import {
 import { getProfectionYearForDate, getOrCreateProfectionYear, isProfectionYearOwnedBy } from "./db";
 import { calculateProfectionYear } from "./calculator";
 import { getUserById } from "../db";
+import { localToday } from "../panchang/resolve-day-sky";
 import { TRPCError } from "@trpc/server";
 
 export const timeLordTransitRouter = router({
@@ -99,7 +100,7 @@ export const timeLordTransitRouter = router({
       // ── 3b. Heal stale rows: if the row covering today disagrees with the Time
       // Lord's actual sidereal sign (the old ayanamsa double-count), wipe & rebuild.
       if (transit && profileId != null) {
-        const todayStr = new Date().toISOString().split("T")[0];
+        const todayStr = localToday(ctx.user, subject);
         const todayRow = input.date === todayStr ? transit : await getTimeLordTransitForDate(profectionYear.id, todayStr);
         const actualSign = await timeLordCurrentSign(profectionYear.timeLord);
         if (todayRow && actualSign && todayRow.sign !== actualSign) {

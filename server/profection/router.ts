@@ -13,6 +13,7 @@ import { getOrCreateProfectionYear, getProfectionYearForDate, getProfectionYears
 import { getTimeLordTransitsForYear, createTimeLordTransits } from "./transit-db.js";
 import { calculateTimeLordTransits, timeLordCurrentSign, timeLordGuestsNow } from "./transit-calculator.js";
 import { getUserById, getNatalBodiesByUser } from "../db.js";
+import { localToday } from "../panchang/resolve-day-sky.js";
 import type { ProfectionYearResponseContract, ProfectionYearWithTransitsResponseContract, TimeLordTransitRecord } from "./types.js";
 
 export const profectionRouter = router({
@@ -149,8 +150,11 @@ export const profectionRouter = router({
       }
       const user = { ...subject, id: ctx.user.id };
 
-      const today = new Date().toISOString().split("T")[0];
-      
+      // "today" is the VIEWER's local date, not the server's UTC date — otherwise age /
+      // activatedHouse / Time Lord flip on the wrong side of midnight for non-UTC users (worst on
+      // the birthday itself). localToday resolves current→hometown→birth tz, same as the reading.
+      const today = localToday(ctx.user, subject);
+
       const profection = calculateProfectionYear(subject.birthDate, today, subject.lagnaSign);
 
       await getOrCreateProfectionYear(
@@ -201,7 +205,9 @@ export const profectionRouter = router({
       }
       const user = { ...subject, id: ctx.user.id };
 
-      const today = new Date().toISOString().split("T")[0];
+      // Viewer-local date, not server UTC (see `current` above) — the same value drives the
+      // current-segment detection at todayStr/todayStr2 below.
+      const today = localToday(ctx.user, subject);
       const profection = calculateProfectionYear(subject.birthDate, today, subject.lagnaSign);
 
       // Get or create the profection year record
@@ -243,7 +249,7 @@ export const profectionRouter = router({
       // Lord's actual sidereal sign (old ayanamsa bug), OR if it predates the co-present
       // ("guests") computation (coPresentPlanets column null). Either way, wipe → rebuild.
       if (transits.length > 0 && subject.profileId != null) {
-        const todayStr = new Date().toISOString().split("T")[0];
+        const todayStr = today;
         const cur = transits.find((t) => t.startDate <= todayStr && todayStr <= t.endDate);
         const actualSign = await timeLordCurrentSign(profection.timeLord);
         const signStale = !!(cur && actualSign && cur.sign !== actualSign);
@@ -291,7 +297,7 @@ export const profectionRouter = router({
 
       // Map database records to transit contract. The CURRENT segment's guests/combustion/
       // solitary are computed LIVE (right now) instead of its stored midpoint snapshot.
-      const todayStr2 = new Date().toISOString().split("T")[0];
+      const todayStr2 = today;
       const guestsNow = await timeLordGuestsNow(profection.timeLord);
       const transitRecords: TimeLordTransitRecord[] = transits.map(t => {
         const isCurrent = t.startDate <= todayStr2 && todayStr2 <= t.endDate;

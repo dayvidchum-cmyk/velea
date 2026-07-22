@@ -955,7 +955,16 @@ export default function ProfectionYear() {
             </div>
           );
         })() : (
-          <p style={{ color: TEXT_MUTED, fontSize: "0.95rem" }}>No road data available.</p>
+          // Non-admins don't fetch the arc (arc.forward is admin-gated server-side while the Road
+          // Ahead stays locked), so they land here. Show the honest locked teaser — NOT the old
+          // "No road data available." dead-end, which read as a broken panel. (Wiring the real
+          // entitlement gate + live thirst-counts for non-admins is David's money decision.)
+          <div className="flex items-start gap-2.5 rounded-lg px-3 py-3" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
+            <GateMark size={20} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
+            <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.55 }}>
+              The road ahead — your near apex, your crown days, and the slow season-turns of your year — opens with Velea. Soon.
+            </p>
+          </div>
         )
       ))}
 

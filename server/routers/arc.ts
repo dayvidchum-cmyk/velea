@@ -9,6 +9,7 @@
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc.js";
 import { computeArc } from "../sky/arc.js";
+import { localToday } from "../panchang/resolve-day-sky.js";
 
 export const arcRouter = router({
   forward: protectedProcedure.query(async ({ ctx }) => {
@@ -32,7 +33,7 @@ export const arcRouter = router({
       subject.natalBodies.filter((b) => b.sign).map((b) => [b.planet, b.sign]),
     ) as Record<string, string>;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = localToday(ctx.user, subject);
     const arc = await computeArc(
       {
         birthDate: subject.birthDate,

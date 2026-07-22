@@ -7,14 +7,20 @@ import { trpc } from '@/lib/trpc';
  * Developer-facing diagnostic panel for the mode engine.
  * Shows full modifier breakdown per day and the complete config table.
  */
+// Local calendar date (YYYY-MM-DD) — NOT toISOString(), which is UTC and jumps to tomorrow in the
+// evening for west-of-UTC users (the off-by-one class YearCalendar/Planner already fixed).
+function toDateStr(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export default function Diagnostics() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = toDateStr(new Date());
   const [selectedDate, setSelectedDate] = useState(today);
   const [rangeStart, setRangeStart] = useState(today);
   const [rangeEnd, setRangeEnd] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 6);
-    return d.toISOString().split('T')[0];
+    return toDateStr(d);
   });
   const [showConfig, setShowConfig] = useState(false);
   const [showRange, setShowRange] = useState(false);

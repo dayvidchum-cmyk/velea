@@ -6,24 +6,25 @@
  * prose can behead a sentence the model wrote whole, and the vitest suite only collects
  * server/** and shared/**. A transformer no test can reach is how this one drifted.
  */
-// Words that signal a continuation/appositive fragment, not a standalone closing
-// thought — so we never peel a mid-sentence em dash into a dangling takeaway.
-export const FRAGMENT_STARTS = new Set([
-  "is", "are", "was", "were", "be", "been", "being", "and", "but", "or", "nor",
-  "which", "that", "who", "whom", "whose", "where", "when", "while", "because",
-  "though", "although", "yet", "if", "as",
-  // verbs that begin the TAIL of a subject the peel cut away (David's "broken thought":
-  // "Have to be worked through that craft floor…")
-  "have", "has", "had", "having", "means", "meaning", "makes", "making",
-  "needs", "needing", "wants", "gets", "getting", "comes", "coming", "goes", "going",
-]);
-
 /**
  * Split a "why" string into placement detail (data) and a closing takeaway.
- * Peels at an explicit "— so …", or at a trailing em dash IF the tail reads as a
- * complete sentence (doesn't begin with a fragment/connector word). This keeps
- * real closing lines ("— the year places belief inside service…") as takeaways
- * while leaving mid-sentence appositives ("— is where…") attached.
+ * Peels at an explicit "— so …", or at a trailing em dash IF the tail begins a
+ * NEW clause (a capital-letter sentence, or a quote/paren opener). This keeps
+ * real closing lines ("— The year places belief inside service…") as takeaways
+ * while leaving mid-sentence continuations ("— pulling the floor loose") attached.
+ *
+ * WHY A POSITIVE RULE, NOT A DENYLIST (audit 2026-07-22): the old guard peeled by
+ * DEFAULT unless the tail's first word was in an enumerated FRAGMENT_STARTS set —
+ * and no finite list can name every continuation word. A single trailing dash whose
+ * tail began with an out-of-list participle or verb ("…his hand reaching back —
+ * pulling the old belief loose.") slipped through and was rendered ALONE in gold: a
+ * beheaded fragment, the one thing the reader sees. The model writes a genuine
+ * standalone closer as a capitalised new sentence (control test: "— Both rooms keep
+ * handing you the same question.") or via the explicit "— so …" connector; a
+ * lowercase, non-"so" tail is a continuation of the prior clause. So we peel ONLY on
+ * those two shapes and DECLINE otherwise — the safe direction is no takeaway, never a
+ * broken one. This is also the invariant the suite already asserts (takeaway[0] is
+ * [A-Z"'(]).
  */
 export function peelTakeaway(text: string): { data: string; takeaway: string } {
   // THE ONE HARD RULE (audit 2026-07-20): this may DECLINE to peel, but it must never behead a
@@ -48,8 +49,12 @@ export function peelTakeaway(text: string): { data: string; takeaway: string } {
   // "— so X" reads as a closing clause with a connector; keep X, as before.
   const so = tail.match(/^so[,\s]+/i);
   if (so) tail = tail.slice(so[0].length).trim();
-  const first = (tail.split(/\s+/)[0] || "").toLowerCase().replace(/[^a-z]/g, "");
-  if (tail && (so || !FRAGMENT_STARTS.has(first))) {
+  if (!tail) return { data: text, takeaway: "" };
+  // Peel ONLY when the tail is a genuine standalone closer: a "— so …" connector, or a new clause
+  // the model capitalised / opened with a quote or paren. A lowercase, non-"so" tail continues the
+  // prior clause (participle, compound predicate, appositive) — peeling it beheads the thought.
+  const startsNewClause = /^["'(]/.test(tail) || /^[A-Z]/.test(tail);
+  if (so || startsNewClause) {
     return { data: text.slice(0, idx).trim().replace(/[,;]\s*$/, ""), takeaway: tail };
   }
   return { data: text, takeaway: "" };

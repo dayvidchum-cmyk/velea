@@ -181,6 +181,12 @@ export default function YearCalendar() {
           <div className="mt-10"><VeleaLoader label="Walking the year…" /></div>
         )}
         {error && <p className="mt-6 text-sm text-muted-foreground">Not available.</p>}
+        {/* crown.forYear returns NULL (not an error) when there's no active profile, no birth date,
+            or the birth star can't be computed — settled + no data. Without this branch the page
+            rendered just the header and a blank body (the sibling pages all name this state). */}
+        {!isLoading && !error && !data && (
+          <p className="mt-6 text-sm text-muted-foreground">Your year opens once your birth details are saved and your chart is calculated.</p>
+        )}
 
         {data && (
           <>

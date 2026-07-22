@@ -187,9 +187,12 @@ export function BirthDetailsSheet({ open, onClose }: { open: boolean; onClose: (
         instrument: data.instruments.length ? (data.instruments as any) : null,
         vocationNote: data.vocationNote || null,
       });
-      // Compute once date + place are present; time is optional (no time → Chandra chart).
+      // Compute once date + COORDINATES are present; time is optional (no time → Chandra chart).
+      // Gating on the city STRING alone let a typed-but-not-geocoded city trigger a calc with no
+      // lat/lon → the server computed a null-island (0,0) chart. Coords, not the city name, are
+      // what locate a chart.
       let calcFailed = false;
-      if (data.birthDate && data.birthLocationCity) {
+      if (data.birthDate && data.birthLocationCity && data.birthLocationLat && data.birthLocationLon) {
         try {
           await calculateMutation.mutateAsync({
             id: profile.id,
@@ -640,6 +643,14 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
         </label>
       )}
 
+      {/* A city was typed but never located — the chart can't be computed without coordinates, so
+          the button says "Save Profile", not "Calculate Chart". Point the user at Geocode. */}
+      {form.birthDate && form.birthLocationCity.trim() && !(form.birthLocationLat && form.birthLocationLon) && (
+        <p className="text-xs text-muted-foreground pt-1">
+          Tap <span className="font-medium">Geocode</span> to locate this city — the chart needs its coordinates.
+        </p>
+      )}
+
       {/* Actions */}
       <div className="flex gap-2 pt-1">
         <Button
@@ -648,7 +659,7 @@ export function ProfileForm({ initial, onSave, onCancel, saving, isNew, showMake
           className="flex-1"
         >
           {saving ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
-          {form.birthDate && form.birthLocationCity ? "Save & Calculate Chart" : "Save Profile"}
+          {form.birthDate && form.birthLocationLat && form.birthLocationLon ? "Save & Calculate Chart" : "Save Profile"}
         </Button>
         <Button variant="outline" onClick={onCancel} disabled={saving}>
           Cancel

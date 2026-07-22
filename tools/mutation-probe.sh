@@ -128,6 +128,10 @@ run client/src/pages/Horoscope.tsx 'const locked = !!((reveal.data as any)?.lock
 # The takeaway peeler going back to cutting inside an appositive (David's broken thought).
 run shared/peel-takeaway.ts 'if (dashes.length !== 1) return { data: text, takeaway: "" };' 'if (dashes.length < 1) return { data: text, takeaway: "" };' \
   shared/peel-takeaway.test.ts "the peeler cuts inside an aside again"
+# The peeler going back to peeling BY DEFAULT (the denylist hole, 2026-07-22): treating any
+# single-dash tail as a closer beheads a lowercase continuation ("— pulling the belief loose").
+run shared/peel-takeaway.ts 'if (so || startsNewClause) {' 'if (so || true) {' \
+  shared/peel-takeaway.test.ts "the peeler beheads a lowercase continuation tail again"
 # The day layer getting back into the STAGE input, which re-bills the year read every morning.
 run server/narrative/input-builder.ts 'natal: natalStage, natalRetrogradeCount' 'natal, natalRetrogradeCount' \
   server/narrative/service.hash.test.ts "the stage input carries the day layer again"

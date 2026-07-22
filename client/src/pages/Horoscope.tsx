@@ -84,7 +84,11 @@ export default function Horoscope() {
   // now live here alongside pick-a-date. Collapse-default (Velea UX law) + lazy: each fetches only
   // when opened, so nothing generates until asked. All are cached day-stable, so opening is a free
   // hit once the day's read exists (Today generates the day read; Chart/here the year + chapter). ──
-  const { data: activeProfile } = trpc.profiles.getActive.useQuery(undefined, { enabled: entitled, staleTime: 1000 * 60 * 5 });
+  // NOT gated on `entitled`: pid feeds the free "Today's reading" (and the year read, which the
+  // server gates on its own via canYearSight). Gating getActive here left pid undefined for every
+  // free user, so todayLoading/yearLoading — which spin until the query SETTLES — spun forever on a
+  // query that could never run. The Planner fetches getActive ungated for exactly this reason.
+  const { data: activeProfile } = trpc.profiles.getActive.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
   const pid = activeProfile?.id;
   const today = todayStr();
   const [todayOpen, setTodayOpen] = useState(false);

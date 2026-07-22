@@ -289,8 +289,18 @@ async function recomputeProfileChart(
   if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
   const { calculateBirthChart: computeChart } = await import('../birthchart/calculator.js');
 
-  const lat = birth.birthLocationLat ? parseFloat(birth.birthLocationLat) : 0;
-  const lon = birth.birthLocationLon ? parseFloat(birth.birthLocationLon) : 0;
+  // A chart is meaningless without real coordinates. Empty lat/lon here would silently compute at
+  // 0°N 0°E (null island) — every house and the ascendant wrong — and persist THAT as the natal
+  // chart, corrupting every downstream reading. The city string alone can't locate a chart
+  // (geocoding is client-side), so REFUSE rather than store a wrong one. The docstring above has
+  // always required coords; this enforces it. (A real equatorial coordinate arrives as the string
+  // "0", which is truthy — only missing/empty coords trip this.)
+  if (!birth.birthLocationLat || !birth.birthLocationLon) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Birth coordinates are required to calculate a chart — locate the city (Geocode) first." });
+  }
+
+  const lat = parseFloat(birth.birthLocationLat);
+  const lon = parseFloat(birth.birthLocationLon);
   // Birthplace coords are the source of truth for the timezone; a stale/manual tz throws the
   // ascendant off by hours. Derive from lat/lon, fall back to the provided tz, then UTC.
   const derivedTz = (birth.birthLocationLat && birth.birthLocationLon) ? timezoneForCoords(lat, lon) : null;

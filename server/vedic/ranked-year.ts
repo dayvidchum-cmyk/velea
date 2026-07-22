@@ -11,7 +11,7 @@
  * Cost: the 366-day walk measures at ~0.1s (the ephemeris calls are memoised), and the result is
  * cached in-process on the natal inputs — so putting it on the reading path is not a latency risk.
  */
-import { resolveDaySky } from "../panchang/resolve-day-sky.js";
+import { resolveDaySky, localToday } from "../panchang/resolve-day-sky.js";
 import { getTimezoneOffset } from "../panchang/tz-offset.js";
 
 
@@ -52,9 +52,12 @@ export async function rankedSolarYearForProfile(
   // Solar year containing today (or offset by whole years): most recent birthday → next.
   const p2 = (n: number) => String(n).padStart(2, "0");
   const [, bm, bd] = String((profile as any).birthDate).split("-").map(Number);
-  const today = new Date();
-  let startYear = today.getUTCFullYear();
-  if (today.getUTCMonth() + 1 < bm || (today.getUTCMonth() + 1 === bm && today.getUTCDate() < bd)) startYear -= 1;
+  // Viewer-local date, not server UTC: near the birthday, a UTC boundary hands an east/west-of-UTC
+  // user the adjacent solar year's ranking for a few hours. The daily-reading path already probes
+  // offsets [0,-1,1] to self-correct, but direct callers (the /year screen) trust this window.
+  const [ty, tm, td] = localToday(user, profile).split("-").map(Number);
+  let startYear = ty;
+  if (tm < bm || (tm === bm && td < bd)) startYear -= 1;
   startYear += yearOffset;
   const yearStart = `${startYear}-${p2(bm)}-${p2(bd)}`;
   const yearEnd = `${startYear + 1}-${p2(bm)}-${p2(bd)}`;

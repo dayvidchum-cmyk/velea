@@ -54,6 +54,37 @@ describe("peelTakeaway never beheads a sentence", () => {
     expect(so.takeaway).toBe("they rise and fall together.");
   });
 
+  it("declines a MULTI-dash string even when a mid-aside tail looks like a new sentence", () => {
+    // Directly guards `dashes.length !== 1`: with more than one dash we decline outright, BEFORE the
+    // clause-start test. Here the aside happens to continue with a capitalised word, so if the
+    // multi-dash guard is loosened the peeler cuts at the FIRST dash and the clause-start rule
+    // wrongly waves the capitalised tail through — beheading the sentence. (The conservative rule
+    // alone declines lowercase tails, so only this capital-tail shape keeps the guard honest.)
+    const t = "His whole long year turns on the tenth and its heavy lord — Then a long aside runs on here — and it closes.";
+    const { data, takeaway } = peelTakeaway(t);
+    expect(takeaway).toBe("");
+    expect(data).toBe(t);
+  });
+
+  it("declines a single trailing dash whose tail CONTINUES the clause (audit 2026-07-22)", () => {
+    // The old FRAGMENT_STARTS denylist peeled by default and could not enumerate every
+    // continuation word. A single trailing dash introducing a lowercase participle or a compound
+    // predicate slipped through and was shown ALONE in gold — a beheaded fragment. Both shapes
+    // below were produced by running the OLD function; they must now DECLINE.
+    const participle =
+      "Jupiter sits in the room of your worth, his hand reaching back — pulling the old belief loose.";
+    expect(peelTakeaway(participle).takeaway).toBe("");
+    expect(peelTakeaway(participle).data).toBe(participle);
+
+    const compoundPredicate =
+      "Saturn settles into the room of daily work and stays a long while — holds you to the craft floor.";
+    expect(peelTakeaway(compoundPredicate).takeaway).toBe("");
+
+    const finiteVerb =
+      "Venus turns toward the room of partnership this whole year — asks what you are willing to give.";
+    expect(peelTakeaway(finiteVerb).takeaway).toBe("");
+  });
+
   it("declines on the app's own GOLD example rather than cutting inside its appositive", () => {
     // Verbatim from prompts.ts's whyNow.why gold sample — an appositive-bearing sentence that
     // must survive whole. (It contains several em dashes, so the rule declines: no takeaway.)
