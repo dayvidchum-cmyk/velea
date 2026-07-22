@@ -131,48 +131,38 @@
   <p class="lead"><b>The hardcoded-copy sweep (now 1–6)</b> — your law run across the engine: 303 candidate strings in 38
     files, instrument controlled both directions, every survivor re-verified against the code. The original #1 — the
     cancelled fall reading "hard-won strength" — was <b>resolved by ruling B (v928)</b>: the prose was right, the engine
-    over-gated, so the gate came off (see the fixed record). The other six are live, in your accuracy order, then the rest.</p>
+    over-gated, so the gate came off (see the fixed record). <b>Copy-sweep update (22 Jul):</b> 5 of the 6 were already
+    fixed in v901–v905 (measured/code-confirmed) and the list had gone stale — they're now in the fixed record. Only the
+    Stage item survives, and it turned out to be a bigger issue (below).</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span><b>1 · "Business Partners" is read as your spouse.</b>
-      <code>input-builder.ts:485</code> — the spouse regex swallows the plural, so the dedicated business-partners rule on
-      the next line is unreachable. The canon string "Business Partners" is real.</li>
-    <li><span class="tag">DATA</span><b>2 · The Stage names the wrong aggressor 19% of the time.</b>
-      <code>sky/stage.ts:384</code> matches a tension in either direction, then always writes "<code>${o} presses on ${p}</code>".
-      Measured: 20 of 103 name the wrong planet; direction is displayed nowhere.</li>
-    <li><span class="tag">READ</span><b>3 · "Your star is carried today" — the rung it names can never fire it.</b>
-      <code>day-filter.ts:638</code> — sibling of the v901 fix, 20 lines away. "Your star" is tara 1 (Janma, quality
-      <i>mixed</i>); the branch fires only on quality <i>good</i>.</li>
-    <li><span class="tag">READ</span><b>4 · "THE DAY OFFERS IT" printed above "start nothing".</b>
-      <code>day-filter.ts:618</code>, all three rikta tithis — the gate never consults <code>supports</code>, so the
-      headline and body contradict each other.</li>
-    <li><span class="tag">READ</span><b>5 · An eclipse still ahead is announced as past.</b>
-      <code>sky/golden-moment.ts:154</code> — <code>findEclipses</code> scans forward only, so <code>daysAway</code> is
-      never negative, yet the day of a coming eclipse says "just passed" + finishing/release guidance. (Decision 3.)</li>
-    <li><span class="tag">READ</span><b>6 · A station up to three days old is announced as "just now".</b>
-      <code>sky/golden-moment.ts:119</code> — <code>detectStations</code> scans from −12 days, so the past folds into the
-      present tense. The eclipse line in the same file has a past branch; this one doesn't.</li>
-    <li><span class="tag">DATA</span><b>7 · The 27-star classification is duplicated across several files.</b> Duplication,
+    <li><span class="tag">DATA</span><b>1 · The Cast/Camera/Tension "Stage" engine is not wired into readings.</b>
+      <code>sky/stage.ts</code> (<code>computeStage</code>/<code>findTension</code>) is imported ONLY by two scripts —
+      nothing in the narrative pipeline, routers, or client. So the "wrong aggressor 19%" copy bug (<code>:384</code>,
+      always writes "<code>${o} presses on ${p}</code>") can't reach a reading. David ruled 22 Jul the engine SHOULD be
+      live; why it's unconsumed is under investigation, and the aggressor fix rides on wiring it. (Was copy-sweep #2.)</li>
+    <li><span class="tag">DATA</span><b>2 · The 27-star classification is duplicated across several files.</b> Duplication,
       not disagreement (the interpreter reads the one corrected table, anchored by a test). Cleanup.</li>
-    <li><span class="tag">DATA</span><b>8 · Exact Chesta (the eight-state seeghra-kendra) is not built.</b> The simplified
+    <li><span class="tag">DATA</span><b>3 · Exact Chesta (the eight-state seeghra-kendra) is not built.</b> The simplified
       K&amp;F rule declares itself as such all the way to the model; building the real one needs the textbook, not inference.</li>
-    <li><span class="tag">MONEY</span><b>9 · The failed-save re-bill guard is per-process.</b> A redeploy or a second
+    <li><span class="tag">MONEY</span><b>4 · The failed-save re-bill guard is per-process.</b> A redeploy or a second
       replica loses it. Needs somewhere durable.</li>
-    <li><span class="tag">MONEY</span><b>10 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
+    <li><span class="tag">MONEY</span><b>5 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
       <code>engineVersion</code> column — a script you run.</li>
-    <li><span class="tag">MONEY</span><b>11 · The chapter read fires on the Chart page with no tap.</b> A deliberate
+    <li><span class="tag">MONEY</span><b>6 · The chapter read fires on the Chart page with no tap.</b> A deliberate
       Door-Law exception (the input is date-stable, so it does not re-bill daily). Whether the exception stands is yours.</li>
-    <li><span class="tag">READ</span><b>12 · The Day Headline — the detectors exist; one line connects them.</b></li>
-    <li><span class="tag">READ</span><b>13 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
-    <li><span class="tag">LOOK</span><b>14 · The welcome card can show two filled primary buttons.</b></li>
+    <li><span class="tag">READ</span><b>7 · The Day Headline — the detectors exist; one line connects them.</b></li>
+    <li><span class="tag">READ</span><b>8 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
+    <li><span class="tag">LOOK</span><b>9 · The welcome card can show two filled primary buttons.</b></li>
   </ul>
 
   <!-- ────────────────────────  PICK BACK UP  ──────────────────────── -->
   <h2>Threads to pick back up</h2>
   <p class="lead">The ones I surfaced when you opened this session, with their honest current status.</p>
   <ul class="plain">
-    <li><b>The copy sweep / audit fix-run.</b> This <i>is</i> open issues 1–6 above (was 7; #1 the cancelled fall was
-      resolved by ruling B, v928). The fix run was authorised and paused; resuming means clearing the six, in your
-      accuracy order — "Business Partners" read as spouse is next.</li>
+    <li><b>The copy sweep — essentially DONE (verified 22 Jul).</b> 6 of the original 7 are closed: #1 cancelled fall
+      (ruling B, v928); Business Partners→spouse (v905), "your star" (v901/v903), "THE DAY OFFERS IT" (supports gate),
+      eclipse/station tense (v905, one <code>whenPhrase</code>). The lone survivor is the Stage wrong-aggressor — which
+      turned out to live in <code>sky/stage.ts</code>, an engine never wired into readings (now open issue #1).</li>
     <li><b>The agenda layer.</b> Built v906, reverted v907 (it hijacked the read → became the law "coherence over
       information"). The rebuild is as a <i>hidden nudge</i>, not a voice. Engine code parked in git (<code>@535fcd5</code>).</li>
     <li><b>Addresses &amp; contacts.</b> Built v884, and v885 wired it (each planet keeps its address; the pair names the
@@ -189,6 +179,13 @@
 
   <details><summary>Fixed &amp; verified this run (v903–v929) — proven broken, fixed, then proven fixed</summary>
     <ul>
+      <li><b>Copy-sweep cluster — 5 stale "open" items were already fixed (verified 22 Jul, each measured or
+        code-confirmed at HEAD).</b> The list had drifted: <b>Business Partners→spouse</b> (v905 — measured both ways),
+        <b>"your star is carried"</b> (v901/v903, now <code>carriedByRung</code>), <b>"THE DAY OFFERS IT" over "start
+        nothing"</b> (<code>supports.length===0 ? null</code> gate), <b>eclipse announced past</b> + <b>station announced
+        "just now"</b> (v905, one <code>whenPhrase()</code> — measured −3→"3 days ago", 1→"tomorrow"). Only the Stage
+        wrong-aggressor survived, and it exposed a bigger thing (open #1): the whole Cast/Camera/Tension engine
+        (<code>sky/stage.ts</code>, built 7/21) was never wired into a reading — the LLM still improvises the stage.</li>
       <li><b>v929 — "Aligned for Today" was amputating the list (issue #15).</b> David flagged it 22 Jul; the
         <code>diagnose-aligned.ts</code> autopsy against his real data <i>measured</i> the cause instead of guessing:
         on a Restraint day with motivation 2, two filters compounded to leave <b>1 task of 89 active</b> — the hard
