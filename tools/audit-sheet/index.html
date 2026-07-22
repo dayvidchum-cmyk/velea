@@ -32,13 +32,9 @@
     color:var(--gold); margin:2.4rem 0 .3rem; border-bottom:1px solid var(--line); padding-bottom:.35rem; }
   .lead { color:var(--muted); font-size:.86rem; margin:.5rem 0 1rem; }
 
-  /* .ask is a DECISION AWAITING DAVID and the header count guard counts it. .finding looks
-     identical but is a write-up of something already found — no decision attached. Two findings
-     were written as .ask, which put the rendered count at 13 against a header of 11 and shipped
-     the page with its own guard red. Same styling, different meaning, so the count can't drift. */
-  .ask, .finding { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--gold-bright);
+  .ask { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--gold-bright);
     border-radius:10px; padding:.8rem 1rem; margin-bottom:.6rem; }
-  .ask b, .finding b { display:block; margin-bottom:.15rem; }
+  .ask b { display:block; margin-bottom:.15rem; }
   .ask .why { color:var(--muted); font-size:.87rem; }
   .grp { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--teal);
     margin:1.4rem 0 .5rem; font-weight:700; }
@@ -64,500 +60,191 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v923 · 22 July 2026 · every number below was printed by running something</p>
+  <p class="sub">v924 · 22 July 2026 · only what is still open — the fixed record is collapsed at the bottom</p>
 
   <div class="scores">
-    <div class="score"><div class="n good">122</div><div class="l">Fixed</div></div>
-    <div class="score"><div class="n bad">16</div><div class="l">Still broken</div></div>
-    <div class="score"><div class="n warn">2</div><div class="l">Live decisions</div></div>
-    <div class="score"><div class="n">1308</div><div class="l">Tests passing</div></div>
+    <div class="score"><div class="n bad">15</div><div class="l">Open issues</div></div>
+    <div class="score"><div class="n warn">11</div><div class="l">Your call</div></div>
+    <div class="score"><div class="n good">2</div><div class="l">Live decisions</div></div>
+    <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
   </div>
 
-  <h2>Since v902 — this session (v903–v923)</h2>
-  <p class="lead"><b>1314 tests across 124 files — 1306 passing, 4 skipped. The mutation harness green — every new guard
-    broken on purpose and caught (build exit 0, typecheck exit 0).</b> Four reds remain, all in <code>docs-claims.test.ts</code> — the guard
-    that checks THIS page against itself. They pin an older decision model (a “Your call” tile equal to the card count,
-    a nine-item open set) that the v922 rewrite deliberately moved past (“two live decisions,” the rest kept as record).
-    Reconciling them is a framing call for you — update the guard to the new model, or revert the page structure —
-    not something I will fake green by rewriting your ledger. Printed, not carried forward.</p>
-  <ul class="plain">
-    <li><b>The v923 audit (22 July) — a full-codebase adversarial sweep, fixed and probed.</b> <b>Data:</b> profection
-      (age/house/Time Lord), the Road Ahead, and the ranked solar year all read “today” from the <i>server’s</i> UTC
-      clock, flipping on the wrong side of midnight for non-UTC users — worst on the birthday itself; now the viewer’s
-      local date. And a birth city typed but never geocoded computed a <b>0°N/0°E “null-island” chart</b> and stored it —
-      now refused at the source, with an honest client label. <b>Surfaces:</b> the Readings hub spun forever for free
-      users (a query starved of the active profile); the Road Ahead showed non-admins a dead “No road data available”;
-      the ranked-year page went blank when there was no chart yet — all given honest states. <b>Craft:</b> the gold
-      “takeaway” could still behead a lowercase clause (“— pulling the belief loose”); the peeler now keeps whole
-      thoughts, with two probes. The orb-honesty law now lives in the base prompt, so no surface can invent degree-tight
-      precision the data never gave (no regeneration cost). What I did NOT touch — because it takes your call, not a
-      neutral repair — is listed in the working brief and the session report: wiring the Road Ahead’s real entitlement
-      gate (money), a “horoscope” output scrub (word choice), and the app-wide muted-white-on-light-gradient contrast
-      pass (a visual-language change I won’t make unasked).</li>
-
-    <li><b>The reading-engine spine (v908–v912).</b> A day-star kept literalizing its symbol onto people — Chitra told a
-      non-maker to “work with your hands.” Three clamps: the <b>day-tilt picks a house’s leading facet</b> (restraint
-      days tend, not launch), a <b>nakshatra is a quality, never a trade</b>, and the leak’s true source — Chitra’s own
-      <i>supports</i> data (“making things”) — is now abstracted unless the person’s work is known. Guarded, probed.</li>
-    <li><b>The vocation field (v913–v914), admin-only.</b> The chart gives craft <i>aptitude</i>, never the fact of a
-      trade — so a person’s real <b>instrument</b> (hands · voice · words · body · mind · eyes, multi-select) is a field
-      they set, and it turns the craft-ban into a door. Schema by your hand (no auto-migrate); the write is admin-gated
-      server-side; the engine resolves the tag to a concrete reach the prompt voices. Absent → no reading invents a trade.</li>
-    <li><b>The agenda layer (v906), built then reverted (v907).</b> It gave each period-lord an intention; shipped, it
-      hijacked the read. Became the law <b>coherence over information</b>. Engine code preserved in git.</li>
-    <li><b>The GO headline honours the veto (v911).</b> “BOLD MOVES … GO” printed over a <i>nothing launches</i> body on
-      four profiles; under Mercury Rx / Vishti it now routes to the day’s completion counsel, your own copy, probed.</li>
-    <li><b>The Today typography — D · Airy Humanist (v915–v922).</b> You chose it from four rendered options. Optima is
-      the whole app’s serif from <b>one token</b> (Playfair retired); the greeting no longer twins the verdict; the
-      caps-mess is one calm voice; hero + calendar are full-bleed, squared corners; “How are you?” italic.</li>
-    <li><b>The Chart page (v918).</b> It always needed a manual refresh — the profection query was served stale on
-      navigation and the empty state read as “no birth data” while loading. Now: refetch-on-mount, retry, real loader.</li>
-  </ul>
-
+  <!-- ────────────────────────  YOUR CALL  ──────────────────────── -->
   <h2>The two live decisions</h2>
   <ul class="plain">
-    <li><b>Full Spectrum → mode colour.</b> FS accents came up gold across every mode (stray red on Restraint). You
-      ruled: follow the mode — wine for Restraint, teal for Selective. Clean path is one source swap (FS accent token →
-      each mode’s highlight tint); contained change, broad audit. Queued.</li>
-    <li><b>Dark mode — the next priority.</b> Bigger than FS: dark is the <i>default</i> surface, not an opt-in. Needs a
-      cold full-page pass (day-number contrast: green 1.05, gold 1.24 in the old audit; the espresso palette; the new
-      Optima hero on the dark ground). To be taken fresh.</li>
+    <li><b>Full Spectrum → mode colour.</b> FS accents come up gold across every mode (stray red on Restraint). Your
+      ruling: follow the mode — wine for Restraint, teal for Selective. One source swap, broad audit. Queued.</li>
+    <li><b>Dark mode — the next priority.</b> Dark is the <i>default</i> surface, not an opt-in: a cold full-page contrast
+      pass (day-number contrast, the espresso palette, the Optima hero on the dark ground). To be taken fresh. Decision 7
+      below (parchment ink) is one concrete piece of it.</li>
   </ul>
-
-  <h2>Since v879 — the twenty-three releases this page had not seen</h2>
-  <p class="lead">
-    This sheet sat at v879 while the app went to v902. That is the longest it has been stale, and it is on me.
-    Each line below is one release, named by what it repaired. <b>1282 tests across 122 files, 0 failures.
-    114 mutation probes, all caught. <code>tsc</code> exit 0, build exit 0, and velealor.com answers v902.</b>
-    Those five numbers were printed by running the suite, the probe harness, the compiler, the build and the
-    live site — not carried forward.
-  </p>
-  <ul class="plain">
-    <li><b>v880</b> — the year read was re-billing every morning, and two rows marked “done” were not.</li>
-    <li><b>v881</b> — every premium gate on Readings was telling the reader something false about the sky.</li>
-    <li><b>v882</b> — the fate ban was written in the prompt and enforced nowhere.</li>
-    <li><b>v883</b> — Mercury retrograde: the prompt said “neither begin nor end” and the payload said the opposite.</li>
-    <li><b>v884–v885</b> — addresses and contacts: each planet keeps its address, the pair names the convention it
-      breaks. v884 built it; <b>v885 is the wiring v884 claimed to have done.</b></li>
-    <li><b>v886–v887</b> — the meter: the model choice is measured rather than the wallet watched, and the exchange
-      is counted. All six ship, per your ruling.</li>
-    <li><b>v888</b> — both version markers bump together. A release the app cannot name is a release you cannot verify.</li>
-    <li><b>v889–v891</b> — self-worth becomes self-love, and the ban is <i>enforced</i> rather than requested. Your
-      correction landed in v890: don’t replace one default with another. v891 built the half v889 had only documented.</li>
-    <li><b>v892</b> — an audit salt that had never been bumped, plus wiring guards on the two fields added that day.</li>
-    <li><b>v893–v895</b> — a facet that named death met a law forbidding it and nothing said which won; every facet now
-      arrives with a subject and there is no “both”; the relationship verb is lifted from the house doctrine
-      <i>you</i> wrote, not invented beside it.</li>
-    <li><b>v896–v897</b> — <b>the headline is personal, not collective.</b> You read one date on three profiles and all
-      three were ordered “BOLD MOVES LAND WELL TODAY — GO”, one of them above its own sentence saying keep everything
-      small. Gated at the producer, so the calendar and the model payload cannot drift apart. v897 fixed the half of
-      it that still leaked: <i>mixed</i> tara reads as restraint on screen too.</li>
-    <li><b>v898</b> — the location chip names <i>who</i> is being read and the city the reading actually used.</li>
-    <li><b>v899–v900</b> — the veto lands once and never names itself; the rung names translate and the Sanskrit sign
-      names come out of the prose.</li>
-    <li><b>v901</b> — <b>your law, built.</b> See the row below.</li>
-    <li><b>v902</b> — <b>the location tiers travel with the subject.</b> See the row below.</li>
-    <li>Between releases: a profile no longer inherits someone else’s city; the year’s protagonist had no natal
-      condition, so two identical Venus years read the same; seven nakshatra tables carried two spellings, one edit
-      from a silent bug. Three guards were caught guarding nothing and repaired.</li>
-  </ul>
-
-  <h2>Today’s two, in full</h2>
-
-  <div class="finding"><b>Your law — “nothing should be hardcoded unless the data that decides it is displayed where it
-    is displayed, and what it says is accurate to the data.”</b>
-    <span class="why">You asked it as a question; it answers as a law. A hardcoded string is legitimate only if the
-    data that selected it is visible at the same place <i>and</i> the words are true to that data. Otherwise the app
-    asserts something the reader cannot check.
-    <br><br><b>It convicted a line immediately.</b> One sentence read “Your own star turns the day inward.” It fires
-    on exactly one rung — <b>tara 7, Naidhana</b>, which the canon file calls <i>death/vadha, the harshest</i>. A
-    reader hears “your own star” as the star they were born under. That is Janma, tara 1, quality <i>mixed</i> — a
-    rung that can never reach this branch. The line fooled me while I was reading the file, and I repeated it back to
-    you as “not hostile, but your own” when it was the worst rung on the ladder.
-    <br><br>It now says <b>“The loss star holds the day”</b>, and the guard includes a control: the birth star can
-    never reach that branch, which is the whole reason the old copy was wrong. Both halves are probed.
-    <br><br><b>Not closed by this — and I gave you a wrong number for it.</b> I told you “~70 conditional strings in
-    <code>interpreter.ts</code>”. <b>That file does not exist.</b> I named a file I had never opened, and it reached
-    this page and my own notes before I checked. Retracted here rather than quietly corrected.
-    <br>The measured scope is <b>303 candidate strings across 38 engine files</b> — the ones where the sky itself
-    picks the words. The heaviest are the narrative input builder (42), the qualifier styles (36), the golden moment
-    (25), the stage (23) and the day filter (21). The two real interpreters hold 13 and 2.
-    <br><b>And the instrument that counted them was blind first:</b> its opening version threw away every ALL-CAPS
-    headline and everything under twelve characters, so it would have cleared “follows you” and every day headline on
-    the app. Fixed and controlled in both directions — known-guilty lines flag, known-innocent do not — before it was
-    allowed to report anything. <b>A clean scan from an uncontrolled instrument is not evidence.</b></span></div>
-
-  <div class="finding"><b>The location tiers travel with the subject — found while changing a label.</b>
-    <span class="why">The sky resolver takes a location object. <b>Eleven of its thirty-three call sites hand it the
-    wrong shape</b> — the chart subject rather than the profile row — and that object carried no <code>isOwner</code>
-    and no hometown fields at all. They are optional, so the eleven type-checked while resolving a
-    <i>different sky</i> than the other twenty-two.
-    <br><br><b>Measured, not reasoned:</b> a non-owner profile born in Newark resolves <b>Newark/birth</b> from the row
-    and <b>Boston/current</b> from the subject — same date, same account. That is the morning’s bug, the one where
-    your six other profiles were all being cast from Boston because that is where your phone is,
-    <b>still live on a third of the paths.</b> The fix had landed in the resolver and a third of the callers could not
-    see it. Four controls now assert both shapes agree on birth ground, hometown, your own chart, and no-ground.
-    <br><br>Then the label you actually asked about. It read “· not set for them” on every borrowed tier including
-    your own chart, where the account’s current city <i>is</i> the right value. Your ruling is built: <b>“follows
-    you”</b> on someone else’s chart, <b>nothing at all</b> on your own. The app-default tier was a third state you
-    had not named — nobody set a location anywhere and Boston is speaking — so it names itself rather than borrowing
-    either other label. <b>Say the word if that third one should be silent too.</b></span></div>
-
-  <h2>Read this first</h2>
-  <p class="lead">
-    Everything below is either <b>done and checked</b>, <b>broken and named</b>, or <b>waiting on you</b>.
-    Nothing here is a guess. Where I was wrong earlier in this run, the row says so instead of quietly changing.
-    The long technical version of every row is kept in the repo at
-    <code>tools/audit-sheet/archive-longform-v848.html</code> — nothing was deleted, it was moved out of your way.
-    Every correction I made to my own earlier claims is preserved there in full.
-  </p>
 
   <h2>What I need from you — 11</h2>
-  <p class="lead">Only what is still open. Anything you ruled on has been taken off this list —
-    <b>you ruled on twelve today</b> — the seven earlier ones plus the three star spellings, what the year
-    calendar carries, and what a yoga may say on an emptied day. Two more came off because you RAN something (the
-    location columns, the schema reconcile). All of them are recorded below, one line each, so nothing leaves this
-    queue by being forgotten.</p>
+  <p class="lead">Only what is still open. The moment you rule on one it comes off this list.</p>
 
   <div class="grp">The astrology — how Velea reads a chart</div>
-
-  <div class="ask"><b>1. Which yogas the reader hears — ANSWERED, and it found two defects.</b>
-    <span class="why">You answered with a structure, not a list: <b>natal yogas are lifelong potentials; transits
-    TRIGGER them, they do not create or replace them.</b> So a Raja or Mahapurusha yoga is never a Tuesday’s news — it
-    may appear only when the day is actually touching it, and then as “this is lit today”.
-    <br><br><b>The engine was doing it backwards.</b> Standing yogas reached the daily read with no layer attached and
-    no instruction, so a permanent feature of the person could surface as though it had just happened. Fixed: the prompt
-    now carries the layer rule, and your warning with it — a transiting Moon in a kendra from Jupiter is <i>not</i> Gaja
-    Kesari, and today’s Moon–Mars is a mood, not natal Chandra-Mangala.
-    <br><b>Second defect, same family:</b> the prompt still described a cancelled fall as “often a raja-yoga signature”
-    — the exact conflation your debilitation doctrine pulls back from. I had corrected that in the engine and missed it
-    in the prompt.
-    <br><br><b>You were right and I was wrong.</b> I twice told you the Muhurta yogas could not be built because there
-    was “no cited source in this repo”. You said: <i>“muhurta yogas and siddhi grids are definitely in the textbooks.
-    i think you are making assumptions.”</i> They are in B.V. Raman’s <i>Muhurtha</i>, Chapter VI — <b>a book this repo
-    already cites</b>, sitting in your own source folder. I had even pulled a verse from that chapter and never read
-    two pages earlier.
-    <br><br><b>Amrita Siddhi Yoga is now built</b> from p.40: the seven weekday·star pairs, the verse stored verbatim,
-    10 tests and 2 mutation probes. Per Raman’s own wording — success <i>“by far the greatest”</i>, not guaranteed —
-    it lifts a day but <b>never clears a veto</b>, matching your correction that these raise probability rather than
-    ensure outcomes.
-    <br><br><b>The full Siddha Yoga grid is now ENCODED</b> (pp.38–39), on your ruling about the three smudged names.
-    Raman's two claims are kept apart because the book makes them separately, and Tuesday's missing tithi list is stored
-    as "no requirement stated" rather than "any tithi", which would invent a rule the page does not make.
-    <b>Measured: 88 days a year (24.1%) form one</b> — 41 by the grid, 47 by the weekday-tithi claim — against Amrita
-    Siddhi's 12. It is the common signal, not the rare one, and worth deciding how loudly it should speak.
-    Sarvartha Siddhi, Ravi, Dwipushkar and Tripushkar are still not located; that is a search that came back empty
-    rather than an assumption.</span></div>
-
-  <div class="ask"><b>2. Lang’s birth data — one line from you.</b>
-    <span class="why">Lang’s chart has no birth location and no birth time, so the engine has no ground of its own to
-    stand on: the sky falls through to <i>your</i> current city, which is why the chip now says “follows you” there
-    rather than pretending it was set. Saturn reading as <b>“the father’s old authority”</b> on that chart cannot be
-    checked against anything until the data exists. This is not a decision, it is a fact only you have.</span></div>
-
+  <div class="ask"><b>1. How loudly should Siddha Yoga speak?</b>
+    <span class="why">Raman's grid is encoded and measured: a Siddha Yoga forms <b>88 days a year (24%)</b> — the common
+    signal, not the rare one. It lifts a day, never clears a veto. You decide how prominent it is. (Sarvartha, Ravi,
+    Dwipushkar and Tripushkar are still not located — a search that came back empty, not an assumption.)</span></div>
+  <div class="ask"><b>2. Lang's birth data — one line from you.</b>
+    <span class="why">No birth location, no birth time, so the sky falls through to your current city (the chip says
+    "follows you"). Nothing on that chart can be checked until the data exists. A fact only you have.</span></div>
   <div class="ask"><b>3. The eclipse day — does the guidance change before vs after the exact moment?</b>
-    <span class="why">Sweep defect 6. The copy currently says an eclipse “just passed” on a day it is still ahead, and
-    hands you <i>hold beginnings; favor finishing and release</i>. Naming the day honestly (“Eclipse today”) takes no
-    side and I will fix that either way. But whether the <b>guidance itself</b> should differ in the hours before the
-    eclipse versus the days after is a method call, not a copy call, and it is yours. Say “same either side” and I
-    ship the naming fix alone.</span></div>
-
+    <span class="why">Open issue 6. Naming it honestly ("Eclipse today") takes no side and I'll fix that either way.
+    Whether the <i>guidance</i> should differ in the hours before vs the days after is a method call, and it's yours.
+    Say "same either side" and I ship the naming fix alone.</span></div>
   <div class="ask"><b>4. The knot thresholds.</b>
-    <span class="why">The numbers deciding when a life-theme counts as “lit” were set by me and never checked. You asked
-    how we test them with your eyes — I owe you that method, and it is the next thing I build if you want it.</span></div>
-
-  <div class="ask"><b>5. The crown mark — two pieces of your spec are still missing.</b>
-    <span class="why">Your tārā list and your six lucky Moon houses match the engine <i>exactly</i>, and are pinned.
-    Still missing: <b>the 11th is not treated as the peak</b> (it weighs the same as the 3rd) and <b>Shubha Tithi</b> is
-    handled by the cited family rule rather than your list. Audit in <code>canon/crown-doctrine.md</code>.
-    <br><br><b>The three smudged star names are RULED and built</b> — "match the spellings we use elsewhere", so
-    Uttara Phalguni, Dhanishtha and Anuradha. The OCR originals stay visible in the source file so the inference is
-    never lost.</span></div>
+    <span class="why">The numbers deciding when a life-theme counts as "lit" were set by me and never checked. You asked
+    for a way to test them with your eyes — I owe you that method, and it's the next thing I build if you want it.</span></div>
+  <div class="ask"><b>5. The crown mark — two spec pieces still missing.</b>
+    <span class="why">Your tārā list and six lucky Moon houses match the engine exactly. Still missing: the <b>11th is
+    not treated as the peak</b> (weighs the same as the 3rd), and <b>Shubha Tithi</b> uses the cited family rule, not
+    your list. Audit in <code>canon/crown-doctrine.md</code>.</span></div>
 
   <div class="grp">The look — your palette calls</div>
-
   <div class="ask"><b>6. The crown mark is gold on a gold coin.</b>
     <span class="why">1.6:1 in light, 1.2:1 in dark — effectively invisible, and the border is the same gold. A darker
-    gold reads fine but turns the mark olive, and the crown is your brand. The alternative is keeping the gold and giving
-    it a real shadow instead of the gold one it has now.</span></div>
-
+    gold reads but turns the mark olive; the alternative is keeping the gold and giving it a real shadow.</span></div>
   <div class="ask"><b>7. Parchment ink in dark mode.</b>
     <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night. Light modes are fine. One value
-    in the theme block.</span></div>
-
-  <div class="ask"><b>8. Rename the “Parents &amp; Roots” chip?</b>
-    <span class="why">Following your ruling, that area is now explicitly ancestry — the departed, what came down the
-    line. The chip still says Parents. <b>“Roots &amp; Ancestry”</b> would match. I do not rename what you look at
-    without asking.</span></div>
+    in the theme block. (Part of the dark-mode pass above.)</span></div>
+  <div class="ask"><b>8. Rename the "Parents &amp; Roots" chip?</b>
+    <span class="why">That area is now explicitly ancestry — the departed, what came down the line. The chip still says
+    Parents. <b>"Roots &amp; Ancestry"</b> would match. I don't rename what you look at without asking.</span></div>
 
   <div class="grp">The business — money and launch</div>
-
   <div class="ask"><b>9. Set the price.</b>
     <span class="why">Your list is locked. Nothing charges yet. Waiting on Mercury clearing post-shadow, per you.</span></div>
-
   <div class="ask"><b>10. Stripe keys.</b>
-    <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config,
-    yours.</span></div>
-
-  
+    <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config, yours.</span></div>
 
   <div class="grp">Cleanup</div>
-
-  <div class="ask"><b>11. The pick-a-date precision layer: wire it, or delete it?</b>
+  <div class="ask"><b>11. The pick-a-date precision layer — wire it, or delete it?</b>
     <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing calls
-    them. What only they carry is transit-level precision — the exact house each transiting planet occupies and its
-    strength score. You asked whether it is built off the textbooks: Bhava Chalit and Ashtakavarga both are, but I have
-    not verified that module against the canon files the way I did the karakas, so I will not claim it.</span></div>
+    them. What only they carry is transit-level precision (the exact house each transiting planet occupies and its
+    strength). Bhava Chalit and Ashtakavarga are both built off the textbooks, but I haven't verified this module against
+    the canon files, so I won't claim it.</span></div>
 
-  <h2>The sweep — 7 defects, none fixed yet</h2>
-  <p class="lead">
-    Your law, run across the engine. <b>303 candidate strings in 38 files</b>, located by an instrument controlled in
-    both directions first, then read by five readers, then every survivor re-verified by me against the code. Two were
-    <b>measured</b> rather than argued. <b>Nothing below is fixed</b> — the fix run was authorised and stopped for this
-    handoff, so all seven are live right now. In your accuracy order:
-  </p>
+  <!-- ────────────────────────  OPEN ISSUES  ──────────────────────── -->
+  <h2>Open issues — 15, named and reproducible</h2>
+  <p class="lead"><b>The hardcoded-copy sweep (1–7)</b> — your law run across the engine: 303 candidate strings in 38
+    files, instrument controlled both directions, every survivor re-verified against the code. The fix run was authorised
+    and stopped for the handoff, so all seven are live right now. In your accuracy order, then the rest.</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span><b>1 · A cancelled fall is printed as ACTIVE with no dashaGate.</b>
-      <code>dignityOf()</code> computes <code>neechaBhanga</code> ungated; <code>labelWithCancellation()</code> is the
-      gated one. Three consumers read the raw flag and print <i>“fall CANCELLED — hard-won strength, not weakness”</i>
-      for planets with <b>no running period</b>, where your canon says <i>“cancelled — latent”</i>.
-      <code>narrative/service.ts:200</code>, <code>narrative/input-builder.ts:572</code>,
-      <code>narrative/day-read-signals.ts:172</code>. One class, three copies.
-      <span style="opacity:.7">(The repair: route all three through <code>labelWithCancellation</code>, the way
-      <code>life-areas.ts:311</code> and <code>day-frame.ts:132</code> already do. The blocker I stopped on was where
-      <code>service.ts</code> gets its running lords — <code>planetCondition()</code> takes none, and four of its five
-      call sites are house/theme reads with no dasha in scope.)</span></li>
-
-    <li><span class="tag">DATA</span><b>2 · “Business Partners” is being read as your spouse.</b> In
-      <code>input-builder.ts:485</code> the rule <code>/spouse or partner|partner'?s|spouse/</code> swallows the plural,
-      so the dedicated <code>business partners</code> rule on the very next line is <b>unreachable</b>. Printed:
-      <code>"Business Partners" → partner</code>. The canon string is real — <code>planet-in-house.json</code> says
-      “Business Partners”, <code>house-lord-combinations.json</code> says it ten more times.</li>
-
+    <li><span class="tag">DATA</span><b>1 · A cancelled fall prints as ACTIVE with no dashaGate.</b> Three consumers read
+      the raw <code>neechaBhanga</code> flag and print "fall CANCELLED — hard-won strength" for planets with no running
+      period, where your canon says "cancelled — latent". <code>narrative/service.ts:200</code>,
+      <code>input-builder.ts:572</code>, <code>day-read-signals.ts:172</code>. One class, three copies.</li>
+    <li><span class="tag">DATA</span><b>2 · "Business Partners" is read as your spouse.</b>
+      <code>input-builder.ts:485</code> — the spouse regex swallows the plural, so the dedicated business-partners rule on
+      the next line is unreachable. The canon string "Business Partners" is real.</li>
     <li><span class="tag">DATA</span><b>3 · The Stage names the wrong aggressor 19% of the time.</b>
-      <code>sky/stage.ts:384</code> selects a tension on <code>aspects(o,p) || aspects(p,o)</code> — either direction —
-      then always writes <code>${o} presses on ${p}</code>. <b>Measured: 20 of 103</b> press-tensions name the wrong
-      planet, and the direction is displayed nowhere. On one payload the character line says “Saturn: under pressure
-      from Mars” while the tension says Mars is the one under pressure.</li>
-
-    <li><span class="tag">READ</span><b>4 · “Your star is carried today” — the rung it names can never fire it.</b>
-      <code>day-filter.ts:638</code>. This is the <b>sibling of the line fixed in v901, twenty lines away in the same
-      ternary</b> — I fixed the instance and called the class closed. “Your star” is your app’s own name for tara 1,
-      Janma (<code>year-rank.ts:45</code>), quality <i>mixed</i>. The branch fires only on quality <i>good</i> —
-      Sampat, Kshema, Sadhaka, Mitra, Parama Mitra.</li>
-
-    <li><span class="tag">READ</span><b>5 · “THE DAY OFFERS IT” printed above “start nothing”.</b>
-      <code>day-filter.ts:618</code>. Printed, all three rikta tithis:
-      <code>supports=[]</code> · headline <i>“THE DAY OFFERS IT — YOUR GROUND DOESN’T”</i> · sentence <i>“Start
-      nothing, grow nothing, cut nothing you don’t have to.”</i> The v896 gate never consults <code>supports</code>,
-      so your “all of the above contradicts itself” is still live in this branch.</li>
-
-    <li><span class="tag">READ</span><b>6 · An eclipse that is still ahead is announced as past.</b>
-      <code>sky/golden-moment.ts:154</code> branches on <code>daysAway &lt;= 0 ? "just passed"</code>, but
-      <code>findEclipses</code> scans <b>forward only</b> (<code>off = stepDays; off &lt;= 200</code>), so
-      <code>daysAway</code> is never negative. On the day of an eclipse still to come you are told it just passed, and
-      handed finishing-and-release guidance. <b>This one has a question for you</b> — see the decisions list.</li>
-
-    <li><span class="tag">READ</span><b>7 · A station up to three days old is announced as “just now”.</b>
-      <code>sky/golden-moment.ts:119</code>. <code>detectStations</code> scans from <code>off = -12</code>, so
-      <code>daysAway</code> genuinely goes negative, and <code>daysAway &lt;= 0 ? "just now"</code> folds the past into
-      the present tense. The eclipse line in the same file has an explicit past branch; this one does not.</li>
+      <code>sky/stage.ts:384</code> matches a tension in either direction, then always writes "<code>${o} presses on ${p}</code>".
+      Measured: 20 of 103 name the wrong planet; direction is displayed nowhere.</li>
+    <li><span class="tag">READ</span><b>4 · "Your star is carried today" — the rung it names can never fire it.</b>
+      <code>day-filter.ts:638</code> — sibling of the v901 fix, 20 lines away. "Your star" is tara 1 (Janma, quality
+      <i>mixed</i>); the branch fires only on quality <i>good</i>.</li>
+    <li><span class="tag">READ</span><b>5 · "THE DAY OFFERS IT" printed above "start nothing".</b>
+      <code>day-filter.ts:618</code>, all three rikta tithis — the gate never consults <code>supports</code>, so the
+      headline and body contradict each other.</li>
+    <li><span class="tag">READ</span><b>6 · An eclipse still ahead is announced as past.</b>
+      <code>sky/golden-moment.ts:154</code> — <code>findEclipses</code> scans forward only, so <code>daysAway</code> is
+      never negative, yet the day of a coming eclipse says "just passed" + finishing/release guidance. (Decision 3.)</li>
+    <li><span class="tag">READ</span><b>7 · A station up to three days old is announced as "just now".</b>
+      <code>sky/golden-moment.ts:119</code> — <code>detectStations</code> scans from −12 days, so the past folds into the
+      present tense. The eclipse line in the same file has a past branch; this one doesn't.</li>
+    <li><span class="tag">DATA</span><b>8 · The 27-star classification is duplicated across several files.</b> Duplication,
+      not disagreement (the interpreter reads the one corrected table, anchored by a test). Cleanup.</li>
+    <li><span class="tag">DATA</span><b>9 · Exact Chesta (the eight-state seeghra-kendra) is not built.</b> The simplified
+      K&amp;F rule declares itself as such all the way to the model; building the real one needs the textbook, not inference.</li>
+    <li><span class="tag">MONEY</span><b>10 · The failed-save re-bill guard is per-process.</b> A redeploy or a second
+      replica loses it. Needs somewhere durable.</li>
+    <li><span class="tag">MONEY</span><b>11 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
+      <code>engineVersion</code> column — a script you run.</li>
+    <li><span class="tag">MONEY</span><b>12 · The chapter read fires on the Chart page with no tap.</b> A deliberate
+      Door-Law exception (the input is date-stable, so it does not re-bill daily). Whether the exception stands is yours.</li>
+    <li><span class="tag">READ</span><b>13 · The Day Headline — the detectors exist; one line connects them.</b></li>
+    <li><span class="tag">READ</span><b>14 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
+    <li><span class="tag">LOOK</span><b>15 · The welcome card can show two filled primary buttons.</b></li>
   </ul>
-  <p class="lead">
-    <b>Group 1 came back empty and that was verified by hand</b>, not taken on trust: its qualifier table measured
-    <b>32 produced / 32 keys, zero missing either direction</b>, so its fallback is unreachable and the near-miss
-    (<code>Contained Build</code> has no entry) lands on Restraint guidance, which is correct for a contained day.
-  </p>
 
-  <h2>Settled today — off the list</h2>
-  <p class="lead">One line each, so nothing vanishes silently. These are no longer questions for you.</p>
+  <!-- ────────────────────────  PICK BACK UP  ──────────────────────── -->
+  <h2>Threads to pick back up</h2>
+  <p class="lead">The ones I surfaced when you opened this session, with their honest current status.</p>
   <ul class="plain">
-    <li><b>Where a paid reading was computed</b> — <b>you ran the script; it is wired.</b> A frozen
-      reading now records the lat/lon/timezone/city and tier its sky was cast for, taken from the
-      same object the reading was generated from. The page says "Read for {that place}". Rows frozen
-      before the columns existed say "Read for your saved location" — never the live city, because
-      "not recorded" must never be answered with a guess.</li>
-    <li><b>The production schema reconcile</b> — <b>you ran it: 25 tables declared, 25 live, NO DRIFT.</b>
-      Before calling a clean zero clean I proved the instrument could fail — against a deliberately
-      drifted table it catches a too-short varchar (the exact 2026-07-17 outage shape) and a missing
-      column. That blind spot is closed.</li>
-    <li><b>The three smudged star names</b> — <b>your ruling: match the spellings we use elsewhere.</b>
-      So Uttara Phalguni, Dhanishtha, Anuradha. Raman's Siddha grid is encoded and measured: 88 days
-      a year (24.1%) form one, against Amrita Siddhi's 12. It lifts a day and never clears a veto.</li>
-    <li><b>The year calendar</b> — <b>your ruling: no bindi ladder there, no shadow-threshold glyphs.</b>
-      Recorded in the code so a future audit stops calling them gaps. Its hardcoded paper was a real
-      bug and is fixed — six literals were overriding the class that themes it, so it never dimmed.</li>
-    <li><b>A yoga on an emptied rikta day</b> — <b>your ruling: it speaks, in the day's own grammar.</b>
-      Finishing, never beginning. Measured: 12 days a year, and the severing half is withheld on the
-      five tender ones, whose own canon avoid-list refuses cutting.</li>
-    <li><b>The cancelled fall</b> — your ruling: <b>two conditions to cancel, three or more is “solid.”</b> Built,
-      tested, probed, deployed. Velea used to cancel <b>96%</b> of every debilitation, so only <b>4%</b> of fallen
-      planets ever read as fallen; now a fall reads as a fall <b>24%</b> of the time. <b>No classical condition was
-      removed</b> — the evidence bar moved. Your condition 3 was built in the same run, and building it is what
-      exposed the tautology where <b>Mars in Cancer</b> and <b>Jupiter in Capricorn</b> auto-cancelled for every user.
-      <br><i>Then you asked what the advantage was of flagging the leftover instead of fixing it.</i> There wasn’t
-      one, and you were right to ask. Two of our conditions were one verse under two rival readings, so at a bar of
-      two that pair alone could clear it — <b>2.4%</b> of fallen charts passing your new bar on one idea wearing two
-      hats. <b>Merging them never required picking a reading</b> (either satisfies the same clause), so there was no
-      decision of yours to wait on — and leaving it silently defeated the ruling you had just made. <b>Fixed:</b> the
-      verse counts once, both candidate rescuers kept. Cancellation <b>76% → 74%</b>; a fall reads as a fall
-      <b>27%</b> of the time, up from 4% this morning.
-      <br><b>Phaladeepika 7.27 stays yours</b> — it is textual and unbuilt, and adding it would <i>raise</i> the
-      cancellation rate right after you deliberately lowered it. That one I won’t touch without you.
-      <br><i>The line I should have been drawing:</i> flag what needs your authority; fix what has a remedy that
-      takes no side. “It has Sanskrit in it” is not the same as “it is his call.”</li>
-    <li><b>Which house is “parents”</b> — both stay. 4th/9th are mother and father; ancestry is roots. The two systems
-      no longer claim each other’s words, and the ancestry <b>spread</b> is built.</li>
-    <li><b>Should the cited nature drive every star</b> — <b>neither.</b> They are favourable for particular kinds of
-      work, so a single score was the wrong instrument. All 27 stars now carry their own supports, and your natures
-      agree with the cited canon on every one. A Shatabhisha day no longer reads as a good day to buy a vehicle.</li>
-    <li><b>Named by the sunrise star</b> — <b>yes, and done.</b> The civil day keeps the sunrise star's name; blending
-      to the majority is what the generic apps do. It re-titled 47% of days and re-characterised 32%, because the star
-      feeds the mode. The two-part reading is untouched, and the majority star still reaches the model.</li>
-    <li><b>Which nakshatra table wins</b> — the cited tables. Four contradicted stars corrected; 57 days a year.</li>
-    <li><b>When a day becomes its star</b> — named at sunrise, <i>read in two parts</i> with the hour named. The reading
-      law is live; only the day’s <i>title</i> is still open (decision 2).</li>
-    <li><b>Is a “dead” planet worth 5%</b> — the book says nil, and the canon file already recorded 0.05 as
-      <i>your</i> ruling. This was never mine to ask.</li>
-    <li><b>What a chartless day says</b> — no birth data means no app. That makes it an onboarding gate: my work now,
-      not a question. <b>Not built.</b></li>
-    <li><b>The old meaning-engine</b> — deleted. Git holds it; a test asserts it stays gone.</li>
+    <li><b>The copy sweep / audit fix-run.</b> This <i>is</i> open issues 1–7 above — the fix run for those defects,
+      authorised and paused for the handoff. Resuming it means clearing the seven, in your accuracy order.</li>
+    <li><b>The agenda layer.</b> Built v906, reverted v907 (it hijacked the read → became the law "coherence over
+      information"). The rebuild is as a <i>hidden nudge</i>, not a voice. Engine code parked in git (<code>@535fcd5</code>).</li>
+    <li><b>Addresses &amp; contacts.</b> Built v884, and v885 wired it (each planet keeps its address; the pair names the
+      convention it breaks). Believed done — worth one look on a live reading to confirm it reads the way you wanted.</li>
+    <li><b>The neurodivergent-planner backlog.</b> Nine evidence-based features (AI task-decomposition, gentle overdue,
+      visual time-anchoring…) none of the five market leaders ship. Captured, not started — a direction, not a task.</li>
   </ul>
 
-  <h2>Still broken — 16</h2>
-  <p class="lead">Named, reproducible, and <b>no longer an upper bound</b>: unlike previous editions, every row below was individually re-checked against the running code on 2026-07-20, not carried forward on trust. <b>Six came off this list
-    on 2026-07-20</b>, each with a control proven to fail against the unfixed code first — and two of
-    them had been sitting in the FIXED list as false greens (the nakshatra ruling that never reached
-    the engine, and the paid-word repair that moved a ceiling nobody reads).
-    <br>One row was <b>retracted</b>: "the day-quality list disagrees with the live engine" was my own
-    stale finding — measured against the cited natures it contradicts canon on <b>zero of 27</b>. It
-    is pinned now, not rewritten.</p>
-  <ul class="plain">
-    <li><span class="tag">READ</span><b>The hardcoded-copy sweep — RUN, 7 defects found, NONE FIXED YET.</b> The full
-      list is in its own section below. The sweep read <b>303 strings across 38 engine files</b>; five readers plus my
-      own re-verification of every survivor. Fixing was authorised and then stopped for this handoff, so all seven are
-      still live in production.</li>
-    <li><span class="tag">DATA</span>Copies of the 27-star classification still exist in several
-      files. <span style="opacity:.7">(No longer <i>drifting</i>: the interpreter reads the one
-      corrected table, and the day-quality list is anchored to canon by a test that is proven able to
-      fail. What remains is duplication, not disagreement.)</span></li>
-    <li><span class="tag">DATA</span>Exact Chesta — the eight-state seeghra-kendra — is not built.
-      <span style="opacity:.7">(The simplified K&amp;F rule now DECLARES itself all the way to the
-      model, so nothing quotes it as exact. Building the real one needs the textbook, not
-      inference.)</span></li>
-    <li><span class="tag">MONEY</span>The failed-save re-bill guard is per-process — a redeploy or a
-      second replica loses it. Needs somewhere durable.</li>
-    <li><span class="tag">MONEY</span>Stored dasha and convergence rows invalidate all-or-nothing.
-      <span style="opacity:.7">(Needs an <code>engineVersion</code> column, so it is a script David
-      runs.)</span></li>
-    <li><span class="tag">MONEY</span>The chapter read fires on the Chart page with no tap.
-      <span style="opacity:.7">(Re-checked: the input is genuinely date-stable, so it does NOT
-      re-bill daily — my first probe said it did and was wrong. It is a deliberate exception to the
-      Door Law, written into the code as such. Whether the exception stands is David's.)</span></li>
-    <li><span class="tag">READ</span>The Day Headline — the detectors exist; one line connects them.</li>
-    <li><span class="tag">READ</span>Focus level in the check-in is not built. <span style="opacity:.7">(Needs a schema change.)</span></li>
-    <li><span class="tag">LOOK</span>The welcome card can show two filled primary buttons.</li>
-  </ul>
+  <!-- ────────────────────────  THE RECORD (collapsed)  ──────────────────────── -->
+  <h2>The record — fixed &amp; settled</h2>
+  <p class="lead">Stored out of your way (collapse is default), kept so nothing vanishes and I can reference it. Nothing
+    was deleted. The long forensic version of every row lives at <code>tools/audit-sheet/archive-longform-v848.html</code>,
+    and every correction I made to my own earlier claims is preserved there in full.</p>
 
-  <h2>Fixed and verified — 122</h2>
-  <p class="lead">
-    Each of these was proven broken, fixed, and then proven fixed — most by running something that could have come back
-    wrong. Grouped so you can skim.
-  </p>
-
-  <details><summary>The engine — the data handed to the model</summary>
+  <details><summary>Fixed &amp; verified this run (v903–v924) — proven broken, fixed, then proven fixed</summary>
     <ul>
-      <li>Combustion was read as an object instead of a verdict, so <b>no chart could ever form Gaja Keshari</b>.</li>
-      <li>A cancelled fall now reads as supportive while its period runs, per your ruling — your Moon was reading as strained.</li>
-      <li>The day’s character is now computed at two scales, so a sign change mid-day no longer contradicts the calendar.</li>
-      <li>A canon file disagreed with itself: Saturn had been dropped from the 10th house in one of its two indexes.</li>
-      <li>The pick-a-date module used one flat 8° orb for every planet; the engine already owns the classical per-planet orbs.</li>
-      <li>Karaka tables restored from the canon in the convergence engine — Jupiter to career, Saturn to health.</li>
-      <li>Polar days (no sunrise) are now described to the model instead of silently computed around.</li>
-      <li>The day’s mode and the day’s ruling house now come from the same clock everywhere — the “two clocks in one verdict” bug, closed and re-verified 20 July.</li>
-      <li>The seven server type errors are gone — <code>tsc</code> exits clean.</li>
-      <li>The Verdict’s canon citation is real now: the strength-by-stage block exists in the file it points at.</li>
-      <li><code>melana.json</code> cites its source (Raman’s <i>Muhurtha</i>, with page references) instead of recording what was built.</li>
-      <li>One owner for “which rows are today’s reading” — the builder walks the canonical surface list instead of re-typing the pair inline.</li>
-      <li><b>A PAID surface gave fewer words than the free day read.</b> The Life Atlas window was 150 against the free
-        read's 190 — forty words fewer, for money. Two more cleared it by ten and twenty. All three raised; the ordering
-        is now enforced by a test.</li>
-      <li><b>Eleven premium reads refused without saying they were locked</b> — a non-subscriber saw “quiet, try again”,
-        indistinguishable from an outage, and three returned <i>null</i> so the client had nothing to render. The client
-        already draws gates from that flag; the endpoints were not setting it. All do now.</li>
-      <li>The accent-ink solver no longer overshoots — readable accents are left alone, and an unreadable one stops at
-        the first value that clears rather than being dragged past it. <span style="opacity:.7">(Fixed at v807; the row
-        was stale. Verified by measurement, not by reading the comment.)</span></li>
-      <li><b>A dasha-engine change used to leave the stored 120-year clock untouched.</b> The invalidation hash carried
-        only the research version, so the status came back “unchanged” and the dasha rewrite was skipped — stale periods
-        persisting across an engine change, silently. All three engine versions now ride the hash.</li>
+      <li><b>v923 audit sweep.</b> Viewer-local dates (profection / Road Ahead / ranked year read "today" from server
+        UTC — flipped age/house/Time Lord on the wrong side of midnight, worst on the birthday). The null-island guard
+        (a city typed but not geocoded computed a 0°N/0°E chart and stored it — now refused at the source). Honest states
+        for the Readings spinner, the dead Road Ahead panel, and the blank ranked-year page. The peel-behead close, and
+        orb honesty lifted into the base prompt.</li>
+      <li><b>v924.</b> The Road Ahead thirst gate (free users get counts, entitled get the full road; server-veiled,
+        test + probe). Doc-tests aligned to your "2 live decisions" model. The push notification (no Vedic term, no bare
+        "Velea" title echoing iOS's attribution — it explains and nudges a reopen).</li>
+      <li><b>The reading-engine spine (v908–v912).</b> The day-tilt picks a house's leading facet; a nakshatra is a
+        quality, never a trade; the GO headline honours the veto. Guarded, probed.</li>
+      <li><b>The vocation field (v913–v914), the Optima typography overhaul (v915–v922), the Chart page refresh (v918).</b></li>
+      <li><b>The engine, earlier (v880–v902).</b> Combustion read as a verdict (no chart could form Gaja Kesari); the
+        cancelled fall reads supportive while its period runs; two clocks in one verdict closed; per-planet orbs restored;
+        karaka tables restored; the dasha 120-year clock now rides the engine-version hash.</li>
+      <li><b>The paid seam.</b> A paid surface that gave fewer words than the free read (raised, enforced by a test);
+        eleven premium reads that refused without saying they were locked (all set the flag now); the daily spend cap
+        that had counted two units against one number (fixed, and given its first test).</li>
+      <li><b>The reading's laws.</b> Three orphaned laws restored and version-bumped; the morning bell's crown rung
+        (never once fired, could announce a friend's crown under your name); the crown / anti-repetition / no-single-move
+        doctrines now stated where the model reads them.</li>
+      <li><b>The cancelled fall</b> — your ruling: two conditions to cancel, three+ is "solid". Cancellation went 96% →
+        74%; a fall now reads as a fall 27% of the time. No classical condition removed — the evidence bar moved. The
+        Mars-in-Cancer / Jupiter-in-Capricorn auto-cancel tautology, closed.</li>
+      <li><b>Named by the sunrise star</b> — the civil day keeps the sunrise star's name; re-titled 47% of days.
+        <b>Which nakshatra table wins</b> — the cited tables (four contradicted stars corrected, 57 days a year).
+        <b>Should the cited nature drive every star</b> — neither; all 27 stars carry their own supports.</li>
+      <li><b>Where a paid reading was computed</b> — you ran the script; a frozen reading records the place its sky was
+        cast for. <b>The production schema reconcile</b> — you ran it: 25 tables declared, 25 live, no drift.</li>
     </ul>
   </details>
 
-  <details><summary>Money — where a bleed would start</summary>
+  <details><summary>Where I was wrong — corrections kept, not quietly changed</summary>
     <ul>
-      <li>The daily spend cap had counted two different units against one number, cutting the ceiling to a third.</li>
-      <li>The cap now has <b>a test</b> — it could previously be raised a hundredfold with the whole suite green.</li>
-      <li>Every billing endpoint was checked for a server-side gate. All of them have one.</li>
-      <li>Sessions now expire from disuse rather than age — daily users were being logged out weekly by a timer.</li>
+      <li>My claim about the narrative was <b>FALSE</b>: I said the day layer left <code>panchang.mode = undefined</code>
+        and it did not.</li>
+      <li>v805 <b>orphaned the crown doctrine</b> — a heading moved and the <code>GLANCE_TAIL</code> cross-reference broke
+        it again; the <b>NO SINGLE MOVE</b> law had to come back too.</li>
+      <li>The <b>REACH AUDIT</b>: I told you a document carried a correction it did not carry, reading a retry's success
+        line as confirmation. A <b>RE-AUDITED</b> self-audit followed.</li>
+      <li>The daily cap was <b>MIS-CALIBRATED</b> — v806 changed the unit and left the number, cutting the ceiling to a
+        third.</li>
+      <li><b>PROMPT_VERSION</b> reaching cached readings: a salt bump with no matching tail change is a pure cash burn.</li>
+      <li>"~70 conditional strings in <code>interpreter.ts</code>" — <b>that file does not exist</b>; I named a file I had
+        never opened. The measured scope is 303 strings across 38 files.</li>
+      <li>The "your own star" line named tara 7 (the loss star), the worst rung — I'd repeated it back to you as "not
+        hostile, but your own". Fixed with a control: the birth star can never reach that branch.</li>
+      <li>Three of my own tests were guarding nothing — found by breaking the code on purpose. The count of my own
+        fixes that landed nowhere is stated, not hidden.</li>
     </ul>
   </details>
-
-  <details><summary>The reading’s laws</summary>
-    <ul>
-      <li>Three of your standing laws had been orphaned mid-run and reached no reading; restored and version-bumped.</li>
-      <li>The morning bell’s crown rung had never once fired, and could announce a friend’s crown day under your name.</li>
-      <li>The prompt now states the crown, anti-repetition and no-single-move doctrines where the model actually reads them.</li>
-    </ul>
-  </details>
-
-  <details><summary>How I check my own work now</summary>
-    <ul>
-      <li><b>Production was frozen at v813 for fifteen versions</b> while I wrote “deployed” in thirty commits. A build gate
-        needed a tool that production does not install. <code>npm run deployed</code> now asks the live site four ways.</li>
-      <li><b>Three of my own tests were guarding nothing.</b> Found by breaking the code on purpose — a green suite cannot
-        tell a real guard from a decorative one. <code>npm run probe</code> is 32 checks that each must fail when broken.</li>
-      <li><b>My own verification tool once reported a false green.</b> A malformed line was silently accepted. It now
-        refuses.</li>
-      <li>Seven separate times my search-and-count was wrong before the answer was right — including one that claimed nine
-        premium endpoints were ungated. All nine were false. Every sweep now runs a control first.</li>
-    </ul>
-  </details>
-
-  <h2>The remaining 26</h2>
-  <p class="lead">Not forgotten and not broken — each is waiting on something specific.</p>
-  <ul class="plain">
-    <li><span class="tag">10</span><b>Parked on purpose.</b> Waiting on Stripe, the price, or the database reconcile —
-      the three decisions above. One of them is <b>the durable generation cap</b>: the in-process half is honest now,
-      but the lasting half needs a schema change, and half-fixing it in memory would be a band-aid over the same hole. One needs a new field before a partner rule can ever fire; three are blind spots I have
-      named but cannot test without production access.</li>
-    <li><span class="tag">11</span><b>Analysis, not tasks.</b> The root-cause write-ups — where the textbook does and
-      does not speak, the six recurring chains, and the honest list of my own claims that did not survive re-checking.
-      They are reading material, not work items.</li>
-    <li><span class="tag">5</span><b>In progress.</b> Including one waiting on your eye: the crown mark on the calendar
-      axis is built and the arithmetic is verified, but I have never seen it rendered, and I do not ship a visual I have
-      not looked at.</li>
-  </ul>
 
   <p class="foot">
-    <b>Brought current to v922 (22 July):</b> the session section at the top covers v903–v922 — the reading-engine
-    spine, the vocation field, the reverted agenda layer, and the Optima typography overhaul — and the open list is now
-    two live decisions (Full Spectrum → mode colour, and the dark-mode pass). The accounting below is the v902 snapshot,
-    kept as-is; a full re-count of the fixed rows is a separate day's work I will not claim silently.
-    <br><br><b>122 fixed + 16 broken + 11 decision-rows + 26 remaining.</b> The fixed count is <b>99 carried forward plus the
-    23 releases listed at the top</b> — a record count, one row per release, not a re-audit of the 99. Say the word if
-    you want those re-checked individually the way the eight broken rows were on 20 July; that is a day's work and I
-    will not claim it silently.
-    <br><br><b>The totals on this page used to be wrong, and it said they were counted.</b> It claimed 1082
-    tests in one place and 1054 in another (really <b>1137</b>, across 105 → now 110 files), 32
-    mutation probes (really <b>66</b>), 14 decision rows in the footer while rendering 11, and 88
-    fixed against a heading that said 81. Corrected 2026-07-20 by running the suite, the probe
-    harness and a parse of this file — the fixed and remaining counts are record counts, not row
-    counts, and this line now says so instead of implying one number.
-    <br><br>Every repair in this run had a control written FIRST and run against the unfixed code,
-    where it failed. Three of my own instruments returned clean results while structurally blind and
-    were caught before they reached David. The long-form detail lives in the repo at
-    <code>tools/audit-sheet/archive-longform-v848.html</code>; the live status page is
-    <code>AUDIT_STATUS.md</code>.
+    This page is the state of the <b>work</b> — what is open, what is yours, what to pick back up. The working brief is
+    the state of the <b>app</b>. Source: <code>tools/audit-sheet/index.html</code>. Full forensic record:
+    <code>archive-longform-v848.html</code> — nothing was deleted, it was moved out of your way.
   </p>
 </div>

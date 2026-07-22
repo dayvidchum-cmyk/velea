@@ -372,9 +372,14 @@ export async function dayShiftTick(): Promise<void> {
     if (Number(res?.[0]?.affectedRows ?? res?.rowsAffected ?? 0) === 0) continue;
 
     const first = (u.name ?? "").trim().split(/\s+/)[0] || "friend";
+    // David 2026-07-22: don't name the star (a Vedic term means nothing to a user), and don't let
+    // the title be the bare brand — iOS already appends its own "from Velea" web-push attribution,
+    // so a "Velea" title just echoes it. The title now carries WHAT it is; the body explains it in
+    // plain terms and quietly nudges a reopen to reorient for the rest of the day. `toStar` stays
+    // the TRIGGER (we only ring when the day actually turns), it just isn't named in the copy.
     await sendPushToUser(userId, {
-      title: "Velea",
-      body: `${first}, the day just turned — ${toStar} carries it from here.`,
+      title: "The day just turned",
+      body: `${first}, the rest of the day reads a little differently now — open Velea to reorient.`,
       url: "/",
     });
   }

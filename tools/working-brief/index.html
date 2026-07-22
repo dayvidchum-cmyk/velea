@@ -36,13 +36,6 @@
   ul.links { list-style:none; padding:0; margin:0; }
   ul.links li { padding:.45rem 0; border-bottom:1px solid var(--line); font-size:.93rem; }
   ul.links li:last-child { border-bottom:0; }
-  table { width:100%; border-collapse:collapse; font-size:.88rem; }
-  th { text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.08em;
-    color:var(--muted); padding:.3rem .5rem .3rem 0; border-bottom:1px solid var(--line); }
-  td { padding:.45rem .5rem .45rem 0; border-bottom:1px solid var(--line); vertical-align:top; }
-  .price td:last-child { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
-  .ok { color:var(--green); font-weight:700; }
-  .gap { color:var(--wine); font-weight:700; }
   .law { font-size:.9rem; margin-bottom:.45rem; }
   .law b { color:var(--teal); }
   code { font:.85em ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--soft);
@@ -50,202 +43,71 @@
   a { color:var(--gold); }
   .foot { color:var(--muted); font-size:.8rem; margin-top:2.5rem; border-top:1px solid var(--line);
     padding-top:.9rem; }
-  .overflow { overflow-x:auto; }
 </style>
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v923 · 22 July 2026 · where the app actually stands</p>
+  <p class="sub">v924 · 22 July 2026 · the live to-do list — what's next, what's blocked on you</p>
 
   <div class="card">
-    <b>Where things stand.</b> <b>1314 tests across 124 files — 1306 passing, 4 skipped</b>, the mutation harness still
-    green — every new guard this stretch broken on purpose and caught. The build and typecheck exit 0. The four reds are
-    all in the guard that checks the audit sheet against itself; they pin an older decision model the v922 rewrite moved
-    past, and reconciling them is a framing call for you, not something to fake green. Every number here was printed by
-    running it.
-    <br><br><b>The v923 audit (22 July).</b> A full-codebase adversarial sweep — fixed and probed. Data: profection,
-    the Road Ahead and the ranked solar year read “today” from the server’s UTC clock, flipping age / house / Time Lord
-    on the wrong side of midnight for anyone not on UTC (worst on their birthday) — now the viewer’s local date; and a
-    birth city typed but never geocoded computed and stored a <b>0°N/0°E chart</b> — now refused at the source. Surfaces:
-    a permanent spinner on Readings for free users, a dead panel on the Road Ahead, and a blank ranked-year page — all
-    given honest states. Craft: the gold “takeaway” could still behead a lowercase clause (now whole, two probes), and
-    the orb-honesty law moved into the base prompt so no surface invents degree-precision the data never gave. Left for
-    you (needs a ruling, not a neutral fix): the Road Ahead’s real entitlement gate, a “horoscope” output scrub, and the
-    app-wide muted-white-on-light-gradient contrast pass.
-    <br><br><b>The reading engine grew a spine it was missing.</b> A day-star kept literalizing its own symbol onto
-    people — Chitra, the craftsman star, told a non-maker to “work with your hands.” The chart can give craft
-    <i>aptitude</i>, never the fact of a trade, so asserting it is the founding wound. The fix became a small
-    architecture: the day-tilt now picks which facet of a house leads (restraint days <i>tend</i> instead of <i>launch</i>),
-    a nakshatra is read as a <i>quality</i> and never a trade, and — your call — a person’s real <b>instrument</b>
-    (hands, voice, words, body, mind, eyes) is now a field they can set, admin-only for now, that turns the craft-ban
-    into a door. Set to <i>hands + eyes</i>, your read reaches the craft; left unset, no reading ever invents one.
-    <br><br><b>The Today page got its typography.</b> You chose <b>D · Airy Humanist</b> from four rendered options and
-    we walked it in: Optima app-wide from <b>one token</b> (Playfair retired from the app; the whole serif is one line
-    to change now), the greeting no longer twinning the verdict, the caps-mess resolved to one calm voice, and the hero
-    card + calendar taken <b>full-bleed with squared corners</b>. Looked at on your phone, tuned from the render, shipped.
-    <br><br>What stands between here and opening is still <b>your price and your Stripe keys</b> — not code.
+    <b>Where the app is.</b> Live at v924 on velealor.com. Suite 1314 pass / 0 fail (125 files), typecheck 0, build 0,
+    the mutation probe all-caught — every number printed by running it, not carried forward. The reading engine has its
+    spine (day-tilt, nakshatra-as-quality, the reverted agenda layer), the Optima typography is in, the Road Ahead veil
+    is live for everyone, and the last audit sweep (viewer-local dates, the null-island chart guard, honest empty states,
+    the peel-behead close, orb honesty) shipped. What's left is below.
   </div>
 
-  <div class="card">
-    <b>The sweep’s loudest defect is closed.</b> The day filter used to print a bold <b>“BOLD MOVES … GO”</b> headline
-    directly over a body that said <i>nothing launches</i> — on four straight profiles. The headline was the one field
-    that never saw the day’s vetoes; under Mercury retrograde / Vishti it now routes to the day’s real counsel
-    (completion), in your own blessed copy, guarded by a probe. The rest of the sweep’s confirmed defects remain on the
-    audit sheet.
-    <br><br><b>The agenda layer — built, then reverted, on purpose.</b> It gave each period-lord an intention derived
-    from its condition; shipped, it <i>hijacked</i> the read (a “collect what’s owed” verb overrode a contain day). The
-    lesson became a law: <b>the reading maximizes coherence, the engine maximizes information</b> — they are not the
-    same objective. The engine code is preserved in git for a quieter rebuild.
-  </div>
-
-  <h2>1 · Your decisions — 11</h2>
-  <p class="lead">
-    Only what is still open — anything you ruled on is off this list. The full “what to choose and why” for each is on
-    the <a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">audit sheet</a>.
-  </p>
-
-  <div class="grp">The astrology</div>
+  <h2>Do next</h2>
+  <p class="lead">In rough order. Detail for each lives in the <a href="#">audit sheet</a>.</p>
   <ol class="asks">
-        <li><b>RULED &amp; DONE:</b> two conditions to cancel, three+ is “solid.” Built, tested, deployed. A fallen planet now reads as fallen <b>27%</b> of the time instead of <b>4%</b>. It also exposed that <b>Mars in Cancer</b> and <b>Jupiter in Capricorn</b> had been auto-cancelled for every user — fixed. You then asked why I was flagging the last piece instead of fixing it; there was no good reason, so <b>one verse now counts once</b> too.</li>
-    <li><b>ANSWERED &amp; DONE:</b> yogas belong to layers — natal ones are lifelong, transits only <i>trigger</i> them. The prompt now says so; it did not before. <b>And you were right about the textbooks:</b> the siddhi grid was in Raman’s <i>Muhurtha</i> Ch.VI all along, a book we already cite. <b>Amrita Siddhi is built</b> — it lifts a day, never clears a veto.</li>
-    <li><b>Lang’s birth data</b> — one line from you. No birth location and no time means the chart has no ground of
-      its own, so its sky falls through to your current city (the chip now says “follows you” there rather than
-      pretending otherwise), and Saturn reading as “the father’s old authority” cannot be checked against anything.</li>
-    <li><b>The app-default location tier</b> — it now says “no location set” rather than borrowing “follows you”. You
-      ruled on the other two states; this third one you never saw. Silent instead? One word.</li>
-    <li><b>The eclipse day</b> — on a day an eclipse is still ahead, the copy says it “just passed” and hands you
-      finishing-and-release guidance. Naming the day honestly takes no side and I will fix it either way; whether the
-      <b>guidance</b> should differ before vs after the exact moment is yours.</li>
-    <li>The knot thresholds — and how we test them with your eyes.</li>
-    <li>The crown mark: the 11th is not the peak, Shubha Tithi uses the family rule. <b>The three smudged star names are RULED</b> — match the spellings we use elsewhere — so the <b>Siddha grid is encoded</b>: 88 days a year form one, against Amrita Siddhi’s 12.</li>
+    <li><b>Clear the copy sweep — 7 live defects.</b> Your hardcoded-copy law, run: a cancelled fall printed as active,
+      "Business Partners" read as spouse, the Stage naming the wrong aggressor 19%, and four calendar/eclipse/station
+      lines that contradict themselves. The fix run was authorised and paused for the handoff.</li>
+    <li><b>Full Spectrum → mode colour.</b> The first live decision: FS accents follow the mode (wine for Restraint, teal
+      for Selective) instead of gold everywhere. One source swap, broad audit.</li>
+    <li><b>The dark-mode pass.</b> The second, bigger one: dark is the default surface. A cold full-page contrast pass —
+      day numbers, the espresso palette, the Optima hero on the dark ground. (Parchment ink is one concrete piece.)</li>
+    <li><b>The agenda layer, rebuilt as a hidden nudge.</b> It gave each period-lord an intention; shipped as a voice it
+      hijacked the read, so it became the law "coherence over information". The rebuild feeds the engine quietly, never
+      the prose. Code parked in git.</li>
   </ol>
 
-  <ol class="asks" start="6" style="counter-reset:a 5">
-    <li><b>DONE:</b> you ran the column; the day-shift alert is built and scheduled. It rings once at the turn, within 20 minutes or not at all.</li>
-    <li><b>DONE:</b> you ran the location columns — a paid reading now names the sky it was cast for, not a live lookup.</li>
-    <li><b>DONE:</b> you ran the schema reconcile — <b>25 tables, no drift</b>, on an instrument I first proved could detect drift.</li>
-  </ol>
-
-  <div class="grp">The look</div>
-  <ol class="asks" start="7" style="counter-reset:a 6">
-    <li><b>DONE — the Today typography.</b> You picked <b>D · Airy Humanist</b> from four rendered options; Optima is now
-      the whole app’s serif from one token, the hero + calendar are full-bleed with squared corners, and the caps-mess
-      reads as one calm voice. Cross-device note: Optima/Palatino are Apple system faces; non-Apple falls back to Georgia,
-      so a self-hosted webfont is a future call if the app goes wide beyond iOS.</li>
-    <li><b>RULED, NOT BUILT — Full Spectrum colour.</b> FS accents came up <b>gold</b> across every mode (and stray red
-      leftover on Restraint). You ruled it should follow the <b>mode colour</b> — wine for Restraint, teal for Selective —
-      not gold. The clean path is one source swap: point the FS accent token at each mode’s highlight tint. A contained
-      change, but a broad audit; queued.</li>
-    <li><b>THE NEXT PRIORITY — dark mode.</b> Bigger than FS, because dark is the <i>default</i> surface for anyone whose
-      phone is dark, not an opt-in a few toggle. Needs a cold full-page pass: contrast/legibility of the day numbers
-      (green measured <b>1.05</b>, gold <b>1.24</b> in the old audit), the espresso palette, and the new Optima hero on the
-      dark ground. Your call to take it fresh.</li>
-    <li>The crown mark is gold on a gold coin — <b>1.61 light, 1.17 dark</b>, recomputed.
-      <a href="https://claude.ai/code/artifact/72bc0ee7-4748-462f-8882-1df95556fa17">See the four options rendered</a>.</li>
-    <li>Rename the “Parents &amp; Roots” chip to “Roots &amp; Ancestry”?</li>
-  </ol>
-
-  <div class="grp">The business</div>
-  <ol class="asks" start="10" style="counter-reset:a 9">
-    <li>Set the price — waiting on Mercury clearing post-shadow.</li>
-    <li>Stripe keys — Railway config, yours.</li>
-
-  </ol>
-
+  <h2>Blocked on you — decisions</h2>
+  <p class="lead">Nothing here moves until you rule. Full context per item in the audit sheet.</p>
+  <div class="grp">Astrology</div>
+  <div class="law">· <b>Siddha Yoga</b> forms 88 days a year (24%) — how loudly should it speak?</div>
+  <div class="law">· <b>Lang's birth data</b> — no location or time; a fact only you have.</div>
+  <div class="law">· <b>The eclipse day</b> — should the guidance differ before vs after the exact moment? (I'll fix the naming either way.)</div>
+  <div class="law">· <b>The knot thresholds</b> — you want a way to test them with your eyes; I owe you that method.</div>
+  <div class="law">· <b>The crown mark</b> — the 11th isn't treated as the peak, and Shubha Tithi uses the family rule, not your list.</div>
+  <div class="grp">Look</div>
+  <div class="law">· <b>The crown mark is gold on a gold coin</b> — darker gold (turns olive) or a real shadow?</div>
+  <div class="law">· <b>Parchment ink in dark mode</b> — day numbers at 2.3:1; one theme value.</div>
+  <div class="law">· <b>Rename the "Parents &amp; Roots" chip</b> to "Roots &amp; Ancestry"?</div>
+  <div class="grp">Business — money &amp; launch</div>
+  <div class="law">· <b>Set the price</b> — your list is locked; waiting on Mercury clearing post-shadow, per you.</div>
+  <div class="law">· <b>Stripe keys</b> — the entitlement resolver is built and tested; Railway config is yours.</div>
   <div class="grp">Cleanup</div>
-  <ol class="asks" start="13" style="counter-reset:a 12">
-    <li>The pick-a-date precision layer: wire it, or delete it? 170 lines nothing calls.</li>
-  </ol>
+  <div class="law">· <b>The pick-a-date precision layer</b> — wire it or delete it? 170 lines, nothing calls them.</div>
 
-  <h2>2 · The price list — locked</h2>
-  <p class="lead">Your decision, 18 July. Unchanged. The spine: <b>price = distance of sight.</b></p>
-  <div class="overflow">
-    <table class="price">
-      <tr><th>Tier</th><th>What it opens</th><th>Price</th></tr>
-      <tr><td><b>Free</b><br><span class="lead">the past is faith</span></td>
-          <td>Today’s read (and yesterday, every timezone) · the lived past · the ranked calendar</td><td>—</td></tr>
-      <tr><td><b>Near-sight</b><br><span class="lead">the near future, rented</span></td>
-          <td>Moment refresh · House Reader · Chapter Reader · Time Master + Hora · special readings · sight through next month</td><td>$2.99/mo</td></tr>
-      <tr><td><b>All-access</b><br><span class="lead">year-sight</span></td>
-          <td>Everything above, plus the Year page · Life Atlas · a second chart · The Verdict</td><td>$4.99/mo</td></tr>
-      <tr><td><b>Pick-a-date</b><br><span class="lead">the telescope</span></td>
-          <td>One future date pierced on demand, à la carte, no subscription</td><td>$1.49</td></tr>
-    </table>
-  </div>
+  <h2>Open issues &amp; the record</h2>
   <p class="lead">
-    Past free, near future rented, far horizon premium, any single date pierceable for pocket change. One rule, and the
-    meter underneath it is honest now — every paid surface checks entitlement on the server, not just in the interface.
+    The full catalogue of open issues (15, named and reproducible) and everything fixed lives in the
+    <a href="#">audit sheet</a> — the fixed record is collapsed there, out of the way. This brief stays the to-do list;
+    the sheet stays the record.
   </p>
 
-  <h2>3 · What the engine can do now</h2>
-  <div class="overflow">
-    <table>
-      <tr><th>Surface</th><th>Reads from</th><th>State</th></tr>
-      <tr><td>Today · Cast · all readings</td><td>day-majority star and sign, day-scale mode, the day filter, stored dasha</td><td class="ok">one clock, all the way to the prompt</td></tr>
-      <tr><td>Panchang by location</td><td>recomputed at the caller’s coordinates</td><td class="ok">no cross-user leak</td></tr>
-      <tr><td>Whose sky, and where</td><td>override › your current city › hometown › birth › app default — and the account’s city speaks only for your own chart</td><td class="ok">one answer on all 33 paths, controlled four ways</td></tr>
-      <tr><td>Planetary condition</td><td>one owner; cancellation travels with dignity, gated on the running period</td><td class="ok">canon-ruled</td></tr>
-      <tr><td>Convergence / knots</td><td>one law — weight ranks, lords gate</td><td class="ok">phantom closed</td></tr>
-      <tr><td>Yogas</td><td>combustion verdict plus canon cancellations</td><td class="ok">Gaja Keshari can form again</td></tr>
-      <tr><td>Billing surfaces</td><td>stable hashes · pin honoured at the write · calls metered</td><td class="ok">every endpoint gated</td></tr>
-      <tr><td>The Morning Bell</td><td>your ladder: crown &gt; eclipse &gt; retroshade &gt; waterfalls &gt; horizon &gt; ordinary</td><td class="ok">crown rung fires, on the right chart</td></tr>
-      <tr><td>Ancestry &amp; lineage</td><td>seven strands — family line, mother, what you carry forward, the blood, father, his standing, the departed — plus Moon/Sun/Ketu</td><td class="ok">a spread, folded into the day</td></tr>
-      <tr><td>Pick-a-date precision</td><td>transit-level houses and strength scores</td><td class="gap">built, wired to nothing — decision 13</td></tr>
-    </table>
-  </div>
-
-  <h2>4 · Launch horizon</h2>
-  <div class="card">
-    <b>Pricing is locked; the gates read as gates.</b> What remains is mechanical and mostly yours: Stripe, the
-    production schema reconcile, the pause-point schemas, Railway config. See <code>LAUNCH_STATUS.md</code>.
-  </div>
-  <div class="card">
-    <b>Crumbs, not a big bang.</b> The circles are the channel; the reel on the 29th; the real opening after Mercury
-    retrograde clears.
-  </div>
-  <div class="card">
-    <b>The wedge.</b> Align27 charges $9.99 plus add-ons — the pricing-opacity wound. One honest price is the knife.
-  </div>
-
-  <h2>5 · Standing laws</h2>
-  <p class="law"><b>Data is the source of truth.</b> The engine locates; the model only voices. Accuracy outranks
-    everything — UX and cosmetics included — in every triage.</p>
-  <p class="law"><b>Nothing is hardcoded unless the data that decides it is displayed where it is displayed, and what
-    it says is accurate to the data.</b> Yours, 21 July. A fixed string is legitimate only when the data that selected
-    it is visible in the same place and the words are true to it — otherwise the app asserts something the reader
-    cannot check and I cannot verify. It convicted a line the minute it was stated.</p>
-  <p class="law"><b>Fix the source, not the symptom.</b> Name the root in one sentence, then fix the class, not the
-    instance. Three times this run I fixed the instance and called the class closed; each time it came back.</p>
-  <p class="law"><b>A control that can fail is worth more than a test that passes.</b> Three of my own tests were
-    guarding nothing until I broke the code on purpose to check. Green tells you nothing on its own.</p>
-  <p class="law"><b>The instrument is wrong before the code is.</b> Seven searches and counts this run gave a confident
-    wrong answer before the right one — one of them claimed nine paid endpoints were ungated, and all nine were false.
-    Every sweep now runs a control first.</p>
-  <p class="law"><b>Written is not deployed.</b> Production sat frozen for fifteen versions while I wrote “deployed”.
-    Nothing is deployed until the live site says its own version back.</p>
-  <p class="law"><b>Coherence over information.</b> The engine maximizes information; the reading maximizes coherence —
-    not the same objective. A read has one governing idea and cuts true-but-non-strengthening facts; an <i>editor</i>,
-    not a <i>compiler</i>. New engine layers earn their voice only if they strengthen the one idea. The agenda layer was
-    reverted for breaking this.</p>
-  <p class="law"><b>A symbol is a quality, not the person’s trade.</b> The day-tilt picks which facet of a house leads;
-    a nakshatra is abstracted to its quality, never literalized onto someone’s hands. The chart gives <i>aptitude</i>,
-    never the fact of a trade — the only honest source of a trade is the person’s own word (the vocation field).</p>
-  <p class="law"><b>Never ship a visual I have not looked at</b>, and never auto-run a schema change.</p>
-
-  <h2>6 · Where things live</h2>
+  <h2>Where things live</h2>
   <ul class="links">
-    <li><a href="https://claude.ai/code/artifact/edf0de7e-8f4b-4544-8fe9-b95fcca80dfd">The audit sheet</a> — what is fixed, what is broken, and the 14 decisions in full.</li>
-    <li><code>canon/neecha-bhanga-provenance.md</code> — the book on cancelled falls, verse by verse.</li>
-    <li><code>tools/audit-sheet/archive-longform-v848.html</code> and <code>tools/working-brief/archive-longform-v848.html</code> — the long forensic versions of both pages, kept in full.</li>
+    <li><code>tools/audit-sheet/index.html</code> — open issues, your calls, the fixed record (collapsed).</li>
+    <li><code>tools/audit-sheet/archive-longform-v848.html</code> — the full forensic version and every correction.</li>
+    <li><code>STRIPE_PLAN.md</code> · <code>LAUNCH_STATUS.md</code> · <code>BLOCKED_ON_STRIPE.md</code> · <code>SYSTEM_MAP.md</code>.</li>
     <li><code>npm run verify</code> · <code>npm run probe</code> · <code>npm run deployed</code> — the three checks.</li>
-    <li><code>LAUNCH_STATUS.md</code> · <code>BLOCKED_ON_STRIPE.md</code> · <code>SYSTEM_MAP.md</code>.</li>
   </ul>
 
   <p class="foot">
-    This page is the state of the app. The audit sheet is the state of the work. Brought current to <b>v923</b> —
-    the typography overhaul, the vocation field, and the reading-engine spine (day-tilt, nakshatra-quality, the reverted
-    agenda layer) folded in, then the v923 audit sweep (viewer-local dates, the null-island chart guard, honest empty
-    states, the peel-behead close, orb honesty in the base prompt); the two live decisions now are
-    <b>Full Spectrum → mode colour</b> and the <b>dark-mode pass</b>. Source: <code>tools/working-brief/index.html</code>.
+    This page is the state of the app and the live to-do list. The audit sheet is the state of the work. Both carry the
+    <b>two live decisions</b> (Full Spectrum → mode colour, the dark-mode pass) and the same eleven open calls, so they
+    can't drift apart. Source: <code>tools/working-brief/index.html</code>.
   </p>
 </div>
