@@ -1129,7 +1129,7 @@ export default function Planner() {
             data-tour="today-mode"
             className="relative overflow-hidden hero-fullbleed"
             style={{
-              borderRadius: '28px',
+              borderRadius: '0',
               padding: '1.75rem 1.75rem 1.5rem',
               background: heroGradient,
               ["--hero-ink" as any]: "color-mix(in srgb, var(--day-accent) 14%, #FBF7ED)",
@@ -1148,7 +1148,7 @@ export default function Planner() {
               <div
                 className="animate-pulse"
                 aria-hidden
-                style={{ position: 'absolute', inset: 0, borderRadius: '28px', border: '2px solid color-mix(in srgb, var(--hero-ink) 65%, transparent)', pointerEvents: 'none', zIndex: 3 }}
+                style={{ position: 'absolute', inset: 0, borderRadius: '0', border: '2px solid color-mix(in srgb, var(--hero-ink) 65%, transparent)', pointerEvents: 'none', zIndex: 3 }}
               />
             )}
             {/* Header row — admin "update to the moment" (LEFT corner) + DATE label (toggles) + caret
@@ -1222,7 +1222,7 @@ export default function Planner() {
             {/* The day's headline — moved ABOVE the tilt and sentence-cased (David 2026-07-22: as a
                 caps micro-label it read as a twin of "TODAY'S READ"). Now a quiet verdict subtitle. */}
             {selectedCharacter?.headline && (
-              <p style={{ fontFamily: "var(--font-serif)", fontSize: 'clamp(0.92rem, 3.6vw, 1rem)', fontWeight: 400, lineHeight: 1.35, color: 'color-mix(in srgb, var(--hero-ink) 72%, transparent)', marginTop: '0', marginBottom: '0.5rem', textWrap: 'balance' as any }}>
+              <p style={{ fontFamily: "var(--font-serif)", fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 88%, transparent)', marginTop: '0', marginBottom: '0.4rem', textWrap: 'balance' as any }}>
                 {(() => { const h = selectedCharacter.headline as string; return h.charAt(0) + h.slice(1).toLowerCase(); })()}
               </p>
             )}
