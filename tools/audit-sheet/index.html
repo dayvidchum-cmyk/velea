@@ -60,7 +60,7 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v924 · 22 July 2026 · only what is still open — the fixed record is collapsed at the bottom</p>
+  <p class="sub">v926 · 22 July 2026 · only what is still open — the fixed record is collapsed at the bottom</p>
 
   <div class="scores">
     <div class="score"><div class="n bad">15</div><div class="l">Open issues</div></div>
@@ -189,8 +189,18 @@
     was deleted. The long forensic version of every row lives at <code>tools/audit-sheet/archive-longform-v848.html</code>,
     and every correction I made to my own earlier claims is preserved there in full.</p>
 
-  <details><summary>Fixed &amp; verified this run (v903–v924) — proven broken, fixed, then proven fixed</summary>
+  <details><summary>Fixed &amp; verified this run (v903–v926) — proven broken, fixed, then proven fixed</summary>
     <ul>
+      <li><b>v926 — the reader gate said "quiet", not locked.</b> A free user's House Reader and Chapter Reader read "the
+        room/chapter is quiet right now" on every room. The readings autopsy (against the real free profile, tom@wolf.com)
+        printed all pipeline stages green and research healthy — the cause was purely the gate:
+        <code>houseReader</code>/<code>chapterReader</code> off for that user, and the feature-off returns
+        (<code>narrative/router.ts:167, :196</code>) sent <code>available:false</code> with NO <code>locked</code>, so the
+        client fell through to its outage copy. Both now return <code>locked:true</code>; the guard was strengthened to
+        check each refusal <i>return</i>, not the whole body (probed — reverting the fix fails it). <b>Code-fixed and
+        probed; awaiting the deployed render + the flag flip to call it landed</b> — admin bypasses <code>hasFeature</code>,
+        which is why it never reproduced from the owner account. Diagnosis cost two wrong hypotheses (the door gate; a
+        self-heal asymmetry) before the autopsy named it — both retracted in the transcript.</li>
       <li><b>v923 audit sweep.</b> Viewer-local dates (profection / Road Ahead / ranked year read "today" from server
         UTC — flipped age/house/Time Lord on the wrong side of midnight, worst on the birthday). The null-island guard
         (a city typed but not geocoded computed a 0°N/0°E chart and stored it — now refused at the source). Honest states

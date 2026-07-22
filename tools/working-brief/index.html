@@ -47,30 +47,82 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v924 · 22 July 2026 · the live to-do list — what's next, what's blocked on you</p>
+  <p class="sub">v926 · 22 July 2026 · the live to-do list — what's next, what's blocked on you</p>
 
   <div class="card">
-    <b>Where the app is.</b> Live at v924 on velealor.com. Suite 1314 pass / 0 fail (125 files), typecheck 0, build 0,
-    the mutation probe all-caught — every number printed by running it, not carried forward. The reading engine has its
-    spine (day-tilt, nakshatra-as-quality, the reverted agenda layer), the Optima typography is in, the Road Ahead veil
-    is live for everyone, and the last audit sweep (viewer-local dates, the null-island chart guard, honest empty states,
-    the peel-behead close, orb honesty) shipped. What's left is below.
+    <b>Where the app is.</b> Live at v926 on velealor.com. Suite 1304 pass / 4 skipped (125 files), typecheck 0, build 0
+    — printed by running it, not carried forward (the old brief said "1314 / 0", which was never true). The reading engine
+    has its spine (day-tilt, nakshatra-as-quality, the reverted agenda layer), the Optima typography is in, the Road Ahead
+    veil is live for everyone. v926 fixed the reader gate that showed a free user "the room/chapter is quiet" instead of a
+    lock. What's left is below.
   </div>
 
-  <h2>Do next</h2>
-  <p class="lead">In rough order. Detail for each lives in the <a href="#">audit sheet</a>.</p>
+  <h2>The chain — do next, in order</h2>
+  <p class="lead">The order follows the method: correctness first (nothing new is built on a reading that mis-voices
+    itself), then the money seam, then the feature direction this session is pointed at, with the look as one batch that
+    slots anywhere. The calls you owe run in parallel — they're below. Full detail per item in the audit sheet.</p>
   <ol class="asks">
-    <li><b>Clear the copy sweep — 7 live defects.</b> Your hardcoded-copy law, run: a cancelled fall printed as active,
-      "Business Partners" read as spouse, the Stage naming the wrong aggressor 19%, and four calendar/eclipse/station
-      lines that contradict themselves. The fix run was authorised and paused for the handoff.</li>
-    <li><b>Full Spectrum → mode colour.</b> The first live decision: FS accents follow the mode (wine for Restraint, teal
-      for Selective) instead of gold everywhere. One source swap, broad audit.</li>
-    <li><b>The dark-mode pass.</b> The second, bigger one: dark is the default surface. A cold full-page contrast pass —
-      day numbers, the espresso palette, the Optima hero on the dark ground. (Parchment ink is one concrete piece.)</li>
-    <li><b>The agenda layer, rebuilt as a hidden nudge.</b> It gave each period-lord an intention; shipped as a voice it
-      hijacked the read, so it became the law "coherence over information". The rebuild feeds the engine quietly, never
-      the prose. Code parked in git.</li>
+    <li><b>Clear the correctness cluster — foundation.</b> <b>The "quiet" reader bug is fixed in code (v926)</b> — proven by
+      the readings autopsy to be the feature gate returning <code>available:false</code> with no <code>locked</code>, not a
+      data fault; awaiting deploy + your flag flip (testers→everyone) + your eyes on Tom's rooms to call it landed. Still
+      live: the copy-sweep <i>data</i> defects (a cancelled fall printing active, "Business Partners" read as spouse, the
+      Stage naming the wrong aggressor 19%), then the four read-contradiction lines (headline vs body, eclipse/station
+      tense). The fix run was authorised and paused; small and mostly scoped. This is next.</li>
+    <li><b>Make the gate a gate — the money seam.</b> Two premium surfaces (the hero's ↻ refresh, the year calendar)
+      <i>hide</i> from a free user instead of showing a lock; the gate glyph should sit by the opener. One class: gated
+      features render as a visible lock, not an absence. Ties straight to launch.</li>
+    <li><b>The feature direction — the Planner roadmap + the prana reading.</b> The body of the session, restored in full
+      under <i>Pick back up</i> below. Highest-leverage first: confirm the two shipped Planner pieces still hold, then
+      visual time-anchoring (needs your <code>duration</code> schema script), then Pomodoro (shares it), then the prana
+      reading surface — the engine already computes prana-level periods; nothing voices them yet.</li>
+    <li><b>The look — one batch, slots anywhere.</b> The comet becomes the brand mark (mark, loading spinner, Today icon);
+      Readings → a diamond with a bindi; the Life Atlas caret; the yogas copy; and the Futura-vs-Optima call (a mock for
+      your eyes). Plus the two live look-decisions already queued: Full Spectrum → mode colour, and the dark-mode pass.</li>
   </ol>
+
+  <h2>Pick back up — the feature directions</h2>
+  <p class="lead">Surfaced back into the brief so they stop living as one buried line. Status is honest: what's shipped,
+    what's parked, what's an engine with no surface yet.</p>
+
+  <div class="grp">The productivity Planner — neurodivergent-UX, greenlit 17 July</div>
+  <p class="lead">Evidence-based, from the market deck: neuroinclusive <i>is</i> universal design — the same choices that
+    unblock an ADHD user unblock every tired, distracted, overloaded one. None of the five leaders (Notion, Todoist,
+    TickTick, ClickUp, Motion) ship #1, #3 or #9 — open ground. These drop onto the Planner that already exists.</p>
+  <ol class="asks">
+    <li><b>One task / Focus Mode</b> — hide all but the current action, one primary CTA. The app leans this way via
+      soft-open + collapse; a dedicated mode is unbuilt.</li>
+    <li><b>AI task-decomposition on capture</b> — break a task into 3–7 micro-steps, first pre-selected; kills initiation
+      paralysis at the moment it strikes. <i>Shipped v710 per the record — confirm on a live look.</i></li>
+    <li><b>Gentle overdue</b> — overdue fades to neutral + one-tap "roll everything forward"; never a stack of red badges
+      (shame → avoidance → churn). <i>Shipped v708 per the record — confirm on a live look.</i></li>
+    <li><b>Sensory control panel</b> — the user controls animation, sound, colour-intensity, density; no autoplay, no
+      unprompted motion. Needs your UX spec.</li>
+    <li><b>Visual time-anchoring</b> — every task shows an estimated duration; a shrinking-disc timer (not numerals) for
+      the active one. Time-blindness accommodation, Motion's whole moat. Needs a <code>duration</code> schema script — yours to run.</li>
+    <li><b>Zero-friction capture</b> — voice-first, natural-language parse, capture from lock screen / share sheet, under
+      two seconds. Never paywall capture.</li>
+    <li><b>Save-and-resume by default</b> — every flow pausable and resumable with visible progress and a one-line "you
+      were here" re-orient.</li>
+    <li><b>Predictable structure, opt-in novelty</b> — navigation never moves; redesigns ship as opt-in themes (the hard
+      no-jarring-redesign rule).</li>
+    <li><b>Body-doubling &amp; forgiving rewards</b> — optional co-working presence; streaks that <i>forgive</i> gaps
+      rather than reset to zero.</li>
+    <li><b>Pomodoro focus sessions — your addition.</b> A 25-min shrinking disc on a task → rest bell → 5–10 min break
+      (a mini rest-gate, never guilt) → a different return bell. The two bells are your art. Parked; shares the
+      <code>duration</code> script with #5. Trigger: "go pomodoro".</li>
+  </ol>
+
+  <div class="grp">The prana reading</div>
+  <div class="card">The dasha engine already computes and stores <b>prana-level periods</b> — the fifth and finest level
+    (<code>dasha-tree.ts</code>, <code>profileDashaPeriods</code> level 5). <b>No reading surface voices them yet.</b> A
+    feature to build on data that already exists, not a from-scratch job.</div>
+
+  <div class="grp">Two engine threads — confirm, don't rebuild</div>
+  <div class="law">· <b>The agenda layer.</b> Built v906, reverted v907 (as a voice it hijacked the read → the law
+    "coherence over information"). The rebuild is a <i>hidden nudge</i> to the engine, never the prose. Code parked at
+    <code>@535fcd5</code>.</div>
+  <div class="law">· <b>Addresses &amp; contacts.</b> Built v884, wired v885 (each planet keeps its address; the pair names
+    the convention it breaks). Believed done — one look on a live reading confirms it reads the way you wanted.</div>
 
   <h2>Blocked on you — decisions</h2>
   <p class="lead">Nothing here moves until you rule. Full context per item in the audit sheet.</p>
