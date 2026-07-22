@@ -64,7 +64,7 @@
 
 <div class="wrap">
   <h1>Velea · Audit Sheet</h1>
-  <p class="sub">v922 · 22 July 2026 · every number below was printed by running something</p>
+  <p class="sub">v923 · 22 July 2026 · every number below was printed by running something</p>
 
   <div class="scores">
     <div class="score"><div class="n good">122</div><div class="l">Fixed</div></div>
@@ -73,10 +73,28 @@
     <div class="score"><div class="n">1308</div><div class="l">Tests passing</div></div>
   </div>
 
-  <h2>Since v902 — this session (v903–v922)</h2>
-  <p class="lead"><b>1308 tests across 124 files, 0 failures. The mutation harness green — every new guard broken on
-    purpose and caught. Build exit 0, velealor.com answers v922.</b> Printed, not carried forward.</p>
+  <h2>Since v902 — this session (v903–v923)</h2>
+  <p class="lead"><b>1314 tests across 124 files — 1306 passing, 4 skipped. The mutation harness green — every new guard
+    broken on purpose and caught (build exit 0, typecheck exit 0).</b> Four reds remain, all in <code>docs-claims.test.ts</code> — the guard
+    that checks THIS page against itself. They pin an older decision model (a “Your call” tile equal to the card count,
+    a nine-item open set) that the v922 rewrite deliberately moved past (“two live decisions,” the rest kept as record).
+    Reconciling them is a framing call for you — update the guard to the new model, or revert the page structure —
+    not something I will fake green by rewriting your ledger. Printed, not carried forward.</p>
   <ul class="plain">
+    <li><b>The v923 audit (22 July) — a full-codebase adversarial sweep, fixed and probed.</b> <b>Data:</b> profection
+      (age/house/Time Lord), the Road Ahead, and the ranked solar year all read “today” from the <i>server’s</i> UTC
+      clock, flipping on the wrong side of midnight for non-UTC users — worst on the birthday itself; now the viewer’s
+      local date. And a birth city typed but never geocoded computed a <b>0°N/0°E “null-island” chart</b> and stored it —
+      now refused at the source, with an honest client label. <b>Surfaces:</b> the Readings hub spun forever for free
+      users (a query starved of the active profile); the Road Ahead showed non-admins a dead “No road data available”;
+      the ranked-year page went blank when there was no chart yet — all given honest states. <b>Craft:</b> the gold
+      “takeaway” could still behead a lowercase clause (“— pulling the belief loose”); the peeler now keeps whole
+      thoughts, with two probes. The orb-honesty law now lives in the base prompt, so no surface can invent degree-tight
+      precision the data never gave (no regeneration cost). What I did NOT touch — because it takes your call, not a
+      neutral repair — is listed in the working brief and the session report: wiring the Road Ahead’s real entitlement
+      gate (money), a “horoscope” output scrub (word choice), and the app-wide muted-white-on-light-gradient contrast
+      pass (a visual-language change I won’t make unasked).</li>
+
     <li><b>The reading-engine spine (v908–v912).</b> A day-star kept literalizing its symbol onto people — Chitra told a
       non-maker to “work with your hands.” Three clamps: the <b>day-tilt picks a house’s leading facet</b> (restraint
       days tend, not launch), a <b>nakshatra is a quality, never a trade</b>, and the leak’s true source — Chitra’s own

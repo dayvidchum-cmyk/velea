@@ -55,12 +55,23 @@
 
 <div class="wrap">
   <h1>Velea · Working Brief</h1>
-  <p class="sub">v922 · 22 July 2026 · where the app actually stands</p>
+  <p class="sub">v923 · 22 July 2026 · where the app actually stands</p>
 
   <div class="card">
-    <b>Where things stand.</b> <b>1308 tests across 124 files, 0 failures</b>, the mutation harness still green — every
-    new guard this stretch broken on purpose and caught. The build exits 0 and velealor.com answers <b>v922</b>. Every
-    one of those was printed by running it.
+    <b>Where things stand.</b> <b>1314 tests across 124 files — 1306 passing, 4 skipped</b>, the mutation harness still
+    green — every new guard this stretch broken on purpose and caught. The build and typecheck exit 0. The four reds are
+    all in the guard that checks the audit sheet against itself; they pin an older decision model the v922 rewrite moved
+    past, and reconciling them is a framing call for you, not something to fake green. Every number here was printed by
+    running it.
+    <br><br><b>The v923 audit (22 July).</b> A full-codebase adversarial sweep — fixed and probed. Data: profection,
+    the Road Ahead and the ranked solar year read “today” from the server’s UTC clock, flipping age / house / Time Lord
+    on the wrong side of midnight for anyone not on UTC (worst on their birthday) — now the viewer’s local date; and a
+    birth city typed but never geocoded computed and stored a <b>0°N/0°E chart</b> — now refused at the source. Surfaces:
+    a permanent spinner on Readings for free users, a dead panel on the Road Ahead, and a blank ranked-year page — all
+    given honest states. Craft: the gold “takeaway” could still behead a lowercase clause (now whole, two probes), and
+    the orb-honesty law moved into the base prompt so no surface invents degree-precision the data never gave. Left for
+    you (needs a ruling, not a neutral fix): the Road Ahead’s real entitlement gate, a “horoscope” output scrub, and the
+    app-wide muted-white-on-light-gradient contrast pass.
     <br><br><b>The reading engine grew a spine it was missing.</b> A day-star kept literalizing its own symbol onto
     people — Chitra, the craftsman star, told a non-maker to “work with your hands.” The chart can give craft
     <i>aptitude</i>, never the fact of a trade, so asserting it is the founding wound. The fix became a small
@@ -231,9 +242,10 @@
   </ul>
 
   <p class="foot">
-    This page is the state of the app. The audit sheet is the state of the work. Brought current to <b>v922</b> —
+    This page is the state of the app. The audit sheet is the state of the work. Brought current to <b>v923</b> —
     the typography overhaul, the vocation field, and the reading-engine spine (day-tilt, nakshatra-quality, the reverted
-    agenda layer) folded in; the two live decisions now are <b>Full Spectrum → mode colour</b> and the <b>dark-mode pass</b>.
-    Source: <code>tools/working-brief/index.html</code>.
+    agenda layer) folded in, then the v923 audit sweep (viewer-local dates, the null-island chart guard, honest empty
+    states, the peel-behead close, orb honesty in the base prompt); the two live decisions now are
+    <b>Full Spectrum → mode colour</b> and the <b>dark-mode pass</b>. Source: <code>tools/working-brief/index.html</code>.
   </p>
 </div>
