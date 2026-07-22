@@ -248,3 +248,43 @@ describe("the protagonist and the canon facet are actually wired (2026-07-21)", 
     expect("const chainLords = Array.from(new Set([cur?.mahadasha]))").not.toMatch(/chainLords\s*=\s*Array\.from\([\s\S]{0,200}pf\.timeLord/);
   });
 });
+
+/**
+ * THE AGENDA LAYER REACHES THE MODEL (2026-07-21).
+ *
+ * The condition already reached the model as "temperature" (an adjective). The agenda is the verb —
+ * what the lord is TRYING to do — and it is the layer that separates two lords who share a house.
+ * Same v884 risk: agenda.ts can be perfect and tested and called by nobody, and the day read would
+ * silently keep spending condition as temperature. These assert the WIRING at source level.
+ */
+describe("the agenda layer is actually wired (2026-07-21)", () => {
+  it("CONTROL — the source imports the doctrine module", () => {
+    expect(SRC).toContain('from "./agenda.js"');
+    expect(SRC).toMatch(/import \{ deriveAgenda \}/);
+  });
+
+  it("deriveAgenda is CALLED inside condOf, fed from the stored research", () => {
+    // Not merely imported — invoked, with the real condition fields (the v884 lesson).
+    expect(SRC).toMatch(/const \{ agenda, capacity \} = deriveAgenda\(\{/);
+    expect(SRC).toMatch(/dignity:\s*pr\.dignity\?\.state/);
+    expect(SRC).toMatch(/lajjitaadi:\s*\(pr\.avashtas\?\.lajjitaadi/);
+    expect(SRC).toMatch(/deepthaadi:\s*pr\.deepthaadi/);
+  });
+
+  it("each lord emits its agenda, and its capacity overlay when notable", () => {
+    expect(SRC).toMatch(/^\s*agenda,\s*$/m);
+    expect(SRC).toMatch(/capacity\.length \? \{ capacity \}/);
+  });
+
+  it("the prompt documents the agenda field AND carries the doctrine section", () => {
+    expect(PROMPTS).toMatch(/agenda:\{ primary, secondaries/);
+    expect(PROMPTS).toContain("THE LORDS' AGENDA — WHAT THE LORD IS TRYING TO DO");
+    // The capacity-as-overlay ruling must be stated, not just the verb list.
+    expect(PROMPTS).toMatch(/'capacity' \(when present\) is HOW, not what/);
+  });
+
+  it("NEGATIVE CONTROL — these matchers can fail", () => {
+    expect("someOtherHelper({})").not.toMatch(/const \{ agenda, capacity \} = deriveAgenda\(\{/);
+    expect(PROMPTS).not.toContain("THE LORDS' AGENDA — WHAT THE PLANET NEVER DOES");
+  });
+});

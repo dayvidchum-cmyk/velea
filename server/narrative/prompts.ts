@@ -39,9 +39,11 @@ You receive one JSON object with these blocks:
   circle…). Pre-computed, ranked; the FIRST is the loudest. See "THE KNOTS — NAME THE LIVED EVENT".
 - dayFilter?: { headline, sentence, supports:[…], avoid:[…], vetoes:[…], varaColors } — the day's
   classical character (nature × tithi family). See "THE DAY'S CHARACTER". Mode names are RETIRED.
-- natalCondition?: { lords:[{ planet, seat, dignity, strength, expression?, states:[…], trueHouse? }],
+- natalCondition?: { lords:[{ planet, seat, dignity, strength, expression?, states:[…], trueHouse?,
+  agenda:{ primary, secondaries:[…], because }, capacity?:[{ mode, because }] }],
   atmakaraka, gulikaHouse?, standingYogas? } — the engine's STORED research of this chart (the whole
-  tradition, measured): each running lord's true condition. See "THE LORDS' TRUE CONDITION".
+  tradition, measured): each running lord's true condition. 'agenda' is what that lord is TRYING to
+  do (see "THE LORDS' AGENDA"); the rest is its state. See "THE LORDS' TRUE CONDITION".
 - dasha: { mahaDasha:{ lord, natal:{…}, rulesHouses:[int] },
   antarDasha:{ lord, natal:{…}, rulesHouses:[int] }, pratyantarDasha?:{…} } —
   maha is the life chapter, antar the season within it. pratyantarDasha (when present)
@@ -956,6 +958,36 @@ inference. Each running period-lord arrives with its true condition:
   the chart's lifelong signatures — background gifts, not today's news.
 - These terms are for YOUR reasoning only. Translate every one into lived language; the existing
   bans hold (no dignity words, no machinery, no house numbers in the prose).
+
+THE LORDS' AGENDA — WHAT THE LORD IS TRYING TO DO (input.natalCondition.lords[].agenda)
+The condition above says how a lord IS; the agenda says what it is trying to DO about it. This is
+the layer that separates two lords who share a house: the house is WHERE the story happens, the
+agenda is WHAT the protagonist is there to accomplish. Lead the read with the agenda, then stage it
+in the arena — never the reverse. Two people with the same Time Lord in the same activated house
+live different days when their lords carry different agendas (one Venus is there to RESTORE, another
+to RECLAIM) — that difference is the read.
+- 'agenda.primary' is the operating verb — the intention. Do NOT print the word; write the day AS
+  that intention. Restore = rebuild the resource before spending it (look, don't move; tend what
+  exists). Redeem = earned competence proving itself, never weakness. Reclaim = return to and
+  recover unfinished ground. Consolidate = deepen a theme already yours, not meet a new one.
+  Cultivate = surplus to extend and give out. Contend = a live contest for standing with no settled
+  winner — name the fight, never invent who wins. Repair = make something good before moving.
+  Steady = settle a disturbance before acting. Complete = carry an unfinished wanting through.
+  Steward = capable and well-placed, so give back and don't overreach. Tend = no crisis, simply do
+  the domain's work.
+- The verb is GENERAL; the lord's own karakas are the FLAVOR. Venus + Restore restores harmony,
+  value, and cohesion; Mars + Restore restores strength and initiative; Mercury + Restore restores
+  clarity. Fuse the verb with what THIS planet signifies, then place it in the arena.
+- 'agenda.secondaries' are shades of the primary — pick the ONE the activated house makes true, do
+  not list them. Reclaim in the money arena reclaims what's owed; in the partnership arena it
+  revisits an agreement; in the belief arena it re-examines what one lives by. The house chooses.
+- 'agenda.because' is the condition that set the verb — for YOUR reasoning, to keep the intention
+  honest; translate it, never recite it.
+- 'capacity' (when present) is HOW, not what — it rides ON TOP of the primary, never replaces it.
+  "Work Unseen" (combust) = pursue the agenda quietly, out of the spotlight, without chasing
+  recognition. "Enlist" (asleep) = the intention cannot be done alone; it needs allies to move. So
+  Restore + Work Unseen is "rebuild, but quietly"; Cultivate + Enlist is "grow it, but through
+  others." Weave the overlay into the posture; never name the mechanism.
 
 THE KNOTS — NAME THE LIVED EVENT (input.knots)
 When input.knots is present, the engine has already done the chart-math: it found the life-event
@@ -2638,14 +2670,14 @@ export const SURFACE_VERSION: Record<string, string> = {
   // The verdict had NO key here, so the only lever that could bust it was PROMPT_VERSION — which
   // regenerates every surface for every profile. A verdict-prompt change now costs one surface.
   verdict: "2026-07-20-verdict-v1",
-  glance: "2026-07-19-prosperity-named", // + Sampat/prosperity-day naming rule
-  deep: "2026-07-16-varshaphala-a",
-  deep_full: "2026-07-16-varshaphala-a",
+  glance: "2026-07-21-agenda-layer", // + the lord's agenda (what it's TRYING to do)
+  deep: "2026-07-21-agenda-deep",
+  deep_full: "2026-07-21-agenda-deep", // deep == deep_full, as before the bump
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-19-prosperity-named",
-  cast: "2026-07-13-cast-moon-neutral",
-  house_read: "2026-07-16-the-house-reader-v1",
-  dasha_read: "2026-07-17-the-tense-law",
+  day_read: "2026-07-21-agenda-layer", // day_read == glance, as before the bump
+  cast: "2026-07-21-agenda-cast",
+  house_read: "2026-07-21-agenda-house",
+  dasha_read: "2026-07-21-agenda-dasha",
   atlas_read: "2026-07-17-the-tense-law",
   window_read: "2026-07-20-paid-outweighs-free",
   yoga_read: "2026-07-20-paid-outweighs-free",

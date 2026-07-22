@@ -217,6 +217,26 @@ run server/vedic/canon/muhurta-tables.json '"Sunday": "Hasta"' '"Sunday": "Rohin
 run server/vedic/day-filter.ts 'const amrita = amritaSiddhi(input.varaLord, input.nakshatra);' 'const amrita = false;' \
   server/vedic/amrita-siddhi.test.ts "Amrita Siddhi stops being detected"
 
+# ── THE AGENDA LAYER (2026-07-21) — the verb the condition sets, and its wiring ──────────────
+# The doctrine: break a verb, the precedence, or the capacity-overlay rule and the unit test must
+# notice. The verbs are the planet's VOICE — a silent re-map is exactly what these catch.
+run server/narrative/agenda.ts 'primary: "Restore",' 'primary: "Cultivate",' \
+  server/narrative/agenda.test.ts "a deficit condition stops setting Restore"
+run server/narrative/agenda.ts 'if (has(sig.deepthaadi, "nipeedita")) {' 'if (false) {' \
+  server/narrative/agenda.test.ts "planetary war stops overriding (precedence tier 1)"
+run server/narrative/agenda.ts 'secondaries: ["Negotiate", "Compete"],' 'secondaries: ["Negotiate", "Compete", "Prevail", "Yield"],' \
+  server/narrative/agenda.test.ts "Contend invents a winner the engine cannot name"
+run server/narrative/agenda.ts 'if (sig.jagradaadi === "sushupti") {' 'if (false) {' \
+  server/narrative/agenda.test.ts "the asleep→Enlist capacity overlay stops firing"
+run server/narrative/agenda.ts 'const EMIT_CONSERVE = false;' 'const EMIT_CONSERVE = true;' \
+  server/narrative/agenda.test.ts "svapna (the common middle) starts emitting Conserve noise"
+# THE WIRING — deriveAgenda perfect and called by nobody is the v884 shape. Break the call and the
+# emission and the payload contract must fail.
+run server/narrative/input-builder.ts 'const { agenda, capacity } = deriveAgenda({' 'const { agenda, capacity } = ({ agenda: undefined, capacity: [] } as any) || deriveAgenda({' \
+  server/narrative/payload-contract.test.ts "deriveAgenda stops being called in condOf"
+run server/narrative/input-builder.ts '          agenda,\n          ...(capacity.length ? { capacity } : {}),' '' \
+  server/narrative/payload-contract.test.ts "the agenda field stops being emitted per lord"
+
 echo "=== money: where a bleed would start (priority 2) ==="
 run server/narrative/service.ts 'const DAILY_ROW_CAP = 50;' 'const DAILY_ROW_CAP = 5000;' \
   server/narrative/spend-caps.test.ts "daily row cap raised 100x"
