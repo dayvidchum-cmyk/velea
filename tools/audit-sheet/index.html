@@ -138,8 +138,12 @@
       aggressor-direction bug (was 20/103 backwards) is fixed at <code>findTension</code>, locked by a both-directions
       test + probe. Suite green, 3 probes bite. <b>Tap The Read on the deployed app and confirm the cast paragraph reads
       right — then this closes.</b></li>
-    <li><span class="tag">DATA</span><b>2 · The 27-star classification is duplicated across several files.</b> Duplication,
-      not disagreement (the interpreter reads the one corrected table, anchored by a test). Cleanup.</li>
+    <li><span class="tag">DATA</span><b>2 · The 27-star name table is duplicated across ~7 files — GUARDED BY DESIGN, not a live defect.</b>
+      <code>nakshatra-tables-agree.test.ts</code> reads every copy FROM SOURCE and asserts all 27 spell identically to the
+      canonical <code>NAK27</code> (with a negative control that bites). Kept source-separate deliberately (most are
+      module-private consts; a test seeing only the exported one wouldn't catch a private divergence — "add to the list,
+      never fork"). So there is no drift risk today. True consolidation to one import is a DESIGN CHANGE that contradicts
+      that documented choice — your call whether it's worth it; not a cleanup to just do.</li>
     <li><span class="tag">DATA</span><b>3 · Exact Chesta (the eight-state seeghra-kendra) is not built.</b> The simplified
       K&amp;F rule declares itself as such all the way to the model; building the real one needs the textbook, not inference.</li>
     <li><span class="tag">MONEY</span><b>4 · The failed-save re-bill guard is per-process.</b> A redeploy or a second
@@ -151,12 +155,13 @@
     <li><span class="tag">READ</span><b>7 · The Day Headline — the detectors exist; one line connects them.</b></li>
     <li><span class="tag">READ</span><b>8 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
     <li><span class="tag">LOOK</span><b>9 · The welcome card can show two filled primary buttons.</b></li>
-    <li><span class="tag">READ</span><b>10 · "Karaka" and "Tara" appear in a read with no glossary pop-up and no prose gloss.</b>
-      Your law: a jargon word in a read must be explained in prose OR be a tappable glossary term. Tappability comes from
-      <code>GlossaryText</code>, which highlights only terms in <code>GLOSSARY</code> (<code>Glossary.tsx</code>, 134
-      entries); bare "Karaka" and "Tara" aren't there (only compounds like <i>Atmakaraka</i>), so they render inert.
-      Fix: add these (and sweep for other bare Sanskrit terms) to the glossary, OR scrub/gloss them per the machinery ban.
-      Reproducible: any read containing "Karaka"/"Tara" shows them plain.</li>
+    <li><span class="tag">READ</span><b>10 · "Karaka" and "Tara" reach a read untappable and unglossed.</b>
+      Your law: a jargon word in a read must be explained in prose OR be a tappable glossary term (only <code>GLOSSARY</code>
+      entries get the pop-up; bare "Karaka"/"Tara" aren't there, only compounds like <i>Atmakaraka</i>). Traced:
+      <b>"Tara" is already scrubbed</b> from LLM prose (<code>MECHANISM_NAMES</code>, generate.ts) — so where you saw it is a
+      DETERMINISTIC surface (needs identifying); <b>"Karaka" is NOT in that ban list</b> — a sibling-leak gap like the 7/21
+      tara/nakshatra fixes, so it can leak into LLM prose. <b>Your ruling (the remedy takes a side):</b> scrub them out (the
+      machinery-ban way) vs. keep + make tappable in the glossary (your message's lean). Then apply to both surfaces.</li>
   </ul>
 
   <!-- ────────────────────────  PICK BACK UP  ──────────────────────── -->
