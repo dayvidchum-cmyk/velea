@@ -1,4 +1,4 @@
-<title>Velea · Working Brief</title>
+<title>Velea · Brief</title>
 <style>
   :root {
     --bg:#F6F1E7; --card:#FCF9F2; --ink:#3E352A; --muted:#7A7062;
@@ -15,10 +15,14 @@
   :root[data-theme="light"] { --bg:#F6F1E7; --card:#FCF9F2; --ink:#3E352A; --muted:#7A7062;
     --gold:#8A6E14; --teal:#2F6E62; --wine:#8B3A62; --green:#2E7D4F; --line:#E4DCCB; --soft:rgba(176,141,46,0.07); }
 
-  body { background:var(--bg); color:var(--ink); margin:0; padding:2rem 1.1rem 5rem;
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2rem 1.1rem 6.5rem;
     font:16px/1.65 Georgia,'Times New Roman',serif; }
   .wrap { max-width:42rem; margin:0 auto; }
-  h1 { font-size:1.7rem; margin:0 0 .2rem; letter-spacing:-.01em; }
+  h1 { font-size:1.7rem; margin:0 0 .3rem; letter-spacing:-.01em; }
+  .ver { display:inline-block; margin:0 0 .5rem; font-size:.82rem; letter-spacing:.03em;
+    background:var(--soft); color:var(--gold); border:1px solid var(--gold-bright);
+    border-radius:999px; padding:.15rem .7rem; }
+  .ver b { color:var(--ink); font-variant-numeric:tabular-nums; }
   .sub { color:var(--muted); font-size:.85rem; font-style:italic; margin:0 0 1.5rem; }
   h2 { font-size:.76rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase;
     color:var(--gold); margin:2.4rem 0 .3rem; border-bottom:1px solid var(--line); padding-bottom:.35rem; }
@@ -43,7 +47,7 @@
   a { color:var(--gold); }
   .foot { color:var(--muted); font-size:.8rem; margin-top:2.5rem; border-top:1px solid var(--line);
     padding-top:.9rem; }
-  /* The north star — what Velea is becoming (David, 2026-07-22) */
+  /* north star */
   .north { border:1px solid var(--gold); border-left:3px solid var(--gold-bright);
     background:var(--soft); border-radius:10px; padding:1rem 1.15rem; margin:0 0 1.5rem; }
   .north-h { font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; font-weight:700;
@@ -53,7 +57,7 @@
   .north-note { font-size:.86rem; font-style:italic; color:var(--muted); margin:.1rem 0 .7rem; }
   .north-law { font-size:.9rem; margin:0; padding-top:.6rem; border-top:1px solid var(--line); }
   .north-law b { color:var(--wine); }
-  /* The five standing audits — every release, never leave the brief */
+  /* standing audits */
   .audit { background:var(--card); border:1px solid var(--line); border-radius:10px;
     padding:.75rem 1rem; margin-bottom:.55rem; }
   .audit-h { font-size:.8rem; font-weight:700; letter-spacing:.03em; color:var(--ink); margin-bottom:.15rem; }
@@ -64,11 +68,52 @@
   ul.check li::before { content:"✓"; position:absolute; left:0; color:var(--green); font-size:.8rem; }
   .audit-fail { font-size:.82rem; font-weight:700; color:var(--wine); margin-top:.35rem; }
   .tags { font-size:.85rem; color:var(--ink); margin:.2rem 0 .4rem; line-height:1.7; }
+  /* scores */
+  .scores { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.6rem; }
+  .score { flex:1 1 7rem; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:.7rem .8rem; }
+  .score .n { font-size:1.6rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .score .l { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+  .n.good{color:var(--green)} .n.warn{color:var(--gold-bright)} .n.bad{color:var(--wine)}
+  /* decisions + open issues */
+  .ask { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--gold-bright);
+    border-radius:10px; padding:.8rem 1rem; margin-bottom:.6rem; }
+  .ask b { display:block; margin-bottom:.15rem; }
+  .ask .why { color:var(--muted); font-size:.87rem; }
+  ul.plain { list-style:none; padding:0; margin:0; }
+  ul.plain li { padding:.5rem .2rem; border-bottom:1px solid var(--line); font-size:.93rem; }
+  ul.plain li:last-child { border-bottom:0; }
+  .tag { display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.05em;
+    padding:.05rem .5rem; border-radius:999px; background:var(--soft); color:var(--gold); margin-right:.4rem; vertical-align:.08em; }
+  details { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:.6rem .9rem; margin-top:.6rem; }
+  details summary { cursor:pointer; font-size:.86rem; color:var(--teal); font-weight:700; }
+  details[open] summary { margin-bottom:.5rem; }
+  details ul { margin:.4rem 0 0; padding-left:1.1rem; font-size:.88rem; color:var(--muted); }
+  details li { margin-bottom:.3rem; }
+  /* THE RULING BOX (David, 2026-07-22) — type your call, then hit the copy bar */
+  .ruling { margin:.5rem 0 .1rem; }
+  .ruling label { display:block; font-size:.68rem; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--teal); font-weight:700; margin-bottom:.25rem; }
+  .ruling textarea { width:100%; box-sizing:border-box; min-height:2.6rem; resize:vertical;
+    background:var(--bg); color:var(--ink); border:1px solid var(--gold-bright); border-radius:8px;
+    padding:.5rem .6rem; font:15px/1.5 Georgia,serif; }
+  .ruling textarea:focus { outline:2px solid var(--gold-bright); outline-offset:1px; }
+  /* the sticky copy bar */
+  .copybar { position:fixed; left:0; right:0; bottom:0; z-index:50; background:var(--card);
+    border-top:1px solid var(--line); padding:.6rem 1rem; display:flex; gap:.6rem; align-items:center;
+    justify-content:center; box-shadow:0 -6px 18px rgba(0,0,0,0.08); }
+  .copybar button { font:600 .92rem Georgia,serif; background:var(--gold-bright); color:#2a2205;
+    border:0; border-radius:9px; padding:.6rem 1.1rem; cursor:pointer; }
+  .copybar .count { font-size:.8rem; color:var(--muted); }
+  #out { display:none; width:100%; box-sizing:border-box; min-height:6rem; margin-top:.6rem;
+    background:var(--bg); color:var(--ink); border:1px solid var(--teal); border-radius:8px; padding:.6rem;
+    font:14px/1.5 ui-monospace,Menlo,monospace; }
+  #outWrap { max-width:42rem; margin:0 auto; }
 </style>
 
 <div class="wrap">
-  <h1>Velea · Working Brief</h1>
-  <p class="sub">v929 · 22 July 2026 · the live to-do list — what's next, what's blocked on you</p>
+  <h1>Velea · Brief</h1>
+  <p class="ver">Live: <b>v1.1.930</b></p>
+  <p class="sub">22 July 2026 · the app, the work, and your calls — one page. Type a ruling in any box, then hit “Copy my rulings” at the bottom and paste it to me.</p>
 
   <div class="north">
     <div class="north-h">Velea Principle — what we are becoming</div>
@@ -83,223 +128,314 @@
       maximize <i>clarity</i>. More information is not a better experience — more certainty and less cognitive effort are.</p>
   </div>
 
+  <h2>The five release gates — every release passes all five</h2>
+  <p class="lead">David's framework (2026-07-22). Eighteen audits under five gates — full spec verbatim in
+    <code>RELEASE_GATES.md</code> (the earlier five standing audits are absorbed here, mapping preserved in that doc).
+    Run the <b>Deterministic Astrology Audit</b> before anything else.</p>
+  <div class="audit"><div class="audit-h"><span>1</span>Astrological Fidelity</div>
+    <p class="audit-say">Is the astrology correct and methodologically consistent? Every conclusion deterministic, every "why"
+      traceable to engine output; no duplicate computations, no conflicting rulings, no silent fallback changing method.</p></div>
+  <div class="audit"><div class="audit-h"><span>2</span>Narrative Fidelity</div>
+    <p class="audit-say">Does the reading tell ONE coherent story without the LLM inventing meaning? One governing idea, one
+      protagonist, one arc; strong ending; cut true-but-unnecessary facts. (Full contract: <code>NARRATIVE_AUDIT.md</code>.)</p></div>
+  <div class="audit"><div class="audit-h"><span>3</span>Engineering Integrity</div>
+    <p class="audit-say">Is every engine output deterministic, traceable, and free of ambiguity? Inspect every JSON before the
+      LLM (no nulls, no duplicates, no ambiguous subjects, no unused fields). No magic — every behaviour explainable.</p></div>
+  <div class="audit"><div class="audit-h"><span>4</span>Visual &amp; UX Excellence</div>
+    <p class="audit-say">Does every interaction feel polished, intuitive, and unmistakably Velea? IA, onboarding, delight,
+      accessibility, performance, a mathematically consistent design system.</p></div>
+  <div class="audit"><div class="audit-h"><span>5</span>Business Excellence</div>
+    <p class="audit-say">Does it maximize trust, retention, and conversion with no friction and no money leaks? Conversion,
+      retention, error recovery, and every business rule documented — nothing exists "because the code does it."</p></div>
+
+  <div class="scores">
+    <div class="score"><div class="n bad">10</div><div class="l">Open issues</div></div>
+    <div class="score"><div class="n warn">16</div><div class="l">Your calls</div></div>
+    <div class="score"><div class="n good">2</div><div class="l">Awaiting eyes</div></div>
+    <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
+  </div>
+
   <div class="card">
-    <b>Where the app is.</b> Live at v929 on velealor.com. Suite 1306 pass / 4 skipped (125 files), typecheck 0, build 0
-    — printed by running it, not carried forward. The reading engine has its spine (day-tilt, nakshatra-as-quality, the
-    reverted agenda layer), the Optima typography is in, the Road Ahead veil is live for everyone. This session: v926 fixed
-    the reader gate that showed a free user "the room/chapter is quiet" instead of a lock (verified on the app), v927 made
-    the silent gate-catches log, v928 shipped ruling B (a cancelled fall is supportive always), and <b>v929 fixed the
-    "Aligned for Today" list</b> — an autopsy against your real data showed it collapsing to 1 task of 89; mode is now a
-    soft rank (not a hard amputation) and the low-drive gate reads the whole check-in. <b>Awaiting your eyes on the phone.</b>
+    <b>Where the app is.</b> Live at v930 on velealor.com. Suite 1308 pass / 4 skipped, typecheck 0, build 0 — printed by
+    running it. This session: v926 fixed the reader gate that showed a free user "the room is quiet" instead of a lock,
+    v928 ruling B (a cancelled fall is supportive always), v929 fixed "Aligned for Today" (mode is a soft rank, the
+    low-drive gate reads the whole check-in), and <b>v930 wired the Cast/Camera/Tension engine into the day cast read</b> —
+    the engine now hands the protagonist and the one tension, the model narrates them. <b>Two things await your eyes: the
+    Aligned list, and The Read (the cast paragraph).</b>
   </div>
 
-  <h2>The five standing audits — every release, never leave the brief</h2>
-  <p class="lead">David's doctrine (2026-07-22). These are the release gates the whole project answers to; the mechanical
-    checklist that runs them in code lives in <code>AUDITS.md</code> (audits 1–14). Numbered as David wrote them.</p>
+  <!-- ═══════════════  YOUR CALLS  ═══════════════ -->
+  <h2>Your calls — type a ruling in any box</h2>
+  <p class="lead">Everything waiting on you, in one place. Fill the ones you want to decide (skip the rest), then hit
+    “Copy my rulings” at the bottom and paste it to me — I apply them and take each off the list.</p>
 
-  <div class="audit">
-    <div class="audit-h"><span>7</span>Narrative Fidelity</div>
-    <p class="audit-say">The astrology engine has already decided the meaning. The LLM is only allowed to voice it.
-      <b>Full 16-point spec: <code>NARRATIVE_AUDIT.md</code></b> (the engine→LLM contract, verbatim).</p>
-    <p class="tags">Before every release, verify:</p>
-    <ul class="check">
-      <li>Every narrative fact is fully resolved before the prompt.</li>
-      <li>The LLM never performs astrology.</li>
-      <li>One governing idea per reading.</li>
-      <li>One protagonist.</li>
-      <li>One emotional arc.</li>
-      <li>No competing narratives.</li>
-      <li>Remove true-but-unnecessary engine facts.</li>
-      <li>Endings distill rather than summarize.</li>
-      <li>Reflection questions arise naturally from the governing idea.</li>
-    </ul>
-    <p class="audit-fail">Failure = do not ship.</p>
-  </div>
+  <div class="grp">The two live decisions</div>
+  <div class="ask"><b>Full Spectrum → mode colour.</b>
+    <span class="why">FS accents come up gold across every mode (stray red on Restraint). Your ruling: follow the mode —
+    wine for Restraint, teal for Selective. One source swap, broad audit. Queued.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Full Spectrum → mode colour" placeholder="e.g. yes, follow the mode / hold"></textarea></div></div>
+  <div class="ask"><b>Dark mode — the next look priority.</b>
+    <span class="why">Dark is the <i>default</i> surface, not an opt-in: a cold full-page contrast pass (day-number
+    contrast, the espresso palette, the Optima hero on dark). Parchment ink (below) is one concrete piece.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Dark mode pass" placeholder="e.g. do the full pass now / after launch"></textarea></div></div>
 
-  <div class="audit">
-    <div class="audit-h"><span>8</span>Design Excellence</div>
-    <p class="audit-say">Every visible surface must feel intentional.</p>
-    <p class="tags">Audit every release for: typography · spacing · hierarchy · contrast · accessibility · animation ·
-      iconography · empty states · notifications · onboarding · loading · splash · paywall · dark mode · light mode.</p>
-    <p class="audit-fail">Nothing ships because "it's good enough." It ships because nothing obvious remains.</p>
-  </div>
+  <div class="grp">The astrology — how Velea reads a chart</div>
+  <div class="ask"><b>1. How loudly should Siddha Yoga speak?</b>
+    <span class="why">A Siddha Yoga forms <b>88 days a year (24%)</b> — the common signal, not the rare one. It lifts a day,
+    never clears a veto. You decide how prominent it is.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Siddha Yoga loudness" placeholder="e.g. a quiet lift only / a named line"></textarea></div></div>
+  <div class="ask"><b>2. The eclipse day — does the guidance change before vs after the exact moment?</b>
+    <span class="why">Open issue below. Naming it honestly ("Eclipse today") takes no side and I'll fix that either way.
+    Whether the <i>guidance</i> should differ before vs after is a method call, and it's yours.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Eclipse before/after guidance" placeholder="e.g. same either side / differ before vs after"></textarea></div></div>
+  <div class="ask"><b>3. The knot thresholds.</b>
+    <span class="why">The numbers deciding when a life-theme counts as "lit" were set by me and never checked. You asked
+    for a way to test them with your eyes — I owe you that method if you want it.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Knot thresholds" placeholder="e.g. build me the test method / leave them"></textarea></div></div>
+  <div class="ask"><b>4. The crown mark — two spec pieces still missing.</b>
+    <span class="why">Your tārā list and six lucky Moon houses match the engine. Still missing: the <b>11th is not treated
+    as the peak</b> (weighs the same as the 3rd), and <b>Shubha Tithi</b> uses the cited family rule, not your list.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Crown mark spec (11th peak + Shubha Tithi)" placeholder="e.g. make the 11th the peak; use my tithi list"></textarea></div></div>
 
-  <div class="audit">
-    <div class="audit-h"><span>9</span>Revenue Integrity</div>
-    <p class="audit-say">Every release must prove:</p>
-    <ul class="check">
-      <li>no entitlement leaks</li>
-      <li>no subscription leaks</li>
-      <li>no purchase bypass</li>
-      <li>no accidental free access</li>
-      <li>no pricing inconsistency</li>
-      <li>no downgrade bugs</li>
-      <li>no restore failures</li>
-    </ul>
-    <p class="audit-fail">Every dollar should have one path. No hidden paths.</p>
-  </div>
+  <div class="grp">The look — palette &amp; type calls</div>
+  <div class="ask"><b>5. The crown mark is gold on a gold coin.</b>
+    <span class="why">1.6:1 in light, 1.2:1 in dark — effectively invisible, and the border is the same gold. A darker gold
+    reads but turns the mark olive; the alternative is keeping the gold and giving it a real shadow.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Crown mark gold-on-gold" placeholder="e.g. darker gold / keep gold + add shadow"></textarea></div></div>
+  <div class="ask"><b>6. Parchment ink in dark mode.</b>
+    <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night. One value in the theme block.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Parchment ink in dark mode" placeholder="e.g. lift it to 4.5:1"></textarea></div></div>
+  <div class="ask"><b>7. Rename the "Parents &amp; Roots" chip?</b>
+    <span class="why">That area is now explicitly ancestry — the departed, what came down the line. <b>"Roots &amp; Ancestry"</b>
+    would match. I don't rename what you look at without asking.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Rename Parents & Roots chip" placeholder="e.g. yes, Roots & Ancestry / keep it"></textarea></div></div>
+  <div class="ask"><b>8. Futura instead of Optima? — wants a mock first.</b>
+    <span class="why">Futura is DCPC's brand font. I'll build a <b>Futura + Inter</b> vs current <b>Optima + Inter</b> mock
+    for your eyes; ships only if you bless it. Say the word and I make the mock.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Futura vs Optima" placeholder="e.g. make the mock / not now"></textarea></div></div>
 
-  <div class="audit">
-    <div class="audit-h"><span>10</span>Cognitive Load</div>
-    <p class="audit-say">Every screen answers immediately: Where am I? · What matters? · What happens next?</p>
-    <p class="audit-fail">Every interaction removes work — never adds it. The user should never need to remember anything
-      the interface can remember instead.</p>
-  </div>
+  <div class="grp">The reading — rulings that shape the engine</div>
+  <div class="ask"><b>9. "Karaka" / "Tara" in a read — scrub, or make tappable?</b>
+    <span class="why">Open issue #10. "Tara" is already scrubbed from LLM prose; "Karaka" is a scrub-list gap. Your law:
+    jargon must be glossed in prose OR be a tappable glossary term. Remedy takes a side — scrub them out, or keep them and
+    add glossary pop-ups.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Karaka/Tara: scrub vs glossary pop-up" placeholder="e.g. add karaka to the scrub / make both tappable"></textarea></div></div>
+  <div class="ask"><b>10. The 27-star table duplication — consolidate, or keep guarded?</b>
+    <span class="why">Open issue #2. The duplication is guarded by a test ("never fork"); no live risk. True consolidation
+    to one import is a design change that contradicts that documented choice — worth it, or leave it?</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="27-star table: consolidate vs keep guarded" placeholder="e.g. leave it guarded / consolidate"></textarea></div></div>
+  <div class="ask"><b>11. The chapter read fires on the Chart page with no tap.</b>
+    <span class="why">Open issue #6 — a deliberate Door-Law exception (the input is date-stable, so it doesn't re-bill
+    daily). Whether the exception stands is yours.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Chapter read auto-fires on Chart page" placeholder="e.g. exception stands / add a tap"></textarea></div></div>
 
-  <div class="audit">
-    <div class="audit-h"><span>11</span>The Velea Standard</div>
-    <p class="audit-say">Every change is measured against four questions:</p>
-    <ul class="check">
-      <li><b>Accuracy</b> — Is it true?</li>
-      <li><b>Precision</b> — Is this the clearest implementation possible?</li>
-      <li><b>Trust</b> — Would this increase or decrease confidence in Velea?</li>
-      <li><b>Friction</b> — Does this create unnecessary effort?</li>
-    </ul>
-    <p class="audit-fail">If any answer is "yes," fix the source before shipping.</p>
-  </div>
+  <div class="grp">The business — money &amp; launch</div>
+  <div class="ask"><b>12. Set the price.</b>
+    <span class="why">Your list is locked. Nothing charges yet. Waiting on Mercury clearing post-shadow, per you.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Set the price" placeholder="e.g. go with the locked list now / hold"></textarea></div></div>
+  <div class="ask"><b>13. Stripe keys.</b>
+    <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config, yours.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Stripe keys" placeholder="e.g. I'll add them in Railway / waiting"></textarea></div></div>
+  <div class="ask"><b>14. The pick-a-date precision layer — wire it, or delete it?</b>
+    <span class="why">170 lines that call themselves the precision layer for the paid date reading, and nothing calls them.
+    What only they carry is transit-level precision. I haven't verified the module against the canon, so I won't claim it.</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="Pick-a-date precision layer: wire or delete" placeholder="e.g. verify + wire it / delete it"></textarea></div></div>
 
+  <div class="grp">Awaiting your eyes (feedback, not a ruling — but drop a note if it's off)</div>
+  <div class="ask"><b>The Read (cast paragraph) — v930, engine-fed.</b>
+    <span class="why">Tap The Read. The protagonist and the one tension are now decided by your chart, not the AI. If it
+    reads off, tell me here — it's cache-salted, so I adjust fast.</span>
+    <div class="ruling"><label>How does it read?</label><textarea data-q="The Read / cast paragraph (v930)" placeholder="e.g. reads great / the tension feels forced"></textarea></div></div>
+  <div class="ask"><b>The Aligned list — v929.</b>
+    <span class="why">Full Restraint-led list now, not 1 task. The "capable" threshold (mental≥4 &amp; emotional≥4) is
+    yours to retune.</span>
+    <div class="ruling"><label>How does it read?</label><textarea data-q="Aligned list (v929) + capable threshold" placeholder="e.g. good / loosen the threshold to 3"></textarea></div></div>
+
+  <!-- ═══════════════  THE CHAIN  ═══════════════ -->
   <h2>The chain — do next, in order</h2>
-  <p class="lead">The order follows the method: correctness first (nothing new is built on a reading that mis-voices
-    itself), then the money seam, then the feature direction this session is pointed at, with the look as one batch that
-    slots anywhere. The calls you owe run in parallel — they're below. Full detail per item in the audit sheet.</p>
+  <p class="lead">Correctness first, then the money seam, then the feature direction, with the look as one batch that slots
+    anywhere. The calls you owe are above.</p>
   <ol class="asks">
-    <li><b>Clear the correctness cluster — foundation.</b> <b>The "quiet" reader bug is LANDED (v926–927)</b> — proven by
-      the readings autopsy to be the feature gate returning <code>available:false</code> with no <code>locked</code>, not a
-      data fault; fixed, probed, deployed, and verified on the app (a free profile's rooms read, the paid rooms lock). The
-      cancelled-fall item (was #1) was <b>resolved by ruling B (v928)</b> — the prose was right, the engine over-gated, gate
-      removed. <b>The copy sweep is essentially DONE (verified 22 Jul):</b> 6 of 7 closed — Business Partners→spouse (v905),
-      "your star" (v901/v903), "THE DAY OFFERS IT" (supports gate), eclipse/station tense (v905). The one survivor exposed a
-      bigger thing: <b>the Cast/Camera/Tension "Stage" engine (<code>sky/stage.ts</code>, built 7/21) was never wired into a
-      reading</b> — nothing but scripts import it, so the LLM still <i>improvises</i> the stage (prompts.ts), against the
-      engine-decides law. You ruled it should be live; wiring it is a real task awaiting your direction (which surface, and
-      the prompt rewrite to narrate structured fields instead of inventing them).</li>
-    <li><b>The "Aligned for Today" filter — LANDED (v929), awaiting your eyes.</b> The <code>diagnose-aligned.ts</code>
-      autopsy measured the cause against your real data: on a Restraint day with motivation 2, the hard mode filter cut
-      89 active tasks → 18, then the low-drive gate cut 18 → 1. Your ruling (both levers) shipped: mode is a soft rank
-      (off-mode tasks stay reachable, sink below on-mode), and the low-drive gate is whole-check-in aware (low motivation
-      only hides demanding tasks when you're not otherwise capable). Look at the deployed list and confirm it reads right;
-      the "capable" threshold (mental≥4 &amp; emotional≥4) is yours to retune.</li>
+    <li><b>Correctness cluster — essentially DONE.</b> The copy sweep is 6/7 closed (Business Partners→spouse, "your star",
+      "THE DAY OFFERS IT", eclipse/station tense — all v901–v905). The lone survivor exposed the unwired Stage engine,
+      <b>now wired in v930</b> (awaiting your eyes on The Read).</li>
+    <li><b>Aligned for Today — LANDED (v929), awaiting your eyes.</b> Mode is a soft rank; the low-drive gate is
+      whole-check-in aware. Threshold is yours to retune (box above).</li>
     <li><b>Make the gate a gate — the money seam.</b> Two premium surfaces (the hero's ↻ refresh, the year calendar)
-      <i>hide</i> from a free user instead of showing a lock; the gate glyph should sit by the opener. One class: gated
-      features render as a visible lock, not an absence. Ties straight to launch.</li>
-    <li><b>The feature direction — the Planner roadmap + the prana reading.</b> The body of the session, restored in full
-      under <i>Pick back up</i> below. Highest-leverage first: confirm the two shipped Planner pieces still hold, then
-      visual time-anchoring (needs your <code>duration</code> schema script), then Pomodoro (shares it), then the prana
-      reading surface — the engine already computes prana-level periods; nothing voices them yet.</li>
+      <i>hide</i> from a free user instead of showing a lock; the gate glyph should sit by the opener. Ties to launch.</li>
+    <li><b>The feature direction — the Planner roadmap + the prana reading.</b> Highest-leverage first: confirm the two
+      shipped Planner pieces, then visual time-anchoring (needs your <code>duration</code> schema script), then Pomodoro,
+      then the prana reading surface (engine computes it; nothing voices it yet).</li>
     <li><b>The look — one batch, slots anywhere.</b> The comet brand mark, the Readings diamond, the gate-glyph placement,
-      the Life Atlas caret, the yogas copy, and the Futura-vs-Optima mock. <b>Itemised in full below (The UI / brand batch).</b>
-      Plus the two live look-decisions already queued: Full Spectrum → mode colour, and the dark-mode pass.</li>
+      the Life Atlas caret, the yogas copy, the Futura mock. Itemised below.</li>
   </ol>
 
+  <!-- ═══════════════  UI / BRAND BATCH  ═══════════════ -->
   <h2>The UI / brand batch — your spec, 22 July</h2>
-  <p class="lead">Your seven items, verbatim intent, so no specific is lost in summary. Items 1, 4 and 7 are the load-bearing
-    ones (the brand mark you keep returning to; the hidden money gates; the gate-glyph rule); 3 (font) is a decision that
-    needs a mock for your eyes before anything ships.</p>
+  <p class="lead">Your seven items, verbatim intent, so no specific is lost. Items 1, 4 and 7 are load-bearing; 3 (font)
+    is the decision above.</p>
   <ol class="asks">
-    <li><b>Comet replaces the Lakshmi star as the brand mark — "just do it."</b> Not to be reasoned out of; you keep
-      coming back to it. Applies in three places: the <b>brand mark</b>, the <b>spinning loading mark</b>, and the
-      <b>Today</b> nav icon.</li>
-    <li><b>Readings nav → a diamond</b> (a square turned on its axis) with a <b>bindi dot</b> in the middle. This frees
-      the Lakshmi star from the Readings tab (it's leaving the nav via item 1).</li>
-    <li><b>Futura instead of Optima? — a DECISION, wants a mock.</b> Futura is DCPC's brand font. Show <b>Futura + Inter</b>
-      against the current <b>Optima + Inter</b> in an artifact for your eyes. Ships only if you bless it (cosmetic +
-      jarring-redesign risk → last, and never without your sign-off).</li>
-    <li><b>Gated premium is HIDDEN, not locked — a big issue.</b> For a free user, two premium surfaces don't appear at
-      all; they must appear <b>with the gate icon</b>: the hero card's <b>↻ refresh reading</b>, and the <b>year calendar</b>.</li>
-    <li><b>Life Atlas: "open" → a caret.</b> The Life Atlas row says "open" and the yogas row says nothing; the row doesn't
-      need the word "open" — just a caret.</li>
-    <li><b>Yogas: remove "taste" ("gross"); make them free-pickable.</b> A caret opens the card to what it says now. The
-      bubble button that picks a yoga as the free reading: <b>remove the words</b> and replace with something elegant — it
-      does NOT need to repeat the yoga's name, and "This choice keeps…" is weird English.</li>
-    <li><b>Gate glyph sits by the opener — for ALL locked features.</b> The gate glyph goes right next to the caret or
-      button that normally opens the feature (the general rule item 4 is a case of).</li>
+    <li><b>Comet replaces the Lakshmi star as the brand mark — "just do it."</b> The <b>brand mark</b>, the <b>spinning
+      loading mark</b>, and the <b>Today</b> nav icon.</li>
+    <li><b>Readings nav → a diamond</b> (a square on its axis) with a <b>bindi dot</b> in the middle. Frees the star.</li>
+    <li><b>Futura vs Optima?</b> — the decision + mock (box #8 above).</li>
+    <li><b>Gated premium is HIDDEN, not locked.</b> The hero card's <b>↻ refresh</b> and the <b>year calendar</b> must
+      appear <b>with the gate icon</b>, not vanish for a free user.</li>
+    <li><b>Life Atlas: "open" → a caret.</b> The row doesn't need the word "open" — just a caret.</li>
+    <li><b>Yogas: remove "taste"; make them free-pickable.</b> A caret opens the card. The bubble button that picks a yoga
+      as the free reading: <b>remove the words</b>, replace with something elegant — not the yoga's name again, and
+      "This choice keeps…" is weird English.</li>
+    <li><b>Gate glyph sits by the opener — for ALL locked features.</b> Right next to the caret/button that opens it.</li>
   </ol>
 
+  <!-- ═══════════════  OPEN ISSUES  ═══════════════ -->
+  <h2>Open issues — 10, named and reproducible</h2>
+  <p class="lead">The catalogue. The ones that need a ruling have a box up in <b>Your calls</b>; the rest are mine to build.</p>
+  <ul class="plain">
+    <li><span class="tag">DATA</span><b>1 · The Stage engine — WIRED v930, awaiting your eyes.</b> The Cast/Camera/Tension
+      engine now feeds the day cast read; the aggressor-direction bug is fixed at <code>findTension</code> (both-directions
+      test + probe). Tap The Read and confirm — then this closes.</li>
+    <li><span class="tag">DATA</span><b>2 · The 27-star name table is duplicated across ~7 files — GUARDED BY DESIGN.</b>
+      <code>nakshatra-tables-agree.test.ts</code> asserts every copy spells identically ("never fork"); no live risk.
+      Consolidation is a design change → your call (box #10 above).</li>
+    <li><span class="tag">DATA</span><b>3 · Exact Chesta (eight-state seeghra-kendra) is not built.</b> The simplified
+      K&amp;F rule declares itself as such to the model; the real one needs the textbook, not inference.</li>
+    <li><span class="tag">MONEY</span><b>4 · The failed-save re-bill guard is per-process.</b> A redeploy or second replica
+      loses it. Needs somewhere durable.</li>
+    <li><span class="tag">MONEY</span><b>5 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
+      <code>engineVersion</code> column — a script you run.</li>
+    <li><span class="tag">MONEY</span><b>6 · The chapter read fires on the Chart page with no tap.</b> A deliberate
+      Door-Law exception → your call (box #11 above).</li>
+    <li><span class="tag">READ</span><b>7 · The Day Headline — the detectors exist; one line connects them.</b> Canon
+      ladder blessed; mine to wire (changes readings → your eyes after).</li>
+    <li><span class="tag">READ</span><b>8 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
+    <li><span class="tag">LOOK</span><b>9 · The welcome card can show two filled primary buttons.</b> Mine to fix.</li>
+    <li><span class="tag">READ</span><b>10 · "Karaka" and "Tara" reach a read untappable and unglossed.</b> "Tara" is
+      already scrubbed; "Karaka" is a scrub-list gap. Remedy (scrub vs glossary) → your call (box #9 above).</li>
+  </ul>
+
+  <!-- ═══════════════  PICK BACK UP  ═══════════════ -->
   <h2>Pick back up — the feature directions</h2>
-  <p class="lead">Surfaced back into the brief so they stop living as one buried line. Status is honest: what's shipped,
-    what's parked, what's an engine with no surface yet.</p>
-
   <div class="grp">The productivity Planner — neurodivergent-UX, greenlit 17 July</div>
-  <p class="lead">Evidence-based, from the market deck: neuroinclusive <i>is</i> universal design — the same choices that
-    unblock an ADHD user unblock every tired, distracted, overloaded one. None of the five leaders (Notion, Todoist,
-    TickTick, ClickUp, Motion) ship #1, #3 or #9 — open ground. These drop onto the Planner that already exists.</p>
+  <p class="lead">Neuroinclusive is universal design. None of the five leaders (Notion, Todoist, TickTick, ClickUp,
+    Motion) ship the key ones. These drop onto the Planner that already exists.</p>
   <ol class="asks">
-    <li><b>One task / Focus Mode</b> — hide all but the current action, one primary CTA. The app leans this way via
-      soft-open + collapse; a dedicated mode is unbuilt.</li>
-    <li><b>AI task-decomposition on capture</b> — break a task into 3–7 micro-steps, first pre-selected; kills initiation
-      paralysis at the moment it strikes. <i>Shipped v710 per the record — confirm on a live look.</i></li>
-    <li><b>Gentle overdue</b> — overdue fades to neutral + one-tap "roll everything forward"; never a stack of red badges
-      (shame → avoidance → churn). <i>Shipped v708 per the record — confirm on a live look.</i></li>
-    <li><b>Sensory control panel</b> — the user controls animation, sound, colour-intensity, density; no autoplay, no
-      unprompted motion. Needs your UX spec.</li>
-    <li><b>Visual time-anchoring</b> — every task shows an estimated duration; a shrinking-disc timer (not numerals) for
-      the active one. Time-blindness accommodation, Motion's whole moat. Needs a <code>duration</code> schema script — yours to run.</li>
-    <li><b>Zero-friction capture</b> — voice-first, natural-language parse, capture from lock screen / share sheet, under
-      two seconds. Never paywall capture.</li>
-    <li><b>Save-and-resume by default</b> — every flow pausable and resumable with visible progress and a one-line "you
-      were here" re-orient.</li>
-    <li><b>Predictable structure, opt-in novelty</b> — navigation never moves; redesigns ship as opt-in themes (the hard
-      no-jarring-redesign rule).</li>
-    <li><b>Body-doubling &amp; forgiving rewards</b> — optional co-working presence; streaks that <i>forgive</i> gaps
-      rather than reset to zero.</li>
-    <li><b>Pomodoro focus sessions — your addition.</b> A 25-min shrinking disc on a task → rest bell → 5–10 min break
-      (a mini rest-gate, never guilt) → a different return bell. The two bells are your art. Parked; shares the
-      <code>duration</code> script with #5. Trigger: "go pomodoro".</li>
-    <li><b>Per-day task list — tap a day, see its tasks (added 22 Jul).</b> Tapping a calendar day changes the reading
-      but no task list follows it — the two task surfaces ("To Do", "Aligned for today") are today-locked. This would show
-      the SELECTED day's tasks, tilted toward that day's mode (soft rank, exactly like the v929 Aligned fix: on-mode leads,
-      the rest reachable below). A rough skeleton exists as dead code (<code>matchedTasks</code> in <code>Planner.tsx</code>,
-      currently mode-HARD-filtered and rendered nowhere) — building this means wiring it up and softening it. You ruled
-      "leave it for now."</li>
+    <li><b>One task / Focus Mode</b> — hide all but the current action, one primary CTA. Unbuilt.</li>
+    <li><b>AI task-decomposition on capture</b> — 3–7 micro-steps, first pre-selected. <i>Shipped v710 — confirm live.</i></li>
+    <li><b>Gentle overdue</b> — fades to neutral + one-tap "roll forward". <i>Shipped v708 — confirm live.</i></li>
+    <li><b>Sensory control panel</b> — animation/sound/colour/density controls. Needs your UX spec.</li>
+    <li><b>Visual time-anchoring</b> — per-task duration + a shrinking-disc timer. Needs a <code>duration</code> schema
+      script — yours to run.</li>
+    <li><b>Zero-friction capture</b> — voice-first, natural-language, from lock screen. Never paywall capture.</li>
+    <li><b>Save-and-resume by default</b> — every flow pausable with a "you were here" re-orient.</li>
+    <li><b>Predictable structure, opt-in novelty</b> — navigation never moves; redesigns ship as opt-in themes.</li>
+    <li><b>Body-doubling &amp; forgiving rewards</b> — optional co-working; streaks that forgive gaps.</li>
+    <li><b>Pomodoro focus sessions — your addition.</b> 25-min disc → rest bell → break → return bell. The bells are your
+      art. Parked; shares the <code>duration</code> script. Trigger: "go pomodoro".</li>
+    <li><b>Per-day task list — tap a day, see its tasks.</b> A rough skeleton exists as dead code
+      (<code>matchedTasks</code>). You ruled "leave it for now."</li>
   </ol>
-
   <div class="grp">The prana reading</div>
-  <div class="card">The dasha engine already computes and stores <b>prana-level periods</b> — the fifth and finest level
-    (<code>dasha-tree.ts</code>, <code>profileDashaPeriods</code> level 5). <b>No reading surface voices them yet.</b> A
-    feature to build on data that already exists, not a from-scratch job.</div>
-
+  <div class="card">The dasha engine computes and stores <b>prana-level periods</b> (level 5). <b>No surface voices them
+    yet.</b> A feature to build on data that exists.</div>
   <div class="grp">Two engine threads — confirm, don't rebuild</div>
-  <div class="law">· <b>The agenda layer.</b> Built v906, reverted v907 (as a voice it hijacked the read → the law
-    "coherence over information"). The rebuild is a <i>hidden nudge</i> to the engine, never the prose. Code parked at
-    <code>@535fcd5</code>.</div>
-  <div class="law">· <b>Addresses &amp; contacts.</b> Built v884, wired v885 (each planet keeps its address; the pair names
-    the convention it breaks). Believed done — one look on a live reading confirms it reads the way you wanted.</div>
+  <div class="law">· <b>The agenda layer.</b> Built v906, reverted v907 (as a voice it hijacked the read). Rebuild as a
+    <i>hidden nudge</i>. Code parked at <code>@535fcd5</code>.</div>
+  <div class="law">· <b>Addresses &amp; contacts.</b> Built v884, wired v885. Believed done — one look on a live reading
+    confirms it.</div>
 
-  <h2>Blocked on you — decisions</h2>
-  <p class="lead">Nothing here moves until you rule. Full context per item in the audit sheet.</p>
-  <div class="grp">Astrology</div>
-  <div class="law">· <b>Siddha Yoga</b> forms 88 days a year (24%) — how loudly should it speak?</div>
-  <div class="law">· <b>The eclipse day</b> — should the guidance differ before vs after the exact moment? (I'll fix the naming either way.)</div>
-  <div class="law">· <b>The knot thresholds</b> — you want a way to test them with your eyes; I owe you that method.</div>
-  <div class="law">· <b>The crown mark</b> — the 11th isn't treated as the peak, and Shubha Tithi uses the family rule, not your list.</div>
-  <div class="grp">Look</div>
-  <div class="law">· <b>The crown mark is gold on a gold coin</b> — darker gold (turns olive) or a real shadow?</div>
-  <div class="law">· <b>Parchment ink in dark mode</b> — day numbers at 2.3:1; one theme value.</div>
-  <div class="law">· <b>Rename the "Parents &amp; Roots" chip</b> to "Roots &amp; Ancestry"?</div>
-  <div class="grp">Business — money &amp; launch</div>
-  <div class="law">· <b>Set the price</b> — your list is locked; waiting on Mercury clearing post-shadow, per you.</div>
-  <div class="law">· <b>Stripe keys</b> — the entitlement resolver is built and tested; Railway config is yours.</div>
-  <div class="grp">Cleanup</div>
-  <div class="law">· <b>The pick-a-date precision layer</b> — wire it or delete it? 170 lines, nothing calls them.</div>
-
-  <h2>Open issues &amp; the record</h2>
-  <p class="lead">
-    The full catalogue of open issues (15, named and reproducible) and everything fixed lives in the
-    <a href="#">audit sheet</a> — the fixed record is collapsed there, out of the way. This brief stays the to-do list;
-    the sheet stays the record.
-  </p>
+  <!-- ═══════════════  THE RECORD  ═══════════════ -->
+  <h2>The record — fixed &amp; settled</h2>
+  <p class="lead">Collapsed, out of your way, kept so nothing vanishes — nothing was deleted. The long forensic version
+    lives at <code>tools/audit-sheet/archive-longform-v848.html</code>.</p>
+  <details><summary>Fixed &amp; verified this run (v903–v930)</summary>
+    <ul>
+      <li><b>v930 — the Stage engine wired into the cast read.</b> Built 7/21, never wired; now the engine hands the
+        protagonist + the one tension, the model narrates. The <code>findTension</code> aggressor bug (20/103 backwards)
+        fixed with a both-directions test; 3 probes bite; SURFACE_VERSION.cast bumped. Suite 1308 green.</li>
+      <li><b>Copy-sweep cluster — 5 stale "open" items were already fixed (v901–v905, each measured or code-confirmed).</b>
+        Business Partners→spouse, "your star is carried", "THE DAY OFFERS IT", eclipse announced past, station announced
+        "just now". Only the Stage item survived → became the wiring above.</li>
+      <li><b>v929 — "Aligned for Today" was amputating the list.</b> On a Restraint day with motivation 2, two filters
+        left 1 task of 89. Ruling (both levers): mode is a soft rank, and the low-drive gate is whole-check-in aware.
+        One shared gate; +6 tests, 2 probes. Threshold (mental≥4 &amp; emotional≥4) is yours to retune.</li>
+      <li><b>v928 — a cancelled fall is supportive, always (ruling B).</b> The dashaGate is textual for yogas generally
+        but its application to neecha bhanga is modern (Raman 1947), no classical verse. The engine over-gated; gate
+        removed. Prose was right.</li>
+      <li><b>v926 — the reader gate said "quiet", not locked.</b> Feature-off returns sent <code>available:false</code>
+        with no <code>locked</code>; both now return <code>locked:true</code>, probed. Verified on the deployed app.</li>
+      <li><b>Earlier this run (v903–v925).</b> Viewer-local dates; the null-island guard; honest empty states; the
+        reading-engine spine (day-tilt, nakshatra-as-quality, GO honours the veto); vocation; the Optima overhaul; the
+        Road Ahead thirst gate; the paid-seam floor + lock flags + spend cap; the restored reading laws.</li>
+    </ul>
+  </details>
+  <details><summary>Where I was wrong — corrections kept, not quietly changed</summary>
+    <ul>
+      <li>I claimed the day layer left <code>panchang.mode = undefined</code> — <b>FALSE</b>, it did not.</li>
+      <li>I said "the Stage names the wrong aggressor 19%" was a live reading defect — it lived in unwired script-only
+        code; corrected before acting (v930 then wired it properly).</li>
+      <li>I called the copy sweep "6 live defects" — 5 were already fixed and the docs had gone stale; corrected by
+        measuring each at HEAD.</li>
+      <li>I over-dramatised ("improvise", "amputating") — the engine already marks the loud planets; the gap was narrower
+        (framing, not invention). Recalibrated.</li>
+      <li>The "your own star" line named the loss star (tara 7), the worst rung — fixed with a control.</li>
+      <li>I said "~70 conditional strings in <code>interpreter.ts</code>" — <b>that file does not exist</b>; I named a file
+        I had never opened. The measured scope was 303 strings across 38 files.</li>
+      <li>Three of my own tests were guarding nothing — found by breaking the code on purpose (the probe harness).</li>
+    </ul>
+  </details>
 
   <h2>Where things live</h2>
   <ul class="links">
-    <li><code>tools/audit-sheet/index.html</code> — open issues, your calls, the fixed record (collapsed).</li>
-    <li><code>tools/audit-sheet/archive-longform-v848.html</code> — the full forensic version and every correction.</li>
-    <li><code>STRIPE_PLAN.md</code> · <code>LAUNCH_STATUS.md</code> · <code>BLOCKED_ON_STRIPE.md</code> · <code>SYSTEM_MAP.md</code>.</li>
+    <li><code>NARRATIVE_AUDIT.md</code> — the engine→LLM contract (16 points, verbatim). · <code>SYSTEM_MAP.md</code> —
+      architecture. · <code>STAGE_WIRING_PLAN.md</code> — the v930 plan.</li>
+    <li><code>tools/audit-sheet/archive-longform-v848.html</code> — the full forensic record.</li>
     <li><code>npm run verify</code> · <code>npm run probe</code> · <code>npm run deployed</code> — the three checks.</li>
   </ul>
 
-  <p class="foot">
-    This page is the state of the app and the live to-do list. The audit sheet is the state of the work. Both carry the
-    <b>two live decisions</b> (Full Spectrum → mode colour, the dark-mode pass) and the same eleven open calls, so they
-    can't drift apart. Source: <code>tools/working-brief/index.html</code>.
-  </p>
+  <div id="outWrap"><textarea id="out" readonly aria-label="your rulings, ready to copy"></textarea></div>
+  <p class="foot">One page: the app, the work, and your calls. The old audit sheet is folded in here.
+    Source: <code>tools/working-brief/index.html</code>.</p>
 </div>
+
+<div class="copybar">
+  <span class="count" id="count">0 rulings typed</span>
+  <button id="copyBtn" type="button">Copy my rulings</button>
+</div>
+
+<script>
+  const boxes = () => [...document.querySelectorAll('textarea[data-q]')];
+  const filled = () => boxes().filter(b => b.value.trim());
+  const countEl = document.getElementById('count');
+  const out = document.getElementById('out');
+  function refresh() {
+    const n = filled().length;
+    countEl.textContent = n === 1 ? '1 ruling typed' : n + ' rulings typed';
+  }
+  boxes().forEach(b => b.addEventListener('input', refresh));
+  function assemble() {
+    return 'My rulings on the Velea brief:\n\n' + filled()
+      .map(b => '• ' + b.dataset.q + ': ' + b.value.trim())
+      .join('\n\n');
+  }
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const f = filled();
+    if (!f.length) { countEl.textContent = 'type a ruling in a box first'; return; }
+    const text = assemble();
+    // Always show the selectable fallback box (artifact iframes may block the clipboard API).
+    out.style.display = 'block';
+    out.value = text;
+    out.focus(); out.select();
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      }
+    } catch (e) { copied = false; }
+    countEl.textContent = copied
+      ? '✓ copied ' + f.length + ' — paste it to me'
+      : 'select the box above & copy, then paste to me';
+  });
+  refresh();
+</script>
