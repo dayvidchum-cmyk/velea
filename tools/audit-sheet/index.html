@@ -63,7 +63,7 @@
   <p class="sub">v928 · 22 July 2026 · only what is still open — the fixed record is collapsed at the bottom</p>
 
   <div class="scores">
-    <div class="score"><div class="n bad">9</div><div class="l">Open issues</div></div>
+    <div class="score"><div class="n bad">10</div><div class="l">Open issues</div></div>
     <div class="score"><div class="n warn">10</div><div class="l">Your call</div></div>
     <div class="score"><div class="n good">2</div><div class="l">Live decisions</div></div>
     <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
@@ -124,7 +124,7 @@
     the canon files, so I won't claim it.</span></div>
 
   <!-- ────────────────────────  OPEN ISSUES  ──────────────────────── -->
-  <h2>Open issues — 9, named and reproducible</h2>
+  <h2>Open issues — 10, named and reproducible</h2>
   <p class="lead"><b>The hardcoded-copy sweep (now 1–6)</b> — your law run across the engine: 303 candidate strings in 38
     files, instrument controlled both directions, every survivor re-verified against the code. The original #1 — the
     cancelled fall reading "hard-won strength" — was <b>resolved by ruling B (v928)</b>: the prose was right, the engine
@@ -151,6 +151,12 @@
     <li><span class="tag">READ</span><b>7 · The Day Headline — the detectors exist; one line connects them.</b></li>
     <li><span class="tag">READ</span><b>8 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
     <li><span class="tag">LOOK</span><b>9 · The welcome card can show two filled primary buttons.</b></li>
+    <li><span class="tag">READ</span><b>10 · "Karaka" and "Tara" appear in a read with no glossary pop-up and no prose gloss.</b>
+      Your law: a jargon word in a read must be explained in prose OR be a tappable glossary term. Tappability comes from
+      <code>GlossaryText</code>, which highlights only terms in <code>GLOSSARY</code> (<code>Glossary.tsx</code>, 134
+      entries); bare "Karaka" and "Tara" aren't there (only compounds like <i>Atmakaraka</i>), so they render inert.
+      Fix: add these (and sweep for other bare Sanskrit terms) to the glossary, OR scrub/gloss them per the machinery ban.
+      Reproducible: any read containing "Karaka"/"Tara" shows them plain.</li>
   </ul>
 
   <!-- ────────────────────────  PICK BACK UP  ──────────────────────── -->
