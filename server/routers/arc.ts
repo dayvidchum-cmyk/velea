@@ -10,13 +10,16 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc.js";
 import { computeArc } from "../sky/arc.js";
 import { localToday } from "../panchang/resolve-day-sky.js";
+import { hasFeature } from "../feature-flags.js";
 
 export const arcRouter = router({
   forward: protectedProcedure.query(async ({ ctx }) => {
-    // The Road Ahead is admin-only (David) for now — gated here too, not just in the UI.
-    if (ctx.user.role !== "admin") {
-      throw new TRPCError({ code: "FORBIDDEN", message: "The Road Ahead isn't available yet." });
-    }
+    // THE THIRST GATE (locked-feature law + "counts shown, prose veiled"): the Road Ahead is a
+    // locked premium surface, but a free user should still see how MUCH is ahead (the apex timing,
+    // the crown count, how many season-turns) — never the dates, titles, or what each asks. So we
+    // compute for everyone with a chart and STRIP the detail server-side for the non-entitled; the
+    // client can't leak what it never receives. Entitled = admin OR the specialReadings tester flag.
+    const entitled = await hasFeature(ctx.user, "specialReadings");
     const subject = ctx.subject;
     if (!subject) {
       throw new TRPCError({ code: "BAD_REQUEST", message: "Birth date not configured. Add birth details in Settings or a Profile." });
@@ -48,9 +51,26 @@ export const arcRouter = router({
       today,
     );
 
+    const slowCount = arc.milestones.filter((m) => m.kind !== "apex").length;
+
+    if (!entitled) {
+      // Veiled: counts only. NO dates, NO titles, NO details, NO milestone list — just how much is
+      // ahead. apex keeps its RELATIVE timing (daysAway) and its crown flavour, never its date.
+      return {
+        entitled: false as const,
+        apex: arc.apex ? { daysAway: arc.apex.daysAway, crown: arc.apex.crown } : null,
+        crownCount: arc.crownCount,
+        slowCount,
+        lagnaSign: subject.lagnaSign,
+        userName: subject.name ?? null,
+      };
+    }
+
     return {
+      entitled: true as const,
       apex: arc.apex,
       crownCount: arc.crownCount,
+      slowCount,
       milestones: arc.milestones,
       lagnaSign: subject.lagnaSign,
       userName: subject.name ?? null,

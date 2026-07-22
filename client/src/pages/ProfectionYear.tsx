@@ -10,7 +10,6 @@ import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { ChevronDown, X } from "lucide-react";
 import { createPortal } from "react-dom";
-import { useAuth } from "@/_core/hooks/useAuth";
 import VeleaMark from "@/components/VeleaMark";
 import AppHeader from "@/components/AppHeader";
 import { useDayModeColor, useDayModeInk } from "@/hooks/useDayModeColor";
@@ -175,17 +174,17 @@ export default function ProfectionYear() {
   const chapterGoodFor = chapterResult?.chapter?.chapterGoodFor ?? [];
   const chapterAvoid = chapterResult?.chapter?.chapterAvoid ?? [];
 
-  const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
-  // The Road Ahead is THE FUTURE — strategically locked (David 2026-07-16); testers via flag.
-  const featuresQ = trpc.features.mine.useQuery();
-  const roadEntitled = isAdmin || !!(featuresQ.data as any)?.specialReadings;
+  // The Road Ahead is THE FUTURE — strategically locked (David 2026-07-16); entitlement (admin /
+  // specialReadings tester) is now resolved SERVER-side in arc.forward, which veils the detail for
+  // everyone else. The client no longer needs its own role/feature check for it.
   const tlWindowQ = trpc.narrative.tlWindowRead.useQuery(
     { from: tlRead?.from ?? "", sign: tlRead?.sign ?? "" },
     { enabled: !!tlRead, staleTime: Infinity, retry: false },
   );
-  // The Road Ahead is admin-only (David) for now — only query it for admins.
-  const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false, enabled: isAdmin });
+  // The Road Ahead fires for everyone with a chart: the server returns COUNTS ONLY to the
+  // non-entitled (the thirst veil) and the full road to entitled (admin / specialReadings). The
+  // render below branches on arcData.entitled — the server's truth, which the client can't leak past.
+  const { data: arcData, isLoading: arcLoading, error: arcError } = trpc.arc.forward.useQuery(undefined, { retry: false });
   const utils = trpc.useUtils();
   const [, navigate] = useLocation();
 
@@ -890,8 +889,8 @@ export default function ProfectionYear() {
         ) : arcData ? (() => {
           // THE VEIL (sunken-lock + thirst law; "it's the future"): real counts shown,
           // the dates, the turns, and what each asks stay behind the gate.
-          if (!roadEntitled) {
-            const slowCount = (arcData.milestones as any[]).filter((m: any) => m.kind !== "apex").length;
+          if (!(arcData as any).entitled) {
+            const slowCount = (arcData as any).slowCount ?? 0;
             const apx: any = arcData.apex;
             const compactV = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n} days` : `${Math.round(n / 30.4)} months`);
             return (
@@ -907,7 +906,9 @@ export default function ProfectionYear() {
           const compact = (n: number) => (n <= 0 ? "now" : n < 45 ? `${n}d` : `${Math.round(n / 30.4)}mo`);
           const slow = (arcData.milestones as any[]).filter((m) => m.kind !== "apex");
           const dotColor = (k: string) => (k === "profection" ? "var(--brand-gold)" : k === "dasha" ? modeColor : `color-mix(in srgb, ${modeColor} 68%, #FDFDFD)`);
-          const apex = arcData.apex;
+          // This branch runs only when entitled, so apex is the FULL shape (with .date); the union
+          // type can't narrow from arcData.entitled, so cast — same as the veil's `apx: any` above.
+          const apex: any = arcData.apex;
           return (
             <div>
               <p style={{ color: TEXT_MUTED, fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "1rem" }}>
@@ -955,10 +956,9 @@ export default function ProfectionYear() {
             </div>
           );
         })() : (
-          // Non-admins don't fetch the arc (arc.forward is admin-gated server-side while the Road
-          // Ahead stays locked), so they land here. Show the honest locked teaser — NOT the old
-          // "No road data available." dead-end, which read as a broken panel. (Wiring the real
-          // entitlement gate + live thirst-counts for non-admins is David's money decision.)
+          // Safety fallback: the query now fires for everyone and returns a veiled or full payload,
+          // so a settled-but-empty arcData is not expected — but if it ever happens, show the honest
+          // locked teaser, never the old "No road data available." dead-end.
           <div className="flex items-start gap-2.5 rounded-lg px-3 py-3" style={{ background: "color-mix(in srgb, var(--brand-gold) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent)" }}>
             <GateMark size={20} style={{ marginTop: 2, flexShrink: 0, color: "var(--brand-gold)" }} />
             <p className="text-sm" style={{ margin: 0, color: "var(--color-foreground)", lineHeight: 1.55 }}>

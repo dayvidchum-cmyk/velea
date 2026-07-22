@@ -32,9 +32,12 @@ const RECORD = SHEET + ARCHIVE + BRIEF + BRIEF_ARCHIVE;
 describe("the audit sheet still says what it must", () => {
   it("still says out loud that the work is not finished", () => {
     // Was toContain("not clear") against the old prose. Same fact, pinned to the new page: a
-    // non-zero broken count and a non-zero decision count, both stated as numbers he can see.
+    // non-zero broken count and a non-zero live-decision count, both stated as numbers he can see.
+    // The v922 rewrite relabelled the decision tile "Live decisions" (the count still LIVE) and
+    // moved the full open list under its own "What I need from you — N" heading. Pin the fact
+    // (a non-zero tile), not the old label.
     expect(SHEET).toMatch(/<div class="n bad">([1-9]\d*)<\/div><div class="l">Still broken/);
-    expect(SHEET).toMatch(/<div class="n warn">([1-9]\d*)<\/div><div class="l">Your call/);
+    expect(SHEET).toMatch(/<div class="n warn">([1-9]\d*)<\/div><div class="l">Live decisions/);
   });
 
   it("points at the archive, so the long form is findable and not merely gone", () => {
@@ -44,12 +47,12 @@ describe("the audit sheet still says what it must", () => {
 
   it("the counts on the page reconcile with each other", () => {
     const n = (label: string) => Number(SHEET.match(new RegExp(`<div class="n[^"]*">(\\d+)</div><div class="l">${label}`))![1]);
-    const fixed = n("Fixed"), broken = n("Still broken"), asks = n("Your call");
+    const fixed = n("Fixed"), broken = n("Still broken");
     expect(SHEET).toContain(`${fixed} fixed + ${broken} broken`);
-    // the decision cards rendered must equal the number advertised at the top
-    // Count cards by CLASS, not by the exact tag text — adding a style attribute to one card made
-    // this miss it and report 14 against a header of 15. The guard was right that they disagreed;
-    // it was my counter that was brittle.
+    // The decision cards rendered must equal the number advertised by the section that OWNS them.
+    // v922 split "live decisions" (the tile) from the full open list, which now carries its own
+    // "What I need from you — N" heading — so the cards reconcile against THAT number, not the tile.
+    const asks = Number(SHEET.match(/What I need from you — (\d+)/)![1]);
     expect((SHEET.match(/<div class="ask"[ >]/g) ?? []).length).toBe(asks);
     // and the broken list must have as many rows as it claims
     expect((SHEET.match(/<span class="tag">(?:DATA|MONEY|BUILD|READ|LOOK)<\/span>/g) ?? []).length).toBe(broken);
@@ -103,7 +106,9 @@ describe("both documents carry the same open decisions", () => {
     ["the knot thresholds", /knot threshold/i],
     ["the crown mark's missing pieces", /Siddhi/i],
     ["the crown mark's colour", /gold on a gold coin/i],
-    ["the dark-parchment ink", /Parchment ink/i],
+    // PIN THE FACT, NOT THE PHRASE: the sheet calls it "Parchment ink", the brief "dark-mode pass"
+    // — one decision, two wordings, present on both pages. Match either.
+    ["the dark-mode / parchment-ink decision", /Parchment ink|dark-mode pass/i],
     ["the chip rename", /Roots &amp; Ancestry|Roots & Ancestry/i],
     ["set the price", /Set the price/i],
     ["stripe keys", /Stripe keys/i],
@@ -143,10 +148,15 @@ describe("both documents carry the same open decisions", () => {
     expect(SHEET, "a settled decision vanished instead of being recorded").toMatch(re);
   });
 
-  it("both pages advertise the SAME number of decisions", () => {
+  it("both pages advertise the SAME number of LIVE decisions", () => {
+    // v922 model: the two pages must agree on how many decisions are LIVE. The sheet states it as
+    // a tile number AND in prose ("two live decisions"); the brief states it in prose. Both must
+    // say the same. (Was: sheet warn tile vs a brief "Your decisions — N" line the rewrite dropped;
+    // that pinned an all-open count the sheet no longer advertises as the tile.)
     const sheetN = Number(SHEET.match(/<div class="n warn">(\d+)<\/div>/)![1]);
-    const briefN = Number(BRIEF.match(/Your decisions — (\d+)/)![1]);
-    expect(briefN).toBe(sheetN);
+    expect(sheetN).toBe(2);
+    expect(SHEET, "sheet must state the live count in prose").toMatch(/two live decisions/i);
+    expect(BRIEF, "brief must state the same live count").toMatch(/two live decisions/i);
   });
 
   it("the durable cap is still visible, even though it is parked not decided", () => {
