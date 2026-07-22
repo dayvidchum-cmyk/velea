@@ -1,25 +1,30 @@
 /**
  * Task Scoring Engine
  *
- * Ranks tasks for the Today card using 8 transparent factors.
- * Each scored task carries a `reasons` array so the UI can show
- * "Why this appeared" without any black-box logic.
+ * Ranks tasks for the "Aligned for today" list. Each scored task carries a `reasons`
+ * array so the UI can show "Why this appeared" without any black-box logic.
  *
- * Factors (higher score = higher priority):
- *  1. Pinned              +1000  — user explicitly chose this for today
- *  2. Overdue             +500   — past due date
- *  3. Due today           +300   — due date is today
- *  4. Wealth Flow         +200   — directly improves revenue/cash flow
- *  5. Priority            +150 / +75 / 0   — High / Medium / Low
- *  6. Mode alignment      +100   — task mode matches today's mode
- *  7. Current State Fit   -60 to +60 — based on today's check-in dimensions
- *  8. Task age            +1 per day since creation (max 30) — surfaces older tasks
+ * SORT ORDER (David 2026-07-22, audit #15 — "both levers"):
+ *  1. MODE MATCH is the primary organiser — tasks whose mode matches today's mode sort
+ *     to the top; off-mode tasks SINK but stay reachable (they are no longer amputated).
+ *     This is the "give the day's tilt across many threads" law ([[velea-readings-no-single-move]]):
+ *     the day tilts the list, it does not empty it.
+ *  2. Current-State fit (csBand, ±60 from the check-in) orders WITHIN each mode group.
+ *  3. Base score (floor + soft) breaks the remaining ties.
  *
- * Current State does NOT override pinned, overdue, or wealth-flow tasks.
- * It only nudges the ranking between otherwise comparable tasks.
+ * Soft/floor factors that feed the base score:
+ *  - Pinned +1000, Overdue +500, Due today +300 (untouchable additive floors)
+ *  - Wealth Flow +75, Priority +150/+75, Need +100 / Want −40, Mode alignment +200,
+ *    handshake/circle/domain/meridian lifts, task age (+1/day, max 30)
+ *
+ * THE LOW-DRIVE GATE is whole-check-in aware (shared/motivation-gate): low motivation only
+ * hard-sinks demanding tasks when the native isn't otherwise CAPABLE (strong mental +
+ * emotional). Pinned/overdue tasks render in their own sections, so csBand ordering the
+ * Aligned list never hides them.
  */
 
 import type { Task } from "../drizzle/schema";
+import { lowMotivationGateActive } from "../shared/motivation-gate.js";
 import type { TaskMode } from "../shared/types";
 import type { CurrentLayers, TransitingPlanet } from "./layers/types";
 import { themeMatchesTask } from "./layers/time-lord-theme";
@@ -136,11 +141,13 @@ export function currentStateScore(
   const demanding =
     cogLoad !== "Low" || physLoad !== "Low" || emoLoad !== "Low" || creative || social;
 
-  // ── Motivation — THE master gate, ranked above every other axis ─────────────
+  // ── Motivation — THE master gate, but whole-check-in aware (David 2026-07-22) ──
   // Low drive can't carry a demanding task: anything above pure-low load sinks hard
   // and is flagged a hard mismatch (one gold dot; the aligned list drops it entirely).
-  // Only genuinely gentle, low-friction tasks survive low motivation.
-  if (state.motivation <= 2) {
+  // Only genuinely gentle, low-friction tasks survive low motivation — UNLESS the native
+  // is CAPABLE (strong mental + emotional, his heavy axes), in which case low drive is
+  // cushioned and this gate does not fire at all (demanding tasks score normally).
+  if (lowMotivationGateActive(state)) {
     // Effort size sharpens the gate (David 2026-07-15): a QUICK task fits the low tank
     // even better; a LONG task demands drive regardless of its load tags.
     if ((task as any).effortSize === "long") {
@@ -247,8 +254,9 @@ export function scoreTasks(
   return tasks
     .filter((t) => {
       if (t.isCompleted) return false;
-      // Hard mode filter: only show tasks whose mode matches today's mode
-      if (t.mode !== todayMode) return false;
+      // Mode is a SOFT rank now, not a hard gate (David 2026-07-22): off-mode tasks stay
+      // in the list and sink below on-mode ones (see the sort key), so the day tilts the
+      // list without amputating 3/4 of it.
       // Exclude tasks with future due dates from today's ranking
       // (they appear in the Due orb instead)
       if (t.dueDate) {
@@ -266,6 +274,8 @@ export function scoreTasks(
       // Soft, discretionary subscore — the only part layer multipliers scale.
       let soft = 0;
       const reasons: string[] = [];
+      // Does this task's mode match today's? The primary sort organiser (on-mode first).
+      const modeMatch = task.mode === todayMode;
 
       // 1. Pinned (floor)
       if (task.isPinned) {
@@ -360,8 +370,9 @@ export function scoreTasks(
         reasons.push("A want");
       }
 
-      // 6. Mode alignment (soft) — the strongest discretionary signal.
-      if (task.mode === todayMode) {
+      // 6. Mode alignment (soft) — orders within the on-mode group and voices the reason.
+      //    (The on-mode/off-mode split itself is the primary sort key below.)
+      if (modeMatch) {
         soft += 200;
         reasons.push(`Aligned with ${todayMode} mode`);
       }
@@ -439,7 +450,10 @@ export function scoreTasks(
       // Alignment with TODAY (0–100), independent of the floor — how well the task
       // fits the day (mode/energy/weather/focus). Shown as a gold dot meter so a
       // user-pinned "Do Now" task reveals its fit even though the floor forces it up.
-      let alignment = 55; // baseline: it matches today's mode
+      // Baseline: on-mode tasks start at 55 (a solid fit); off-mode tasks start low
+      // (≈1 dot) since they only appear when today's mode is thin — the meter must read
+      // "reachable, but not today's grain" at a glance.
+      let alignment = modeMatch ? 55 : 25;
       if (cs) alignment += Math.max(-35, Math.min(35, cs.delta * 0.5));
       if (domainMatch) alignment += 12;
       alignment += (gm.multiplier - 1) * 30;
@@ -450,8 +464,9 @@ export function scoreTasks(
       // friction must read at a glance no matter what other lifts (domain/golden/layer) applied.
       if (cs?.hardMismatch) alignment = Math.min(alignment, 15);
 
-      return { ...task, score, alignment, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _cs: csBand, _base: base };
+      return { ...task, score, alignment, reasons, layerBubbles: [...bubbles, ...gm.bubbles].slice(0, 3), _mode: modeMatch ? 1 : 0, _cs: csBand, _base: base };
     })
-    .sort((a, b) => (b._cs - a._cs) || (b._base - a._base))
-    .map(({ _cs, _base, ...t }) => t);
+    // MODE MATCH is primary (on-mode tasks lead), then check-in fit, then base score.
+    .sort((a, b) => (b._mode - a._mode) || (b._cs - a._cs) || (b._base - a._base))
+    .map(({ _mode, _cs, _base, ...t }) => t);
 }

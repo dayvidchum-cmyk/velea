@@ -105,6 +105,40 @@ describe("scoreTasks", () => {
     expect(result[1].id).toBe(3); // Medium second
     expect(result[2].id).toBe(1); // Low last
   });
+
+  // ── Soft mode rank (David 2026-07-22, audit #15): off-mode tasks stay reachable ──
+  it("INCLUDES off-mode tasks instead of amputating them", () => {
+    const tasks = [
+      makeTask({ id: 1, mode: "Build" }),
+      makeTask({ id: 2, mode: "Action" }),
+      makeTask({ id: 3, mode: "Selective" }),
+    ];
+    const result = scoreTasks(tasks, { todayMode: "Restraint", todayDate: TODAY });
+    expect(result).toHaveLength(3); // none dropped for being off-mode
+  });
+
+  it("on-mode tasks sort ABOVE off-mode tasks (mode is the primary organiser)", () => {
+    const onMode = makeTask({ id: 1, mode: "Restraint", priority: "Low" });
+    const offMode = makeTask({ id: 2, mode: "Build", priority: "High" }); // higher base, wrong mode
+    const result = scoreTasks([offMode, onMode], { todayMode: "Restraint", todayDate: TODAY });
+    expect(result[0].id).toBe(1); // on-mode leads despite the off-mode task's higher priority
+    expect(result[1].id).toBe(2);
+  });
+
+  it("on-mode leads even when an off-mode task fits the check-in better", () => {
+    // Off-mode task is a perfect creative fit; on-mode task is a plain one. Mode still wins.
+    const onMode = makeTask({ id: 1, mode: "Restraint", creativeRequired: false });
+    const offMode = makeTask({ id: 2, mode: "Action", creativeRequired: true });
+    const state = { ...NEUTRAL_STATE, creativeFlow: 5 };
+    const result = scoreTasks([offMode, onMode], { todayMode: "Restraint", todayDate: TODAY, currentState: state });
+    expect(result[0].id).toBe(1); // on-mode group is primary; csBand only orders within a group
+  });
+
+  it("off-mode tasks carry a low baseline alignment (≈1 dot)", () => {
+    const offMode = makeTask({ id: 2, mode: "Build" });
+    const result = scoreTasks([offMode], { todayMode: "Restraint", todayDate: TODAY });
+    expect(result[0].alignment).toBeLessThanOrEqual(30);
+  });
 });
 
 // ── currentStateScore unit tests ─────────────────────────────────────────────
@@ -213,6 +247,23 @@ describe("currentStateScore", () => {
     const { delta, hardMismatch } = currentStateScore(task, state);
     expect(hardMismatch).toBe(false);
     expect(delta).toBeGreaterThan(0);
+  });
+
+  it("CAPABLE native (strong mental+emotional) is NOT gated by low motivation", () => {
+    // David 2026-07-22: motivation 2 but mental 4 + emotional 4 → capable → the demanding
+    // task is NOT a hard mismatch and does not get the −45 sink.
+    const task = makeTask({ cognitiveLoad: "High", physicalLoad: "High" });
+    const state = { physicalEnergy: 4, mentalClarity: 4, emotionalStability: 4, creativeFlow: 2, motivation: 2 };
+    const { hardMismatch, reasons } = currentStateScore(task, state);
+    expect(hardMismatch).toBe(false);
+    expect(reasons.some((r) => r.includes("Low motivation"))).toBe(false);
+  });
+
+  it("low motivation STILL gates when a heavy axis is not strong (mental 3)", () => {
+    const task = makeTask({ cognitiveLoad: "Medium" }); // demanding
+    const state = { physicalEnergy: 4, mentalClarity: 3, emotionalStability: 4, motivation: 2, creativeFlow: 3 };
+    const { hardMismatch } = currentStateScore(task, state);
+    expect(hardMismatch).toBe(true); // mental 3 < 4 → not capable → gate fires
   });
 
   it("mental clarity 3 (not just 1-2) penalises a high-cognitive task, and it's a hard mismatch", () => {

@@ -29,6 +29,7 @@ import { kindOfTask, KIND_ORDER, type TaskKind } from "@/lib/taskKind";
 import { PANCHANG_TO_TASK_MODE, MODE_OKLCH, MODE_TINT, MODE_CARD_BG, MODE_SOLID, MODE_RGBA, autoTextColors } from "../../../shared/types";
 import type { TaskMode, TaskPriority } from "../../../shared/types";
 import { evaluateRestGate } from "../../../shared/rest-gate";
+import { lowMotivationGateActive } from "../../../shared/motivation-gate";
 import type { Task } from "../../../drizzle/schema";
 import AppHeader from "@/components/AppHeader";
 import GlossaryText from "@/components/GlossaryText";
@@ -957,10 +958,19 @@ export default function Planner() {
     // rankedForToday to refetch from the (slow) server.
     const liveById = new Map(allTasks.map((t) => [t.id, t]));
     const limit = settings.todayTaskLimit;
-    // Motivation is the master gate: when drive is on the floor (1–2), a demanding task
-    // (anything above pure-low load) doesn't just rank lower — it shouldn't be *shown* as
-    // aligned at all (seeing it creates friction). Only gentle, low-friction tasks survive.
-    const lowMotivation = ((todayCheckIn as any)?.motivation ?? 5) <= 2;
+    // Motivation is the master gate, but whole-check-in aware (David 2026-07-22): when drive
+    // is on the floor (1–2) AND you're not otherwise CAPABLE (strong mental + emotional), a
+    // demanding task doesn't just rank lower — it shouldn't be *shown* as aligned at all
+    // (seeing it creates friction). When you ARE capable, low drive is cushioned and the
+    // demanding tasks stay. Shares the exact gate the server scorer uses (no drift).
+    const ci = todayCheckIn as any;
+    const lowMotivation = ci
+      ? lowMotivationGateActive({
+          mentalClarity: ci.mentalClarity ?? 5,
+          emotionalStability: ci.emotionalStability ?? 5,
+          motivation: ci.motivation ?? 5,
+        })
+      : false;
     const isDemanding = (t: any) =>
       (t.cognitiveLoad && t.cognitiveLoad !== "Low") ||
       (t.physicalLoad && t.physicalLoad !== "Low") ||
@@ -984,7 +994,7 @@ export default function Planner() {
 
   // Alignment-with-today per task (from the scored list), so Do Now / pinned tasks
   // can show their fit even though the floor forces them to the top. Off-mode tasks
-  // aren't scored today → low alignment (20 ≈ 1 dot).
+  // now DO appear (mode is a soft rank) and carry a low baseline alignment (≈1 dot).
   // THE HANDSHAKE MISS: every day-supported kind sits at zero tasks → name where the
   // ranking actually lands (the top aligned task's kind). Sky stays lit; truth gets a voice.
   // THE LEADING KIND (David 2026-07-16 "half-light on the kind orbs. do it."): the top

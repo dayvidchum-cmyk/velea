@@ -472,6 +472,12 @@ run shared/location-label.ts 'return isOwner ? null : "follows you";' 'return "n
   shared/location-label.test.ts "the chip labels your own correct city as unset again"
 run shared/location-label.ts 'if (source === "default") return "no location set";' '' \
   shared/location-label.test.ts "the app default passes as a real location again"
+# Aligned #15 (v929): mode must be a SOFT rank — on-mode tasks lead, off-mode sink but stay.
+run server/task-scorer.ts '.sort((a, b) => (b._mode - a._mode) || (b._cs - a._cs) || (b._base - a._base))' '.sort((a, b) => (b._cs - a._cs) || (b._base - a._base))' \
+  server/task-scorer.test.ts "off-mode tasks stop sinking below on-mode (mode-primary sort lost)"
+# Aligned #15 (v929): the low-drive gate must be whole-check-in aware, not motivation alone.
+run server/task-scorer.ts 'if (lowMotivationGateActive(state)) {' 'if (state.motivation <= 2) {' \
+  server/task-scorer.test.ts "a capable native gets gated by low motivation again"
 
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
