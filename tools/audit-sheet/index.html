@@ -63,7 +63,7 @@
   <p class="sub">v926 · 22 July 2026 · only what is still open — the fixed record is collapsed at the bottom</p>
 
   <div class="scores">
-    <div class="score"><div class="n bad">16</div><div class="l">Open issues</div></div>
+    <div class="score"><div class="n bad">15</div><div class="l">Open issues</div></div>
     <div class="score"><div class="n warn">11</div><div class="l">Your call</div></div>
     <div class="score"><div class="n good">2</div><div class="l">Live decisions</div></div>
     <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
@@ -128,46 +128,43 @@
 
   <!-- ────────────────────────  OPEN ISSUES  ──────────────────────── -->
   <h2>Open issues — 15, named and reproducible</h2>
-  <p class="lead"><b>The hardcoded-copy sweep (1–7)</b> — your law run across the engine: 303 candidate strings in 38
-    files, instrument controlled both directions, every survivor re-verified against the code. The fix run was authorised
-    and stopped for the handoff, so all seven are live right now. In your accuracy order, then the rest.</p>
+  <p class="lead"><b>The hardcoded-copy sweep (now 1–6)</b> — your law run across the engine: 303 candidate strings in 38
+    files, instrument controlled both directions, every survivor re-verified against the code. The original #1 — the
+    cancelled fall reading "hard-won strength" — was <b>resolved by ruling B (v928)</b>: the prose was right, the engine
+    over-gated, so the gate came off (see the fixed record). The other six are live, in your accuracy order, then the rest.</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span><b>1 · A cancelled fall prints as ACTIVE with no dashaGate.</b> Three consumers read
-      the raw <code>neechaBhanga</code> flag and print "fall CANCELLED — hard-won strength" for planets with no running
-      period, where your canon says "cancelled — latent". <code>narrative/service.ts:200</code>,
-      <code>input-builder.ts:572</code>, <code>day-read-signals.ts:172</code>. One class, three copies.</li>
-    <li><span class="tag">DATA</span><b>2 · "Business Partners" is read as your spouse.</b>
+    <li><span class="tag">DATA</span><b>1 · "Business Partners" is read as your spouse.</b>
       <code>input-builder.ts:485</code> — the spouse regex swallows the plural, so the dedicated business-partners rule on
       the next line is unreachable. The canon string "Business Partners" is real.</li>
-    <li><span class="tag">DATA</span><b>3 · The Stage names the wrong aggressor 19% of the time.</b>
+    <li><span class="tag">DATA</span><b>2 · The Stage names the wrong aggressor 19% of the time.</b>
       <code>sky/stage.ts:384</code> matches a tension in either direction, then always writes "<code>${o} presses on ${p}</code>".
       Measured: 20 of 103 name the wrong planet; direction is displayed nowhere.</li>
-    <li><span class="tag">READ</span><b>4 · "Your star is carried today" — the rung it names can never fire it.</b>
+    <li><span class="tag">READ</span><b>3 · "Your star is carried today" — the rung it names can never fire it.</b>
       <code>day-filter.ts:638</code> — sibling of the v901 fix, 20 lines away. "Your star" is tara 1 (Janma, quality
       <i>mixed</i>); the branch fires only on quality <i>good</i>.</li>
-    <li><span class="tag">READ</span><b>5 · "THE DAY OFFERS IT" printed above "start nothing".</b>
+    <li><span class="tag">READ</span><b>4 · "THE DAY OFFERS IT" printed above "start nothing".</b>
       <code>day-filter.ts:618</code>, all three rikta tithis — the gate never consults <code>supports</code>, so the
       headline and body contradict each other.</li>
-    <li><span class="tag">READ</span><b>6 · An eclipse still ahead is announced as past.</b>
+    <li><span class="tag">READ</span><b>5 · An eclipse still ahead is announced as past.</b>
       <code>sky/golden-moment.ts:154</code> — <code>findEclipses</code> scans forward only, so <code>daysAway</code> is
       never negative, yet the day of a coming eclipse says "just passed" + finishing/release guidance. (Decision 3.)</li>
-    <li><span class="tag">READ</span><b>7 · A station up to three days old is announced as "just now".</b>
+    <li><span class="tag">READ</span><b>6 · A station up to three days old is announced as "just now".</b>
       <code>sky/golden-moment.ts:119</code> — <code>detectStations</code> scans from −12 days, so the past folds into the
       present tense. The eclipse line in the same file has a past branch; this one doesn't.</li>
-    <li><span class="tag">DATA</span><b>8 · The 27-star classification is duplicated across several files.</b> Duplication,
+    <li><span class="tag">DATA</span><b>7 · The 27-star classification is duplicated across several files.</b> Duplication,
       not disagreement (the interpreter reads the one corrected table, anchored by a test). Cleanup.</li>
-    <li><span class="tag">DATA</span><b>9 · Exact Chesta (the eight-state seeghra-kendra) is not built.</b> The simplified
+    <li><span class="tag">DATA</span><b>8 · Exact Chesta (the eight-state seeghra-kendra) is not built.</b> The simplified
       K&amp;F rule declares itself as such all the way to the model; building the real one needs the textbook, not inference.</li>
-    <li><span class="tag">MONEY</span><b>10 · The failed-save re-bill guard is per-process.</b> A redeploy or a second
+    <li><span class="tag">MONEY</span><b>9 · The failed-save re-bill guard is per-process.</b> A redeploy or a second
       replica loses it. Needs somewhere durable.</li>
-    <li><span class="tag">MONEY</span><b>11 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
+    <li><span class="tag">MONEY</span><b>10 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
       <code>engineVersion</code> column — a script you run.</li>
-    <li><span class="tag">MONEY</span><b>12 · The chapter read fires on the Chart page with no tap.</b> A deliberate
+    <li><span class="tag">MONEY</span><b>11 · The chapter read fires on the Chart page with no tap.</b> A deliberate
       Door-Law exception (the input is date-stable, so it does not re-bill daily). Whether the exception stands is yours.</li>
-    <li><span class="tag">READ</span><b>13 · The Day Headline — the detectors exist; one line connects them.</b></li>
-    <li><span class="tag">READ</span><b>14 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
-    <li><span class="tag">LOOK</span><b>15 · The welcome card can show two filled primary buttons.</b></li>
-    <li><span class="tag">AUDIT</span><b>16 · "Aligned for Today" is not filtering properly — David flagged, 22 Jul.</b>
+    <li><span class="tag">READ</span><b>12 · The Day Headline — the detectors exist; one line connects them.</b></li>
+    <li><span class="tag">READ</span><b>13 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
+    <li><span class="tag">LOOK</span><b>14 · The welcome card can show two filled primary buttons.</b></li>
+    <li><span class="tag">AUDIT</span><b>15 · "Aligned for Today" is not filtering properly — David flagged, 22 Jul.</b>
       The interaction between <b>(a)</b> a task's mode flag as it's set on create/edit, <b>(b)</b> the real-life
       check-in, <b>(c)</b> the current day's mode, and <b>(d)</b> the mode orbs is not working right, and the
       <i>Aligned for Today</i> list on Home is showing the wrong tasks. Needs a full audit of the chain — task
@@ -195,8 +192,17 @@
     was deleted. The long forensic version of every row lives at <code>tools/audit-sheet/archive-longform-v848.html</code>,
     and every correction I made to my own earlier claims is preserved there in full.</p>
 
-  <details><summary>Fixed &amp; verified this run (v903–v926) — proven broken, fixed, then proven fixed</summary>
+  <details><summary>Fixed &amp; verified this run (v903–v928) — proven broken, fixed, then proven fixed</summary>
     <ul>
+      <li><b>v928 — a cancelled fall is supportive, always (ruling B).</b> The original open issue #1 said the narrative
+        printed "hard-won strength" for a cancelled fall "with no running period, where the canon says latent." On 22 Jul
+        David asked whether the textbooks actually said that, and the answer (his own provenance file,
+        <code>canon/neecha-bhanga-provenance.md</code>) was: the dashaGate is textual for yogas in general (Phaladeepika
+        19.54, Saravali 5.47–50) but its application to neecha bhanga specifically is <b>modern</b> (B.V. Raman 1947), no
+        classical verse. He ruled B: a cancelled fall is a standing quality, acting as exalted always. So the prose was
+        right and the ENGINE over-gated — the running-lords gate came off <code>labelWithCancellation</code>, and
+        <code>life-areas</code>/<code>day-frame</code> now read a cancelled fall as supportive always. The latent label +
+        plumbing retired; test rewritten to B and probed. This is why #1 is gone from the open list, not fixed as first framed.</li>
       <li><b>v926 — the reader gate said "quiet", not locked.</b> A free user's House Reader and Chapter Reader read "the
         room/chapter is quiet right now" on every room. The readings autopsy (against the real free profile, tom@wolf.com)
         printed all pipeline stages green and research healthy — the cause was purely the gate:
