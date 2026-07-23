@@ -10,7 +10,6 @@ import GateMark from "@/components/GateMark";
 import NotifyMeButton from "@/components/NotifyMeButton";
 import { trpc } from "@/lib/trpc";
 import { PREMIUM_PRICING } from "@/lib/pricing";
-import { useAuth } from "@/_core/hooks/useAuth";
 import AddTaskSheet from "@/components/AddTaskSheet";
 
 // The month calendar's mark system, mirrored for the year pop-up (Planner is the source of truth).
@@ -82,13 +81,17 @@ export default function YearCalendar() {
   // gate, David 2026-07-22): the calendar's shape teased behind frosted glass, the ranked data
   // and pop-ups withheld. crown.forYear is server-gated (FORBIDDEN off yearPage), so we never
   // even call it un-entitled — no paid compute leaks past the veil.
-  const { user } = useAuth();
-  const { data: myFeatures } = trpc.features.mine.useQuery(undefined, { staleTime: 5 * 60_000 });
-  const canYear = user?.role === "admin" || (myFeatures as any)?.yearPage === true;
   const [yearSubTapped, setYearSubTapped] = useState(false);
+  // Fetch for EVERYONE now. The server is authoritative: an entitled user gets the whole year
+  // (entitled:true); a free user gets a VEILED year — past-through-today real, the future stripped
+  // server-side (entitled:false, + `today` and `crownTotal` for the split render). The client only
+  // RENDERS what it's handed, so it can never leak a future crown it never received.
   const { data, isLoading, error } = trpc.crown.forYear.useQuery(undefined, {
-    staleTime: 24 * 3600e3, retry: false, enabled: canYear,
+    staleTime: 24 * 3600e3, retry: false,
   });
+  const entitled = (data as any)?.entitled !== false;         // default true while loading — no veil flash
+  const veilToday = (data as any)?.today as string | undefined;
+  const crownTotal = (data as any)?.crownTotal as number | undefined;
 
   const byDate = useMemo(() => {
     const m = new Map<string, RankedDay>();
@@ -179,87 +182,42 @@ export default function YearCalendar() {
   const [cautionsOpen, setCautionsOpen] = useState(false);
   const [addForDate, setAddForDate] = useState<string | null>(null);
 
-  // ── THE VEIL (non-entitled) — the year's shape teased behind frosted glass ──────────────
-  if (!canYear) {
-    const now2 = new Date();
-    const skeletonMonths = Array.from({ length: 4 }).map((_, k) => {
-      const dt = new Date(now2.getFullYear(), now2.getMonth() + k, 1);
-      return { y: dt.getFullYear(), m: dt.getMonth() + 1 };
-    });
-    return (
-      <div className="min-h-screen bg-background pb-24">
-        <div className="container py-6"><AppHeader pageTitle="Your year, ranked" onBack={() => navigate("/")} backLabel="Today" /></div>
-        <main className="mx-auto max-w-3xl px-3 pt-3">
-          <div style={{ position: "relative" }}>
-            {/* The real calendar's SHAPE — real month cards, real day numbers, no ranks — under
-                a heavy blur so it reads as "your year is here, veiled," never as empty scaffolding.
-                Inert: no marks are computed, nothing is tappable. */}
-            <div aria-hidden="true" style={{ filter: "blur(5px)", opacity: 0.55, pointerEvents: "none", userSelect: "none" }}>
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {skeletonMonths.map(({ y, m }) => {
-                  const firstDow = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
-                  const nDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
-                  return (
-                    <div key={`${y}-${m}`} className="parchment rounded-xl border border-[#ddd3bf] p-3 text-[#2b2723]" style={{ boxShadow: "none" }}>
-                      <h3 className="mb-2 font-serif text-sm" style={{ color: "#4b4034" }}>
-                        {new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
-                      </h3>
-                      <div className="grid grid-cols-7 gap-[3px]">
-                        {WEEKDAYS.map((w, i) => (
-                          <div key={i} className="text-center text-[9px] tracking-wide font-semibold text-[#6B6355]">{w}</div>
-                        ))}
-                        {Array.from({ length: firstDow }).map((_, i) => <div key={`b${i}`} />)}
-                        {Array.from({ length: nDays }).map((_, i) => (
-                          <div key={i} className="min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center" style={{ color: "#9a917d" }}>{i + 1}</div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* THE UNLOCK CARD — floats over the veil (David 2026-07-22: the thirst gate, keep them
-                thirsty). Subscribe → notify (the newer pitch pattern; shows the price the moment
-                PREMIUM_PRICING.allAccess is set, a bare "Subscribe" while it's null — never an
-                invented number). The Year page is an ALL-ACCESS feature (David's price list). */}
-            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "3.5rem" }}>
-              <div style={{ maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)", padding: "1.5rem 1.4rem 1.3rem", boxShadow: "0 24px 64px oklch(0 0 0 / 0.35)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.7rem" }}>
-                <GateMark size={26} style={{ color: "#C9A84C" }} />
-                <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontSize: "1.35rem", color: "var(--heading-ink)" }}>Unlock your year</h3>
-                {!yearSubTapped ? (
-                  <>
-                    <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
-                      Every day of your solar year — birthday to birthday — graded on your birth star, the crowning days marked, the caution days named. Your whole year, ranked, in one calendar.
-                    </p>
-                    <button
-                      onClick={() => setYearSubTapped(true)}
-                      style={{ marginTop: "0.3rem", width: "100%", background: "linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)", border: "none", borderRadius: 12, padding: "0.85rem", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "0.04em", color: "#1a1200", cursor: "pointer" }}
-                    >
-                      {PREMIUM_PRICING.allAccess ? `Subscribe · ${PREMIUM_PRICING.allAccess}` : "Subscribe"}
-                    </button>
-                    <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
-                      Not now
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <p style={{ margin: "0.2rem 0", fontSize: "0.92rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
-                      Not open just yet — leave your name and I'll tell you the moment it goes live.
-                    </p>
-                    <div style={{ width: "100%" }}><NotifyMeButton feature="year-calendar" /></div>
-                    <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
-                      Not now
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  // ── THE UNLOCK CARD (non-entitled) — rendered INLINE in the split reveal (David 2026-07-22:
+  //    past→today is real & tappable above; the future is veiled; this opens the days ahead). The
+  //    thirst-gate pitch: Subscribe → notify. The Year page is ALL-ACCESS (David's price list);
+  //    shows the price the moment PREMIUM_PRICING.allAccess is set, a bare "Subscribe" while null. ──
+  const unlockCard = (
+    <div style={{ margin: "1.4rem auto 0.6rem", maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)", padding: "1.5rem 1.4rem 1.3rem", boxShadow: "0 18px 48px oklch(0 0 0 / 0.28)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.7rem" }}>
+      <GateMark size={26} style={{ color: "#C9A84C" }} />
+      <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontSize: "1.35rem", color: "var(--heading-ink)" }}>See the year ahead</h3>
+      {!yearSubTapped ? (
+        <>
+          <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
+            The days behind you are yours to keep. Unlock to see the whole solar year graded ahead — every crowning day marked, every caution day named, birthday to birthday.
+          </p>
+          <button
+            onClick={() => setYearSubTapped(true)}
+            style={{ marginTop: "0.3rem", width: "100%", background: "linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)", border: "none", borderRadius: 12, padding: "0.85rem", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "0.04em", color: "#1a1200", cursor: "pointer" }}
+          >
+            {PREMIUM_PRICING.allAccess ? `Subscribe · ${PREMIUM_PRICING.allAccess}` : "Subscribe"}
+          </button>
+          <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
+            Not now
+          </button>
+        </>
+      ) : (
+        <>
+          <p style={{ margin: "0.2rem 0", fontSize: "0.92rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
+            Not open just yet — leave your name and I'll tell you the moment it goes live.
+          </p>
+          <div style={{ width: "100%" }}><NotifyMeButton feature="year-calendar" /></div>
+          <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
+            Not now
+          </button>
+        </>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -269,6 +227,13 @@ export default function YearCalendar() {
           <p className="mt-1 text-sm text-muted-foreground">
             {fmtDay(data.yearStart)} → {fmtDay(data.yearEnd)} · every day graded from your birth star ·{" "}
             {data.summary.favorable} favorable · {data.summary.softened} softened · {data.summary.hostile} hard days
+          </p>
+        )}
+        {/* THE THIRST TEASER (non-entitled): the year-wide crown COUNT (a number, never a future date)
+            with how many are already shown — "5 of 12 crowning days shown so far". */}
+        {data && !entitled && typeof crownTotal === "number" && (
+          <p className="mt-1 text-xs" style={{ color: "var(--brand-gold, #C9A84C)", fontWeight: 600 }}>
+            {topSet.size} of {crownTotal} crowning days shown — the days behind you are yours; the year ahead is veiled below.
           </p>
         )}
 
@@ -325,6 +290,10 @@ export default function YearCalendar() {
             {/* Legend RETIRED (David's ruling: pop-ups teach, legends are decoder rings) —
                 tap any day and it explains itself. */}
 
+            {/* The unlock card sits between the past summary and the calendar — the days ahead in the
+                grid below render blurred, and this opens them (non-entitled only). */}
+            {!entitled && unlockCard}
+
             {/* Month grids — always-light warm paper, like the almanac calendar */}
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {months.map(({ y, m }) => {
@@ -344,6 +313,16 @@ export default function YearCalendar() {
                         const day = i + 1;
                         const ds = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const d = byDate.get(ds);
+                        // THE VEIL (non-entitled): the server stripped today-forward, so a future day
+                        // has no `d`. Render it BLURRED and inert — the year ahead is teased, not shown,
+                        // and nothing here is tappable (there is no future data to leak).
+                        if (!d && !entitled && veilToday && ds > veilToday) {
+                          return (
+                            <div key={ds} aria-hidden="true"
+                              className="min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center select-none"
+                              style={{ color: "#9a917d", filter: "blur(2.5px)", opacity: 0.5 }}>{day}</div>
+                          );
+                        }
                         if (!d) return <div key={ds} className="min-h-[26px] rounded-[5px] text-[11px] text-[#c9c0ad] flex items-center justify-center">{day}</div>;
                         // THE MONTH-CALENDAR LANGUAGE (David's spec 2026-07-16): every number
                         // wears its mode color BARE — a fill only for today, the picked day, or a

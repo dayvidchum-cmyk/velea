@@ -241,6 +241,9 @@ run server/routers/arc.ts 'apex: arc.apex ? { daysAway: arc.apex.daysAway, crown
 # shipping a wrong/missing number to a paying user.
 run client/src/lib/pricing.ts 'nearSight: "$2.99 / mo",' 'nearSight: null,' \
   server/pricing-list.test.ts "the near-sight price silently reverts to hidden"
+# The veiled year (v934): the future crown list leaking to a free user (past-only strip removed).
+run server/routers.ts 'summary: { ...full.summary, topDates: allTop.filter((d) => d <= today) },' 'summary: { ...full.summary, topDates: allTop },' \
+  server/year-veil.test.ts "the veiled year leaks future crown dates to a free user"
 
 run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
   server/isolation.test.ts "assertOwnsProfile stops failing closed"

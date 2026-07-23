@@ -1979,8 +1979,37 @@ export const appRouter = router({
       .input(z.object({ yearOffset: z.number().int().min(-1).max(1).default(0) }).optional())
       .query(async ({ ctx, input }) => {
         const { hasFeature } = await import("./feature-flags.js");
-        if (!(await hasFeature(ctx.user, "yearPage"))) throw new TRPCError({ code: "FORBIDDEN", message: "Not available yet." });
-        return rankedSolarYearFor(ctx.user.id, input?.yearOffset ?? 0);
+        const entitled = await hasFeature(ctx.user, "yearPage");
+        const full = await rankedSolarYearFor(ctx.user.id, input?.yearOffset ?? 0);
+        if (!full) return null;
+        // The ranked year is deterministic (no LLM, cached) — serving the PAST costs nothing. The
+        // time-gate doctrine: the past is FREE for everyone (it builds faith), the future is the
+        // premium jewel. So an entitled user gets the whole year; a free user gets a VEILED YEAR —
+        // the past-through-today rendered real, today-forward stripped HERE on the server so no
+        // future crown or caution DATE can reach a client that never receives it (the arc-veil
+        // pattern). Year-wide COUNTS survive as the thirst teaser (the shape, never the dates).
+        if (entitled) return { entitled: true as const, ...full };
+        const { getActiveProfile } = await import("./routers/profiles.js");
+        const { getUserById } = await import("./db.js");
+        const { localToday } = await import("./panchang/resolve-day-sky.js");
+        // Today is computed SERVER-SIDE from the user's own location — never from a client-sent date,
+        // which a forged "future today" would use to unlock the year the gate exists to protect.
+        const profile = await getActiveProfile(ctx.user.id);
+        const user = await getUserById(ctx.user.id);
+        const today = localToday(user ?? undefined, profile ?? undefined);
+        const pastDays = (full.days ?? []).filter((d: any) => d.date <= today);
+        const allTop: string[] = full.summary?.topDates ?? [];
+        return {
+          entitled: false as const,
+          today,
+          yearStart: full.yearStart, yearEnd: full.yearEnd,
+          natalMoonSignIdx: full.natalMoonSignIdx, birthNakIdx: full.birthNakIdx,
+          days: pastDays,
+          // The crown/caution LISTS are cut to the past; the year-wide count survives as the teaser
+          // denominator ("5 of 12 shown"), a number that leaks no future date.
+          summary: { ...full.summary, topDates: allTop.filter((d) => d <= today) },
+          crownTotal: allTop.length,
+        };
       }),
 
 
