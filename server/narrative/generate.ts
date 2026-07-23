@@ -445,14 +445,23 @@ const SCRUB: Array<[RegExp, string]> = [
 // sign's life-territory depends on WHICH HOUSE it falls in for this native, which this function
 // cannot know, so substituting one would state something possibly false. Subtraction cannot lie:
 // dropping the word leaves "that deep channel", which is true and still reads.
-const SIGNS_RE = "Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces";
+// Half the sign names are also everyday English words or common personal names — Cancer (the
+// disease), Leo/Libra/Aries (names), Gemini (the spacecraft/twins), Virgo, Aquarius. A context-blind
+// scrub of those mangles ordinary prose that ships to the reader (David: "fix the scrub overreach"):
+//   "recovering from cancer" → "…from that ground"   "Leo asked" → " asked"
+//   "Gemini missions" → " missions"                   "from Aries in accounting" → "from that ground…"
+// No context-free rule can tell "the Moon in Cancer" (astrology) from "from Aries" (a coworker), so
+// this net scrubs ONLY the sign names that are never ordinary words/names. An unscrubbed sign is
+// readable machinery (and the DISSOLVE prompt block + the retry machinery above already guard sign
+// leaks upstream); a mangled name is broken prose — so we bias to under-scrub, never over-scrub.
+const SIGNS_SAFE_RE = "Taurus|Scorpio|Sagittarius|Capricorn|Pisces";
 const SIGN_SCRUB: Array<[RegExp, string]> = [
   // Adjectival — "Scorpio channel" → "channel". The most common shape by far.
-  [new RegExp(`\\b(?:${SIGNS_RE})\\s+(?=[a-z])`, "g"), ""],
+  [new RegExp(`\\b(?:${SIGNS_SAFE_RE})\\s+(?=[a-z])`, "g"), ""],
   // Trailing after a preposition — "delivering through Scorpio" → "…through that ground".
-  [new RegExp(`\\b(in|into|through|from|within|across)\\s+(?:${SIGNS_RE})\\b`, "gi"), "$1 that ground"],
+  [new RegExp(`\\b(in|into|through|from|within|across)\\s+(?:${SIGNS_SAFE_RE})\\b`, "g"), "$1 that ground"],
   // Anything left standing alone.
-  [new RegExp(`\\b(?:${SIGNS_RE})\\b`, "g"), "that ground"],
+  [new RegExp(`\\b(?:${SIGNS_SAFE_RE})\\b`, "g"), "that ground"],
   // Tidy the seam left by a removal.
   [/[ \t]{2,}/g, " "],
 ];

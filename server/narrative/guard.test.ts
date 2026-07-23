@@ -57,6 +57,26 @@ describe("scrubMachinery — the deterministic last-resort net (nothing model-de
     // (No house numbers / sign names here, so a machinery-clean scrub yields a clean guard result.)
     expect(guardViolation(scrubbed, 120)).toBeNull();
   });
+  // OVER-SCRUB REGRESSION (David: "fix the scrub overreach"). Half the sign names are also
+  // everyday words / common names; the sign scrub must never mangle ordinary prose. Before the
+  // fix, "recovering from cancer" → "…from that ground", "Leo asked" → " asked", "from Aries
+  // in accounting" → "from that ground…". The scrub now touches only never-a-word signs.
+  it("never mangles a sign-name homograph used as an ordinary word or name", () => {
+    for (const clean of [
+      "recovering from cancer needs your patience.",
+      "Cancer scares are easing; the body settles.",
+      "Leo asked you to look again at the work.",
+      "reading about Gemini missions kept him up.",
+      "walked into Leo's office and sat down.",
+      "from Aries in accounting, the news was good.",
+      "a Libra on the team, and the Age of Aquarius.",
+    ]) expect(scrubMachinery(clean)).toBe(clean);
+  });
+  it("still scrubs the unambiguous sign names (never ordinary words)", () => {
+    expect(scrubMachinery("your deep Scorpio channel")).not.toMatch(/Scorpio/);
+    expect(scrubMachinery("delivering through Sagittarius today")).not.toMatch(/Sagittarius/);
+    expect(scrubMachinery("sitting in Pisces")).not.toMatch(/Pisces/);
+  });
 });
 
 describe("guardViolation — over-length reads are rejected", () => {

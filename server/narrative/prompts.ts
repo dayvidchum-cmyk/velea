@@ -1859,8 +1859,8 @@ input.reading is present, the mandate below is already satisfied by the engine �
 SCOPE — THIS IS ONE DAY, read in FULL. Not the short glance (that is the ~110-word
 day-mode card) and not the year (that is the deep read). This is the day given room: the
 day's own weather, named and lived, with the ongoing story showing through underneath it.
-Use TODAY's signals — the transit Moon, the day mode (panchang.mode), the day's loudest
-transit, today's tithi/nakshatra/karana — as the SCENE; use the slow layers (the dasha
+Use TODAY's signals — the transit Moon, the day's character (input.dayFilter), the day's
+loudest transit, today's tithi/nakshatra/karana — as the SCENE; use the slow layers (the dasha
 chapter, the year, arc.journey) as the SETTING the scene plays on. The day is the subject;
 the story is the ground it stands on.
 
@@ -1877,8 +1877,8 @@ MORE sense?" (revelation). Narrative is scarce: a read that recites its live con
 its budget on information instead of insight. (Constitution — Principles 14 &amp; 15.)
 
 THE MANDATE — a day read does THREE things, always, in every read:
-1. explains the OUTER — what the SKY is doing today: the day mode, the transit Moon, the
-   loudest transit, AND any live condition of the sky that EARNS ITS PLACE (per the north star) — a
+1. explains the OUTER — what the SKY is doing today: the day's character (input.dayFilter),
+   the transit Moon, the loudest transit, AND any live condition of the sky that EARNS ITS PLACE (per the north star) — a
    RETROGRADE (a planet reviewing, revisiting, turning inward in its arena), a STATION (a planet
    turning — a hinge), an ECLIPSE (panchang.eclipse — read it by its PHASE per the base rule: the
    gathering build before, the sacred pause AND reset at peak, the clearing/opening in the aftermath
@@ -1907,9 +1907,8 @@ SHAPE of the read, never its vocabulary. The layers:
   antardasha chapter and where the year has brought you (arc.journey). It changes over
   months, so it is a light backdrop here, not re-explained (THE SLOW LAYERS DECAY): one or
   two clauses that place today inside the larger arc.
-- THE SCENE (today): the day's actual weather — the day mode as its atmosphere (Restraint
-  = a day to hold and finish; Build = a day to tend and deepen; Selective = a day to weigh
-  where you spend; Action = a day to move and send), landed on the specific life-area today
+- THE SCENE (today): the day's actual weather — the day's character (input.dayFilter): what
+  KINDS of action it supports and what it avoids, landed on the specific life-area today
   activates. AND the sky's live conditions when present, each read for THIS chart: a
   RETROGRADE (which planet, in which room of this life — a review/revisit there, a turning
   inward; see rx-depends-on-the-planet below), a STATION (a planet turning — a hinge day in
@@ -1927,8 +1926,8 @@ SHAPE of the read, never its vocabulary. The layers:
 RETROGRADE DEPENDS ON THE PLANET — never one flat "rx" meaning (David). Mercury rx = the
 review of messages, plans, contracts, the said and unsaid — revisit and re-say, don't
 launch new. Mars rx = drive turned inward, re-attacking an old front rather than opening a
-new one — the day mode already caps at Build for outward retrogrades, so the read frames it
-as revisiting, not starting. Venus rx = the relational/worth review — an old feeling or
+new one — the day's supports already cap outward movement for outward retrogrades, so the read
+frames it as revisiting, not starting. Venus rx = the relational/worth review — an old feeling or
 value circling back, love and money re-weighed; relational, not a general "go slow." An
 outer planet (Jupiter/Saturn) rx belongs to the SLOW arc, not the day — mention only if it
 is the day's spotlight. Read the retrograde through the HOUSE it sits in for THIS chart (the
@@ -1953,8 +1952,8 @@ named as readable texture with their life-meaning in the same breath. Say each t
 
 HARD LENGTH LIMIT — 175 WORDS TOTAL for scene + story + tilt + closeLine (the question is one
 extra short line, not counted). ENFORCED IN CODE: a read over 190 words is REJECTED and
-regenerated, no matter how good the prose. Aim 175 — the full cast with its leaning needs
-room, but never sprawl (David raised the ceiling 2026-07-16 so the roll call could breathe). Readable at a glance
+regenerated, no matter how good the prose. Aim 175 — the one revelation, lived and
+specific, needs room, but never sprawl. Readable at a glance
 by a neurodivergent brain that bounces off a wall of text. Every line earns its place; depth from
 the line, never volume. Concise is not thin — the voice stays, just tight.
 
@@ -1996,15 +1995,15 @@ wrote a pretty mood, you stripped too much. Name the small true things.
   resists, as a posture across the whole plate (NO SINGLE MOVE — never "the one thing"). If a
   live outer condition cuts against the day (a strained year lord, a retrograde, an eclipse),
   name that friction in ONE clause — the tilt holds both the green light and its cost.
-  EVEN SELECTIVE IS NOT "ONE THING." A Selective day is the mode most likely to collapse
-  into a single errand — resist it hardest here. Selective is a DISCERNING POSTURE carried
-  across the whole plate: put your real weight where it earns it, let the noise go
-  unanswered, refuse the pull to tend everything with the same hand. It is a discipline of
-  WHERE attention lands, applied to all of the day's threads — NOT "pick one task and ignore
+  THE DAY'S TILT IS A POSTURE, NOT "ONE THING." The day's supports and avoids are a lean
+  carried across the WHOLE plate, never collapsed into a single errand — resist that hardest
+  on a discerning day (weigh where you spend): put your real weight where it earns it, let the
+  noise go unanswered, refuse the pull to tend everything with the same hand. It is a discipline
+  of WHERE attention lands, applied to all of the day's threads — NOT "pick one task and ignore
   the rest." Never write "the one thing that counts," "the one that's watching you," or any
-  phrasing that reduces the day to a lone act. The same ban binds Build (tend/deepen across
-  the work, not one item), Action (move/send across fronts, not one send), and Restraint
-  (hold/finish across the board, not one thing to close).
+  phrasing that reduces the day to a lone act. The same holds whichever way the day leans —
+  deepening the work, moving across fronts, or holding and finishing — always across the board,
+  never one item to close.
 
 - closeLine: ONE resonant sentence, plain language, that distills the whole day to a single
   line a person carries with them — the scene, the story, and the tilt fused into one
@@ -2078,19 +2077,20 @@ today toward increase — income, what you're owed, a sale, a return, asking for
 that tilt inside the day's story the way a retrograde is named — woven in, not announced — in
 plain money-and-gain language ("a day that favors the ask," "the sky leans toward what you're
 owed," "good to collect, sell, or close on money"), NEVER "Sampat," never a tara or an ordinal,
-never a mechanic. It rides ON TOP of the day's mode, never replacing it (a Sampat inside a
-Restraint day: hold the line, but if money is owed you, today is the day to ask). This has more
+never a mechanic. It rides ON TOP of the day's character, never replacing it (a Sampat inside a
+day that says hold: hold the line, but if money is owed you, today is the day to ask). This has more
 room here than in the glance teaser — let it breathe one clause or one sentence, no more. When
 tara is anything else, say nothing of wealth.
 
 GOLD-SHAPE EXAMPLE — match the DEPTH and the metaphor SHAPE; do NOT copy the content (a
-DIFFERENT chart: a Gemini lagna, Mars mahadasha / Moon antardasha, on a Selective day, the
-transit Moon lighting the 10th while the natal Moon sits home in the 4th). Note: PURE PROSE,
+DIFFERENT chart: a Gemini lagna, Mars mahadasha / Moon antardasha, on a discerning day that
+weighs where you spend, the transit Moon lighting the 10th while the natal Moon sits home in
+the 4th). Note: PURE PROSE,
 no dry "why" underneath — the placements are named INSIDE the lines:
 - scene: "A day that rewards discernment over breadth. The Moon is moving through your house
     of career and public standing — the visible work, the things with your name on them out
     where people can see — so put your real weight where it genuinely earns it and let the
-    noise go unanswered, rather than tending all of it with the same hand. Selective is the
+    noise go unanswered, rather than tending all of it with the same hand. Discernment is the
     day's grammar: spend yourself where it counts, across everything on your plate, and let
     the busywork wait without guilt."
 - story: "Underneath it, you're deep in a long Mars stretch that rewards doing over deciding —
@@ -2112,29 +2112,6 @@ the natal Moon home as the inner ground); the tilt is a POSTURE across the whole
 one errand and NEVER "the one thing"; the closeLine lands the whole day in one carried line.
 Find THIS chart's scene and serve it the same way.
 
-THE STORY IS THE CAST (the separate cast surface is GONE — this prose is the only place
-the reader meets the day's movers): every character actually moving this day must appear
-IN the story — the day's star by its felt quality (a handover during the day = the scene
-shifting, anchored to a lived moment like "by early light" or "as the evening opens",
-never a clock time), the Moon by the room it moves through, the day's current by its
-feel. Name them as CHARACTERS in the one thread — never as a list, never as a data line.
-
-THE LOADED PLANETS ARE NOT OPTIONAL: any planet the input marks as carrying the day —
-the running lords in input.natalCondition, a planet input.knots or the transits mark as
-lit or pressing, the year's guide — is an ESSENTIAL character and MUST appear by name,
-with its condition FELT (its dignity and house speaking as circumstance, per the shared
-laws). A read that leaves out a running lord is INCOMPLETE no matter how good its prose:
-the reader opens the day asking "who is doing this to me?", and this story is the only
-answer they get. Before returning, take a roll call: day-star, Moon's room, current,
-and every loaded planet — each present, each in the one thread.
-
-THE VOICE — the Cast's voice IS the story's voice now (David 2026-07-15, judged against
-a live sample): PG-PLAYFUL, personified end-to-end — the planets are characters DOING
-things and STAYING in character through the whole story beat, never one costume moment
-followed by analysis. The register: "Jupiter is practically glowing today — fat and
-generous over your circle, delighted to hand things out… But Mercury is swallowed whole
-by the Sun's glare, backtracking and muffled… And Venus, your year's protagonist, is in
-hostile lodging, running low — asking to be restored rather than spent."
 THE OPEN WINDOWS (input.openWindows) — THE READ'S DEEPEST DUTY: when present, the stored
 life-timeline says a THEME stands lit today by full convergence — natal promise, running
 period and sky agreeing. These are the days life EVENTS land. The reader should wake up,
@@ -2145,36 +2122,8 @@ never prophecy-theater, never machinery. A lit window OUTRANKS every other threa
 the story's spine that day. (input.knots carries today's live signals; openWindows is the
 standing season — when both agree, be direct.) Themes: marriage/children/career/identity/
 fame/wealth/siblings=inner circle/parents/home/health.
-
-FIVE LAWS FROM THE LIVE SAMPLES (each one a David correction):
-1. NAME + EPITHET, never epithet INSTEAD of name. "The year's guide is in difficult
-   lodging" is a FAILURE — say "Venus, your year's guide, in difficult lodging." You may
-   name the planets (they are the characters); a loaded planet hidden behind its title
-   has NOT taken roll call.
-2. STAY IN CHARACTER. Every loaded planet gets its mini-arc — state, feel, and what it
-   asks of the reader — in the same personified register. The reader smiles, never winces.
-3. NEVER RESTATE THE DAY SENTENCE — IN ANY WORDING. The character line ("a cutting day
-   built for work…") is already printed above this prose. Quoting it is a violation and
-   so is PARAPHRASING it ("the day supports decisive endings and resists new launches"
-   = the same violation in costume). If the day's supports/avoid must steer the reader,
-   they steer THROUGH a character's ask, never as almanac narration.
-4. THE NODES SPEAK THROUGH THEIR GRIP. When the input marks Rahu or Ketu on a loaded
-   planet (a nodal transit flag), the grip is part of that character's arc — "Venus,
-   nudging up against Ketu's dissolving grip, running low" — never dropped, never
-   abstracted away. Rahu = gripped, hungry, dimmed; Ketu = dissolving, releasing,
-   asking what can be set down.
-5. One image per character per read — a planet that "sings" once does not sing twice.
-6. THE CAST LEANS ON EACH OTHER (David's own rewrite, 2026-07-16): characters don't just
-   appear — they NEED each other, and the read says how. His moves, replicate them:
-   "The Moon is strained, Mercury struggles to speak for them. But Jupiter's open door is
-   real — THIS IS THE SUPPORT THE MOON HAS TO LEAN INTO." A weak character borrows from a
-   strong one; a coming chapter is PREPARED by today's grind ("You are preparing the way").
-   The relations between characters ARE the guidance — never five separate portraits.
-The scene stays a plain doorway; the tilt/closeLine keep their grounded directness; and
-every playful image still points at a SPECIFIC, checkable life-thing (the craft, the
-income, the circle, the body). Never a fairy tale: charming, but true.
-
-Woven INSIDE the existing word budget: the cast costs structure, not extra words.
+A lit theme that steers the day steers THROUGH the lived life-thing, never as almanac
+narration and never by restating the day's headline in costume.
 
 FINAL CHECK — DO THIS BEFORE RETURNING: count the words of scene + story + tilt + closeLine
 together. If the total is over 175, CUT before you return — drop a whole beat, never sharpen
@@ -2837,7 +2786,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-23-narrative-economy", // P14/P15: revelation over coverage — one governing idea, all state-layers are candidates that earn a place only by deepening it; returns; aspect quality-not-weight still live
+  day_read: "2026-07-23-revelation-migration-complete", // v943: removed the legacy CAST roll-call block (planets live in the separate Cast surface) + migrated day-read mode vocabulary to input.dayFilter — the tail is now revelation-only end-to-end, no coverage mandate
 
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",
