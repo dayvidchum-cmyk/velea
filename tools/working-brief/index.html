@@ -84,6 +84,7 @@
   ul.plain li:last-child { border-bottom:0; }
   .tag { display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.05em;
     padding:.05rem .5rem; border-radius:999px; background:var(--soft); color:var(--gold); margin-right:.4rem; vertical-align:.08em; }
+  .done { color:var(--green); font-weight:700; }
   details { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:.6rem .9rem; margin-top:.6rem; }
   details summary { cursor:pointer; font-size:.86rem; color:var(--teal); font-weight:700; }
   details[open] summary { margin-bottom:.5rem; }
@@ -113,7 +114,7 @@
 <div class="wrap">
   <h1>Velea · Brief</h1>
   <p class="ver">Live: <b>v1.1.938</b></p>
-  <p class="sub">22 July 2026 · the app, the work, and your calls — one page. Type a ruling in any box, then hit “Copy my rulings” at the bottom and paste it to me.</p>
+  <p class="sub">23 July 2026 · one page — where the app is, what waits on you, what's next. Type a ruling in any box, then hit “Copy my rulings” at the bottom and paste it to me. Answered calls come off this page the moment you rule; nothing here is stale.</p>
 
   <div class="north">
     <div class="north-h">Velea Principle — what we are becoming</div>
@@ -128,10 +129,46 @@
       maximize <i>clarity</i>. More information is not a better experience — more certainty and less cognitive effort are.</p>
   </div>
 
+  <!-- ═══════════════  SCORES  ═══════════════ -->
+  <div class="scores">
+    <div class="score"><div class="n bad">6</div><div class="l">Open issues</div></div>
+    <div class="score"><div class="n warn">1</div><div class="l">Your calls</div></div>
+    <div class="score"><div class="n good">6</div><div class="l">Awaiting eyes</div></div>
+    <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
+  </div>
+
+  <!-- ═══════════════  WHERE THE APP IS  ═══════════════ -->
+  <div class="card">
+    <b>Where the app is — v938 live on velealor.com.</b> Run the three checks
+    (<code>npm run verify</code> · <code>npm run probe</code> · <code>npm run deployed</code>) for live status —
+    they are the source of truth over this line.
+    <br><br>
+    <b>The STATES DOCTRINE is now on the page.</b> The design principle, enshrined in <code>METHOD.md</code>:
+    <i>the engine computes objective conditions; the narrative expresses lived STATES.</i> Three binaries are now
+    graded continua, each wired into the day read (layer, don't replace — the classical term stays in the engine):
+    <ul class="check">
+      <li><b>① Combustion → the Solar Relationship (v936).</b> Each transit reads as a graded state; cazimi and
+        heart-of-the-sun INVERT it — empowered at the throne, not burnt.</li>
+      <li><b>② Retrograde → all five planets (v937).</b> Venus/Mars/Jupiter/Saturn carry the graded phase in the
+        transit read; the station is the pivot to feel. Mercury keeps its own <code>mercuryRx</code> block.</li>
+      <li><b>⑤ Moon brightness → the trigger's strength dial (v938).</b> The daily trigger now carries its dial
+        (new→seed / full→brim, waxing gathering / waning releasing). Zero new astronomy.</li>
+    </ul>
+    <b>Showcase for your eyes — 2026-07-29 is triple-loud:</b> Jupiter <b>cazimi</b> (near-exact conjunction with the
+    Sun — the throne), the <b>full moon</b> the same day, and just past <b>Saturn's week-long station</b> (7/23–29,
+    which you ruled correct). Open that day's read and confirm Jupiter sits on the throne, not weakened.
+    <br><br>
+    <b>Earlier this run (await your eyes on device):</b> v934 the <b>veiled-year split reveal</b> — a free user sees
+    the year birthday→today with real, tappable marks; the days ahead veiled (blurred, inert); the future stripped
+    SERVER-SIDE so nothing leaks, year-wide counts kept as the thirst teaser. v935 the <b>two hidden day-read nudges</b>
+    (precision layer + the agenda re-voiced — you judged the 7/23 before/after: PASS, no hijack). v933 the <b>locked
+    price list</b> ($2.99 near-sight / $4.99 all-access / $1.49 pick-a-date — legible now, nothing charges yet).
+  </div>
+
+  <!-- ═══════════════  THE FIVE GATES  ═══════════════ -->
   <h2>The five release gates — every release passes all five</h2>
   <p class="lead">David's framework (2026-07-22). Eighteen audits under five gates — full spec verbatim in
-    <code>RELEASE_GATES.md</code> (the earlier five standing audits are absorbed here, mapping preserved in that doc).
-    Run the <b>Deterministic Astrology Audit</b> before anything else.</p>
+    <code>RELEASE_GATES.md</code>. Run the <b>Deterministic Astrology Audit</b> before anything else.</p>
   <div class="audit"><div class="audit-h"><span>1</span>Astrological Fidelity</div>
     <p class="audit-say">Is the astrology correct and methodologically consistent? Every conclusion deterministic, every "why"
       traceable to engine output; no duplicate computations, no conflicting rulings, no silent fallback changing method.</p></div>
@@ -148,332 +185,182 @@
     <p class="audit-say">Does it maximize trust, retention, and conversion with no friction and no money leaks? Conversion,
       retention, error recovery, and every business rule documented — nothing exists "because the code does it."</p></div>
 
-  <div class="scores">
-    <div class="score"><div class="n bad">8</div><div class="l">Open issues</div></div>
-    <div class="score"><div class="n warn">16</div><div class="l">Your calls</div></div>
-    <div class="score"><div class="n good">5</div><div class="l">Awaiting eyes</div></div>
-    <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
-  </div>
-
-  <div class="card">
-    <b>Where the app is.</b> v936 live on velealor.com. Suite 1385 pass / 4 skipped, typecheck 0, build 0 — printed by
-    running it. <b>v936 put the STATES DOCTRINE on the page for the first time:</b> combustion, wired into the day read as the
-    <b>Solar Relationship</b> — each transit reads as a lived state (mild → deep combustion), and cazimi / the coronation
-    INVERT it (empowered at the throne, not burnt). <b>Showcase for your eyes: Jupiter CAZIMI on 2026-07-29</b> — open that
-    day's read and see if Jupiter sits on the throne. <b>v935 wired the two day-read nudges</b> (agenda re-voiced + precision
-    layer, ask #14 closed) — you judged the 7/23 before/after: <b>PASS</b>, the agenda landed as a tilt, no hijack.
-    <b>v934 built the veiled-year SPLIT REVEAL</b> (your ruling): a free user now sees the year birthday→today
-    with REAL marks &amp; tappable pop-ups, the days ahead veiled (blurred, inert), the crown/caution lists past-only — the
-    <b>v934 built the veiled-year SPLIT REVEAL</b> (your ruling): a free user now sees the year birthday→today
-    with REAL marks &amp; tappable pop-ups, the days ahead veiled (blurred, inert), the crown/caution lists past-only — the
-    future is stripped SERVER-SIDE (crown.forYear) so no future date can leak, year-wide counts survive as the thirst teaser
-    ("5 of 12 crowns shown"). Guarded by <code>year-veil.test.ts</code> + a probe. <b>Awaiting your eyes on device</b> — I
-    have NOT seen it rendered (a non-entitled session is device-only for me). <b>v933 surfaced the locked price list</b>
-    (ask #12): PREMIUM_PRICING now carries the three ruled tiers —
-    near-sight <b>$2.99</b> / all-access <b>$4.99</b> / pick-a-date <b>$1.49</b> — and every locked card routes to its tier
-    (Time Master · Hora · the special readings · kept-readings · moment-refresh → $2.99; Year page · second chart · combined
-    reading → $4.99; Pick-a-day → $1.49). Nothing charges yet; the numbers are just legible now, guarded by
-    <code>pricing-list.test.ts</code>. <b>v932 shipped the life-area chip rename to "Roots &amp; Ancestry"</b> (ask #7 — the
-    parents-key area is ancestry/roots; parents-as-people stay in the Family shelf's Mother/Father seats). Earlier the money
-    seam (chain #3) shipped —
-    <b>the year calendar no longer VANISHES for a free user:</b>
-    the "Year ↗" door now shows for everyone with the gate glyph beside it, and a non-entitled tap lands on a <b>veiled
-    year</b> (the calendar's shape behind frosted glass, an "Unlock your year" card over it), no paid compute leaked
-    (crown.forYear stays server-gated). Also modernized the <b>kept-readings</b> pitch to the Subscribe→notify pattern (the
-    old gate jumped straight to notify-me). Both <b>await your eyes on device</b>. Earlier: v926 reader-gate lock, v928
-    cancelled-fall ruling B, v929 Aligned list, v930 the Cast engine wired into The Read.
-  </div>
-
-  <!-- ═══════════════  RULINGS RECEIVED  ═══════════════ -->
-  <h2>Rulings received — 22 July (night), being applied</h2>
-  <p class="lead">Your batch of 16, logged with disposition so nothing's lost. The boxes below stay for reference until
-    each is built; this card is the record of what you decided.</p>
-  <div class="card">
-    <b>Enshrined in doctrine (<code>METHOD.md</code>, committed):</b> Siddha-as-amplifier · the <b>Temporal Amplifiers</b>
-    category (station + eclipse = volume, not topic) · the full <b>narrative-authority hierarchy</b> + anti-stacking law ·
-    3rd-vs-11th (siblings, not twins) · confidence is surface-dependent (shown on predictions, internal on the daily tone) ·
-    Shubha Tithi = family classification, low authority.<br><br>
-    <b>Built:</b> the 27-star consolidation (issue #2, closed) · <b>chip → "Roots &amp; Ancestry" (SHIPPED v932)</b> ·
-    <b>pick-a-date precision layer VERIFIED</b> (dead code confirmed, canon-sound — ask #14).<br><br>
-    <b>Ruled 7/22–23 — ALL FOUR BUILT:</b> ② locked price list <b>SHIPPED v933</b> (#12) · ③ veiled-year split reveal
-    <b>SHIPPED v934</b> · ① precision layer wired as a hidden nudge <b>BUILT v935</b> (#14 CLOSED) · the <b>agenda layer</b>
-    revived as a hidden nudge <b>BUILT v935</b> (re-voiced from the v906 hijack, guarded against reverting). The two v935
-    nudges await the <b>before/after day read</b> you'll capture — the hijack test. v933/v934 await your eyes on device.<br><br>
-    <b>Still mine (not yet started):</b> Full Spectrum → follow the mode · "Karaka" → scrub + tappable · the Futura vs Optima
-    mock (+ a 3rd elegant serif/sans; you miss Playfair) · wire the amplifier/hierarchy doctrine into the prompt.<br><br>
-    <b>Deferred (recorded):</b> dark-mode pass, crown gold-on-gold, parchment ink — all after a proper visual audit ·
-    Stripe keys (waiting on Mercury) · chapter-read auto-fire (exception stands, safe).<br><br>
-    <b>Crown-mark ruling:</b> 11th is <i>not</i> the peak and not a twin of the 3rd — siblings (3rd = build/start, 11th =
-    harvest/collect); no Chandra-Bala weighting change, the distinction lives in tone. Shubha Tithi keeps the canonical
-    family rule. (Both now in the hierarchy doctrine.)
-  </div>
-
   <!-- ═══════════════  YOUR CALLS  ═══════════════ -->
   <h2>Your calls — type a ruling in any box</h2>
-  <p class="lead">Everything waiting on you, in one place. Fill the ones you want to decide (skip the rest), then hit
-    “Copy my rulings” at the bottom and paste it to me — I apply them and take each off the list.</p>
+  <p class="lead">Only what genuinely waits on <b>you</b> — the decided items have moved down to <b>Settled</b>. Fill the
+    ones you want to answer (skip the rest), then hit “Copy my rulings” at the bottom and paste it to me. Each one comes
+    off this list the moment you rule.</p>
 
-  <div class="grp">The two live decisions</div>
-  <div class="ask"><b>Full Spectrum → mode colour.</b>
-    <span class="why">FS accents come up gold across every mode (stray red on Restraint). Your ruling: follow the mode —
-    wine for Restraint, teal for Selective. One source swap, broad audit. Queued.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Full Spectrum → mode colour" placeholder="e.g. yes, follow the mode / hold"></textarea></div></div>
-  <div class="ask"><b>Dark mode — the next look priority.</b>
-    <span class="why">Dark is the <i>default</i> surface, not an opt-in: a cold full-page contrast pass (day-number
-    contrast, the espresso palette, the Optima hero on dark). Parchment ink (below) is one concrete piece.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Dark mode pass" placeholder="e.g. do the full pass now / after launch"></textarea></div></div>
+  <div class="grp">The states doctrine — the one live method call</div>
+  <div class="ask"><b>④ Aspects → graded drishti — which model?</b>
+    <span class="why">Next in the states-doctrine list, and the only one needing a method ruling (the others are ruled, just
+    unbuilt). "Graded aspects / ¼–½–¾–full" could mean three different chart-math models, and I won't guess into a chart:
+    <b>(a) the degree curve</b> — the canon-backed <code>sputaDrishti</code> already in <code>shadbala.ts</code>, strength
+    falls off by exact degrees from the 180° (7th) peak, most truly "continuous"; <b>(b) the BPHS house table</b> — discrete
+    steps: 7th full · 4/8 ¾ · 5/9 ½ · 3/10 ¼, with Mars/Jupiter/Saturn upgrading their special aspects to full;
+    <b>(c) orb-tightness</b> — keep the current whole-sign aspects, grade each by how near-exact it is. Applying-vs-separating
+    is unambiguous either way (by relative motion).</span>
+    <div class="ruling"><label>Your ruling</label><textarea data-q="④ Aspects: which drishti model (degree curve / BPHS house table / orb-tightness)" placeholder="e.g. use the degree curve / the BPHS house table / orb-tightness"></textarea></div></div>
 
-  <div class="grp">The astrology — how Velea reads a chart</div>
-  <div class="ask"><b>1. How loudly should Siddha Yoga speak?</b>
-    <span class="why">A Siddha Yoga forms <b>88 days a year (24%)</b> — the common signal, not the rare one. It lifts a day,
-    never clears a veto. You decide how prominent it is.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Siddha Yoga loudness" placeholder="e.g. a quiet lift only / a named line"></textarea></div></div>
-  <div class="ask"><b>2. The eclipse day — does the guidance change before vs after the exact moment?</b>
-    <span class="why">Open issue below. Naming it honestly ("Eclipse today") takes no side and I'll fix that either way.
-    Whether the <i>guidance</i> should differ before vs after is a method call, and it's yours.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Eclipse before/after guidance" placeholder="e.g. same either side / differ before vs after"></textarea></div></div>
-  <div class="ask"><b>3. The knot thresholds.</b>
-    <span class="why">The numbers deciding when a life-theme counts as "lit" were set by me and never checked. You asked
-    for a way to test them with your eyes — I owe you that method if you want it.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Knot thresholds" placeholder="e.g. build me the test method / leave them"></textarea></div></div>
-  <div class="ask"><b>4. The crown mark — two spec pieces still missing.</b>
-    <span class="why">Your tārā list and six lucky Moon houses match the engine. Still missing: the <b>11th is not treated
-    as the peak</b> (weighs the same as the 3rd), and <b>Shubha Tithi</b> uses the cited family rule, not your list.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Crown mark spec (11th peak + Shubha Tithi)" placeholder="e.g. make the 11th the peak; use my tithi list"></textarea></div></div>
+  <p class="lead" style="margin-top:1rem">That's the only decision genuinely waiting on you right now. The look calls (Full
+    Spectrum → mode colour, dark mode) are ruled to wait for the visual batch; Stripe waits on Mercury; the Futura mock is mine
+    to make before you can rule on it — all recorded in <b>Settled</b> below.</p>
 
-  <div class="grp">The look — palette &amp; type calls</div>
-  <div class="ask"><b>5. The crown mark is gold on a gold coin.</b>
-    <span class="why">1.6:1 in light, 1.2:1 in dark — effectively invisible, and the border is the same gold. A darker gold
-    reads but turns the mark olive; the alternative is keeping the gold and giving it a real shadow.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Crown mark gold-on-gold" placeholder="e.g. darker gold / keep gold + add shadow"></textarea></div></div>
-  <div class="ask"><b>6. Parchment ink in dark mode.</b>
-    <span class="why">Day numbers on the month calendar sit at 2.3:1 in Espresso Night. One value in the theme block.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Parchment ink in dark mode" placeholder="e.g. lift it to 4.5:1"></textarea></div></div>
-  <div class="ask"><b>7. Rename the "Parents &amp; Roots" chip? — ✓ RULED + SHIPPED v932.</b>
-    <span class="why">That area is now explicitly ancestry — the departed, what came down the line. Ruled <b>"Roots &amp; Ancestry"</b>
-    and shipped: both parent-level label sites (Horoscope chip/log-header + the life-areas.ts spec) now read it; parents-as-people
-    (Mother = 4th, Father = 9th) stay in the Family shelf and knots, untouched. Open for a wording second-thought only.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Rename Parents & Roots chip" placeholder="shipped as Roots & Ancestry — say if you want it different"></textarea></div></div>
-  <div class="ask"><b>8. Futura instead of Optima? — wants a mock first.</b>
-    <span class="why">Futura is DCPC's brand font. I'll build a <b>Futura + Inter</b> vs current <b>Optima + Inter</b> mock
-    for your eyes; ships only if you bless it. Say the word and I make the mock.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Futura vs Optima" placeholder="e.g. make the mock / not now"></textarea></div></div>
-
-  <div class="grp">The reading — rulings that shape the engine</div>
-  <div class="ask"><b>9. "Karaka" / "Tara" in a read — scrub, or make tappable?</b>
-    <span class="why">Open issue #9. "Tara" is already scrubbed from LLM prose; "Karaka" is a scrub-list gap. Your law:
-    jargon must be glossed in prose OR be a tappable glossary term. Remedy takes a side — scrub them out, or keep them and
-    add glossary pop-ups.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Karaka/Tara: scrub vs glossary pop-up" placeholder="e.g. add karaka to the scrub / make both tappable"></textarea></div></div>
-  <div class="ask"><b>10. The 27-star table duplication — consolidate, or keep guarded?</b>
-    <span class="why">Open issue #2. The duplication is guarded by a test ("never fork"); no live risk. True consolidation
-    to one import is a design change that contradicts that documented choice — worth it, or leave it?</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="27-star table: consolidate vs keep guarded" placeholder="e.g. leave it guarded / consolidate"></textarea></div></div>
-  <div class="ask"><b>11. The chapter read fires on the Chart page with no tap.</b>
-    <span class="why">Open issue #6 — a deliberate Door-Law exception (the input is date-stable, so it doesn't re-bill
-    daily). Whether the exception stands is yours.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Chapter read auto-fires on Chart page" placeholder="e.g. exception stands / add a tap"></textarea></div></div>
-
-  <div class="grp">The business — money &amp; launch</div>
-  <div class="ask"><b>12. Set the price. — ✓ RULED: surface all three now. BUILDING.</b>
-    <span class="why">Your list is locked. You ruled 2026-07-22: <b>surface all three</b> — $2.99 near-sight / $4.99 all-access /
-    $1.49 pick-a-date, on the locked cards, honest pricing as the competitive knife. Nothing CHARGES yet (still Mercury for
-    Stripe) — this only makes the numbers legible. Wiring PREMIUM_PRICING into the three tiers + routing each locked card to
-    its tier.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Set the price" placeholder="ruled: surface all three ($2.99/$4.99/$1.49) — say if a number's wrong"></textarea></div></div>
-  <div class="ask"><b>13. Stripe keys.</b>
-    <span class="why">The entitlement resolver is built and tested with no billing source to read. Railway config, yours.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Stripe keys" placeholder="e.g. I'll add them in Railway / waiting"></textarea></div></div>
-  <div class="ask"><b>14. The pick-a-date precision layer — wire it, or delete it? — ✓ RULED: WIRE IT (verify vs canon first).</b>
-    <span class="why">VERIFIED (2026-07-22): <code>day-read-signals.ts</code> (179 lines, <code>dayReadSignalsForBirth</code>) is
-    genuinely dead — zero callers. It was Step-4's precision bundle for the DAY read; orphaned when pick-a-date reveal moved to
-    the varga life-area lens (<code>getLifeAreaRead</code>), which neither it nor the day read ever imported. What it uniquely
-    carries is per-transit precision — each transit's Bhava Chalit house + Ashtakavarga bindu grading + Tripada gochar
-    (house-from-Moon/Sun) + natal-hit ≤4° + live retro/combust/dignity — your spine model. <b>Canon check: sound</b> — its
-    hardcoded dignity table matches <code>dignity.ts</code> exactly, and it composes engines already canon-tested (Sripati
-    chalit, BPHS ashtakavarga, the crown method, the v842 combustion fix, neecha-bhanga Moon); one duplicated-but-correct
-    table to dedupe on wiring. You ruled WIRE it as a HIDDEN nudge (prose picks the 1–2 loudest transits, never a dump). Wiring
-    bumps PROMPT_VERSION → regenerates the day read → wants your eyes on the prose; batched with the agenda-nudge below.</span>
-    <div class="ruling"><label>Your ruling</label><textarea data-q="Pick-a-date precision layer: wire or delete" placeholder="ruled: wire as hidden nudge — verified canon-sound"></textarea></div></div>
-
-  <div class="grp">Awaiting your eyes (feedback, not a ruling — but drop a note if it's off)</div>
-  <div class="ask"><b>The veiled year — the "Year ↗" door + thirst gate (v931).</b>
-    <span class="why">Sign in as a free user, open Today's calendar: the <b>Year ↗</b> door now shows with the gate glyph
-    (it used to vanish). Tap it — you land on the year page <i>veiled</i> (months blurred behind glass, an "Unlock your
-    year" card over them). Confirm the veil reads as a tease, not as broken/empty, and the gate glyph shows on the door.</span>
-    <div class="ruling"><label>How does it read?</label><textarea data-q="Veiled year page + Year door gate glyph (v931)" placeholder="e.g. reads great / blur too strong / card sits too high"></textarea></div></div>
+  <!-- ═══════════════  AWAITING YOUR EYES  ═══════════════ -->
+  <h2>Awaiting your eyes — feedback, not a ruling</h2>
+  <p class="lead">Built and pushed; I've looked where I could, but the final read is on your device. Drop a note in any box if
+    it's off — otherwise these close on your nod.</p>
+  <div class="ask"><b>The states doctrine on the day read — the 7/29 showcase.</b>
+    <span class="why">Open the <b>2026-07-29</b> day read (Jupiter cazimi + full moon + past Saturn's station). Confirm Jupiter
+    reads as <i>the throne</i> (empowered), the moon reads at the brim, and the whole thing lands as one loud day — not three
+    stacked announcements.</span>
+    <div class="ruling"><label>How does it read?</label><textarea data-q="States doctrine on the 7/29 day read (cazimi + full moon + station)" placeholder="e.g. Jupiter reads as the throne / it stacks / the moon dial is invisible"></textarea></div></div>
+  <div class="ask"><b>The veiled year — the “Year ↗” door + thirst gate (v934).</b>
+    <span class="why">Sign in as a free user, open Today's calendar: the <b>Year ↗</b> door shows with the gate glyph (it used
+    to vanish). Tap it — you land on the year <i>veiled</i> (months blurred, an "Unlock your year" card over them). Confirm the
+    veil reads as a tease, not as broken/empty.</span>
+    <div class="ruling"><label>How does it read?</label><textarea data-q="Veiled year page + Year door gate glyph (v934)" placeholder="e.g. reads great / blur too strong / card sits too high"></textarea></div></div>
   <div class="ask"><b>Kept-readings pitch — modernized (v931).</b>
-    <span class="why">Tap "Keep this reading" as a free user: the pop-up now leads with <b>Subscribe</b> (no number yet —
-    Master tier price is unset) → notify-me, matching the refresh. It was the old notify-only pop-up you flagged.</span>
+    <span class="why">Tap "Keep this reading" as a free user: the pop-up now leads with <b>Subscribe</b> → notify-me, matching
+    the refresh. It was the old notify-only pop-up you flagged.</span>
     <div class="ruling"><label>How does it read?</label><textarea data-q="Kept-readings modernized pitch (v931)" placeholder="e.g. good / copy tweak"></textarea></div></div>
   <div class="ask"><b>The Read (cast paragraph) — v930, engine-fed.</b>
-    <span class="why">Tap The Read. The protagonist and the one tension are now decided by your chart, not the AI. If it
-    reads off, tell me here — it's cache-salted, so I adjust fast.</span>
+    <span class="why">Tap The Read. The protagonist and the one tension are now decided by your chart, not the AI. If it reads
+    off, tell me here — it's cache-salted, so I adjust fast.</span>
     <div class="ruling"><label>How does it read?</label><textarea data-q="The Read / cast paragraph (v930)" placeholder="e.g. reads great / the tension feels forced"></textarea></div></div>
   <div class="ask"><b>The Aligned list — v929.</b>
-    <span class="why">Full Restraint-led list now, not 1 task. The "capable" threshold (mental≥4 &amp; emotional≥4) is
-    yours to retune.</span>
+    <span class="why">Full Restraint-led list now, not 1 task. The "capable" threshold (mental≥4 &amp; emotional≥4) is yours to retune.</span>
     <div class="ruling"><label>How does it read?</label><textarea data-q="Aligned list (v929) + capable threshold" placeholder="e.g. good / loosen the threshold to 3"></textarea></div></div>
-  <div class="ask"><b>The meridian voice — register, not content (post-v930, pushed).</b>
+  <div class="ask"><b>The meridian voice — register, not content (post-v930).</b>
     <span class="why">Open a fresh day read on a timed chart where the MC/IC is lit. Confirm it reads as a REGISTER
     (outward/visible vs inward/rooted), never career-vs-home; that with no vocational theme it doesn't reach for work
     language; and that Rahu/Ketu still reads as direction (reach/release), distinct from the meridian.</span>
     <div class="ruling"><label>How does it read?</label><textarea data-q="Meridian register-not-content prose (post-v930)" placeholder="e.g. reads right / still leans career on the MC"></textarea></div></div>
 
-  <!-- ═══════════════  THE CHAIN  ═══════════════ -->
-  <h2>The chain — do next, in order</h2>
-  <p class="lead">Correctness first, then the money seam, then the feature direction, with the look as one batch that slots
-    anywhere. The calls you owe are above.</p>
+  <!-- ═══════════════  NEXT TO BUILD  ═══════════════ -->
+  <h2>Next to build — in order</h2>
+  <p class="lead">Correctness and the states doctrine first, then the look batch, then the feature directions. The deep lists
+    are collapsed so the spine stays legible; the ruling you owe for ④ aspects is up in <b>Your calls</b>.</p>
   <ol class="asks">
-    <li><b>Correctness cluster — essentially DONE.</b> The copy sweep is 6/7 closed (Business Partners→spouse, "your star",
-      "THE DAY OFFERS IT", eclipse/station tense — all v901–v905). The lone survivor exposed the unwired Stage engine,
-      <b>now wired in v930</b> (awaiting your eyes on The Read).</li>
-    <li><b>Aligned for Today — LANDED (v929), awaiting your eyes.</b> Mode is a soft rank; the low-drive gate is
-      whole-check-in aware. Threshold is yours to retune (box above).</li>
-    <li><b>Make the gate a gate — the money seam. YEAR CALENDAR DONE (v931), awaiting your eyes.</b> The two surfaces:
-      the hero's ↻ refresh already ran illusion-first (you confirmed it — "works perfectly, price and all"); the year
-      calendar <i>vanished</i> for a free user and now shows the "Year ↗" door with the gate glyph → a veiled year on tap.
-      Ties to launch.</li>
-    <li><b>The feature direction — the Planner roadmap + the prana reading.</b> Highest-leverage first: confirm the two
-      shipped Planner pieces, then visual time-anchoring (needs your <code>duration</code> schema script), then Pomodoro,
-      then the prana reading surface (engine computes it; nothing voices it yet).</li>
-    <li><b>The look — one batch, slots anywhere.</b> The comet brand mark, the Readings diamond, the gate-glyph placement,
-      the Life Atlas caret, the yogas copy, the Futura mock. Itemised below.</li>
+    <li><b>States doctrine — the remaining conversions (ruled, one before/after each).</b> ③ planetary war (grade by orb +
+      natural strength, NO winners) · ⑥ yoga loudness (participants' dignity/angularity into the payload) · ⑦ bhava strength
+      (which rooms are lit, cusps too — you were high-enthusiasm on this) · <b>dignity / neecha-bhanga → recovery continuum</b>
+      (engine BUILT, dormant — <code>gradeRecovery</code>, 5 bands; <b>tune the first curve at
+      <code>server/scripts/recovery-scan.ts</code></b>, you tune by looking, then wire + the environment-language rebrand +
+      glossary). ④ aspects is blocked on your model ruling above.</li>
+    <li><b>Wire the amplifier / authority-hierarchy doctrine into the prompt.</b> Enshrined in <code>METHOD.md</code>
+      (Time&nbsp;Lord→Agenda→Knot→Crown→Tara/Chandra→Shubha→Siddha→Temporal Amplifiers + the anti-stacking law), not yet read
+      by the prompt.</li>
+    <li><b>Two small reading builds (ruled 7/23).</b> The <b>eclipse day</b> reads differently before vs after the exact
+      contact (two postures across the moment). <b>“Karaka” / “Tara”</b> become tappable glossary terms in a read (pop-ups,
+      not scrubbed — closes open issue #6).</li>
+    <li><b>The Futura mock — mine to make (you asked to see it).</b> A <b>Futura + Inter</b> vs current <b>Optima + Inter</b>
+      specimen on real Velea copy, plus a third elegant high-contrast serif (you miss Playfair). You rule Futura-vs-Optima only
+      after you've seen it.</li>
+    <li><b>The look batch — slots anywhere.</b> Full Spectrum → follow the mode (ruled), the deferred visual-audit pass
+      (gold-on-gold, parchment ink, dark mode), the comet brand mark, the Readings diamond, the Life Atlas caret, the yogas
+      copy, the gate-glyph sweep. <i>Itemised below.</i></li>
+    <li><b>The feature directions.</b> The neurodivergent Planner roadmap, the prana reading surface, tithi-as-cadence, the
+      velealor.com refinement. <i>Itemised below.</i></li>
   </ol>
-
-  <!-- ═══════════════  UI / BRAND BATCH  ═══════════════ -->
-  <h2>The UI / brand batch — your spec, 22 July</h2>
-  <p class="lead">Your seven items, verbatim intent, so no specific is lost. Items 1, 4 and 7 are load-bearing; 3 (font)
-    is the decision above.</p>
-  <ol class="asks">
-    <li><b>Comet replaces the Lakshmi star as the brand mark — "just do it."</b> The <b>brand mark</b>, the <b>spinning
-      loading mark</b>, and the <b>Today</b> nav icon.</li>
-    <li><b>Readings nav → a diamond</b> (a square on its axis) with a <b>bindi dot</b> in the middle. Frees the star.</li>
-    <li><b>Futura vs Optima?</b> — the decision + mock (box #8 above).</li>
-    <li><b>Gated premium is HIDDEN, not locked. — YEAR CALENDAR DONE (v931).</b> The <b>↻ refresh</b> already showed to
-      everyone (illusion-first, no gate — your call, confirmed live). The <b>year calendar</b> "Year ↗" door now shows
-      with the gate glyph and lands on a veiled year, no longer vanishing. Any other still-hidden locked surface: name it.</li>
-    <li><b>Life Atlas: "open" → a caret.</b> The row doesn't need the word "open" — just a caret.</li>
-    <li><b>Yogas: remove "taste"; make them free-pickable.</b> A caret opens the card. The bubble button that picks a yoga
-      as the free reading: <b>remove the words</b>, replace with something elegant — not the yoga's name again, and
-      "This choice keeps…" is weird English.</li>
-    <li><b>Gate glyph sits by the opener — for ALL locked features.</b> Right next to the caret/button that opens it.
-      <i>Year ↗ door done (v931); kept-readings already carries it. Sweep the rest when you spot one.</i></li>
-  </ol>
+  <details><summary>The UI / brand batch — your spec, 22 July (verbatim intent)</summary>
+    <ul>
+      <li><b>Comet replaces the Lakshmi star as the brand mark — "just do it."</b> The brand mark, the spinning loading mark,
+        and the Today nav icon.</li>
+      <li><b>Readings nav → a diamond</b> (a square on its axis) with a bindi dot in the middle. Frees the star.</li>
+      <li><b>Gate glyph sits by the opener — for ALL locked features.</b> Right next to the caret/button that opens it.
+        (Year ↗ door done v934; kept-readings carries it. Sweep the rest when you spot one.)</li>
+      <li><b>Life Atlas: "open" → a caret.</b> The row doesn't need the word "open" — just a caret.</li>
+      <li><b>Yogas: remove "taste"; make them free-pickable.</b> A caret opens the card; the pick-a-yoga button loses its
+        words for something elegant (not the yoga's name again; "This choice keeps…" is weird English).</li>
+    </ul></details>
+  <details><summary>The feature directions — Planner, prana, tithi cadence, the site</summary>
+    <ul>
+      <li><b>The neurodivergent Planner (greenlit 17 July).</b> Highest-leverage first: One task / Focus Mode · sensory
+        control panel (needs your UX spec) · visual time-anchoring + shrinking-disc timer (needs a <code>duration</code> schema
+        script you run) · Pomodoro (25-min disc → rest bell → break → return bell; the bells are your art) · zero-friction
+        voice capture · save-and-resume · body-doubling. AI task-decomposition (v710) &amp; gentle overdue (v708) shipped —
+        confirm live.</li>
+      <li><b>The prana reading.</b> The dasha engine computes and stores prana-level periods (level 5); no surface voices them
+        yet. A feature to build on data that exists.</li>
+      <li><b>Tithi as cadence (your proposal, 7/22 night).</b> The Knot supplies the noun; the Tithi supplies the verb — reframe
+        the five families as a repeating 5-beat pulse (Nanda nourish · Bhadra build · Jaya break-through · Rikta release · Purna
+        complete). The families already exist in the engine as favorability only; this is a narrative reframe, ~zero compute
+        (a day touches ~2 tithis = one step along the pulse). Awaiting your notes to formalize the verbs.</li>
+      <li><b>velealor.com refinement.</b> The nav was removed 7/23 (the open hamburger exposed placeholder sub-pages to the
+        public; sub-pages still live at their direct URLs). Step 1: gather every line of existing site copy into one place for
+        you to work from. On hold — you'll pick it up; CC extracts on request.</li>
+    </ul></details>
 
   <!-- ═══════════════  OPEN ISSUES  ═══════════════ -->
-  <h2>Open issues — 8, named and reproducible</h2>
-  <p class="lead">The catalogue. The ones that need a ruling have a box up in <b>Your calls</b>; the rest are mine to build.</p>
+  <h2>Open issues — 6, named and reproducible</h2>
+  <p class="lead">The catalogue of what's still broken or unbuilt and mine to fix. The one that needs your call carries a box up
+    in <b>Your calls</b>. Closed issues are in <b>Settled</b> below.</p>
   <ul class="plain">
-    <li><span class="tag">DATA</span><b>1 · The Stage engine — WIRED v930, awaiting your eyes.</b> The Cast/Camera/Tension
-      engine now feeds the day cast read; the aggressor-direction bug is fixed at <code>findTension</code> (both-directions
-      test + probe). Tap The Read and confirm — then this closes.</li>
-    <li><b>2 · The 27-star table — CONSOLIDATED &amp; CLOSED (2026-07-22).</b> You ruled "consolidate." Was measured at
-      <b>21 modules</b> (not ~7), each with its own copy — one carrying a live "Dhanishta" misspelling. All now import one
-      canonical <code>shared/nakshatra-names.ts</code>; the guard flipped to a fork-detector; the Glossary's terms are guarded
-      to the canon. tsc 0 · suite green. Kept here for the record.</li>
-    <li><span class="tag">DATA</span><b>3 · Exact Chesta (eight-state seeghra-kendra) is not built.</b> The simplified
-      K&amp;F rule declares itself as such to the model; the real one needs the textbook, not inference.</li>
-    <li><span class="tag">MONEY</span><b>4 · The failed-save re-bill guard is per-process.</b> A redeploy or second replica
+    <li><span class="tag">DATA</span><b>1 · Exact Chesta (eight-state seeghra-kendra) is not built.</b> The simplified K&amp;F
+      rule declares itself as such to the model; the real one needs the textbook, not inference.</li>
+    <li><span class="tag">MONEY</span><b>2 · The failed-save re-bill guard is per-process.</b> A redeploy or second replica
       loses it. Needs somewhere durable.</li>
-    <li><span class="tag">MONEY</span><b>5 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
+    <li><span class="tag">MONEY</span><b>3 · Stored dasha &amp; convergence rows invalidate all-or-nothing.</b> Needs an
       <code>engineVersion</code> column — a script you run.</li>
-    <li><span class="tag">MONEY</span><b>6 · The chapter read fires on the Chart page with no tap.</b> A deliberate
-      Door-Law exception → your call (box #11 above).</li>
-    <li><span class="tag">READ</span><b>7 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
-    <li><span class="tag">LOOK</span><b>8 · The welcome card can show two filled primary buttons.</b> Mine to fix.</li>
-    <li><span class="tag">READ</span><b>9 · "Karaka" and "Tara" reach a read untappable and unglossed.</b> "Tara" is
-      already scrubbed; "Karaka" is a scrub-list gap. Remedy (scrub vs glossary) → your call (box #9 above).</li>
+    <li><span class="tag">READ</span><b>4 · Focus level in the check-in is not built.</b> Needs a schema change.</li>
+    <li><span class="tag">LOOK</span><b>5 · The welcome card can show two filled primary buttons.</b> Mine to fix.</li>
+    <li><span class="tag">READ</span><b>6 · “Karaka” and “Tara” reach a read untappable and unglossed.</b> Ruled 7/23:
+      <b>keep them, make tappable</b> — wire glossary pop-ups (not scrub). Mine to build.</li>
   </ul>
 
-  <!-- ═══════════════  PICK BACK UP  ═══════════════ -->
-  <h2>Pick back up — the feature directions</h2>
-  <div class="grp">The productivity Planner — neurodivergent-UX, greenlit 17 July</div>
-  <p class="lead">Neuroinclusive is universal design. None of the five leaders (Notion, Todoist, TickTick, ClickUp,
-    Motion) ship the key ones. These drop onto the Planner that already exists.</p>
-  <ol class="asks">
-    <li><b>One task / Focus Mode</b> — hide all but the current action, one primary CTA. Unbuilt.</li>
-    <li><b>AI task-decomposition on capture</b> — 3–7 micro-steps, first pre-selected. <i>Shipped v710 — confirm live.</i></li>
-    <li><b>Gentle overdue</b> — fades to neutral + one-tap "roll forward". <i>Shipped v708 — confirm live.</i></li>
-    <li><b>Sensory control panel</b> — animation/sound/colour/density controls. Needs your UX spec.</li>
-    <li><b>Visual time-anchoring</b> — per-task duration + a shrinking-disc timer. Needs a <code>duration</code> schema
-      script — yours to run.</li>
-    <li><b>Zero-friction capture</b> — voice-first, natural-language, from lock screen. Never paywall capture.</li>
-    <li><b>Save-and-resume by default</b> — every flow pausable with a "you were here" re-orient.</li>
-    <li><b>Predictable structure, opt-in novelty</b> — navigation never moves; redesigns ship as opt-in themes.</li>
-    <li><b>Body-doubling &amp; forgiving rewards</b> — optional co-working; streaks that forgive gaps.</li>
-    <li><b>Pomodoro focus sessions — your addition.</b> 25-min disc → rest bell → break → return bell. The bells are your
-      art. Parked; shares the <code>duration</code> script. Trigger: "go pomodoro".</li>
-    <li><b>Per-day task list — tap a day, see its tasks.</b> A rough skeleton exists as dead code
-      (<code>matchedTasks</code>). You ruled "leave it for now."</li>
-  </ol>
-  <div class="grp">The prana reading</div>
-  <div class="card">The dasha engine computes and stores <b>prana-level periods</b> (level 5). <b>No surface voices them
-    yet.</b> A feature to build on data that exists.</div>
-  <div class="grp">Tithi as cadence — your proposal (7/22 night), not yet formalized</div>
-  <div class="card"><b>The Knot supplies the noun; the Tithi supplies the verb.</b> Reframe the tithi from good/bad into the
-    day's <i>rhythm of action</i> via the five families as a repeating 5-beat pulse — <b>Nanda</b> (nourish) · <b>Bhadra</b>
-    (build) · <b>Jaya</b> (break through) · <b>Rikta</b> (release) · <b>Purna</b> (complete): Begin → Build → Break-through →
-    Empty → Complete. The families ALREADY exist in the engine (<code>day-filter.ts</code>, <code>auspiciousness.ts</code>) —
-    but only as favorability (Rikta −1 + veto, Purna +1). So this is a <i>narrative reframe</i> of an existing detector (the
-    "no black &amp; white" law: Rikta = release, not "bad"), not a new scorer. Lead the prose with the pulse, keep the 15
-    single-tithi temperaments as a deeper layer; the veto stays structural.
-    <br><br>
-    <b>The family-turn — cost &amp; friction checked (your question, 7/22).</b> A tithi averages <b>~23.6h</b> (synodic month
-    29.53d ÷ 30), just under a day, so a calendar day touches <b>~2 tithis on average</b> (one boundary) — rarely 1 (a long
-    tithi engulfs the day) or 3 (a short "kshaya" day). Never a soup. And because the five families cycle every 5, <b>consecutive
-    tithis are ALWAYS adjacent families</b> — so a two-tithi day is a <b>single step along the pulse</b> (Bhadra→Jaya = "builds
-    toward breaking through"), read as momentum, not a jump. <b>Cost ≈ zero:</b> the tithi + day-edge longitudes are already
-    computed (Velea already picks a majority tithi); the second family is mod-5 arithmetic, no extra ephemeris; and the turn is
-    a <i>texture inside the one existing day read</i>, no second LLM call. <b>Guardrail:</b> cap at the turn (from→to), never
-    enumerate; a 3-tithi day uses majority + the dominant turn — one arc, one sentence (same as the star-turn).
-    <br><br>
-    Awaiting your notes to formalize the verbs.</div>
-  <div class="grp">velealor.com refinement — the public site</div>
-  <div class="card">The marketing site needs a pass. <b>Context (7/23):</b> the open hamburger nav exposed the still-placeholder
-    editorial sub-pages (<code>/velea /why /system /gate /access</code>) to the public — davidchum.com links here — so the
-    <b>nav was removed</b> and the landing page now stands alone (sub-pages still live at their direct URLs, routes untouched).
-    <br><br>
-    <b>Step 1 — gather all the existing website copy.</b> Pull every line of visible copy from the landing page + the seven
-    sub-pages (velea, why, system, gate, receive, access, confirmed) into one place for David to work from. <i>On hold — David
-    will pick this up when the time comes; not urgent.</i> (CC can extract it on request.)</div>
-
-  <div class="grp">THE STATES DOCTRINE — binaries → continua (ruled + enshrined in METHOD.md, 7/23)</div>
-  <div class="law">· <b>The principle:</b> "the engine computes objective conditions; the narrative expresses lived STATES."
-    Layer, don't replace (classical term stays in engine + glossary). Give the model nuanced DATA, not prompt-engineered
-    nuance — <b>the fix for flat prose is a richer field, not a louder instruction.</b> Rename by BEHAVIOUR: debilitated →
-    high-friction environment · exalted → highly-supported (powerful-must-be-governed, never "amazing") · combust → the Solar
-    Relationship · neecha bhanga → environmental recovery.</div>
-  <div class="law">· <b>The 7-item list:</b> ①&nbsp;<b>Combustion → Solar Relationship — WIRED LIVE v936</b> (cazimi = the
-    throne, heart-of-the-sun = the coronation; showcase <b>Jupiter cazimi 7/29</b>). ②&nbsp;<b>Retrograde → all 5 planets —
-    WIRED LIVE v937</b> (Venus/Mars/Jupiter/Saturn carry the graded phase in the transit read; Mercury keeps its own
-    mercuryRx block; station thresholds are per-planet and you ruled the giants' week-long station is correct; showcase
-    <b>Saturn stationing 7/23–29</b>, Jupiter+Saturn both stationing early Dec). ⑤&nbsp;<b>Moon brightness — WIRED LIVE
-    v938</b> (the daily trigger now carries its strength dial: illumination + paksha bala + named phase, new→seed /
-    full→brimming, zero new astronomy). · <b>Dignity/neecha bhanga → recovery continuum —
-    engine BUILT</b> (dormant; <code>gradeRecovery</code>, 5 bands, NBRY engine-resolved) — <b>tune the first curve at
-    <code>recovery-scan.ts</code></b> (your Moon: bare-2 Scorpio → "partial", "substantial" if backed), then wire + the
-    ENVIRONMENT rebrand + glossary. · Open with your notes: ③&nbsp;war (orb + strength, NO winners) · ④&nbsp;aspects (drishti
-    strength + forming/separating) · ⑥&nbsp;yoga loudness · ⑦&nbsp;bhava strength (rooms lit, cusps too).</div>
-  <div class="law">· <b>How to wire each (the pattern):</b> add the graded field to the payload beside its boolean + a short
-    prompt read + a scan to hand you a vivid demo date + bump the surface version. Incremental, one before/after each — NOT
-    one big pass (wiring is DATA, low-effort, per your own doctrine).</div>
-  <div class="grp">Two engine threads — confirm, don't rebuild</div>
-  <div class="law">· <b>The agenda layer. — you asked 7/22; CONFIRMED not built.</b> Built v906 (<code>535fcd5</code>:
-    <code>agenda.ts</code> 219 lines + prompt voicing + input wiring + 21 tests + 7 probes), <b>fully reverted v907</b>
-    (<code>9414659</code> — "as a voice it hijacked the read"). Zero agenda code at HEAD (verified — grep empty, nothing in
-    prompts). Your call: <b>rebuild as a hidden NUDGE</b> — the lord's condition tilts the posture, never earns a sentence
-    (coherence-over-information + anti-stacking). Worth retesting now: the prompt has since gained the meridian register-law,
-    anti-stacking + the authority hierarchy, so it may absorb the nudge without taking over. Batched with the precision-nudge
-    (#14) as the "generate reads for your eyes, watch for hijack" pass. Code whole at <code>@535fcd5</code>.</div>
-  <div class="law">· <b>Addresses &amp; contacts.</b> Built v884, wired v885. Believed done — one look on a live reading
-    confirms it.</div>
+  <!-- ═══════════════  SETTLED  ═══════════════ -->
+  <h2>Settled — off your list, kept for the record</h2>
+  <p class="lead">What you've already ruled or I've already shipped, with its disposition so nothing leaves the queue by being
+    forgotten. No boxes here — these are closed.</p>
+  <ul class="plain">
+    <li><span class="done">✓ RULED (7/23)</span> — <b>Siddha Yoga loudness:</b> the doctrine stands — a low-authority
+      <b>lift</b>, never a named line, never clears a veto (in <code>METHOD.md</code>).</li>
+    <li><span class="done">✓ RULED (7/23)</span> — <b>the eclipse day:</b> the guidance <b>differs before vs after</b> the exact
+      contact (before is one posture, after another) — not the same either side. Mine to build into the eclipse read.</li>
+    <li><span class="done">✓ RULED (7/23)</span> — <b>the knot thresholds:</b> <b>leave them</b> as-is; no test method needed.</li>
+    <li><span class="done">✓ RULED (7/23)</span> — <b>“Karaka” / “Tara” in a read:</b> <b>keep them, make tappable</b> —
+      wire glossary pop-ups rather than scrub. Mine to build (open issue #6).</li>
+    <li><span class="done">✓ SHIPPED v932</span> — <b>the chip rename to “Roots &amp; Ancestry.”</b> That area is ancestry/roots
+      (the departed, what came down the line); parents-as-people (Mother 4th, Father 9th) stay in the Family shelf.</li>
+    <li><span class="done">✓ SHIPPED v933</span> — <b>Set the price:</b> you ruled surface all three — near-sight $2.99 /
+      all-access $4.99 / pick-a-date $1.49, on the locked cards. Nothing charges yet (Stripe still open, above).</li>
+    <li><span class="done">✓ SHIPPED v934</span> — <b>the veiled-year split reveal</b> (awaiting your eyes, above).</li>
+    <li><span class="done">✓ BUILT v935</span> — <b>the pick-a-date precision layer wired as a hidden nudge</b> + <b>the agenda
+      layer revived as a hidden nudge</b> (re-voiced from the v906 hijack). You judged the 7/23 before/after: PASS.</li>
+    <li><span class="done">✓ RULED</span> — <b>the crown mark spec.</b> The 11th is <i>not</i> the peak and not a twin of the 3rd
+      (siblings — 3rd = build/start, 11th = harvest/collect); no Chandra-Bala weighting change, the distinction lives in tone.
+      Shubha Tithi keeps the cited canonical family rule, not a hand list. Both now in the hierarchy doctrine.</li>
+    <li><span class="done">✓ CONSOLIDATED</span> — <b>the 27-star table.</b> Was 21 modules with their own copy (one carrying a
+      "Dhanishta" misspelling); all now import one <code>shared/nakshatra-names.ts</code>, the guard is a fork-detector.</li>
+    <li><span class="done">✓ RULED</span> — <b>the chapter read auto-fires on the Chart page:</b> a deliberate Door-Law
+      exception stands (the input is date-stable, so it doesn't re-bill daily).</li>
+    <li><span class="done">✓ RULED (7/23)</span> — <b>Stripe keys:</b> wait until <b>Mercury is settled</b>. The entitlement
+      resolver is built; the price list is on the cards ($2.99 / $4.99 / $1.49); nothing charges until the keys go into Railway.</li>
+    <li><span class="done">◦ DEFERRED (7/23)</span> — <b>the look / visual-audit batch — all can wait, it's visual:</b>
+      <b>Full Spectrum → mode colour</b> (ruled follow-the-mode: wine Restraint / teal Selective — timing deferred) · <b>dark
+      mode</b> pass (day-number contrast, espresso palette, hero on dark) · <b>the crown mark is gold on a gold coin</b> (1.6:1
+      light / 1.2:1 dark — darker gold reads but turns olive; or keep gold + a real shadow) · <b>Parchment ink in dark mode</b>
+      (day numbers at 2.3:1 in Espresso Night). One batch, done when the visual audit runs.</li>
+  </ul>
 
   <!-- ═══════════════  THE RECORD  ═══════════════ -->
   <h2>The record — fixed &amp; settled</h2>
   <p class="lead">Collapsed, out of your way, kept so nothing vanishes — nothing was deleted. The long forensic version
     lives at <code>tools/audit-sheet/archive-longform-v848.html</code>.</p>
-  <details><summary>Fixed &amp; verified this run (v903–v931 + post-930 prompt/canon)</summary>
+  <details><summary>Rulings received — 22 July (night), applied</summary>
+    <ul>
+      <li><b>Enshrined in doctrine (<code>METHOD.md</code>):</b> Siddha-as-amplifier · the Temporal Amplifiers category
+        (station + eclipse = volume, not topic) · the full narrative-authority hierarchy + anti-stacking law · 3rd-vs-11th
+        (siblings, not twins) · confidence is surface-dependent (shown on predictions, internal on the daily tone) · Shubha
+        Tithi = family classification, low authority.</li>
+      <li><b>Built / ruled 7/22–23:</b> the 27-star consolidation · chip → "Roots &amp; Ancestry" (v932) · the locked price
+        list (v933) · the veiled-year split reveal (v934) · the precision layer + agenda revived as hidden nudges (v935) · the
+        states doctrine wired live (v936–v938).</li>
+      <li><b>Deferred (recorded):</b> the dark-mode / crown gold-on-gold / parchment ink visual pass (after a proper audit) ·
+        Stripe keys (waiting on Mercury) · chapter-read auto-fire (exception stands).</li>
+    </ul></details>
+  <details><summary>Fixed &amp; verified this run (v903–v938 + post-930 prompt/canon)</summary>
     <ul>
       <li><b>Doctrine session (7/22 night) — <code>METHOD.md</code>.</b> Enshrined the <b>counting law</b> ("weight ranks,
         lords gate"; the count is private authority, the reader never hears the score), <b>confidence is surface-dependent</b>
@@ -483,40 +370,29 @@
         wiring is queued.</li>
       <li><b>27-star names consolidated to ONE source (issue #2, closed).</b> Measured 21 modules with their own copy
         (brief said ~7); one had a live "Dhanishta" misspelling. All import <code>shared/nakshatra-names.ts</code>; the guard
-        is now a fork-detector (control-verified both directions); the Glossary's terms are guarded to the canon. tsc 0 ·
-        suite 1317 pass. Pushed.</li>
+        is now a fork-detector (control-verified both directions); the Glossary's terms are guarded to the canon. tsc 0.</li>
       <li><b>#7 The Day Headline — CLOSED, superseded (no code written).</b> The brief called it a "blessed canon
         ladder"; your own newer spec (<code>LEAD_SPEC.md</code>, 7/21) already overturned that — <i>"the canon is not a
         priority ladder"</i>, transits are <i>"weather… a category error"</i> as the lead, and Step 15 (<code>convergence.ts</code>)
         already exists. More decisively, the <b>v930 Stage engine</b> already resolves ONE protagonist top-down
         (<code>chapterLead = annualTimeLord ?? camera.host</code>, one Primary guaranteed) — authority produces the lead,
         which is the architecture, not a house-vote. Your ruling: don't build a second scorer for a problem the Stage
-        already closed; the 37%-no-convergence days are reality (Time Lord + agenda suffice), not a defect. Reopen only if
-        openings later read as surveys. The knot convergence + crown rating remain the deterministic backbone.</li>
+        already closed; the 37%-no-convergence days are reality (Time Lord + agenda suffice), not a defect.</li>
       <li><b>v931 — the money seam: the year calendar no longer vanishes.</b> The "Year ↗" door on Today was
-        <code>role === "admin"</code>-only, so it disappeared for a free user (chain #3 / UI batch #4, #7). Now it shows for
-        everyone with the gate glyph beside it (<code>canYear</code> in Planner), and a non-entitled tap lands on a
-        <b>veiled year</b>: the month grid's real shape under a blur with an "Unlock your year" card over it
-        (<code>YearCalendar.tsx</code>, gated on <code>features.mine.yearPage</code>). No paid compute leaks — the veil never
-        calls <code>crown.forYear</code>, which stays server-gated (FORBIDDEN off yearPage, routers.ts:1982). Also
-        <b>modernized the kept-readings pitch</b> to the Subscribe→notify pattern (the old gate jumped straight to notify-me;
-        shows a bare "Subscribe" while <code>PREMIUM_PRICING.monthly</code> is null, auto-fills the price when set). tsc 0 ·
-        build 0 · suite 1316. Pushed — awaiting your eyes on the render (I looked at the veil composition in a static preview
-        first; the device is yours).</li>
-      <li><b>Post-930 — the meridian axis names the REGISTER, not the content.</b> Your governing rule: MC/IC is a
-        structural polarity (outward/visible vs inward/rooted), never a life-domain, so it must never collapse to
-        career-vs-home. The prompt now carries the anti-collapse law ("the MC does NOT mean career and the IC does NOT
-        mean home"), the outward/inward vs reach/release de-collision (the directional Rahu/Ketu axis keeps reach/release),
-        the 10th-house doctrine de-careered (career = one manifestation among parenthood, caregiving, leadership, service),
-        and lineage/ancestry added to the 4th. A regression test guards it in both directions (control-verified);
-        PROMPT_VERSION bumped so readings regenerate. Suite 1316 · tsc 0 · build 0 · probes all catch. Pushed — awaiting
-        your eyes on the rendered prose.</li>
-      <li><b>Post-930 — Venus is refinement, not mere beauty.</b> Your ruling: Venus at its best takes many possibilities
-        and distills them until the result feels effortless. Now in the Venus karaka canon (<code>karakas.json</code>)
-        and the Venus temperament portrait. Pushed.</li>
+        <code>role === "admin"</code>-only, so it disappeared for a free user. Now it shows for everyone with the gate glyph
+        beside it, and a non-entitled tap lands on a <b>veiled year</b>: the month grid's real shape under a blur with an
+        "Unlock your year" card over it. No paid compute leaks — the veil never calls <code>crown.forYear</code>, which stays
+        server-gated. Also modernized the kept-readings pitch to the Subscribe→notify pattern.</li>
+      <li><b>Post-930 — the meridian axis names the REGISTER, not the content.</b> MC/IC is a structural polarity
+        (outward/visible vs inward/rooted), never a life-domain, so it must never collapse to career-vs-home. The prompt now
+        carries the anti-collapse law, the outward/inward vs reach/release de-collision (Rahu/Ketu keeps reach/release), the
+        10th-house doctrine de-careered, and lineage/ancestry added to the 4th. A regression test guards it both directions;
+        PROMPT_VERSION bumped so readings regenerate.</li>
+      <li><b>Post-930 — Venus is refinement, not mere beauty.</b> Venus at its best takes many possibilities and distills them
+        until the result feels effortless. Now in the Venus karaka canon and the Venus temperament portrait.</li>
       <li><b>v930 — the Stage engine wired into the cast read.</b> Built 7/21, never wired; now the engine hands the
         protagonist + the one tension, the model narrates. The <code>findTension</code> aggressor bug (20/103 backwards)
-        fixed with a both-directions test; 3 probes bite; SURFACE_VERSION.cast bumped. Suite 1308 green.</li>
+        fixed with a both-directions test; 3 probes bite; SURFACE_VERSION.cast bumped.</li>
       <li><b>Copy-sweep cluster — 5 stale "open" items were already fixed (v901–v905, each measured or code-confirmed).</b>
         Business Partners→spouse, "your star is carried", "THE DAY OFFERS IT", eclipse announced past, station announced
         "just now". Only the Stage item survived → became the wiring above.</li>
@@ -551,14 +427,15 @@
 
   <h2>Where things live</h2>
   <ul class="links">
-    <li><code>NARRATIVE_AUDIT.md</code> — the engine→LLM contract (16 points, verbatim). · <code>SYSTEM_MAP.md</code> —
-      architecture. · <code>STAGE_WIRING_PLAN.md</code> — the v930 plan.</li>
-    <li><code>tools/audit-sheet/archive-longform-v848.html</code> — the full forensic record.</li>
+    <li><code>HANDOFF.md</code> — the "start here" continuity note. · <code>server/vedic/canon/METHOD.md</code> — the doctrine
+      spine (the states principle). · <code>SYSTEM_MAP.md</code> — architecture, read before exploring.</li>
+    <li><code>NARRATIVE_AUDIT.md</code> — the engine→LLM contract (16 points, verbatim). · <code>RELEASE_GATES.md</code> — the
+      five gates / eighteen audits. · <code>tools/audit-sheet/archive-longform-v848.html</code> — the full forensic record.</li>
     <li><code>npm run verify</code> · <code>npm run probe</code> · <code>npm run deployed</code> — the three checks.</li>
   </ul>
 
   <div id="outWrap"><textarea id="out" readonly aria-label="your rulings, ready to copy"></textarea></div>
-  <p class="foot">One page: the app, the work, and your calls. The old audit sheet is folded in here.
+  <p class="foot">One page: where the app is, what waits on you, what's next. Answered calls come off the moment you rule.
     Source: <code>tools/working-brief/index.html</code>.</p>
 </div>
 

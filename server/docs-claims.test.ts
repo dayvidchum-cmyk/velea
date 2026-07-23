@@ -51,8 +51,12 @@ describe("the brief still says what is open, in reconciling numbers", () => {
 
   it("every open call has a ruling box to answer in", () => {
     // The interactive contract (David, 2026-07-22): anything needing his call carries a textarea.
+    // Floor lowered 2026-07-23: the >10 floor assumed the queue would always be large, but as David
+    // rules calls off, the open count legitimately shrinks — forcing >10 would mean keeping DEAD boxes
+    // on answered calls (the exact drift he called out). The floor now only guards that the page stays
+    // interactive at all (aspects call + the awaiting-eyes feedback boxes).
     const boxes = (BRIEF.match(/<textarea data-q=/g) ?? []).length;
-    expect(boxes, "the ruling boxes vanished — the brief is no longer interactive").toBeGreaterThan(10);
+    expect(boxes, "the ruling boxes vanished — the brief is no longer interactive").toBeGreaterThan(4);
     expect(BRIEF, "lost the copy-my-rulings action").toMatch(/Copy my rulings/i);
   });
 
@@ -66,11 +70,12 @@ describe("the brief still says what is open, in reconciling numbers", () => {
     expect(BRIEF).toMatch(/Where I was wrong/i);
   });
 
-  it("carries the doctrine — the Principle, the five gates, the two live decisions", () => {
+  it("carries the doctrine and the look work-items (Principle, five gates, Full Spectrum, dark mode)", () => {
+    // "two live decisions" was a 2026-07-22 snapshot phrase; both got ruled (defer to the visual batch)
+    // on 7/23, so it's dropped. The durable pins stay: the doctrine + the look items must not vanish.
     expect(BRIEF).toMatch(/Velea Principle/i);
     expect(BRIEF).toMatch(/five release gates/i);
-    expect(BRIEF).toMatch(/two live decisions/i);
-    expect(BRIEF).toMatch(/Full Spectrum → mode colour/i);
+    expect(BRIEF).toMatch(/Full Spectrum/i);
     expect(BRIEF).toMatch(/dark[- ]mode/i);
   });
 });
