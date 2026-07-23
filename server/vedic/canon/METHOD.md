@@ -100,6 +100,37 @@ computes "what is lit": `LIFE_AREAS` (`life-areas.ts` — each domain's house + 
 engine already determined, it does not reach for one. (David: *"The narrator shouldn't invent meaning;
 it should express what the engine has already determined."*)
 
+**Precedence — the activated house always owns the frame. Full stop (David, 2026-07-23).** An aspect
+NEVER decides what the day is about; it only changes *how that part of life behaves today*. So the
+question is not *"does the aspected body signify the activated domain?"* but **"does this aspect
+materially affect today's [activated-domain] story?"** If yes → voiced as a modifier of that domain
+(Saturn→Moon on a 10th-house/career day: *"career asks for patience; progress feels slower; leadership
+comes from consistency, not urgency"*). If no → computed-but-silent — *not because it isn't real, but
+because it isn't the story of today* ("the engine computes far more than it says"; David's marketing
+law: not every beautiful idea belongs in every post). **The only frame-setting exception is a dominant
+EVENT, not a dominant aspect** — global conditions (eclipse, exact Saturn/nodal/Jupiter return, Moon on
+the natal Ascendant) can *become* the frame because they are global, not relational. An aspect, however
+strong, is relational → subordinate.
+
+### The governing architecture — theme, then evidence (David, 2026-07-23)
+
+Velea does **not** ask *"house vs planet vs aspect vs yoga vs transit — which wins?"* — that question
+assumes competing authors. The shape is:
+
+```
+    Theme      (what today is fundamentally about — the activated domain, or a dominant event)
+      ↓
+    Evidence   activated house · planetary conditions · aspects · yogas · dignity · timing
+      ↓
+    Narrative
+```
+
+**Nothing competes; everything contributes.** The engine first determines what today is fundamentally
+about, then uses every other computed condition to explain *how that theme unfolds*. This supersedes any
+"priority ladder" reading (cf. `LEAD_SPEC.md` — *"the canon is not a priority ladder"*) and is the frame
+for wiring aspects, yoga loudness, bhava strength, and everything after it. `velea-authority-produces-the-lead`
+gave the lead; this says the lead is a *theme*, and every other system is evidence serving it.
+
 ---
 
 ## Step 0 — Name the time frame (this picks the system)
