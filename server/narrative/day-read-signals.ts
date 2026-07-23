@@ -20,9 +20,9 @@ import { dignityOf as natalDignityOf } from "../vedic/dignity.js";
 import { tarabala, chandrabala, crownDay, type CrownRating } from "../panchang/crown.js";
 import { calculateDashaTimeline, currentPratyantardasha } from "../dasha-calculator.js";
 import { combustion } from "../panchang/affliction.js";
+import { NAK27 as NAK } from "@shared/nakshatra-names";
 
 const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
 const GRAHAS: Graha[] = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
 // Transit "cast" — fast movers first (they carry the day), then slow + nodes.
 const CAST = ["Sun","Mercury","Venus","Mars","Jupiter","Saturn","Rahu","Ketu"];

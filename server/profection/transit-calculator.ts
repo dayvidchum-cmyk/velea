@@ -1,5 +1,6 @@
 import SwissEph from 'swisseph-wasm';
 import { combustion as combustionOrb } from "../panchang/affliction.js";
+import { NAK27 as NAKSHATRAS } from "../vedic/nakshatra-names.js";
 
 const ZODIAC_SIGNS = [
   "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
@@ -63,13 +64,6 @@ export async function timeLordCurrentSign(planet: string): Promise<string | null
 }
 
 function getNakshatraFromLongitude(longitude: number): string {
-  const NAKSHATRAS = [
-    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
-    "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
-    "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
-    "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishtha", "Shatabhisha",
-    "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"
-  ];
   const normalized = ((longitude % 360) + 360) % 360;
   const index = Math.floor((normalized / 360) * 27);
   return NAKSHATRAS[index] || "Ashwini";

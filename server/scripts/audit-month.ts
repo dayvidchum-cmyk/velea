@@ -8,7 +8,7 @@ import { calcPanchang } from "../panchang/astronomy.js";
 import { dayQuality } from "../panchang/auspiciousness.js";
 import { calculateBirthChart } from "../birthchart/calculator.js";
 
-const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+import { NAK27 as NAK } from "@shared/nakshatra-names";
 const anchors = anchorsFromBodies([{ planet: "Moon", nakshatra: "Jyeshtha", sign: "Scorpio" }], "Virgo")!;
 const si = (l: number) => Math.floor((((l % 360) + 360) % 360) / 30);
 const ym = process.argv[2] || "2026-07";

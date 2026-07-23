@@ -25,9 +25,9 @@ import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } 
 import { mercuryRxState, mercuryRxCycle , planetRxCycle } from "../sky/retrograde-phase.js";
 import { monthEvents } from "../sky/month-events.js";
 import { contactsOf, type Contact } from "../vedic/contacts.js";
+import { NAK27 } from "@shared/nakshatra-names";
 
 const ZODIAC = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
 const SIGN_RULERS: Record<string,string> = { Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Leo:"Sun",Virgo:"Mercury",Libra:"Venus",Scorpio:"Mars",Sagittarius:"Jupiter",Capricorn:"Saturn",Aquarius:"Saturn",Pisces:"Jupiter" };
 const DIGN: Record<string,{ex:string;de:string;own:string[]}> = { Sun:{ex:"Aries",de:"Libra",own:["Leo"]},Moon:{ex:"Taurus",de:"Scorpio",own:["Cancer"]},Mars:{ex:"Capricorn",de:"Cancer",own:["Aries","Scorpio"]},Mercury:{ex:"Virgo",de:"Pisces",own:["Gemini","Virgo"]},Jupiter:{ex:"Cancer",de:"Capricorn",own:["Sagittarius","Pisces"]},Venus:{ex:"Pisces",de:"Virgo",own:["Taurus","Libra"]},Saturn:{ex:"Libra",de:"Aries",own:["Capricorn","Aquarius"]} };
 

@@ -12,6 +12,8 @@
  * Mode assignment is handled separately in interpreter.ts.
  */
 
+import { NAK27 as NAKSHATRAS } from "@shared/nakshatra-names";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface AstronomyData {
@@ -71,13 +73,6 @@ const SIGNS: string[] = [
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
 ];
 
-const NAKSHATRAS: string[] = [
-  'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra',
-  'Punarvasu', 'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni',
-  'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha',
-  'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishtha',
-  'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati',
-];
 
 const TITHIS: string[] = [
   'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',

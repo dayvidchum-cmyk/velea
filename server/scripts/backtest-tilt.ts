@@ -14,9 +14,9 @@ import { checkIns, profiles, profileNatalBodies } from "../../drizzle/schema.js"
 import { eq } from "drizzle-orm";
 import { calculateBirthChart } from "../birthchart/calculator.js";
 import { tarabala, chandrabala } from "../panchang/crown.js";
+import { NAK27 } from "@shared/nakshatra-names";
 
 const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
 const norm = (x: number) => ((x % 360) + 360) % 360;
 const signIdx = (lon: number) => Math.floor(norm(lon) / 30);
 const nakIdx  = (lon: number) => Math.floor(norm(lon) / (360 / 27));

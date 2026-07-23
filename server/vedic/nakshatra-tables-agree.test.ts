@@ -1,83 +1,94 @@
 /**
- * EVERY NAKSHATRA TABLE IN THE REPO MUST SPELL THE 27 STARS IDENTICALLY.
+ * THE 27 STARS LIVE IN ONE PLACE — and nothing may fork the order-table.
  *
- * David, 2026-07-21: "Is spelling differences throwing this off?"
+ * History: David, 2026-07-21: "Is spelling differences throwing this off?" — measured, files each
+ * kept their own copy of the 27-star array and positions had diverged (Mrigashira/Mrigashirsha,
+ * Dhanishtha/Dhanishta). The failure is SILENT: a divergent spelling makes a `findIndex(name)`
+ * lookup return -1, the caller's `if (idx >= 0)` guard skips, and the reader simply never gets a
+ * crown / tara / apex day. Nothing throws.
  *
- * It was not — measured: 7 tables, 2 of 27 positions diverged (Mrigashira/Mrigashirsha in
- * profection/transit-calculator.ts, Dhanishtha/Dhanishta in scripts/dump-snapshot.ts) and
- * neither was reachable by the string lookups that matter. Six live `NAK27.findIndex(name)`
- * lookups (routers, ranked-year, input-builder, crown x3) are all fed by the two chart engines,
- * and those agree with crown.ts on all 27 — so `birthNakIdx` never went to -1 and crown, tara
- * and personal apex never silently skipped.
- *
- * But it was one edit away from doing so, and the failure mode is SILENT: `findIndex` returns
- * -1, the caller's `if (birthNakIdx >= 0)` guard skips, and the reader simply never gets a
- * crown day. Nothing throws. That is why this is a test and not a comment.
- *
- * It also matters for a second reason now. Under David's architecture ruling the engine is the
- * sole source of facts handed to the narrative layer, so two spellings of one star inside the
- * same payload is a fact defect even when nothing computes wrongly — the time lord's nakshatra
- * came from transit-calculator ("Mrigashirsha") while every other block said "Mrigashira".
- *
- * The tables are read from SOURCE rather than imported, because most of them are module-private
- * consts. That is deliberate: a test that could only see the exported one would not have caught
- * either divergence.
+ * 2026-07-22 (open-issue #2, David: "consolidate the 27 star names… the glossary too"): every flat
+ * sidereal-order copy across server AND client was replaced by one canonical export,
+ * `shared/nakshatra-names.ts`, that all modules import (`@shared/nakshatra-names`). This test changed
+ * shape with them: it proves there are no order-array copies left to disagree, and that the human
+ * Glossary's 27 nakshatra terms match the canon exactly. Name-KEYED data (each star's ruling planet,
+ * bird, glossary definition) legitimately lives keyed by these names — that is not a fork, so the
+ * detector only flags flat ARRAYS of the names, never `{ "Ashwini": … }` maps.
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
-import { NAK27 } from "../panchang/crown.js";
+import { NAK27 } from "./nakshatra-names.js";
 
 const ROOT = join(__dirname, "..", "..");
 
-/** Every file carrying its own copy of the 27 stars. Add to this list, never fork the table. */
-const FILES = [
-  "server/dasha-calculator.ts",
-  "server/profection/transit-calculator.ts",
-  "server/sky/current-sky.ts",
-  "server/vedic/natal-chart-engine.ts",
-  "server/panchang/crown.ts",
-  "server/scripts/dump-snapshot.ts",
-  "server/birthchart/calculator.ts",
+// The one true spelling, hardcoded HERE so this test is an INDEPENDENT source of truth (not a
+// tautology against the file it guards).
+const EXPECTED = [
+  "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra", "Punarvasu", "Pushya", "Ashlesha",
+  "Magha", "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha",
+  "Jyeshtha", "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishtha", "Shatabhisha",
+  "Purva Bhadrapada", "Uttara Bhadrapada", "Revati",
 ];
+const NAKSET = new Set(EXPECTED);
 
-function tableIn(file: string): string[] | null {
-  const src = readFileSync(join(ROOT, file), "utf8");
-  const m = src.match(/(?:NAKSHATRAS|NAK27)\s*(?::[^=]*)?=\s*\[([\s\S]*?)\]/);
-  if (!m) return null;
-  const names = [...m[1].matchAll(/"([^"]+)"|'([^']+)'/g)].map((x) => x[1] ?? x[2]);
-  return names.length === 27 ? names : null;
+// The files allowed to hold the literal table: the canonical source and this test.
+const CANONICAL = join("shared", "nakshatra-names.ts");
+const SELF = join("server", "vedic", "nakshatra-tables-agree.test.ts");
+
+function walk(dir: string, out: string[] = []): string[] {
+  for (const ent of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
+    const rel = join(dir, ent.name);
+    if (ent.isDirectory()) {
+      if (["node_modules", "dist", ".git", "build"].includes(ent.name)) continue;
+      walk(rel, out);
+    } else if ((ent.name.endsWith(".ts") || ent.name.endsWith(".tsx")) && !ent.name.endsWith(".test.ts") && !ent.name.endsWith(".test.tsx")) {
+      out.push(rel);
+    }
+  }
+  return out;
 }
 
-describe("nakshatra tables", () => {
-  it("finds a 27-star table in every file that claims one", () => {
-    for (const f of FILES) {
-      const t = tableIn(f);
-      expect(t, `${f}: no 27-entry nakshatra table parsed — did the shape change?`).not.toBeNull();
-    }
+/** True if the file contains a FLAT array literal holding ≥20 of the 27 star names as elements.
+ *  A name-keyed map `{ "Ashwini": … }` never matches (its names are followed by ':', and the object
+ *  braces aren't the `[ … ]` we scan). This is the "forked order-table" signature. */
+function hasForkedArray(src: string): boolean {
+  for (const m of src.matchAll(/\[([^\[\]]*?)\]/gs)) {
+    const names = [...m[1].matchAll(/["']([^"']+)["']/g)].map((x) => x[1]).filter((n) => NAKSET.has(n));
+    if (names.length >= 20) return true;
+  }
+  return false;
+}
+
+describe("the 27 nakshatras are single-sourced", () => {
+  it("the canonical table has all 27 in the one true spelling", () => {
+    expect(NAK27).toEqual(EXPECTED);
   });
 
-  it("spells all 27 stars identically in every copy", () => {
-    const divergences: string[] = [];
-    for (const f of FILES) {
-      const t = tableIn(f);
-      if (!t) continue;
-      for (let i = 0; i < 27; i++) {
-        if (t[i] !== NAK27[i]) divergences.push(`${f} #${i + 1}: "${t[i]}" != NAK27 "${NAK27[i]}"`);
+  it("no module forks its own 27-star order-array (all must import the canonical one)", () => {
+    const forks: string[] = [];
+    for (const dir of ["server", "client/src", "shared"]) {
+      for (const f of walk(dir)) {
+        if (f === CANONICAL || f === SELF) continue;
+        if (hasForkedArray(readFileSync(join(ROOT, f), "utf8"))) forks.push(f);
       }
     }
-    expect(divergences, `star names diverge — a findIndex lookup will silently return -1:\n${divergences.join("\n")}`).toEqual([]);
+    expect(forks, `these files re-declare the 27-star order-array instead of importing @shared/nakshatra-names:\n${forks.join("\n")}`).toEqual([]);
   });
 
-  // CONTROL, both directions. Without it a broken parser returning null for every file would
-  // make the test above pass vacuously — the "zero from an uncontrolled instrument" trap.
-  it("the comparison can actually fail (negative control)", () => {
-    const real = tableIn("server/panchang/crown.ts");
-    expect(real).not.toBeNull();
-    const mutated = [...real!];
-    mutated[22] = "Dhanishta";                       // the exact divergence that existed
-    expect(mutated).not.toEqual([...NAK27]);
-    expect(real).toEqual([...NAK27]);                // and the unmutated one still matches
+  it("the Glossary's 27 nakshatra terms match the canon exactly (spelling + completeness)", () => {
+    const src = readFileSync(join(ROOT, "client/src/pages/Glossary.tsx"), "utf8");
+    // Entries shaped { term: "X", category: "Nakshatra", … }
+    const terms = [...src.matchAll(/term:\s*"([^"]+)"\s*,\s*category:\s*"Nakshatra"/g)].map((m) => m[1]);
+    expect(new Set(terms), "a Glossary nakshatra term is misspelled or missing vs NAK27").toEqual(new Set(EXPECTED));
+    expect(terms.length, "the Glossary should define each of the 27 exactly once").toBe(27);
+  });
+
+  // CONTROL, both directions — a blind detector would pass vacuously.
+  it("the fork detector actually fires (negative control)", () => {
+    expect(hasForkedArray(`const N = ${JSON.stringify(EXPECTED)};`), "a real order-array must trip the detector").toBe(true);
+    expect(hasForkedArray('const x = ["Ashwini", "Bharani"];'), "a two-name array must NOT trip it").toBe(false);
+    expect(hasForkedArray('const m = { "Ashwini": 1, "Revati": 2 };'), "a name-keyed map must NOT trip it").toBe(false);
   });
 
   it("every canon star name resolves against NAK27", async () => {

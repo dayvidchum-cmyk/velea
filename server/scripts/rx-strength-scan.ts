@@ -17,7 +17,7 @@ import { computeBhavaCusps, placeInBhava } from "../vedic/bhava-chalit.js";
 import { signOf } from "../vedic/ashtakavarga.js";
 import { tarabala, chandrabala } from "../panchang/crown.js";
 
-const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+import { NAK27 as NAK } from "@shared/nakshatra-names";
 const nakIdx = (name: string) => NAK.findIndex((n) => n.toLowerCase() === String(name).toLowerCase());
 const BIRTH = { date: "1982-04-13", time: "17:20", lat: 14.6, lon: 120.6, tz: "Asia/Manila" };
 type Mode = "Action" | "Build" | "Selective" | "Restraint" | "Flex";

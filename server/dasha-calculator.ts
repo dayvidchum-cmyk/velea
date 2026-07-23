@@ -13,36 +13,8 @@
 
 const NAKSHATRA_SPAN = 13.333333; // degrees per nakshatra (13°20')
 
-/** 27 Nakshatras in sidereal order (0° Aries = start of Ashwini) */
-const NAKSHATRAS = [
-  "Ashwini",        // 0
-  "Bharani",        // 1
-  "Krittika",       // 2
-  "Rohini",         // 3
-  "Mrigashira",     // 4
-  "Ardra",          // 5
-  "Punarvasu",      // 6
-  "Pushya",         // 7
-  "Ashlesha",       // 8
-  "Magha",          // 9
-  "Purva Phalguni", // 10
-  "Uttara Phalguni",// 11
-  "Hasta",          // 12
-  "Chitra",         // 13
-  "Swati",          // 14
-  "Vishakha",       // 15
-  "Anuradha",       // 16
-  "Jyeshtha",       // 17
-  "Mula",           // 18
-  "Purva Ashadha",  // 19
-  "Uttara Ashadha", // 20
-  "Shravana",       // 21
-  "Dhanishtha",     // 22
-  "Shatabhisha",    // 23
-  "Purva Bhadrapada",// 24
-  "Uttara Bhadrapada",// 25
-  "Revati",         // 26
-];
+/** 27 Nakshatras in sidereal order (0° Aries = start of Ashwini) — the single canonical table. */
+import { NAK27 as NAKSHATRAS } from "./vedic/nakshatra-names.js";
 
 /** Vedic zodiac signs in sidereal order */
 const VEDIC_SIGNS = [

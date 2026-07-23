@@ -13,6 +13,7 @@
  */
 import { resolveDaySky, localToday } from "../panchang/resolve-day-sky.js";
 import { getTimezoneOffset } from "../panchang/tz-offset.js";
+import { NAK27 as NAK } from "@shared/nakshatra-names";
 
 
 // In-memory cache for the ranked solar year — the walk computes 366 day-stars.
@@ -42,7 +43,6 @@ export async function rankedSolarYearForProfile(
   const { getProfileNatalBodies } = await import("../routers/profiles.js");
   if (!profile || !(profile as any).birthDate) return null;
   const bodies = await getProfileNatalBodies(profile.id);
-  const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
   const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
   const moonBody = bodies.find((b: any) => b.planet === "Moon");
   const birthNakIdx = NAK.findIndex((n) => n.toLowerCase() === String(moonBody?.nakshatra ?? "").toLowerCase());

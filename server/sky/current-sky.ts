@@ -20,13 +20,7 @@ const ZODIAC = [
   "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
 ];
 
-const NAKSHATRAS = [
-  "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra", "Punarvasu",
-  "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni", "Hasta",
-  "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha",
-  "Uttara Ashadha", "Shravana", "Dhanishtha", "Shatabhisha", "Purva Bhadrapada",
-  "Uttara Bhadrapada", "Revati",
-];
+import { NAK27 as NAKSHATRAS } from "../vedic/nakshatra-names.js";
 
 // All nine grahas, slow → relevant for the "stage". Sun/Moon never retrograde;
 // Rahu/Ketu are always retrograde (mean nodes) and never station.

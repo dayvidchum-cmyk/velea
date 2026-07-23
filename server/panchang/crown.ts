@@ -10,6 +10,7 @@
  */
 import { dayQuality, type DayQuality } from "./auspiciousness.js";
 import { computeAshtakavarga, sarvaBindu, SARVA_TOTAL, type Ashtakavarga, type RefPoint } from "../vedic/ashtakavarga.js";
+import { NAK27 } from "../vedic/nakshatra-names.js";
 
 const TWO_PI_27 = 360 / 27;
 const norm = (x: number) => ((x % 360) + 360) % 360;
@@ -210,8 +211,9 @@ export function crownDay(opts: {
 }
 
 // ── Helpers for the personal-weather gate ────────────────────────────────────
-/** The 27, exported so nothing has to keep a sixth copy (see duplicate-tables.test.ts). */
-export const NAK27 = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+/** Re-exported from the single canonical source (server/vedic/nakshatra-names.ts) so existing
+ *  importers of `NAK27` from crown keep working; the table itself lives in one place now. */
+export { NAK27 };
 const ZODIAC12 = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 
 export interface CrownAnchors { birthNakIdx: number; natalMoonSignIdx: number; lagnaSignIdx: number; ashtakavarga?: Ashtakavarga | null }

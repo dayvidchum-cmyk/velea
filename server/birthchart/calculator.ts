@@ -21,35 +21,7 @@ const VEDIC_SIGNS = [
 /**
  * 27 Nakshatras in order
  */
-const NAKSHATRAS = [
-  "Ashwini",
-  "Bharani",
-  "Krittika",
-  "Rohini",
-  "Mrigashira",
-  "Ardra",
-  "Punarvasu",
-  "Pushya",
-  "Ashlesha",
-  "Magha",
-  "Purva Phalguni",
-  "Uttara Phalguni",
-  "Hasta",
-  "Chitra",
-  "Swati",
-  "Vishakha",
-  "Anuradha",
-  "Jyeshtha",
-  "Mula",
-  "Purva Ashadha",
-  "Uttara Ashadha",
-  "Shravana",
-  "Dhanishtha",
-  "Shatabhisha",
-  "Purva Bhadrapada",
-  "Uttara Bhadrapada",
-  "Revati",
-];
+import { NAK27 as NAKSHATRAS } from "../vedic/nakshatra-names.js";
 
 /**
  * Get Vedic sign from sidereal longitude (0-360)

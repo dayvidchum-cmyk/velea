@@ -10,9 +10,9 @@ import { crownDay, natalAshtakavarga } from "../panchang/crown.js";
 import { calculateDashaTimeline } from "../dasha-calculator.js";
 import { calculateProfectionYear } from "../profection/calculator.js";
 import { getSiderealLongitudesWithSpeed } from "../vedic/natal-chart-engine.js";
+import { NAK27 as NAK } from "@shared/nakshatra-names";
 
 const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
 const ORD = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
 const SLOW = ["Jupiter","Saturn","Rahu"] as const;
 

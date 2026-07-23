@@ -3,6 +3,7 @@ import { CIRCLES } from "../shared/task-circle.js";
 import { and, eq } from "drizzle-orm";
 import { parse as parseCookie } from "cookie";
 import { COOKIE_NAME } from "@shared/const";
+import { NAK27 as NAK } from "@shared/nakshatra-names";
 import {
   createTask,
   createSubtask,
@@ -1513,7 +1514,6 @@ export const appRouter = router({
         if (!dayField) return null;
 
         const ZOD = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-        const NAK = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
         const ORD = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
 
         const moon = subject.natalBodies.find((b) => b.planet === "Moon");
