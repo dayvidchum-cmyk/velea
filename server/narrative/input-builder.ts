@@ -858,13 +858,20 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     if (!targets.length) return [] as Asp[];
     const MATERIAL = new Set(["moderate", "strong", "dominant"]); // the materiality gate (David tunes it by looking)
     const found: Asp[] = [];
+    // INTENTIONAL DEPARTURE (Constitution — Transparency of Departure; the Rahu/Ketu ruling 2026-07-23):
+    // PLANETS includes Rahu/Ketu, so the nodes cast graded sputa-drishti as first-class aspecters. This is
+    // a METHOD choice UNDER REVIEW, deliberately NOT universal Parashari doctrine — the nodes are kept in
+    // the aspect system (never simplify the ontology to simplify the implementation); the exact node-aspect
+    // tradition is to be finalized and then applied consistently. Not presented as classical consensus.
     for (const n of PLANETS) {
       const lonp = a[n];
       if (lonp === undefined) continue;
       const speed = b[n] !== undefined ? (((b[n] - lonp + 540) % 360) - 180) : 0; // signed daily motion → the trend
       for (const t of targets) {
         const inf = aspectInfluence(lonp, speed, t.lon);
-        if (inf && MATERIAL.has(inf.state)) found.push({ from: n, onto: t.onto, ontoRole: t.role, state: inf.state, trend: inf.trend });
+        // A transiting planet gazing on its OWN natal position is a RETURN, not "X aspects X" (David
+        // 2026-07-23): mark it so the narrative frames it as the planet revisiting its own ground.
+        if (inf && MATERIAL.has(inf.state)) found.push({ from: n, onto: t.onto, ontoRole: n === t.onto ? "return" : t.role, state: inf.state, trend: inf.trend });
       }
     }
     return found; // unranked — the narrative selects by which best explains the day

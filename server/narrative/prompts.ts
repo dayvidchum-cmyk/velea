@@ -63,7 +63,8 @@ You receive one JSON object with these blocks:
   by Rahu/Ketu. Either way that planet is WEAKENED right now: don't lean on its
   significations, and if it's the Time Lord or a dasha lord, let the read acknowledge the
   dimming plainly (in feel, not the word "combust"). A clear planet needs no mention.
-  solarRelationship GRADES the combustion into a lived state — read it, don't flatten it to
+  solarRelationship GRADES the combustion into a lived state — when the combustion earns a place
+  (Narrative Economy: only if it deepens the day's one idea), read the grade, don't flatten it to
   "weakened": mild-combustion = still functions, working in the glare; deep-combustion = its voice
   is hard to separate from the Sun's, working unseen. And the INVERSION: "cazimi" and
   "heart-of-the-sun" (the coronation) are NOT weakened — a planet at the very heart of the Sun is
@@ -88,12 +89,14 @@ You receive one JSON object with these blocks:
   Never override the mode; strength colors how forcefully to act within it. Mention only
   the lords that matter (Time Lord, dasha lords, or a planet hitting a natal point).
   spotlight is true when a planet's LIVE condition is standout — exalted, debilitated,
-  own-sign, combust, or tight on a natal point (spotlightReason names which). A spotlighted
-  planet has earned a SOLO BEAT in the scene — a monologue, an aria — proportional to its
-  condition: an exalted planet takes the stage and sings; a debilitated or combust one
-  strains, forces, or falters, and that IS the drama. Give it a real moment, not a footnote.
-  But the ensemble stays background — an ordinary, clear transit gets no aria, and a scene
-  where everyone solos is noise: at most ONE, rarely two arias in a read. And an aria still
+  own-sign, combust, or tight on a natal point (spotlightReason names which). A standout condition
+  is a CANDIDATE for a solo beat, never an entitlement to one (Narrative Economy): a spotlighted
+  planet earns its aria ONLY when voicing it deepens the day's one idea — a dramatic condition
+  tangential to today stays computed and silent, however standout. Do NOT give a beat by loudness.
+  When it DOES earn the beat, make it real and proportional — an exalted planet takes the stage and
+  sings; a debilitated or combust one strains, forces, or falters, and that IS the drama, not a
+  footnote. The ensemble stays background — a scene where everyone solos is noise: at most ONE,
+  rarely two arias in a read. And an aria still
   answers to the story — a loud guest is never the host (the Moon) or the chapter's lead.
   retrogradePhase (present on Venus/Mars/Jupiter/Saturn ONLY, and only when that planet is
   somewhere in its retrograde arc — absent means direct and out of shadow, so say nothing about
@@ -102,7 +105,7 @@ You receive one JSON object with these blocks:
   "X retrograde":
     · "pre-shadow" — the theme is gathering, a first pass over ground it will revisit; early, tentative.
     · "stationing" — the planet is near-motionless, its MOST charged state: a pivot/turning day where
-      whatever it governs is loud, held, hanging. This is the one to feel; give it real weight.
+      whatever it governs is loud, held, hanging — the day's pivot to feel WHEN it earns a place.
     · "retrograde" — an inward review of that planet's domain: revisit, reconsider, re-do, verify,
       not launch fresh; its current runs backward-facing.
     · "retroshade" — the tail: re-covering old ground, loose ends closing, the pressure releasing.
@@ -142,15 +145,18 @@ You receive one JSON object with these blocks:
 - panchang: { mode, qualifier, activatedHouse, activatedAspects?, nakshatra, tithi, karana, hora, eclipse, asOf } — qualifier is
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
   activatedAspects (present only when something material lands) is [{ from, onto, ontoRole, state, trend }] —
-  a transiting planet (from) casting a graded gaze onto a significator of the activated house (its lord or a
-  natal occupant). state = moderate|strong|dominant (only MATERIAL influences are surfaced — how strong the
-  gaze is; weaker ones stay computed-but-silent). trend = forming (building) | separating (releasing) | steady.
-  The list is UNRANKED — do not read the order as importance. THE FRAME IS STILL THE ACTIVATED HOUSE: these NEVER
-  become the day's topic — they only say HOW that part of life behaves today. When more than one is present,
-  voice the one (or two) that BETTER EXPLAIN the day as a whole — that is a matter of QUALITY, not strength:
-  a modest, well-fitting influence beats a strong, tangential one; never pick by how "loud" it is. Read it as a
-  texture ON the activated domain (an applying Saturn gaze on a career day → "progress feels slower; lead by
-  consistency, not urgency"), and speak the felt quality, never "drishti", "aspect", "state", or the
+  a transiting planet (from) casting a graded gaze onto a significator of the activated house. ontoRole is
+  the significator's role: "lord" (rules the activated house), "occupant" (sits in it natally), or "return"
+  (the transiting planet gazing on its OWN natal position — narrate this as that planet RETURNING to / revisiting
+  its own ground, NEVER "Mercury aspects Mercury"; no reader thinks that way). state = moderate|strong|dominant
+  (only MATERIAL influences are surfaced — how strong the gaze is; weaker ones stay computed-but-silent).
+  trend = forming (building) | separating (releasing) | steady. The list is UNRANKED — do not read the order as
+  importance. THE FRAME IS STILL THE ACTIVATED HOUSE: these NEVER become the day's topic — they only say HOW that
+  part of life behaves today. Per Narrative Economy, an aspect earns a place ONLY when voicing it deepens the day's
+  one idea; when more than one could, prefer the one that BETTER EXPLAINS the day as a whole — a matter of QUALITY,
+  not strength: a modest, well-fitting influence beats a strong, tangential one; never pick by how "loud" it is.
+  Read it as a texture ON the activated domain (an applying Saturn gaze on a career day → "progress feels slower;
+  lead by consistency, not urgency"), and speak the felt quality, never "drishti", "aspect", "state", or the
   planet-onto-planet mechanics. If mentioning it does not make the day clearer, drop it — the engine computes
   more than it says.
   karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true
@@ -917,10 +923,12 @@ exposed. Read the phase as the trigger's register — near NEW (low illumination
 quiet, interior, the beginning of a cycle, plant don't harvest; near FULL (high
 illumination, pakshaBala near 1): brimming, culminating, exposed, things come to a head;
 the QUARTERS are the turns (first quarter builds, last quarter releases). waxing = the
-theme is gathering/filling; waning = it is releasing/emptying. Let this modulate the
-trigger's VOLUME and phase-of-cycle — never override the activated house or the day mode,
-and weave it in feel (the light, the fullness, the seeding), never the words "pakshaBala"
-or "paksha." A trigger near full lands harder; a dark-Moon trigger asks for interiority.
+theme is gathering/filling; waning = it is releasing/emptying. This modulates the
+trigger's VOLUME and phase-of-cycle — and because the trigger IS the day's center, its
+brightness usually earns a place; weave it in feel (the light, the fullness, the seeding)
+WHERE it deepens today's one idea, never override the activated house or the day mode, and
+never the words "pakshaBala" or "paksha." A trigger near full lands harder; a dark-Moon
+trigger asks for interiority.
 
 THE CHAPTER (the year lord's current transit)
 timeLordTransit is where the year lord is transiting RIGHT NOW — the active CHAPTER of
@@ -1856,17 +1864,30 @@ transit, today's tithi/nakshatra/karana — as the SCENE; use the slow layers (t
 chapter, the year, arc.journey) as the SETTING the scene plays on. The day is the subject;
 the story is the ground it stands on.
 
+THE NORTH STAR — the engine's job is to know everything; the reader's job is to understand ONE
+thing. A day read exists to deliver ONE revelation: the single insight that makes today make sense.
+It is NOT a survey of what is live. Find that idea first; every sentence must strengthen it. The
+engine computes far more than the read says — the day's several live conditions (a retrograde, a
+station, an eclipse phase, a combust or gripped planet, the Moon's brightness, an aspect, dignity,
+a yoga) are CANDIDATES drawn on ONLY to illuminate that one idea. A condition earns a place only
+when voicing it materially deepens the reader's understanding of the day; if it merely adds another
+correct observation, it stays computed and SILENT — however rare, dramatic, or technically
+significant. Do not ask "what else should I mention?" (coverage); ask "does this make today make
+MORE sense?" (revelation). Narrative is scarce: a read that recites its live conditions has spent
+its budget on information instead of insight. (Constitution — Principles 14 &amp; 15.)
+
 THE MANDATE — a day read does THREE things, always, in every read:
 1. explains the OUTER — what the SKY is doing today: the day mode, the transit Moon, the
-   loudest transit, AND any live condition of the sky — a RETROGRADE (a planet reviewing,
-   revisiting, turning inward in its arena), a STATION (a planet turning — a hinge), an
-   ECLIPSE (panchang.eclipse — read it by its PHASE per the base rule: the gathering build
-   before, the sacred pause AND reset at peak, the clearing/opening in the aftermath — NEVER
-   one flat "be careful"; the aftermath is the forward, unfolding read), a
-   combust or nodally-gripped planet — combust or Rahu-gripped = dimmed, don't lean on it now;
-   Ketu-gripped = NOT merely weak but a window opening in that arena, a place to release, let
-   one thing go, or turn inward (hard ≠ bad). When one of these is live, it is NOT optional
-   texture — it is the day's weather and MUST be in the read.
+   loudest transit, AND any live condition of the sky that EARNS ITS PLACE (per the north star) — a
+   RETROGRADE (a planet reviewing, revisiting, turning inward in its arena), a STATION (a planet
+   turning — a hinge), an ECLIPSE (panchang.eclipse — read it by its PHASE per the base rule: the
+   gathering build before, the sacred pause AND reset at peak, the clearing/opening in the aftermath
+   — NEVER one flat "be careful"; the aftermath is the forward, unfolding read), a combust or
+   nodally-gripped planet — combust or Rahu-gripped = dimmed, don't lean on it now; Ketu-gripped =
+   NOT merely weak but a window opening in that arena, a place to release, let one thing go, or turn
+   inward (hard ≠ bad). These are CANDIDATES, not obligations: when one deepens the day's one idea,
+   voice it in the register above; when it does not, it stays computed and silent — never included by
+   default, however live.
 2. explains the INNER — the SELF the sky lands on: the standing chart, the two Moons (the
    transit Moon's passing mood vs the natal Moon who is home), dignity and hardWon — who this
    person is underneath the day.
@@ -1894,8 +1915,8 @@ SHAPE of the read, never its vocabulary. The layers:
   inward; see rx-depends-on-the-planet below), a STATION (a planet turning — a hinge day in
   its arena), an ECLIPSE window (a volatile stretch — hold, don't launch, let it pass), a
   combust/nodal planet (dimmed under combust or Rahu — don't lean on it now; under Ketu, a
-  window to release or turn inward in that arena, not merely weak). These are the day's
-  weather, not decoration: when live, they belong in the scene.
+  window to release or turn inward in that arena, not merely weak). Draw on these only where they
+  deepen the day's one idea (the north star) — when they do not, they stay computed and silent.
 - THE CHARACTERS belong to THE READ, not here. The hero is the plain STORY; the personified
   planets (who's loud, who's spent, who's hiding) live in the cast — a SEPARATE surface. So in
   this read, do NOT name and catalogue the players. Use the sky only as the day's FEELING and
@@ -2801,7 +2822,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-22-meridian-register-not-content";
+export const PROMPT_VERSION = "2026-07-23-narrative-economy";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
@@ -2816,7 +2837,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-23-aspect-quality", // aspects-on-frame selected by QUALITY not weight (material, unranked; narrative picks what best explains the day); Moon dial (#5) + retrograde (#2) + Solar Relationship (#1) still live
+  day_read: "2026-07-23-narrative-economy", // P14/P15: revelation over coverage — one governing idea, all state-layers are candidates that earn a place only by deepening it; returns; aspect quality-not-weight still live
 
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",

@@ -414,6 +414,15 @@ const SCRUB: Array<[RegExp, string]> = [
   [/\bcombustions?\b/gi, "lost in the glare"],
   [/\bcombust\b/gi, "lost in the glare"],
   [/\bmoolatrikona\b/gi, "its own strong ground"],
+  // THE STATES-DOCTRINE VOCABULARY (v936–v942). Banned in prose by the layer docs, but the prose ban
+  // leaks — the deterministic net must catch it too. TRANSLATIONS, not deletions. Deliberately NOT
+  // scrubbing "coronation"/"throne"/"heart of the sun" (the INTENDED felt metaphors for cazimi/
+  // heart-of-the-sun) nor "retroshade" (allowed in the Mercury-teaser voice).
+  [/\bcazimi\b/gi, "at the Sun's bright center"],
+  [/\bdrishtis?\b/gi, "gaze"],
+  [/\bstationing\b/gi, "turning"],
+  [/\bpre-?shadow\b/gi, "a first pass"],
+  [/\bpakshabala\b/gi, "brightness"],
 
   // THE NINE RUNGS, TRANSLATED (2026-07-21). "Naidhana's headwind arrives" reached David after the
   // retry guard had already been added — three refusals and the best draft ships, so the guard
