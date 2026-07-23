@@ -1,8 +1,8 @@
 # Velea — Session Handoff
 
-_Last updated 2026-07-23, end of a long build session (v932–v936 + the STATES DOCTRINE). This is the
-"start here" note. The single living to-do doc is `tools/working-brief/index.html` (artifact
-`4810c922-f34f-4c43-bf41-8d1439fa6b30`). This file is continuity._
+_Last updated 2026-07-23, end of a states-doctrine WIRING session (v937 retrograde + v938 moon wired
+live; velealor.com nav fix). This is the "start here" note. The single living to-do doc is
+`tools/working-brief/index.html` (artifact `4810c922-f34f-4c43-bf41-8d1439fa6b30`). This file is continuity._
 
 > **First action, before trusting anything below.** Re-run the state checks (`git status`,
 > `git log --oneline -12`, `grep APP_VERSION client/src/lib/version.ts`, `npx vitest run`) and treat
@@ -10,10 +10,11 @@ _Last updated 2026-07-23, end of a long build session (v932–v936 + the STATES 
 > wallet) is NOT in these files — verify against prod, never assume.
 
 ## Current state (verify, don't remember)
-- **Live: v936** (`APP_VERSION = "1.1.936"`, `sw.js` cache `velea-cache-v936`). Deployed on velealor.com.
-- **Suite 1385 pass / 4 skipped, tsc 0, build 0.** Re-run to reconfirm. Tree clean, `main` synced.
-- **`day_read` surface version = `2026-07-23-solar-relationship`.** The day read regenerates with the
-  combustion state. Other prose (deep/year/cast) unchanged.
+- **Live: v938** (`APP_VERSION = "1.1.938"`, `sw.js` cache `velea-cache-v938`). Deployed on velealor.com.
+- **Suite 1386 pass / 4 skipped, tsc 0, build 0, all probes caught.** Re-run to reconfirm. Tree clean, `main` synced.
+- **`day_read` surface version = `2026-07-23-moon-brightness`.** The day read now regenerates with the
+  combustion state (#1) + graded retrograde phase (#2) + Moon-trigger strength dial (#5). Other prose
+  (deep/year/cast) unchanged.
 
 ## Read first
 1. `CLAUDE.md` — the method (accuracy > money > cosmetics; RULE ZERO: never state a value you haven't printed).
@@ -37,25 +38,53 @@ taken to its end: **the fix for flat prose is a richer field, not a louder instr
   + wired into the day read's transits. **SHOWCASE: Jupiter CAZIMI 2026-07-29** (0.01° from Sun; window
   7/27–7/31) — David to open the 7/29 day read and confirm Jupiter reads as *the throne*, not weakened.
   Find more demo dates: `npx tsx server/scripts/find-vivid-combustion.ts 2026-07-23 160`.
-- **#2 Retrograde → all five planets — BUILT (dormant).** `planetRxState` in `sky/retrograde-phase.ts`;
-  per-planet station thresholds (Saturn-always-stationing bug fixed). Not wired to prose yet.
-- **#5 Moon brightness — BUILT (dormant).** `panchang/moon-brightness.ts` — illumination + paksha +
-  strength dial, zero new astronomy (off the elongation the tithi uses). **Wire this NEXT** — it's the
-  easy one: the Moon is in EVERY read, so no rare demo date needed.
+- **#2 Retrograde → all five planets — BUILT + WIRED LIVE (v937).** `planetRxState` in
+  `sky/retrograde-phase.ts`; per-planet station thresholds (Saturn-always-stationing bug fixed). Wired
+  into the day-read transits for **Venus/Mars/Jupiter/Saturn** as `retrogradePhase {phase, strength}`;
+  Mercury deliberately EXCLUDED (it keeps its own ruling-aware `mercuryRx` block). Prompt reads each
+  phase as a lived current (station = the pivot to feel). **SHOWCASE: Saturn stationing 7/23–29**
+  (David ruled the giants' week-long station is CORRECT). Scan: `find-vivid-retrograde.ts`.
+- **#5 Moon brightness → the trigger's strength dial — BUILT + WIRED LIVE (v938).** `panchang/moon-brightness.ts`
+  → top-level `moonBrightness` in the day payload; the "THE MOON IS THE TRIGGER" prompt section reads it
+  (new = seed / full = brim / quarters = turns; waxing = gathering, waning = releasing). Zero new
+  astronomy (off the elongation the tithi uses). **SHOWCASE: full moon 7/29 (pakshaBala .99) — SAME day
+  as Jupiter cazimi + just past Saturn's station = triple-loud.** Scan: `find-vivid-moon.ts`.
 - **Dignity / neecha bhanga → recovery continuum — BUILT (dormant, step ① of the dignity work).**
   `dignity.ts` `gradeRecovery`/`recoveryState` — 5 bands, NBRY engine-resolved. Tune the first curve
   via `server/scripts/recovery-scan.ts` (David tunes by looking). Then wire + the environment-language
   rebrand + glossary.
+- **#4 aspects — IN PROGRESS (paused mid-investigation, 7/23).** David greenlit building it next. NOTE:
+  this one needs an ENGINE built first (not just wiring — unlike #1/#2/#5). Findings so far: the
+  canon-backed graded drishti curve **already exists** — `sputaDrishti(arcForward)` in `shadbala.ts`
+  (cited p.315, tested via Drig Bala; degree-based, peaks 100%=60 virupas at the 7th/180°). **THE METHOD
+  FORK to settle with David:** the app's aspect model is whole-sign (`aspects.ts grahaAspectsSign` — 7th
+  + Mars 4/8, Jup 5/9, Sat 3/10, all FULL/binary), but "virupas / ¼–½–¾–full" could mean (a) the existing
+  degree-curve `sputaDrishti`, (b) the BPHS house-graded table (7th full · 4/8 ¾ · 5/9 ½ · 3/10 ¼, special
+  planets upgrade theirs to full), or (c) orb-tightness of the whole-sign aspects. Forming-vs-separating
+  is unambiguous (applying/separating by relative motion). Do NOT encode a drishti table from memory —
+  confirm the model with David (RULE ZERO / never-guess-into-a-chart).
 - **Still open (David's takes recorded):** #3 planetary war (grade by orb + natural strength, NO
-  winners) · #4 aspects (drishti strength + forming/separating) · #6 yoga loudness (participants'
-  dignity/angularity into payload) · #7 bhava strength ("which rooms are lit", cusps too — high enthusiasm).
+  winners) · #6 yoga loudness (participants' dignity/angularity into payload) · #7 bhava strength
+  ("which rooms are lit", cusps too — high enthusiasm).
 
 **HOW TO WIRE each (the pattern, learned this session — NOT one big pass):** add the graded field to the
 payload beside its boolean + a short prompt line that reads it (the data does the work) + a scan to hand
 David a vivid demo date + bump the surface version. Incremental, one before/after each. David poked the
 "one big rebrand pass" plan and was right — wiring is low-effort DATA per his own doctrine.
 
-## What else shipped this session (all pushed to `main`)
+## This session (7/23 — wiring + a live-site fix, all pushed to `main`)
+- **v937 / v938** — states doctrine #2 (retrograde) + #5 (moon) wired live — see the 7-item list above.
+- **Landing nav removed** — velealor.com's open hamburger exposed the still-placeholder editorial
+  sub-pages (`/velea /why /system /gate /access`) to the public (davidchum.com links here). Removed the
+  burger + links from `client/public/landing.html`; only the brand remains. **Sub-page routes untouched**
+  (still reachable by direct URL). Verified the removal propagated to `dist/public/landing.html` via `vite build`.
+- **Brief** — new untagged **"velealor.com refinement"** roadmap section; step 1 = gather all existing
+  site copy (ON HOLD, David picks it up later). Brief republished to its artifact URL.
+- **Stale-guard cleanups** — re-anchored the transits-doc mutation probe (stale since v936's
+  `solarRelationship` insert) and caught that **v937 shipped with the brief stale at v936** (docs-claims
+  passed only because that suite ran BEFORE the version bump). Fixed; brief now current at v938.
+
+## Previous session (v932–v936, all on `main`)
 - **v932** — the life-area chip → "Roots & Ancestry" (parents-key = ancestry/roots; parents-as-people
   stay in the Family shelf + knots).
 - **v933** — the locked price list surfaced: PREMIUM_PRICING → 3 ruled tiers ($2.99 near-sight / $4.99
@@ -84,6 +113,10 @@ David a vivid demo date + bump the surface version. Incremental, one before/afte
   per David's own doctrine the fix is a richer payload field, so wire incrementally with before/afters.
 - **Hand David the demo date; don't make him guess.** The engines can SCAN for the vivid dates (cazimi,
   deep-combust, full/new Moon) — that's the payoff of building them.
+- **Bump the version, THEN re-run the FULL suite.** v937 shipped with the working brief stale at v936
+  because I ran `vitest` before the version bump and committed after — `docs-claims.test.ts` couples the
+  brief header to `APP_VERSION`, so the guard only fires if the suite runs post-bump. Order: edit → bump
+  version + brief header → build → **full suite** → commit → probe → push.
 
 ## Proposals still awaiting David's notes (do NOT build until he formalizes)
 - **Tithi as cadence** (`velea-tithi-cadence`). He's writing notes.
