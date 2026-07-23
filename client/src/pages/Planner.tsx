@@ -658,6 +658,7 @@ export default function Planner() {
   // un-entitled with an upsell instead of being invisible.
   const { data: myFeatures } = trpc.features.mine.useQuery(undefined, { staleTime: 5 * 60_000 });
   const canMoment = user?.role === "admin" || (myFeatures as any)?.momentRefresh === true;
+  const canYear = user?.role === "admin" || (myFeatures as any)?.yearPage === true;
   // NO GATE, illusion-first (David 2026-07-18): the refresh looks normal to everyone. A
   // non-entitled user presses it EXPECTING the new day — and in that honest moment of desire
   // gets the pitch instead. subscribeTapped flips the pop-up from pitch → "coming soon".
@@ -1480,16 +1481,18 @@ export default function Planner() {
             }}
           />
         </button>
-        {/* The ranked YEAR view (crown-day calendar, whole-year edition) — admin-gated v1. */}
-        {user?.role === "admin" && (
-          <button
-            onClick={() => navigate("/year")}
-            className="px-2 py-1 text-xs font-semibold uppercase tracking-wide"
-            style={{ color: "var(--day-accent-ink)" }} /* v815: the accent is a SURFACE colour; --day-accent-ink is its published readable twin */
-          >
-            Year ↗
-          </button>
-        )}
+        {/* The ranked YEAR view (crown-day calendar, whole-year edition). The door shows for
+            EVERYONE now (David 2026-07-22, batch #4/#7: "gated premium is HIDDEN, not locked" —
+            it must not vanish for a free user). A non-entitled user carries the gate glyph beside
+            the opener and lands on the VEILED year (thirst gate) rather than the real ranks. */}
+        <button
+          onClick={() => navigate("/year")}
+          className="px-2 py-1 text-xs font-semibold uppercase tracking-wide inline-flex items-center gap-1"
+          style={{ color: "var(--day-accent-ink)" }} /* v815: the accent is a SURFACE colour; --day-accent-ink is its published readable twin */
+        >
+          Year ↗
+          {!canYear && <GateMark size={14} style={{ color: "var(--day-accent-ink)" }} />}
+        </button>
       </div>
       {calendarOpen && (
         <div className="space-y-5">

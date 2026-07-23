@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
 import { Bookmark, BookmarkCheck, ChevronRight,  X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { PREMIUM_PRICING } from "@/lib/pricing";
 
 /**
  * Kept Readings — the "pin + archive link" that lives under the day's reading. Your daily readings
@@ -15,6 +16,11 @@ import { trpc } from "@/lib/trpc";
 export default function KeptReadings({ profileId, date }: { profileId: number; date: string }) {
   const [location, navigate] = useLocation();
   const [teaserOpen, setTeaserOpen] = useState(false);
+  // Two-stage pitch (David 2026-07-22: "the pop-up was old"): Subscribe → notify-me, the same
+  // pattern as the moment refresh. Kept-readings is a Master-tier feature (PREMIUM_PRICING.monthly),
+  // so it shows a bare "Subscribe" while the monthly price is null and auto-fills the number the
+  // moment it's set — never an invented price.
+  const [subTapped, setSubTapped] = useState(false);
   const utils = trpc.useUtils();
   const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
   const entitled = access?.entitled === true;
@@ -68,20 +74,39 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
           <GateMark size={18} style={{ marginLeft: "auto", opacity: 0.85, color: ink }} />
         </button>
         {teaserOpen && createPortal(
-          <div onClick={() => setTeaserOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(30, 24, 16, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
+          <div onClick={() => { setTeaserOpen(false); setSubTapped(false); }} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(30, 24, 16, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
             <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid var(--color-border)", padding: "1.4rem", boxShadow: "0 20px 60px oklch(0 0 0 / 0.4)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.7rem" }}>
                 <GateMark size={22} style={{ color: "#C9A84C" }} />
                 <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--foreground)" }}>Kept Readings</span>
-                <button onClick={() => setTeaserOpen(false)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)" }}><X size={16} /></button>
+                <button onClick={() => { setTeaserOpen(false); setSubTapped(false); }} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "var(--color-muted-foreground)" }}><X size={16} /></button>
               </div>
               <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, color: "var(--foreground)", lineHeight: 1.4 }}>Pin the days that land — and keep every reading, timestamped.</p>
               <p style={{ margin: "0.7rem 0 0", fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.5 }}>
-                Your daily readings are the long thread — the real Time Lord. Pin the ones that land, and revisit the whole archive of your days, each kept with its date and time. A premium layer, not yet unlocked.
+                Your daily readings are the long thread — the real Time Lord. Pin the ones that land, and revisit the whole archive of your days, each kept with its date and time.
               </p>
-              <div style={{ marginTop: "1rem" }}>
-                <NotifyMeButton feature="kept-readings" />
-              </div>
+              {!subTapped ? (
+                <>
+                  <button
+                    onClick={() => setSubTapped(true)}
+                    style={{ marginTop: "1rem", width: "100%", background: "linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)", border: "none", borderRadius: 12, padding: "0.85rem", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "0.04em", color: "#1a1200", cursor: "pointer" }}
+                  >
+                    {PREMIUM_PRICING.monthly ? `Subscribe · ${PREMIUM_PRICING.monthly}` : "Subscribe"}
+                  </button>
+                  <div style={{ textAlign: "center" }}>
+                    <button onClick={() => { setTeaserOpen(false); setSubTapped(false); }} style={{ marginTop: "0.6rem", background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
+                      Not now
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div style={{ marginTop: "1rem" }}>
+                  <p style={{ margin: "0 0 0.7rem", fontSize: "0.85rem", color: "var(--color-foreground)", lineHeight: 1.55 }}>
+                    Not open just yet — leave your name and I'll tell you the moment it goes live.
+                  </p>
+                  <NotifyMeButton feature="kept-readings" />
+                </div>
+              )}
             </div>
           </div>,
           document.body,

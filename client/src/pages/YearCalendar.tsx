@@ -6,7 +6,11 @@ import AppHeader from "@/components/AppHeader";
 import OctagramMark from "@/components/OctagramMark";
 import PlanetMark from "@/components/PlanetMark";
 import CrownMark from "@/components/CrownMark";
+import GateMark from "@/components/GateMark";
+import NotifyMeButton from "@/components/NotifyMeButton";
 import { trpc } from "@/lib/trpc";
+import { PREMIUM_PRICING } from "@/lib/pricing";
+import { useAuth } from "@/_core/hooks/useAuth";
 import AddTaskSheet from "@/components/AddTaskSheet";
 
 // The month calendar's mark system, mirrored for the year pop-up (Planner is the source of truth).
@@ -73,8 +77,17 @@ function tonalInkY(hex: string): string {
 
 export default function YearCalendar() {
   const [, navigate] = useLocation();
+  // Entitlement (yearPage). The opener on Today now shows the "Year ↗" door to EVERYONE with a
+  // gate glyph (batch #4/#7) — a non-entitled user lands here and meets the VEILED year (thirst
+  // gate, David 2026-07-22): the calendar's shape teased behind frosted glass, the ranked data
+  // and pop-ups withheld. crown.forYear is server-gated (FORBIDDEN off yearPage), so we never
+  // even call it un-entitled — no paid compute leaks past the veil.
+  const { user } = useAuth();
+  const { data: myFeatures } = trpc.features.mine.useQuery(undefined, { staleTime: 5 * 60_000 });
+  const canYear = user?.role === "admin" || (myFeatures as any)?.yearPage === true;
+  const [yearSubTapped, setYearSubTapped] = useState(false);
   const { data, isLoading, error } = trpc.crown.forYear.useQuery(undefined, {
-    staleTime: 24 * 3600e3, retry: false,
+    staleTime: 24 * 3600e3, retry: false, enabled: canYear,
   });
 
   const byDate = useMemo(() => {
@@ -165,6 +178,88 @@ export default function YearCalendar() {
   const [crownsOpen, setCrownsOpen] = useState(false);
   const [cautionsOpen, setCautionsOpen] = useState(false);
   const [addForDate, setAddForDate] = useState<string | null>(null);
+
+  // ── THE VEIL (non-entitled) — the year's shape teased behind frosted glass ──────────────
+  if (!canYear) {
+    const now2 = new Date();
+    const skeletonMonths = Array.from({ length: 4 }).map((_, k) => {
+      const dt = new Date(now2.getFullYear(), now2.getMonth() + k, 1);
+      return { y: dt.getFullYear(), m: dt.getMonth() + 1 };
+    });
+    return (
+      <div className="min-h-screen bg-background pb-24">
+        <div className="container py-6"><AppHeader pageTitle="Your year, ranked" onBack={() => navigate("/")} backLabel="Today" /></div>
+        <main className="mx-auto max-w-3xl px-3 pt-3">
+          <div style={{ position: "relative" }}>
+            {/* The real calendar's SHAPE — real month cards, real day numbers, no ranks — under
+                a heavy blur so it reads as "your year is here, veiled," never as empty scaffolding.
+                Inert: no marks are computed, nothing is tappable. */}
+            <div aria-hidden="true" style={{ filter: "blur(5px)", opacity: 0.55, pointerEvents: "none", userSelect: "none" }}>
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {skeletonMonths.map(({ y, m }) => {
+                  const firstDow = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+                  const nDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
+                  return (
+                    <div key={`${y}-${m}`} className="parchment rounded-xl border border-[#ddd3bf] p-3 text-[#2b2723]" style={{ boxShadow: "none" }}>
+                      <h3 className="mb-2 font-serif text-sm" style={{ color: "#4b4034" }}>
+                        {new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
+                      </h3>
+                      <div className="grid grid-cols-7 gap-[3px]">
+                        {WEEKDAYS.map((w, i) => (
+                          <div key={i} className="text-center text-[9px] tracking-wide font-semibold text-[#6B6355]">{w}</div>
+                        ))}
+                        {Array.from({ length: firstDow }).map((_, i) => <div key={`b${i}`} />)}
+                        {Array.from({ length: nDays }).map((_, i) => (
+                          <div key={i} className="min-h-[26px] rounded-[5px] text-[11px] tabular-nums font-semibold flex items-center justify-center" style={{ color: "#9a917d" }}>{i + 1}</div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* THE UNLOCK CARD — floats over the veil (David 2026-07-22: the thirst gate, keep them
+                thirsty). Subscribe → notify (the newer pitch pattern; shows the price the moment
+                PREMIUM_PRICING.monthly is set, a bare "Subscribe" while it's null — never an
+                invented number). */}
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "3.5rem" }}>
+              <div style={{ maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)", padding: "1.5rem 1.4rem 1.3rem", boxShadow: "0 24px 64px oklch(0 0 0 / 0.35)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.7rem" }}>
+                <GateMark size={26} style={{ color: "#C9A84C" }} />
+                <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontSize: "1.35rem", color: "var(--heading-ink)" }}>Unlock your year</h3>
+                {!yearSubTapped ? (
+                  <>
+                    <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
+                      Every day of your solar year — birthday to birthday — graded on your birth star, the crowning days marked, the caution days named. Your whole year, ranked, in one calendar.
+                    </p>
+                    <button
+                      onClick={() => setYearSubTapped(true)}
+                      style={{ marginTop: "0.3rem", width: "100%", background: "linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)", border: "none", borderRadius: 12, padding: "0.85rem", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "0.04em", color: "#1a1200", cursor: "pointer" }}
+                    >
+                      {PREMIUM_PRICING.monthly ? `Subscribe · ${PREMIUM_PRICING.monthly}` : "Subscribe"}
+                    </button>
+                    <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
+                      Not now
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: "0.2rem 0", fontSize: "0.92rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
+                      Not open just yet — leave your name and I'll tell you the moment it goes live.
+                    </p>
+                    <div style={{ width: "100%" }}><NotifyMeButton feature="year-calendar" /></div>
+                    <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
+                      Not now
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-24">
