@@ -58,11 +58,18 @@ maha reach 2 and manufacture a chapter with nobody agreeing (the phantom the v43
 prevent; re-fixed v798). So, as one rule: **weight ranks, lords gate.**
 
 **The count is the engine's private authority** (David, 2026-07-22): it decides which theme leads the
-reading — no vote, no AI, no tie-break beyond these deterministic rules. But the reader is **never
-handed the score.** Convergence 3 and convergence 2 must read with the *same* conviction; the number
-picks the subject, it does not set the tone. (Open reconciliation: the Low/Moderate/High `confidence`
-field on the deep/year reads still exposes the tally — David's call whether that trust-signal stays on
-prediction surfaces or the score goes fully internal everywhere.)
+reading — no vote, no AI, no tie-break beyond these deterministic rules. The number **picks the
+subject; it does not set the tone.**
+
+**Confidence is surface-dependent (David, 2026-07-22, ruled).** On a **prediction / deep read**
+(pick-a-date, the solar year, a dated event) the Low/Moderate/High `confidence` field **is shown** —
+corroboration is the *point* of a prediction, and hearing "many layers point at the same thing, high
+confidence" is the trust the surface exists to give. On the **daily tone** the score stays **fully
+internal**: the day is written with one conviction whether three lords converged or two, so it never
+reads as "dramatically more confident" because a count was higher. This is already structural — the day
+payload strips `convergence`/`weight` (`input-builder.ts:1217`) and the day read has no `confidence`
+field; the deep read keeps both. The count picks the subject everywhere; only a *prediction* hears how
+sure the engine is.
 
 ---
 
