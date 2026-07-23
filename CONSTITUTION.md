@@ -160,6 +160,18 @@ This preserves both transparency and trust. (David, 2026-07-23.)
 
 ---
 
+## Standing rule — Never Simplify the Ontology to Simplify the Implementation
+
+Structural actors (e.g. the Rahu/Ketu axis) belong in the engine as first-class participants; they are
+never omitted for convenience. **Constitution: Rahu/Ketu belong in the engine. Method: how exactly they
+aspect (or don't) is an implementation decision** — a method question, not a constitutional one. The
+Constitution requires only that whatever method is chosen be internally coherent, explicitly documented
+(per Transparency of Departure), deterministic, and consistently applied. Modeling something "according
+to its own ontology" (P16) means treating it as first-class, **not** removing it. _Never simplify the
+ontology to simplify the implementation._ (David, 2026-07-23 — the Rahu/Ketu aspect ruling.)
+
+---
+
 _Implementation rule: these principles are design constraints, not algorithms. Do not immediately
 translate them into implementation logic. Future algorithms must satisfy these principles rather than
 replace them — preserve the principle while designing the implementation._
