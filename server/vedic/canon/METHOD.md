@@ -73,6 +73,50 @@ sure the engine is.
 
 ---
 
+## The narrative authority hierarchy — one question per layer, one tone at the end
+
+Every layer of the day read answers **exactly one question** and holds a **fixed rank of authority**. A
+lower layer never authors the reading, never overrides the layer above, and never demands its own
+paragraph. All of them **synthesize into one coherent tone** — the way Crown Days already fold many
+factors into a single verdict — never stack into artificial enthusiasm. (David's rulings, 2026-07-22.)
+
+| Rank | Layer | The one question it answers | Its authority |
+|---|---|---|---|
+| 1 | **Time Lord** | Who is speaking? | the frame |
+| 2 | **Agenda** | What is happening? | the frame |
+| 3 | **Knot** (convergence) | Where is life converging — what is today *about*? | the story / protagonist |
+| 4 | **Crown / Caution** | How favorable is today overall? | the day's quality |
+| 5 | **Tara Bala / Chandra Bala** | How does the day meet *this* person? | personal timing |
+| 6 | **Shubha Tithi** | Does today's lunar day belong to an auspicious *family*? (yes/no) | a favorable underlying current |
+| 7 | **Siddha Yoga** | (same — family membership) | an additional lift |
+| 8 | **Temporal Amplifiers** — station, eclipse (future: exact ingresses, returns) | How *loudly* should today's themes speak? | volume, never topic |
+
+**Amplifiers amplify authority; they never create it.** A station or an eclipse raises the urgency,
+consequence, and visibility of what is *already* active — it never creates a theme, overrides the Time
+Lord, overrides a knot, replaces the agenda, or becomes the protagonist. Ask "why did today feel more
+intense?" and the answer is never *"because there was an eclipse,"* but *"because the same active themes
+are being expressed during one."* They amplify **differently**, though — tone, not topic:
+- **Station** — the planet slows, turns, lingers → emphasis, concentration, persistence, revisiting, sustained attention.
+- **Eclipse** — the sky marks a threshold → culmination, transition, revelation, closure, emergence.
+
+**Supporting currents (Shubha Tithi, Siddha Yoga) are family classifications, not weightings.** Binary
+membership — does today belong to the auspicious family, yes or no — decided by the canon's cited family
+rule, never a personal list, never fuzzy. They are frequent (Siddha ≈ 1 day in 4), so they carry **low
+authority**: they color the tone, they never lead, and they must never make a day read as "special."
+
+**The anti-stacking law.** When several favorable flags land together (Shubha Tithi + Siddha + good Tara
++ good Chandra + a positive universal day), the prose must **synthesize them into one tone**, never let
+each demand a sentence, and never inflate to *"today is extraordinary!"* The engine already does this for
+Crown Days (many factors → one verdict); the narrative owes the reader the same restraint.
+
+**The 3rd and 11th are siblings, not twins.** Both are upachaya (they reward action — the *only* property
+shared), but the **3rd is build/initiate ("start")** and the **11th is harvest/receive ("collect")**.
+Preserve that distinction in tone; never flatten them into the same narrative and never rank one as "the
+peak" of the other. Same discipline as Rahu/Ketu ≠ MC/IC, Agenda ≠ Capacity, Crown ≠ Knot, Theme ≠
+Amplifier: things that look alike but answer different questions stay distinct.
+
+---
+
 ## Steps 1–14 — Research each house (the reusable per-house prompt)
 
 Appendix IV runs this identical block per house 1→12. It is **one prompt template, fired twelve
