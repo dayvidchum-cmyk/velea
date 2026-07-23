@@ -116,7 +116,7 @@ run server/narrative/input-builder.ts 'recentReads, humanTime, timeLordTransit, 
   server/narrative/payload-contract.test.ts "a documented payload field stops being emitted"
 run server/narrative/input-builder.ts 'strength: +merRx.strength.toFixed(2)' 'power: +merRx.strength.toFixed(2)' \
   server/narrative/payload-contract.test.ts "mercuryRx shape drifts from what the prompt promises"
-run server/narrative/prompts.ts '- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal, strength,' '- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal,' \
+run server/narrative/prompts.ts '- transits: [{ planet, sign, houseFromLagna, retrograde, retrogradePhase, combust, solarRelationship, nodal, strength,' '- transits: [{ planet, sign, houseFromLagna, retrograde, retrogradePhase, combust, solarRelationship, nodal,' \
   server/narrative/payload-contract.test.ts "the transits field doc drifts from the emitted shape"
 
 run server/narrative/input-builder.ts 'for (const surface of DAILY_SURFACES) {\n        row = await getNarrativeCache(p.id, surface, ds);\n        if (row?.content) break;\n      }' 'row = (await getNarrativeCache(p.id, "day_read", ds)) ?? (await getNarrativeCache(p.id, "glance", ds));' \
