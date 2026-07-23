@@ -3147,4 +3147,17 @@
 // found the immediate showcase: SATURN IS STATIONING AT strength 1.00 RIGHT NOW (2026-07-23, the
 // station week 7/23–7/29). payload-contract guard updated for the new key; day_read salt →
 // 2026-07-23-retrograde-phase. 133 files, 1385 tests, 0 failures. tsc 0, build 0. AWAITING DAVID'S EYES.
-export const APP_VERSION = "1.1.937";
+//
+// v1.1.938 = 2026-07-23 — STATES DOCTRINE #5: THE MOON-TRIGGER STRENGTH DIAL REACHES THE DAY READ.
+// The Moon is Velea's primary daily trigger but arrived as only a nakshatra/tithi NAME — no sense of
+// how much LIGHT it carries. Now the payload carries moonBrightness { elongationDeg, illumination,
+// waxing, paksha, pakshaBala, phase } from the already-built moon-brightness.ts — a pure derivation
+// of the two noon Sun/Moon longitudes already in hand (ZERO new astronomy; cut from the SAME
+// elongation the tithi is, so it can never disagree with the panchang). The "THE MOON IS THE TRIGGER"
+// prompt section gained the dial: read the phase as the trigger's register/volume (new = inward,
+// seeding; full = brimming, exposed; quarters = the turns), waxing = gathering / waning = releasing,
+// as a STATE never a verdict, never overriding the activated house or day mode. Wiring only: payload
+// field + prompt read + guard. New payload-contract guard (arg order Sun,Moon + field present) with
+// TWO probes. day_read salt → 2026-07-23-moon-brightness. Working brief brought current to v938 (the
+// 7-item list: ① combustion ✓ · ② retrograde ✓ · ⑤ moon ✓ now all WIRED LIVE). AWAITING DAVID'S EYES.
+export const APP_VERSION = "1.1.938";

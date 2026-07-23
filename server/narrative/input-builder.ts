@@ -24,6 +24,7 @@ import { buildKnots, type NatalPlanet } from "../vedic/knots.js";
 import { buildLineage } from "../vedic/lineage.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
 import { mercuryRxState, mercuryRxCycle , planetRxCycle, planetRxState, type RxPlanet, type RxState } from "../sky/retrograde-phase.js";
+import { moonBrightness } from "../panchang/moon-brightness.js";
 import { monthEvents } from "../sky/month-events.js";
 import { contactsOf, type Contact } from "../vedic/contacts.js";
 import { NAK27 } from "@shared/nakshatra-names";
@@ -687,6 +688,14 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const retrogradePhase = rx && rx.phase !== "direct" ? { phase: rx.phase, strength: +rx.strength.toFixed(2) } : null;
     return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, retrogradePhase, combust: comb ? comb.combust : null, solarRelationship: rel && rel !== "free" ? rel : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score, uccha: str.uccha, maitri: str.maitri } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
   }).filter(Boolean);
+
+  // MOON BRIGHTNESS (states doctrine #5, wired 2026-07-23): the day-trigger's strength dial. The Moon
+  // is Velea's primary daily trigger, but it arrived as only a nakshatra/tithi NAME — no sense of how
+  // much light it is actually carrying. This grades it: new (dark, inward, seeding) → full (brimming,
+  // exposed), from the SAME Sun–Moon elongation the tithi is cut from, so it can never disagree with
+  // the panchang. No new astronomy — pure derivation of the two noon longitudes already in hand.
+  const moonBright = (a["Sun"] !== undefined && a["Moon"] !== undefined)
+    ? moonBrightness(a["Sun"], a["Moon"]) : null;
 
   // PERSONAL APEX — the crown day. The only fully-personal day signal: computed from the SAME
   // crownDay() the calendar uses (birth star + natal Moon), so the reading's crown always agrees
@@ -1534,5 +1543,5 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(stage ? { stage } : {}), ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(transitPrecision ? { transitPrecision } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(stage ? { stage } : {}), ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(moonBright ? { moonBrightness: moonBright } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(transitPrecision ? { transitPrecision } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

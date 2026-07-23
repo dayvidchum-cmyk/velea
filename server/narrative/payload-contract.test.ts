@@ -110,7 +110,7 @@ describe("the day payload", () => {
 
   it("carries the optional blocks by conditional spread, not as nulls", () => {
     for (const f of ["dayFilter", "knots", "meridianAxis", "nodalAxis", "openWindows", "reading",
-      "mercuryRx", "lifeAreaLens", "natalCondition", "eclipseSeasonArc", "monthArc", "stage"]) {
+      "mercuryRx", "moonBrightness", "lifeAreaLens", "natalCondition", "eclipseSeasonArc", "monthArc", "stage"]) {
       expect(DAY.has(f), `${f} missing from the day payload`).toBe(true);
     }
   });
@@ -138,6 +138,13 @@ describe("the documented object SHAPES match what is emitted", () => {
   it("mercuryRx: { phase, strength, retrograde }", () => {
     expect(PROMPTS).toMatch(/- mercuryRx: \{ phase, strength, retrograde \}/);
     expect(SRC).toMatch(/\{ phase: merRx\.phase, strength: \+merRx\.strength\.toFixed\(2\), retrograde: merRx\.retrograde \}/);
+  });
+
+  it("moonBrightness is WIRED to the engine (Sun,Moon in order) and its fields documented", () => {
+    // The Moon-trigger strength dial (states doctrine #5). The engine is moonBrightness(sunLon,
+    // moonLon) — order matters (elongation = moonLon − sunLon), so the guard pins the arg order too.
+    expect(PROMPTS).toMatch(/- moonBrightness: \{ elongationDeg, illumination 0\.\.1, waxing, paksha, pakshaBala 0\.\.1, phase \}/);
+    expect(SRC).toMatch(/moonBrightness\(a\["Sun"\], a\["Moon"\]\)/);
   });
 
   it("eclipseSeasonArc: { today, windowEnd, count, eclipses } — with the parent declared", () => {

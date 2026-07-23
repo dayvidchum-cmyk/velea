@@ -116,6 +116,10 @@ run server/narrative/input-builder.ts 'recentReads, humanTime, timeLordTransit, 
   server/narrative/payload-contract.test.ts "a documented payload field stops being emitted"
 run server/narrative/input-builder.ts 'strength: +merRx.strength.toFixed(2)' 'power: +merRx.strength.toFixed(2)' \
   server/narrative/payload-contract.test.ts "mercuryRx shape drifts from what the prompt promises"
+run server/narrative/input-builder.ts 'moonBrightness(a["Sun"], a["Moon"])' 'moonBrightness(a["Moon"], a["Sun"])' \
+  server/narrative/payload-contract.test.ts "the Moon-trigger dial reverses Sun/Moon (elongation flips)"
+run server/narrative/input-builder.ts '{ moonBrightness: moonBright }' '{ moonBrightnessX: moonBright }' \
+  server/narrative/payload-contract.test.ts "the Moon-trigger dial drops out of the day payload"
 run server/narrative/prompts.ts '- transits: [{ planet, sign, houseFromLagna, retrograde, retrogradePhase, combust, solarRelationship, nodal, strength,' '- transits: [{ planet, sign, houseFromLagna, retrograde, retrogradePhase, combust, solarRelationship, nodal,' \
   server/narrative/payload-contract.test.ts "the transits field doc drifts from the emitted shape"
 

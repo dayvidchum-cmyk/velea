@@ -127,6 +127,12 @@ You receive one JSON object with these blocks:
   inside the arc is the thing that gets reopened when Mercury re-covers that ground.
   strength 0..1 is how deep/intense (grade the weight: a 0.2 pre-shadow is a faint early tug, a 1.0
   station is the peak). Use this to modulate INTENSITY and framing — never a flat "Mercury retrograde."
+- moonBrightness: { elongationDeg, illumination 0..1, waxing, paksha, pakshaBala 0..1, phase } — the
+  day-trigger's STRENGTH DIAL (the Moon is the daily trigger; this grades how much light it carries).
+  phase is the lived phase (new / waxing-crescent / first-quarter / waxing-gibbous / full /
+  waning-gibbous / last-quarter / waning-crescent); illumination is the lit fraction; pakshaBala is
+  the trigger's strength (0 at new, 1 at full); waxing true = gathering light, false = releasing it.
+  See "THE MOON IS THE TRIGGER" for how to read it — it is a STATE, never a verdict.
 - panchang.starTurn: { fromStar, toStar, atLocalTime, rulesMostOfDay, fromTara, toTara } on a day the
   Moon crosses a star boundary. EACH HALF CARRIES ITS OWN TARA and they are often opposite — write
   the day in two parts and let the turn be the hinge. Never flatten them into "both stars favor
@@ -892,6 +898,17 @@ it is in the 5th, as partnership if it is in the 7th. TEST: if your reading woul
 any other person with the same lagna and the same Moon-house, you have failed — you
 read the trigger but not the person. Color the trigger with where THIS person's Time
 Lord and dasha lords actually sit.
+The trigger also has a STRENGTH (moonBrightness) — how much light the Moon is carrying,
+the dial on how loudly today's trigger fires. It is a STATE, not a judgement: a dark Moon
+is not "weak," it is inward and seeding; a full Moon is not "good," it is brimming and
+exposed. Read the phase as the trigger's register — near NEW (low illumination, waxing):
+quiet, interior, the beginning of a cycle, plant don't harvest; near FULL (high
+illumination, pakshaBala near 1): brimming, culminating, exposed, things come to a head;
+the QUARTERS are the turns (first quarter builds, last quarter releases). waxing = the
+theme is gathering/filling; waning = it is releasing/emptying. Let this modulate the
+trigger's VOLUME and phase-of-cycle — never override the activated house or the day mode,
+and weave it in feel (the light, the fullness, the seeding), never the words "pakshaBala"
+or "paksha." A trigger near full lands harder; a dark-Moon trigger asks for interiority.
 
 THE CHAPTER (the year lord's current transit)
 timeLordTransit is where the year lord is transiting RIGHT NOW — the active CHAPTER of
@@ -2787,7 +2804,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-23-retrograde-phase", // + graded retrograde phase for Venus/Mars/Jupiter/Saturn (states #2); combustion→Solar Relationship still live
+  day_read: "2026-07-23-moon-brightness", // + Moon-trigger strength dial (states #5); retrograde phase (#2) + Solar Relationship (#1) still live
 
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",
