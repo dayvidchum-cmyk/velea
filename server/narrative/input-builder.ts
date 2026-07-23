@@ -4,6 +4,7 @@ import { getDb } from "../db.js";
 import { profiles, profileNatalBodies, users } from "../../drizzle/schema.js";
 import { dayFrameReading, type DayFrameReading } from "../vedic/day-frame.js";
 import { readingProse, DAILY_SURFACES } from "./daily-surface.js";
+import { deriveAgenda } from "./agenda.js";
 import { eq } from "drizzle-orm";
 import PLANET_IN_HOUSE_CANON from "../vedic/canon/planet-in-house.json" with { type: "json" };
 import { calculateProfectionYear } from "../profection/calculator.js";
@@ -164,7 +165,7 @@ export function natalContactPayload(
   return { byPlanet, disagreements: contacts.filter((c) => !c.conventionsAgree) };
 }
 
-export async function buildNarrativeInput(profileId: number, dateStr: string, opts: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
+export async function buildNarrativeInput(profileId: number, dateStr: string, opts: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean; dayNudges?: boolean }) {
   // Moment reads (opts.nowMs, from the "update to the moment" tap) carry the CURRENT
   // hora — a per-moment value — so they bypass the per-(profile,date) memo entirely,
   // keeping the daily input (and its cache) hora-free. lat/lon are the user's CURRENT
@@ -183,10 +184,13 @@ export async function buildNarrativeInput(profileId: number, dateStr: string, op
   const eclKey = opts.eclipseArc ? "ecl" : "no";
   const merKey = opts.rxArcPlanet ? `rx-${opts.rxArcPlanet}` : opts.mercuryRxArc ? "mrx" : "no";
   const monKey = opts.monthArc ? "mon" : "no";
-  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}|${monKey}`;
+  // dayNudges (the hidden agenda + precision tilts) is part of the key: the day read carries them,
+  // the cast/deep reads (same { dayLoc } input) do NOT — so they must not share a memo entry.
+  const ndgKey = opts.dayNudges ? "ndg" : "no";
+  const key = `${profileId}|${dateStr}|${slow ? "stage" : "full"}|${locKey}|${areaKey}|${eclKey}|${merKey}|${monKey}|${ndgKey}`;
   const cached = INPUT_CACHE.get(key);
   if (cached && Date.now() - cached.at < INPUT_TTL_MS) return cached.value;
-  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts.lifeArea, areaFocus: opts.areaFocus, eclipseArc: opts.eclipseArc, mercuryRxArc: opts.mercuryRxArc, rxArcPlanet: opts.rxArcPlanet, monthArc: opts.monthArc });
+  const value = await buildNarrativeInputUncached(profileId, dateStr, { slowOnly: slow, dayLoc: dl, lifeArea: opts.lifeArea, areaFocus: opts.areaFocus, eclipseArc: opts.eclipseArc, mercuryRxArc: opts.mercuryRxArc, rxArcPlanet: opts.rxArcPlanet, monthArc: opts.monthArc, dayNudges: opts.dayNudges });
   INPUT_CACHE.set(key, { at: Date.now(), value });
   // Evict expired entries (audit L21): they were TTL-checked on read but never deleted, so the
   // memo grew unbounded between deploys (~50-100KB per (profile,date,variant)). Cheap amortized
@@ -205,7 +209,7 @@ export function invalidateNarrativeInput(profileId: number) {
   }
 }
 
-async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean }) {
+async function buildNarrativeInputUncached(profileId: number, dateStr: string, moment: { nowMs?: number; lat?: number; lon?: number; slowOnly?: boolean; dayLoc: { lat: number; lon: number; utcOffset: number }; lifeArea?: LifeAreaKey; areaFocus?: { key: string; label: string; houses: number[]; karaka: string; blurb: string }; eclipseArc?: boolean; mercuryRxArc?: boolean; rxArcPlanet?: "venus" | "mars" | "jupiter" | "saturn"; monthArc?: boolean; dayNudges?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("database unavailable");
   const prows = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
@@ -566,11 +570,33 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
         if (pr.deepthaadi?.includes("vikala")) states.push("combust — burnt close to the Sun, agency reduced");
         if (pr.deepthaadi?.includes("nipeedita")) states.push("in a planetary war");
         const trueHouse = research!.bhavaChalit?.placements?.[g];
+        // THE AGENDA (a HIDDEN NUDGE, not a voice — David 2026-07-23). The lord's condition sets an
+        // operating verb (deriveAgenda, agenda.ts): the layer that separates two lords who share a
+        // house — the house is WHERE, the agenda is WHAT it's there to do. v906 shipped this as a
+        // VOICE ("lead the read with the agenda") and it hijacked; v907 reverted. It returns now as a
+        // private tilt the prose MAY lean on, never leads with, never names (see THE LORDS' AGENDA).
+        // Emitted ONLY on the day read (moment.dayNudges), so the cast/deep reads that share this
+        // condition object don't regenerate on it — the tilt is being trialled on the day read first.
+        const agendaBlock = moment.dayNudges ? (() => {
+          const { agenda, capacity } = deriveAgenda({
+            dignity: pr.dignity?.state ?? "neutral",
+            fallCancelled: !!pr.dignity?.neechaBhanga?.cancelled,
+            strengthRatio: pr.shadbala?.ratio ?? null,
+            retrograde: !!pr.retrograde,
+            lajjitaadi: (pr.avashtas?.lajjitaadi ?? []).map((h: any) => h.state),
+            deepthaadi: pr.deepthaadi ?? [],
+            jagradaadi: pr.avashtas?.jagradaadi ?? null,
+          });
+          return { agenda, ...(capacity.length ? { capacity } : {}) };
+        })() : {};
         return {
           planet: g,
           // Which office this lord holds today. The engine decides the hierarchy; the narrator
           // is told it rather than left to infer it from position in the array.
           roles: lordRoles[g] ?? [],
+          // The operating intention + how it must be pursued (capacity overlay, when notable). A
+          // hidden nudge: the prose leans on it, never announces it. Day read only.
+          ...agendaBlock,
           // The CHART'S OWN facets for this planet in this house, straight from canon — each
           // with WHOSE life it concerns, so the narrator never has to guess who a sentence is
           // about. Absent when the table is silent (nodes); say nothing rather than guess.
@@ -1446,8 +1472,47 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     });
   } catch (e) { console.warn("[narrative] stage unavailable (read continues):", e); stage = null; }
 
+  // ── TODAY'S SHARPEST CONTACT — the precision nudge (David 2026-07-23: "wire it as a hidden
+  //    nudge"). day-read-signals.ts grades every transit through the NATIVE'S OWN LENS — its Bhava
+  //    Chalit house, its Ashtakavarga backing, its distance from the two soul-lenses (Moon/Sun),
+  //    and whether it sits within a few degrees of a natal point. That last is the loudest, most
+  //    precise thing the sky does to THIS chart on THIS day. We surface ONLY the 1–2 tightest natal
+  //    contacts — so the prose can be SPECIFIC where a day read is usually vague, never a transit
+  //    dump. Day-read surfaces only (not year/deep/arc/area reads), and only for a chart that has a
+  //    birth time + place (the chalit + lagna lens needs a real ascendant). Deterministic; the
+  //    result is memoized with the rest of the input per (profile, date). ──
+  let transitPrecision: any = null;
+  const wantsPrecision = !!moment.dayNudges && !moment.slowOnly && !moment.lifeArea && !moment.eclipseArc
+    && !moment.mercuryRxArc && !moment.rxArcPlanet && !moment.monthArc;
+  if (wantsPrecision && p.birthTime && p.birthLocationLat && p.birthLocationLon) {
+    try {
+      const { dayReadSignalsForBirth } = await import("./day-read-signals.js");
+      const sig = await dayReadSignalsForBirth(
+        { birthDate: p.birthDate, birthTime: p.birthTime, lat: parseFloat(p.birthLocationLat), lon: parseFloat(p.birthLocationLon), tz: p.birthTimezone || "UTC" },
+        dateStr,
+      );
+      // The loudest precision is a transit ON a natal point. Take the 1–2 tightest; no contact today
+      // → no forced precision (a vague-but-honest day beats an invented one).
+      const contacts = (sig.transits ?? [])
+        .filter((t: any) => t.hitsNatal)
+        .sort((x: any, y: any) => x.hitsNatal.orbDeg - y.hitsNatal.orbDeg)
+        .slice(0, 2)
+        .map((t: any) => ({
+          planet: t.planet, sign: t.sign,
+          // The cusp-true room (Bhava Chalit) — flagged when it differs from the whole-sign house.
+          ...(t.shifted ? { trueHouse: t.chalitHouse } : { house: t.chalitHouse }),
+          fromMoon: t.fromMoon, fromSun: t.fromSun,
+          touches: { natalPlanet: t.hitsNatal.planet, orbDeg: t.hitsNatal.orbDeg },
+          ...(t.av ? { backing: t.av.support } : {}),
+          ...(t.retrograde ? { retrograde: true } : {}),
+          ...(t.combust ? { combust: true } : {}),
+        }));
+      if (contacts.length) transitPrecision = { contacts };
+    } catch (pErr) { console.warn("[narrative] transitPrecision unavailable (read continues without):", pErr); }
+  }
+
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(stage ? { stage } : {}), ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(stage ? { stage } : {}), ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(transitPrecision ? { transitPrecision } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

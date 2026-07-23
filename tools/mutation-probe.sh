@@ -245,6 +245,14 @@ run client/src/lib/pricing.ts 'nearSight: "$2.99 / mo",' 'nearSight: null,' \
 run server/routers.ts 'summary: { ...full.summary, topDates: allTop.filter((d) => d <= today) },' 'summary: { ...full.summary, topDates: allTop },' \
   server/year-veil.test.ts "the veiled year leaks future crown dates to a free user"
 
+echo "=== the reading: hidden nudges must reach the model, not just exist (v935) ==="
+# The agenda layer wired but its emission dropped — condition spent only as temperature again (v906/#agenda).
+run server/narrative/input-builder.ts '          return { agenda, ...(capacity.length ? { capacity } : {}) };' '          return {};' \
+  server/narrative/payload-contract.test.ts "the agenda emission is dropped from condOf"
+# The precision layer re-orphaned — day-read-signals imported/computed but never surfaced (ask #14 regressing).
+run server/narrative/input-builder.ts '...(transitPrecision ? { transitPrecision } : {})' '...(false ? { transitPrecision } : {})' \
+  server/narrative/payload-contract.test.ts "the precision layer stops reaching the day payload"
+
 run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
   server/isolation.test.ts "assertOwnsProfile stops failing closed"
 run server/routers.ts 'eqW(profilesTable.userId, ctx.user.id)' 'eqW(profilesTable.userId, ctx.user.id ?? 0)' \

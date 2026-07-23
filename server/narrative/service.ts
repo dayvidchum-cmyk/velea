@@ -319,7 +319,9 @@ export type DayReadResult = { available: boolean; read: DayRead | null; generate
 export async function getDayReadCached(profileId: number, date: string, refresh = false, dayLoc: { lat: number; lon: number; utcOffset: number }): Promise<DayReadResult> {
   if (!hasAnthropicKey()) return { available: false, read: null, generatedAt: null, cached: false };
   const surface = "day_read";
-  const input = await buildNarrativeInput(profileId, date, { dayLoc });
+  // dayNudges = the day read carries the hidden agenda + precision tilts (David 2026-07-23). The
+  // cast/deep reads (which share this input shape) do NOT, so the tilts are trialled here first.
+  const input = await buildNarrativeInput(profileId, date, { dayLoc, dayNudges: true });
   // Salt the hash with the day_read surface version so a day-read prompt change busts ONLY
   // this surface — glance/deep/chapter caches (unchanged prompts) stay valid, no re-charge.
   const hash = dayStableHash(input, surface);

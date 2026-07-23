@@ -58,13 +58,17 @@ describe("the reach sweep can tell reached from unreached", () => {
   // CONTROLS. I got the previous enumeration wrong twice by trusting a regex I had not tested
   // against a known answer, so the sweep now proves itself on both sides before reporting anything.
   it("sees a known-live module as reached", () => {
-    for (const live of ["input-builder", "life-areas", "affliction"]) {
+    // day-read-signals JOINED this list on 2026-07-23: it was the dead-module fixture below for
+    // months (ask #14, "179 lines nobody calls") until David ruled "wire it" and it became the day
+    // read's precision nudge. Its move from the dead control to the live one IS the wiring, proven.
+    for (const live of ["input-builder", "life-areas", "affliction", "day-read-signals"]) {
       expect(importersOf(live, `${live}.ts`).length, `${live} should be reached`).toBeGreaterThan(0);
     }
   });
 
   it("sees a known-dead module as unreached", () => {
-    expect(importersOf("day-read-signals", "day-read-signals.ts")).toEqual([]);
+    // The standing dead-but-present control (quarantined below): a real orphan, not a deleted file.
+    expect(importersOf("CheckInCard", "CheckInCard.tsx")).toEqual([]);
   });
 });
 

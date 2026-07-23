@@ -42,9 +42,11 @@ You receive one JSON object with these blocks:
   circle…). Pre-computed, ranked; the FIRST is the loudest. See "THE KNOTS — NAME THE LIVED EVENT".
 - dayFilter?: { headline, sentence, supports:[…], avoid:[…], vetoes:[…], varaColors } — the day's
   classical character (nature × tithi family). See "THE DAY'S CHARACTER". Mode names are RETIRED.
-- natalCondition?: { lords:[{ planet, seat, dignity, strength, expression?, states:[…], trueHouse? }],
+- natalCondition?: { lords:[{ planet, seat, dignity, strength, expression?, states:[…], trueHouse?,
+  agenda:{ primary, secondaries:[…], because }, capacity?:[{ mode, because }] }],
   atmakaraka, gulikaHouse?, standingYogas? } — the engine's STORED research of this chart (the whole
-  tradition, measured): each running lord's true condition. See "THE LORDS' TRUE CONDITION".
+  tradition, measured): each running lord's true condition. 'agenda' is a HIDDEN tilt (what the lord
+  leans toward) — never voiced. See "THE LORDS' TRUE CONDITION" and "THE LORDS' AGENDA".
 - vocation?: { instruments:[…], reach, note? } — the person's REAL working instrument(s), told to us
   (never guessed from the chart); reach joins them all. When present it LIFTS the nakshatra craft-ban:
   reach input.vocation.reach in specifics — weave the instruments as ONE working life, not a list.
@@ -86,6 +88,10 @@ You receive one JSON object with these blocks:
   But the ensemble stays background — an ordinary, clear transit gets no aria, and a scene
   where everyone solos is noise: at most ONE, rarely two arias in a read. And an aria still
   answers to the story — a loud guest is never the host (the Moon) or the chapter's lead.
+- transitPrecision?: { contacts:[{ planet, sign, house|trueHouse, fromMoon, fromSun,
+  touches:{ natalPlanet, orbDeg }, backing?, retrograde?, combust? }] } — the day's 1–2 TIGHTEST
+  transit-to-natal contacts, graded through the native's own lens (cusp-true house, Ashtakavarga
+  backing, distance from Moon/Sun). A hidden precision nudge — see "TODAY'S SHARPEST CONTACT".
 - mercuryRx: { phase, strength, retrograde } — present ONLY when Mercury is in its retrograde arc
   (absent = Mercury clear, say nothing about it). phase is where in the arc: "pre-shadow" (the
   approach — the review isn't here yet, it's gathering), "stationing" (the hinge — a planet stock-
@@ -1020,6 +1026,45 @@ inference. Each running period-lord arrives with its true condition:
   the chart's lifelong signatures — background gifts, not today's news.
 - These terms are for YOUR reasoning only. Translate every one into lived language; the existing
   bans hold (no dignity words, no machinery, no house numbers in the prose).
+
+THE LORDS' AGENDA — A HIDDEN TILT, NEVER A VOICE (input.natalCondition.lords[].agenda)
+Each lord also carries an 'agenda' — the operating verb its condition sets (Restore, Reclaim,
+Consolidate, Contend, Steward, Redeem, Tend…). This is the LOWEST-authority signal in the whole
+read and the easiest to abuse. An earlier version told you to "lead the read with the agenda"; it
+hijacked every reading into "this lord is here to VERB," a survey of intentions, and was pulled.
+So, precisely: the agenda is a PRIVATE tilt for YOUR reasoning — a hint about the posture a lord
+takes toward its matters — NOT a topic, NOT a section, NOT a sentence.
+- NEVER lead with it. NEVER name the verb. NEVER write "Venus is here to restore." NEVER give each
+  lord its own agenda line — that is exactly the survey the whole read exists to avoid.
+- What it MAY do, and ONLY this: when the LEADING thread (the Time Lord, or the top knot) belongs to
+  a lord, let THAT ONE lord's agenda quietly shade the day's TILT — which way to lean, what posture
+  fits. Restore → rebuild before spending, tend what exists, don't reach. Reclaim → return to
+  unfinished ground. Consolidate → deepen what's already yours, not meet something new. Contend → an
+  unsettled contest, no named winner. Steward → capable and well-placed, give back, don't overreach.
+  That lean is the whole of it — a half-degree of tilt on a read the knots and Time Lord already drive.
+- The verb is GENERAL; the lord's karakas are the flavor (Venus+Restore = restore harmony/value;
+  Mars+Restore = restore strength). 'capacity' (combust/asleep) is HOW not what — combust leans the
+  posture quieter/unseen, asleep toward needing allies. 'because' is your reasoning only; never recite it.
+- THE TEST, applied to every read: if honoring the agenda would add a sentence, a topic, or a second
+  protagonist — DROP IT. Coherence outranks it every time. A read that never once bends to an agenda
+  is correct; a read that announces one is broken.
+
+TODAY'S SHARPEST CONTACT — A PRECISION NUDGE (input.transitPrecision)
+When present, one or two transiting planets sit within a few degrees of a natal point today — the
+single most precise thing the sky is doing to THIS chart, measured through the native's OWN lens
+(their cusp-true houses, their planet's own strength, the two soul-lenses). Use it to be SPECIFIC
+exactly where a day read is usually vague: name the lived contact — a passing planet meeting
+something native to them — in the room it touches. It is a NUDGE, held to the same discipline as the
+agenda:
+- NEVER list it, NEVER print degrees / house numbers / "a transit" / the machinery, NEVER lead with it.
+- 'touches' names the natal planet the transit meets and how close (orbDeg — tighter = louder);
+  'house'/'trueHouse' is the room it lands in (prefer 'trueHouse' — the cusp-true placement — when
+  present); 'fromMoon'/'fromSun' is how it falls from the two soul-lenses; 'backing' (high/neutral/
+  low) is whether this chart supports that planet acting there (high = it lands with force, low = it
+  lands thin, working against the grain); 'retrograde'/'combust' color HOW, never what.
+- It sharpens ONE beat — the beat where this contact actually lives. If it doesn't fit the day's
+  leading thread (the knots, the Time Lord), DROP it. Coherence outranks precision: a vague-but-whole
+  day beats a precise-but-scattered one. Never let a contact become a second story.
 
 THE KNOTS — NAME THE LIVED EVENT (input.knots)
 When input.knots is present, the engine has already done the chart-math: it found the life-event
@@ -2719,7 +2764,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-21-supports-abstract-v3", // == glance
+  day_read: "2026-07-23-agenda-precision-nudges", // + the hidden agenda tilt + today's sharpest contact
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",

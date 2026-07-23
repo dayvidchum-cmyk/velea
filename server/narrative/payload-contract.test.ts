@@ -28,6 +28,7 @@ import { readFileSync } from "node:fs";
 
 const SRC = readFileSync(new URL("./input-builder.ts", import.meta.url), "utf8");
 const PROMPTS = readFileSync(new URL("./prompts.ts", import.meta.url), "utf8");
+const SERVICE = readFileSync(new URL("./service.ts", import.meta.url), "utf8");
 const LINES = SRC.split("\n");
 
 /**
@@ -281,5 +282,96 @@ describe("the vocation field is wired and admin-gated (2026-07-21)", () => {
   it("NEGATIVE CONTROL — these matchers can fail", () => {
     expect("no vocation here").not.toContain("INSTRUMENT_REACH");
     expect("updateData.instrument = uniq.join(',')").not.toMatch(/if \(ctx\.user\.role === "admin"\) \{[\s\S]{0,300}updateData\.instrument =/);
+  });
+});
+
+/**
+ * THE AGENDA LAYER REACHES THE MODEL — AS A HIDDEN NUDGE (2026-07-21 built as a voice, hijacked;
+ * 2026-07-23 rebuilt as a hidden tilt). agenda.ts can be perfect and tested and called by nobody,
+ * and the day read would silently keep spending condition as temperature. These assert the WIRING
+ * at source level AND that the prompt frames it as a TILT, never the v906 lead-voice that hijacked.
+ */
+describe("the agenda layer is wired as a hidden nudge (2026-07-23)", () => {
+  it("CONTROL — the source imports the doctrine module", () => {
+    expect(SRC).toContain('from "./agenda.js"');
+    expect(SRC).toMatch(/import \{ deriveAgenda \}/);
+  });
+
+  it("deriveAgenda is CALLED inside condOf, fed from the stored research", () => {
+    expect(SRC).toMatch(/const \{ agenda, capacity \} = deriveAgenda\(\{/);
+    expect(SRC).toMatch(/dignity:\s*pr\.dignity\?\.state/);
+    expect(SRC).toMatch(/lajjitaadi:\s*\(pr\.avashtas\?\.lajjitaadi/);
+    expect(SRC).toMatch(/deepthaadi:\s*pr\.deepthaadi/);
+  });
+
+  it("the agenda is gated to the day read (moment.dayNudges), emitted per lord", () => {
+    // Gated so cast/deep (same condition object) don't regenerate on the trial nudge.
+    expect(SRC).toMatch(/const agendaBlock = moment\.dayNudges \?/);
+    expect(SRC).toMatch(/return \{ agenda, \.\.\.\(capacity\.length \? \{ capacity \} : \{\}\) \}/);
+    expect(SRC).toMatch(/\.\.\.agendaBlock,/);
+    // And the day read is the surface that turns the flag ON.
+    expect(SERVICE).toMatch(/buildNarrativeInput\(profileId, date, \{ dayLoc, dayNudges: true \}\)/);
+  });
+
+  it("the prompt documents the agenda field AND carries the HIDDEN-NUDGE doctrine", () => {
+    expect(PROMPTS).toMatch(/agenda:\{ primary, secondaries/);
+    expect(PROMPTS).toContain("THE LORDS' AGENDA — A HIDDEN TILT, NEVER A VOICE");
+    // The capacity-as-overlay ruling must be stated, not just the verb list.
+    expect(PROMPTS).toMatch(/'capacity' \(combust\/asleep\) is HOW not what/);
+  });
+
+  it("REGRESSION GUARD — the prompt must NOT revert to the v906 lead-voice that hijacked", () => {
+    // v906's exact instruction, the one that made the agenda the protagonist of every read.
+    expect(PROMPTS).not.toContain("Lead the read with the agenda");
+    expect(PROMPTS).not.toContain("write the day AS that intention");
+    // The nudge's defining guardrails must be PRESENT (not merely the old text absent).
+    expect(PROMPTS).toContain("NEVER lead with it");
+    expect(PROMPTS).toMatch(/LOWEST-authority signal/);
+  });
+
+  it("NEGATIVE CONTROL — these matchers can fail", () => {
+    expect("someOtherHelper({})").not.toMatch(/const \{ agenda, capacity \} = deriveAgenda\(\{/);
+    expect("a read with no doctrine").not.toContain("NEVER lead with it");
+  });
+});
+
+/**
+ * THE PRECISION LAYER REACHES THE MODEL — AS A HIDDEN NUDGE (2026-07-23; David: "wire it").
+ *
+ * day-read-signals.ts was 179 lines of dead code (ask #14) — the transit-level precision the paid
+ * day read lacked, called by nobody. It is now wired into the day read: the 1-2 tightest transit-to-
+ * natal contacts, surfaced through the native's own lens. These pin the WIRING (the v884/#14 lesson:
+ * a module can be perfect and called by no one) and that the prompt frames it as a nudge, not a dump.
+ */
+describe("the precision layer is wired as a hidden nudge (2026-07-23)", () => {
+  it("day-read-signals is CALLED from the input builder (no longer dead)", () => {
+    expect(SRC).toMatch(/import\("\.\/day-read-signals\.js"\)/);
+    expect(SRC).toMatch(/dayReadSignalsForBirth\(/);
+  });
+
+  it("only the day read (dayNudges) computes it, and only with a birth time + place", () => {
+    expect(SRC).toMatch(/const wantsPrecision = !!moment\.dayNudges/);
+    expect(SRC).toMatch(/wantsPrecision && p\.birthTime && p\.birthLocationLat && p\.birthLocationLon/);
+  });
+
+  it("it surfaces only the 1-2 TIGHTEST natal contacts, never a transit dump", () => {
+    expect(SRC).toMatch(/\.filter\(\(t: any\) => t\.hitsNatal\)/);
+    expect(SRC).toMatch(/\.sort\(\(x: any, y: any\) => x\.hitsNatal\.orbDeg - y\.hitsNatal\.orbDeg\)/);
+    expect(SRC).toMatch(/\.slice\(0, 2\)/);
+    // Emitted onto the payload.
+    expect(SRC).toMatch(/transitPrecision \? \{ transitPrecision \}/);
+  });
+
+  it("the prompt documents the field AND carries the nudge doctrine", () => {
+    expect(PROMPTS).toMatch(/transitPrecision\?: \{ contacts/);
+    expect(PROMPTS).toContain("TODAY'S SHARPEST CONTACT — A PRECISION NUDGE");
+    // The discipline: never list, never lead, drop if it scatters the read.
+    expect(PROMPTS).toMatch(/NEVER list it, NEVER print degrees/);
+    expect(PROMPTS).toMatch(/Coherence outranks precision/);
+  });
+
+  it("NEGATIVE CONTROL — these matchers can fail", () => {
+    expect("no signals imported here").not.toMatch(/dayReadSignalsForBirth\(/);
+    expect("a prompt with no nudge").not.toContain("TODAY'S SHARPEST CONTACT — A PRECISION NUDGE");
   });
 });
