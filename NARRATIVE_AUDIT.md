@@ -95,6 +95,15 @@ rather than one ambiguous one.
 If removing one paragraph makes the reading stronger, remove it. The goal is not maximum information;
 it is maximum coherence.
 
+**The narrative layer's purpose (David, 2026-07-23):** *"The purpose of the narrative layer is not to
+maximize information. It is to maximize understanding. Every sentence should increase coherence rather
+than increase data. If two true statements compete for attention, prefer the one that better explains
+the day as a whole."* This is the operative tiebreaker: truth is the floor, not the selector — every
+surfaced fact is already true (the engine resolved it), so the choice between two truths is decided by
+which one makes the day cohere. It is the narrative-side twin of `theme, then evidence`
+(`velea-theme-then-evidence`): the engine computes far more than it says, and understanding — not
+completeness — decides what it says.
+
 ## 14. Ending Test
 
 The final paragraph should feel inevitable. Could the reading be summarized in one memorable sentence?
