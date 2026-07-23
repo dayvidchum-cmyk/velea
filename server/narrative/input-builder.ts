@@ -835,11 +835,19 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // affects today's [activated-domain] story." Everything else the engine computed stays silent (real,
   // but not the story of today). Strength + trend come from aspect-strength.ts (sputa drishti resolved
   // to a lived Influence state; forming/separating read off the curve). Conjunctions are the separate
-  // hitsNatalPoint layer (sputa drishti is 0 inside 30°), so no double-count. The loudest few only —
-  // never a dump (coherence). First curve; David tunes the Influence bands by looking.
+  // hitsNatalPoint layer (sputa drishti is 0 inside 30°), so no double-count.
+  //
+  // NOT RANKED BY WEIGHT (David 2026-07-23): we do NOT sort by strength or take a "loudest" few. WHICH
+  // aspect to voice is a QUALITY judgment — "prefer the one that BETTER explains the day as a whole,
+  // it's a matter of quality, not weight" — and that judgment is made in the NARRATIVE against the
+  // theme, never as a number sorted here. The engine only decides MATERIALITY (is the influence real
+  // enough to be evidence at all — at least moderate) and hands over the material candidates; clarity,
+  // not loudness, chooses among them. The Influence STATE is a lived quality (how strong the gaze is),
+  // not a selection metric, so no raw virupas leaves the engine to tempt a numeric ranking downstream.
   const activatedAspects = (() => {
     const H = field.houseActivated;
-    if (!H) return [] as { from: string; onto: string; ontoRole: string; state: string; trend: string; virupas: number }[];
+    type Asp = { from: string; onto: string; ontoRole: string; state: string; trend: string };
+    if (!H) return [] as Asp[];
     const activatedSign = ZODIAC[(ZODIAC.indexOf(lagna) + H - 1) % 12];
     const houseLord = signLordOf(activatedSign);
     const targets: { onto: string; role: string; lon: number }[] = [];
@@ -847,19 +855,19 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     for (const [pl, plLon] of Object.entries(natalLon)) {
       if (pl !== houseLord && houseFromLagna(signFromLon(plLon), lagna) === H) targets.push({ onto: pl, role: "occupant", lon: plLon });
     }
-    if (!targets.length) return [] as { from: string; onto: string; ontoRole: string; state: string; trend: string; virupas: number }[];
-    const found: { from: string; onto: string; ontoRole: string; state: string; trend: string; virupas: number }[] = [];
+    if (!targets.length) return [] as Asp[];
+    const MATERIAL = new Set(["moderate", "strong", "dominant"]); // the materiality gate (David tunes it by looking)
+    const found: Asp[] = [];
     for (const n of PLANETS) {
       const lonp = a[n];
       if (lonp === undefined) continue;
       const speed = b[n] !== undefined ? (((b[n] - lonp + 540) % 360) - 180) : 0; // signed daily motion → the trend
       for (const t of targets) {
         const inf = aspectInfluence(lonp, speed, t.lon);
-        if (inf) found.push({ from: n, onto: t.onto, ontoRole: t.role, state: inf.state, trend: inf.trend, virupas: inf.virupas });
+        if (inf && MATERIAL.has(inf.state)) found.push({ from: n, onto: t.onto, ontoRole: t.role, state: inf.state, trend: inf.trend });
       }
     }
-    found.sort((x, y) => y.virupas - x.virupas);
-    return found.slice(0, 3);
+    return found; // unranked — the narrative selects by which best explains the day
   })();
 
   const panchang = {

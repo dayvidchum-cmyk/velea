@@ -100,7 +100,10 @@ maximize information. It is to maximize understanding. Every sentence should inc
 than increase data. If two true statements compete for attention, prefer the one that better explains
 the day as a whole."* This is the operative tiebreaker: truth is the floor, not the selector — every
 surfaced fact is already true (the engine resolved it), so the choice between two truths is decided by
-which one makes the day cohere. It is the narrative-side twin of `theme, then evidence`
+which one BETTER explains the day. **This is a matter of QUALITY, not measurement (David, 2026-07-23):
+"better" means clearer — the reading that better explains the day as a whole — never the one with the
+higher weight, count, strength, or rank. Do not resolve it by sorting numbers; a modest, well-fitting
+fact beats a strong, tangential one.** It is the narrative-side twin of `theme, then evidence`
 (`velea-theme-then-evidence`): the engine computes far more than it says, and understanding — not
 completeness — decides what it says.
 

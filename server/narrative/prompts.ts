@@ -143,13 +143,16 @@ You receive one JSON object with these blocks:
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
   activatedAspects (present only when something material lands) is [{ from, onto, ontoRole, state, trend }] —
   a transiting planet (from) casting a graded gaze onto a significator of the activated house (its lord or a
-  natal occupant). state = weak|growing|moderate|strong|dominant (how strong the influence is), trend =
-  forming (building) | separating (releasing) | steady. THE FRAME IS STILL THE ACTIVATED HOUSE: these NEVER
-  become the day's topic — they only say HOW that part of life behaves today. Read the loudest one or two as a
-  texture ON the activated domain (a strong applying Saturn gaze on a career day → "progress feels slower;
-  lead by consistency, not urgency"), and speak the felt quality, never "drishti", "aspect", "virupas", or the
-  planet-onto-planet mechanics. If it doesn't sharpen the day's story, drop it — the engine computes more than
-  it says.
+  natal occupant). state = moderate|strong|dominant (only MATERIAL influences are surfaced — how strong the
+  gaze is; weaker ones stay computed-but-silent). trend = forming (building) | separating (releasing) | steady.
+  The list is UNRANKED — do not read the order as importance. THE FRAME IS STILL THE ACTIVATED HOUSE: these NEVER
+  become the day's topic — they only say HOW that part of life behaves today. When more than one is present,
+  voice the one (or two) that BETTER EXPLAIN the day as a whole — that is a matter of QUALITY, not strength:
+  a modest, well-fitting influence beats a strong, tangential one; never pick by how "loud" it is. Read it as a
+  texture ON the activated domain (an applying Saturn gaze on a career day → "progress feels slower; lead by
+  consistency, not urgency"), and speak the felt quality, never "drishti", "aspect", "state", or the
+  planet-onto-planet mechanics. If mentioning it does not make the day clearer, drop it — the engine computes
+  more than it says.
   karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true
   (Vishti / Bhadra), the day disfavors INITIATING: this is a "finish, don't start"
   window. Push "begin / launch / open something new" into avoid, and favor
@@ -2813,7 +2816,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-23-aspect-influence", // + aspects-on-frame (states #4: drishti→Influence state, materially touching the activated house); Moon dial (#5) + retrograde (#2) + Solar Relationship (#1) still live
+  day_read: "2026-07-23-aspect-quality", // aspects-on-frame selected by QUALITY not weight (material, unranked; narrative picks what best explains the day); Moon dial (#5) + retrograde (#2) + Solar Relationship (#1) still live
 
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",
