@@ -237,6 +237,10 @@ run server/narrative/router.ts 'if (!(await canYearSight(ctx.user)))' 'if (false
 # The Road Ahead veil leaking premium detail (dates + the milestone list) to a free user.
 run server/routers/arc.ts 'apex: arc.apex ? { daysAway: arc.apex.daysAway, crown: arc.apex.crown } : null,' 'apex: arc.apex ? { daysAway: arc.apex.daysAway, crown: arc.apex.crown } : null, milestones: arc.milestones,' \
   server/routers/arc-veil.test.ts "the Road Ahead veil leaks the milestone list to free users again"
+# The locked price list (David's ruling, surfaced v933): a tier silently nulled back to hidden,
+# shipping a wrong/missing number to a paying user.
+run client/src/lib/pricing.ts 'nearSight: "$2.99 / mo",' 'nearSight: null,' \
+  server/pricing-list.test.ts "the near-sight price silently reverts to hidden"
 
 run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
   server/isolation.test.ts "assertOwnsProfile stops failing closed"

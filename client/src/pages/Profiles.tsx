@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import AppHeader from "@/components/AppHeader";
 import LockedFeatureCard from "@/components/LockedFeatureCard";
+import { PREMIUM_PRICING } from "@/lib/pricing";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -1234,6 +1235,7 @@ export default function Profiles() {
                       title="A second chart"
                       teaser="One more seat at your table — coming."
                       detail="Soon you'll be able to hold one more chart beside your own — a partner, a parent, a best friend — and read their days the way you read yours. The seat opens when the timing is right."
+                      price={PREMIUM_PRICING.allAccess}
                     />
                   </div>
                 )}

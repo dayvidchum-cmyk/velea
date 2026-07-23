@@ -17,9 +17,9 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
   const [location, navigate] = useLocation();
   const [teaserOpen, setTeaserOpen] = useState(false);
   // Two-stage pitch (David 2026-07-22: "the pop-up was old"): Subscribe → notify-me, the same
-  // pattern as the moment refresh. Kept-readings is a Master-tier feature (PREMIUM_PRICING.monthly),
-  // so it shows a bare "Subscribe" while the monthly price is null and auto-fills the number the
-  // moment it's set — never an invented price.
+  // pattern as the moment refresh. Kept-readings sits in the near-sight tier (David's price list:
+  // "kept-readings $2.99"), so it pitches PREMIUM_PRICING.nearSight — null hides the number and
+  // shows a bare "Subscribe", never an invented price.
   const [subTapped, setSubTapped] = useState(false);
   const utils = trpc.useUtils();
   const { data: access } = trpc.masterMode.access.useQuery(undefined, { staleTime: 1000 * 60 * 30 });
@@ -91,7 +91,7 @@ export default function KeptReadings({ profileId, date }: { profileId: number; d
                     onClick={() => setSubTapped(true)}
                     style={{ marginTop: "1rem", width: "100%", background: "linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)", border: "none", borderRadius: 12, padding: "0.85rem", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "0.04em", color: "#1a1200", cursor: "pointer" }}
                   >
-                    {PREMIUM_PRICING.monthly ? `Subscribe · ${PREMIUM_PRICING.monthly}` : "Subscribe"}
+                    {PREMIUM_PRICING.nearSight ? `Subscribe · ${PREMIUM_PRICING.nearSight}` : "Subscribe"}
                   </button>
                   <div style={{ textAlign: "center" }}>
                     <button onClick={() => { setTeaserOpen(false); setSubTapped(false); }} style={{ marginTop: "0.6rem", background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>

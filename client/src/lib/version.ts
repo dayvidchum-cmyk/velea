@@ -3134,4 +3134,4 @@
 // really was — the engine over-gated, not the prose). Retired the CANCELLED_LATENT_LABEL + the
 // running-lords plumbing; test rewritten to B and probed (flipping active→false fails it). Server-only.
 // 125 files, 1300 tests, 0 failures. tsc 0, build 0.
-export const APP_VERSION = "1.1.932";
+export const APP_VERSION = "1.1.933";

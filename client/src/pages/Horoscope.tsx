@@ -10,6 +10,7 @@ import VeleaMark from "@/components/VeleaMark";
 import VeleaLoader from "@/components/VeleaLoader";
 import AppHeader from "@/components/AppHeader";
 import LockedFeatureCard from "@/components/LockedFeatureCard";
+import { PREMIUM_PRICING } from "@/lib/pricing";
 import VeleaLorMark from "@/components/VeleaLorMark";
 import GlossaryText from "@/components/GlossaryText";
 import MasterModeCard from "@/components/MasterModeCard";
@@ -246,6 +247,7 @@ export default function Horoscope() {
             title="Read this month"
             teaser="The month's full layered reading, spined on your Time Lord."
             detail="The whole month as one arc — your running chapter, the sky's turns, the days that land — in a single deep reading. A premium reading, not yet unlocked."
+            price={PREMIUM_PRICING.nearSight}
           /></div>
         )}
 
@@ -255,6 +257,7 @@ export default function Horoscope() {
             title="This eclipse season"
             teaser="The whole double-eclipse arc, read for your chart."
             detail="Both eclipses of the season — the build, the resets, the aftermath — woven into one arc reading for your chart. A premium reading, not yet unlocked."
+            price={PREMIUM_PRICING.nearSight}
           /></div>
         )}
 
@@ -264,6 +267,7 @@ export default function Horoscope() {
             title="This Mercury retrograde"
             teaser="The whole retrograde cycle, read for your chart."
             detail="The full rx arc — shadow, station, review, release — read through the rooms Mercury rules in your chart. A premium reading, not yet unlocked."
+            price={PREMIUM_PRICING.nearSight}
           /></div>
         )}
 
@@ -273,6 +277,7 @@ export default function Horoscope() {
             title="The slow reviews"
             teaser="Venus, Mars, Jupiter and Saturn retrogrades, read for your chart."
             detail="Each slow planet's whole retrograde arc — what it re-examines, the rooms it reviews in your chart, the natal points it backs over — read once per cycle, and kept. A premium reading, not yet unlocked."
+            price={PREMIUM_PRICING.nearSight}
           /></div>
         )}
 
@@ -282,6 +287,7 @@ export default function Horoscope() {
             title="The Combined Reading"
             teaser="Two charts, one read — for any relationship."
             detail="Two people's charts read together: the two directional currents between your stars, the classical gates, whose planets land in whose rooms, and whose chapter is carrying the relationship right now. Opens with the second profile."
+            price={PREMIUM_PRICING.allAccess}
           /></div>
         )}
 
@@ -417,6 +423,7 @@ export default function Horoscope() {
             title="Pick a day"
             teaser="Any date, past or future — its reading, drawn from your chart."
             detail="Choose any date and a part of life, and Velea reads your chart for that exact day — the deep, layered reading, kept forever with your own notes beneath it. A premium layer, not yet unlocked."
+            price={PREMIUM_PRICING.pickADate}
           /></div>
         )}
         {entitled && <>

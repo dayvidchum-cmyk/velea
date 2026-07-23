@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import VeleaLorMark from "./VeleaLorMark";
 import LockedFeatureCard from "./LockedFeatureCard";
+import { PREMIUM_PRICING } from "@/lib/pricing";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 
 /**
@@ -75,6 +76,7 @@ export default function MasterModeCard() {
         title="Time Master"
         teaser="Your golden hours — when the sky most favors your move."
         detail="Reads the Pañcapakṣi birds against the planetary hour to find your golden windows — the hours the sky most favors your move, tuned to your chart. A premium layer, not yet unlocked."
+        price={PREMIUM_PRICING.nearSight}
       />
     );
   }

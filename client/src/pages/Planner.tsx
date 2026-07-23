@@ -2499,7 +2499,7 @@ export default function Planner() {
                   onClick={() => setSubscribeTapped(true)}
                   style={{ marginTop: '0.3rem', width: '100%', background: 'linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)', border: 'none', borderRadius: 12, padding: '0.85rem', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '0.04em', color: '#1a1200', cursor: 'pointer' }}
                 >
-                  {PREMIUM_PRICING.momentRead ? `Subscribe · ${PREMIUM_PRICING.momentRead}` : 'Subscribe'}
+                  {PREMIUM_PRICING.nearSight ? `Subscribe · ${PREMIUM_PRICING.nearSight}` : 'Subscribe'}
                 </button>
                 <button
                   onClick={() => setMomentUpsellOpen(false)}

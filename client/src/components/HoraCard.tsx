@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import LockedFeatureCard from "./LockedFeatureCard";
+import { PREMIUM_PRICING } from "@/lib/pricing";
 import VeleaLorMark from "./VeleaLorMark";
 import { useDayModeColor } from "@/hooks/useDayModeColor";
 
@@ -54,6 +55,7 @@ export default function HoraCard() {
         title="Hora"
         teaser="The planetary hour — which planet rules now, and what it favors."
         detail="Each hour is ruled by a planet. Hora tracks which planet holds the current hour and what it favors, so you can time the small moves. Part of the Time Master layer — not yet unlocked."
+        price={PREMIUM_PRICING.nearSight}
       />
     );
   }

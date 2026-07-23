@@ -1,6 +1,5 @@
 import GateMark from "@/components/GateMark";
 import NotifyMeButton from "@/components/NotifyMeButton";
-import { PREMIUM_PRICING } from "@/lib/pricing";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -10,15 +9,21 @@ import { X } from "lucide-react";
  * so everyone SEES the feature, but with a lock icon instead of live data. Tapping opens a popup
  * that explains what the feature is — the future home for upsell copy. `entitled` is decided by the
  * backend (masterMode.access); this component only renders the locked presentation.
+ *
+ * `price` is the tier this feature sits in (PREMIUM_PRICING.nearSight / .allAccess / .pickADate),
+ * passed by the caller — the card itself is tier-agnostic. `null` (tier not announced) hides the
+ * number and shows only the notify-me capture, never an invented price.
  */
 export default function LockedFeatureCard({
   title,
   teaser,
   detail,
+  price = null,
 }: {
   title: string;
   teaser: string;
   detail: string;
+  price?: string | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -68,9 +73,9 @@ export default function LockedFeatureCard({
             </div>
             <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontSize: "1.35rem", fontWeight: 700, color: "var(--foreground)" }}>{title}</h3>
             <p style={{ margin: "0.6rem 0 0", fontSize: "0.9rem", lineHeight: 1.55, color: "var(--color-muted-foreground)" }}>{detail}</p>
-            {PREMIUM_PRICING.monthly && (
+            {price && (
               <p style={{ margin: "0.7rem 0 0", fontSize: "0.9rem", fontWeight: 700, color: "var(--foreground)" }}>
-                {PREMIUM_PRICING.monthly} when it opens.
+                {price} when it opens.
               </p>
             )}
             <div style={{ marginTop: "1.2rem" }}>

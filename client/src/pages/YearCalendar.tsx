@@ -221,8 +221,8 @@ export default function YearCalendar() {
 
             {/* THE UNLOCK CARD — floats over the veil (David 2026-07-22: the thirst gate, keep them
                 thirsty). Subscribe → notify (the newer pitch pattern; shows the price the moment
-                PREMIUM_PRICING.monthly is set, a bare "Subscribe" while it's null — never an
-                invented number). */}
+                PREMIUM_PRICING.allAccess is set, a bare "Subscribe" while it's null — never an
+                invented number). The Year page is an ALL-ACCESS feature (David's price list). */}
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "3.5rem" }}>
               <div style={{ maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)", padding: "1.5rem 1.4rem 1.3rem", boxShadow: "0 24px 64px oklch(0 0 0 / 0.35)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.7rem" }}>
                 <GateMark size={26} style={{ color: "#C9A84C" }} />
@@ -236,7 +236,7 @@ export default function YearCalendar() {
                       onClick={() => setYearSubTapped(true)}
                       style={{ marginTop: "0.3rem", width: "100%", background: "linear-gradient(180deg, #E7C766, #C9A84C 55%, #A87E2E)", border: "none", borderRadius: 12, padding: "0.85rem", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "0.04em", color: "#1a1200", cursor: "pointer" }}
                     >
-                      {PREMIUM_PRICING.monthly ? `Subscribe · ${PREMIUM_PRICING.monthly}` : "Subscribe"}
+                      {PREMIUM_PRICING.allAccess ? `Subscribe · ${PREMIUM_PRICING.allAccess}` : "Subscribe"}
                     </button>
                     <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: "0.78rem", color: "var(--color-muted-foreground)", cursor: "pointer", textDecoration: "underline" }}>
                       Not now
