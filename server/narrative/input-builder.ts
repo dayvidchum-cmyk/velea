@@ -942,7 +942,7 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       const nodalDashaLords = rulersN.filter((r) => r.lord === "Rahu" || r.lord === "Ketu").map((r) => ({ role: r.role, node: r.lord }));
       if (lordsOnPoles.length || nodalDashaLords.length) {
         nodalAxis = {
-          _how: "THE SPINE: the day's/year's events are MOVEMENT along this axis — away from the release pole's rooms, toward the reach pole's rooms. Name the concrete rooms. A read that collapses this into mood/feelings/rest is WRONG.",
+          _how: "THE DIRECTION: the day's/year's events are MOVEMENT along this axis — away from the release pole's rooms, toward the reach pole's rooms. Name the concrete rooms. A read that collapses this into mood/feelings/rest is WRONG.",
           reach: { node: "Rahu", sign: rahuB.sign, house: rahuB.house ?? null },
           release: { node: "Ketu", sign: ketuB.sign, house: ketuB.house ?? null },
           lordsOnPoles,
@@ -1094,12 +1094,16 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     : null;
 
   // ── THE MERIDIAN — the dharma axis, the SPINE every read hangs off (David's law) ──
-  // MC = the public calling / the reach; IC = the roots / the release. We surface the axis
-  // signs + lords, any NATAL planet sitting on an angle (a node on the meridian makes this axis
-  // the person's whole spine), and — load-bearing — which of TODAY's ruling lords (profection
-  // Time Lord, mahā/antar daśā) sit on the reach pole vs the release pole. That last piece is what
-  // stops the prose flattening a lord into "mood": when the Moon rules a year AND sits on the IC
-  // release pole while Rahu runs the MC reach pole, the story is reach-vs-release, never weather.
+  // It names the REGISTER of expression, never the content: MC = the OUTWARD register (the
+  // visible, public, outwardly-expressed dimension of a life), IC = the INWARD register (roots,
+  // lineage, foundation, the private ground). We surface the axis signs + lords, any NATAL planet
+  // sitting on an angle (a node on the meridian makes this axis the person's whole spine), and —
+  // load-bearing — which of TODAY's ruling lords (profection Time Lord, mahā/antar daśā) sit on the
+  // outward pole (MC) vs the inward pole (IC). That last piece is what stops the prose flattening a
+  // lord into "mood": when the Moon rules a year AND sits on the IC inward pole while Rahu runs the
+  // MC outward pole, the story is outward-vs-inward, never weather. WHICH concrete domain (career,
+  // marriage, parenthood, caregiving, lineage, home…) the register expresses is the engine's
+  // resolved story — never assumed from the axis (the meridian is register, not content).
   // Timed charts only — a no-birth-time (Chandra) chart has no real meridian (mcLongitude absent).
   let meridianAxis: any = null;
   let meridianOnAxis: string[] = [];   // planets sitting in the MC/IC SIGN — the dharma axis, for knots
@@ -1121,12 +1125,13 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       const mcOn = onAngle(mcL), icOn = onAngle(icL);
       // planets in the MC or IC SIGN (by whole sign) — "on the meridian" for the knot detector
       meridianOnAxis = PLANETS.filter((n) => { const s = (byPlanet[n] as any)?.sign; return s === mcSign || s === icSign; });
-      // which of the day's ruling lords sit on a pole, by natal sign (reach = MC sign, release = IC sign)
+      // which of the day's ruling lords sit on a pole, by natal sign (outward = MC sign, inward = IC sign).
+      // These name the REGISTER only — the concrete domain is the engine's resolved story, not the pole.
       const poleOf = (lord: string) => {
         const b: any = byPlanet[lord];
         if (!b?.sign) return null;
-        if (b.sign === mcSign) return "reach (the MC / public calling)";
-        if (b.sign === icSign) return "release (the IC / roots)";
+        if (b.sign === mcSign) return "outward (the MC — the visible, public register)";
+        if (b.sign === icSign) return "inward (the IC — the rooted, foundational register)";
         return null;
       };
       const rulers = [
@@ -1137,9 +1142,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
       meridianAxis = {
         mc: { sign: mcSign, house: houseOfSign(mcIdx), lord: SIGN_RULERS[mcSign], onAngle: mcOn },
         ic: { sign: icSign, house: houseOfSign(icIdx), lord: SIGN_RULERS[icSign], onAngle: icOn },
-        // TRUE when a node sits on the meridian → the nodal (reach/release) axis IS the dharma axis
+        // TRUE when a node sits on the meridian → the DIRECTIONAL axis (Rahu/Ketu) coincides with the REGISTER axis (MC/IC)
         nodesOnAxis: [...mcOn, ...icOn].some((o) => o.planet === "Rahu" || o.planet === "Ketu"),
-        // e.g. [{role:"mahadasha",lord:"Rahu",pole:"reach…"},{role:"antardasha",lord:"Moon",pole:"release…"}]
+        // e.g. [{role:"mahadasha",lord:"Rahu",pole:"outward…"},{role:"antardasha",lord:"Moon",pole:"inward…"}]
         lordsOnAxis,
       };
     }

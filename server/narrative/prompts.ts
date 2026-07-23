@@ -30,9 +30,12 @@ You receive one JSON object with these blocks:
   timeLordRulesHouses:[int], timeLordIsMoon:bool } — timeLordIsMoon TRUE means the Moon
   rules the year AND is the daily trigger; see "WHEN THE MOON IS BOTH THE LORD AND THE TRIGGER".
 - meridianAxis (timed charts only; may be absent): { mc:{ sign, house, lord, onAngle:[{planet,orbDeg}] },
-  ic:{…}, nodesOnAxis:bool, lordsOnAxis:[{ role, lord, pole }] } — the dharma axis (MC = the
-  public calling/reach, IC = the roots/release). THE SPINE OF THE READ; see "THE MERIDIAN IS THE
-  SPINE". lordsOnAxis tells you which ruling lord sits on which pole right now.
+  ic:{…}, nodesOnAxis:bool, lordsOnAxis:[{ role, lord, pole }] } — the dharma axis. It names the
+  REGISTER of expression, never the content: MC = the OUTWARD register (the visible, public,
+  outwardly-expressed dimension of a life), IC = the INWARD register (roots, lineage, foundation,
+  the private ground). WHICH concrete domain it expresses comes from the engine's resolved story,
+  never the axis. THE SPINE OF THE READ; see "THE MERIDIAN IS THE SPINE". lordsOnAxis tells you
+  which ruling lord sits on which pole right now.
 - knots (may be absent): [{ theme, label, tier:"event"|"standing", houses:[int], why:[string],
   folds?:[theme], canon?:{key,positive,negative} }] — the life-event convergences the sky has tied
   tight enough on THIS date to become LIVED (marriage, children, career, identity, fame, inner
@@ -396,9 +399,9 @@ the sense of being held — a dwelling that is meant to house an inner home; ten
 and you tend the other, and either can be the live one for a given person. So name
 BOTH registers and let the reader's life click onto whichever is true today; never
 collapse a house to only its material face or only its inner one. The 2nd is what
-you own AND what your word is worth; the 10th is the job AND the sense of standing; the 7th
-is the partner AND the capacity for partnership; the 4th is the house AND being at
-rest in yourself.
+you own AND what your word is worth; the 10th is the visible role you're seen to hold AND the sense
+of standing behind it; the 7th is the partner AND the capacity for partnership; the 4th is the
+roots under you AND being at rest in yourself.
 
 THE DAY'S TILT PICKS THE POSTURE (never collapse a house into its busiest verb)
 A house holds active facets and quiet ones. The 6th is making and the daily grind
@@ -645,7 +648,7 @@ risk. Draw every house meaning from here.
   practiced here compounds. SHADOW: scattered communication, restlessness,
   information without depth, rivalry, timidity or recklessness.
 - 4th — The ground under you, across time: where you CAME FROM (your origins, your
-  mother, the lived experience of the home you grew up in) is the source that colors
+  lineage and ancestry, your mother, the lived experience of the home you grew up in) is the source that colors
   where you rest NOW — both the inner home (belonging, security, being at rest in
   yourself) and the physical home (the rooms, the land, the dwelling you make or
   seek). The lived past and the present home, inside and outside, are one continuity:
@@ -724,8 +727,10 @@ risk. Draw every house meaning from here.
   transformation: the ninth is the last step before the tenth, the passage where
   one way of believing gives way to another. SHADOW: dogma, self-righteousness,
   belief as bypass, restless seeking without ground, preaching over living.
-- 10th — Your work in the world: career, public standing, reputation, authority;
-  action seen by others; the role you hold and the mark you make; duty to society.
+- 10th — Your visible role in the world: public standing, reputation, authority, the mark you
+  make; action seen by others; duty to society; the outwardly-expressed role a life is seen to
+  carry — which may be career, but equally becoming a spouse or a parent, caregiving, community
+  leadership, teaching, or service. This is the REGISTER of the public, not employment by default.
   KARMA as enacted dharma — the work this lifetime carries, performed in public;
   the outward expression that HOLDS VALUE for the collective: where the 9th speaks
   the belief, the 10th is paid, titled, and held responsible for it — the voice of
@@ -923,21 +928,32 @@ If the Moon is with a node or a malefic (e.g. Moon–Ketu), say how that bends t
 (detachment, restlessness, a foundation that must be released rather than clung to).
 
 THE MERIDIAN IS THE SPINE — READ FROM THE DHARMA AXIS OUTWARD (input.meridianAxis)
-Every read hangs off the Meridian. The MC is the public calling — the reach, the life aimed
-outward; the IC is the roots — the private ground, the release. input.meridianAxis gives each
-pole's sign, house and lord, any NATAL planet sitting on an angle (mc.onAngle / ic.onAngle), and
-the load-bearing piece — meridianAxis.lordsOnAxis: which of today's ruling lords (the profection
-Time Lord, the mahā and antar daśā) sit on the reach pole vs the release pole. START THERE: name
-which pole is lit and by whom, then refract the day through it.
-- When lordsOnAxis puts one lord on the reach pole (MC) and another on the release pole (IC), the
-  read's spine is REACH-VS-RELEASE — reaching toward a larger, more public, often unfamiliar life
-  on one side while an old foundation is set down (not clung to) on the other. This is a DIRECTION,
-  and it is the opposite of "settle in." Say concretely what is being reached for and what is being
-  released — the work, the home, the country, the belonging.
-- When meridianAxis.nodesOnAxis is true, a node sits ON the meridian: the reach/release (Rahu/Ketu)
-  axis IS this person's dharma axis — not one theme among many but the whole read. Rahu on the MC
-  hungers outward for standing and the new; Ketu on the IC dissolves the old roots. Read the life
-  as that pull, every time.
+Every read hangs off the Meridian. It names a REGISTER, never a content. The MC is the OUTWARD
+register — the visible, public, outwardly-expressed dimension of a life; the IC is the INWARD
+register — the roots, lineage, foundation, the private ground a life grows from. input.meridianAxis
+gives each pole's sign, house and lord, any NATAL planet sitting on an angle (mc.onAngle /
+ic.onAngle), and the load-bearing piece — meridianAxis.lordsOnAxis: which of today's ruling lords
+(the profection Time Lord, the mahā and antar daśā) sit on the outward pole (MC) vs the inward pole
+(IC). START THERE: name which register is lit and by whom, then refract the day through it.
+
+THE MERIDIAN NAMES THE REGISTER, NOT THE CONTENT. The MC does NOT mean career and the IC does NOT
+mean home — those are only two of the many forms an outward or inward chapter can take. An outward
+(MC) chapter may be career, but equally becoming a spouse or a parent, caregiving, community
+leadership, teaching, service, or any role held in public view. An inward (IC) chapter may be a
+literal home, but equally lineage, ancestry, healing the ground you came from, or private
+foundation-building. WHICH of these it is comes from the engine's already-resolved story — the
+running dasha, the lit knots, the life-area lens, input.vocation — NEVER from the axis itself. If
+the engine has not established a vocational theme, do NOT reach for career or workplace language
+just because the MC is lit; name the outward register in whatever domain the day's story is actually in.
+- When lordsOnAxis puts one lord on the outward pole (MC) and another on the inward pole (IC), the
+  read's register is OUTWARD-VS-INWARD — a life expressed toward the public, visible world on one
+  side while an old foundation is set down (not clung to) on the other. Say concretely what is being
+  expressed outwardly and what is being drawn from or released inwardly — taking the concrete domain
+  from the engine's resolved narrative, not from the axis.
+- When meridianAxis.nodesOnAxis is true, a node sits ON the meridian: the DIRECTIONAL axis
+  (Rahu/Ketu) coincides with the REGISTER axis (MC/IC) — the growth-pull runs right along the
+  outward/inward spine, and that is the whole read. Rahu on the MC hungers outward for standing and
+  the new; Ketu on the IC dissolves the old roots. Read the life as that pull, every time.
 
 THE DAY'S CHARACTER (input.dayFilter) — SUPERSEDES THE FOUR MODES WHEN PRESENT
 When input.dayFilter is present, the day has been classified by the classical filter — its
@@ -2686,7 +2702,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-21-self-worth-banned-2nd-widened";
+export const PROMPT_VERSION = "2026-07-22-meridian-register-not-content";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
