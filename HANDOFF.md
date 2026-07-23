@@ -1,8 +1,9 @@
 # Velea — Session Handoff
 
-_Last updated 2026-07-23, end of a session that started as states-doctrine wiring and became the writing
-of a **Constitution**. This is the "start here" note. The single living to-do doc is
-`tools/working-brief/index.html` (artifact `4810c922-f34f-4c43-bf41-8d1439fa6b30`). This file is continuity._
+_Last updated 2026-07-23, end of a session that completed the Day Read's Constitutional migration (v943)
+and then produced the **migration roadmap for every other reading surface**. This is the "start here"
+note. The single living to-do doc is `tools/working-brief/index.html` (artifact
+`4810c922-f34f-4c43-bf41-8d1439fa6b30`). This file is continuity._
 
 > **First action, before trusting anything below.** Re-run the state checks (`git status`,
 > `git log --oneline -15`, `grep APP_VERSION client/src/lib/version.ts`, `npx vitest run`) and treat
@@ -10,100 +11,113 @@ of a **Constitution**. This is the "start here" note. The single living to-do do
 > wallet) is NOT in these files — verify against prod, never assume.
 
 ## Current state (verify, don't remember)
-- **Live: v942** (`APP_VERSION = "1.1.942"`, `sw.js` cache `velea-cache-v942`). Deployed on velealor.com
-  (prod `/healthz` confirmed 1.1.942).
-- **Suite 1396 pass / 4 skipped, tsc 0, all probes caught.** Re-run to reconfirm. Tree clean, `main` synced.
-- **`PROMPT_VERSION = 2026-07-23-narrative-economy`** (v942 bumped it → **every reading regenerated**).
-  `day_read` surface = `2026-07-23-narrative-economy`.
+- **Live: v943** (`APP_VERSION = "1.1.943"`, `sw.js` cache `velea-cache-v943`). Deployed on velealor.com
+  (prod `/healthz` confirmed 1.1.943).
+- **Suite 1398 pass / 4 skipped, tsc 0, build exit 0, probes caught** (incl. the new scrub over-scrub
+  guard — proven by mutation). Re-run to reconfirm. Tree clean, `main` synced.
+- **`SURFACE_VERSION.day_read = 2026-07-23-revelation-migration-complete`** (v943 bumped it → every day
+  read regenerates). `PROMPT_VERSION` unchanged from v942 (`2026-07-23-narrative-economy`).
 
-## Read first — THE ORDER CHANGED THIS SESSION
-1. **`CONSTITUTION.md` (repo root) — THE SUPREME DOCTRINE, NEW this session.** 16 principles + 2 standing
-   rules + the implementation rule. Every feature answers to it (Principle 13). **Read the implementation
-   rule first:** these are design constraints, NOT algorithms — *preserve the principle while designing,
-   do not rush to translate it into logic.* Memory: `velea-constitution`.
-2. `CLAUDE.md` — the method (accuracy > money > cosmetics; RULE ZERO: never state a value you haven't printed).
-3. `SYSTEM_MAP.md` — architecture; read before exploring.
-4. `server/vedic/canon/METHOD.md` — the doctrine spine (now explicitly *serves* the Constitution).
-5. `NARRATIVE_AUDIT.md` — the engine→LLM contract. Its north star (top of the file): **"The engine's job
-   is to know everything. The reader's job is to understand one thing."**
-6. `tools/working-brief/index.html` — THE single to-do doc (guarded by `docs-claims.test.ts`).
+## THE THROUGH-LINE of this session (the mental model to load)
+The math is stable; the work is now **editorial, not engineering**. David's framing, ratified across the
+session: *"the remaining work is no longer about exposing more of the computation — it is refining the
+reading through subtraction, unity, and resolution."* Evaluate every reading against the **Constitution**
+(does it read as ONE understanding?), NOT against implementation completeness. **Think like an editor, not
+an engineer.** Memory: `velea-editorial-phase`, `velea-baseline-before-tuning`, `velea-audit-report-format`.
 
-## THE BIG THING — the Constitution (David, ratified 2026-07-23)
-An audit meant to check the aspect feature uncovered that the day read was drifting toward a data-dump,
-and that turned into David writing the constitutional articles that had been implicit. **The inflection
-he named: the math is now stable enough that the remaining work is no longer "how do we calculate this?"
-but "how do we communicate it without losing meaning?"** The 16 principles (full text in `CONSTITUTION.md`):
-1 Reality before narrative · 2 Comprehension over completeness · 3 One governing idea · 4 Theme before
-evidence · 5 Authority top-down · 6 The engine computes more than it says · 7 Evidence corroborates
-(never votes) · 8 Model reality not terminology · 9 Respect the shape of reality · 10 States represent
-experience · 11 Functional over textual · 12 Editorial judgment is a feature · 13 Internal consistency
-is law · **14 Narrative Economy** (finite COHERENCE budget — a coherence budget, NOT a count) · **15 The
-Engine Is Not the Reading** (optimize for REVELATION, not coverage) · **16 Structural Axes** (Rahu/Ketu,
-MC/IC are structural geometry, first-class, modeled per their own ontology). Plus standing rules:
-**Transparency of Departure** (document intentional departures from classical authority) and **Never
-Simplify the Ontology to Simplify the Implementation** (the Rahu/Ketu ruling).
+## What shipped this session — v943 (all on `main`)
+An audit of the v942 day read found the revelation rewrite was **half done**: the top of `DAY_READ_TAIL`
+was P14/P15-compliant but the bottom still carried the legacy **CAST roll-call** ("THE LOADED PLANETS ARE
+NOT OPTIONAL… take a roll call: every loaded planet present") — the exact recitation the read was told NOT
+to do. The block was premised on a FALSE claim ("the Cast surface is GONE" — it is a LIVE surface:
+`service.ts getCastRead`, its own cache row, `SURFACE_VERSION.cast`, `router.ts`). So deleting it was a
+factual correction, not a method call. v943 (all neutral, David held every method change):
+- **Deleted the CAST roll-call block** (STORY IS THE CAST / LOADED PLANETS NOT OPTIONAL / THE VOICE /
+  FIVE LAWS), keeping OPEN WINDOWS between them. Tail is now revelation-only end-to-end.
+- **Migrated the retired mode vocabulary in the day-read tail to `input.dayFilter`** (BASE already retires
+  the four mode names when dayFilter present). Fixed the SCOPE line, MANDATE pt 1, the SCENE atmosphere,
+  the "not one thing" law, the gold example, two illustrative names.
+- **Fixed the `SIGN_SCRUB` overreach** in `generate.ts` — it was mangling ordinary prose ("recovering from
+  cancer" → "…from that ground", "Leo asked" → " asked"). Now scrubs only never-a-word signs
+  (Taurus/Scorpio/Sagittarius/Capricorn/Pisces); homographs are guarded upstream. +2 guards, probe-proven.
+- **NOT changed (deliberate):** `panchang.hora` stays null — that null is the mechanism enforcing the
+  no-hora law (`velea-day-read-no-hora`); Leg D mis-flagged it as dead, the comment shows it's a guard.
 
-**The recurring lesson of the session (the one to internalize):** I kept reaching for a number, a rank,
-a filter, an exclusion — *simplifying*; David kept pulling back to quality, coherence, revelation,
-ontology. Twice he caught me measuring by weight when it was a matter of quality. The Constitution exists
-so that reflex is now a *violation*, not a style choice. When handed a principle: hold it, design against
-it, show the design — do not compile it into logic.
+## David's #1 test — PASSED, then editorially audited
+David read the deployed v943 day read and ruled: **"the first version that satisfies the Constitution
+structurally."** Then requested a pure **editorial audit** of it against the Constitution (no engineering).
+Verdict: the governing idea is strong ("Complete the mending; close it with care"), but a second theme
+(Saturn's identity-pivot / "the making of beautiful work") competes and never resolves; the closeLine
+recaps three conditions instead of landing one; two nakshatra names leak. The lapse is ~10% — subtraction,
+not rewrite. (Full audit is in the transcript; not re-pasted here.)
 
-## What shipped this session (v939–v942, all on `main`)
-- **v939 — Didot, the brand display face.** FOUND (by building + grepping emitted CSS) that `--font-serif`
-  was a dead self-reference — the app serif had been silently **Inter**, so "Optima all" (7/22) never
-  rendered. Fixed on `:root`; Didot now renders across ~30 display surfaces (Apple system faces).
-  **Awaiting David's eyes on device.** Memory: `velea-display-face-didot`.
-- **v940–v941 — the aspect layer (states doctrine #4).** Engine `server/vedic/aspect-strength.ts`
-  (`aspectInfluence` → Influence state weak/growing/moderate/strong/dominant + forming/separating off the
-  sputa-drishti curve; David ruled option A). Wired into the day read's `panchang.activatedAspects` under
-  *theme-then-evidence*: the activated house owns the frame, an aspect surfaces only when it materially
-  touches that house's lord/occupant. v941 corrected it to select by QUALITY not weight (David's
-  correction — no sort, no rank, no virupas to the narrative). Memory: `velea-states-not-labels`.
-- **v942 — THE DAY READ REBUILT AROUND REVELATION (the coherence pass, P14/P15/P16).** The prompt's
-  governing block is now the north star; every state-layer is a candidate that earns a place only by
-  deepening the one idea. Removed the "MUST be in the read" mandate. Rewrote the three "mention-it" layers
-  (combustion/retrograde/moon) to P14. Retired the loudness-earned aria (it was the sharpest violation —
-  a solo beat earned by *standout condition*). Self-aspects labeled as **returns** (`ontoRole:"return"`,
-  never "X aspects X"). Closed the jargon-scrub gap in the **`SCRUB` table** (cazimi/drishti/stationing/
-  pre-shadow/pakshabala — NOT MACHINERY, which is only the detector; control-tested). Rahu/Ketu KEPT as
-  first-class aspecters, documented as an intentional method-under-review.
+## THE NEXT WORK — the Constitutional Migration Roadmap
+The Day Read is **V1 of the Constitutional framework**. Every OTHER surface predates the Constitution
+(prompts dated Jul 12–22) and still shows the coverage-and-recite pattern. This session produced the
+migration strategy — **artifact: https://claude.ai/code/artifact/8b5079a3-7814-4dfe-9719-b3cda85184f6**
+(source: `scratchpad/migration-roadmap.html`; republish same path to keep the URL).
 
-## The audit (4 parallel agents + hands-on, 7/23)
-Ran the shipped work against RELEASE_GATES + the Constitution. **Correctness solid** (astrology correct &
-deterministic, no conjunction double-count; engineering pass; constitution compliant). The real finding —
-only visible by RUNNING it (a synthetic-chart harness), not reading the diff — was **accumulation**: the
-aspect layer over-surfaced (5–11 material aspects/house) AND the prompt *mandated* the state-layers. v942
-is the fix. Verdict now: the day read optimizes for revelation.
+**Core insight — migrate by LITERARY FORM, not by surface.** ~18 surfaces, 5 forms, each with one
+editorial contract + one migration recipe. Pilot the recipe on a form's easiest member, then batch siblings.
+- **Form A — Daily Card** (`glance`, `day_read`✓, `cast`, `verdict`)
+- **Form B — Period Arc** (`month`, `eclipse_season`, `mercury_rx`, `planet_rx`, `tl_window`, `window_read`)
+- **Form C — Standing Structure** (`deep`/`deep_full` the year, `house_read`, `dasha_read`/`chapter`)
+- **Form D — Relational** (`combined_read`)
+- **Form E — Pointed/Topical** (`life_area`, `atlas_read`, `yoga_read`)
 
-## OPEN — for David's eyes / next session
-- **★ David's #1 test on the deployed v942 day read: does it read as ONE understanding, or still recite
-  conditions?** That is what P14 exists for. Hard-refresh the PWA (SW cache v942).
-- **Also awaiting his eyes (older):** Didot on device (v939); the veiled year (v934); The Read/cast (v930);
-  the Aligned list (v929); the meridian register prose.
-- **Tune by looking (his call):** the aspect **Influence bands + the material floor** (`aspect-strength.ts`
-  `INFLUENCE_BANDS` / the `MATERIAL` set in input-builder) — first curve is an even 0–60 split. Recovery
-  calibration is RULED (partial floor is correct — "recovery = restored FUNCTION, not textual validity").
-- **Method to finalize:** the **Rahu/Ketu aspect tradition** (nodes stay first-class; the exact node-aspect
-  method is under review → document + apply consistently when chosen — Transparency of Departure).
-- **Low-severity audit notes (not blocking):** Moon-trend near a same-day exact aspect (net-daily vs
-  instantaneous — a defensible daily-card tradeoff); the METHOD.md "interpretive lens" pipeline diagram
-  could mislead a future implementer (the wired domain IS the activated house — one-line clarify); no
-  dedicated probe on the aspect materiality gate.
-- **States doctrine still to build (David's takes recorded):** #3 planetary war (orb + strength, no
-  winners) · #6 yoga loudness (participants' dignity/angularity) · #7 bhava strength (rooms lit, cusps).
-- **The dignity feature (recovery ruled, calibration locked):** wire the recovery continuum into prose +
-  the environment-language rebrand ("debilitated" → "against the grain of its surroundings") + the glossary
-  bridge. Memory: `velea-dignity-environment-and-recovery`.
-- **Deferred (visual batch, ruled to wait):** Full Spectrum → follow the mode, dark-mode pass, crown
-  gold-on-gold, parchment ink. **Stripe** waits on Mercury. **Futura** → resolved to Didot.
+**Recommended order (risk-ramping, learning-compounding):** 1) `glance` · 2) `eclipse_season` (Form B
+pilot) · 3) `month` + rx/window batch · 4) `cast` + `verdict` · 5) the **year** (`deep`, Form C flagship —
+hardest, most trapped quality, highest regression, do last with most learning banked) · 6) `house` +
+`dasha`/`chapter` · 7) `combined` · 8) `life_area` + `atlas` + `yoga`. **`glance` is step 1** (fast, most-
+seen, low blast radius; retires the mode-name leak). The two concrete debts retire inside this order: the
+**glance mode-names** at step 1, the **year's `why`-machinery** at step 5.
 
-## How to wire a state-layer (the pattern, and now the constitutional guard)
-Add the graded field beside its boolean + a short prompt read + a scan for a vivid demo date + bump the
-surface version — incremental, one before/after each. **AND** it must pass the Constitution: the layer's
-prompt doc says *when it earns a place*, NEVER *must mention* (P14); it selects by quality not weight
-(P2/P7/P12); it stays subordinate to the activated house (P4/P5). A new "always mention…" line is now
-literally unconstitutional.
+**When migration begins (NOT yet — David has not greenlit editing prompts):** each surface ships one at a
+time, observe the DEPLOYED output, then the next. One variable, one observation.
+
+## Cross-surface audit findings (from reading 20+ cached readings)
+- The **lived-voice translation is a solved problem brand-wide** — the growth edge everywhere is subtraction.
+- **Recap endings are systemic** (month "three beats", day "rare alignment, hard-won strength…").
+- **Two machinery leaks:** the `glance` opens on the retired mode name ("A Productive Restraint Saturday");
+  the `deep`/year read has a two-voice split — a lived `synthesis` and a machinery `why` (house numbers,
+  raw Sanskrit: "9th house", "Swati", "gandanta", "moolatrikona").
+- **Formula in the year read:** every `developmentalTask` opens "Stop X and start Y"; every read glosses
+  "mahadasha (the long, years-long cycle)" verbatim.
+
+## OPEN — method decisions David is HOLDING (do NOT act until he rules)
+Deliberately deferred until the day read's coherence is confirmed and the doctrine is stable:
+- **Aspect materiality floor** — engine hands ~median 8 (max 23) material aspects/house (`MATERIAL` =
+  moderate/≥24 virupas = 40.9% of the arc). Raise toward `strong` (≥36 → median 5) / ≥42 (→ median 3)? His
+  tuning call. (`aspect-strength.ts` `INFLUENCE_BANDS`; the gate in `input-builder.ts` ~859.)
+- **The `ontoRole:"return"` label** — can never tag a real return (sputaDrishti=0 in the conjunction band);
+  it only fires on self-opposition/trine. Rename to `self`/`own-ground`, or make arc-aware?
+- **Rahu/Ketu graded drishti** — nodes gate on the same curve, ~22% of aspect volume. Same gate or
+  different? (Also the Transparency-of-Departure method to finalize.)
+- **The mode-fallback subsystem** — on a `dayFilter` compute failure the read still falls back to retired
+  mode vocabulary (`input-builder.ts` empty catch ~1027 + BASE mode refs). Keep the fallback or retire modes
+  on all paths? A degradation-design call. (The day-read tail is already fully off modes; this is cross-surface.)
+
+## Tools / how to see any surface's real output
+`scripts/dump-readings.ts` (read-only, no LLM spend) dumps the latest CACHED reading per surface for a
+user's profiles:
+`DATABASE_URL='<railway url>' npx tsx scripts/dump-readings.ts David@velealor.com [surfaceFilter]`
+Note: `cast`/`chapter`/`dasha_read`/`house_read`/`window_read`/`yoga_read` printed only their `question`
+(nested content shape the extractor's `PROSE_KEYS` didn't unpack) — extend `printContent` if those bodies
+are needed. This is how to observe each surface before/after migration.
+
+## New memories written this session
+`velea-editorial-phase` (subtraction/unity/resolution; editor not engineer) · `velea-baseline-before-tuning`
+(fix contradictions first, hold method) · `velea-audit-report-format` (exec summary + deployed output +
+his-call decisions only).
+
+## Read first — the order
+1. `CONSTITUTION.md` — SUPREME doctrine (16 principles + 2 standing rules). The migration measures every
+   surface against this. Memory `velea-constitution`.
+2. This file's THROUGH-LINE + the migration roadmap artifact (the next work).
+3. `CLAUDE.md` — the method (accuracy > money > cosmetics; RULE ZERO; never take a green as truth).
+4. `SYSTEM_MAP.md` — architecture; `server/narrative/prompts.ts` holds every surface tail + `SURFACE_VERSION`.
+5. `NARRATIVE_AUDIT.md` — north star: "the engine's job is to know everything; the reader's job is to
+   understand one thing."
 
 ## Proposals still awaiting David's notes (do NOT build until he formalizes)
 - **Tithi as cadence** (`velea-tithi-cadence`). He's writing notes.
