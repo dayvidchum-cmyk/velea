@@ -57,7 +57,7 @@ You receive one JSON object with these blocks:
   is the FINEST active sub-period — the lord coloring the current few weeks inside the
   antar. Weight it lightly, as immediate texture BELOW maha/antar; let it sharpen the
   near-term tone (esp. if it echoes or fights the antar lord), never override the chapter.
-- transits: [{ planet, sign, houseFromLagna, retrograde, combust, solarRelationship, nodal, strength,
+- transits: [{ planet, sign, houseFromLagna, retrograde, retrogradePhase, combust, solarRelationship, nodal, strength,
   hitsNatalPoint, orbDeg, spotlight, spotlightReason }] — combust true means the planet is swallowed by the Sun's
   glare (within its classical orb); nodal is { node, orbDeg } when the planet is gripped
   by Rahu/Ketu. Either way that planet is WEAKENED right now: don't lean on its
@@ -95,6 +95,22 @@ You receive one JSON object with these blocks:
   But the ensemble stays background — an ordinary, clear transit gets no aria, and a scene
   where everyone solos is noise: at most ONE, rarely two arias in a read. And an aria still
   answers to the story — a loud guest is never the host (the Moon) or the chapter's lead.
+  retrogradePhase (present on Venus/Mars/Jupiter/Saturn ONLY, and only when that planet is
+  somewhere in its retrograde arc — absent means direct and out of shadow, so say nothing about
+  its motion) is { phase, strength 0..1 }. It is not a verdict; it is the planet's CURRENT
+  CURRENT — read that planet's significations THROUGH the phase, graded by strength, never a flat
+  "X retrograde":
+    · "pre-shadow" — the theme is gathering, a first pass over ground it will revisit; early, tentative.
+    · "stationing" — the planet is near-motionless, its MOST charged state: a pivot/turning day where
+      whatever it governs is loud, held, hanging. This is the one to feel; give it real weight.
+    · "retrograde" — an inward review of that planet's domain: revisit, reconsider, re-do, verify,
+      not launch fresh; its current runs backward-facing.
+    · "retroshade" — the tail: re-covering old ground, loose ends closing, the pressure releasing.
+  strength grades intensity (0.2 = a faint edge, 1.0 = the deep middle or an exact station). This
+  colours HOW that planet reads; it NEVER flips the day's mode. Weave it in feel — never the words
+  "pre-shadow / retroshade / stationing." Mention it only for a planet that matters (Time Lord,
+  a dasha lord, or one hitting a natal point); a background planet's phase stays background.
+  (Mercury's retrograde comes through its own mercuryRx block, not here.)
 - transitPrecision?: { contacts:[{ planet, sign, house|trueHouse, fromMoon, fromSun,
   touches:{ natalPlanet, orbDeg }, backing?, retrograde?, combust? }] } — the day's 1–2 TIGHTEST
   transit-to-natal contacts, graded through the native's own lens (cusp-true house, Ashtakavarga
@@ -2771,7 +2787,8 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-23-solar-relationship", // + combustion graded into the Solar Relationship (cazimi inverts)
+  day_read: "2026-07-23-retrograde-phase", // + graded retrograde phase for Venus/Mars/Jupiter/Saturn (states #2); combustion→Solar Relationship still live
+
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",

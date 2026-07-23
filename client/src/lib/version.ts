@@ -3134,4 +3134,17 @@
 // really was — the engine over-gated, not the prose). Retired the CANCELLED_LATENT_LABEL + the
 // running-lords plumbing; test rewritten to B and probed (flipping active→false fails it). Server-only.
 // 125 files, 1300 tests, 0 failures. tsc 0, build 0.
-export const APP_VERSION = "1.1.936";
+//
+// v1.1.937 = 2026-07-23 — STATES DOCTRINE #2: THE GRADED RETROGRADE PHASE REACHES THE DAY READ.
+// Retrograde was a bare boolean in the transit snapshot; now Venus/Mars/Jupiter/Saturn each carry
+// retrogradePhase { phase, strength } — pre-shadow → stationing (most charged) → retrograde →
+// retroshade — computed by the already-built, already-probed planetRxState (sky/retrograde-phase.ts).
+// Mercury is deliberately NOT here: it ships its own ruling-aware mercuryRx block, so Mercury +
+// these four = all five (David's item #2), with no double signal. The prompt reads each phase as a
+// lived CURRENT (read the planet's significations THROUGH the phase, station = the pivot to feel),
+// graded by strength, never flipping the day mode (read-layer only, per the engine's own contract).
+// Wiring only — payload field + prompt read + a vivid-date scan (find-vivid-retrograde.ts). The scan
+// found the immediate showcase: SATURN IS STATIONING AT strength 1.00 RIGHT NOW (2026-07-23, the
+// station week 7/23–7/29). payload-contract guard updated for the new key; day_read salt →
+// 2026-07-23-retrograde-phase. 133 files, 1385 tests, 0 failures. tsc 0, build 0. AWAITING DAVID'S EYES.
+export const APP_VERSION = "1.1.937";

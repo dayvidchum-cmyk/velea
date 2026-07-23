@@ -153,7 +153,7 @@ describe("the documented object SHAPES match what is emitted", () => {
     expect(doc, "the transits field doc changed shape").toBeTruthy();
     const documented = doc![1].split(",").map((s) => s.trim()).filter(Boolean);
     expect(documented).toEqual([
-      "planet", "sign", "houseFromLagna", "retrograde", "combust", "solarRelationship", "nodal", "strength",
+      "planet", "sign", "houseFromLagna", "retrograde", "retrogradePhase", "combust", "solarRelationship", "nodal", "strength",
       "hitsNatalPoint", "orbDeg", "spotlight", "spotlightReason",
     ]);
     for (const k of documented) {

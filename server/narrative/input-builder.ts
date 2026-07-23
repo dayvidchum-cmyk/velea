@@ -23,7 +23,7 @@ import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { buildKnots, type NatalPlanet } from "../vedic/knots.js";
 import { buildLineage } from "../vedic/lineage.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
-import { mercuryRxState, mercuryRxCycle , planetRxCycle } from "../sky/retrograde-phase.js";
+import { mercuryRxState, mercuryRxCycle , planetRxCycle, planetRxState, type RxPlanet, type RxState } from "../sky/retrograde-phase.js";
 import { monthEvents } from "../sky/month-events.js";
 import { contactsOf, type Contact } from "../vedic/contacts.js";
 import { NAK27 } from "@shared/nakshatra-names";
@@ -641,6 +641,17 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   const soon = new Date(noon.getTime() + 86400000);
   const a = await getSiderealLongitudes(noon, PLANETS);
   const b = await getSiderealLongitudes(soon, PLANETS);
+  // RETROGRADE PHASE (states doctrine #2, wired 2026-07-23): the four OUTER classical planets carry
+  // their graded retrograde phase as a lived current in the transit snapshot — pre-shadow →
+  // stationing (most charged) → retrograde → retroshade, each with a 0..1 strength. Mercury is NOT
+  // here: it already ships the ruling-aware mercuryRx block, so adding it would double the signal.
+  // Together (mercuryRx + these four) that is all five, per David's item #2. Scans run in parallel;
+  // set_sid_mode is idempotent so concurrency is safe. Read-layer only — never the day-mode cap.
+  const RX_OUTER: RxPlanet[] = ["venus", "mars", "jupiter", "saturn"];
+  const rxStates: Record<string, RxState> = {};
+  await Promise.all(RX_OUTER.map(async (p) => {
+    rxStates[p[0].toUpperCase() + p.slice(1)] = await planetRxState(p, dateStr);
+  }));
   const natalLon: Record<string, number> = {};
   for (const x of bodies) if (x.longitude) natalLon[x.planet] = parseFloat(x.longitude);
   const transits = PLANETS.map((n) => {
@@ -672,7 +683,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     const spotlightReason = dg?.ex === sign ? "exalted" : dg?.de === sign ? "debilitated"
       : solarSpotlight ? solarSpotlight : dg?.own.includes(sign) ? "own sign"
       : (orb <= 2 && hit) ? `tight on natal ${hit}` : null;
-    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, solarRelationship: rel && rel !== "free" ? rel : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score, uccha: str.uccha, maitri: str.maitri } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
+    const rx = rxStates[n];
+    const retrogradePhase = rx && rx.phase !== "direct" ? { phase: rx.phase, strength: +rx.strength.toFixed(2) } : null;
+    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, retrogradePhase, combust: comb ? comb.combust : null, solarRelationship: rel && rel !== "free" ? rel : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score, uccha: str.uccha, maitri: str.maitri } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
   }).filter(Boolean);
 
   // PERSONAL APEX — the crown day. The only fully-personal day signal: computed from the SAME
