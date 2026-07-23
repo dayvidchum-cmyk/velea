@@ -104,14 +104,27 @@ wrong — not the Constitution.
 
 ## Principle 14 — Narrative Economy
 
-Every reading has a finite coherence budget. Computation is unlimited. Narrative is scarce.
+A day read has one governing idea and a finite coherence budget.
 
-Every additional idea must justify the understanding it creates. If it does not substantially improve
-comprehension, it remains computed but silent.
+The engine computes far more than the reading expresses. On any given day, multiple conditions may be
+simultaneously active (retrograde, station, eclipse phase, combustion, nodal activation, lunar
+condition, aspects, dignity, yogas, and others). These are candidates, never obligations.
 
-_This is a **coherence** budget, not a sentence or count budget. "Mention at most two things" is
-implementation, not this principle — the measure is understanding created, never a headcount. Three
-ideas that cohere may all earn their place; one idea that does not improve comprehension does not._
+A condition earns a place in the reading only if expressing it materially deepens the reader's
+understanding of the day's governing idea. If it merely contributes another correct observation, it
+remains computed but silent, regardless of how rare, dramatic, or technically significant it may be.
+
+The narrative must never optimize for coverage. It optimizes for understanding.
+
+A day read is not a catalogue of active conditions. It is a coherent explanation of the day. Every
+sentence must strengthen that explanation. A reading that merely recites its active conditions has
+exhausted its coherence budget on information instead of insight.
+
+Individual state doctrines (retrograde, station, combustion, nodal influence, lunar phase, dignity,
+aspects, and others) define how a condition should be voiced _when it earns a place_. They are never
+instructions that the condition must be included.
+
+All narrative prompts, heuristics, and future features must conform to this principle.
 
 ## Principle 15 — The Engine Is Not the Reading
 

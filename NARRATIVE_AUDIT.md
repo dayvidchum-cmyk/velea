@@ -1,5 +1,11 @@
 # Velea Narrative Audit (Engine → LLM)
 
+> ## The engine's job is to know everything. The reader's job is to understand one thing.
+>
+> _The north star of the narrative layer (David, 2026-07-23). Whenever tempted to surface "just one
+> more computed condition," return here. See `CONSTITUTION.md` — Principles 14 (Narrative Economy) &
+> 15 (The Engine Is Not the Reading)._
+
 _David's governing spec for the engine→LLM boundary, 2026-07-22. Verbatim. This is the standard the
 resolved narrative package is checked against before any reading is sent. It is the full form of
 standing audit #7 (Narrative Fidelity). Do not paraphrase it away._
