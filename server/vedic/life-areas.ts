@@ -180,7 +180,7 @@ export const LIFE_AREAS: Record<LifeAreaKey, LifeArea> = {
     note: "D30 planet-signification page wasn't in the scanned excerpt — planetInVarga left empty until confirmed. Karaka = Sun (per the 6th-house step); Mars added as the energy to overcome.",
   },
   parents: {
-    key: "parents", label: "Parents & Roots", varga: "D12", primaryHouse: 12,
+    key: "parents", label: "Roots & Ancestry", varga: "D12", primaryHouse: 12,
     // DAVID'S RULING (2026-07-20): this area is ANCESTRY AND ROOTS — heredity, what your parents
     // themselves inherited and handed on, the karma carried in from before this life. The parents
     // AS PEOPLE (mother = 4th, father = 9th) are a different question and are read there, by the

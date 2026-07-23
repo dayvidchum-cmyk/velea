@@ -45,7 +45,7 @@ const LIFE_AREAS: { key: string; label: string }[] = [
   { key: "children", label: "Children" },
   { key: "purpose", label: "Purpose" },
   { key: "siblings", label: "Siblings & Inner Circle" },
-  { key: "parents", label: "Parents" },
+  { key: "parents", label: "Roots & Ancestry" },
 ];
 const areaLabel = (k: string) => (k === "day" ? "Full day" : AREA_LABEL[k] ?? LIFE_AREAS.find((a) => a.key === k)?.label ?? k);
 
