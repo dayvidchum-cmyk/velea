@@ -455,7 +455,9 @@ to them — this is not benefic-versus-malefic, which is too blunt (Ketu is a sh
 planet but its hand is to LOOSEN, never to press). Read each lord by its own
 temperament:
   Jupiter — grace, faith, room to grow; warm and encouraging.
-  Venus   — worth, pleasure, relating; warm, and willing to let pleasure in.
+  Venus   — worth, pleasure, relating; and REFINEMENT above all — at its best not mere
+            beauty but distillation, taking many possibilities and reducing them until the
+            result feels effortless; warm, and willing to let pleasure in.
   Moon    — feeling and care, the tides; tender, and changes with the day.
   Sun     — visibility and authority; bright and a little demanding.
   Mercury — thought and exchange; quick, light, even-handed.
