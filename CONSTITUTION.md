@@ -113,6 +113,38 @@ _This is a **coherence** budget, not a sentence or count budget. "Mention at mos
 implementation, not this principle — the measure is understanding created, never a headcount. Three
 ideas that cohere may all earn their place; one idea that does not improve comprehension does not._
 
+## Principle 15 — The Engine Is Not the Reading
+
+The purpose of the engine is to compute reality. The purpose of the reading is to reveal reality. These
+are not the same task.
+
+Increasing the amount computed does not increase the quality of the reading.
+
+**Do not optimize for coverage. Optimize for revelation.** Coverage asks: *"What else should I mention?"*
+Revelation asks: *"What single insight will make today make sense?"*
+
+_The heart of Velea. The math is becoming stable enough that the remaining work is no longer "how do we
+calculate this?" but "how do we communicate it without losing meaning?" (David, 2026-07-23)._
+
+## Principle 16 — Structural Axes
+
+Certain chart features (e.g. the Rahu/Ketu axis and the MC/IC axis) represent structural geometry rather
+than ordinary planetary actors. They are not excluded because they are unusual, nor elevated because they
+are important. They must be modeled according to their own ontology and narrated only when they
+materially clarify the day's governing theme.
+
+Structural significance does not exempt them from the principles of coherence, narrative economy, or
+editorial judgment.
+
+---
+
+## Standing rule — Transparency of Departure
+
+Be explicit in the documentation whenever Velea intentionally departs from a specific classical authority.
+If the engine supports a non-universal method (e.g. graded drishti from Rahu/Ketu), that choice is
+documented as an **intentional design decision** — never presented as if every classical school agrees.
+This preserves both transparency and trust. (David, 2026-07-23.)
+
 ---
 
 _Implementation rule: these principles are design constraints, not algorithms. Do not immediately
