@@ -283,6 +283,146 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
   };
 }
 
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// THE RECOVERY CONTINUUM (David 2026-07-23) — neecha bhanga as a graded CONFIDENCE, not a binary.
+//
+// His reframe: stop asking "is the fall cancelled?" and ask "how COMPLETE is the rescue — how much
+// confidence should we place in this planet's ability to deliver its promise under present
+// conditions?" A debilitated planet is not cancelled/not-cancelled; it sits on a continuum:
+//
+//   strong-friction → partial → substantial → operational → exceptional (the NBRY band)
+//
+// The band folds STRUCTURAL rescue (L2 — how many classical conditions fired, how dignified the
+// rescuer is) with FUNCTIONAL rescue (L3 — can it actually PERFORM: shadbala backing, combustion).
+// The top band (exceptional) is ENGINE-RESOLVED, never a hand-set cutoff: it fires only when a
+// STRONG structural rescue meets FUNCTIONAL IMPORTANCE (the planet rules an angle or a trine — a
+// recovered 9th-lord is not a recovered 6th-lord) AND the chart BACKS it. So it is rare BY
+// CONSTRUCTION — which is the doctrine: most cancellations resolve to "less damage than expected,"
+// and only the real convergence is "the weakness became mastery."
+//
+// L4 (dasha) is NOT here: per ruling B the rescue is ALWAYS real; the dasha only turns up its VOLUME
+// (a Temporal Amplifier), which the caller layers on top of this static band.
+//
+// THE WEIGHTS BELOW ARE A FIRST CURVE — David's to move once he sees where his placements land
+// (server/scripts/recovery-scan.ts). Adjust the numbers, not the architecture.
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+
+export type RecoveryBand = "strong-friction" | "partial" | "substantial" | "operational" | "exceptional";
+
+export interface RecoveryState {
+  band: RecoveryBand;
+  /** 0..1 — how much to trust this planet's delivery of its promise under present conditions. */
+  confidence: number;
+  /** The exceptional band's raja-yoga clause, resolved (never a bare high count). */
+  isNBRY: boolean;
+  /** What set the band — for the model's reasoning + the glossary; translated in prose, never recited. */
+  factors: string[];
+}
+
+export interface RecoveryImpairments {
+  /** Shadbala strength ratio (>=1.15 strong / <=0.85 thin) — the best single "can it perform" proxy. */
+  shadbalaRatio?: number | null;
+  /** Burnt close to the Sun — agency reduced even when structurally rescued. */
+  combust?: boolean;
+}
+
+// First-curve weights — David's to move once he sees where his placements land. The score is 0..1.
+const RECOVERY = {
+  structuralByCount: { 2: 0.38, 3: 0.56, 4: 0.70 } as Record<number, number>,
+  dispositorDignified: 0.10,   // a forming planet exalted / in own sign — a strong rescuer
+  dispositorFallen: -0.10,     // ...or itself debilitated — a weak one
+  shadbalaStrong: 0.15,        // >=1.15 — the chart's strength backs the recovery
+  shadbalaThin: -0.15,         // <=0.85 — rescued on paper, still can't push
+  combust: -0.15,              // burnt — works unseen / strained
+  cut: { partial: 0.30, substantial: 0.52, operational: 0.72, exceptional: 0.86 },
+};
+
+/** Does the planet rule a kendra (1/4/7/10) or trikona (1/5/9) from the lagna? Functional
+ *  importance — the raja-yoga gate. A recovered angle/trine lord is a different event from a
+ *  recovered dusthana lord. */
+export function rulesAngleOrTrine(planet: Graha, lagnaLon: number): boolean {
+  const lagIdx = signIndex(lagnaLon);
+  const KT = new Set([1, 4, 5, 7, 9, 10]);
+  return OWN[planet].some((sign) => KT.has(houseFrom(lagIdx, ZOD.indexOf(sign) * 30)));
+}
+
+/**
+ * THE FOLD, pure (structural + functional → band). Separated from geometry so it is fully unit-
+ * testable: given a count, a rescuer's dignity, functional importance, and the impairments, it
+ * returns the band — no chart needed. `recoveryState` below computes the geometry and calls this.
+ * Callers pass a CANCELLED fall (count >= CANCEL_MIN_CONDITIONS); an uncancelled fall is handled
+ * in recoveryState as the continuum's floor (strong-friction).
+ */
+export function gradeRecovery(opts: {
+  count: number;
+  solid: boolean;
+  /** The loudest forming planet's OWN dignity — a rescue is only as strong as its rescuer. */
+  rescuerDignity?: "dignified" | "fallen" | null;
+  /** Rules an angle (kendra) or trine (trikona) — the raja-yoga gate. */
+  important: boolean;
+  impair?: RecoveryImpairments;
+}): RecoveryState {
+  const { count, solid, rescuerDignity = null, important, impair = {} } = opts;
+  const factors: string[] = [];
+
+  // ── STRUCTURAL (L2): how strong is the rescue on paper ──
+  let score = RECOVERY.structuralByCount[Math.min(Math.max(count, 2), 4)] ?? RECOVERY.structuralByCount[2];
+  factors.push(`${count} classical rescue condition${count === 1 ? "" : "s"}`);
+  if (rescuerDignity === "dignified") { score += RECOVERY.dispositorDignified; factors.push("rescued by a dignified planet"); }
+  else if (rescuerDignity === "fallen") { score += RECOVERY.dispositorFallen; factors.push("the rescuer is itself fallen"); }
+
+  // ── FUNCTIONAL (L3): can it actually perform ──
+  const ratio = impair.shadbalaRatio;
+  if (ratio != null) {
+    if (ratio >= 1.15) { score += RECOVERY.shadbalaStrong; factors.push("the chart's strength backs it"); }
+    else if (ratio <= 0.85) { score += RECOVERY.shadbalaThin; factors.push("still thin on strength"); }
+  }
+  if (impair.combust) { score += RECOVERY.combust; factors.push("burnt close to the Sun"); }
+
+  score = Math.max(0, Math.min(1, score));
+
+  // ── BAND — the exceptional band gates itself on rescue-strength × importance × backing ──
+  const c = RECOVERY.cut;
+  const isNBRY = score >= c.exceptional && important && solid && !impair.combust;
+  let band: RecoveryBand;
+  if (isNBRY) { band = "exceptional"; factors.push("a rare full recovery — strong, important, and backed"); }
+  else if (score >= c.operational) band = "operational";
+  else if (score >= c.substantial) band = "substantial";
+  else band = "partial";
+
+  return { band, confidence: +score.toFixed(3), isNBRY, factors };
+}
+
+/**
+ * The recovery continuum for a DEBILITATED planet: computes the geometry (structural rescue,
+ * rescuer dignity, functional importance) and folds it with the functional impairments into a band.
+ * A non-debilitated planet has nothing to recover (callers gate on `debilitated`, as dignityOf
+ * does). An UNCANCELLED fall is the bottom of the continuum (strong-friction), not a separate state.
+ */
+export function recoveryState(
+  planet: Graha,
+  lonBy: Record<Graha, number>,
+  lagnaLon: number,
+  impair: RecoveryImpairments = {},
+): RecoveryState {
+  const nb = neechaBhanga(planet, lonBy, lagnaLon);
+  if (!nb.cancelled) {
+    // A real fall the chart does not lift — the high-friction environment stands.
+    return { band: "strong-friction", confidence: 0.22, isNBRY: false, factors: ["a fall the chart does not lift"] };
+  }
+  // The loudest single rescuer's own dignity (a dignified rescuer lifts more; a fallen one less).
+  let rescuerDignity: "dignified" | "fallen" | null = null;
+  for (const b of nb.by) {
+    const ds = planetDignity(b, lonBy[b]);
+    if (ds === "exalted" || ds === "own" || ds === "moolatrikona") { rescuerDignity = "dignified"; break; }
+    if (ds === "debilitated") { rescuerDignity = "fallen"; break; }
+  }
+  return gradeRecovery({
+    count: nb.count, solid: nb.solid, rescuerDignity,
+    important: rulesAngleOrTrine(planet, lagnaLon), impair,
+  });
+}
+
 /** Full dignity (with neecha-bhanga when debilitated) for one planet. */
 export function dignityOf(planet: Graha, lonBy: Record<Graha, number>, lagnaLon: number): PlanetDignity {
   const lon = lonBy[planet];

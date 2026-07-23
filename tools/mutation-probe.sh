@@ -253,6 +253,11 @@ run server/narrative/input-builder.ts '          return { agenda, ...(capacity.l
 run server/narrative/input-builder.ts '...(transitPrecision ? { transitPrecision } : {})' '...(false ? { transitPrecision } : {})' \
   server/narrative/payload-contract.test.ts "the precision layer stops reaching the day payload"
 
+echo "=== the recovery continuum: neecha bhanga graded, not binary (David 2026-07-23) ==="
+# The NBRY (exceptional) band stops gating on functional importance — a bare high count becomes a raja yoga.
+run server/vedic/dignity.ts 'const isNBRY = score >= c.exceptional && important && solid && !impair.combust;' 'const isNBRY = score >= c.exceptional && solid && !impair.combust;' \
+  server/vedic/dignity-recovery.test.ts "NBRY stops requiring functional importance (angle/trine lord)"
+
 run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
   server/isolation.test.ts "assertOwnsProfile stops failing closed"
 run server/routers.ts 'eqW(profilesTable.userId, ctx.user.id)' 'eqW(profilesTable.userId, ctx.user.id ?? 0)' \
