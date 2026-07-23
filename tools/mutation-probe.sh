@@ -27,6 +27,21 @@ if [[ -n "$(git status --porcelain)" ]]; then
   exit 1
 fi
 
+# ROBUSTNESS (2026-07-23): a probe mutates a source, runs the test, then restores it with
+# `git checkout`. If the harness is KILLED between the mutation and the restore — a SIGTERM from a
+# 2-minute tool timeout did exactly this once, leaving golden-moment.ts sitting in a probe's
+# "just passed" mutation that then read as a mystery hand-edit — the tree was left dirty. This trap
+# restores the one in-flight file on ANY exit or interrupt, so a kill can never leave a mutation behind.
+MUTATED=""
+restore_inflight() {
+  if [[ -n "$MUTATED" ]]; then
+    git checkout -- "$MUTATED" 2>/dev/null
+    echo "  (interrupted — restored in-flight mutation: $MUTATED)" >&2
+    MUTATED=""
+  fi
+}
+trap restore_inflight EXIT INT TERM
+
 fails=0
 
 run() {
@@ -41,6 +56,7 @@ run() {
     return
   fi
   local file="$1" from="$2" to="$3" test="$4" name="$5"
+  MUTATED="$file"   # tracked so the trap restores it if we're killed between mutate and restore
   python3 - "$file" "$from" "$to" <<'PY'
 import sys
 f, a, b = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -51,7 +67,7 @@ if s.count(a) != 1:
     sys.exit(9)
 open(f, 'w', encoding='utf8').write(s.replace(a, b, 1))
 PY
-  if [[ $? -ne 0 ]]; then echo "??        $name"; git checkout -- "$file"; fails=$((fails + 1)); return; fi
+  if [[ $? -ne 0 ]]; then echo "??        $name"; git checkout -- "$file"; MUTATED=""; fails=$((fails + 1)); return; fi
   if npx vitest run $test >/dev/null 2>&1; then
     echo "SURVIVED  $name  <-- the test did NOT notice"
     fails=$((fails + 1))
@@ -59,6 +75,7 @@ PY
     echo "caught    $name"
   fi
   git checkout -- "$file"
+  MUTATED=""
 }
 
 echo "=== engine: the data handed to the model (priority 1) ==="
