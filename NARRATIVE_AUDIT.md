@@ -104,6 +104,12 @@ which one makes the day cohere. It is the narrative-side twin of `theme, then ev
 (`velea-theme-then-evidence`): the engine computes far more than it says, and understanding — not
 completeness — decides what it says.
 
+**The operative test (David, 2026-07-23) — apply to every candidate fact before it is voiced:**
+*"Does mentioning it make the reader understand the day more clearly?"* If yes, it earns a place. If
+no, it stays in the payload as influence and out of the prose — no matter how true, rare, or hard-won
+it was to compute. This is the one question that decides inclusion; run it on each planet, aspect,
+yoga, dignity, and timing note the engine hands over.
+
 ## 14. Ending Test
 
 The final paragraph should feel inevitable. Could the reading be summarized in one memorable sentence?
