@@ -79,6 +79,27 @@ the BPHS ¼–½–¾–full bins (categorical, less expressive — kept only as
 and NOT (c) orb-tightness on whole-sign aspects (mixes two ontologies — the aspect *exists* by
 whole-sign geometry but its *strength* would come from degree geometry; internally incoherent).
 
+### The interpretive lens is COMPUTED, not chosen (David, 2026-07-23 — the four-stage pipeline)
+
+An aspect is objective — *Saturn → Moon, Strong, applying, nature Saturn* — but the same aspect can
+express through many life domains (the Moon = emotion / attention / schedule / conversations / body /
+home / the public mood). The narrator does **not** get to *choose* which. The lens is a **computed
+step** of its own, justified by chart conditions, and handed over like everything else:
+
+```
+Aspect  →  Influence State  →  Life Domain (COMPUTED)  →  Narrative
+Saturn→Moon    strong/applying     e.g. Work | Communication     today's advice in that domain
+```
+
+The aspect never changes; only the lens changes — and the lens is **selected by the engine from what
+is lit today**, never invented by the LLM: 10th activated → career · Mercury prominent → communication ·
+Moon + 4th → home · Venus + 7th → relationships. This routes through the machinery that already
+computes "what is lit": `LIFE_AREAS` (`life-areas.ts` — each domain's house + karakas), the day's
+`activatedHouse` / day-tilt, and live knots. **No second domain-selector is built.** This is
+`compute first, narrate second` extended to *meaning itself*: the narrator expresses the domain the
+engine already determined, it does not reach for one. (David: *"The narrator shouldn't invent meaning;
+it should express what the engine has already determined."*)
+
 ---
 
 ## Step 0 — Name the time frame (this picks the system)
