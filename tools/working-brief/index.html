@@ -149,7 +149,7 @@
       retention, error recovery, and every business rule documented — nothing exists "because the code does it."</p></div>
 
   <div class="scores">
-    <div class="score"><div class="n bad">9</div><div class="l">Open issues</div></div>
+    <div class="score"><div class="n bad">8</div><div class="l">Open issues</div></div>
     <div class="score"><div class="n warn">16</div><div class="l">Your calls</div></div>
     <div class="score"><div class="n good">5</div><div class="l">Awaiting eyes</div></div>
     <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
@@ -163,6 +163,28 @@
     (crown.forYear stays server-gated). Also modernized the <b>kept-readings</b> pitch to the Subscribe→notify pattern (the
     old gate jumped straight to notify-me). Both <b>await your eyes on device</b>. Earlier: v926 reader-gate lock, v928
     cancelled-fall ruling B, v929 Aligned list, v930 the Cast engine wired into The Read.
+  </div>
+
+  <!-- ═══════════════  RULINGS RECEIVED  ═══════════════ -->
+  <h2>Rulings received — 22 July (night), being applied</h2>
+  <p class="lead">Your batch of 16, logged with disposition so nothing's lost. The boxes below stay for reference until
+    each is built; this card is the record of what you decided.</p>
+  <div class="card">
+    <b>Enshrined in doctrine (<code>METHOD.md</code>, committed):</b> Siddha-as-amplifier · the <b>Temporal Amplifiers</b>
+    category (station + eclipse = volume, not topic) · the full <b>narrative-authority hierarchy</b> + anti-stacking law ·
+    3rd-vs-11th (siblings, not twins) · confidence is surface-dependent (shown on predictions, internal on the daily tone) ·
+    Shubha Tithi = family classification, low authority.<br><br>
+    <b>Built:</b> the 27-star consolidation (issue #2, closed).<br><br>
+    <b>Mine to build next:</b> Full Spectrum → follow the mode · chip → "Roots &amp; Ancestry" · "Karaka" → scrub + tappable ·
+    the veiled-year <b>past-visible</b> fix (per the time-gate doctrine — I over-gated v931) · the <b>locked price list</b>
+    ($2.99 near-sight / $4.99 all-access / $1.49 pick-a-date; kept-readings $2.99) as its own money unit · verify the
+    pick-a-date precision layer &amp; report · the Futura vs Optima mock (+ a 3rd, an elegant serif/sans; you miss Playfair) ·
+    wire the amplifier/hierarchy doctrine into the prompt.<br><br>
+    <b>Deferred (recorded):</b> dark-mode pass, crown gold-on-gold, parchment ink — all after a proper visual audit ·
+    Stripe keys (waiting on Mercury) · chapter-read auto-fire (exception stands, safe).<br><br>
+    <b>Crown-mark ruling:</b> 11th is <i>not</i> the peak and not a twin of the 3rd — siblings (3rd = build/start, 11th =
+    harvest/collect); no Chandra-Bala weighting change, the distinction lives in tone. Shubha Tithi keeps the canonical
+    family rule. (Both now in the hierarchy doctrine.)
   </div>
 
   <!-- ═══════════════  YOUR CALLS  ═══════════════ -->
@@ -308,15 +330,16 @@
   </ol>
 
   <!-- ═══════════════  OPEN ISSUES  ═══════════════ -->
-  <h2>Open issues — 9, named and reproducible</h2>
+  <h2>Open issues — 8, named and reproducible</h2>
   <p class="lead">The catalogue. The ones that need a ruling have a box up in <b>Your calls</b>; the rest are mine to build.</p>
   <ul class="plain">
     <li><span class="tag">DATA</span><b>1 · The Stage engine — WIRED v930, awaiting your eyes.</b> The Cast/Camera/Tension
       engine now feeds the day cast read; the aggressor-direction bug is fixed at <code>findTension</code> (both-directions
       test + probe). Tap The Read and confirm — then this closes.</li>
-    <li><span class="tag">DATA</span><b>2 · The 27-star name table is duplicated across ~7 files — GUARDED BY DESIGN.</b>
-      <code>nakshatra-tables-agree.test.ts</code> asserts every copy spells identically ("never fork"); no live risk.
-      Consolidation is a design change → your call (box #10 above).</li>
+    <li><b>2 · The 27-star table — CONSOLIDATED &amp; CLOSED (2026-07-22).</b> You ruled "consolidate." Was measured at
+      <b>21 modules</b> (not ~7), each with its own copy — one carrying a live "Dhanishta" misspelling. All now import one
+      canonical <code>shared/nakshatra-names.ts</code>; the guard flipped to a fork-detector; the Glossary's terms are guarded
+      to the canon. tsc 0 · suite green. Kept here for the record.</li>
     <li><span class="tag">DATA</span><b>3 · Exact Chesta (eight-state seeghra-kendra) is not built.</b> The simplified
       K&amp;F rule declares itself as such to the model; the real one needs the textbook, not inference.</li>
     <li><span class="tag">MONEY</span><b>4 · The failed-save re-bill guard is per-process.</b> A redeploy or second replica
@@ -355,6 +378,16 @@
   <div class="grp">The prana reading</div>
   <div class="card">The dasha engine computes and stores <b>prana-level periods</b> (level 5). <b>No surface voices them
     yet.</b> A feature to build on data that exists.</div>
+  <div class="grp">Tithi as cadence — your proposal (7/22 night), not yet formalized</div>
+  <div class="card"><b>The Knot supplies the noun; the Tithi supplies the verb.</b> Reframe the tithi from good/bad into the
+    day's <i>rhythm of action</i> via the five families as a repeating 5-beat pulse — <b>Nanda</b> (nourish) · <b>Bhadra</b>
+    (build) · <b>Jaya</b> (break through) · <b>Rikta</b> (release) · <b>Purna</b> (complete): Begin → Build → Break-through →
+    Empty → Complete. The families ALREADY exist in the engine (<code>day-filter.ts</code>, <code>auspiciousness.ts</code>) —
+    but only as favorability (Rikta −1 + veto, Purna +1). So this is a <i>narrative reframe</i> of an existing detector (the
+    "no black &amp; white" law: Rikta = release, not "bad"), not a new scorer. Lead the prose with the pulse, keep the 15
+    single-tithi temperaments as a deeper layer; the veto stays structural. To explore: a two-tithi day = a family-<i>turn</i>
+    (morning builds, afternoon breaks through), same grammar as the star-turn. Awaiting your word to formalize the verbs.</div>
+
   <div class="grp">Two engine threads — confirm, don't rebuild</div>
   <div class="law">· <b>The agenda layer.</b> Built v906, reverted v907 (as a voice it hijacked the read). Rebuild as a
     <i>hidden nudge</i>. Code parked at <code>@535fcd5</code>.</div>
@@ -367,6 +400,16 @@
     lives at <code>tools/audit-sheet/archive-longform-v848.html</code>.</p>
   <details><summary>Fixed &amp; verified this run (v903–v931 + post-930 prompt/canon)</summary>
     <ul>
+      <li><b>Doctrine session (7/22 night) — <code>METHOD.md</code>.</b> Enshrined the <b>counting law</b> ("weight ranks,
+        lords gate"; the count is private authority, the reader never hears the score), <b>confidence is surface-dependent</b>
+        (predictions show it, the daily tone keeps it internal), and the full <b>narrative-authority hierarchy</b>
+        (Time Lord→Agenda→Knot→Crown→Tara/Chandra→Shubha→Siddha→Temporal Amplifiers) with the <b>anti-stacking law</b>
+        (many favorable flags → one tone, never "extraordinary") and the 3rd-vs-11th distinction. Doctrine only; the prompt
+        wiring is queued.</li>
+      <li><b>27-star names consolidated to ONE source (issue #2, closed).</b> Measured 21 modules with their own copy
+        (brief said ~7); one had a live "Dhanishta" misspelling. All import <code>shared/nakshatra-names.ts</code>; the guard
+        is now a fork-detector (control-verified both directions); the Glossary's terms are guarded to the canon. tsc 0 ·
+        suite 1317 pass. Pushed.</li>
       <li><b>#7 The Day Headline — CLOSED, superseded (no code written).</b> The brief called it a "blessed canon
         ladder"; your own newer spec (<code>LEAD_SPEC.md</code>, 7/21) already overturned that — <i>"the canon is not a
         priority ladder"</i>, transits are <i>"weather… a category error"</i> as the lead, and Step 15 (<code>convergence.ts</code>)
