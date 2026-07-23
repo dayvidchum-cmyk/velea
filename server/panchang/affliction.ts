@@ -25,18 +25,59 @@ export const COMBUSTION_ORB: Record<string, { direct: number; retro: number }> =
   Saturn: { direct: 15, retro: 15 },
 };
 
-export type Combustion = { combust: boolean; orbDeg: number; limitDeg: number };
+/**
+ * THE SOLAR RELATIONSHIP (David 2026-07-23) — combustion is not a boolean, it is a STATE. A planet
+ * 1° from the Sun is incinerated; at 11° it is dimmed but breathing; and at the very heart (~17
+ * arcmin — cazimi) the tradition INVERTS the reading: not burnt but purified, concentrated, at the
+ * throne. Three-plus lived states were collapsed into one `combust` flag, and the flag traps the
+ * model into "weakened/burned" the instant it reads `true`. Naming it the Solar RELATIONSHIP, not
+ * "combustion level", is deliberate: the Sun changes the planet's operating environment, it does not
+ * simply hurt it. The narrative expresses the lived state; `combust`/`orbDeg` stay for the engine
+ * (David's law: layer, don't replace — keep the classical truth internally and in the glossary).
+ *
+ * THE THRESHOLDS ARE A FIRST CURVE — David's to tune by looking (server/scripts/combustion-scan.ts).
+ * cazimi + heart-of-the-sun are ABSOLUTE (a fixed solar region); the combustion tiers scale with the
+ * planet's OWN classical orb, so "deep" for Venus (orb 10°) and Mars (orb 17°) means the same
+ * fraction of each one's glare.
+ */
+export type SolarRelationship =
+  | "cazimi"                // ≤ ~17' — in the heart: purified, unusually concentrated (the INVERSION)
+  | "heart-of-the-sun"      // just outside the throne — deepest immersion, voice inseparable from the Sun's
+  | "deep-combustion"
+  | "strong-combustion"
+  | "moderate-combustion"
+  | "mild-combustion"       // still functions, in the glare
+  | "free";                 // clear of the Sun
+
+const CAZIMI_DEG = 0.28;    // ~17 arcmin
+const HEART_DEG = 1.5;
+const COMBUST_TIER = { deep: 0.35, strong: 0.60, moderate: 0.82 };  // fractions of the per-planet orb
+
+/** Grade the planet's distance from the Sun into its lived solar state. `d` = separation (deg),
+ *  `limit` = the planet's classical combustion orb (already direction-adjusted). */
+export function solarRelationship(d: number, limit: number): SolarRelationship {
+  if (d > limit) return "free";
+  if (d <= CAZIMI_DEG) return "cazimi";
+  if (d <= HEART_DEG) return "heart-of-the-sun";
+  if (d <= limit * COMBUST_TIER.deep) return "deep-combustion";
+  if (d <= limit * COMBUST_TIER.strong) return "strong-combustion";
+  if (d <= limit * COMBUST_TIER.moderate) return "moderate-combustion";
+  return "mild-combustion";
+}
+
+export type Combustion = { combust: boolean; orbDeg: number; limitDeg: number; relationship: SolarRelationship };
 
 /**
  * Is `planet` combust — within its classical orb of the Sun? The Sun itself and the
- * shadow planets (Rahu/Ketu) have no orb → returns null (not applicable).
+ * shadow planets (Rahu/Ketu) have no orb → returns null (not applicable). `combust`/`orbDeg` are
+ * the classical truth (unchanged); `relationship` is the graded lived state for the narrative.
  */
 export function combustion(planet: string, planetLon: number, sunLon: number, retrograde = false): Combustion | null {
   const orb = COMBUSTION_ORB[planet];
   if (!orb) return null;
   const limit = retrograde ? orb.retro : orb.direct;
   const d = sep(planetLon, sunLon);
-  return { combust: d <= limit, orbDeg: +d.toFixed(2), limitDeg: limit };
+  return { combust: d <= limit, orbDeg: +d.toFixed(2), limitDeg: limit, relationship: solarRelationship(d, limit) };
 }
 
 export type NodalAffliction = { afflicted: boolean; node: "Rahu" | "Ketu"; orbDeg: number; limitDeg: number };

@@ -257,6 +257,9 @@ echo "=== the recovery continuum: neecha bhanga graded, not binary (David 2026-0
 # The NBRY (exceptional) band stops gating on functional importance — a bare high count becomes a raja yoga.
 run server/vedic/dignity.ts 'const isNBRY = score >= c.exceptional && important && solid && !impair.combust;' 'const isNBRY = score >= c.exceptional && solid && !impair.combust;' \
   server/vedic/dignity-recovery.test.ts "NBRY stops requiring functional importance (angle/trine lord)"
+# Combustion's Solar Relationship: cazimi (the heart-of-Sun inversion) stops being detected.
+run server/panchang/affliction.ts 'const CAZIMI_DEG = 0.28;' 'const CAZIMI_DEG = 0;' \
+  server/panchang/combustion-state.test.ts "cazimi stops being detected — the inversion collapses into combustion"
 
 run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
   server/isolation.test.ts "assertOwnsProfile stops failing closed"

@@ -20,6 +20,42 @@ the sky is the prompt the Vedas pre-built. The native enters sooner than you'd t
 
 ---
 
+## The design principle — **the engine computes objective conditions; the narrative expresses lived states** (David, ratified 2026-07-23)
+
+For centuries astrology was taught in **binary labels** because they memorize easily — exalted/
+debilitated, combust/not, benefic/malefic, yoga/no-yoga, cancelled/not. **The sky does not behave
+that way. The sky behaves like states.** Velea already models states everywhere it has matured:
+knots = *degree of convergence* (not marriage yes/no); crown = a *spectrum* (not good-day/bad-day);
+stations = *speak louder* (not station yes); Siddha = *lift* (not lucky); neecha bhanga = a *recovery
+continuum* (not cancelled/not). A boolean left anywhere is the last one standing.
+
+**Two consequences, both binding:**
+
+1. **Layer, don't replace.** The classical categories are objective, well-defined, and stay — in the
+   engine and in the glossary. The graded state layers *on top*. Internally a planet carries
+   `combust: true, orbDeg: 3.4, relationship: "deep-combustion"`; the prose speaks only the lived
+   state. Faithful to the tradition *and* to experience.
+
+2. **Give the model nuanced DATA, not prompt-engineered nuance.** A boolean is impoverished data:
+   handed `combust: true`, the model correctly infers *weakened/burned/hidden* — that IS what "true"
+   means. Handed `relationship: "mild-combustion"` vs `"cazimi"`, it writes the nuance itself, with
+   no prompt gymnastics. This is `data-is-the-source-of-truth` taken to its end: the accuracy lives
+   in the state handed over, so **the fix for flat prose is a richer field, not a louder instruction.**
+
+**Rename by BEHAVIOUR, not judgement** (prose + glossary; the classical term stays beside it): exalted
+→ *highly-supported environment*; debilitated → *high-friction environment*; combust → *solar
+immersion / the Solar Relationship*; afflicted → *under pressure*; neecha bhanga → *environmental
+recovery*; benefic → *constructive influence*; malefic → *catalytic influence*. No moral value —
+mechanics. The question moved from *"does this condition exist?"* to *"how is it being experienced?"*
+
+**The remaining binaries to convert** (David's list, 2026-07-23; combustion done first): retrograde
+(→ phases, generalising the Mercury-Rx model to all planets + station intensity), planetary war
+(orb + natural strength), aspects (drishti strength + forming/separating), the Moon's paksha bala,
+a yoga's *how-loudly*, and bhava strength (which rooms are lit). Each is "a boolean standing in for a
+continuum the engine can already compute." See memory `velea-dignity-environment-and-recovery`.
+
+---
+
 ## Step 0 — Name the time frame (this picks the system)
 
 The time frame IS the router key. Do not choose a method; the question's time frame chooses it.
