@@ -102,6 +102,17 @@ Every new feature, algorithm, or heuristic must be evaluated against these const
 If an implementation satisfies a local rule but violates the Constitution, the implementation is
 wrong — not the Constitution.
 
+## Principle 14 — Narrative Economy
+
+Every reading has a finite coherence budget. Computation is unlimited. Narrative is scarce.
+
+Every additional idea must justify the understanding it creates. If it does not substantially improve
+comprehension, it remains computed but silent.
+
+_This is a **coherence** budget, not a sentence or count budget. "Mention at most two things" is
+implementation, not this principle — the measure is understanding created, never a headcount. Three
+ideas that cohere may all earn their place; one idea that does not improve comprehension does not._
+
 ---
 
 _Implementation rule: these principles are design constraints, not algorithms. Do not immediately
