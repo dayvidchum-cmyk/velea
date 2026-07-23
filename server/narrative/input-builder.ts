@@ -25,6 +25,7 @@ import { buildLineage } from "../vedic/lineage.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
 import { mercuryRxState, mercuryRxCycle , planetRxCycle, planetRxState, type RxPlanet, type RxState } from "../sky/retrograde-phase.js";
 import { moonBrightness } from "../panchang/moon-brightness.js";
+import { aspectInfluence } from "../vedic/aspect-strength.js";
 import { monthEvents } from "../sky/month-events.js";
 import { contactsOf, type Contact } from "../vedic/contacts.js";
 import { NAK27 } from "@shared/nakshatra-names";
@@ -827,6 +828,40 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     eclipse = { type: null, phase: eclSeason.side === "leaving" ? "aftermath" : "building", daysAway: null, orbDeg: eclSeason.sunAxisOrbDeg, node: eclSeason.node };
   }
 
+  // ── ASPECTS onto the day's frame (states doctrine #4 — David's ruling A + "theme, then evidence") ──
+  // The activated house OWNS the frame, full stop: an aspect never sets the day's topic, it only
+  // modulates HOW that domain behaves today. So a transiting planet's drishti is surfaced ONLY when it
+  // lands on a significator of the activated house — its LORD or a natal OCCUPANT — i.e. it "materially
+  // affects today's [activated-domain] story." Everything else the engine computed stays silent (real,
+  // but not the story of today). Strength + trend come from aspect-strength.ts (sputa drishti resolved
+  // to a lived Influence state; forming/separating read off the curve). Conjunctions are the separate
+  // hitsNatalPoint layer (sputa drishti is 0 inside 30°), so no double-count. The loudest few only —
+  // never a dump (coherence). First curve; David tunes the Influence bands by looking.
+  const activatedAspects = (() => {
+    const H = field.houseActivated;
+    if (!H) return [] as { from: string; onto: string; ontoRole: string; state: string; trend: string; virupas: number }[];
+    const activatedSign = ZODIAC[(ZODIAC.indexOf(lagna) + H - 1) % 12];
+    const houseLord = signLordOf(activatedSign);
+    const targets: { onto: string; role: string; lon: number }[] = [];
+    if (houseLord && natalLon[houseLord] !== undefined) targets.push({ onto: houseLord, role: "lord", lon: natalLon[houseLord] });
+    for (const [pl, plLon] of Object.entries(natalLon)) {
+      if (pl !== houseLord && houseFromLagna(signFromLon(plLon), lagna) === H) targets.push({ onto: pl, role: "occupant", lon: plLon });
+    }
+    if (!targets.length) return [] as { from: string; onto: string; ontoRole: string; state: string; trend: string; virupas: number }[];
+    const found: { from: string; onto: string; ontoRole: string; state: string; trend: string; virupas: number }[] = [];
+    for (const n of PLANETS) {
+      const lonp = a[n];
+      if (lonp === undefined) continue;
+      const speed = b[n] !== undefined ? (((b[n] - lonp + 540) % 360) - 180) : 0; // signed daily motion → the trend
+      for (const t of targets) {
+        const inf = aspectInfluence(lonp, speed, t.lon);
+        if (inf) found.push({ from: n, onto: t.onto, ontoRole: t.role, state: inf.state, trend: inf.trend, virupas: inf.virupas });
+      }
+    }
+    found.sort((x, y) => y.virupas - x.virupas);
+    return found.slice(0, 3);
+  })();
+
   const panchang = {
     // THE DAY'S MODE, NOT THE MINUTE'S (v794). field.finalMode is evaluated at the current segment
     // for today, while activatedHouse below is always the day's RULING house — so pairing them fed
@@ -838,6 +873,10 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     mode: field.dayFinalMode ?? field.finalMode,
     qualifier: field.dayQualifier ?? field.qualifier,
     activatedHouse: field.houseActivated,
+    // Aspects that MATERIALLY touch the activated house's story (states doctrine #4): a transiting
+    // planet's drishti onto the house's lord/occupant, resolved to a lived Influence state + trend.
+    // The frame stays the activated house; these only say HOW that part of life behaves today.
+    ...(activatedAspects.length ? { activatedAspects } : {}),
     // tithi is now BARE both paths (data-path audit #3); paksha travels EXPLICITLY so the LLM
     // always gets the waxing(Shukla)/waning(Krishna) direction — it was only ever embedded in
     // the cached tithi's prefix and absent entirely on freshly-computed days.

@@ -139,8 +139,17 @@ You receive one JSON object with these blocks:
   you": if fromTara is hostile and toTara is favorable, the morning was the friction and the turn
   is where the day opens (David lived exactly that on 2026-07-20 — Hasta/Pratyak until 9:39, then
   Chitra/Sadhaka, and the groove arrived WITH the second star).
-- panchang: { mode, qualifier, activatedHouse, nakshatra, tithi, karana, hora, eclipse, asOf } — qualifier is
+- panchang: { mode, qualifier, activatedHouse, activatedAspects?, nakshatra, tithi, karana, hora, eclipse, asOf } — qualifier is
   the mode's specific EXPRESSION (a funnel layer), e.g. "Cautious Restraint"; use it.
+  activatedAspects (present only when something material lands) is [{ from, onto, ontoRole, state, trend }] —
+  a transiting planet (from) casting a graded gaze onto a significator of the activated house (its lord or a
+  natal occupant). state = weak|growing|moderate|strong|dominant (how strong the influence is), trend =
+  forming (building) | separating (releasing) | steady. THE FRAME IS STILL THE ACTIVATED HOUSE: these NEVER
+  become the day's topic — they only say HOW that part of life behaves today. Read the loudest one or two as a
+  texture ON the activated domain (a strong applying Saturn gaze on a career day → "progress feels slower;
+  lead by consistency, not urgency"), and speak the felt quality, never "drishti", "aspect", "virupas", or the
+  planet-onto-planet mechanics. If it doesn't sharpen the day's story, drop it — the engine computes more than
+  it says.
   karana is { name, quality, vishti } — the half-tithi. When karana.vishti is true
   (Vishti / Bhadra), the day disfavors INITIATING: this is a "finish, don't start"
   window. Push "begin / launch / open something new" into avoid, and favor
@@ -2804,7 +2813,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-23-moon-brightness", // + Moon-trigger strength dial (states #5); retrograde phase (#2) + Solar Relationship (#1) still live
+  day_read: "2026-07-23-aspect-influence", // + aspects-on-frame (states #4: drishti→Influence state, materially touching the activated house); Moon dial (#5) + retrograde (#2) + Solar Relationship (#1) still live
 
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",

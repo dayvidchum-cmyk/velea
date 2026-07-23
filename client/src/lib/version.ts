@@ -3160,4 +3160,4 @@
 // field + prompt read + guard. New payload-contract guard (arg order Sun,Moon + field present) with
 // TWO probes. day_read salt → 2026-07-23-moon-brightness. Working brief brought current to v938 (the
 // 7-item list: ① combustion ✓ · ② retrograde ✓ · ⑤ moon ✓ now all WIRED LIVE). AWAITING DAVID'S EYES.
-export const APP_VERSION = "1.1.939";
+export const APP_VERSION = "1.1.940";

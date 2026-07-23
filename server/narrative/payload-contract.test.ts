@@ -147,6 +147,15 @@ describe("the documented object SHAPES match what is emitted", () => {
     expect(SRC).toMatch(/moonBrightness\(a\["Sun"\], a\["Moon"\]\)/);
   });
 
+  it("activatedAspects is WIRED to the aspect engine and its shape documented (states #4)", () => {
+    // Aspects onto the day's frame (David's ruling A + theme-then-evidence): a transiting planet's
+    // drishti onto a significator of the activated house, resolved to a lived Influence state. The
+    // frame stays the activated house — these only modulate HOW that domain behaves today.
+    expect(PROMPTS).toMatch(/activatedAspects[^\n]*\[\{ from, onto, ontoRole, state, trend \}\]/);
+    expect(SRC).toMatch(/aspectInfluence\(lonp, speed, t\.lon\)/);
+    expect(SRC).toMatch(/activatedAspects\.length \? \{ activatedAspects \}/);
+  });
+
   it("eclipseSeasonArc: { today, windowEnd, count, eclipses } — with the parent declared", () => {
     // `eclipses` is documented as a bare "- eclipses:" bullet. That is only correct because the
     // block above it names the parent. Without that line it reads as a top-level field that does

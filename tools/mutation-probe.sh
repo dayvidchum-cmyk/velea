@@ -124,6 +124,8 @@ run server/vedic/aspect-strength.ts '{ min: 48, state: "dominant" }' '{ min: 62,
   server/vedic/aspect-strength.test.ts "the Influence dominant band stops resolving (the 7th no longer reads dominant)"
 run server/vedic/aspect-strength.ts 'virupasAhead > virupas + 0.05 ? "forming" : virupasAhead < virupas - 0.05 ? "separating"' 'virupasAhead > virupas + 0.05 ? "separating" : virupasAhead < virupas - 0.05 ? "forming"' \
   server/vedic/aspect-strength.test.ts "forming/separating gets reversed (building read as releasing)"
+run server/narrative/input-builder.ts 'aspectInfluence(lonp, speed, t.lon)' 'aspectInfluence(t.lon, speed, lonp)' \
+  server/narrative/payload-contract.test.ts "the aspect-on-frame call flips aspecter/target (drishti computed backwards)"
 run server/narrative/prompts.ts '- transits: [{ planet, sign, houseFromLagna, retrograde, retrogradePhase, combust, solarRelationship, nodal, strength,' '- transits: [{ planet, sign, houseFromLagna, retrograde, retrogradePhase, combust, solarRelationship, nodal,' \
   server/narrative/payload-contract.test.ts "the transits field doc drifts from the emitted shape"
 
