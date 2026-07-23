@@ -303,8 +303,17 @@ export function neechaBhanga(planet: Graha, lonBy: Record<Graha, number>, lagnaL
 // L4 (dasha) is NOT here: per ruling B the rescue is ALWAYS real; the dasha only turns up its VOLUME
 // (a Temporal Amplifier), which the caller layers on top of this static band.
 //
-// THE WEIGHTS BELOW ARE A FIRST CURVE — David's to move once he sees where his placements land
-// (server/scripts/recovery-scan.ts). Adjust the numbers, not the architecture.
+// WHAT THIS MEASURES (David 2026-07-23, ruling): recovery models the restoration of FUNCTION — lived
+// capability — NOT the existence or textual validity of the cancellation. A VALID Neecha Bhanga may
+// still yield only PARTIAL recovery when the supporting conditions are insufficient. So the structural
+// base (a bare 2-condition cancel → 0.38 → "partial") is correct BY DESIGN, not a floor set too low:
+// validity alone buys "partial"; the modifiers (a dignified rescuer, shadbala backing) are the
+// supporting conditions that actually restore function and lift it toward substantial/operational.
+// Do NOT raise the base to reward mere validity — that would confuse "the fall is cancelled" with
+// "the planet performs." The curve is calibrated to lived capability, full stop.
+//
+// THE WEIGHTS BELOW ARE A CALIBRATED FIRST CURVE — the architecture and the partial floor are ruled
+// (above); the individual numbers stay tunable by looking (server/scripts/recovery-scan.ts).
 // ══════════════════════════════════════════════════════════════════════════════════════════════
 
 export type RecoveryBand = "strong-friction" | "partial" | "substantial" | "operational" | "exceptional";
