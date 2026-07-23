@@ -57,12 +57,19 @@ You receive one JSON object with these blocks:
   is the FINEST active sub-period — the lord coloring the current few weeks inside the
   antar. Weight it lightly, as immediate texture BELOW maha/antar; let it sharpen the
   near-term tone (esp. if it echoes or fights the antar lord), never override the chapter.
-- transits: [{ planet, sign, houseFromLagna, retrograde, combust, nodal, strength,
+- transits: [{ planet, sign, houseFromLagna, retrograde, combust, solarRelationship, nodal, strength,
   hitsNatalPoint, orbDeg, spotlight, spotlightReason }] — combust true means the planet is swallowed by the Sun's
   glare (within its classical orb); nodal is { node, orbDeg } when the planet is gripped
   by Rahu/Ketu. Either way that planet is WEAKENED right now: don't lean on its
   significations, and if it's the Time Lord or a dasha lord, let the read acknowledge the
   dimming plainly (in feel, not the word "combust"). A clear planet needs no mention.
+  solarRelationship GRADES the combustion into a lived state — read it, don't flatten it to
+  "weakened": mild-combustion = still functions, working in the glare; deep-combustion = its voice
+  is hard to separate from the Sun's, working unseen. And the INVERSION: "cazimi" and
+  "heart-of-the-sun" (the coronation) are NOT weakened — a planet at the very heart of the Sun is
+  purified and concentrated (cazimi = the throne, quiet absolute clarity) or radiant at its peak
+  (the coronation), acting with unusual power. When solarRelationship is cazimi/heart-of-the-sun,
+  the planet is EMPOWERED, never dimmed — override the combust=true weakening entirely.
   strength is { tier, label, score } — the planet's essential dignity in its CURRENT sign
   (exalted/moolatrikona/own/friend/neutral/enemy/debilitated) folded with the afflictions
   above into a label: dignified | steady | weak | compromised. Read it as CONFIDENCE, not
@@ -2764,7 +2771,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   deep: "2026-07-16-varshaphala-a",
   deep_full: "2026-07-16-varshaphala-a",
   chapter: "2026-07-13-chapter-concise",
-  day_read: "2026-07-23-agenda-precision-nudges", // + the hidden agenda tilt + today's sharpest contact
+  day_read: "2026-07-23-solar-relationship", // + combustion graded into the Solar Relationship (cazimi inverts)
   cast: "2026-07-22-cast-engine-fed-stage",
   house_read: "2026-07-16-the-house-reader-v1",
   dasha_read: "2026-07-17-the-tense-law",

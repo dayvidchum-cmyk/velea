@@ -284,6 +284,9 @@ run server/sky/retrograde-phase.ts 'saturn: 0.006,' 'saturn: 0.15,' \
 # Moon brightness (states doctrine #5): the illumination curve inverts — new moon reads as brimming.
 run server/panchang/moon-brightness.ts 'const illumination = (1 - Math.cos(elong * DEG)) / 2;' 'const illumination = (1 + Math.cos(elong * DEG)) / 2;' \
   server/panchang/moon-brightness.test.ts "the Moon's illumination curve inverts (new reads brimming)"
+# Combustion WIRED into the transits (states doctrine): the solar relationship stops reaching the day read.
+run server/narrative/input-builder.ts 'solarRelationship: rel && rel !== "free" ? rel : null,' 'noSolarRel: null,' \
+  server/narrative/payload-contract.test.ts "the solar relationship stops reaching the transit payload"
 
 run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
   server/isolation.test.ts "assertOwnsProfile stops failing closed"

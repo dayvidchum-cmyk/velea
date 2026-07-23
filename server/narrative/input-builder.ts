@@ -662,10 +662,17 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
     // exalted / debilitated / own-sign dignity, combust, or tight (≤2°) on a natal point.
     // The prompt gives these an "aria"; everything else stays ensemble. Deterministic (DIGN).
     const dg = DIGN[n];
+    // THE SOLAR RELATIONSHIP (states doctrine, wired 2026-07-23): the graded state, not the boolean.
+    // Cazimi / the coronation are the INVERSION — a planet at the Sun's heart is empowered, so it
+    // earns an aria as the THRONE, never "combust". The graded combustion tiers earn the dimmed aria.
+    const rel = comb?.relationship;
+    const solarSpotlight = rel === "cazimi" ? "cazimi — at the heart of the Sun"
+      : rel === "heart-of-the-sun" ? "the coronation — radiant at the Sun's heart"
+      : comb?.combust ? "combust" : null;
     const spotlightReason = dg?.ex === sign ? "exalted" : dg?.de === sign ? "debilitated"
-      : comb?.combust ? "combust" : dg?.own.includes(sign) ? "own sign"
+      : solarSpotlight ? solarSpotlight : dg?.own.includes(sign) ? "own sign"
       : (orb <= 2 && hit) ? `tight on natal ${hit}` : null;
-    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score, uccha: str.uccha, maitri: str.maitri } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
+    return { planet: n, sign, houseFromLagna: houseFromLagna(sign, lagna), retrograde: retro, combust: comb ? comb.combust : null, solarRelationship: rel && rel !== "free" ? rel : null, nodal: nod && nod.afflicted ? { node: nod.node, orbDeg: nod.orbDeg } : null, strength: str ? { tier: str.tier, label: str.label, score: str.score, uccha: str.uccha, maitri: str.maitri } : null, hitsNatalPoint: orb <= 4 ? hit : null, orbDeg: orb <= 4 ? +orb.toFixed(1) : null, spotlight: !!spotlightReason, spotlightReason };
   }).filter(Boolean);
 
   // PERSONAL APEX — the crown day. The only fully-personal day signal: computed from the SAME
