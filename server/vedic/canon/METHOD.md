@@ -54,6 +54,31 @@ mechanics. The question moved from *"does this condition exist?"* to *"how is it
 a yoga's *how-loudly*, and bhava strength (which rooms are lit). Each is "a boolean standing in for a
 continuum the engine can already compute." See memory `velea-dignity-environment-and-recovery`.
 
+### The shape-of-the-phenomenon law (David, 2026-07-23 — the ruling on aspects, generalised)
+
+> **Whenever a classical rule collapses a naturally continuous phenomenon into a binary, compute the
+> underlying state first. The binary remains available for canonical fidelity, but the narrative is
+> driven by the state.**
+
+This is the *trigger* and the *guard* for the whole doctrine — it stops "states" from drifting into
+"everything is a gradient for nicer prose." A binary becomes a continuum **only when the underlying
+computation is itself continuous**, never for expressiveness. **Respect the shape of the phenomenon:**
+
+- **Continuous underneath → model a continuum, resolve to a state.** Solar distance (combustion),
+  aspect strength (drishti), visibility (paksha / brightness), retrograde motion, planetary-war orb.
+- **Categorical underneath → compute a category.** A yoga forms or it doesn't; a planet is in a sign
+  or it isn't; a nakshatra is discrete. (A yoga's *loudness* is continuous because it derives from
+  continuous inputs — its participants' dignity/angularity — but the yoga's *existence* stays binary.)
+
+**Aspects — ruled A: sputa drishti.** Compute the real drishti strength with `sputaDrishti`
+(`shadbala.ts`, already classical — cited p.315, degree-based virupas, peaks at the 7th/180°) plus
+forming/separating by relative motion, then resolve to a lived **Influence** state —
+*weak · growing · moderate · strong · dominant* — exactly as combustion resolves distance→relationship.
+The narrative receives only the resolved state; it never knows the engine used sputa drishti. NOT (b)
+the BPHS ¼–½–¾–full bins (categorical, less expressive — kept only as the strictly-textual fallback),
+and NOT (c) orb-tightness on whole-sign aspects (mixes two ontologies — the aspect *exists* by
+whole-sign geometry but its *strength* would come from degree geometry; internally incoherent).
+
 ---
 
 ## Step 0 — Name the time frame (this picks the system)
