@@ -178,6 +178,12 @@
   --border: rgba(226, 205, 166, 0.11);
   --input: rgba(226, 205, 166, 0.09);
   --ring: oklch(0.767 0.139 91.1);
+  /* APP SERIF — the brand display face (David 2026-07-23: "didot"). This is the live base for the
+     `--font-serif` token at @theme inline (which was a dead self-reference — the serif voice had been
+     silently falling back to Inter). Didot/Bodoni 72/Hoefler Text are system faces (Apple); Georgia is
+     the cross-platform fallback. Every var(--font-serif) consumer (wordmark, headlines, hero titles)
+     now renders Didot. The next face change is this one line. */
+  --font-serif: 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
   --radius: 0.75rem;
   /* Editorial card radii — one family for flat cards + immersive heroes */
   --radius-card: 20px;
@@ -278,10 +284,10 @@
 @theme inline {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Futura PT', 'Futura', 'Century Gothic', ui-sans-serif, sans-serif;
-  /* D · Airy Humanist — Optima app-wide (David 2026-07-22: "Optima all"). Every serif reads from
-     this token now; the next change is one line. Optima/Palatino are system faces (Apple), Georgia
-     the cross-platform fallback. */
-  --font-serif: var(--font-serif);
+  /* The Tailwind `font-serif` utility's face (David 2026-07-23: "didot"). Kept identical to the
+     :root --font-serif above so the two agree regardless of emit order. Was a dead self-reference
+     (`var(--font-serif)`) with no base — the app serif silently fell back to Inter until 7/23. */
+  --font-serif: 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   --color-background: var(--background);

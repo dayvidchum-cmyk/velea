@@ -113,7 +113,7 @@
 
 <div class="wrap">
   <h1>Velea · Brief</h1>
-  <p class="ver">Live: <b>v1.1.938</b></p>
+  <p class="ver">Live: <b>v1.1.939</b></p>
   <p class="sub">23 July 2026 · one page — where the app is, what waits on you, what's next. Type a ruling in any box, then hit “Copy my rulings” at the bottom and paste it to me. Answered calls come off this page the moment you rule; nothing here is stale.</p>
 
   <div class="north">
@@ -139,7 +139,9 @@
 
   <!-- ═══════════════  WHERE THE APP IS  ═══════════════ -->
   <div class="card">
-    <b>Where the app is — v938 live on velealor.com.</b> Run the three checks
+    <b>Where the app is — v939 live on velealor.com.</b> <b>v939</b> shipped the brand display face: the dead
+    <code>--font-serif</code> token (silently Inter) now carries <b>Didot</b> across ~30 display surfaces (your ruling —
+    awaiting your eyes on device). Run the three checks
     (<code>npm run verify</code> · <code>npm run probe</code> · <code>npm run deployed</code>) for live status —
     they are the source of truth over this line.
     <br><br>
@@ -254,9 +256,6 @@
     <li><b>Two small reading builds (ruled 7/23).</b> The <b>eclipse day</b> reads differently before vs after the exact
       contact (two postures across the moment). <b>“Karaka” / “Tara”</b> become tappable glossary terms in a read (pop-ups,
       not scrubbed — closes open issue #6).</li>
-    <li><b>The Futura mock — mine to make (you asked to see it).</b> A <b>Futura + Inter</b> vs current <b>Optima + Inter</b>
-      specimen on real Velea copy, plus a third elegant high-contrast serif (you miss Playfair). You rule Futura-vs-Optima only
-      after you've seen it.</li>
     <li><b>The look batch — slots anywhere.</b> Full Spectrum → follow the mode (ruled), the deferred visual-audit pass
       (gold-on-gold, parchment ink, dark mode), the comet brand mark, the Readings diamond, the Life Atlas caret, the yogas
       copy, the gate-glyph sweep. <i>Itemised below.</i></li>
@@ -314,6 +313,13 @@
   <p class="lead">What you've already ruled or I've already shipped, with its disposition so nothing leaves the queue by being
     forgotten. No boxes here — these are closed.</p>
   <ul class="plain">
+    <li><span class="done">✓ RULED + WIRED (7/23)</span> — <b>the brand display face is Didot.</b> You picked it from the type
+      mock (Optima / Futura / Didot). WIRED and build-verified: <code>--font-serif</code> now carries
+      <code>'Didot','Bodoni 72','Hoefler Text',Georgia,serif</code>, live across ~30 display surfaces (brand splash,
+      app-header verdict, day/Planner titles, onboarding, login, year calendar, locked cards). <b>Finding on the way in:</b> the
+      serif token was a dead self-reference — the app serif had been silently falling back to <b>Inter</b>, so "Optima all"
+      (7/22) never actually rendered; this is the first time the display face shows. Body + functional headings stay Inter by
+      design. <b>Awaiting your eyes on device</b> (needs a deploy — that's the only way you'll see the real app in it).</li>
     <li><span class="done">✓ RULED (7/23)</span> — <b>Siddha Yoga loudness:</b> the doctrine stands — a low-authority
       <b>lift</b>, never a named line, never clears a veto (in <code>METHOD.md</code>).</li>
     <li><span class="done">✓ RULED (7/23)</span> — <b>the eclipse day:</b> the guidance <b>differs before vs after</b> the exact
