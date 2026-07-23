@@ -5,6 +5,11 @@ canon is already wired. Every file in `canon/` is **data the systems below pull*
 **control flow** — which system fires for which time frame, and what deterministic data it hands the
 LLM so the prompt is a **filtered lens, not a data dump.** Living doc — David refines._
 
+> **This method serves the Constitution.** `CONSTITUTION.md` (repo root) is the highest-order doctrine:
+> 13 principles every feature answers to. Where this method — or any clever implementation — conflicts
+> with a constitutional principle, **the implementation is wrong, not the Constitution** (Principle 13).
+> The doctrine sections below are elaborations of those principles, never exceptions to them.
+
 ---
 
 ## The law (why this exists)

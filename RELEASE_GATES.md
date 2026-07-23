@@ -5,6 +5,11 @@ are more important than visual polish. Run the Deterministic Astrology Audit bef
 This supersedes the earlier five-item "standing audits" framing — those items live on inside these
 gates. Companion spec: `NARRATIVE_AUDIT.md` (the 16-point engine→LLM contract, gate 2)._
 
+> **Gate zero — the Constitution (`CONSTITUTION.md`).** Per Constitutional Principle 13, every feature,
+> algorithm, and heuristic is evaluated against the 13 constitutional principles *before* these audits.
+> If an implementation passes a local gate below but violates a constitutional principle, it fails — the
+> implementation is wrong, not the Constitution. The audits enforce the Constitution; they never override it.
+
 ---
 
 ## The eighteen audits
