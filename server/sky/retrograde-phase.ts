@@ -25,19 +25,34 @@ function addDays(iso: string, n: number): string {
   return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
 }
 
-const STATION_EPS = 0.15; // deg/day — |speed| under this reads as stationing (the intense turning point)
+// The "stationing" (near-motionless) threshold is PER-PLANET (David 2026-07-23, generalizing): a
+// flat 0.15°/day works for Mercury (mean ~1.4°/day) but Saturn barely exceeds 0.13°/day EVER, so a
+// flat threshold reads it as forever-stationing. Each is ~10% of the planet's mean daily motion —
+// the near-motionless turn scaled to how fast that planet ever moves. A first curve; tune by looking.
+const STATION_EPS_BY: Record<RxPlanet, number> = {
+  mercury: 0.15, venus: 0.12, mars: 0.06, jupiter: 0.012, saturn: 0.006,
+};
+// Symmetric scan span per planet — large enough to reach BOTH stations of the episode covering the
+// day (a slow planet's retrograde proper alone runs months). More ephemeris calls for the outers;
+// deterministic + memoised, and the wiring step computes it only where it earns its keep.
+const RX_STATE_SPAN: Record<RxPlanet, number> = {
+  mercury: 48, venus: 90, mars: 150, jupiter: 180, saturn: 200,
+};
 
 /**
- * Mercury's rx state on `dateStr`. Scans a bounded window around the date (Mercury's whole
- * shadow-to-shadow arc is ~65 days, so ±48 catches the relevant episode's edges), unwraps the
- * longitude, finds the covering retrograde episode, and classifies the day within it.
+ * ONE planet's retrograde STATE on `dateStr` — phase (direct / pre-shadow / stationing / retrograde
+ * / retroshade) + strength (0..1 depth into the shadow band; 1 across the retrograde proper).
+ * David 2026-07-23, generalizing Mercury to all five ("every non-Mercury retrograde was flat true;
+ * a planet at its station is the most charged state in the sky"). Scans a per-planet window, unwraps
+ * longitude, finds the covering retrograde episode, classifies the day within it. Raw astronomy only.
  */
-export async function mercuryRxState(dateStr: string): Promise<RxState> {
-  const SPAN = 48;
+export async function planetRxState(planet: RxPlanet, dateStr: string): Promise<RxState> {
+  const SPAN = RX_STATE_SPAN[planet];
+  const eps = STATION_EPS_BY[planet];
   const dates: string[] = [];
   for (let i = -SPAN; i <= SPAN; i++) dates.push(addDays(dateStr, i));
   const raw: number[] = [];
-  for (const d of dates) raw.push((await planetLongitudeSpeed("mercury", d)).longitude);
+  for (const d of dates) raw.push((await planetLongitudeSpeed(planet, d)).longitude);
 
   // Unwrap to continuous cumulative longitude (retrograde daily steps are well under 180°).
   let off = 0; const cum: number[] = [];
@@ -46,8 +61,7 @@ export async function mercuryRxState(dateStr: string): Promise<RxState> {
     cum.push(raw[i] + off);
   }
   const center = SPAN; // index of dateStr
-  const speed = cum[center] - cum[center - 1];
-  const daySpeed = (await planetLongitudeSpeed("mercury", dateStr)).speed;
+  const daySpeed = (await planetLongitudeSpeed(planet, dateStr)).speed;
 
   // Find each retrograde episode in the window; classify the center day if it falls inside one.
   const spd = cum.map((v, i) => (i === 0 ? 0 : v - cum[i - 1]));
@@ -67,7 +81,7 @@ export async function mercuryRxState(dateStr: string): Promise<RxState> {
           : center < stationR ? (cum[center] - lonD) / band
             : (lonR - cum[center]) / band));
       const retro = daySpeed < 0;
-      const stationing = Math.abs(daySpeed) < STATION_EPS;
+      const stationing = Math.abs(daySpeed) < eps;
       const phase: RxPhase =
         stationing ? "stationing"
           : retro ? "retrograde"
@@ -78,6 +92,11 @@ export async function mercuryRxState(dateStr: string): Promise<RxState> {
   }
   // No episode covers the day → plain direct.
   return { retrograde: daySpeed < 0, speed: daySpeed, phase: "direct", strength: 0 };
+}
+
+/** Mercury's rx state — the original caller; now a thin wrapper over the general function. */
+export async function mercuryRxState(dateStr: string): Promise<RxState> {
+  return planetRxState("mercury", dateStr);
 }
 
 const ZOD = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];

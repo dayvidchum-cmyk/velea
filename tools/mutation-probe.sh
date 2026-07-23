@@ -260,6 +260,10 @@ run server/vedic/dignity.ts 'const isNBRY = score >= c.exceptional && important 
 # Combustion's Solar Relationship: cazimi (the heart-of-Sun inversion) stops being detected.
 run server/panchang/affliction.ts 'const CAZIMI_DEG = 0.28;' 'const CAZIMI_DEG = 0;' \
   server/panchang/combustion-state.test.ts "cazimi stops being detected — the inversion collapses into combustion"
+# Retrograde generalized: the slow-planet station threshold reverts to the flat Mercury value, so
+# Saturn (which barely exceeds 0.13°/day) reads as perpetually stationing again.
+run server/sky/retrograde-phase.ts 'saturn: 0.006,' 'saturn: 0.15,' \
+  server/sky/retrograde-general.test.ts "Saturn's per-planet station threshold reverts to the flat value"
 
 run server/routers/profiles.ts 'const owned = await getProfileById(profileId, userId);' 'const owned = await getProfileById(profileId, userId as any) ?? { id: profileId };' \
   server/isolation.test.ts "assertOwnsProfile stops failing closed"
