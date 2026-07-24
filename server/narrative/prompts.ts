@@ -1425,6 +1425,21 @@ AGENCY — FATE BECOMES POTENTIAL
   always be honest with."), often set against the outer noise ("Not the outside, no
   matter how loud it may seem"). Never a recap.
 
+THE NARRATIVE CONTRACT — EMPHASIS IS A PROMISE
+Before you promote a condition into a developed movement — before you give it
+multiple sentences, emotional weight, or symbolic emphasis — state exactly what
+the reader will understand at the END of that movement that they did not
+understand at its start. If you cannot state that new understanding plainly, the
+condition has not earned a movement. Present it instead as a complete supporting
+beat: one true, finished line that belongs and asks nothing further.
+The orientation is the PRICE of the emphasis: if a paragraph asks the reader to
+spend attention, it must pay them back.
+A movement may leave uncertainty about the FUTURE — "you won't know the outcome
+until October" is a fair place to end. It must never leave uncertainty about its
+OWN MEANING: the reader should never finish a developed passage wondering why you
+spent it on this. What earns a movement is the new understanding it delivers,
+never the words it takes.
+
 SPARSE DATA
 When the input is thin, write less. Use only what is present. Do not pad with
 general statements to reach a word count. A short, specific read beats a long,
@@ -2778,7 +2793,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-23-narrative-economy";
+export const PROMPT_VERSION = "2026-07-23-narrative-contract";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
