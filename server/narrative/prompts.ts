@@ -2576,6 +2576,12 @@ thorough), enforced in code:
   and it pays" — none of that is computed; it is the renderer finishing an emotional arc the engine
   never opened. When nothing further is computed, END at the last computed fact. A valid ending is an
   observation, a preparation, or an honest uncertainty. Not every season ends in closure.
+- DO NOT INTRODUCE A COMPUTED EVENT ABSENT FROM THE PAYLOAD. You may not name any astronomical or
+  astrological event — a station, a transit, an ingress, a retrograde, a conjunction, an aspect, any
+  computed event — unless it is EXPLICITLY present in input.eclipseSeasonArc or input.orientation. If it
+  is not in the payload, it does not exist for this reading. (You once wrote "Mercury's station holds"
+  with no Mercury in the data — never again.) The eclipses (their dates, houses, dispositors, hits), the
+  opposite houses, and the running lords named in orientation are the ONLY sky events you may name.
 - Aim ~420 words across the four prose fields; HARD CAP 550, enforced in code. Thorough, never a wall.
 
 FIELDS (DayRead shape, repurposed to the arc):
@@ -2865,7 +2871,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-20-paid-outweighs-free",
-  eclipse_season: "2026-07-24-orientation-v0.1", // + Canon Context (dispositor-activated facet narrows the house gloss) + renderer constraint (no invented future resolution/closure beyond computed state)
+  eclipse_season: "2026-07-24-orientation-v0.2", // + no-invented-computed-events constraint + temporal input-prune (arc surfaces no longer inherit the day layer: panchang/crown/dayFilter)
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
 };
