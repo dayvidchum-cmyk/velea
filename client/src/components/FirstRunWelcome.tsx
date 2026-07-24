@@ -121,7 +121,7 @@ export default function FirstRunWelcome({
         </button>
 
         <div className="overflow-y-auto" style={{ padding: "1.5rem 1.4rem 0.5rem" }}>
-          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "1.6rem", fontWeight: 800, color: "var(--color-foreground)", margin: 0, lineHeight: 1.1 }}>
+          <h1 style={{ fontFamily: "var(--font-title)", fontSize: "1.6rem", fontWeight: 800, color: "var(--color-foreground)", margin: 0, lineHeight: 1.1 }}>
             Welcome{name ? `, ${name}` : ""}.
           </h1>
           <p style={{ fontSize: "0.98rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0.5rem 0 0" }}>

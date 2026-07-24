@@ -35,7 +35,6 @@ export default function About() {
   const [openMoon, setOpenMoon] = useState(false);
   const [openCast, setOpenCast] = useState(false);
   const [openLetter, setOpenLetter] = useState(false);
-  const serif = "var(--font-serif)";
   const { user } = useAuth();
   const { data: activeProfile } = trpc.profiles.getActive.useQuery();
   const firstName = (activeProfile?.name ?? user?.name)?.split(" ")[0] ?? null;
@@ -50,7 +49,7 @@ export default function About() {
         <VeleaMark size={44} color="var(--brand-gold)" />
       </div>
       <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--amber-gold, #c9a84c)", margin: "0.75rem 0 0" }}>About</p>
-      <h1 style={{ fontFamily: serif, fontSize: "2.4rem", fontWeight: 800, color: "var(--color-foreground)", margin: "0.3rem 0 0", letterSpacing: "0.02em" }}>Velea</h1>
+      <h1 style={{ fontFamily: "var(--font-title)", fontSize: "2.4rem", fontWeight: 800, color: "var(--color-foreground)", margin: "0.3rem 0 0", letterSpacing: "0.02em" }}>Velea</h1>
 
       {/* Etymology — វេលា time + ល្អ good → the golden moment. A grounding, disarming beat. */}
       <div style={{ marginTop: "1.1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -66,7 +65,7 @@ export default function About() {
             <span style={{ textTransform: "uppercase", letterSpacing: "0.09em", fontSize: "0.9rem", opacity: 0.8 }}>{row.gloss}</span>
           </p>
         ))}
-        <p style={{ margin: "0.5rem 0 0", fontFamily: serif, fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-foreground)", display: "flex", alignItems: "flex-start", gap: "0.55rem" }}>
+        <p style={{ margin: "0.5rem 0 0", fontSize: "1.05rem", lineHeight: 1.6, color: "var(--color-foreground)", display: "flex", alignItems: "flex-start", gap: "0.55rem" }}>
           <VeleaLorMark size={20} color="var(--amber-gold, #c9a84c)" style={{ flexShrink: 0, marginTop: "0.2rem" }} />
           <span>Together, <span lang="km" style={{ fontFamily: "'Hanuman', serif", color: "var(--amber-gold, #c9a84c)" }}>វេលាល្អ</span> — good time; the auspicious, golden moment.</span>
         </p>
@@ -74,7 +73,7 @@ export default function About() {
 
       {/* ── Section 1: Why the Moon (collapsible; ships collapsed) ──────────── */}
       <button onClick={() => setOpenMoon((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.6rem", background: "none", border: "none", padding: 0, margin: "2.4rem 0 0", cursor: "pointer", textAlign: "left" }}>
-        <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>Why the Moon</h2>
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>Why the Moon</h2>
         {openMoon ? <ChevronDown size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} /> : <ChevronRight size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />}
       </button>
       {openMoon && (<>
@@ -103,7 +102,7 @@ export default function About() {
         ))}
       </div>
 
-      <p style={{ fontSize: "1.15rem", lineHeight: 1.7, color: "var(--color-foreground)", margin: "1.8rem 0 0", fontFamily: serif, fontWeight: 600 }}>
+      <p style={{ fontSize: "1.15rem", lineHeight: 1.7, color: "var(--color-foreground)", margin: "1.8rem 0 0", fontWeight: 600 }}>
         That's why Vedic follows it. That's why Velea does. I built the whole engine on the one light humble enough to come close.
       </p>
       </>)}
@@ -111,7 +110,7 @@ export default function About() {
       {/* ── The Story & Its Cast — the layered system, told as a story ───────── */}
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
         <button onClick={() => setOpenCast((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.6rem", background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", textAlign: "left" }}>
-          <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>The Story &amp; Its Cast</h2>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>The Story &amp; Its Cast</h2>
           {openCast ? <ChevronDown size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} /> : <ChevronRight size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />}
         </button>
         {openCast && (<>
@@ -125,7 +124,7 @@ export default function About() {
           </p>
         </div>
 
-        <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: "1.6rem 0 0", fontFamily: serif, fontWeight: 600 }}>
+        <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: "1.6rem 0 0", fontWeight: 600 }}>
           First, how it's written:
         </p>
         <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.9rem" }}>
@@ -138,7 +137,7 @@ export default function About() {
           ))}
         </div>
 
-        <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: "1.6rem 0 0", fontFamily: serif, fontWeight: 600 }}>
+        <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: "1.6rem 0 0", fontWeight: 600 }}>
           Then, who's in it:
         </p>
         <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.9rem" }}>
@@ -151,7 +150,7 @@ export default function About() {
           ))}
         </div>
 
-        <p style={{ fontSize: "1.15rem", lineHeight: 1.7, color: "var(--color-foreground)", margin: "1.9rem 0 0", fontFamily: serif, fontWeight: 600 }}>
+        <p style={{ fontSize: "1.15rem", lineHeight: 1.7, color: "var(--color-foreground)", margin: "1.9rem 0 0", fontWeight: 600 }}>
           Read the story first — the chapter, the character, the arc. The guests come second, and a guest, however loud, is never the host.
         </p>
         </>)}
@@ -161,12 +160,12 @@ export default function About() {
           styled name below for his handwritten signature image when the asset is ready. ── */}
       <div style={{ marginTop: "3rem", borderTop: "1px solid var(--color-border)", paddingTop: "2.2rem" }}>
         <button onClick={() => setOpenLetter((o) => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.6rem", background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", textAlign: "left" }}>
-          <h2 style={{ fontFamily: serif, fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>A note from David</h2>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-foreground)", margin: 0, letterSpacing: "0.01em", lineHeight: 1.15 }}>A note from David</h2>
           {openLetter ? <ChevronDown size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} /> : <ChevronRight size={20} style={{ color: "var(--color-muted-foreground)", flexShrink: 0 }} />}
         </button>
         {openLetter && (<>
         <div style={{ display: "flex", flexDirection: "column", gap: "1.15rem", marginTop: "1.3rem" }}>
-          <p style={{ fontSize: "1.2rem", lineHeight: 1.5, color: "var(--color-foreground)", margin: 0, fontFamily: serif }}>
+          <p style={{ fontSize: "1.2rem", lineHeight: 1.5, color: "var(--color-foreground)", margin: 0 }}>
             Dear {firstName ?? "friend"},
           </p>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.72, color: "var(--color-foreground)", margin: 0 }}>
@@ -180,7 +179,7 @@ export default function About() {
           </p>
         </div>
 
-        <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--amber-gold, #c9a84c)", margin: "1.8rem 0 0", fontFamily: serif }}>
+        <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "var(--amber-gold, #c9a84c)", margin: "1.8rem 0 0" }}>
           With gratitude,
         </p>
         {/* Handwritten signature — the white-bg JPG leans on mix-blend-mode, which needs a painted

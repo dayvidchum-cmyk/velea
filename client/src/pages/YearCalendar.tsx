@@ -189,7 +189,7 @@ export default function YearCalendar() {
   const unlockCard = (
     <div style={{ margin: "1.4rem auto 0.6rem", maxWidth: "22rem", width: "100%", borderRadius: 18, background: "var(--color-card)", border: "1px solid color-mix(in srgb, var(--brand-gold) 40%, transparent)", padding: "1.5rem 1.4rem 1.3rem", boxShadow: "0 18px 48px oklch(0 0 0 / 0.28)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.7rem" }}>
       <GateMark size={26} style={{ color: "#C9A84C" }} />
-      <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontSize: "1.35rem", color: "var(--heading-ink)" }}>See the year ahead</h3>
+      <h3 style={{ margin: 0, fontSize: "1.35rem", color: "var(--heading-ink)" }}>See the year ahead</h3>
       {!yearSubTapped ? (
         <>
           <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.6, color: "var(--color-foreground)" }}>
@@ -301,7 +301,7 @@ export default function YearCalendar() {
                 const nDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
                 return (
                   <div key={`${y}-${m}`} className="parchment rounded-xl border border-[#ddd3bf] p-3 text-[#2b2723]" style={{ boxShadow: "none" }}>
-                    <h3 className="mb-2 font-serif text-sm" style={{ color: "#4b4034" }}>
+                    <h3 className="mb-2 text-sm" style={{ color: "#4b4034" }}>
                       {new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
                     </h3>
                     <div className="grid grid-cols-7 gap-[3px]">
@@ -457,7 +457,7 @@ export default function YearCalendar() {
         return (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-6" style={{ background: "rgba(30, 24, 16, 0.45)", paddingTop: "16dvh" }} onClick={() => setDayPopup(null)}>
             <div className="parchment w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", maxHeight: "80dvh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
-              <p className="font-serif text-lg" style={{ color: topSet.has(ds) ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
+              <p className="text-lg" style={{ color: topSet.has(ds) ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>{dateNice}</p>
               <p className="mt-1 text-sm font-bold uppercase" style={{ letterSpacing: "0.08em", color: wordColor }}>
                 {word}{dep && dep !== "mid" ? ` · ${dep}` : ""}
                 {taraNum === 2 && <span style={{ marginLeft: 8, color: "#2E9B54" }}><span style={{ fontFamily: "Georgia, serif", fontWeight: 600, marginRight: 3 }}>€</span>prosperity</span>}

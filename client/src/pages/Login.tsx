@@ -148,7 +148,7 @@ export default function Login() {
           top: "12.5%", // ABOVE the natal-chart square's top line (~15.5%), right above the gate's peak (David: the name crowns the composition; the form lives in the star-sea below)
           left: "50%",
           transform: "translate(-50%, -50%)",
-          fontFamily: "var(--font-serif)",
+          fontFamily: "var(--font-title)",
           fontWeight: 700,
           fontSize: "clamp(1.5rem, 6vw, 2rem)",
           letterSpacing: "-0.01em",

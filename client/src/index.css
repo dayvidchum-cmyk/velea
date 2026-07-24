@@ -22,8 +22,9 @@
   font-display: swap;
 }
 
-/* Gloock — self-hosted high-contrast display serif for the brand DISPLAY voice (title, subtitle,
-   headings, subheadings, wordmark), delivered via --font-serif. Ships ONE weight (Regular) BY DESIGN
+/* Gloock — self-hosted high-contrast display serif for the brand TITLE voice only (the wordmark and
+   page-level H1s), delivered via --font-title. NOT for subtitles, headings, sheet titles or prose
+   (David 2026-07-24). Ships ONE weight (Regular) BY DESIGN
    — David: "I like that it is only one weight." The declared range 100–900 maps the single file across
    every weight, so a heading at any CSS font-weight renders the true glyphs, never a synthetic bold.
    Didot stays as the system fallback if the file is slow/absent. */
@@ -191,12 +192,20 @@
   --border: rgba(226, 205, 166, 0.11);
   --input: rgba(226, 205, 166, 0.09);
   --ring: oklch(0.767 0.139 91.1);
-  /* APP SERIF — the brand display face (David 2026-07-23: "didot"). This is the live base for the
-     `--font-serif` token at @theme inline (which was a dead self-reference — the serif voice had been
-     silently falling back to Inter). Didot/Bodoni 72/Hoefler Text are system faces (Apple); Georgia is
-     the cross-platform fallback. Every var(--font-serif) consumer (wordmark, headlines, hero titles)
-     now renders Didot. The next face change is this one line. */
-  --font-serif: 'Gloock', 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
+  /* THE TITLE FACE — Gloock, and it goes NOWHERE ELSE. David's ruling 2026-07-24: "Gloock should
+     only be Title and H1. That's it." Consumed by exactly seven sites: the Velea wordmark (header +
+     splash), the Login name plate, the Welcome/FirstRun H1s, the secondary-page H1 and the Stage
+     hero title. Everything below that tier — sheet titles, h2/h3, hero prose, the Manifesto — is
+     the app sans (Inter), which it gets by INHERITING from body, not by naming a token. Adding
+     var(--font-title) to a non-H1 is the defect this ruling exists to prevent.
+     The next face change is this one line. */
+  --font-title: 'Gloock', 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
+  /* APP SERIF — Didot (David 2026-07-23), kept as a true serif for the Tailwind `font-serif`
+     utility. NOT the display voice and NOT Gloock: per the 07-24 ruling above, nothing in the app
+     currently consumes it. Left defined rather than deleted so `font-serif` resolves to a real
+     serif if ever reached, instead of silently falling back to Inter — the exact bug that hid here
+     until 7/23. Titles use --font-title. */
+  --font-serif: 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
   --radius: 0.75rem;
   /* Editorial card radii — one family for flat cards + immersive heroes */
   --radius-card: 20px;
@@ -297,10 +306,13 @@
 @theme inline {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Futura PT', 'Futura', 'Century Gothic', ui-sans-serif, sans-serif;
+  /* The title face, mirrored here so `font-title` works as a Tailwind utility too. Kept identical
+     to the :root --font-title above so the two agree regardless of emit order. */
+  --font-title: 'Gloock', 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
   /* The Tailwind `font-serif` utility's face (David 2026-07-23: "didot"). Kept identical to the
      :root --font-serif above so the two agree regardless of emit order. Was a dead self-reference
      (`var(--font-serif)`) with no base — the app serif silently fell back to Inter until 7/23. */
-  --font-serif: 'Gloock', 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
+  --font-serif: 'Didot', 'Bodoni 72', 'Hoefler Text', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   --color-background: var(--background);

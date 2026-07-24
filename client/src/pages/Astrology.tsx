@@ -755,7 +755,7 @@ export function NatalSection() {
     <div className="space-y-4 pb-24">
       {/* Subject header — the person and their birth data, the anchor of the page */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight" style={{ color: "var(--heading-ink)", fontFamily: "var(--font-serif)" }}>
+        <h2 className="text-2xl font-bold tracking-tight" style={{ color: "var(--heading-ink)" }}>
           {subject.name}
         </h2>
         <p className="text-sm mt-1" style={{ color: "var(--color-muted-foreground)" }}>

@@ -550,6 +550,12 @@ run server/narrative/prompts.ts 'WHO IS LOUD IS GIVEN' 'WHO IS LOUD — you pick
 run server/narrative/input-builder.ts '...(stage ? { stage } : {}), ' '' \
   server/narrative/payload-contract.test.ts "input.stage is dropped from the payload the prompt expects"
 
+run client/src/index.css "Titles use --font-title. */\n  --font-serif: 'Didot'" "Titles use --font-title. */\n  --font-serif: 'Gloock', 'Didot'" \
+  server/title-face-scope.test.ts "the title face leaks back into --font-serif and speaks everywhere again"
+
+run client/src/components/LockedFeatureCard.tsx 'margin: 0, fontSize: "1.35rem"' 'margin: 0, fontFamily: "var(--font-title)", fontSize: "1.35rem"' \
+  server/title-face-scope.test.ts "a card heading below the title tier reaches for the display face"
+
 echo
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "WARNING: tree is dirty after the run — a restore failed. Inspect before committing."

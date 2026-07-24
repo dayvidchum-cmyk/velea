@@ -1216,7 +1216,6 @@ export default function Planner() {
             <h2
               style={{
                 // D · Airy Humanist: light Optima, larger than the greeting so it clearly OWNS the card.
-                fontFamily: "var(--font-serif)",
                 fontSize: 'clamp(2.6rem, 10vw, 3.4rem)',
                 fontWeight: 300,
                 lineHeight: 1.0,
@@ -1233,7 +1232,7 @@ export default function Planner() {
             {/* The day's headline — moved ABOVE the tilt and sentence-cased (David 2026-07-22: as a
                 caps micro-label it read as a twin of "TODAY'S READ"). Now a quiet verdict subtitle. */}
             {selectedCharacter?.headline && (
-              <p style={{ fontFamily: "var(--font-serif)", fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 88%, transparent)', marginTop: '0', marginBottom: '0.4rem', textWrap: 'balance' as any }}>
+              <p style={{ fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 88%, transparent)', marginTop: '0', marginBottom: '0.4rem', textWrap: 'balance' as any }}>
                 {(() => { const h = selectedCharacter.headline as string; return h.charAt(0) + h.slice(1).toLowerCase(); })()}
               </p>
             )}
@@ -1244,7 +1243,7 @@ export default function Planner() {
               const depth = selectedCharacter?.depth ?? selectedCharacter?.buildDepth;
               if (!depth || depth === "mid") return null;
               return (
-                <p style={{ fontFamily: "var(--font-serif)", fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, letterSpacing: '0', lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 90%, transparent)', marginTop: '0', marginBottom: '0.1rem', textWrap: 'balance' as any }}>
+                <p style={{ fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, letterSpacing: '0', lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 90%, transparent)', marginTop: '0', marginBottom: '0.1rem', textWrap: 'balance' as any }}>
                   {depth === "deep" ? "Deep — the ground holds a lot today"
                     : depth === "leaning" ? "Leaning restraint — tend, but keep it gentle"
                     : "Thin — tend with a lighter hand"}
@@ -1254,7 +1253,7 @@ export default function Planner() {
             {selectedCharacter && (
               // David 2026-07-21: the day-note takes the SAME styling as the subhead (Optima, 1.12rem,
               // not italic), so the two read as one calm voice instead of a mismatched register.
-              <p style={{ fontFamily: "var(--font-serif)", fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 88%, transparent)', marginTop: '0.35rem', marginBottom: '0.9rem' }}>
+              <p style={{ fontSize: 'clamp(1rem, 4vw, 1.12rem)', fontWeight: 400, lineHeight: 1.4, color: 'color-mix(in srgb, var(--hero-ink) 88%, transparent)', marginTop: '0.35rem', marginBottom: '0.9rem' }}>
                 {selectedCharacter.sentence}
               </p>
             )}
@@ -1526,7 +1525,6 @@ export default function Planner() {
           >
             <h2
               style={{
-                fontFamily: "var(--font-serif)",
                 fontSize: "1.45rem",
                 fontWeight: 700,
                 color: "var(--heading-ink)",
@@ -1561,7 +1559,7 @@ export default function Planner() {
               <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) - 1)} className="p-1 rounded-full" style={{ color: inkOf("var(--day-accent)", 4.5, 10), background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
                 <ChevronLeft size={13} />
               </button>
-              <span style={{ fontFamily: "var(--font-serif)", fontWeight: 700, fontSize: "1.05rem", color: "var(--heading-ink)" }}>
+              <span style={{ fontWeight: 700, fontSize: "1.05rem", color: "var(--heading-ink)" }}>
                 {pickerYear ?? viewDate.getFullYear()}
               </span>
               <button onClick={() => setPickerYear((y) => (y ?? viewDate.getFullYear()) + 1)} className="p-1 rounded-full" style={{ color: inkOf("var(--day-accent)", 4.5, 10), background: "color-mix(in srgb, var(--day-accent) 10%, transparent)" }}>
@@ -2491,7 +2489,7 @@ export default function Planner() {
           >
             {!subscribeTapped ? (
               <>
-                <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontSize: '1.4rem', color: 'var(--heading-ink)' }}>Update to the moment</h3>
+                <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--heading-ink)' }}>Update to the moment</h3>
                 <p style={{ margin: 0, fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--color-foreground)' }}>
                   Today's reading holds the whole day — its ruling star. <b>Update to the moment</b> re-reads for this exact moment: the star and the planetary hour where you're standing. The day tells you what today is for. The moment tells you if now is the time.
                 </p>

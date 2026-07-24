@@ -193,7 +193,7 @@ export default function LifeAtlas() {
         <div className="fixed inset-0 z-50 flex items-start justify-center p-6" style={{ background: "rgba(30, 24, 16, 0.45)", paddingTop: "16dvh" }} onClick={() => setOpenWindow(null)}>
           <div className="parchment w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--parchment)", boxShadow: "0 18px 60px rgba(0,0,0,0.35)", border: openWindow.w.bigKnot ? "1.5px solid color-mix(in srgb, var(--brand-gold) 60%, transparent)" : "1.5px solid color-mix(in srgb, var(--day-accent) 45%, transparent)", maxHeight: "72dvh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
             <p className="text-[10px] font-bold uppercase" style={{ letterSpacing: "0.1em", color: "var(--color-muted-foreground)", margin: 0 }}>{openWindow.label}</p>
-            <p className="font-serif text-lg mt-0.5 flex items-center gap-2" style={{ color: openWindow.w.bigKnot ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>
+            <p className="text-lg mt-0.5 flex items-center gap-2" style={{ color: openWindow.w.bigKnot ? "#B3902C" : "var(--heading-ink)", fontWeight: 700 }}>
               {openWindow.w.bigKnot && <OctagramMark size={17} color="#D4AF37" strokeWidth={1.5} />}
               {openWindow.w.era && <DiamondMark size={15} color="#B3902C" strokeWidth={2} />}
               {fmt(openWindow.w.from)} → {fmt(openWindow.w.to)}

@@ -119,7 +119,7 @@ export default function WelcomeScreen({ firstName, onDone }: { firstName: string
         <h1
           style={{
             margin: 0, textAlign: "center",
-            fontFamily: "var(--font-serif)",
+            fontFamily: "var(--font-title)",
             fontWeight: 700,
             fontSize: "clamp(2rem, 8.5vw, 3rem)",
             lineHeight: 1.15,

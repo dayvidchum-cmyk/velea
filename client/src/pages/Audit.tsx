@@ -124,7 +124,7 @@ export default function Audit() {
     <div style={{ minHeight: "100dvh", background: "var(--color-background)", padding: "1.5rem 1rem 6rem" }}>
       <div style={{ maxWidth: "72rem", margin: "0 auto" }}>
         <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "var(--color-muted-foreground)", fontSize: "0.78rem", cursor: "pointer", marginBottom: "0.75rem" }}>← Back</button>
-        <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 700, fontSize: "1.8rem", color: "var(--heading-ink)", margin: 0 }}>Visual Audit</h1>
+        <h1 style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: "1.8rem", color: "var(--heading-ink)", margin: 0 }}>Visual Audit</h1>
         <p style={{ fontSize: "0.82rem", color: "var(--color-muted-foreground)", lineHeight: 1.5, margin: "0.4rem 0 1.5rem", maxWidth: "40rem" }}>
           The same components users see, rendered across a matrix of data states. Scan for anything clipped,
           orphaned, or unreadable — no accounts to check.

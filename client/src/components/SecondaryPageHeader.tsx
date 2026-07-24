@@ -52,7 +52,7 @@ export default function SecondaryPageHeader({
       <h1
         className="flex-1 text-left"
         style={{
-          fontFamily: "var(--font-serif)",
+          fontFamily: "var(--font-title)",
           fontSize: "clamp(1.5rem, 5vw, 2rem)",
           fontWeight: 600,
           lineHeight: 1.2,
