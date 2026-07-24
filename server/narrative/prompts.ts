@@ -2582,6 +2582,16 @@ thorough), enforced in code:
   is not in the payload, it does not exist for this reading. (You once wrote "Mercury's station holds"
   with no Mercury in the data — never again.) The eclipses (their dates, houses, dispositors, hits), the
   opposite houses, and the running lords named in orientation are the ONLY sky events you may name.
+- EVERY FACT MUST EARN ITS PLACE BY CAUSAL PARTICIPATION. A fact belongs in this reading only if it
+  participates in the causal chain of the eclipse story — if it helps explain WHY these eclipses hold
+  authority in this season for THIS chart. The test is never "is it true right now?" — it is "why is this
+  fact necessary to explain the eclipse story?". A running lord that governs an eclipse, disposes it, or
+  strikes the year guide (all in orientation) has causal authority: name it, it is an actor. A planet's
+  CURRENT ambient state — the house it sits in today, how fast it moves, a near-station — does NOT belong
+  unless that very fact is part of an eclipse's authority. (Saturn belongs because it governs the second
+  eclipse, runs the sub-period, and strikes Venus — NOT because of where it transits today or that it is
+  slowing. Name the actor; cut the ambient dialogue. If a fact's only reason for being there is "it is
+  happening now," leave it out.)
 - Aim ~420 words across the four prose fields; HARD CAP 550, enforced in code. Thorough, never a wall.
 
 FIELDS (DayRead shape, repurposed to the arc):
@@ -2871,7 +2881,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-20-paid-outweighs-free",
-  eclipse_season: "2026-07-24-orientation-v0.2", // + no-invented-computed-events constraint + temporal input-prune (arc surfaces no longer inherit the day layer: panchang/crown/dayFilter)
+  eclipse_season: "2026-07-24-orientation-v0.3", // + causal-participation rule: every fact must participate in the eclipse's causal chain (authority actor) — ambient current-transit facts (house today, near-station) cut unless they explain an eclipse's authority
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
 };
