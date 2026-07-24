@@ -54,7 +54,12 @@ async function startServer() {
   // would disagree. The server has to be able to say what it is.
   // APP_VERSION is imported from the client's version file deliberately — one number for the whole
   // release, so a client/server split shows up as a mismatch instead of hiding.
-  app.get("/healthz", (_req, res) => res.status(200).json({ ok: true, version: APP_VERSION }));
+  // commit: Railway sets RAILWAY_GIT_COMMIT_SHA on every deploy. APP_VERSION alone can't tell two
+  // builds apart when a change is server-only (a prompt edit, a SURFACE_VERSION bump) and never
+  // touches the client version — /healthz would report the same number before and after. The commit
+  // SHA is the deploy's true fingerprint, so a server-only deploy becomes observable from outside.
+  const COMMIT_SHA = (process.env.RAILWAY_GIT_COMMIT_SHA ?? "").slice(0, 7) || null;
+  app.get("/healthz", (_req, res) => res.status(200).json({ ok: true, version: APP_VERSION, commit: COMMIT_SHA }));
 
   // ── velealor.com marketing landing ─────────────────────────────
   // The marketing domain's root serves the landing page for VISITORS ONLY;
