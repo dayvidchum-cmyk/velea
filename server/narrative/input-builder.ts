@@ -23,6 +23,7 @@ import { buildLifeAreaLens, type LifeAreaKey } from "../vedic/life-areas.js";
 import { buildKnots, type NatalPlanet } from "../vedic/knots.js";
 import { buildLineage } from "../vedic/lineage.js";
 import { findEclipses, nextEclipseSeason, eclipseChartContext, HOUSE_KEYWORDS } from "../sky/eclipses.js";
+import { orientEclipseSeason } from "../layers/orientation.js";
 import { mercuryRxState, mercuryRxCycle , planetRxCycle, planetRxState, type RxPlanet, type RxState } from "../sky/retrograde-phase.js";
 import { moonBrightness } from "../panchang/moon-brightness.js";
 import { aspectInfluence } from "../vedic/aspect-strength.js";
@@ -1597,5 +1598,9 @@ async function buildNarrativeInputUncached(profileId: number, dateStr: string, m
   // Name is intentionally omitted so the model writes in second person ("you").
   // Natal retrograde count (excluding the nodes, which are always retrograde) —
   // a retrograde-heavy chart carries the "old soul" reading (see prompt).
-  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(stage ? { stage } : {}), ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(moonBright ? { moonBrightness: moonBright } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(transitPrecision ? { transitPrecision } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
+  // THE ORIENTATION LAYER (v0) — the last deterministic phase before rendering: locate the eclipse
+  // movement in the running timeline + re-source its actors from natalCondition. Invents no astrology;
+  // reports relationships among facts already assembled above (Constitution P17/P18; ORIENTATION_SPEC.md).
+  const orientation = eclipseSeasonArc ? orientEclipseSeason(eclipseSeasonArc, dasha, profection, natalCondition) : undefined;
+  return { subject: { profileId: p.id }, date: dateStr, natal, natalRetrogradeCount, profection, dasha, transits, panchang, recentReads, humanTime, timeLordTransit, arc, ...(stage ? { stage } : {}), ...(natalCondition ? { natalCondition } : {}), ...(vocation ? { vocation } : {}), ...(dayFilterBlock ? { dayFilter: dayFilterBlock } : {}), ...(meridianAxis ? { meridianAxis } : {}), ...(nodalAxis ? { nodalAxis } : {}), ...(knots ? { knots } : {}), ...(lineage ? { lineage } : {}), ...(openWindows ? { openWindows } : {}), ...(reading ? { reading } : {}), ...(mercuryRx ? { mercuryRx } : {}), ...(moonBright ? { moonBrightness: moonBright } : {}), ...(lifeAreaLens ? { lifeAreaLens } : {}), ...(transitPrecision ? { transitPrecision } : {}), ...(eclipseSeasonArc ? { eclipseSeasonArc } : {}), ...(orientation ? { orientation } : {}), ...(mercuryRxArc ? { mercuryRxArc } : {}), ...(planetRxArc ? { planetRxArc } : {}), ...(monthArc ? { monthArc } : {}) };
 }

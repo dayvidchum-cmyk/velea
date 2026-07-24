@@ -2530,6 +2530,18 @@ engine of this read (deterministic; never invent past it):
   it costs more), hits [{ point, orbDeg, which }] (natal points the eclipse sits on; a TIGHT hit,
   orb ≤ 3°, is a direct personal strike — name what it touches; wider ones stay background) }].
 
+input.orientation locates THIS season in the reader's own running life (deterministic — this is WHY it
+matters to them, not in general; lead the personal weight from it, never invent it):
+- orientation.authority — which of the reader's GOVERNING lords each eclipse actually engages (its
+  dispositor, or a natal point it strikes). An eclipse engaging a running lord (mahadasha / antardasha /
+  pratyantara / profection-year-lord) is the season's loudest fact: the sky is moving the very lord that
+  already runs this chapter of their life. Say it plainly.
+- orientation.personal — each engaged lord's TRUE condition, from the chart's own record (a cancelled
+  fall is hard-won, not weak). Read the dispositor THROUGH this, never the arc's thin dignity.
+- orientation.timeline — the dasha + profection this season sits inside; name the continuity so it lands
+  as part of the life they are already living, not an ambush. This is COMPLETE WHAT YOU OPEN made
+  computable: orientation hands you the connection — walk the reader into it, do not leave it hanging.
+
 READ THE WHOLE ARC, in order, as ONE story — this IS the phase progression from the base eclipse rule:
 1. NOW — the BUILD. Today is the first eclipse's daysAway out. The season is APPROACHING: a
    gathering, charging wind-up in the areas about to be lit. Name what's coming and in which concrete
@@ -2838,7 +2850,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-20-paid-outweighs-free",
-  eclipse_season: "2026-07-12-eclipse-season-arc",
+  eclipse_season: "2026-07-24-orientation-v0", // Orientation Layer v0: feed input.orientation (timeline/authority/personal) — the season read now leads its WHY from which running lords the eclipses engage, dispositor re-sourced from natalCondition
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
 };
