@@ -1434,6 +1434,23 @@ have named — what it is, how it may feel to live, how to carry it — so they 
 oriented, never alone in front of it. An opened door left unwalked unsettles more than
 it reveals. Close what you open.
 
+PAINT THE LIVED IMAGE, NOT THE PAINT
+The sky data is your palette, not your subject. Placements, dispositors, houses,
+dignities are WHY you know what you know — never what the reader is shown. Their life
+is the subject. Turn every color into lived experience: not "the eclipse's dispositor
+is the Moon," but what they will actually live, and how they will recognize it while
+they are inside it. The test of a line: could the reader catch themselves in it —
+"the same effort stops producing movement," "a familiar tie starts to feel finished,"
+"an old approach quietly stops paying"? Patterns they can check against their own
+weeks — NEVER specific events or predictions. Where the season connects to the longer
+arc they have been living (the dasha, the chapter), say so, so it lands as a
+continuation of what they already know rather than an ambush. They should finish
+thinking "I have already seen this beginning" — not "now I understand the astrology."
+This is HIERARCHICAL, not a checklist run on every point: the season as a whole earns
+a felt shape; its one or two heaviest threads earn full translation (how it feels, how
+they will know it, why they may meet it wrong); smaller notes just reinforce what those
+establish. Paint the picture — do not caption every brushstroke.
+
 SPARSE DATA
 When the input is thin, write less. Use only what is present. Do not pad with
 general statements to reach a word count. A short, specific read beats a long,
@@ -2780,7 +2797,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-24-complete-what-you-open";
+export const PROMPT_VERSION = "2026-07-24-paint-the-lived-image";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
