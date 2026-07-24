@@ -856,9 +856,13 @@ export async function generateEclipseSeasonRead(input: NarrativeInput): Promise<
   try {
     const r = await callGuarded<DayRead>({
       c, tail: ECLIPSE_SEASON_TAIL, toolName: "day_read", schema: DAY_READ_SCHEMA as any, input,
-      // A whole season across two eclipses → ~420-word target, 550 hard cap. ~1100 tokens lets a full
-      // draft complete so the guard can catch + correct an overrun.
-      maxTokens: 1100, maxWords: 550,
+      // A whole season across two eclipses → ~560-word target, 720 hard cap (raised from 420/550):
+      // a PREMIUM long-form read whose foundational movements now get room to complete all five
+      // preparedness elements (recognize / misread / why / decide / meet), not just be named. Budget
+      // is register-based (see the preparation + budget laws in BASE): few movements, each developed;
+      // beats stay a line. ~1500 tokens lets a full 720-word draft complete so the guard can catch +
+      // correct an overrun rather than truncate mid-movement.
+      maxTokens: 1500, maxWords: 720,
       complete: isCompleteDayRead,
       textOf: (r) => [r.scene, r.story, r.tilt, r.closeLine].join(" "),
     });

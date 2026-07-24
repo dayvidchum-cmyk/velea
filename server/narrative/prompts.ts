@@ -1454,9 +1454,11 @@ and traceable back to named factors in it:
   shape of the experience, composed from THIS planet in THIS house, in THIS role
   (lord, ruler, dispositor), interacting with the other live conditions. Not the
   quality of the sky — the feel of living underneath it.
-- HOW they might MISREAD it — the natural but wrong reading the state invites
-  (pushing harder against what will not move; grabbing to hold what is resetting),
-  so they can catch the misreading as it happens.
+- HOW they might MISREAD it, AND WHY that misreading arises from the state — the
+  natural but wrong reading the condition invites (pushing harder against what will
+  not move; grabbing to hold what is resetting), and the reason the state produces
+  exactly that reflex — so they can catch the misreading as it happens and see why
+  the obvious reaction is the wrong one.
 - WHERE the DECISION POINTS fall — name where a choice will present itself, and
   leave the choosing to them.
 - HOW to MEET it — the appropriate orientation, posture, or strategy for working
@@ -1474,6 +1476,28 @@ carry a movement, it is weighty enough to be UNDERSTOOD: do not assume brevity i
 fidelity. Develop it until the reader could say "I know what to watch for, how I'll
 recognize it, how I might misread it, and how to meet it when it begins" — not
 merely "I understand the astrology."
+
+BUDGET IS REGISTER-BASED — FEWER, DEEPER. Development space is not spread evenly
+across conditions. It is allocated by register: the spine and each foundational
+movement get room to complete all five elements above; a supporting beat gets one
+finished line. The way to AFFORD that depth is to promote FEWER conditions to a
+movement — economy decides which few earn development, the rest become beats. Never
+develop many movements shallowly; develop few movements completely. And the five
+elements ARE the structure of that room: each is a DIFFERENT question, so added
+space is only ever a new element-answer — never the same point restated (that is
+repetition), never one more condition reached for (that is unfocus). Five questions,
+each answered once, then stop. The long premium reads (the year, the season and arc
+reads, the month, the deep readers) carry the larger movement budget for exactly
+this; the daily read keeps its tight single-revelation economy.
+WEIGHT AND ACCURACY SET REGISTER. The truest, heaviest, most-alive condition in the
+chart — an active dasha, a lived Saturn, the lineage / father / ancestral threads
+when they are genuinely lit — has the strongest claim on the SPINE. It can NEVER be
+filed as an aside ("…is live too") or compressed away to save words: burying the
+real thing is as much a failure as abandoning it, and on material this close to the
+person, an unfinished movement does not merely confuse — it FRIGHTENS. When accurate,
+weighty material earns a movement, the budget bends to IT — cut a lighter movement to
+a beat to make the room. The reader must leave able to MEET the heaviest true thing,
+never alone in front of it.
 
 SPARSE DATA
 When the input is thin, write less. Use only what is present. Do not pad with
@@ -2566,7 +2590,9 @@ thorough), enforced in code:
 - THE PROOF IS IN THE SPECIFICS: every line points at a real, checkable life-thing (income, the wider
   circle, the daily work, what you owe, the craft, home) — never vague "intensity." A line that could
   apply to anyone has FAILED.
-- Aim ~420 words across the four prose fields; HARD CAP 550, enforced in code. Thorough, never a wall.
+- Aim ~560 words across the four prose fields; HARD CAP 720, enforced in code. This is a PREMIUM
+  season read — spend the added room on COMPLETING its foundational movements (the five preparedness
+  elements), never on more conditions or restated points. Thorough, never a wall; depth, never padding.
 
 FIELDS (DayRead shape, repurposed to the arc):
 - scene (~70w): where you are NOW and what's coming — the season ahead, how many days to the first
@@ -2828,7 +2854,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-23-preparation-law";
+export const PROMPT_VERSION = "2026-07-24-budget-register-based";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
