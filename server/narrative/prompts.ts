@@ -1425,79 +1425,14 @@ AGENCY — FATE BECOMES POTENTIAL
   always be honest with."), often set against the outer noise ("Not the outside, no
   matter how loud it may seem"). Never a recap.
 
-THE NARRATIVE CONTRACT — EMPHASIS IS A PROMISE
-Before you promote a condition into a developed movement — before you give it
-multiple sentences, emotional weight, or symbolic emphasis — state exactly what
-the reader will understand at the END of that movement that they did not
-understand at its start. If you cannot state that new understanding plainly, the
-condition has not earned a movement. Present it instead as a complete supporting
-beat: one true, finished line that belongs and asks nothing further.
-The orientation is the PRICE of the emphasis: if a paragraph asks the reader to
-spend attention, it must pay them back.
-A movement may leave uncertainty about the FUTURE — "you won't know the outcome
-until October" is a fair place to end. It must never leave uncertainty about its
-OWN MEANING: the reader should never finish a developed passage wondering why you
-spent it on this. What earns a movement is the new understanding it delivers,
-never the words it takes.
-
-THE PREPARATION LAW — A DEVELOPED MOVEMENT PREPARES THE READER TO LIVE THE STATE
-When a condition that carries exceptional explanatory weight earns a developed
-movement — a dasha or year lord, an eclipse, a major yoga, the lineage / father /
-ancestral / karmic-obligation threads, and other foundational conditions — do NOT
-stop at naming the symbolism. The reader does not experience a doctrine in
-isolation; they live the WHOLE synthesized state at once, so compose the lived
-experience from it — never look it up as a fixed texture. A foundational movement
-should leave the reader knowing five things, each DERIVED from the computed state
-and traceable back to named factors in it:
-- WHAT is happening — the state, named plainly.
-- HOW they will RECOGNIZE it while living through it — the texture, rhythm and
-  shape of the experience, composed from THIS planet in THIS house, in THIS role
-  (lord, ruler, dispositor), interacting with the other live conditions. Not the
-  quality of the sky — the feel of living underneath it.
-- HOW they might MISREAD it, AND WHY that misreading arises from the state — the
-  natural but wrong reading the condition invites (pushing harder against what will
-  not move; grabbing to hold what is resetting), and the reason the state produces
-  exactly that reflex — so they can catch the misreading as it happens and see why
-  the obvious reaction is the wrong one.
-- WHERE the DECISION POINTS fall — name where a choice will present itself, and
-  leave the choosing to them.
-- HOW to MEET it — the appropriate orientation, posture, or strategy for working
-  WITH the state rather than against it, always traceable to the computed state
-  and never prescribing specific life decisions.
-ONE GUARD across all five: stay at the level of FORM — texture, shape, kind, the
-shape of the effective response — and never descend to specific CONTENT: the
-event, the person, the outcome, the decision. Form is traceable to the state and
-belongs to the reading; content is invented and belongs to the reader's own life.
-Recognition that could fit any hard season is generic — cut it. A "strategy" that
-names a specific action is prescription — pull it back to form.
-This is not owed to every condition, only to those that earn a developed movement;
-a supporting beat is still just named. But when a condition IS weighty enough to
-carry a movement, it is weighty enough to be UNDERSTOOD: do not assume brevity is
-fidelity. Develop it until the reader could say "I know what to watch for, how I'll
-recognize it, how I might misread it, and how to meet it when it begins" — not
-merely "I understand the astrology."
-
-BUDGET IS REGISTER-BASED — FEWER, DEEPER. Development space is not spread evenly
-across conditions. It is allocated by register: the spine and each foundational
-movement get room to complete all five elements above; a supporting beat gets one
-finished line. The way to AFFORD that depth is to promote FEWER conditions to a
-movement — economy decides which few earn development, the rest become beats. Never
-develop many movements shallowly; develop few movements completely. And the five
-elements ARE the structure of that room: each is a DIFFERENT question, so added
-space is only ever a new element-answer — never the same point restated (that is
-repetition), never one more condition reached for (that is unfocus). Five questions,
-each answered once, then stop. The long premium reads (the year, the season and arc
-reads, the month, the deep readers) carry the larger movement budget for exactly
-this; the daily read keeps its tight single-revelation economy.
-WEIGHT AND ACCURACY SET REGISTER. The truest, heaviest, most-alive condition in the
-chart — an active dasha, a lived Saturn, the lineage / father / ancestral threads
-when they are genuinely lit — has the strongest claim on the SPINE. It can NEVER be
-filed as an aside ("…is live too") or compressed away to save words: burying the
-real thing is as much a failure as abandoning it, and on material this close to the
-person, an unfinished movement does not merely confuse — it FRIGHTENS. When accurate,
-weighty material earns a movement, the budget bends to IT — cut a lighter movement to
-a beat to make the room. The reader must leave able to MEET the heaviest true thing,
-never alone in front of it.
+COMPLETE WHAT YOU OPEN
+The engine has already chosen what matters — trust it, and follow what it surfaces all
+the way through. When you name something important, and above all something heavy or
+close to the person (a lived Saturn, a dasha reckoning, the lineage, the father, a
+loss), do not leave it hanging: complete the thought, and help the reader meet what you
+have named — what it is, how it may feel to live, how to carry it — so they finish more
+oriented, never alone in front of it. An opened door left unwalked unsettles more than
+it reveals. Close what you open.
 
 SPARSE DATA
 When the input is thin, write less. Use only what is present. Do not pad with
@@ -2564,19 +2499,14 @@ engine of this read (deterministic; never invent past it):
   it costs more), hits [{ point, orbDeg, which }] (natal points the eclipse sits on; a TIGHT hit,
   orb ≤ 3°, is a direct personal strike — name what it touches; wider ones stay background) }].
 
-READ THE WHOLE ARC AS ONE MOVEMENT. Before you write, find the ONE thing this season is doing to THIS
-chart — the single change it works. Everything else is how that change unfolds. The three phases below are
-the SHAPE of that one movement in time, not three topics to cover in turn: the reader should feel one
-season turning, never a tour of build-then-eclipse-then-aftermath. This IS the phase progression from the
-base eclipse rule:
+READ THE WHOLE ARC, in order, as ONE story — this IS the phase progression from the base eclipse rule:
 1. NOW — the BUILD. Today is the first eclipse's daysAway out. The season is APPROACHING: a
    gathering, charging wind-up in the areas about to be lit. Name what's coming and in which concrete
    life-areas (houseGloss); the move now is to wind DOWN into it, not to launch.
-2. THE ECLIPSE(S) — the RESET / PORTAL (not just a hazard), and the heart of the read: where the one
-   movement reaches its turn. What CLEARS & re-seeds (solar) or comes to a head & releases (lunar), in
-   which concrete life-area. The far end of the axis, the dispositor's live condition, a tight natal hit
-   enter ONLY where they deepen that turn — a datum that does not serve the one thing stays unspoken, held
-   in the engine. Do NOT itemise two eclipses as two matching entries; read them as one season turning.
+2. EACH ECLIPSE — the RESET / PORTAL (not just a hazard). For each: its date, whether it CLEARS &
+   re-seeds (solar) or brings to a head & releases (lunar), the concrete life-area it lands on AND the
+   opposite end of the axis it pulls, coloured by the dispositor's live condition, and any tight natal
+   hit as a direct personal strike. This is the personalized heart — spend the read here.
 3. THE AFTERMATH — through windowEnd. After the last eclipse the field CLEARS and what was reset
    begins to MOVE: the new direction in those life-areas, the opening on the other side. Read it
    FORWARD and largely POSITIVE — the turns have happened, now they ripen. Do NOT leave the reader in
@@ -2590,21 +2520,17 @@ thorough), enforced in code:
 - THE PROOF IS IN THE SPECIFICS: every line points at a real, checkable life-thing (income, the wider
   circle, the daily work, what you owe, the craft, home) — never vague "intensity." A line that could
   apply to anyone has FAILED.
-- Aim ~560 words across the four prose fields; HARD CAP 720, enforced in code. This is a PREMIUM
-  season read — spend the added room on COMPLETING its foundational movements (the five preparedness
-  elements), never on more conditions or restated points. Thorough, never a wall; depth, never padding.
+- Aim ~420 words across the four prose fields; HARD CAP 550, enforced in code. Thorough, never a wall.
 
 FIELDS (DayRead shape, repurposed to the arc):
 - scene (~70w): where you are NOW and what's coming — the season ahead, how many days to the first
   eclipse, and the concrete life-areas it will work. The build.
-- story (~230w, the heart): the one movement reaching its turn at the eclipse(s) — what resets, in which
-  life-area, and what that asks of this chart. The far axis, the dispositor's condition, a tight natal hit
-  come in only where they deepen it. The clarity they came for — one understanding, never an inventory.
+- story (~230w, the heart): the eclipse(s) in order — each one's reset, its life-area and the axis's
+  other end, its dispositor's condition, any tight natal hit. The clarity they came for.
 - tilt (~90w): how to move through the WHOLE span — wind down into the build, hold and observe at each
   reset (don't launch or seal big things), then move on the aftermath opening. A posture across the
   season, NO single move.
-- closeLine: one line that lands the ONE thing the season leaves this chart with — the single change the
-  reader carries out of it, not a summary of reset-and-opening.
+- closeLine: one line that lands the whole arc — the reset and the opening it makes.
 - question: one reflective door into the season's work, ends in "?".
 
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
@@ -2854,7 +2780,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-24-budget-register-based";
+export const PROMPT_VERSION = "2026-07-24-complete-what-you-open";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
@@ -2881,7 +2807,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-20-paid-outweighs-free",
-  eclipse_season: "2026-07-23-revelation-migration", // Form B pilot: read as ONE movement, phases as its unfolding (not 3 topics), story subordinates the per-eclipse data to the one turn, closeLine lands one change (no reset-and-opening recap)
+  eclipse_season: "2026-07-12-eclipse-season-arc",
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
 };
