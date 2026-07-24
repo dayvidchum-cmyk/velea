@@ -12,7 +12,17 @@
  * thinner (never guessed).
  */
 
+import PLANET_IN_HOUSE_CANON from "../vedic/canon/planet-in-house.json" with { type: "json" };
+
 type Lord = string;
+
+// Canon Context — the ACTIVATED facet for a house, via an already-computed relationship (the
+// eclipse's dispositor). Reuses the engine's existing planet-in-house canon (the same table facetsOf
+// reads): "the dispositor in this house" narrows the flat house gloss to one specific facet
+// (e.g. Moon in the 11th → "Popularity in Groups or Organizations"). Null when the cell is silent —
+// then the renderer falls back to the gloss. Invents no astrology, no new activation rule (P17/P18).
+const activatedCanonFor = (house: number | undefined, planet: Lord | undefined): string | null =>
+  house != null && planet ? ((PLANET_IN_HOUSE_CANON as any)?.houses?.[String(house)]?.[planet] ?? null) : null;
 
 interface EclipseLike {
   date: string;
@@ -29,7 +39,7 @@ export function orientEclipseSeason(
   dasha: any,
   profection: any,
   natalCondition: any,
-): { timeline: any; authority: any[]; personal: Record<string, any> } | undefined {
+): { timeline: any; authority: any[]; personal: Record<string, any>; canon: any[] } | undefined {
   if (!arc?.eclipses?.length) return undefined;
 
   // The running authorities — the identities a movement can engage. Already computed; we only name them.
@@ -49,7 +59,16 @@ export function orientEclipseSeason(
   // Pure identity match: the eclipse is the activating relationship; the office is the engaged identity.
   const engaged = new Set<Lord>();
   const authority: any[] = [];
+  const canon: any[] = [];
   for (const e of arc.eclipses) {
+    // CANON CONTEXT — the dispositor-activated facet for this eclipse's house (narrowed from the gloss).
+    canon.push({
+      movement: `${e.type ?? "eclipse"} ${e.date}`,
+      house: e.house,
+      dispositor: e.dispositor?.planet ?? null,
+      activated: activatedCanonFor(e.house, e.dispositor?.planet),
+      fallbackGloss: e.houseGloss ?? null,
+    });
     const dispOffice = officeOf(e.dispositor?.planet);
     if (dispOffice && e.dispositor?.planet) {
       engaged.add(e.dispositor.planet);
@@ -101,5 +120,5 @@ export function orientEclipseSeason(
       : null,
   };
 
-  return { timeline, authority, personal };
+  return { timeline, authority, personal, canon };
 }

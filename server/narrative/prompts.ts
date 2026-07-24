@@ -2541,19 +2541,25 @@ matters to them, not in general; lead the personal weight from it, never invent 
 - orientation.timeline — the dasha + profection this season sits inside; name the continuity so it lands
   as part of the life they are already living, not an ambush. This is COMPLETE WHAT YOU OPEN made
   computable: orientation hands you the connection — walk the reader into it, do not leave it hanging.
+- orientation.canon — the ACTIVATED facet for each eclipse's house: the ONE specific thing the
+  dispositor lights up there (canon.activated, e.g. "Popularity in Groups or Organizations"), narrowed
+  from the whole house dictionary. LEAD the territory from canon.activated — do NOT recite the full house
+  gloss ("gains, income, networks, allies, the wider circle, hopes…"); that dump is exactly what leaves
+  the reader asking "which one?". If canon.activated is null, fall back to canon.fallbackGloss but name
+  only the ONE or TWO the movement actually touches, never the whole list.
 
 READ THE WHOLE ARC, in order, as ONE story — this IS the phase progression from the base eclipse rule:
 1. NOW — the BUILD. Today is the first eclipse's daysAway out. The season is APPROACHING: a
    gathering, charging wind-up in the areas about to be lit. Name what's coming and in which concrete
-   life-areas (houseGloss); the move now is to wind DOWN into it, not to launch.
+   life-areas (LEAD from orientation.canon.activated, not the raw gloss); the move now is to wind DOWN into it, not to launch.
 2. EACH ECLIPSE — the RESET / PORTAL (not just a hazard). For each: its date, whether it CLEARS &
    re-seeds (solar) or brings to a head & releases (lunar), the concrete life-area it lands on AND the
    opposite end of the axis it pulls, coloured by the dispositor's live condition, and any tight natal
    hit as a direct personal strike. This is the personalized heart — spend the read here.
-3. THE AFTERMATH — through windowEnd. After the last eclipse the field CLEARS and what was reset
-   begins to MOVE: the new direction in those life-areas, the opening on the other side. Read it
-   FORWARD and largely POSITIVE — the turns have happened, now they ripen. Do NOT leave the reader in
-   caution; the reward is the point the whole season was aiming at.
+3. THE AFTERMATH — through windowEnd. After the last eclipse the field CLEARS: name only what the
+   computed movements OPEN — the house that was reset, the house that was released. State what the data
+   computes, then stop. Do NOT invent a future mood, an improved condition, or a planet "available
+   again" — the payload computes the present and the movements, never how anything will feel afterward.
 
 VOICE + HARD RULES — the horoscope's voice with premium room (this is a whole season; let it be
 thorough), enforced in code:
@@ -2563,6 +2569,13 @@ thorough), enforced in code:
 - THE PROOF IS IN THE SPECIFICS: every line points at a real, checkable life-thing (income, the wider
   circle, the daily work, what you owe, the craft, home) — never vague "intensity." A line that could
   apply to anyone has FAILED.
+- DO NOT INVENT RESOLUTION (the renderer constraint). You may not resolve a narrative arc, assert a
+  future state, or supply emotional closure unless orientation contains a COMPUTED future state that
+  supports it — it does not. Never say a condition will improve, a planet will return "in a cleaner
+  register", something will "finally be yours", "it completes", "what remains is stronger", "it costs
+  and it pays" — none of that is computed; it is the renderer finishing an emotional arc the engine
+  never opened. When nothing further is computed, END at the last computed fact. A valid ending is an
+  observation, a preparation, or an honest uncertainty. Not every season ends in closure.
 - Aim ~420 words across the four prose fields; HARD CAP 550, enforced in code. Thorough, never a wall.
 
 FIELDS (DayRead shape, repurposed to the arc):
@@ -2573,7 +2586,9 @@ FIELDS (DayRead shape, repurposed to the arc):
 - tilt (~90w): how to move through the WHOLE span — wind down into the build, hold and observe at each
   reset (don't launch or seal big things), then move on the aftermath opening. A posture across the
   season, NO single move.
-- closeLine: one line that lands the whole arc — the reset and the opening it makes.
+- closeLine: land ONE COMPUTED fact of the season — the reset, the release, or the running lord that
+  drives it. NOT a promise, NOT "finally yours", NOT a future reward the data does not compute. If the
+  cleanest true ending is an observation or a preparation rather than a resolution, end there.
 - question: one reflective door into the season's work, ends in "?".
 
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
@@ -2850,7 +2865,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-20-paid-outweighs-free",
-  eclipse_season: "2026-07-24-orientation-v0", // Orientation Layer v0: feed input.orientation (timeline/authority/personal) — the season read now leads its WHY from which running lords the eclipses engage, dispositor re-sourced from natalCondition
+  eclipse_season: "2026-07-24-orientation-v0.1", // + Canon Context (dispositor-activated facet narrows the house gloss) + renderer constraint (no invented future resolution/closure beyond computed state)
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
 };
