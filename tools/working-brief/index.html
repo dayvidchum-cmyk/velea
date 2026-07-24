@@ -113,8 +113,21 @@
 
 <div class="wrap">
   <h1>Velea · Brief</h1>
-  <p class="ver">Live: <b>v1.1.944</b> · commit <b>ce7b229</b></p>
-  <p class="sub">24 July 2026 · one page — where the app is, what waits on you, what's next. Type a ruling in any box, then hit “Copy my rulings” at the bottom and paste it to me. Answered calls come off this page the moment you rule; nothing here is stale.</p>
+  <p class="ver">Live: <b>v1.1.944</b></p>
+  <p class="sub">24 July 2026 (evening) · one page — where the app is, what waits on you, what's next. Type a ruling in any box, then hit “Copy my rulings” at the bottom and paste it to me. Answered calls come off this page the moment you rule; nothing here is stale.</p>
+
+  <div class="north" style="border-color:var(--teal)">
+    <div class="north-h" style="color:var(--teal)">Tonight — the Orientation Layer, and the frontier it exposed</div>
+    <p class="creed" style="font-size:.95rem"><b class="done">Shipped:</b> the <b>Orientation Layer</b> (engine locates → orientation relates → LLM voices), live at <b>v1.1.944 · 93955f1</b>, iterated v0→v0.4 on the eclipse read. Every provenance leak closed by tracing each sentence back to its data.</p>
+    <p class="north-note">The real edge: even with clean facts, the reading reads as a true <i>list</i>, not one understanding — it has no <b>spine</b>. Your own rewrite (Jyeshtha / soul-as-light) has one, and a spine is a synthesis move, not a constraint (P15: revelation, not coverage).</p>
+    <p class="north-law"><b>The fix (agreed):</b> the engine writes the <b>scene</b> — ONE deterministic spine-sentence from orientation — and the LLM opens it into a room. For the eclipse, the Moon IS the spine: camera + chapter-lord + eclipse-cause + the light. Velea = oracle, not report.</p>
+  </div>
+
+  <h2>Tonight's calls — type a ruling</h2>
+  <div class="ask"><b>Run the spine experiment?</b><div class="ruling"><label>Your ruling</label><textarea data-q="The spine experiment — strip the constraint machinery, ~1400 words, oracle frame + Moon-as-lens scene, let the LLM generate freely, then map the data backward (diagnostic, not shippable)" placeholder="e.g. yes build it / tomorrow / different frame"></textarea></div><p class="why">Diagnostic — find the ceiling + which data it reaches for, then map backward to what the engine should compute into the scene.</p></div>
+  <div class="ask"><b>Ratify P17 + P18 into the Constitution?</b><div class="ruling"><label>Your ruling</label><textarea data-q="Commit CONSTITUTION.md — P17 Identity Qualifies/Relationship Activates, P18 Assume the Doctrine Already Exists" placeholder="e.g. commit as-is / reword first"></textarea></div><p class="why">Written into CONSTITUTION.md (now 18 principles), left uncommitted for your name.</p></div>
+  <div class="ask"><b>Push Gloock title-only (52e1e2e)?</b><div class="ruling"><label>Your ruling</label><textarea data-q="Push local commit 52e1e2e restricting Gloock to the title face only (live still renders Gloock across all display)" placeholder="e.g. push it / hold"></textarea></div><p class="why">Committed locally, unpushed; live still has Gloock on all display surfaces.</p></div>
+  <p class="lead"><b>Deferred (not now):</b> the Canon fitness gate (awkward activated facets like “Pets” / “Prisons”) — revisit ONLY if it still misfires after the spine work. Full state in repo <b>HANDOFF.md</b> + <b>ORIENTATION_SPEC.md</b>.</p>
 
   <div class="north">
     <div class="north-h">Velea Principle — what we are becoming</div>
@@ -132,50 +145,9 @@
   <!-- ═══════════════  SCORES  ═══════════════ -->
   <div class="scores">
     <div class="score"><div class="n bad">6</div><div class="l">Open issues</div></div>
-    <div class="score"><div class="n warn">4</div><div class="l">Your calls</div></div>
+    <div class="score"><div class="n warn">1</div><div class="l">Your calls</div></div>
     <div class="score"><div class="n good">6</div><div class="l">Awaiting eyes</div></div>
     <div class="score"><div class="n">4</div><div class="l">Pick back up</div></div>
-  </div>
-
-  <!-- ═══════════════  24 JULY — THE VOICE ARCHITECTURE REBUILD  ═══════════════ -->
-  <div class="card">
-    <b>24 July — the narrative layer was rebuilt from the reader backward.</b> A long architecture session
-    that <b>reverted a night of constraint-laws</b> (they had caged the voice into deleting the truest thing —
-    David's own lived Saturn/lineage went present→thin→deleted) and settled the compute/render division.
-    <b>THE RAZOR:</b> a third-person property of reality → <i>compute</i> it (engine); a second-person address
-    to the person → <i>render</i> it (voice). <i>Compute reality, render humanity.</i> Discipline belongs to the
-    engine, freedom to the voice; the engine hands the palette, the voice paints.
-    <br><br>
-    <b>Three PERMISSIVE voice laws now in <code>BASE_PROMPT</code></b> (live, <code>commit ce7b229</code>):
-    <ul class="check">
-      <li><b>Complete what you open</b> — trust the engine's selection; follow the heavy thing through; never
-        name it and leave the reader hanging.</li>
-      <li><b>Paint the lived image, not the paint</b> — sky-data is the palette (why you know), never the
-        subject; render the reader's life; recognition = patterns they can check, never events or predictions.</li>
-      <li><b>The experiential center</b> — render each movement's second-person face (what it asks of them) in
-        the form that best prepares them; hand the fork, let them answer by living. Emergent → a render law,
-        never a computed field.</li>
-    </ul>
-    <b>Deploy tell changed:</b> every change was server-side prompt only, so <code>APP_VERSION</code> stays
-    1.1.943 — the live signal is now the <code>commit</code> field on <code>/healthz</code>, not the version
-    number. <b>Await your eyes:</b> a regenerated eclipse read — does the voice hand you the <i>question</i>
-    ("what still belongs in the future I'm building?"), and does Saturn read whole rather than trimmed?
-    <br><br>
-    <b>Next — the compute half (designed, NOT built).</b> The engine resolves a subject on the natal path
-    (<code>facetsOf</code>) but not on the arc/eclipse path, so the voice is handed pigments and forced to
-    infer — which is why arc reads vague out where no natal hit resolves the facet. The build: generalize into
-    a universal <b>Movement object</b> (<b>Claim</b> · <b>Provenance</b> · <b>Prominence</b> · <b>Extent</b>;
-    the experiential center emerges) computed on every surface, so no reading hands the LLM a canvas without a
-    sketch. Blocked on your four rulings below.
-  </div>
-
-  <div class="ask">
-    <b>Your call — the Movement object's four method rulings (blocks the compute-half build).</b>
-    <span class="why">Reasoned out 24 Jul. Before the engine can compute a subject on the arc/eclipse path:
-    (1) is the eclipse LUMINARY a co-equal subject-root, or does the house lead? (2) lead-facet precedence
-    (lean: tight hit → dispositor-colored → karaka → house); (3) how strongly does the node (Rahu/Ketu) color
-    the action? (4) tight-hit orb, and how many co-leads before a movement is overcrowded?</span>
-    <div class="ruling"><label>Your ruling</label><textarea placeholder="e.g. luminary leads; precedence as proposed; …"></textarea></div>
   </div>
 
   <!-- ═══════════════  WHERE THE APP IS  ═══════════════ -->

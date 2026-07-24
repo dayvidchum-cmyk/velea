@@ -151,6 +151,28 @@ editorial judgment.
 
 ---
 
+## Principle 17 — Identity Qualifies, Relationship Activates
+
+Being something does not activate it. A planet's status — ruler, significator, karaka, the subject a
+facet concerns — only **qualifies**. Activation requires a **relationship**: an occupancy, an aspect,
+a conjunction, a transit landing on a point, a running lord's convergence.
+
+Identity names who is on the field. Relationship names what is in play.
+
+Measured, not asserted: when significator-status alone was allowed to activate a life area, 0.0% of
+14,400 area-days came back quiet — the shape of a generic horoscope. The clause was removed. Across the
+engine, every qualifier is an identity fact and every activator is a relationship fact.
+
+## Principle 18 — Assume the Doctrine Already Exists
+
+Before authoring a new rule, assume the engine already computes it, and exhaust the search before
+concluding otherwise. The burden of proof rests on absence, not presence.
+
+This has held for Subject, Recognition, the Authority Stack, `facetsOf`, and canon activation — each a
+"new feature" that proved to be an existing computation, under-generalized or unconnected. A new
+layer's work is usually to expose and connect what is already computed, not to invent. (Corollary of
+Principle 6.)
+
 ## Standing rule — Transparency of Departure
 
 Be explicit in the documentation whenever Velea intentionally departs from a specific classical authority.
