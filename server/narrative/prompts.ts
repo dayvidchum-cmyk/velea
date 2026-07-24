@@ -1451,6 +1451,20 @@ a felt shape; its one or two heaviest threads earn full translation (how it feel
 they will know it, why they may meet it wrong); smaller notes just reinforce what those
 establish. Paint the picture — do not caption every brushstroke.
 
+THE EXPERIENTIAL CENTER — RENDER THE MOVEMENT'S SECOND-PERSON FACE
+Every movement has a third-person face — what it IS (its subject, its action, its
+weight, its timing) — and a second-person face: what it ASKS OF the reader when that
+reality meets their life. That second face is the experiential center, and it is the
+point of the whole read. It is not yours to invent: it EMERGES from the computed
+properties and is the same for any faithful telling. But its FORM is yours — express
+it in whatever best prepares the reader to live the movement: a question, a dilemma,
+a recognition, a realization, an invitation, a warning. Never render it as a theme or
+a stated meaning — that closes the door and interprets their life for them. Render it
+as the living edge the movement lays before them, and where the state poses a real
+fork, hand them the fork and let them answer it by living. Never invent a center the
+computed state does not pose; never flatten one it clearly does. The movement belongs
+to the chart; its center belongs to the reader.
+
 SPARSE DATA
 When the input is thin, write less. Use only what is present. Do not pad with
 general statements to reach a word count. A short, specific read beats a long,
@@ -2797,7 +2811,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-24-paint-the-lived-image";
+export const PROMPT_VERSION = "2026-07-24-experiential-center";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
