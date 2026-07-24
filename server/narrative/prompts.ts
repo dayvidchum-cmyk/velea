@@ -2576,22 +2576,21 @@ thorough), enforced in code:
   and it pays" — none of that is computed; it is the renderer finishing an emotional arc the engine
   never opened. When nothing further is computed, END at the last computed fact. A valid ending is an
   observation, a preparation, or an honest uncertainty. Not every season ends in closure.
-- DO NOT INTRODUCE A COMPUTED EVENT ABSENT FROM THE PAYLOAD. You may not name any astronomical or
-  astrological event — a station, a transit, an ingress, a retrograde, a conjunction, an aspect, any
-  computed event — unless it is EXPLICITLY present in input.eclipseSeasonArc or input.orientation. If it
-  is not in the payload, it does not exist for this reading. (You once wrote "Mercury's station holds"
-  with no Mercury in the data — never again.) The eclipses (their dates, houses, dispositors, hits), the
-  opposite houses, and the running lords named in orientation are the ONLY sky events you may name.
-- EVERY FACT MUST EARN ITS PLACE BY CAUSAL PARTICIPATION. A fact belongs in this reading only if it
-  participates in the causal chain of the eclipse story — if it helps explain WHY these eclipses hold
-  authority in this season for THIS chart. The test is never "is it true right now?" — it is "why is this
-  fact necessary to explain the eclipse story?". A running lord that governs an eclipse, disposes it, or
-  strikes the year guide (all in orientation) has causal authority: name it, it is an actor. A planet's
-  CURRENT ambient state — the house it sits in today, how fast it moves, a near-station — does NOT belong
-  unless that very fact is part of an eclipse's authority. (Saturn belongs because it governs the second
-  eclipse, runs the sub-period, and strikes Venus — NOT because of where it transits today or that it is
-  slowing. Name the actor; cut the ambient dialogue. If a fact's only reason for being there is "it is
-  happening now," leave it out.)
+- NO INVENTION — do not name a computed event that is NOWHERE in the payload. A station, transit,
+  ingress, retrograde, conjunction, or aspect may be named only if it actually appears somewhere in the
+  input you were given (eclipseSeasonArc, orientation, transits, stage, timeLordTransit). If it is nowhere
+  in the data, it does not exist for this reading. (You once wrote "Mercury's station holds" with no
+  Mercury anywhere in the payload — never again.) This bans INVENTION only; which in-payload facts earn a
+  place is the next rule.
+- EVERY FACT MUST EARN ITS PLACE — AND AN ACTOR'S WEATHER EARNS IT. A fact belongs if it is about an
+  ACTOR in the eclipse's causal chain: a lord that governs an eclipse, disposes it, or strikes the year
+  guide (all in orientation). And that INCLUDES the actor's current condition — its dignity, its motion, a
+  near-station, the house it is moving through — because an actor's weather DETERMINES what it does and
+  says in this scene. Read the actor in that lived state, never as a bare authority label: Saturn
+  near-motionless, pressing through the partnership house, IS how Saturn governs the second eclipse this
+  season — keep it. What does NOT belong is a fact about a planet with NO role in the eclipse story — a
+  placement or transit merely "happening now" to a non-participant. The test is not "is this a transit?"
+  but "whose fact is this?": an actor's — keep it, weather and all; no actor's — cut it.
 - Aim ~420 words across the four prose fields; HARD CAP 550, enforced in code. Thorough, never a wall.
 
 FIELDS (DayRead shape, repurposed to the arc):
@@ -2881,7 +2880,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-20-paid-outweighs-free",
-  eclipse_season: "2026-07-24-orientation-v0.3", // + causal-participation rule: every fact must participate in the eclipse's causal chain (authority actor) — ambient current-transit facts (house today, near-station) cut unless they explain an eclipse's authority
+  eclipse_season: "2026-07-24-orientation-v0.4", // corrected causal rule (David): an ACTOR's weather (motion/station/house today) EARNS its place — it conditions how the actor plays its role (states-not-labels); only NON-participant facts are cut. Invention (nowhere in payload) vs selection split cleanly.
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
 };
