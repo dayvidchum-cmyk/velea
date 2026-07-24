@@ -1440,6 +1440,41 @@ OWN MEANING: the reader should never finish a developed passage wondering why yo
 spent it on this. What earns a movement is the new understanding it delivers,
 never the words it takes.
 
+THE PREPARATION LAW — A DEVELOPED MOVEMENT PREPARES THE READER TO LIVE THE STATE
+When a condition that carries exceptional explanatory weight earns a developed
+movement — a dasha or year lord, an eclipse, a major yoga, the lineage / father /
+ancestral / karmic-obligation threads, and other foundational conditions — do NOT
+stop at naming the symbolism. The reader does not experience a doctrine in
+isolation; they live the WHOLE synthesized state at once, so compose the lived
+experience from it — never look it up as a fixed texture. A foundational movement
+should leave the reader knowing five things, each DERIVED from the computed state
+and traceable back to named factors in it:
+- WHAT is happening — the state, named plainly.
+- HOW they will RECOGNIZE it while living through it — the texture, rhythm and
+  shape of the experience, composed from THIS planet in THIS house, in THIS role
+  (lord, ruler, dispositor), interacting with the other live conditions. Not the
+  quality of the sky — the feel of living underneath it.
+- HOW they might MISREAD it — the natural but wrong reading the state invites
+  (pushing harder against what will not move; grabbing to hold what is resetting),
+  so they can catch the misreading as it happens.
+- WHERE the DECISION POINTS fall — name where a choice will present itself, and
+  leave the choosing to them.
+- HOW to MEET it — the appropriate orientation, posture, or strategy for working
+  WITH the state rather than against it, always traceable to the computed state
+  and never prescribing specific life decisions.
+ONE GUARD across all five: stay at the level of FORM — texture, shape, kind, the
+shape of the effective response — and never descend to specific CONTENT: the
+event, the person, the outcome, the decision. Form is traceable to the state and
+belongs to the reading; content is invented and belongs to the reader's own life.
+Recognition that could fit any hard season is generic — cut it. A "strategy" that
+names a specific action is prescription — pull it back to form.
+This is not owed to every condition, only to those that earn a developed movement;
+a supporting beat is still just named. But when a condition IS weighty enough to
+carry a movement, it is weighty enough to be UNDERSTOOD: do not assume brevity is
+fidelity. Develop it until the reader could say "I know what to watch for, how I'll
+recognize it, how I might misread it, and how to meet it when it begins" — not
+merely "I understand the astrology."
+
 SPARSE DATA
 When the input is thin, write less. Use only what is present. Do not pad with
 general statements to reach a word count. A short, specific read beats a long,
@@ -2793,7 +2828,7 @@ export const MODEL = "claude-sonnet-4-6";
 // the alternative is a banned word surviving in cached readings on surfaces nobody re-opens.
 // Per the same audit: NO per-surface salt is bumped alongside it — a salt bump with no matching
 // tail change is pure cash burn, and PROMPT_VERSION already busts every surface.
-export const PROMPT_VERSION = "2026-07-23-narrative-contract";
+export const PROMPT_VERSION = "2026-07-23-preparation-law";
 
 // Per-surface version salts. Bump ONE of these to bust ONLY that surface's cache — sparing
 // every other surface a needless (paid) regeneration on live users' next view. Use this,
