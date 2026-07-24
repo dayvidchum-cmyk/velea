@@ -2490,14 +2490,19 @@ engine of this read (deterministic; never invent past it):
   it costs more), hits [{ point, orbDeg, which }] (natal points the eclipse sits on; a TIGHT hit,
   orb ≤ 3°, is a direct personal strike — name what it touches; wider ones stay background) }].
 
-READ THE WHOLE ARC, in order, as ONE story — this IS the phase progression from the base eclipse rule:
+READ THE WHOLE ARC AS ONE MOVEMENT. Before you write, find the ONE thing this season is doing to THIS
+chart — the single change it works. Everything else is how that change unfolds. The three phases below are
+the SHAPE of that one movement in time, not three topics to cover in turn: the reader should feel one
+season turning, never a tour of build-then-eclipse-then-aftermath. This IS the phase progression from the
+base eclipse rule:
 1. NOW — the BUILD. Today is the first eclipse's daysAway out. The season is APPROACHING: a
    gathering, charging wind-up in the areas about to be lit. Name what's coming and in which concrete
    life-areas (houseGloss); the move now is to wind DOWN into it, not to launch.
-2. EACH ECLIPSE — the RESET / PORTAL (not just a hazard). For each: its date, whether it CLEARS &
-   re-seeds (solar) or brings to a head & releases (lunar), the concrete life-area it lands on AND the
-   opposite end of the axis it pulls, coloured by the dispositor's live condition, and any tight natal
-   hit as a direct personal strike. This is the personalized heart — spend the read here.
+2. THE ECLIPSE(S) — the RESET / PORTAL (not just a hazard), and the heart of the read: where the one
+   movement reaches its turn. What CLEARS & re-seeds (solar) or comes to a head & releases (lunar), in
+   which concrete life-area. The far end of the axis, the dispositor's live condition, a tight natal hit
+   enter ONLY where they deepen that turn — a datum that does not serve the one thing stays unspoken, held
+   in the engine. Do NOT itemise two eclipses as two matching entries; read them as one season turning.
 3. THE AFTERMATH — through windowEnd. After the last eclipse the field CLEARS and what was reset
    begins to MOVE: the new direction in those life-areas, the opening on the other side. Read it
    FORWARD and largely POSITIVE — the turns have happened, now they ripen. Do NOT leave the reader in
@@ -2516,12 +2521,14 @@ thorough), enforced in code:
 FIELDS (DayRead shape, repurposed to the arc):
 - scene (~70w): where you are NOW and what's coming — the season ahead, how many days to the first
   eclipse, and the concrete life-areas it will work. The build.
-- story (~230w, the heart): the eclipse(s) in order — each one's reset, its life-area and the axis's
-  other end, its dispositor's condition, any tight natal hit. The clarity they came for.
+- story (~230w, the heart): the one movement reaching its turn at the eclipse(s) — what resets, in which
+  life-area, and what that asks of this chart. The far axis, the dispositor's condition, a tight natal hit
+  come in only where they deepen it. The clarity they came for — one understanding, never an inventory.
 - tilt (~90w): how to move through the WHOLE span — wind down into the build, hold and observe at each
   reset (don't launch or seal big things), then move on the aftermath opening. A posture across the
   season, NO single move.
-- closeLine: one line that lands the whole arc — the reset and the opening it makes.
+- closeLine: one line that lands the ONE thing the season leaves this chart with — the single change the
+  reader carries out of it, not a summary of reset-and-opening.
 - question: one reflective door into the season's work, ends in "?".
 
 Return your answer by calling the day_read tool with scene, story, tilt, closeLine, and question filled in.`;
@@ -2798,7 +2805,7 @@ export const SURFACE_VERSION: Record<string, string> = {
   planet_rx: "2026-07-16-the-slow-reviews-v1",
   combined_read: "2026-07-16-two-charts-one-read-v1",
   tl_window: "2026-07-20-paid-outweighs-free",
-  eclipse_season: "2026-07-12-eclipse-season-arc",
+  eclipse_season: "2026-07-23-revelation-migration", // Form B pilot: read as ONE movement, phases as its unfolding (not 3 topics), story subordinates the per-eclipse data to the one turn, closeLine lands one change (no reset-and-opening recap)
   mercury_rx: "2026-07-13-mercury-rx-arc",
   month: "2026-07-13-month-stage-action-net",
 };
